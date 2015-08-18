@@ -1,0 +1,806 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.75,1.76 mpeg2decoder.c,1.40,1.41 mpeg2decoder.h,1.25,1.26 setup-softdevice.c,1.18,1.19 setup-softdevice.h,1.13,1.14 utils.c,1.3,1.4 utils.h,1.3,1.4 video-xv.c,1.24,1.25
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.75%2C1.76%20mpeg2decoder.c%2C1.40%2C1.41%20mpeg2decoder.h%2C1.25%2C1.26%20setup-softdevice.c%2C1.18%2C1.19%20setup-softdevice.h%2C1.13%2C1.14%20utils.c%2C1.3%2C1.4%20utils.h%2C1.3%2C1.4%20video-xv.c%2C1.24%2C1.25&In-Reply-To=%3C200506122045.j5CKjN123117%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000144.html">
+   <LINK REL="Next"  HREF="000146.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.75,1.76 mpeg2decoder.c,1.40,1.41 mpeg2decoder.h,1.25,1.26 setup-softdevice.c,1.18,1.19 setup-softdevice.h,1.13,1.14 utils.c,1.3,1.4 utils.h,1.3,1.4 video-xv.c,1.24,1.25</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.75%2C1.76%20mpeg2decoder.c%2C1.40%2C1.41%20mpeg2decoder.h%2C1.25%2C1.26%20setup-softdevice.c%2C1.18%2C1.19%20setup-softdevice.h%2C1.13%2C1.14%20utils.c%2C1.3%2C1.4%20utils.h%2C1.3%2C1.4%20video-xv.c%2C1.24%2C1.25&In-Reply-To=%3C200506122045.j5CKjN123117%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.75,1.76 mpeg2decoder.c,1.40,1.41 mpeg2decoder.h,1.25,1.26 setup-softdevice.c,1.18,1.19 setup-softdevice.h,1.13,1.14 utils.c,1.3,1.4 utils.h,1.3,1.4 video-xv.c,1.24,1.25">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Jun 12 22:45:23 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000144.html">[Softdevice-cvs] softdevice mpeg2decoder.c,1.39,1.40 mpeg2decoder.h,1.24,1.25
+</A></li>
+        <LI>Next message: <A HREF="000146.html">[Softdevice-cvs] softdevice CHANGELOG,1.76,1.77 video-xv.c,1.25,1.26
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#145">[ date ]</a>
+              <a href="thread.html#145">[ thread ]</a>
+              <a href="subject.html#145">[ subject ]</a>
+              <a href="author.html#145">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv30353
+
+Modified Files:
+	CHANGELOG mpeg2decoder.c mpeg2decoder.h setup-softdevice.c 
+	setup-softdevice.h utils.c utils.h video-xv.c 
+Log Message:
+- new audio frame has been decoded when audio_size &lt;= 0 
+   (reported by Antonio O.)
+- introduce fast_memcpy (gives 20-30% speed increase on copying)
+- switch xv-out to fast_memcpy
+- enable fast and default deblock postprocessing
+- make buffersizes choosable
+			
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.75
+retrieving revision 1.76
+diff -C2 -d -r1.75 -r1.76
+*** CHANGELOG	6 Jun 2005 20:52:42 -0000	1.75
+--- CHANGELOG	12 Jun 2005 20:45:20 -0000	1.76
+***************
+*** 1,5 ****
+  Changelog
+  2005-06-06:
+!     - fixed latest cvs compile issue
+      - applied fix for noisy audio on some soundcards (by Antonio O.)
+      - applied GetDeviceDescription() patch for video-dfb.c (by Lucian Muresan)
+--- 1,12 ----
+  Changelog
++ 2005-06-12:
++     - no new audio frame has been decoded when audio_size &lt;= 0 
++        (reported by Antonio O.)
++     - introduce fast_memcpy (gives 20-30% speed increase on copying)
++     - switch xv-out to fast_memcpy
++     - enable fast and default deblock postprocessing
++     - make buffersizes choosable
+  2005-06-06:
+!     - fixed latest ffmpeg cvs compile issue
+      - applied fix for noisy audio on some soundcards (by Antonio O.)
+      - applied GetDeviceDescription() patch for video-dfb.c (by Lucian Muresan)
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.40
+retrieving revision 1.41
+diff -C2 -d -r1.40 -r1.41
+*** mpeg2decoder.c	7 Jun 2005 21:17:10 -0000	1.40
+--- mpeg2decoder.c	12 Jun 2005 20:45:20 -0000	1.41
+***************
+*** 36,39 ****
+--- 36,42 ----
+  #endif
+  
++ // 0: save buffers, 1: good seeking, 2: HDTV buffers
++ int dvb_buf_size[] = {64*1024,32*1024,64*1024};
++ int packet_buf_size[] = {300,150,2000};
+  
+  //#define AV_STATS
+***************
+*** 128,132 ****
+  
+  cStreamDecoder::cStreamDecoder(AVCodecContext *Context)
+!         : PacketQueue(PACKET_BUF_SIZE)
+  {
+    context=Context;
+--- 131,135 ----
+  
+  cStreamDecoder::cStreamDecoder(AVCodecContext *Context)
+!         : PacketQueue(packet_buf_size[setupStore.bufferMode])
+  {
+    context=Context;
+***************
+*** 371,375 ****
+  
+      // no new frame decoded, continue
+!     if (audio_size == 0)
+        continue;
+  
+--- 374,378 ----
+  
+      // no new frame decoded, continue
+!     if (audio_size &lt;= 0)
+        continue;
+  
+***************
+*** 430,433 ****
+--- 433,438 ----
+    currentMirrorMode  = setupStore.mirror;
+    currentDeintMethod = setupStore.deintMethod;
++   currentppMethod = setupStore.ppMethod;
++   currentppQuality = setupStore.ppQuality;
+  
+    memset(pts_values,-1,sizeof(pts_values));
+***************
+*** 544,563 ****
+        pic_buf_mirror = freePicBuf(pic_buf_mirror);
+  
+!     if (setupStore.deintMethod == 0
+! #ifdef FB_SUPPORT
+!         || setupStore.deintMethod == 2
+! #endif
+!        )
+!     {
+!       pic_buf_lavc = freePicBuf(pic_buf_lavc);
+!       pic_buf_pp = freePicBuf(pic_buf_pp);
+!     }
+!     else if (setupStore.deintMethod == 1)
+        deintLibavcodec();
+  #ifdef PP_LIBAVCODEC
+  #ifdef FB_SUPPORT
+!     else if (setupStore.deintMethod &gt; 2)
+  #else
+!     else if (setupStore.deintMethod &gt; 1)
+  #endif //FB_SUPPORT
+        ppLibavcodec();
+--- 549,559 ----
+        pic_buf_mirror = freePicBuf(pic_buf_mirror);
+  
+!     if (setupStore.deintMethod == 1)
+        deintLibavcodec();
+  #ifdef PP_LIBAVCODEC
+  #ifdef FB_SUPPORT
+!     if (setupStore.deintMethod &gt; 2 || setupStore.ppMethod!=0 )
+  #else
+!     if (setupStore.deintMethod &gt; 1 || setupStore.ppMethod!=0 )
+  #endif //FB_SUPPORT
+        ppLibavcodec();
+***************
+*** 866,870 ****
+  
+    deintWork = setupStore.deintMethod;
+!   if (currentDeintMethod != deintWork || ppmode == NULL)
+    {
+  
+--- 862,868 ----
+  
+    deintWork = setupStore.deintMethod;
+!   if (currentDeintMethod != deintWork || ppmode == NULL 
+!       || currentppMethod != setupStore.ppMethod 
+!       || currentppQuality != setupStore.ppQuality )
+    {
+  
+***************
+*** 873,879 ****
+        ppmode = NULL;
+      }
+! 
+!     ppmode = pp_get_mode_by_name_and_quality(setupStore.getPPValue(), 6);
+      currentDeintMethod = deintWork;
+    }
+  
+--- 871,888 ----
+        ppmode = NULL;
+      }
+!     char mode[60]=&quot;&quot;;
+!     if (setupStore.getPPdeintValue() &amp;&amp; setupStore.getPPValue())
+!       sprintf(mode,&quot;%s,%s&quot;,setupStore.getPPdeintValue(),setupStore.getPPValue());
+!    else if (setupStore.getPPdeintValue() )
+!       sprintf(mode,&quot;%s&quot;,setupStore.getPPdeintValue());
+!    else if (setupStore.getPPValue() )
+!       sprintf(mode,&quot;%s&quot;,setupStore.getPPValue());
+!      
+!     ppmode = pp_get_mode_by_name_and_quality(mode, 
+!             setupStore.ppQuality);
+!     //ppmode = pp_get_mode_by_name_and_quality(setupStore.getPPValue(), 6);
+      currentDeintMethod = deintWork;
++     currentppMethod = setupStore.ppMethod;
++     currentppQuality = setupStore.ppQuality;
+    }
+  
+***************
+*** 937,940 ****
+--- 946,954 ----
+    delete(syncTimer);
+    free(picture);
++   if (pic_buf_lavc)
++      pic_buf_lavc = freePicBuf(pic_buf_lavc);
++   if (pic_buf_pp)
++      pic_buf_pp = freePicBuf(pic_buf_pp);
++ 
+  }
+  
+***************
+*** 946,950 ****
+       return -1;
+  };
+!      
+  #if LIBAVFORMAT_BUILD &gt;4625
+  static offset_t seek_RingBuffer(void *opaque, offset_t offset, int whence) {
+--- 960,964 ----
+       return -1;
+  };
+!     
+  #if LIBAVFORMAT_BUILD &gt;4625
+  static offset_t seek_RingBuffer(void *opaque, offset_t offset, int whence) {
+***************
+*** 975,979 ****
+    vout=NULL;
+    
+!   StreamBuffer=new cSoftRingBufferLinear(DVB_BUF_SIZE,0);
+    
+    running=false;
+--- 989,993 ----
+    vout=NULL;
+    
+!   StreamBuffer=NULL;
+    
+    running=false;
+***************
+*** 1061,1065 ****
+     };
+  
+!    init_put_byte(&amp;ic-&gt;pb, NULL,MIN_BUF_SIZE, 0, this,
+         read_packet_RingBuffer,NULL,seek_RingBuffer);
+     CMDDEB(&quot;init put byte finished\n&quot;);
+--- 1075,1079 ----
+     };
+  
+!    init_put_byte(&amp;ic-&gt;pb, NULL,dvb_buf_size[setupStore.bufferMode]/2, 0, this,
+         read_packet_RingBuffer,NULL,seek_RingBuffer);
+     CMDDEB(&quot;init put byte finished\n&quot;);
+***************
+*** 1202,1208 ****
+    if (GetMutex)
+      mutex.Lock();
+!     
+    StreamBuffer-&gt;Clear();
+    initStream();
+    ThreadActive=true;
+    freezeMode=false;
+--- 1216,1228 ----
+    if (GetMutex)
+      mutex.Lock();
+!    
+!   if (StreamBuffer) {
+!   	delete StreamBuffer;
+! 	StreamBuffer=NULL;
+!   };
+!   StreamBuffer=new cSoftRingBufferLinear(dvb_buf_size[setupStore.bufferMode],0);
+    StreamBuffer-&gt;Clear();
+    initStream();
++ 
+    ThreadActive=true;
+    freezeMode=false;
+***************
+*** 1328,1331 ****
+--- 1348,1356 ----
+      av_close_input_file(ic);
+    }
++   if (StreamBuffer) {
++      delete StreamBuffer;
++      StreamBuffer=NULL;
++   };
++ 
+    CMDDEB(&quot;Stop finished\n&quot;);
+    if (GetMutex)
+
+Index: mpeg2decoder.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.h,v
+retrieving revision 1.25
+retrieving revision 1.26
+diff -C2 -d -r1.25 -r1.26
+*** mpeg2decoder.h	7 Jun 2005 21:17:10 -0000	1.25
+--- mpeg2decoder.h	12 Jun 2005 20:45:20 -0000	1.26
+***************
+*** 212,215 ****
+--- 212,216 ----
+      int                 width, height;
+      int                 currentDeintMethod, currentMirrorMode;
++     int                 currentppMethod, currentppQuality;
+      uchar               *pic_buf_lavc, *pic_buf_pp, *pic_buf_mirror;
+  #ifdef PP_LIBAVCODEC
+
+Index: setup-softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.c,v
+retrieving revision 1.18
+retrieving revision 1.19
+diff -C2 -d -r1.18 -r1.19
+*** setup-softdevice.c	29 May 2005 19:50:44 -0000	1.18
+--- setup-softdevice.c	12 Jun 2005 20:45:20 -0000	1.19
+***************
+*** 45,48 ****
+--- 45,59 ----
+       };
+  
++ /*-----------------------------------------------------------------------------
++ */
++ #ifdef PP_LIBAVCODEC
++ char *pp_str[]={
++         &quot;none&quot;,
++         &quot;fast&quot;,
++         &quot;default&quot;,
++ 	NULL
++ 	};
++ #endif //PP_LIBAVCODEC
++ 
+  /* ----------------------------------------------------------------------------
+   * allow changing of output pixfmt
+***************
+*** 90,93 ****
+--- 101,112 ----
+          NULL
+       };
++ /* ----------------------------------------------------------------------------
++  */
++ char *bufferModes [] = {
++         &quot;save&quot;,
++         &quot;good seeking&quot;,
++         &quot;HDTV&quot;,
++         NULL
++      };
+  
+  /* ----------------------------------------------------------------------------
+***************
+*** 139,142 ****
+--- 158,163 ----
+    cropModeToggleKey = 0;
+    deintMethod   = 0;
++   ppMethod   = 0;
++   ppQuality   = 0;
+    syncOnFrames  = 0;
+    avOffset      = 0;
+***************
+*** 144,147 ****
+--- 165,169 ----
+    ac3Mode       = 0;
+    useMGAtv      = 0;
++   bufferMode    = 0;
+    /* --------------------------------------------------------------------------
+     * these screen width/height values are operating in square pixel mode.
+***************
+*** 178,182 ****
+              deintMethod,
+              deint_str [deintMethod]);
+!   } else if(!strcasecmp(Name,&quot;CropMode&quot;)) {
+      cropMode = atoi(Value);
+      cropMode = clamp (0, cropMode, CROPMODEMAX);
+--- 200,218 ----
+              deintMethod,
+              deint_str [deintMethod]);
+!   }
+! #ifdef PP_LIBAVCODEC
+!   else if (!strcasecmp(Name,&quot;Postprocess Method&quot;)) {
+!             ppMethod=atoi(Value); 
+!             ppMethod=clamp(0,ppMethod,2);
+!   }  else if (!strcasecmp(Name,&quot;Postprocess Quality&quot;)) {
+!             ppQuality=atoi(Value); 
+!             ppQuality=clamp(0,ppQuality,6);
+!   }
+! #endif
+!   else if(!strcasecmp(Name,&quot;bufferMode&quot;)) {
+!         bufferMode=atoi(Value);
+! 	bufferMode=clamp(0,bufferMode,2);
+!   }
+!   else if(!strcasecmp(Name,&quot;CropMode&quot;)) {
+      cropMode = atoi(Value);
+      cropMode = clamp (0, cropMode, CROPMODEMAX);
+***************
+*** 254,265 ****
+  /* ---------------------------------------------------------------------------
+   */
+  char *cSetupStore::getPPValue(void)
+  {
+!   if (strcmp(deint_str[deintMethod], &quot;linblend&quot;) == 0) return &quot;lb:a&quot;;
+!   else if (strcmp(deint_str[deintMethod], &quot;linipol&quot;) == 0) return &quot;li:a&quot;;
+!   else if (strcmp(deint_str[deintMethod], &quot;cubicipol&quot;) == 0) return &quot;ci:a&quot;;
+!   else if (strcmp(deint_str[deintMethod], &quot;median&quot;) == 0) return &quot;md:a&quot;;
+!   else if (strcmp(deint_str[deintMethod], &quot;ffmpeg&quot;) == 0) return &quot;fd:a&quot;;
+!   else return &quot;unknown&quot;;
+  }
+  
+--- 290,311 ----
+  /* ---------------------------------------------------------------------------
+   */
++ char *cSetupStore::getPPdeintValue(void)
++ {
++   if (strcmp(deint_str[deintMethod], &quot;linblend&quot;) == 0) return &quot;lb&quot;;
++   else if (strcmp(deint_str[deintMethod], &quot;linipol&quot;) == 0) return &quot;li&quot;;
++   else if (strcmp(deint_str[deintMethod], &quot;cubicipol&quot;) == 0) return &quot;ci&quot;;
++   else if (strcmp(deint_str[deintMethod], &quot;median&quot;) == 0) return &quot;md&quot;;
++   else if (strcmp(deint_str[deintMethod], &quot;ffmpeg&quot;) == 0) return &quot;fd&quot;;
++   else return NULL;
++ }
++ /* ---------------------------------------------------------------------------
++  */
++ 
+  char *cSetupStore::getPPValue(void)
+  {
+!   if (strcmp(pp_str[ppMethod], &quot;none&quot;) == 0) return &quot;&quot;;
+!   else if (strcmp(pp_str[ppMethod], &quot;fast&quot;) == 0) return &quot;fa&quot;;
+!   else if (strcmp(pp_str[ppMethod], &quot;default&quot;) == 0) return &quot;de&quot;;
+!   else return NULL;
+  }
+  
+***************
+*** 349,353 ****
+                                deint_str));
+    }
+! 
+    if (data-&gt;outputMethod == VOUT_DFB || data-&gt;outputMethod == VOUT_VIDIX)
+    {
+--- 395,408 ----
+                                deint_str));
+    }
+!   
+! #ifdef PP_LIBAVCODEC
+!   Add(new cMenuEditStraItem(tr(&quot;Postprocessing Method&quot;),
+!                               &amp;data-&gt;ppMethod,3,pp_str));
+!   Add(new cMenuEditIntItem(tr(&quot;Postprocessing Quality&quot;),
+!                               &amp;data-&gt;ppQuality,0,6));
+! #endif
+!   Add(new cMenuEditStraItem(tr(&quot;Buffer Mode&quot;),
+!                               &amp;data-&gt;bufferMode,3,bufferModes));
+!   
+    if (data-&gt;outputMethod == VOUT_DFB || data-&gt;outputMethod == VOUT_VIDIX)
+    {
+***************
+*** 432,435 ****
+--- 487,492 ----
+    SetupStore (&quot;CropModeToggleKey&quot;,     setupStore.cropModeToggleKey);
+    SetupStore (&quot;Deinterlace Method&quot;, setupStore.deintMethod);
++   SetupStore (&quot;Postprocess Method&quot;, setupStore.ppMethod);
++   SetupStore (&quot;Postprocess Quality&quot;, setupStore.ppQuality);
+    SetupStore (&quot;PixelFormat&quot;,        setupStore.pixelFormat);
+    SetupStore (&quot;Picture mirroring&quot;,  setupStore.mirror);
+***************
+*** 441,443 ****
+--- 498,501 ----
+    SetupStore (&quot;OSDalphablend&quot;,      setupStore.osdMode);
+    SetupStore (&quot;AC3Mode&quot;,            setupStore.ac3Mode);
++   SetupStore (&quot;bufferMode&quot;,            setupStore.bufferMode);
+  }
+
+Index: setup-softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.h,v
+retrieving revision 1.13
+retrieving revision 1.14
+diff -C2 -d -r1.13 -r1.14
+*** setup-softdevice.h	29 May 2005 19:50:44 -0000	1.13
+--- setup-softdevice.h	12 Jun 2005 20:45:20 -0000	1.14
+***************
+*** 23,26 ****
+--- 23,27 ----
+                    cSetupStore ();
+      bool          SetupParse(const char *Name, const char *Value);
++     char          *getPPdeintValue(void);
+      char          *getPPValue(void);
+      void          CropModeNext(void);
+***************
+*** 36,39 ****
+--- 37,42 ----
+      int   cropModeToggleKey;
+      int   deintMethod;
++     int   ppMethod;
++     int   ppQuality;
+      int   mirror;
+      int   syncOnFrames;
+***************
+*** 44,47 ****
+--- 47,51 ----
+      int   osdMode;
+      int   ac3Mode;
++     int   bufferMode;
+      char  alsaDevice [ALSA_DEVICE_NAME_LENGTH];
+      char  alsaSPDIFDevice [ALSA_DEVICE_NAME_LENGTH];
+
+Index: utils.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/utils.c,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** utils.c	3 Mar 2005 18:16:26 -0000	1.3
+--- utils.c	12 Jun 2005 20:45:20 -0000	1.4
+***************
+*** 316,317 ****
+--- 316,516 ----
+      return (int64_t)tv.tv_sec * 1000 + tv.tv_usec / 1000;
+  }
++ 
++ /* taken from MPlayer's aclib */
++ 
++ #define MIN_LEN 0x40
++ #define PREFETCH &quot;prefetchnta&quot;
++ #define EMMS     &quot;emms&quot;
++ #define MOVNTQ &quot;movntq&quot;
++ #define MMREG_SIZE 64
++ #define BLOCK_SIZE 4096
++ #define REG_a &quot;eax&quot;
++ #define CONFUSION_FACTOR 0
++ 
++ /* for small memory blocks (&lt;256 bytes) this version is faster */
++ #define small_memcpy(to,from,n)\
++ {\
++ register unsigned long int dummy;\
++ __asm__ __volatile__(\
++ 	&quot;rep; movsb&quot;\
++ 	:&quot;=&amp;D&quot;(to), &quot;=&amp;S&quot;(from), &quot;=&amp;c&quot;(dummy)\
++ /* It's most portable way to notify compiler */\
++ /* that edi, esi and ecx are clobbered in asm block. */\
++ /* Thanks to A'rpi for hint!!! */\
++         :&quot;0&quot; (to), &quot;1&quot; (from),&quot;2&quot; (n)\
++ 	: &quot;memory&quot;);\
++ }
++ 
++  void * fast_memcpy(void * to, const void * from, size_t len)
++ {
++ 	void *retval;
++ 	size_t i;
++ 	retval = to;
++ #ifdef USE_MMX2
++         /* PREFETCH has effect even for MOVSB instruction ;) */
++ 	__asm__ __volatile__ (
++ 	        PREFETCH&quot; (%0)\n&quot;
++ 	        PREFETCH&quot; 64(%0)\n&quot;
++ 	        PREFETCH&quot; 128(%0)\n&quot;
++         	PREFETCH&quot; 192(%0)\n&quot;
++         	PREFETCH&quot; 256(%0)\n&quot;
++ 		: : &quot;r&quot; (from) );
++ #endif
++         if(len &gt;= MIN_LEN)
++ 	{
++ 	  register unsigned long int delta;
++           /* Align destinition to MMREG_SIZE -boundary */
++           delta = ((unsigned long int)to)&amp;(MMREG_SIZE-1);
++           if(delta)
++ 	  {
++ 	    delta=MMREG_SIZE-delta;
++ 	    len -= delta;
++ 	    small_memcpy(to, from, delta);
++ 	  }
++ 	  i = len &gt;&gt; 6; /* len/64 */
++ 	  len&amp;=63;
++         /*
++            This algorithm is top effective when the code consequently
++            reads and writes blocks which have size of cache line.
++            Size of cache line is processor-dependent.
++            It will, however, be a minimum of 32 bytes on any processors.
++            It would be better to have a number of instructions which
++            perform reading and writing to be multiple to a number of
++            processor's decoders, but it's not always possible.
++         */
++ 
++ 	// Align destination at BLOCK_SIZE boundary
++ 	for(; ((int)to &amp; (BLOCK_SIZE-1)) &amp;&amp; i&gt;0; i--)
++ 	{
++ 		__asm__ __volatile__ (
++ #ifdef USE_MMX2
++         	PREFETCH&quot; 320(%0)\n&quot;
++ #endif
++ 		&quot;movq (%0), %%mm0\n&quot;
++ 		&quot;movq 8(%0), %%mm1\n&quot;
++ 		&quot;movq 16(%0), %%mm2\n&quot;
++ 		&quot;movq 24(%0), %%mm3\n&quot;
++ 		&quot;movq 32(%0), %%mm4\n&quot;
++ 		&quot;movq 40(%0), %%mm5\n&quot;
++ 		&quot;movq 48(%0), %%mm6\n&quot;
++ 		&quot;movq 56(%0), %%mm7\n&quot;
++ 		MOVNTQ&quot; %%mm0, (%1)\n&quot;
++ 		MOVNTQ&quot; %%mm1, 8(%1)\n&quot;
++ 		MOVNTQ&quot; %%mm2, 16(%1)\n&quot;
++ 		MOVNTQ&quot; %%mm3, 24(%1)\n&quot;
++ 		MOVNTQ&quot; %%mm4, 32(%1)\n&quot;
++ 		MOVNTQ&quot; %%mm5, 40(%1)\n&quot;
++ 		MOVNTQ&quot; %%mm6, 48(%1)\n&quot;
++ 		MOVNTQ&quot; %%mm7, 56(%1)\n&quot;
++ 		:: &quot;r&quot; (from), &quot;r&quot; (to) : &quot;memory&quot;);
++ 		((const unsigned char *)from)+=64;
++ 		((unsigned char *)to)+=64;
++ 	}
++ 
++ //	printf(&quot; %d %d\n&quot;, (int)from&amp;1023, (int)to&amp;1023);
++ 	// Pure Assembly cuz gcc is a bit unpredictable ;)
++ 	if(i&gt;=BLOCK_SIZE/64)
++ 		asm volatile(
++ 			&quot;xor %%&quot;REG_a&quot;, %%&quot;REG_a&quot;	\n\t&quot;
++ 			&quot;.balign 16		\n\t&quot;
++ 			&quot;1:			\n\t&quot;
++ 				&quot;movl (%0, %%&quot;REG_a&quot;), %%ebx 	\n\t&quot;
++ 				&quot;movl 32(%0, %%&quot;REG_a&quot;), %%ebx 	\n\t&quot;
++ 				&quot;movl 64(%0, %%&quot;REG_a&quot;), %%ebx 	\n\t&quot;
++ 				&quot;movl 96(%0, %%&quot;REG_a&quot;), %%ebx 	\n\t&quot;
++ 				&quot;add $128, %%&quot;REG_a&quot;		\n\t&quot;
++ 				&quot;cmp %3, %%&quot;REG_a&quot;		\n\t&quot;
++ 				&quot; jb 1b				\n\t&quot;
++ 
++ 			&quot;xor %%&quot;REG_a&quot;, %%&quot;REG_a&quot;	\n\t&quot;
++ 
++ 				&quot;.balign 16		\n\t&quot;
++ 				&quot;2:			\n\t&quot;
++ 				&quot;movq (%0, %%&quot;REG_a&quot;), %%mm0\n&quot;
++ 				&quot;movq 8(%0, %%&quot;REG_a&quot;), %%mm1\n&quot;
++ 				&quot;movq 16(%0, %%&quot;REG_a&quot;), %%mm2\n&quot;
++ 				&quot;movq 24(%0, %%&quot;REG_a&quot;), %%mm3\n&quot;
++ 				&quot;movq 32(%0, %%&quot;REG_a&quot;), %%mm4\n&quot;
++ 				&quot;movq 40(%0, %%&quot;REG_a&quot;), %%mm5\n&quot;
++ 				&quot;movq 48(%0, %%&quot;REG_a&quot;), %%mm6\n&quot;
++ 				&quot;movq 56(%0, %%&quot;REG_a&quot;), %%mm7\n&quot;
++ 				MOVNTQ&quot; %%mm0, (%1, %%&quot;REG_a&quot;)\n&quot;
++ 				MOVNTQ&quot; %%mm1, 8(%1, %%&quot;REG_a&quot;)\n&quot;
++ 				MOVNTQ&quot; %%mm2, 16(%1, %%&quot;REG_a&quot;)\n&quot;
++ 				MOVNTQ&quot; %%mm3, 24(%1, %%&quot;REG_a&quot;)\n&quot;
++ 				MOVNTQ&quot; %%mm4, 32(%1, %%&quot;REG_a&quot;)\n&quot;
++ 				MOVNTQ&quot; %%mm5, 40(%1, %%&quot;REG_a&quot;)\n&quot;
++ 				MOVNTQ&quot; %%mm6, 48(%1, %%&quot;REG_a&quot;)\n&quot;
++ 				MOVNTQ&quot; %%mm7, 56(%1, %%&quot;REG_a&quot;)\n&quot;
++ 				&quot;add $64, %%&quot;REG_a&quot;		\n\t&quot;
++ 				&quot;cmp %3, %%&quot;REG_a&quot;		\n\t&quot;
++ 				&quot;jb 2b				\n\t&quot;
++ 
++ #if CONFUSION_FACTOR &gt; 0
++ 	// a few percent speedup on out of order executing CPUs
++ 			&quot;mov %5, %%&quot;REG_a&quot;		\n\t&quot;
++ 				&quot;2:			\n\t&quot;
++ 				&quot;movl (%0), %%ebx	\n\t&quot;
++ 				&quot;movl (%0), %%ebx	\n\t&quot;
++ 				&quot;movl (%0), %%ebx	\n\t&quot;
++ 				&quot;movl (%0), %%ebx	\n\t&quot;
++ 				&quot;dec %%&quot;REG_a&quot;		\n\t&quot;
++ 				&quot; jnz 2b		\n\t&quot;
++ #endif
++ 
++ 			&quot;xor %%&quot;REG_a&quot;, %%&quot;REG_a&quot;	\n\t&quot;
++ 			&quot;add %3, %0		\n\t&quot;
++ 			&quot;add %3, %1		\n\t&quot;
++ 			&quot;sub %4, %2		\n\t&quot;
++ 			&quot;cmp %4, %2		\n\t&quot;
++ 			&quot; jae 1b		\n\t&quot;
++ 				: &quot;+r&quot; (from), &quot;+r&quot; (to), &quot;+r&quot; (i)
++ 				: &quot;r&quot; ((long)BLOCK_SIZE), &quot;i&quot; (BLOCK_SIZE/64), &quot;i&quot; ((long)CONFUSION_FACTOR)
++ 				: &quot;%&quot;REG_a, &quot;%ebx&quot;
++ 		);
++ 
++ 	for(; i&gt;0; i--)
++ 	{
++ 		__asm__ __volatile__ (
++ #ifdef USE_MMX2
++         	PREFETCH&quot; 320(%0)\n&quot;
++ #endif
++ 		&quot;movq (%0), %%mm0\n&quot;
++ 		&quot;movq 8(%0), %%mm1\n&quot;
++ 		&quot;movq 16(%0), %%mm2\n&quot;
++ 		&quot;movq 24(%0), %%mm3\n&quot;
++ 		&quot;movq 32(%0), %%mm4\n&quot;
++ 		&quot;movq 40(%0), %%mm5\n&quot;
++ 		&quot;movq 48(%0), %%mm6\n&quot;
++ 		&quot;movq 56(%0), %%mm7\n&quot;
++ 		MOVNTQ&quot; %%mm0, (%1)\n&quot;
++ 		MOVNTQ&quot; %%mm1, 8(%1)\n&quot;
++ 		MOVNTQ&quot; %%mm2, 16(%1)\n&quot;
++ 		MOVNTQ&quot; %%mm3, 24(%1)\n&quot;
++ 		MOVNTQ&quot; %%mm4, 32(%1)\n&quot;
++ 		MOVNTQ&quot; %%mm5, 40(%1)\n&quot;
++ 		MOVNTQ&quot; %%mm6, 48(%1)\n&quot;
++ 		MOVNTQ&quot; %%mm7, 56(%1)\n&quot;
++ 		:: &quot;r&quot; (from), &quot;r&quot; (to) : &quot;memory&quot;);
++ 		((const unsigned char *)from)+=64;
++ 		((unsigned char *)to)+=64;
++ 	}
++ 
++ #ifdef USE_MMX2
++                 /* since movntq is weakly-ordered, a &quot;sfence&quot;
++ 		 * is needed to become ordered again. */
++ 		__asm__ __volatile__ (&quot;sfence&quot;:::&quot;memory&quot;);
++ #endif
++ #ifdef USE_MMX
++ 		/* enables to use FPU */
++ 		__asm__ __volatile__ (EMMS:::&quot;memory&quot;);
++ #endif
++ 	}
++ 	/*
++ 	 *	Now do the tail of the block
++ 	 */
++ 	if(len) small_memcpy(to, from, len);
++ 	return retval;
++ }
++ 
++ 
+
+Index: utils.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/utils.h,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** utils.h	3 Mar 2005 18:16:26 -0000	1.3
+--- utils.h	12 Jun 2005 20:45:20 -0000	1.4
+***************
+*** 38,41 ****
+--- 38,42 ----
+  
+  
++ void * fast_memcpy(void * to, const void * from, size_t len);
+  #endif
+  
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.24
+retrieving revision 1.25
+diff -C2 -d -r1.24 -r1.25
+*** video-xv.c	29 May 2005 19:50:44 -0000	1.24
+--- video-xv.c	12 Jun 2005 20:45:20 -0000	1.25
+***************
+*** 976,979 ****
+--- 976,980 ----
+    pixels [1] = outbuffer + xvWidth * xvHeight;
+    pixels [2] = pixels [1] + xvWidth * xvHeight / 4;
++   
+    rc = XShmAttach(dpy, &amp;shminfo);
+    dsyslog(&quot;[XvVideoOut]: XShmAttach    rc = %d %s&quot;,
+***************
+*** 1302,1311 ****
+  #endif
+   {
+            for (int i = 0; i &lt; fheight; i++)
+!              memcpy (pixels [0] + i * xvWidth, Py + i * Ystride, fwidth);
+            for (int i = 0; i &lt; fheight / 2; i++)
+!              memcpy (pixels [1] + i * xvWidth / 2, Pv + i * UVstride, fwidth / 2);
+            for (int i = 0; i &lt; fheight / 2; i++)
+!              memcpy (pixels [2] + i * xvWidth / 2, Pu + i * UVstride, fwidth / 2);
+  
+            pthread_mutex_lock(&amp;xv_mutex);
+--- 1303,1313 ----
+  #endif
+   {
++ 
+            for (int i = 0; i &lt; fheight; i++)
+!              fast_memcpy(pixels [0] + i * xvWidth, Py + i * Ystride, fwidth);
+            for (int i = 0; i &lt; fheight / 2; i++)
+!              fast_memcpy (pixels [1] + i * xvWidth / 2, Pv + i * UVstride, fwidth / 2);
+            for (int i = 0; i &lt; fheight / 2; i++)
+!              fast_memcpy (pixels [2] + i * xvWidth / 2, Pu + i * UVstride, fwidth / 2);
+  
+            pthread_mutex_lock(&amp;xv_mutex);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000144.html">[Softdevice-cvs] softdevice mpeg2decoder.c,1.39,1.40 mpeg2decoder.h,1.24,1.25
+</A></li>
+	<LI>Next message: <A HREF="000146.html">[Softdevice-cvs] softdevice CHANGELOG,1.76,1.77 video-xv.c,1.25,1.26
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#145">[ date ]</a>
+              <a href="thread.html#145">[ thread ]</a>
+              <a href="subject.html#145">[ subject ]</a>
+              <a href="author.html#145">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

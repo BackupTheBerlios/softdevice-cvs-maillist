@@ -1,0 +1,145 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice xscreensaver.c,1.7,1.8
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2008q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20xscreensaver.c%2C1.7%2C1.8&In-Reply-To=%3C20080713142542.2FE3A2FA07%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000627.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice xscreensaver.c,1.7,1.8</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20xscreensaver.c%2C1.7%2C1.8&In-Reply-To=%3C20080713142542.2FE3A2FA07%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice xscreensaver.c,1.7,1.8">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Jul 13 16:25:42 CEST 2008</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000627.html">[Softdevice-cvs] softdevice xscreensaver.c,1.8,1.9
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#626">[ date ]</a>
+              <a href="thread.html#626">[ thread ]</a>
+              <a href="subject.html#626">[ subject ]</a>
+              <a href="author.html#626">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv30192
+
+Modified Files:
+	xscreensaver.c 
+Log Message:
+white space cleanup
+
+Index: xscreensaver.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/xscreensaver.c,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -C2 -d -r1.7 -r1.8
+*** xscreensaver.c	15 Jan 2007 20:25:39 -0000	1.7
+--- xscreensaver.c	13 Jul 2008 14:25:40 -0000	1.8
+***************
+*** 5,9 ****
+   *
+   * Code adapted by Torgeir Veimo from jwz' xscreensaver remote control code
+!  * (simplified similar to Gerd Knorr's xawtv) which carries the following 
+   * copyright notice:
+   *
+--- 5,9 ----
+   *
+   * Code adapted by Torgeir Veimo from jwz' xscreensaver remote control code
+!  * (simplified similar to Gerd Knorr's xawtv) which carries the following
+   * copyright notice:
+   *
+***************
+*** 16,22 ****
+   * copyright notice and this permission notice appear in supporting
+   * documentation.  No representations are made about the suitability of this
+!  * software for any purpose.  It is provided &quot;as is&quot; without express or 
+   * implied warranty.
+!  * 
+   * $Id$
+   */
+--- 16,22 ----
+   * copyright notice and this permission notice appear in supporting
+   * documentation.  No representations are made about the suitability of this
+!  * software for any purpose.  It is provided &quot;as is&quot; without express or
+   * implied warranty.
+!  *
+   * $Id$
+   */
+***************
+*** 136,140 ****
+        keyEvent.y_root = 1;
+        keyEvent.same_screen = True;
+!       keyEvent.type = KeyPress; 
+        keyEvent.keycode = XKeysymToKeycode(this-&gt;dpy, XK_Shift_L);
+  
+--- 136,140 ----
+        keyEvent.y_root = 1;
+        keyEvent.same_screen = True;
+!       keyEvent.type = KeyPress;
+        keyEvent.keycode = XKeysymToKeycode(this-&gt;dpy, XK_Shift_L);
+  
+***************
+*** 187,191 ****
+        }
+        XSync (dpy, 0);
+!       
+        // restore error handler
+        XSetErrorHandler(old_handler);
+--- 187,191 ----
+        }
+        XSync (dpy, 0);
+! 
+        // restore error handler
+        XSetErrorHandler(old_handler);
+***************
+*** 199,203 ****
+    Window root2, parent, *kids;
+    unsigned int nkids;
+!    
+    if (! XQueryTree (dpy, root, &amp;root2, &amp;parent, &amp;kids, &amp;nkids))
+      esyslog(&quot;[softdevice-xscreensaver]: unexpected error looking up xscreensaver window\n&quot;);
+--- 199,203 ----
+    Window root2, parent, *kids;
+    unsigned int nkids;
+! 
+    if (! XQueryTree (dpy, root, &amp;root2, &amp;parent, &amp;kids, &amp;nkids))
+      esyslog(&quot;[softdevice-xscreensaver]: unexpected error looking up xscreensaver window\n&quot;);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000627.html">[Softdevice-cvs] softdevice xscreensaver.c,1.8,1.9
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#626">[ date ]</a>
+              <a href="thread.html#626">[ thread ]</a>
+              <a href="subject.html#626">[ subject ]</a>
+              <a href="author.html#626">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

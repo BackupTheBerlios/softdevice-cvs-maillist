@@ -1,0 +1,131 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice audio-ac3pt.c, 1.4, 1.5 audio-alsa.c,	1.10, 1.11
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2009q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20audio-ac3pt.c%2C%201.4%2C%201.5%20audio-alsa.c%2C%0A%091.10%2C%201.11&In-Reply-To=%3C20090614180250.9893D135DE%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000655.html">
+   <LINK REL="Next"  HREF="000657.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice audio-ac3pt.c, 1.4, 1.5 audio-alsa.c,	1.10, 1.11</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20audio-ac3pt.c%2C%201.4%2C%201.5%20audio-alsa.c%2C%0A%091.10%2C%201.11&In-Reply-To=%3C20090614180250.9893D135DE%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice audio-ac3pt.c, 1.4, 1.5 audio-alsa.c,	1.10, 1.11">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Jun 14 20:02:50 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000655.html">[Softdevice-cvs] softdevice video-dfb.c, 1.85, 1.86 video-dfb.h,	1.29, 1.30
+</A></li>
+        <LI>Next message: <A HREF="000657.html">[Softdevice-cvs] softdevice video-xv.c, 1.75, 1.76 video-xv.h, 1.29,	1.30
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#656">[ date ]</a>
+              <a href="thread.html#656">[ thread ]</a>
+              <a href="subject.html#656">[ subject ]</a>
+              <a href="author.html#656">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv10551
+
+Modified Files:
+	audio-ac3pt.c audio-alsa.c 
+Log Message:
+Fix compiler warnings
+
+Index: audio-ac3pt.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio-ac3pt.c,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -C2 -d -r1.4 -r1.5
+*** audio-ac3pt.c	14 Jun 2009 11:20:28 -0000	1.4
+--- audio-ac3pt.c	14 Jun 2009 18:02:45 -0000	1.5
+***************
+*** 684,690 ****
+        fprintf(stderr, &quot;ac3play: Minimal period size not available: %s\n&quot;, snd_strerror(err));
+  
+-     if ((err =  snd_pcm_sw_params_set_xfer_align(*handle, swparams, SAMPLE_BUF/6)) &lt; 0)
+-       fprintf(stderr, &quot;ac3play: Aligned period size not available: %s\n&quot;, snd_strerror(err));
+- 
+      if ((err = snd_pcm_sw_params_set_start_threshold(*handle, swparams, 2*SAMPLE_BUF)) &lt; 0)
+        fprintf(stderr, &quot;ac3play: Start threshold not available: %s\n&quot;, snd_strerror(err));
+--- 684,687 ----
+
+Index: audio-alsa.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio-alsa.c,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -C2 -d -r1.10 -r1.11
+*** audio-alsa.c	20 Jul 2008 16:32:44 -0000	1.10
+--- audio-alsa.c	14 Jun 2009 18:02:48 -0000	1.11
+***************
+*** 332,336 ****
+      snd_pcm_hw_params_t *params;
+      snd_pcm_sw_params_t *swparams;
+-     snd_pcm_uframes_t xfer_align;
+      snd_pcm_hw_params_alloca(&amp;params);
+      snd_pcm_sw_params_alloca(&amp;swparams);
+--- 332,335 ----
+***************
+*** 437,446 ****
+  
+      snd_pcm_sw_params_current(handle, swparams);
+-     err = snd_pcm_sw_params_get_xfer_align(swparams, &amp;xfer_align);
+-     if (err &lt; 0) {
+-       esyslog(&quot;[softdevice-audio] Unable to obtain xfer align FATAL exiting&quot;);
+-       handleMutex.Unlock();
+-       exit(EXIT_FAILURE);
+-     }
+      dsyslog(&quot;[softdevice-audio] Hardware initialized&quot;);
+      handleMutex.Unlock();
+--- 436,439 ----
+***************
+*** 464,468 ****
+        double                mixerRange,
+                              volPercent;
+!       char                  *mName = &quot;PCM&quot;,
+                              *cardName = &quot;default&quot;;
+        snd_mixer_t           *mHandle;
+--- 457,461 ----
+        double                mixerRange,
+                              volPercent;
+!       const char            *mName = &quot;PCM&quot;,
+                              *cardName = &quot;default&quot;;
+        snd_mixer_t           *mHandle;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000655.html">[Softdevice-cvs] softdevice video-dfb.c, 1.85, 1.86 video-dfb.h,	1.29, 1.30
+</A></li>
+	<LI>Next message: <A HREF="000657.html">[Softdevice-cvs] softdevice video-xv.c, 1.75, 1.76 video-xv.h, 1.29,	1.30
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#656">[ date ]</a>
+              <a href="thread.html#656">[ thread ]</a>
+              <a href="subject.html#656">[ subject ]</a>
+              <a href="author.html#656">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,563 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice video-xv.h,1.15,1.16 video-xv.c,1.45,1.46
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-xv.h%2C1.15%2C1.16%20video-xv.c%2C1.45%2C1.46&In-Reply-To=%3C200603211834.k2LIYTt30460%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000305.html">
+   <LINK REL="Next"  HREF="000307.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice video-xv.h,1.15,1.16 video-xv.c,1.45,1.46</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-xv.h%2C1.15%2C1.16%20video-xv.c%2C1.45%2C1.46&In-Reply-To=%3C200603211834.k2LIYTt30460%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice video-xv.h,1.15,1.16 video-xv.c,1.45,1.46">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue Mar 21 19:34:29 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000305.html">[Softdevice-cvs] softplay Makefile,1.4,1.5 PlayList.c,1.12,1.13 PlayList.h,1.10,1.11 PlayListMenu.c,1.2,1.3 PlayListMenu.h,1.1,1.2 SoftPlayer.c,1.13,1.14 SoftPlayer.h,1.5,1.6 softplay.c,1.9,1.10 softplay.h,1.3,1.4
+</A></li>
+        <LI>Next message: <A HREF="000307.html">[Softdevice-cvs] softdevice ShmClient.c,1.7,1.8 video-shm.c,1.5,1.6 CHANGELOG,1.161,1.162
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#306">[ date ]</a>
+              <a href="thread.html#306">[ thread ]</a>
+              <a href="subject.html#306">[ subject ]</a>
+              <a href="author.html#306">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv10853
+
+Modified Files:
+	video-xv.h video-xv.c 
+Log Message:
+ - catch errors on osd and xv image creation
+ - support for non-shared memory xv
+      
+
+
+Index: video-xv.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.h,v
+retrieving revision 1.15
+retrieving revision 1.16
+diff -C2 -d -r1.15 -r1.16
+*** video-xv.h	18 Feb 2006 22:20:30 -0000	1.15
+--- video-xv.h	21 Mar 2006 18:34:53 -0000	1.16
+***************
+*** 120,125 ****
+    GC                gc;
+    XvPortID          port;
+-   bool              useShm;
+  public:
+    XShmSegmentInfo   shminfo, osd_shminfo;
+    XvImage           *xv_image;
+--- 120,125 ----
+    GC                gc;
+    XvPortID          port;
+  public:
++   bool              useShm;
+    XShmSegmentInfo   shminfo, osd_shminfo;
+    XvImage           *xv_image;
+***************
+*** 127,132 ****
+    int               osd_max_width,osd_max_height;
+  private:
+!   unsigned char     *outbuffer,
+!                     *osd_buffer,
+                      *pixels[3];
+    char              *w_name, *i_name;
+--- 127,131 ----
+    int               osd_max_width,osd_max_height;
+  private:
+!   unsigned char     *osd_buffer,
+                      *pixels[3];
+    char              *w_name, *i_name;
+***************
+*** 134,139 ****
+    cXvPortAttributeStore   attributeStore;
+  
+-   size_t size;
+-   int xres, yres;
+    uint64_t lastUpdate;
+  
+--- 133,136 ----
+***************
+*** 165,168 ****
+--- 162,168 ----
+    virtual bool Initialize (void);
+    virtual bool Reconfigure (int format = FOURCC_YUY2);
++   void CreateXvImage(Display *dpy,XvPortID port,XvImage *&amp;xv_image,
++                   XShmSegmentInfo &amp;shminfo,int format, int &amp;width, int &amp;height);
++   int PutXvImage();
+    virtual void YUV(uint8_t *Py, uint8_t *Pu, uint8_t *Pv, int Width, int Height, int Ystride, int UVstride);
+    virtual void Pause(void);
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.45
+retrieving revision 1.46
+diff -C2 -d -r1.45 -r1.46
+*** video-xv.c	12 Mar 2006 09:43:28 -0000	1.45
+--- video-xv.c	21 Mar 2006 18:34:53 -0000	1.46
+***************
+*** 36,39 ****
+--- 36,55 ----
+  static int              events_not_done = 0;
+  
++ static XErrorHandler old_handler = 0;
++ static Bool got_error = False;
++ 
++ static int XvError_Handler(Display *dpy, XErrorEvent *error) {
++   esyslog(&quot;got error code: %d \n&quot;,error-&gt;error_code);
++   got_error=true;
++   if ( error-&gt;error_code == BadMatch
++        || error-&gt;error_code== BadAlloc ) {
++           return 0;
++   };
++ 
++   if (old_handler)
++     return (*old_handler)(dpy,error);
++   else return 0;
++ };
++ 
+  /* ---------------------------------------------------------------------------
+   */
+***************
+*** 636,647 ****
+        XClearArea (dpy, win, 0, 0, 0, 0, False);
+        ShowOSD();
+!       XvShmPutImage(dpy, port,
+!                     win, gc,
+!                     xv_image,
+!                     sxoff, syoff,      /* sx, sy */
+!                     swidth, sheight,   /* sw, sh */
+!                     lxoff,  lyoff,     /* dx, dy */
+!                     lwidth, lheight,   /* dw, dh */
+!                     False);
+        XSync(dpy, False);
+      }
+--- 652,656 ----
+        XClearArea (dpy, win, 0, 0, 0, 0, False);
+        ShowOSD();
+!       PutXvImage();
+        XSync(dpy, False);
+      }
+***************
+*** 679,683 ****
+    format = FOURCC_YV12;
+    use_xv_port = 0;
+-   outbuffer = NULL;
+    w_name = &quot;vdr&quot;;
+    i_name = &quot;vdr&quot;;
+--- 688,691 ----
+***************
+*** 712,715 ****
+--- 720,724 ----
+      struct timeval      current_time;
+      double              displayAspect, displayRatio;
++     int                 retry = 0;
+  
+    dsyslog(&quot;[XvVideoOut]: patch version (%s)&quot;, PATCH_VERSION);
+***************
+*** 823,826 ****
+--- 832,839 ----
+    osd_max_height=DisplayHeight(dpy,DefaultScreen(dpy));
+    useShm=XShmQueryExtension(dpy) &amp;&amp; isLocal;
++ 
++   old_handler = XSetErrorHandler(XvError_Handler);
++   
++ init_osd: 
+    if (useShm) {
+  
+***************
+*** 878,890 ****
+            }
+    };
+!   Bpp=osd_image-&gt;bits_per_pixel;
+!   fprintf(stderr,
+!           &quot;[XvVideoOut]: got osd_image: width %d height %d, bytes per line %d\n&quot;,
+!           osd_max_width, osd_max_height,osd_image-&gt;bytes_per_line);
+!   
+    rc = XClearArea (dpy, win, 0, 0, 0, 0, True);
+  
+    rc = XSync(dpy, False);
+  
+    if (!xScreensaver)
+    {
+--- 891,923 ----
+            }
+    };
+!   if (osd_image) {
+!           Bpp=osd_image-&gt;bits_per_pixel;
+!           fprintf(stderr, &quot;[XvVideoOut]: got osd_image: width&quot;
+!                           &quot; %d height %d, bytes per line %d\n&quot;,
+!                           osd_max_width, osd_max_height,
+!                           osd_image-&gt;bytes_per_line);
+!   }; 
+    rc = XClearArea (dpy, win, 0, 0, 0, 0, True);
+  
+    rc = XSync(dpy, False);
+  
++   if (got_error)
++   {
++     got_error=0;retry++;
++     osd_max_width=720;
++     osd_max_height=536;
++     if (retry&lt;2) {
++             fprintf(stderr,&quot;Error initializing osd image. Retry.\n&quot;);
++             goto init_osd;
++     };
++     fprintf(stderr,&quot;Error initializing osd image. Exit.\n&quot;);
++     exit(-1);
++   };
++   if (old_handler) {
++           XSetErrorHandler(old_handler);
++           old_handler = NULL;
++   };
++ 
++ 
+    if (!xScreensaver)
+    {
+***************
+*** 1054,1117 ****
+     * Now we do shared memory allocation etc..
+     */
+!   xv_image = XvShmCreateImage(dpy, port,
+!                               format, (char *) outbuffer,
+!                               xvWidth, xvHeight,
+!                               &amp;shminfo);
+! 
+!   if (xv_image) {
+!     dsyslog(&quot;[XvVideoOut]: XvShmCreateImage Successful (%p)&quot;, xv_image);
+!   } else {
+!     dsyslog(&quot;[XvVideoOut]: ERROR: XvShmCreateImage FAILED !&quot;);
+!   }
+! 
+!   shminfo.shmid = shmget(IPC_PRIVATE,
+!                          len,
+!                          IPC_CREAT | 0777);
+! 
+!   if (shminfo.shmid == -1) {
+!     dsyslog(&quot;[XvVideoOut]: ERROR: shmget FAILED !&quot;);
+!   } else {
+!     dsyslog(&quot;[XvVideoOut]: shmget Successful (%d bytes)&quot;,len);
+!   }
+! 
+!   /* compile fix for gcc 3.4.3
+!    */
+!   shminfo.shmaddr = (char *) shmat(shminfo.shmid, NULL, 0);
+!   outbuffer = (unsigned char *) shminfo.shmaddr;
+!   xv_image-&gt;data = (char *) outbuffer;
+! 
+!   if (xv_image-&gt;data == (char *) -1L) {
+!     dsyslog(&quot;[XvVideoOut]: ERROR: shmat FAILED !&quot;);
+!   } else {
+!     dsyslog(&quot;[XvVideoOut]: shmat Successful&quot;);
+!   }
+!   shminfo.readOnly = False;
+! 
+!   pixels [0] = outbuffer;
+!   pixels [1] = outbuffer + xvWidth * xvHeight;
+!   pixels [2] = pixels [1] + xvWidth * xvHeight / 4;
+!   
+!   rc = XShmAttach(dpy, &amp;shminfo);
+!   dsyslog(&quot;[XvVideoOut]: XShmAttach    rc = %d %s&quot;,
+!           rc,(rc == 1) ? &quot;(should be OK)&quot;:&quot;(thats NOT OK!)&quot;);
+  
+!   if (shminfo. shmid &gt; 0)
+!     shmctl (shminfo. shmid, IPC_RMID, 0);
+  
+    memset (pixels [0], 0, xvWidth*xvHeight);
+    memset (pixels [1], 128, xvWidth*xvHeight/4);
+    memset (pixels [2], 128, xvWidth*xvHeight/4);
+! //    dv_display_event(dv_dpy);
+!   rc = XvShmPutImage(dpy, port,
+!                      win, gc,
+!                      xv_image,
+!                      0, 0,              /* sx, sy */
+!                      swidth, sheight,   /* sw, sh */
+!                      lxoff,  lyoff,     /* dx, dy */
+!                      lwidth, lheight,   /* dw, dh */
+!                      False);
+    rc = XClearArea (dpy, win, 0, 0, 0, 0, True);
+     
+    rc = XSync(dpy, False);
+    
+    pthread_mutex_unlock(&amp;xv_mutex);
+--- 1087,1127 ----
+     * Now we do shared memory allocation etc..
+     */
+!   int retry=0;
+!   old_handler = XSetErrorHandler(XvError_Handler);
+! retry_image: 
+!   CreateXvImage(dpy,port,xv_image,shminfo,
+!                   format,xvWidth, xvHeight); 
+  
+!   pixels[0] = (uint8_t *) (xv_image-&gt;data + xv_image-&gt;offsets[0]);
+!   pixels[1] = (uint8_t *) (xv_image-&gt;data + xv_image-&gt;offsets[1]);
+!   pixels[2] = (uint8_t *) (xv_image-&gt;data + xv_image-&gt;offsets[2]);
+  
+    memset (pixels [0], 0, xvWidth*xvHeight);
+    memset (pixels [1], 128, xvWidth*xvHeight/4);
+    memset (pixels [2], 128, xvWidth*xvHeight/4);
+! 
+!   rc = PutXvImage();
+!   
+    rc = XClearArea (dpy, win, 0, 0, 0, 0, True);
+     
+    rc = XSync(dpy, False);
++ 
++   if (got_error)
++   {
++     got_error=0;retry++;
++     xvWidth=XV_SRC_WIDTH;
++     xvHeight = XV_SRC_HEIGHT;
++     if (retry&lt;2) {
++             fprintf(stderr,&quot;Error initializing Xv. Retry.\n&quot;);
++             goto retry_image;
++     };
++     fprintf(stderr,&quot;Error intializing Xv. Exit.\n&quot;);
++     exit(-1);
++   };
++   if (old_handler) {
++           XSetErrorHandler(old_handler);
++           old_handler=NULL;
++   };
++ 
+    
+    pthread_mutex_unlock(&amp;xv_mutex);
+***************
+*** 1123,1126 ****
+--- 1133,1224 ----
+  }
+  
++ void cXvVideoOut::CreateXvImage(Display *dpy,XvPortID port,
++                   XvImage *&amp;xv_image,
++                   XShmSegmentInfo &amp;shminfo,
++                   int format, int &amp;width, int &amp;height) {
++   int len=0;
++   if (useShm)
++   {
++     xv_image = XvShmCreateImage(dpy, port,
++         format, NULL,
++         width, height,
++         &amp;shminfo);
++     if (xv_image) {
++       dsyslog(&quot;[XvVideoOut]: XvShmCreateImage Successful (%p)&quot;, xv_image);
++     } else {
++       dsyslog(&quot;[XvVideoOut]: ERROR: XvShmCreateImage FAILED !&quot;);
++       exit(-1);
++     }
++ 
++     shminfo.shmid = shmget(IPC_PRIVATE,
++         xv_image-&gt;data_size,
++         IPC_CREAT | 0777);
++ 
++     if (shminfo.shmid == -1) {
++       dsyslog(&quot;[XvVideoOut]: ERROR: shmget FAILED !&quot;);
++     } else {
++       dsyslog(&quot;[XvVideoOut]: shmget Successful (%d bytes)&quot;,len);
++     }
++ 
++     /* compile fix for gcc 3.4.3
++     */
++     shminfo.shmaddr = (char *) shmat(shminfo.shmid, NULL, 0);
++     xv_image-&gt;data = (char *) shminfo.shmaddr;
++ 
++     if (xv_image-&gt;data == (char *) -1L) {
++       dsyslog(&quot;[XvVideoOut]: ERROR: shmat FAILED !&quot;);
++       exit(-1);
++     } else {
++       dsyslog(&quot;[XvVideoOut]: shmat Successful&quot;);
++     }
++     shminfo.readOnly = False;
++     int rc = XShmAttach(dpy, &amp;shminfo);
++     dsyslog(&quot;[XvVideoOut]: XShmAttach    rc = %d %s&quot;,
++         rc,(rc == 1) ? &quot;(should be OK)&quot;:&quot;(thats NOT OK!)&quot;);
++ 
++     // request remove after detaching
++     if (shminfo. shmid &gt; 0)
++       shmctl (shminfo. shmid, IPC_RMID, 0);
++   }else 
++   {
++     xv_image = XvCreateImage(dpy, port,format, NULL,
++         width, height);
++     if (!xv_image) {
++       dsyslog(&quot;[XvVideoOut]: ERROR: XvCreateImage FAILED !&quot;);
++       exit(-1);
++     };
++       
++     xv_image-&gt;data = (char*)malloc(xv_image-&gt;data_size);
++     if (!xv_image-&gt;data) {
++       dsyslog(&quot;[XvVideoOut]: ERROR: malloc xv_image FAILED !&quot;);
++       exit(-1);
++     };
++   };
++ };
++ 
++ /*----------------------------------------------------------------------------
++  */
++ 
++ int cXvVideoOut::PutXvImage() {
++   if (useShm)
++     return XvShmPutImage(dpy, port,
++                      win, gc,
++                      xv_image,
++                      0, 0,              /* sx, sy */
++                      swidth, sheight,   /* sw, sh */
++                      lxoff,  lyoff,     /* dx, dy */
++                      lwidth, lheight,   /* dw, dh */
++                      False);
++   else 
++     return XvPutImage(dpy, port,
++                      win, gc,
++                      xv_image,
++                      0, 0,              /* sx, sy */
++                      swidth, sheight,   /* sw, sh */
++                      lxoff,  lyoff,     /* dx, dy */
++                      lwidth, lheight   /* dw, dh */
++                      );
++ };
++ 
+  /* ---------------------------------------------------------------------------
+   */
+***************
+*** 1141,1151 ****
+    XvUngrabPort(dpy, port, CurrentTime);
+    
+-   pthread_mutex_unlock(&amp;xv_mutex);
+  
+!   if(shminfo.shmaddr)
+!   {
+!     shmdt(shminfo.shmaddr);
+!     shminfo.shmaddr = NULL;
+!   }
+  
+    if (xv_image)
+--- 1239,1256 ----
+    XvUngrabPort(dpy, port, CurrentTime);
+    
+  
+!   if (xv_image-&gt;data) {
+!     if(useShm &amp;&amp; shminfo.shmaddr)
+!     {
+!       shmdt(shminfo.shmaddr);
+!       shminfo.shmaddr = NULL;
+!       XShmDetach(dpy, &amp;shminfo);
+!     }
+!     if (!useShm) {
+!       free(xv_image-&gt;data);
+!     };
+!     xv_image-&gt;data = NULL;
+!   };
+!   pthread_mutex_unlock(&amp;xv_mutex);
+  
+    if (xv_image)
+***************
+*** 1213,1217 ****
+  void cXvVideoOut::AdjustOSDMode()
+  {
+!   current_osdMode = setupStore-&gt;osdMode;
+  }
+  
+--- 1318,1324 ----
+  void cXvVideoOut::AdjustOSDMode()
+  {
+!   if (xv_initialized)
+!           current_osdMode = setupStore-&gt;osdMode;
+!   else current_osdMode = OSDMODE_PSEUDO;
+  }
+  
+***************
+*** 1410,1413 ****
+--- 1517,1521 ----
+    }
+  
++   if ( Py &amp;&amp; Pu &amp;&amp; Pv ) {
+  #if VDRVERSNUM &gt;= 10307
+    /* -------------------------------------------------------------------------
+***************
+*** 1447,1459 ****
+          }
+  
+-         XvShmPutImage(dpy, port,
+-                 win, gc,
+-                 xv_image,
+-                 sxoff, syoff,      /* sx, sy */
+-                 swidth, sheight,   /* sw, sh */
+-                 lxoff,  lyoff,     /* dx, dy */
+-                 lwidth, lheight,   /* dw, dh */
+-                 False);
+- 
+    }
+    else
+--- 1555,1558 ----
+***************
+*** 1473,1486 ****
+                            Pu + i * UVstride + cutLeft,
+                            fwidth / 2 - (cutLeft + cutRight));
+- 
+-           XvShmPutImage(dpy, port,
+-                 win, gc,
+-                 xv_image,
+-                 sxoff, syoff,      /* sx, sy */
+-                 swidth, sheight,   /* sw, sh */
+-                 lxoff,  lyoff,     /* dx, dy */
+-                 lwidth, lheight,   /* dw, dh */
+-                 False);
+    }
+    ProcessEvents ();
+    events_not_done = 0;
+--- 1572,1578 ----
+                            Pu + i * UVstride + cutLeft,
+                            fwidth / 2 - (cutLeft + cutRight));
+    }
++   }
++   PutXvImage();
+    ProcessEvents ();
+    events_not_done = 0;
+***************
+*** 1506,1509 ****
+--- 1598,1602 ----
+        shmdt(shminfo.shmaddr);
+        shminfo.shmaddr = NULL;
++       shminfo.shmid = -1;
+      }
+    
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000305.html">[Softdevice-cvs] softplay Makefile,1.4,1.5 PlayList.c,1.12,1.13 PlayList.h,1.10,1.11 PlayListMenu.c,1.2,1.3 PlayListMenu.h,1.1,1.2 SoftPlayer.c,1.13,1.14 SoftPlayer.h,1.5,1.6 softplay.c,1.9,1.10 softplay.h,1.3,1.4
+</A></li>
+	<LI>Next message: <A HREF="000307.html">[Softdevice-cvs] softdevice ShmClient.c,1.7,1.8 video-shm.c,1.5,1.6 CHANGELOG,1.161,1.162
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#306">[ date ]</a>
+              <a href="thread.html#306">[ thread ]</a>
+              <a href="subject.html#306">[ subject ]</a>
+              <a href="author.html#306">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,824 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softieee1394 HISTORY,1.2,1.3 Makefile,1.1.1.1,1.2 README,1.1.1.1,1.2 avc-handler.c,1.1.1.1,1.2 avc-handler.h,1.1.1.1,1.2 softieee1394.c,1.2,1.3
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softieee1394%20HISTORY%2C1.2%2C1.3%20Makefile%2C1.1.1.1%2C1.2%20README%2C1.1.1.1%2C1.2%20avc-handler.c%2C1.1.1.1%2C1.2%20avc-handler.h%2C1.1.1.1%2C1.2%20softieee1394.c%2C1.2%2C1.3&In-Reply-To=%3C200509121217.j8CCHA126096%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000207.html">
+   <LINK REL="Next"  HREF="000209.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softieee1394 HISTORY,1.2,1.3 Makefile,1.1.1.1,1.2 README,1.1.1.1,1.2 avc-handler.c,1.1.1.1,1.2 avc-handler.h,1.1.1.1,1.2 softieee1394.c,1.2,1.3</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softieee1394%20HISTORY%2C1.2%2C1.3%20Makefile%2C1.1.1.1%2C1.2%20README%2C1.1.1.1%2C1.2%20avc-handler.c%2C1.1.1.1%2C1.2%20avc-handler.h%2C1.1.1.1%2C1.2%20softieee1394.c%2C1.2%2C1.3&In-Reply-To=%3C200509121217.j8CCHA126096%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softieee1394 HISTORY,1.2,1.3 Makefile,1.1.1.1,1.2 README,1.1.1.1,1.2 avc-handler.c,1.1.1.1,1.2 avc-handler.h,1.1.1.1,1.2 softieee1394.c,1.2,1.3">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon Sep 12 14:17:10 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000207.html">[Softdevice-cvs] softieee1394/patches libavc1394-0.5.0-read-mic-03.diff,NONE,1.1
+</A></li>
+        <LI>Next message: <A HREF="000209.html">[Softdevice-cvs] softdevice CHANGELOG,1.107,1.108 configure,1.2,1.3 video-dfb.c,1.39,1.40
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#208">[ date ]</a>
+              <a href="thread.html#208">[ thread ]</a>
+              <a href="subject.html#208">[ subject ]</a>
+              <a href="author.html#208">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softieee1394
+In directory sheep:/tmp/cvs-serv8939
+
+Modified Files:
+	HISTORY Makefile README avc-handler.c avc-handler.h 
+	softieee1394.c 
+Log Message:
+sync cvs with work version
+
+Index: HISTORY
+===================================================================
+RCS file: /cvsroot/softdevice/softieee1394/HISTORY,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** HISTORY	24 Jul 2005 20:40:04 -0000	1.2
+--- HISTORY	12 Sep 2005 12:17:07 -0000	1.3
+***************
+*** 1,7 ****
+  VDR Plugin 'softieee1394' Revision History
+  ------------------------------------------
+  2005-07-24:
+      - finnish translations by Rolf Ahrenberg
+! 2005-04-09: Version 0.0.1
+  
+  - Initial revision.
+--- 1,12 ----
+  VDR Plugin 'softieee1394' Revision History
+  ------------------------------------------
++ 2005-09-12:
++   - do not offer a mainmenu entry if there are no ieee1394 devices.
++   - some cleanups
++   - depends on a patch for libavc
++ 
+  2005-07-24:
+      - finnish translations by Rolf Ahrenberg
+! 2005-04-09:
+  
+  - Initial revision.
+
+Index: Makefile
+===================================================================
+RCS file: /cvsroot/softdevice/softieee1394/Makefile,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1.1.1 -r1.2
+*** Makefile	1 May 2005 22:05:08 -0000	1.1.1.1
+--- Makefile	12 Sep 2005 12:17:07 -0000	1.2
+***************
+*** 19,23 ****
+  
+  CXX      ?= g++
+! CXXFLAGS ?= -O2 -Wall -Woverloaded-virtual
+  
+  ### The directory environment:
+--- 19,23 ----
+  
+  CXX      ?= g++
+! CXXFLAGS ?= -g -O2 -Wall -Woverloaded-virtual
+  
+  ### The directory environment:
+
+Index: README
+===================================================================
+RCS file: /cvsroot/softdevice/softieee1394/README,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1.1.1 -r1.2
+*** README	1 May 2005 22:05:08 -0000	1.1.1.1
+--- README	12 Sep 2005 12:17:07 -0000	1.2
+***************
+*** 1,7 ****
+  This is a &quot;plugin&quot; for the Video Disk Recorder (VDR).
+  
+! Written by:                  Stefan Lucke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">stefan at lucke.in-berlin.de</A>&gt;
+  
+! Project's homepage:          <A HREF="http://softdevice.berlios.de">http://softdevice.berlios.de</A>
+  
+  Latest version available at: via cvs
+--- 1,7 ----
+  This is a &quot;plugin&quot; for the Video Disk Recorder (VDR).
+  
+! Written by:                  Stefan Lucke &lt;stefan at lucke.in-berlin.de&gt;
+  
+! Project's homepage:          <A HREF="http://softdevice.berlios.de/softieee1394">http://softdevice.berlios.de/softieee1394</A>
+  
+  Latest version available at: via cvs
+***************
+*** 21,29 ****
+    pause
+  
+  
+  Additional required software:
+    kernel configured with a working firewire subsystem
+  
+!   softdevice-0.1.1
+      <A HREF="http://softdevice.berlios.de">http://softdevice.berlios.de</A>
+  
+--- 21,38 ----
+    pause
+  
++ Patches:
++   You need to patch libavc1394. Therefore the only supported version
++   is 0.5.0. The patch required is in directory patches. The usual procedure
++   for doing this is:
++   1. cd to_your_libavc1394_directory
++   2. patch --dry-run &lt;path_to_patch_directory/patch_file
++   3. if that was succesfully (no rejects or failed messages)
++      patch &lt;path_to_patch_directory/patch_file
++ 
+  
+  Additional required software:
+    kernel configured with a working firewire subsystem
+  
+!   softdevice-0.1.3
+      <A HREF="http://softdevice.berlios.de">http://softdevice.berlios.de</A>
+  
+***************
+*** 35,37 ****
+  
+    ffmpeg-0.4.9-pre1
+!     <A HREF="http://ffmpeg.sourceforge.net/download.php">http://ffmpeg.sourceforge.net/download.php</A>
+\ No newline at end of file
+--- 44,46 ----
+  
+    ffmpeg-0.4.9-pre1
+!     <A HREF="http://ffmpeg.sourceforge.net/download.php">http://ffmpeg.sourceforge.net/download.php</A>
+
+Index: avc-handler.c
+===================================================================
+RCS file: /cvsroot/softdevice/softieee1394/avc-handler.c,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1.1.1 -r1.2
+*** avc-handler.c	1 May 2005 22:05:08 -0000	1.1.1.1
+--- avc-handler.c	12 Sep 2005 12:17:07 -0000	1.2
+***************
+*** 37,41 ****
+    for (int i = 0; i &lt; MAX_IEEE1394_DEVICES; ++i)
+    {
+!     deviceId [i] = 0;
+    }
+  
+--- 37,43 ----
+    for (int i = 0; i &lt; MAX_IEEE1394_DEVICES; ++i)
+    {
+!     deviceId[i] = 0;
+!     micSize[i] = 0;
+!     micData[i] = NULL;
+    }
+  
+***************
+*** 70,74 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cAVCHandler::checkDevices(void)
+  {
+      int               i, j;
+--- 72,77 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void
+! cAVCHandler::checkDevices(void)
+  {
+      int               i, j;
+***************
+*** 98,101 ****
+--- 101,106 ----
+         */
+        if (j &gt;= numDevices) {
++ #if 0
++ // disabled since it may cause segfaults Skins.Message()
+            char msg[100];
+            //static int once = 1;
+***************
+*** 104,111 ****
+--- 109,119 ----
+                    tr(&quot;New FireWire Device&quot;),newRomDirs[i].label);
+          Skins.Message(mtInfo,msg);
++ #endif
++         avc1394_vcr_get_mic_info (handle, i, NULL, NULL);
+        }
+      }
+    }
+  
++ #if 0 // disabled since it may cause segfaults Skins.Message()
+    for (j = 0; j &lt; numDevices; j++) {
+      if (deviceId[j]) {
+***************
+*** 117,120 ****
+--- 125,129 ----
+      }
+    }
++ #endif
+  
+    if (newDevices != numDevices) {
+***************
+*** 134,138 ****
+  }
+  
+! const char * cAVCHandler::GetDeviceNameAt(int i)
+  {
+      const char *name = NULL;
+--- 143,150 ----
+  }
+  
+! /* ---------------------------------------------------------------------------
+!  */
+! const char *
+! cAVCHandler::GetDeviceNameAt(int i)
+  {
+      const char *name = NULL;
+***************
+*** 149,153 ****
+  /* ---------------------------------------------------------------------------
+   */
+! octlet_t cAVCHandler::GetGuidForName(const char *name)
+  {
+      octlet_t  ret = 0;
+--- 161,166 ----
+  /* ---------------------------------------------------------------------------
+   */
+! octlet_t
+! cAVCHandler::GetGuidForName(const char *name)
+  {
+      octlet_t  ret = 0;
+***************
+*** 168,172 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cAVCHandler::Action()
+  {
+      int               fd, pollRc;
+--- 181,220 ----
+  /* ---------------------------------------------------------------------------
+   */
+! bool
+! cAVCHandler::HasMicInfo(int i)
+! {
+!   return micSize[i] &gt; 0;
+! }
+! 
+! /* ---------------------------------------------------------------------------
+!  */
+! const char *
+! cAVCHandler::TapePosition(int i, char *pos)
+! {
+!     int atn, m, mt, sfbf;
+! 
+!   if (avc1394_vcr_get_atn (handle, i, &amp;atn, &amp;m, &amp;mt, &amp;sfbf) == 0) {
+!     snprintf(pos, 16,
+!             &quot;%02d:%02d:%02d.%02d&quot;,
+!             (atn / (12 * 25 * 60 * 60)) % 24,
+!             (atn / (12 * 25 * 60)) % 60,
+!             (atn / (12 * 25)) % 60,
+!             (atn / 12) % 25);
+!   }
+!   return pos;
+! }
+! 
+! /* ---------------------------------------------------------------------------
+!  */
+! int
+! cAVCHandler::NumDevices(void)
+! {
+!   return numDevices;
+! }
+! 
+! /* ---------------------------------------------------------------------------
+!  */
+! void
+! cAVCHandler::Action()
+  {
+      int               fd, pollRc;
+***************
+*** 268,272 ****
+  /* ----------------------------------------------------------------------------
+   */
+! void cAVCPlayer::Stop()
+  {
+    dsyslog(&quot;[AVCPlayer-Stop]\n&quot;);
+--- 316,321 ----
+  /* ----------------------------------------------------------------------------
+   */
+! void
+! cAVCPlayer::Stop()
+  {
+    dsyslog(&quot;[AVCPlayer-Stop]\n&quot;);
+***************
+*** 277,281 ****
+  /* ----------------------------------------------------------------------------
+   */
+! void cAVCPlayer::Activate(bool On)
+  {
+    dsyslog(&quot;[AVCPlayer-Activate]: %s&quot;, (On) ? &quot;ON&quot; : &quot;OFF&quot;);
+--- 326,331 ----
+  /* ----------------------------------------------------------------------------
+   */
+! void
+! cAVCPlayer::Activate(bool On)
+  {
+    dsyslog(&quot;[AVCPlayer-Activate]: %s&quot;, (On) ? &quot;ON&quot; : &quot;OFF&quot;);
+***************
+*** 291,295 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cAVCPlayer::Action(void)
+  {
+      int               rc, packetCount = 0;
+--- 341,346 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void
+! cAVCPlayer::Action(void)
+  {
+      int               rc, packetCount = 0;
+***************
+*** 333,338 ****
+        break;
+      }
+!     if (paused)
+        continue;
+  
+      av_dup_packet(&amp;pkt);
+--- 384,395 ----
+        break;
+      }
+!     if (paused) {
+!       DeviceFreeze();
+!       cPlayer::DeviceClear();
+!       while (paused &amp;&amp; running)
+!         usleep(10000);
+!       DevicePlay();
+        continue;
++     }
+  
+      av_dup_packet(&amp;pkt);
+***************
+*** 343,347 ****
+      }
+  
+-     // length = -2 : queue packet
+      pDevice-&gt;PlayVideo((uchar *)&amp;pkt,-2);
+  
+--- 400,403 ----
+***************
+*** 375,379 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cAVCPlayer::Command(eKeys key)
+  {
+  
+--- 431,436 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void
+! cAVCPlayer::Command(eKeys key)
+  {
+  
+***************
+*** 465,469 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cAVCControl::Hide(void)
+  {
+    dsyslog(&quot;[AVCControl-Hide]&quot;);
+--- 522,527 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void
+! cAVCControl::Hide(void)
+  {
+    dsyslog(&quot;[AVCControl-Hide]&quot;);
+***************
+*** 472,476 ****
+  /* ---------------------------------------------------------------------------
+   */
+! eOSState cAVCControl::ProcessKey(eKeys key)
+  {
+      eOSState state = cOsdObject::ProcessKey(key);
+--- 530,535 ----
+  /* ---------------------------------------------------------------------------
+   */
+! eOSState
+! cAVCControl::ProcessKey(eKeys key)
+  {
+      eOSState state = cOsdObject::ProcessKey(key);
+***************
+*** 488,492 ****
+  
+      switch (key) {
+!       case kPause: case kPlay: case kFastFwd: case kFastRew:
+          player-&gt;Command(key);
+          break;
+--- 547,551 ----
+  
+      switch (key) {
+!       case kPause: case kPlay: case kFastFwd: case kFastRew: case kStop:
+          player-&gt;Command(key);
+          break;
+
+Index: avc-handler.h
+===================================================================
+RCS file: /cvsroot/softdevice/softieee1394/avc-handler.h,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1.1.1 -r1.2
+*** avc-handler.h	1 May 2005 22:05:08 -0000	1.1.1.1
+--- avc-handler.h	12 Sep 2005 12:17:07 -0000	1.2
+***************
+*** 34,37 ****
+--- 34,39 ----
+      octlet_t          deviceId[MAX_IEEE1394_DEVICES];
+      bool              active;
++     int               micSize[MAX_IEEE1394_DEVICES];
++     unsigned char     *micData[MAX_IEEE1394_DEVICES];
+      rom1394_directory romDirs[MAX_IEEE1394_DEVICES];
+      raw1394handle_t   handle;
+***************
+*** 48,52 ****
+  
+      octlet_t        GetGuidForName(const char *name);
+!     const char      *GetDeviceNameAt(int i);
+      virtual void    Action(void);
+  
+--- 50,57 ----
+  
+      octlet_t        GetGuidForName(const char *name);
+!     const char      *GetDeviceNameAt(int i),
+!                     *TapePosition(int i, char *pos);
+!     int             NumDevices(void);
+!     bool            HasMicInfo(int i);
+      virtual void    Action(void);
+  
+
+Index: softieee1394.c
+===================================================================
+RCS file: /cvsroot/softdevice/softieee1394/softieee1394.c,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** softieee1394.c	24 Jul 2005 20:40:04 -0000	1.2
+--- softieee1394.c	12 Sep 2005 12:17:07 -0000	1.3
+***************
+*** 17,20 ****
+--- 17,57 ----
+  static const char *MAINMENUENTRY  = &quot;Softieee1394&quot;;
+  
++ #define DEVICE_UNKNOWN    0
++ #define DEVICE_IEEE1394   1
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ class cDeviceOsdItem : public cOsdItem
++ {
++   private:
++     char  *deviceName;
++     int   deviceType;
++ 
++   public:
++     cDeviceOsdItem(const char *name, int type, char *text,
++                    eOSState state = osUnknown);
++     virtual ~cDeviceOsdItem();
++ 
++     char *DeviceName() { return deviceName; }
++     int  DeviceType() { return deviceType; }
++ };
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ cDeviceOsdItem::cDeviceOsdItem(const char *name, int type,
++                                char *text, eOSState state)
++                                : cOsdItem (text, state)
++ {
++   deviceName = strdup (name);
++   deviceType = type;
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ cDeviceOsdItem::~cDeviceOsdItem()
++ {
++   free(deviceName);
++ }
++ 
+  /* ---------------------------------------------------------------------------
+   */
+***************
+*** 37,72 ****
+  {
+    this-&gt;avcHandler = avcHandler;
+! };
+  
+  /* ---------------------------------------------------------------------------
+   */
+! cMenuDevices::~cMenuDevices(void) {};
+  
+  /* ---------------------------------------------------------------------------
+   */
+! void cMenuDevices::GetDeviceNames(void)
+  {
+      int         i = 0;
+      const char  *name;
+  
+!   while ((name = avcHandler-&gt;GetDeviceNameAt(i++)))
+!   {
+!     Add(new cOsdItem(name,osUnknown),false);
+    }
+  }
+  
+! eOSState cMenuDevices::ProcessKey(eKeys key)
+  {
+      eOSState  state = cOsdMenu::ProcessKey(key);
+      octlet_t  devId;
+  
+!   if (state == osUnknown)
+!   {
+!     switch (key)
+!     {
+        case kOk:
+!         devId = avcHandler-&gt;GetGuidForName(Get(Current())-&gt;Text());
+!         if (devId)
+!         {
+            cControl::Launch(new cAVCControl(devId));
+          }
+--- 74,120 ----
+  {
+    this-&gt;avcHandler = avcHandler;
+! }
+  
+  /* ---------------------------------------------------------------------------
+   */
+! cMenuDevices::~cMenuDevices(void)
+! {
+! }
+  
+  /* ---------------------------------------------------------------------------
+   */
+! void
+! cMenuDevices::GetDeviceNames(void)
+  {
+      int         i = 0;
+      const char  *name;
+  
+!   while ((name = avcHandler-&gt;GetDeviceNameAt(i))) {
+!       char  buf[100],
+!             tapePos [16];
+! 
+!     snprintf (buf, 100, &quot;%11.11s            %s&quot;,
+!               avcHandler-&gt;TapePosition(i, tapePos),
+!               name);
+!     Add(new cDeviceOsdItem(name, DEVICE_IEEE1394, buf,osUnknown),false);
+!     ++i;
+    }
+  }
+  
+! /* ---------------------------------------------------------------------------
+!  */
+! eOSState
+! cMenuDevices::ProcessKey(eKeys key)
+  {
+      eOSState  state = cOsdMenu::ProcessKey(key);
+      octlet_t  devId;
++     cDeviceOsdItem  *osdItem;
+  
+!   if (state == osUnknown) {
+!     switch (key) {
+        case kOk:
+!         osdItem = (cDeviceOsdItem *) (Get(Current()));
+!         devId = avcHandler-&gt;GetGuidForName(osdItem-&gt;DeviceName());
+!         if (devId) {
+            cControl::Launch(new cAVCControl(devId));
+          }
+***************
+*** 81,105 ****
+  /* ---------------------------------------------------------------------------
+   */
+! class cPluginSoftieee1394 : public cPlugin {
+! private:
+!   // Add any member variables or functions you may need here.
+!   cAVCHandler   *avcHandler;
+  
+! public:
+!   cPluginSoftieee1394(void);
+!   virtual ~cPluginSoftieee1394();
+!   virtual const char *Version(void) { return VERSION; }
+!   virtual const char *Description(void) { return tr(DESCRIPTION); }
+!   virtual const char *CommandLineHelp(void);
+!   virtual bool ProcessArgs(int argc, char *argv[]);
+!   virtual bool Initialize(void);
+!   virtual bool Start(void);
+!   virtual void Stop(void);
+!   virtual void Housekeeping(void);
+!   virtual const char *MainMenuEntry(void) { return tr(MAINMENUENTRY); }
+!   virtual cOsdObject *MainMenuAction(void);
+!   virtual cMenuSetupPage *SetupMenu(void);
+!   virtual bool SetupParse(const char *Name, const char *Value);
+!   };
+  
+  /* ---------------------------------------------------------------------------
+--- 129,154 ----
+  /* ---------------------------------------------------------------------------
+   */
+! class cPluginSoftieee1394 : public cPlugin
+! {
+!   private:
+!     // Add any member variables or functions you may need here.
+!     cAVCHandler   *avcHandler;
+  
+!   public:
+!     cPluginSoftieee1394(void);
+!     virtual ~cPluginSoftieee1394();
+!     virtual const char *Version(void) { return VERSION; }
+!     virtual const char *Description(void) { return tr(DESCRIPTION); }
+!     virtual const char *CommandLineHelp(void);
+!     virtual bool ProcessArgs(int argc, char *argv[]);
+!     virtual bool Initialize(void);
+!     virtual bool Start(void);
+!     virtual void Stop(void);
+!     virtual void Housekeeping(void);
+!     virtual const char *MainMenuEntry(void);
+!     virtual cOsdObject *MainMenuAction(void);
+!     virtual cMenuSetupPage *SetupMenu(void);
+!     virtual bool SetupParse(const char *Name, const char *Value);
+! };
+  
+  /* ---------------------------------------------------------------------------
+***************
+*** 121,125 ****
+  /* ---------------------------------------------------------------------------
+   */
+! const char *cPluginSoftieee1394::CommandLineHelp(void)
+  {
+    // Return a string that describes all known command line options.
+--- 170,175 ----
+  /* ---------------------------------------------------------------------------
+   */
+! const char *
+! cPluginSoftieee1394::CommandLineHelp(void)
+  {
+    // Return a string that describes all known command line options.
+***************
+*** 129,133 ****
+  /* ---------------------------------------------------------------------------
+   */
+! bool cPluginSoftieee1394::ProcessArgs(int argc, char *argv[])
+  {
+    // Implement command line argument processing here if applicable.
+--- 179,184 ----
+  /* ---------------------------------------------------------------------------
+   */
+! bool
+! cPluginSoftieee1394::ProcessArgs(int argc, char *argv[])
+  {
+    // Implement command line argument processing here if applicable.
+***************
+*** 137,141 ****
+  /* ---------------------------------------------------------------------------
+   */
+! bool cPluginSoftieee1394::Initialize(void)
+  {
+    // Initialize any background activities the plugin shall perform.
+--- 188,193 ----
+  /* ---------------------------------------------------------------------------
+   */
+! bool
+! cPluginSoftieee1394::Initialize(void)
+  {
+    // Initialize any background activities the plugin shall perform.
+***************
+*** 146,150 ****
+  /* ---------------------------------------------------------------------------
+   */
+! bool cPluginSoftieee1394::Start(void)
+  {
+    // Start any background activities the plugin shall perform.
+--- 198,203 ----
+  /* ---------------------------------------------------------------------------
+   */
+! bool
+! cPluginSoftieee1394::Start(void)
+  {
+    // Start any background activities the plugin shall perform.
+***************
+*** 155,159 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cPluginSoftieee1394::Stop(void)
+  {
+    // Stop any background activities the plugin shall perform.
+--- 208,213 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void
+! cPluginSoftieee1394::Stop(void)
+  {
+    // Stop any background activities the plugin shall perform.
+***************
+*** 162,166 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cPluginSoftieee1394::Housekeeping(void)
+  {
+    // Perform any cleanup or other regular tasks.
+--- 216,221 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void
+! cPluginSoftieee1394::Housekeeping(void)
+  {
+    // Perform any cleanup or other regular tasks.
+***************
+*** 169,173 ****
+  /* ---------------------------------------------------------------------------
+   */
+! cOsdObject *cPluginSoftieee1394::MainMenuAction(void)
+  {
+      cMenuDevices *Menu=new cMenuDevices (avcHandler);
+--- 224,238 ----
+  /* ---------------------------------------------------------------------------
+   */
+! const char *cPluginSoftieee1394::MainMenuEntry(void)
+! {
+!   if (avcHandler &amp;&amp; avcHandler-&gt;NumDevices() &gt; 0)
+!     return MAINMENUENTRY;
+!   return NULL;
+! }
+! 
+! /* ---------------------------------------------------------------------------
+!  */
+! cOsdObject *
+! cPluginSoftieee1394::MainMenuAction(void)
+  {
+      cMenuDevices *Menu=new cMenuDevices (avcHandler);
+***************
+*** 184,188 ****
+  /* ---------------------------------------------------------------------------
+   */
+! cMenuSetupPage *cPluginSoftieee1394::SetupMenu(void)
+  {
+    // Return a setup menu in case the plugin supports one.
+--- 249,254 ----
+  /* ---------------------------------------------------------------------------
+   */
+! cMenuSetupPage *
+! cPluginSoftieee1394::SetupMenu(void)
+  {
+    // Return a setup menu in case the plugin supports one.
+***************
+*** 192,196 ****
+  /* ---------------------------------------------------------------------------
+   */
+! bool cPluginSoftieee1394::SetupParse(const char *Name, const char *Value)
+  {
+    // Parse your own setup parameters and store their values.
+--- 258,263 ----
+  /* ---------------------------------------------------------------------------
+   */
+! bool
+! cPluginSoftieee1394::SetupParse(const char *Name, const char *Value)
+  {
+    // Parse your own setup parameters and store their values.
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000207.html">[Softdevice-cvs] softieee1394/patches libavc1394-0.5.0-read-mic-03.diff,NONE,1.1
+</A></li>
+	<LI>Next message: <A HREF="000209.html">[Softdevice-cvs] softdevice CHANGELOG,1.107,1.108 configure,1.2,1.3 video-dfb.c,1.39,1.40
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#208">[ date ]</a>
+              <a href="thread.html#208">[ thread ]</a>
+              <a href="subject.html#208">[ subject ]</a>
+              <a href="author.html#208">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

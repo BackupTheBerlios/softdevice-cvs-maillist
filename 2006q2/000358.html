@@ -1,0 +1,501 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.184,1.185 utils.c,1.13,1.14 utils.h,1.7,1.8 video.c,1.55,1.56 video.h,1.37,1.38
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.184%2C1.185%20utils.c%2C1.13%2C1.14%20utils.h%2C1.7%2C1.8%20video.c%2C1.55%2C1.56%20video.h%2C1.37%2C1.38&In-Reply-To=%3C200605231926.k4NJQ2T18297%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000357.html">
+   <LINK REL="Next"  HREF="000359.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.184,1.185 utils.c,1.13,1.14 utils.h,1.7,1.8 video.c,1.55,1.56 video.h,1.37,1.38</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.184%2C1.185%20utils.c%2C1.13%2C1.14%20utils.h%2C1.7%2C1.8%20video.c%2C1.55%2C1.56%20video.h%2C1.37%2C1.38&In-Reply-To=%3C200605231926.k4NJQ2T18297%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.184,1.185 utils.c,1.13,1.14 utils.h,1.7,1.8 video.c,1.55,1.56 video.h,1.37,1.38">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue May 23 21:26:02 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000357.html">[Softdevice-cvs] softdevice CHANGELOG,1.183,1.184 configure,1.12,1.13 video-dfb.c,1.59,1.60
+</A></li>
+        <LI>Next message: <A HREF="000359.html">[Softdevice-cvs] softdevice CHANGELOG,1.185,1.186
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#358">[ date ]</a>
+              <a href="thread.html#358">[ thread ]</a>
+              <a href="subject.html#358">[ subject ]</a>
+              <a href="author.html#358">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv28472
+
+Modified Files:
+	CHANGELOG utils.c utils.h video.c video.h 
+Log Message:
+- move AlphaBlend into utils.c, clean up MMX defines
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.184
+retrieving revision 1.185
+diff -C2 -d -r1.184 -r1.185
+*** CHANGELOG	7 May 2006 20:52:23 -0000	1.184
+--- CHANGELOG	23 May 2006 19:30:42 -0000	1.185
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2006-05-23:
++    - move AlphaBlend into utils.c, clean up MMX defines
+  2006-05-07:
+     - video-dfb: preparation for DSBLIT_INTERLACED which results
+
+Index: utils.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/utils.c,v
+retrieving revision 1.13
+retrieving revision 1.14
+diff -C2 -d -r1.13 -r1.14
+*** utils.c	23 Apr 2006 20:32:45 -0000	1.13
+--- utils.c	23 May 2006 19:30:42 -0000	1.14
+***************
+*** 182,187 ****
+      dst += dstStride;
+    }
+!   __asm__ __volatile__ (&quot;sfence \n&quot;
+! 		        &quot;emms \n&quot; : : : &quot;memory&quot;);
+  }
+  
+--- 182,187 ----
+      dst += dstStride;
+    }
+!   SFENCE;
+!   EMMS;
+  }
+  
+***************
+*** 257,263 ****
+      dst += dstStride;
+    }
+!   __asm__ __volatile__ (&quot;sfence \n&quot;
+! 		        &quot;emms \n&quot; : : : &quot;memory&quot;);
+! 
+  #endif
+  }
+--- 257,262 ----
+      dst += dstStride;
+    }
+!   SFENCE;
+!   EMMS;
+  #endif
+  }
+***************
+*** 553,556 ****
+--- 552,632 ----
+  }
+  
++ 
++ void AlphaBlend(uint8_t *dest,uint8_t *P1,uint8_t *P2,
++           uint8_t *alpha,uint16_t count) {
++      // printf(&quot;%x %x %x \n&quot;,P1,P2,alpha);
++ 
++ #ifdef USE_MMX
++         __asm__(&quot; pxor %%mm3,%%mm3\n&quot;
++ #ifdef USE_MMX2
++                 PREFETCH(&quot;(%0)\n&quot;)
++                 PREFETCH(&quot;(%1)\n&quot;)
++                 PREFETCH(&quot;(%2)\n&quot;)
++                 PREFETCH(&quot;64(%0)\n&quot;)
++                 PREFETCH(&quot;64(%1)\n&quot;)
++                 PREFETCH(&quot;64(%2)\n&quot;)
++                 PREFETCH(&quot;128(%0)\n&quot;)
++                 PREFETCH(&quot;128(%1)\n&quot;)
++                 PREFETCH(&quot;128(%2)\n&quot;)
++ #endif //USE_MMX2
++                 : : &quot;r&quot; (P1), &quot;r&quot; (P2), &quot;r&quot; (alpha) : &quot;memory&quot;);
++ 
++         // I guess this can be further improved...
++ 	// Useing prefetch makes it slower on Athlon64,
++ 	// but faster on the Athlon Tbird...
++ 	// Why is prefetching slower on Athlon64????
++         // Because the Athlon64 does automatic block prefetching...
++         while (count&gt;8 ) {
++ #ifdef USE_MMX2
++           if (! (count%8 ) )
++                __asm__(
++                   PREFETCH(&quot; 192(%0)\n&quot;)
++                   PREFETCH(&quot; 192(%1)\n&quot;)
++                   PREFETCH(&quot; 192(%2)\n&quot;)
++                   : : &quot;r&quot; (P1), &quot;r&quot; (P2), &quot;r&quot; (alpha) : &quot;memory&quot;);
++ 
++ #endif //USE_MMX2
++          __asm__(
++                 &quot;  movq  (%0),%%mm0\n&quot;
++                 &quot;  movq  (%1),%%mm1\n&quot;
++                 &quot;  movq  (%2),%%mm2\n&quot;
++                 &quot;  movq  %%mm0,%%mm4\n&quot;
++                 &quot;  movq  %%mm1,%%mm5\n&quot;
++                 &quot;  movq  %%mm2,%%mm6\n&quot;
++                 &quot;  punpcklbw %%mm3, %%mm0\n&quot;
++                 &quot;  punpcklbw %%mm3, %%mm1\n&quot;
++                 &quot;  punpcklbw %%mm3, %%mm2\n&quot;
++                 &quot;  punpckhbw %%mm3, %%mm4\n&quot;
++                 &quot;  punpckhbw %%mm3, %%mm5\n&quot;
++                 &quot;  punpckhbw %%mm3, %%mm6\n&quot;
++                 &quot;  psubw %%mm1, %%mm0 \n&quot;
++                 &quot;  psubw %%mm5, %%mm4 \n&quot;
++                 &quot;  psraw $1,%%mm0\n&quot;
++                 &quot;  psraw $1,%%mm4\n&quot;
++                 &quot;  pmullw %%mm2, %%mm0 \n&quot;
++                 &quot;  pmullw %%mm6, %%mm4 \n&quot;
++                 &quot;  psraw $7,%%mm0\n&quot;
++                 &quot;  psraw $7,%%mm4\n&quot;
++                 &quot;  paddw %%mm1, %%mm0 \n&quot;
++                 &quot;  paddw %%mm5, %%mm4 \n&quot;
++                 &quot;  packuswb %%mm4, %%mm0 \n&quot;
++                 MOVNTQ &quot; %%mm0,(%3)\n&quot;
++                 : : &quot;r&quot; (P1), &quot;r&quot; (P2), &quot;r&quot; (alpha),&quot;r&quot;(dest) : &quot;memory&quot;);
++                 count-=8;
++                 P1+=8;
++                 P2+=8;
++                 alpha+=8;
++                 dest+=8;
++        }
++        EMMS;
++ #endif //USE_MMX
++ 
++        //fallback version and the last missing bytes...
++        for (int i=0; i &lt; count; i++){
++           dest[i]=(((uint16_t) P1[i] *(uint16_t) alpha[i]) +
++              ((uint16_t) P2[i] *(256-(uint16_t) alpha[i])))  &gt;&gt;8 ;
++        }
++ }
++ 
+  uint64_t getTimeMilis(void) {
+      struct timeval tv;
+***************
+*** 562,572 ****
+  
+  #define MIN_LEN 0x40
+- #define PREFETCH &quot;prefetchnta&quot;
+- #define EMMS     &quot;emms&quot;
+- #ifdef USE_MMX2
+- #define MOVNTQ &quot;movntq&quot;
+- #else
+- #define MOVNTQ &quot;movq&quot;
+- #endif
+  #define MMREG_SIZE 64
+  #define BLOCK_SIZE 4096
+--- 638,641 ----
+***************
+*** 602,610 ****
+          /* PREFETCH has effect even for MOVSB instruction ;) */
+  	__asm__ __volatile__ (
+! 	        PREFETCH&quot; (%0)\n&quot;
+! 	        PREFETCH&quot; 64(%0)\n&quot;
+! 	        PREFETCH&quot; 128(%0)\n&quot;
+!         	PREFETCH&quot; 192(%0)\n&quot;
+!         	PREFETCH&quot; 256(%0)\n&quot;
+  		: : &quot;r&quot; (from) );
+  #endif
+--- 671,679 ----
+          /* PREFETCH has effect even for MOVSB instruction ;) */
+  	__asm__ __volatile__ (
+! 	        PREFETCH(&quot; (%0)\n&quot;)
+! 	        PREFETCH(&quot; 64(%0)\n&quot;)
+! 	        PREFETCH(&quot; 128(%0)\n&quot;)
+!         	PREFETCH(&quot; 192(%0)\n&quot;)
+!         	PREFETCH(&quot; 256(%0)\n&quot;)
+  		: : &quot;r&quot; (from) );
+  #endif
+***************
+*** 637,641 ****
+  		__asm__ __volatile__ (
+  #ifdef USE_MMX2
+!         	PREFETCH&quot; 320(%0)\n&quot;
+  #endif
+  		&quot;movq (%0), %%mm0\n&quot;
+--- 706,710 ----
+  		__asm__ __volatile__ (
+  #ifdef USE_MMX2
+!         	PREFETCH(&quot; 320(%0)\n&quot;)
+  #endif
+  		&quot;movq (%0), %%mm0\n&quot;
+***************
+*** 730,734 ****
+  		__asm__ __volatile__ (
+  #ifdef USE_MMX2
+!         	PREFETCH&quot; 320(%0)\n&quot;
+  #endif
+  		&quot;movq (%0), %%mm0\n&quot;
+--- 799,803 ----
+  		__asm__ __volatile__ (
+  #ifdef USE_MMX2
+!         	PREFETCH(&quot; 320(%0)\n&quot;)
+  #endif
+  		&quot;movq (%0), %%mm0\n&quot;
+***************
+*** 756,764 ****
+                  /* since movntq is weakly-ordered, a &quot;sfence&quot;
+  		 * is needed to become ordered again. */
+! 		__asm__ __volatile__ (&quot;sfence&quot; : : : &quot;memory&quot;);
+  #endif
+  #ifdef USE_MMX
+  		/* enables to use FPU */
+! 		__asm__ __volatile__ (EMMS : : :&quot;memory&quot;);
+  #endif
+  	}
+--- 825,833 ----
+                  /* since movntq is weakly-ordered, a &quot;sfence&quot;
+  		 * is needed to become ordered again. */
+!                  SFENCE;
+  #endif
+  #ifdef USE_MMX
+  		/* enables to use FPU */
+! 		EMMS ;
+  #endif
+  	}
+
+Index: utils.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/utils.h,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -C2 -d -r1.7 -r1.8
+*** utils.h	23 Apr 2006 19:55:53 -0000	1.7
+--- utils.h	23 May 2006 19:30:42 -0000	1.8
+***************
+*** 11,14 ****
+--- 11,15 ----
+  #include &lt;stdint.h&gt;
+  #include &lt;sys/time.h&gt;
++ #include &quot;config.h&quot;
+  #include &quot;mmx.h&quot;
+  
+***************
+*** 21,24 ****
+--- 22,55 ----
+  #endif
+  
++ // MMX - 3Dnow! defines
++ 
++ #undef PREFETCH
++ #undef MOVNTQ
++ #undef SFENCE
++ #undef EMMS
++ 
++ #ifdef USE_3DNOW
++ //#warning Using 3Dnow! extensions
++ #define PREFETCH(x) &quot;prefetchnta &quot; x
++ #define MOVNTQ   &quot;movntq &quot;
++ #define SFENCE   __asm__ __volatile__  (&quot; sfence \n&quot;: : : &quot;memory&quot;  )
++ #define EMMS     __asm__ __volatile__  (&quot; femms \n&quot;: : : &quot;memory&quot;  )
++ 
++ #elif defined ( USE_MMX2 )
++ //#warning Using MMX2 extensions
++ #define PREFETCH(x) &quot;prefetchnta &quot; x
++ #define MOVNTQ   &quot;movntq &quot;
++ #define SFENCE   __asm__ __volatile__  (&quot; sfence \n&quot;: : : &quot;memory&quot;  )
++ #define EMMS     __asm__ __volatile__ (&quot; emms \n&quot;: : : &quot;memory&quot;  )
++ 
++ #else
++ //#warning Using MMX extensions
++ #define PREFETCH(x) 
++ #define MOVNTQ   &quot;movq &quot;
++ #define SFENCE  
++ #define EMMS     __asm__ __volatile__ (&quot; emms \n&quot;: : : &quot;memory&quot;  )
++ #endif
++ 
++ 
+  void yv12_to_yuy2_il_c(const uint8_t *py,
+                         const uint8_t *pu,
+***************
+*** 62,65 ****
+--- 93,101 ----
+                   int dstW, int dstH,
+                   int depth, unsigned char * mask, int deintMethod);
++ 
++ void AlphaBlend(uint8_t *dest,uint8_t *P1,uint8_t *P2,
++        uint8_t *alpha,uint16_t count);
++    // performes alpha blending in software
++ 
+  uint64_t getTimeMilis(void);
+  
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.55
+retrieving revision 1.56
+diff -C2 -d -r1.55 -r1.56
+*** video.c	29 Apr 2006 15:57:27 -0000	1.55
+--- video.c	23 May 2006 19:30:42 -0000	1.56
+***************
+*** 558,637 ****
+  }
+  
+- void cVideoOut::AlphaBlend(uint8_t *dest,uint8_t *P1,uint8_t *P2,
+-           uint8_t *alpha,uint16_t count) {
+-      // printf(&quot;%x %x %x \n&quot;,P1,P2,alpha);
+- 
+- #ifdef USE_MMX
+-         __asm__(&quot; pxor %%mm3,%%mm3\n&quot;
+- #ifdef USE_MMX2
+-                 PREFETCH&quot;(%0)\n&quot;
+-                 PREFETCH&quot;(%1)\n&quot;
+-                 PREFETCH&quot;(%2)\n&quot;
+-                 PREFETCH&quot;64(%0)\n&quot;
+-                 PREFETCH&quot;64(%1)\n&quot;
+-                 PREFETCH&quot;64(%2)\n&quot;
+-                 PREFETCH&quot;128(%0)\n&quot;
+-                 PREFETCH&quot;128(%1)\n&quot;
+-                 PREFETCH&quot;128(%2)\n&quot;
+- #endif //USE_MMX2
+-                 : : &quot;r&quot; (P1), &quot;r&quot; (P2), &quot;r&quot; (alpha) : &quot;memory&quot;);
+- 
+-         // I guess this can be further improved...
+- 	// Useing prefetch makes it slower on Athlon64,
+- 	// but faster on the Athlon Tbird...
+- 	// Why is prefetching slower on Athlon64????
+-         while (count&gt;8 ) {
+- #ifdef USE_MMX2
+-           if (! (count%8 ) )
+-                __asm__(
+-                   PREFETCH&quot; 192(%0)\n&quot;
+-                   PREFETCH&quot; 192(%1)\n&quot;
+-                   PREFETCH&quot; 192(%2)\n&quot;
+-                   : : &quot;r&quot; (P1), &quot;r&quot; (P2), &quot;r&quot; (alpha) : &quot;memory&quot;);
+- 
+- #endif //USE_MMX2
+-          __asm__(
+-                 &quot;  movq  (%0),%%mm0\n&quot;
+-                 &quot;  movq  (%1),%%mm1\n&quot;
+-                 &quot;  movq  (%2),%%mm2\n&quot;
+-                 &quot;  movq  %%mm0,%%mm4\n&quot;
+-                 &quot;  movq  %%mm1,%%mm5\n&quot;
+-                 &quot;  movq  %%mm2,%%mm6\n&quot;
+-                 &quot;  punpcklbw %%mm3, %%mm0\n&quot;
+-                 &quot;  punpcklbw %%mm3, %%mm1\n&quot;
+-                 &quot;  punpcklbw %%mm3, %%mm2\n&quot;
+-                 &quot;  punpckhbw %%mm3, %%mm4\n&quot;
+-                 &quot;  punpckhbw %%mm3, %%mm5\n&quot;
+-                 &quot;  punpckhbw %%mm3, %%mm6\n&quot;
+-                 &quot;  psubw %%mm1, %%mm0 \n&quot;
+-                 &quot;  psubw %%mm5, %%mm4 \n&quot;
+-                 &quot;  psraw $1,%%mm0\n&quot;
+-                 &quot;  psraw $1,%%mm4\n&quot;
+-                 &quot;  pmullw %%mm2, %%mm0 \n&quot;
+-                 &quot;  pmullw %%mm6, %%mm4 \n&quot;
+-                 &quot;  psraw $7,%%mm0\n&quot;
+-                 &quot;  psraw $7,%%mm4\n&quot;
+-                 &quot;  paddw %%mm1, %%mm0 \n&quot;
+-                 &quot;  paddw %%mm5, %%mm4 \n&quot;
+-                 &quot;  packuswb %%mm4, %%mm0 \n&quot;
+-                 MOVQ &quot; %%mm0,(%3)\n&quot;
+-                 : : &quot;r&quot; (P1), &quot;r&quot; (P2), &quot;r&quot; (alpha),&quot;r&quot;(dest) : &quot;memory&quot;);
+-                 count-=8;
+-                 P1+=8;
+-                 P2+=8;
+-                 alpha+=8;
+-                 dest+=8;
+-        }
+-        EMMS;
+- #endif //USE_MMX
+- 
+-        //fallback version and the last missing bytes...
+-        for (int i=0; i &lt; count; i++){
+-           dest[i]=(((uint16_t) P1[i] *(uint16_t) alpha[i]) +
+-              ((uint16_t) P2[i] *(256-(uint16_t) alpha[i])))  &gt;&gt;8 ;
+-        }
+- }
+- 
+- 
+  #else
+  
+--- 558,561 ----
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.37
+retrieving revision 1.38
+diff -C2 -d -r1.37 -r1.38
+*** video.h	27 Apr 2006 20:29:29 -0000	1.37
+--- video.h	23 May 2006 19:30:42 -0000	1.38
+***************
+*** 36,62 ****
+  #define MAX_PAR 5
+  
+- // MMX - 3Dnow! defines
+- 
+- #undef PREFETCH
+- #undef EMMS
+- 
+- #ifdef USE_3DNOW
+- //#warning Using 3Dnow! extensions
+- #define PREFETCH &quot;prefetch &quot;
+- #define MOVQ     &quot;movntq &quot;
+- #define EMMS     __asm__ __volatile__  (&quot; femms \n&quot;: : : &quot;memory&quot;  )
+- #elif defined ( USE_MMX2 )
+- //#warning Using MMX2 extensions
+- #define PREFETCH &quot;prefetchnta &quot;
+- #define MOVQ     &quot;movntq &quot;
+- #define EMMS     __asm__ __volatile__ (&quot; emms \n&quot;: : : &quot;memory&quot;  )
+- #else
+- //#warning Using MMX extensions
+- #define PREFETCH
+- #define MOVQ     &quot;movq &quot;
+- #define EMMS     __asm__ __volatile__ (&quot; emms \n&quot;: : : &quot;memory&quot;  )
+- #endif
+- 
+- 
+  #if VDRVERSNUM &lt; 10307
+  
+--- 36,39 ----
+***************
+*** 247,254 ****
+      virtual void CommitUnlockSoftOsdSurface( int osdwidth, int osdheight)
+      { OSDpresent=true; OsdWidth=osdwidth; OsdHeight=osdheight; Osd_changed=1;};
+- 
+-    void AlphaBlend(uint8_t *dest,uint8_t *P1,uint8_t *P2,
+-        uint8_t *alpha,uint16_t count);
+-    // performes alpha blending in software
+  
+  #else
+--- 224,227 ----
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000357.html">[Softdevice-cvs] softdevice CHANGELOG,1.183,1.184 configure,1.12,1.13 video-dfb.c,1.59,1.60
+</A></li>
+	<LI>Next message: <A HREF="000359.html">[Softdevice-cvs] softdevice CHANGELOG,1.185,1.186
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#358">[ date ]</a>
+              <a href="thread.html#358">[ thread ]</a>
+              <a href="subject.html#358">[ subject ]</a>
+              <a href="author.html#358">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

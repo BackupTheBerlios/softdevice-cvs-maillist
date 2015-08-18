@@ -1,0 +1,317 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.144,1.145 SoftOsd.c,1.5,1.6 SoftOsd.h,1.3,1.4
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.144%2C1.145%20SoftOsd.c%2C1.5%2C1.6%20SoftOsd.h%2C1.3%2C1.4&In-Reply-To=%3C200602041005.k14A5Bx06087%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000277.html">
+   <LINK REL="Next"  HREF="000279.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.144,1.145 SoftOsd.c,1.5,1.6 SoftOsd.h,1.3,1.4</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.144%2C1.145%20SoftOsd.c%2C1.5%2C1.6%20SoftOsd.h%2C1.3%2C1.4&In-Reply-To=%3C200602041005.k14A5Bx06087%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.144,1.145 SoftOsd.c,1.5,1.6 SoftOsd.h,1.3,1.4">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Feb  4 11:05:11 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000277.html">[Softdevice-cvs] softdevice Makefile,1.22,1.23 CHANGELOG,1.143,1.144 ShmClient.c,1.1,1.2 SoftOsd.c,1.4,1.5 SoftOsd.h,1.2,1.3 shm-common.h,1.1,1.2 video-dfb.c,1.45,1.46 video-dfb.h,1.14,1.15 video-fb.c,1.11,1.12 video-fb.h,1.5,1.6 video-shm.c,1.1,1.2 video-shm.h,1.1,1.2 video-vidix.c,1.13,1.14 video-vidix.h,1.6,1.7 video-xv.c,1.38,1.39 video-xv.h,1.11,1.12 video.c,1.41,1.42 video.h,1.26,1.27
+</A></li>
+        <LI>Next message: <A HREF="000279.html">[Softdevice-cvs] softdevice CHANGELOG,1.145,1.146 shm-common.h,1.2,1.3 video-shm.c,1.2,1.3 video-shm.h,1.2,1.3 ShmClient.c,1.2,1.3
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#278">[ date ]</a>
+              <a href="thread.html#278">[ thread ]</a>
+              <a href="subject.html#278">[ subject ]</a>
+              <a href="author.html#278">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv25183
+
+Modified Files:
+	CHANGELOG SoftOsd.c SoftOsd.h 
+Log Message:
+   - added NoVScaleCopyToBitmap() vor YUV mode
+   - fix thread termination in cSoftOsd
+   - make sure that strides are multiples of 16 in cSoftOsd
+	 
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.144
+retrieving revision 1.145
+diff -C2 -d -r1.144 -r1.145
+*** CHANGELOG	3 Feb 2006 22:34:54 -0000	1.144
+--- CHANGELOG	4 Feb 2006 10:05:09 -0000	1.145
+***************
+*** 1,3 ****
+--- 1,7 ----
+  Changelog
++ 2006-03-03:
++    - added NoVScaleCopyToBitmap() vor YUV mode
++    - fix thread termination in cSoftOsd
++    - make sure that strides are multiples of 16 in cSoftOsd
+  2006-02-03:
+     - remove cSoftOsd and cOsd dependency from cVideoOut. Size and
+
+Index: SoftOsd.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.c,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -C2 -d -r1.5 -r1.6
+*** SoftOsd.c	3 Feb 2006 22:34:54 -0000	1.5
+--- SoftOsd.c	4 Feb 2006 10:05:09 -0000	1.6
+***************
+*** 33,37 ****
+  
+  cSoftOsd::cSoftOsd(cVideoOut *VideoOut, int X, int Y) 
+! 	: cOsd(X, Y),active(false) {
+          OSDDEB(&quot;cSoftOsd constructor\n&quot;);
+          OutputConvert=&amp;cSoftOsd::ARGB_to_ARGB32;
+--- 33,37 ----
+  
+  cSoftOsd::cSoftOsd(cVideoOut *VideoOut, int X, int Y) 
+! 	: cOsd(X, Y),active(false),close(false) {
+          OSDDEB(&quot;cSoftOsd constructor\n&quot;);
+          OutputConvert=&amp;cSoftOsd::ARGB_to_ARGB32;
+***************
+*** 69,72 ****
+--- 69,73 ----
+  cSoftOsd::~cSoftOsd() {
+          OSDDEB(&quot;cSoftOsd destructor\n&quot;);
++         close=true;
+          active=false;
+          Cancel(3);
+***************
+*** 82,86 ****
+          OSDDEB(&quot;OSD thread started\n&quot;);
+          active=true;
+!         while(active &amp;&amp; videoOut) {
+                  int newOsdWidth;
+                  int newOsdHeight;
+--- 83,87 ----
+          OSDDEB(&quot;OSD thread started\n&quot;);
+          active=true;
+!         while(active &amp;&amp; videoOut &amp;&amp; !close) {
+                  int newOsdWidth;
+                  int newOsdHeight;
+***************
+*** 115,118 ****
+--- 116,120 ----
+  /*--------------------------------------------------------------------------*/
+  void cSoftOsd::OsdCommit() {
++         OSDDEB(&quot;OsdCommit()\n&quot;);
+          int newX;
+          int newY;
+***************
+*** 226,230 ****
+  	// give priority to the other threads
+  	pthread_yield();
+!         if (!active)
+                  Start();
+  }
+--- 228,232 ----
+  	// give priority to the other threads
+  	pthread_yield();
+!         if (!active &amp;&amp; !close)
+                  Start();
+  }
+***************
+*** 613,621 ****
+  
+  //---------------------------YUV modes ----------------------
+- #define SCALEH_IDX(x) ((scaleH_strtIdx+(x))%lines_count)
+  void cSoftOsd::CopyToBitmap(uint8_t *PY,uint8_t *PU, uint8_t *PV,
+  		    uint8_t *PAlphaY,uint8_t *PAlphaUV,
+                      int Ystride, int UVstride,
+                      int dest_Width, int dest_Height, bool RefreshAll) {
+  
+          OSDDEB(&quot;CopyToBitmap YUV down\n&quot;);
+--- 615,683 ----
+  
+  //---------------------------YUV modes ----------------------
+  void cSoftOsd::CopyToBitmap(uint8_t *PY,uint8_t *PU, uint8_t *PV,
+  		    uint8_t *PAlphaY,uint8_t *PAlphaUV,
+                      int Ystride, int UVstride,
+                      int dest_Width, int dest_Height, bool RefreshAll) {
++         OSDDEB(&quot;CopyToBitmap destsize: %d,%d\n&quot;,dest_Width,dest_Height);
++         if (dest_Height==OSD_HEIGHT)
++                 NoVScaleCopyToBitmap(PY,PU,PV,PAlphaY,PAlphaUV,Ystride,UVstride,
++                                 dest_Width,dest_Height,RefreshAll);
++         else 
++                 ScaleVDownCopyToBitmap(PY,PU,PV,PAlphaY,PAlphaUV,Ystride,UVstride,
++                                 dest_Width,dest_Height,RefreshAll);
++ };
++                 
++ void cSoftOsd::NoVScaleCopyToBitmap(uint8_t *PY,uint8_t *PU, uint8_t *PV,
++ 		    uint8_t *PAlphaY,uint8_t *PAlphaUV,
++                     int Ystride, int UVstride,
++                     int dest_Width, int dest_Height, bool RefreshAll) {
++         OSDDEB(&quot;CopyToBitmap YUV no Vscale\n&quot;);
++  	cMutexLock dirty(&amp;dirty_Mutex);
++         color *pixmap=(color*) OSD_Bitmap;
++         int dest_Stride=(dest_Width+32) &amp; ~0xf;
++         color tmp_pixmap[2*dest_Stride];
++         uint8_t *pY;uint8_t *pU;uint8_t *pV;
++         uint8_t *pAlphaY; uint8_t *pAlphaUV;
++  	void (cSoftOsd::*ScaleHoriz)(uint8_t * dest, int dest_Width, color * pixmap,int Pixel);
++ 	ScaleHoriz = ( dest_Width&lt;OSD_WIDTH ? &amp;cSoftOsd::ScaleDownHoriz_MMX :
++                       ( dest_Width==OSD_WIDTH ? &amp;cSoftOsd::NoScaleHoriz_MMX :
++                         &amp;cSoftOsd::ScaleUpHoriz_MMX));
++       
++         for (int y=0; y&lt;dest_Height; y+=2) {
++ 
++                 int is_dirty=RefreshAll;
++                 is_dirty |= dirty_lines[y] || dirty_lines[y+1];
++ 
++                 if (!is_dirty) 
++                         continue;
++ 
++                 //printf(&quot;Horiz scaling line %d\n&quot;,start_row+i);
++                 (this-&gt;*ScaleHoriz)((uint8_t *)tmp_pixmap,dest_Width,
++                                 &amp;pixmap[y*OSD_STRIDE],OSD_WIDTH-1); 
++                 (this-&gt;*ScaleHoriz)((uint8_t *)&amp;tmp_pixmap[dest_Stride],
++                                 dest_Width,
++                                 &amp;pixmap[(y+1)*OSD_STRIDE],OSD_WIDTH-1); 
++ 
++                 // convert and copy to video out OSD layer
++                 pY=PY+y*Ystride;
++                 pU=PU+y*UVstride/2;
++                 pV=PV+y*UVstride/2;
++                 pAlphaY=PAlphaY+y*Ystride;
++                 pAlphaUV=PAlphaUV+y*UVstride/2;
++                 AYUV_to_AYUV420P(pY,pY+Ystride,pU,pV,
++                                 pAlphaY,pAlphaY+Ystride,pAlphaUV,
++                                 //              &amp;pixmap[y*OSD_STRIDE],&amp;pixmap[(y+1)*OSD_STRIDE],
++                                 //              dest_Width);
++                         tmp_pixmap,&amp;tmp_pixmap[dest_Stride],dest_Width);
++         };
++         memset(dirty_lines,false,sizeof(dirty_lines));
++         OSDDEB(&quot;CopyToBitmap YUV no Vscale end \n&quot;);
++ };
++        
++ #define SCALEH_IDX(x) ((scaleH_strtIdx+(x))%lines_count)
++ void cSoftOsd::ScaleVDownCopyToBitmap(uint8_t *PY,uint8_t *PU, uint8_t *PV,
++ 		    uint8_t *PAlphaY,uint8_t *PAlphaUV,
++                     int Ystride, int UVstride,
++                     int dest_Width, int dest_Height, bool RefreshAll) {
+  
+          OSDDEB(&quot;CopyToBitmap YUV down\n&quot;);
+***************
+*** 739,743 ****
+  	
+  	cMutexLock dirty(&amp;dirty_Mutex);
+! 	const int dest_stride=dest_Width+16;
+  	void (cSoftOsd::*ScaleHoriz)(uint8_t * dest, int dest_Width, color * pixmap,int Pixel);
+  	ScaleHoriz= dest_Width&lt;OSD_WIDTH ? &amp;cSoftOsd::ScaleDownHoriz_MMX :
+--- 801,805 ----
+  	
+  	cMutexLock dirty(&amp;dirty_Mutex);
+! 	const int dest_stride=(dest_Width+32)&amp;~0xF;
+  	void (cSoftOsd::*ScaleHoriz)(uint8_t * dest, int dest_Width, color * pixmap,int Pixel);
+  	ScaleHoriz= dest_Width&lt;OSD_WIDTH ? &amp;cSoftOsd::ScaleDownHoriz_MMX :
+***************
+*** 843,847 ****
+          uint8_t *buf;
+          color *pixmap=(color*) OSD_Bitmap;
+! 	const int dest_stride=dest_Width+16;
+          color tmp_pixmap[2*dest_stride];
+  
+--- 905,909 ----
+          uint8_t *buf;
+          color *pixmap=(color*) OSD_Bitmap;
+! 	const int dest_stride=(dest_Width+32)&amp;~0xF;
+          color tmp_pixmap[2*dest_stride];
+  
+***************
+*** 1039,1042 ****
+--- 1101,1108 ----
+  };
+  
++ void cSoftOsd::NoScaleHoriz_MMX(uint8_t * dest, int dest_Width, 
++                 color * pixmap, int Pixel) {
++         memcpy(dest,pixmap,Pixel*sizeof(color));
++ };
+  
+  //-----------------------------------------------------------------
+
+Index: SoftOsd.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.h,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** SoftOsd.h	3 Feb 2006 22:34:54 -0000	1.3
+--- SoftOsd.h	4 Feb 2006 10:05:09 -0000	1.4
+***************
+*** 76,79 ****
+--- 76,80 ----
+     
+      bool active;
++     bool close;
+      int ScreenOsdWidth;
+      int ScreenOsdHeight;
+***************
+*** 114,117 ****
+--- 115,129 ----
+                      int Ystride, int UVstride,
+                      int dest_Width, int dest_Height, bool RefreshAll=false);
++   
++     void NoVScaleCopyToBitmap(uint8_t *PY,uint8_t *PU, uint8_t *PV,
++ 		    uint8_t *PAlphaY,uint8_t *PAlphaUV,
++                     int Ystride, int UVstride,
++                     int dest_Width, int dest_Height, bool RefreshAll=false);
++ 
++     void ScaleVDownCopyToBitmap(uint8_t *PY,uint8_t *PU, uint8_t *PV,
++ 		    uint8_t *PAlphaY,uint8_t *PAlphaUV,
++                     int Ystride, int UVstride,
++                     int dest_Width, int dest_Height, bool RefreshAll=false);
++     
+  
+      // ARGB packed modes
+***************
+*** 129,132 ****
+--- 141,145 ----
+      
+   private:
++     void NoScaleHoriz_MMX(uint8_t * dest, int dest_Width, color * pixmap,int Pixel);
+      void ScaleUpHoriz_MMX(uint8_t * dest, int dest_Width, color * pixmap,int Pixel);
+      void ScaleDownHoriz_MMX(uint8_t * dest, int dest_Width, color * pixmap,int Pixel);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000277.html">[Softdevice-cvs] softdevice Makefile,1.22,1.23 CHANGELOG,1.143,1.144 ShmClient.c,1.1,1.2 SoftOsd.c,1.4,1.5 SoftOsd.h,1.2,1.3 shm-common.h,1.1,1.2 video-dfb.c,1.45,1.46 video-dfb.h,1.14,1.15 video-fb.c,1.11,1.12 video-fb.h,1.5,1.6 video-shm.c,1.1,1.2 video-shm.h,1.1,1.2 video-vidix.c,1.13,1.14 video-vidix.h,1.6,1.7 video-xv.c,1.38,1.39 video-xv.h,1.11,1.12 video.c,1.41,1.42 video.h,1.26,1.27
+</A></li>
+	<LI>Next message: <A HREF="000279.html">[Softdevice-cvs] softdevice CHANGELOG,1.145,1.146 shm-common.h,1.2,1.3 video-shm.c,1.2,1.3 video-shm.h,1.2,1.3 ShmClient.c,1.2,1.3
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#278">[ date ]</a>
+              <a href="thread.html#278">[ thread ]</a>
+              <a href="subject.html#278">[ subject ]</a>
+              <a href="author.html#278">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,295 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.216,	1.217 setup-softdevice.c, 1.45, 1.46 setup-softdevice.h, 1.32,	1.33 softdevice.c, 1.64, 1.65 video-xv.c, 1.57,	1.58 video-xv.h, 1.21, 1.22
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.216%2C%0A%091.217%20setup-softdevice.c%2C%201.45%2C%201.46%20setup-softdevice.h%2C%201.32%2C%0A%091.33%20softdevice.c%2C%201.64%2C%201.65%20video-xv.c%2C%201.57%2C%0A%091.58%20video-xv.h%2C%201.21%2C%201.22&In-Reply-To=%3C20060725195820.82D1F5C3E4%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000402.html">
+   <LINK REL="Next"  HREF="000404.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.216,	1.217 setup-softdevice.c, 1.45, 1.46 setup-softdevice.h, 1.32,	1.33 softdevice.c, 1.64, 1.65 video-xv.c, 1.57,	1.58 video-xv.h, 1.21, 1.22</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.216%2C%0A%091.217%20setup-softdevice.c%2C%201.45%2C%201.46%20setup-softdevice.h%2C%201.32%2C%0A%091.33%20softdevice.c%2C%201.64%2C%201.65%20video-xv.c%2C%201.57%2C%0A%091.58%20video-xv.h%2C%201.21%2C%201.22&In-Reply-To=%3C20060725195820.82D1F5C3E4%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.216,	1.217 setup-softdevice.c, 1.45, 1.46 setup-softdevice.h, 1.32,	1.33 softdevice.c, 1.64, 1.65 video-xv.c, 1.57,	1.58 video-xv.h, 1.21, 1.22">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue Jul 25 21:58:20 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000402.html">[Softdevice-cvs] softdevice CHANGELOG, 1.215, 1.216 video-dfb.c,	1.68, 1.69
+</A></li>
+        <LI>Next message: <A HREF="000404.html">[Softdevice-cvs] softplay SoftPlayer.c, 1.14, 1.15 SoftPlayer.h, 1.6,	1.7
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#403">[ date ]</a>
+              <a href="thread.html#403">[ thread ]</a>
+              <a href="subject.html#403">[ subject ]</a>
+              <a href="author.html#403">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv28951
+
+Modified Files:
+	CHANGELOG setup-softdevice.c setup-softdevice.h softdevice.c 
+	video-xv.c video-xv.h 
+Log Message:
+- try to use the XVideo default brightness, hue etc. values on first start
+- new option: &quot;-vo xv:use-defaults&quot;, can be used to reset the values
+  of brightness, hue etc. to the default values. (Based on a patch
+  by Matthias Schwarzott)
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.216
+retrieving revision 1.217
+diff -C2 -d -r1.216 -r1.217
+*** CHANGELOG	25 Jul 2006 19:47:41 -0000	1.216
+--- CHANGELOG	25 Jul 2006 19:58:12 -0000	1.217
+***************
+*** 4,7 ****
+--- 4,11 ----
+     - clean up audio-alsa
+     - init tmpOsdSurface and delete dirtyLines properly
++    - try to use the XVideo default brightness, hue etc. values on first start
++    - new option: &quot;-vo xv:use-defaults&quot;, can be used to reset the values
++      of brightness, hue etc. to the default values. (Based on a patch
++      by Matthias Schwarzott)
+  2006-07-16:
+     - only link against libXi if necessary ( do we need libXi at all?)
+
+Index: setup-softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.c,v
+retrieving revision 1.45
+retrieving revision 1.46
+diff -C2 -d -r1.45 -r1.46
+*** setup-softdevice.c	25 Jun 2006 13:46:12 -0000	1.45
+--- setup-softdevice.c	25 Jul 2006 19:58:12 -0000	1.46
+***************
+*** 92,95 ****
+--- 92,97 ----
+    xvAspect      = 1;   // XV_FORMAT_NORMAL;
+    xvMaxArea     = 0;
++   xvFullscreen  = 0;
++   xvUseDefaults = 0;
+    outputMethod  = 0;
+    cropMode      = 0;
+***************
+*** 120,124 ****
+    syncTimerMode = 2;
+    vidCaps = 0;
+!   vidBrightness = vidHue = vidContrast = vidSaturation = VID_MAX_PARM_VALUE / 2;
+  
+    /* --------------------------------------------------------------------------
+--- 122,126 ----
+    syncTimerMode = 2;
+    vidCaps = 0;
+!   vidBrightness = vidHue = vidContrast = vidSaturation = -1;
+  
+    /* --------------------------------------------------------------------------
+***************
+*** 361,377 ****
+    } else if (!strcasecmp(Name, &quot;vidBrightness&quot;)) {
+      vidBrightness = atoi (Value);
+!     vidBrightness = clamp (0, vidBrightness, 100);
+      fprintf(stderr, &quot;[setup-softdevice] vidBrightness: %d\n&quot;, vidBrightness);
+    } else if (!strcasecmp(Name, &quot;vidContrast&quot;)) {
+      vidContrast = atoi (Value);
+!     vidContrast = clamp (0, vidContrast, 100);
+      fprintf(stderr, &quot;[setup-softdevice] vidContrast: %d\n&quot;, vidContrast);
+    } else if (!strcasecmp(Name, &quot;vidHue&quot;)) {
+      vidHue = atoi (Value);
+!     vidHue = clamp (0, vidHue, 100);
+      fprintf(stderr, &quot;[setup-softdevice] vidHue: %d\n&quot;, vidHue);
+    } else if (!strcasecmp(Name, &quot;vidSaturation&quot;)) {
+      vidSaturation = atoi (Value);
+!     vidSaturation = clamp (0, vidSaturation, 100);
+      fprintf(stderr, &quot;[setup-softdevice] vidSaturation: %d\n&quot;, vidSaturation);
+    }  else
+--- 363,379 ----
+    } else if (!strcasecmp(Name, &quot;vidBrightness&quot;)) {
+      vidBrightness = atoi (Value);
+!     vidBrightness = clamp (-1, vidBrightness, 100);
+      fprintf(stderr, &quot;[setup-softdevice] vidBrightness: %d\n&quot;, vidBrightness);
+    } else if (!strcasecmp(Name, &quot;vidContrast&quot;)) {
+      vidContrast = atoi (Value);
+!     vidContrast = clamp (-1, vidContrast, 100);
+      fprintf(stderr, &quot;[setup-softdevice] vidContrast: %d\n&quot;, vidContrast);
+    } else if (!strcasecmp(Name, &quot;vidHue&quot;)) {
+      vidHue = atoi (Value);
+!     vidHue = clamp (-1, vidHue, 100);
+      fprintf(stderr, &quot;[setup-softdevice] vidHue: %d\n&quot;, vidHue);
+    } else if (!strcasecmp(Name, &quot;vidSaturation&quot;)) {
+      vidSaturation = atoi (Value);
+!     vidSaturation = clamp (-1, vidSaturation, 100);
+      fprintf(stderr, &quot;[setup-softdevice] vidSaturation: %d\n&quot;, vidSaturation);
+    }  else
+
+Index: setup-softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.h,v
+retrieving revision 1.32
+retrieving revision 1.33
+diff -C2 -d -r1.32 -r1.33
+*** setup-softdevice.h	25 Jun 2006 13:46:12 -0000	1.32
+--- setup-softdevice.h	25 Jul 2006 19:58:12 -0000	1.33
+***************
+*** 126,129 ****
+--- 126,130 ----
+      int   xvMaxArea;
+      int   xvFullscreen;
++     int   xvUseDefaults;
+      int   outputMethod;
+      int   pixelFormat;
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.64
+retrieving revision 1.65
+diff -C2 -d -r1.64 -r1.65
+*** softdevice.c	11 Jul 2006 20:31:37 -0000	1.64
+--- softdevice.c	25 Jul 2006 19:58:12 -0000	1.65
+***************
+*** 369,372 ****
+--- 369,374 ----
+      esyslog(&quot;[softdevice] could not load (%s)[%s] exiting\n&quot;,
+              subPluginFileName, err);
++     fprintf(stderr,&quot;[softdevice] could not load (%s)[%s] exiting\n&quot;,
++             subPluginFileName, err);
+      exit(1);
+    }
+***************
+*** 706,709 ****
+--- 708,712 ----
+    &quot;  -vo xv:max-area          use maximum available area\n&quot;
+    &quot;  -vo xv:full              startup fullscreen\n&quot;
++   &quot;  -vo xv:use-defaults      don't change brigtness etc on startup\n&quot;
+  #endif
+  #ifdef FB_SUPPORT
+***************
+*** 783,786 ****
+--- 786,794 ----
+                         &quot;[ProcessArgs] xv: start up fullscreen\n&quot;);
+                vo_argv += 4;
++             } else if (!strncmp (vo_argv, &quot;use-defaults&quot;, 12)) {
++               fprintf (stderr,
++                        &quot;[ProcessArgs] xv: don't change brigtness etc on startup\n&quot;);
++               setupStore.xvUseDefaults=true;
++               vo_argv += 12;
+              } else {
+                      fprintf(stderr,&quot;[softdevice] ignoring unrecognized option \&quot;%s\&quot;!\n&quot;,argv[i]);
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.57
+retrieving revision 1.58
+diff -C2 -d -r1.57 -r1.58
+*** video-xv.c	16 Jul 2006 02:09:22 -0000	1.57
+--- video-xv.c	25 Jul 2006 19:58:12 -0000	1.58
+***************
+*** 127,130 ****
+--- 127,145 ----
+  /* ---------------------------------------------------------------------------
+   */
++ int cXvPortAttributeStore::GetValuePercent(int index)
++ {
++       int value = portAttributeCurrentValues[index];
++ 
++       value = (int) (((double) value - (double) portAttributes[index].min_value) * 100.0
++               / ((double) portAttributes[index].max_value - (double) portAttributes[index].min_value));
++ 
++       if (value &lt;= 100 &amp;&amp;
++           value &gt;= 0)
++         return value;
++       return 0;
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
+  void cXvPortAttributeStore::SetValuePercent(char *name, int value)
+  {
+***************
+*** 218,228 ****
+--- 233,259 ----
+        }
+        if (!strcmp(portAttributes[i].name, &quot;XV_BRIGHTNESS&quot;))
++       {
+          setupStore-&gt;vidCaps |= CAP_BRIGHTNESS;
++         if ( setupStore-&gt;xvUseDefaults || setupStore-&gt;vidBrightness&lt;0 )
++                 setupStore-&gt;vidBrightness = currBrightness = GetValuePercent(i);
++       }
+        if (!strcmp(portAttributes[i].name, &quot;XV_CONTRAST&quot;))
++       {
+          setupStore-&gt;vidCaps |= CAP_CONTRAST;
++         if ( setupStore-&gt;xvUseDefaults || setupStore-&gt;vidContrast&lt;0 )
++                 setupStore-&gt;vidContrast = currContrast = GetValuePercent(i);
++       }
+        if (!strcmp(portAttributes[i].name, &quot;XV_HUE&quot;))
++       {
+          setupStore-&gt;vidCaps |= CAP_HUE;
++         if ( setupStore-&gt;xvUseDefaults || setupStore-&gt;vidHue&lt;0 )
++                 setupStore-&gt;vidHue = currHue = GetValuePercent(i);
++       }
+        if (!strcmp(portAttributes[i].name, &quot;XV_SATURATION&quot;))
++       {
+          setupStore-&gt;vidCaps |= CAP_SATURATION;
++         if ( setupStore-&gt;xvUseDefaults || setupStore-&gt;vidSaturation&lt;0 )
++                 setupStore-&gt;vidSaturation = currSaturation = GetValuePercent(i);
++       }
+  
+        dsyslog(&quot;[XvVideoOut]:&quot;
+
+Index: video-xv.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.h,v
+retrieving revision 1.21
+retrieving revision 1.22
+diff -C2 -d -r1.21 -r1.22
+*** video-xv.h	27 May 2006 19:12:42 -0000	1.21
+--- video-xv.h	25 Jul 2006 19:58:12 -0000	1.22
+***************
+*** 92,95 ****
+--- 92,96 ----
+    void SetValue(char *name, int value);
+    void SetValuePercent(char *name, int value);
++   int GetValuePercent(int index);
+    void SetColorkey(int value);
+    void Increment(char *name);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000402.html">[Softdevice-cvs] softdevice CHANGELOG, 1.215, 1.216 video-dfb.c,	1.68, 1.69
+</A></li>
+	<LI>Next message: <A HREF="000404.html">[Softdevice-cvs] softplay SoftPlayer.c, 1.14, 1.15 SoftPlayer.h, 1.6,	1.7
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#403">[ date ]</a>
+              <a href="thread.html#403">[ thread ]</a>
+              <a href="subject.html#403">[ subject ]</a>
+              <a href="author.html#403">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

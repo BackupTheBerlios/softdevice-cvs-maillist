@@ -1,0 +1,547 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.247, 1.248 video.c, 1.66,	1.67 video.h, 1.43, 1.44 video-dfb.c, 1.71, 1.72 video-dfb.h,	1.22, 1.23
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.247%2C%201.248%20video.c%2C%201.66%2C%0A%091.67%20video.h%2C%201.43%2C%201.44%20video-dfb.c%2C%201.71%2C%201.72%20video-dfb.h%2C%0A%091.22%2C%201.23&In-Reply-To=%3C20060929192531.A867A828C5%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000442.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.247, 1.248 video.c, 1.66,	1.67 video.h, 1.43, 1.44 video-dfb.c, 1.71, 1.72 video-dfb.h,	1.22, 1.23</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.247%2C%201.248%20video.c%2C%201.66%2C%0A%091.67%20video.h%2C%201.43%2C%201.44%20video-dfb.c%2C%201.71%2C%201.72%20video-dfb.h%2C%0A%091.22%2C%201.23&In-Reply-To=%3C20060929192531.A867A828C5%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.247, 1.248 video.c, 1.66,	1.67 video.h, 1.43, 1.44 video-dfb.c, 1.71, 1.72 video-dfb.h,	1.22, 1.23">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Sep 29 21:25:31 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000442.html">[Softdevice-cvs] softdevice video-xv.c,1.62,1.63
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#443">[ date ]</a>
+              <a href="thread.html#443">[ thread ]</a>
+              <a href="subject.html#443">[ subject ]</a>
+              <a href="author.html#443">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv6653
+
+Modified Files:
+	CHANGELOG video.c video.h video-dfb.c video-dfb.h 
+Log Message:
+removed osdMutex
+clear non video area when OSD is active to avoid fade effects
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.247
+retrieving revision 1.248
+diff -C2 -d -r1.247 -r1.248
+*** CHANGELOG	22 Sep 2006 19:28:04 -0000	1.247
+--- CHANGELOG	29 Sep 2006 19:24:57 -0000	1.248
+***************
+*** 1,3 ****
+--- 1,8 ----
+  Changelog
++ 2006-09-29:
++    - video-shm: silence warnings.
++    - video-xv: removed osdMutex.
++    - video-dfb: removed osdMutex.
++                 clear non video area when OSD is active to avoid fade effects.
+  2006-09-22:
+     - protect locking for old picture by a separate mutex.
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.66
+retrieving revision 1.67
+diff -C2 -d -r1.66 -r1.67
+*** video.c	22 Sep 2006 19:28:04 -0000	1.66
+--- video.c	29 Sep 2006 19:24:57 -0000	1.67
+***************
+*** 106,110 ****
+      if (
+          OsdRefreshCounter &gt; 120 || // blanks the screen after inactivity (4s)
+!         (current_osdMode == OSDMODE_SOFTWARE &amp;&amp;
+           OsdRefreshCounter&gt;5 &amp;&amp; Osd_changed))
+      {
+--- 106,110 ----
+      if (
+          OsdRefreshCounter &gt; 120 || // blanks the screen after inactivity (4s)
+!         (IsSoftOSDMode() &amp;&amp;
+           OsdRefreshCounter&gt;5 &amp;&amp; Osd_changed))
+      {
+***************
+*** 477,482 ****
+  {
+    OSDDEB(&quot;ClearOSD\n&quot;);
+-   osdMutex.Lock();
+- 
+    OSDpresent=false; // will automaticly be set to true on redraw ;-)
+    if (OsdPy)
+--- 477,480 ----
+***************
+*** 491,496 ****
+      memset(OsdPAlphaUV,0,OSD_FULL_WIDTH*OSD_FULL_HEIGHT/4);
+    Osd_changed=1;
+  
+!  osdMutex.Unlock();
+  }
+  
+--- 489,499 ----
+      memset(OsdPAlphaUV,0,OSD_FULL_WIDTH*OSD_FULL_HEIGHT/4);
+    Osd_changed=1;
++ }
+  
+! /* ---------------------------------------------------------------------------
+!  */
+! bool cVideoOut::IsSoftOSDMode()
+! {
+!   return current_osdMode == OSDMODE_SOFTWARE;
+  }
+  
+***************
+*** 504,511 ****
+  void cVideoOut::CloseOSD()
+  {
+-   osdMutex.Lock();
+    ClearOSD();
+    OSDpresent=false;
+-   osdMutex.Unlock();
+    OSDDEB(&quot;CloseOSD\n&quot;);
+  }
+--- 507,512 ----
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.43
+retrieving revision 1.44
+diff -C2 -d -r1.43 -r1.44
+*** video.h	22 Sep 2006 19:28:04 -0000	1.43
+--- video.h	29 Sep 2006 19:24:57 -0000	1.44
+***************
+*** 80,84 ****
+      // when there is osd drawing activity in case of no video currently
+      // available. Access to this pointer must be protected by corresponding
+!     // mutex: oldPictureMutex .
+      //
+      sPicBuffer  *oldPicture;
+--- 80,86 ----
+      // when there is osd drawing activity in case of no video currently
+      // available. Access to this pointer must be protected by corresponding
+!     // mutex: oldPictureMutex . This includes changeing the contens e.g.
+!     // when a decoded picture will be displayed and thus will be the reference
+!     // for future operation on oldPicture.
+      //
+      sPicBuffer  *oldPicture;
+***************
+*** 90,101 ****
+      { return aspect_F;};
+  
+! protected:
+      // -----------------------------------------------------------------------
+!     // State changes of OSD like on / off transitions, must be proteced by
+!     // osdMutex. This are changes of variable OSDpresent, as the output method
+!     // may need to take some longer actions e.g clearing background for one or
+!     // mutiple output buffers (double, triple buffering).
+      //
+      cMutex  osdMutex;
+      bool    OSDpresent,
+              OSDpseudo_alpha;
+--- 92,102 ----
+      { return aspect_F;};
+  
+! #if VDRVERSNUM &lt; 10307
+      // -----------------------------------------------------------------------
+!     // Artefakt of vdr-1.2.x OSD create/delete locking
+      //
+      cMutex  osdMutex;
++ #endif
++ 
+      bool    OSDpresent,
+              OSDpseudo_alpha;
+***************
+*** 139,142 ****
+--- 140,148 ----
+  
+      virtual void RecalculateAspect(void);
++ 
++     /* -----------------------------------------------------------------------
++      * To be used in video thread only: Action()
++      */
++     virtual bool IsSoftOSDMode();
+  
+  public:
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.71
+retrieving revision 1.72
+diff -C2 -d -r1.71 -r1.72
+*** video-dfb.c	16 Sep 2006 09:30:19 -0000	1.71
+--- video-dfb.c	29 Sep 2006 19:24:57 -0000	1.72
+***************
+*** 661,667 ****
+      }
+    }
+- 
+-   if (OsdRefreshCounter &amp;&amp; (OsdRefreshCounter % 3) == 0)
+-     ShowOSD();
+  }
+  
+--- 661,664 ----
+***************
+*** 1073,1077 ****
+    {
+      dirtyLines=DirtyLines=new bool[Yres];
+!     memset(dirtyLines,false,sizeof(dirtyLines));
+  
+      tmpOsdSurface = (useStretchBlit) ? osdSurface : scrSurface;
+--- 1070,1074 ----
+    {
+      dirtyLines=DirtyLines=new bool[Yres];
+!     memset(dirtyLines,false,sizeof(bool)*Yres);
+  
+      tmpOsdSurface = (useStretchBlit) ? osdSurface : scrSurface;
+***************
+*** 1138,1141 ****
+--- 1135,1139 ----
+    dirtyLines=NULL;
+    tmpOsdSurface=NULL;
++   clearBackground = 0;
+    cVideoOut::CommitUnlockOsdSurface();
+  }
+***************
+*** 1204,1207 ****
+--- 1202,1213 ----
+  /* ---------------------------------------------------------------------------
+   */
++ bool cDFBVideoOut::IsSoftOSDMode()
++ {
++   return cVideoOut::IsSoftOSDMode() ||
++          useStretchBlit;
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
+  void cDFBVideoOut::CloseOSD()
+  {
+***************
+*** 1211,1224 ****
+      return;
+  
+    tmpSurface = (useStretchBlit) ? osdSurface : scrSurface;
+- 
+    try
+    {
+      if (useStretchBlit)
+      {
+-       osdMutex.Lock();
+        OSDpresent  = false;
+!       osdClrBack = true;
+!       osdMutex.Unlock();
+        tmpSurface-&gt;Clear(COLORKEY,clearAlpha); //clear and
+      }
+--- 1217,1228 ----
+      return;
+  
++   cVideoOut::CloseOSD();
+    tmpSurface = (useStretchBlit) ? osdSurface : scrSurface;
+    try
+    {
+      if (useStretchBlit)
+      {
+        OSDpresent  = false;
+!       clearBackground = clearBackCount;
+        tmpSurface-&gt;Clear(COLORKEY,clearAlpha); //clear and
+      }
+***************
+*** 1244,1297 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cDFBVideoOut::ShowOSD ()
+  {
+!   if (!videoInitialized)
+!     return;
+! 
+!   if (useStretchBlit &amp;&amp; (OSDpresent || osdClrBack)) {
+!     // do image and OSD mix here
+!       DFBRectangle  src, dst, osdsrc;
+  
+!     src.x = sxoff;
+!     src.y = syoff;
+!     src.w = swidth;
+!     src.h = sheight;
+!     dst.x = lxoff;
+!     dst.y = lyoff;
+!     dst.w = lwidth;
+!     dst.h = lheight;
+  
+!     osdMutex.Lock();
+!     if (osdClrBack) {
+!       clearBackground = clearBackCount;
+!       osdClrBack = false;
+      }
+  
+!     try
+!     {
+!       if (clearBackground) {
+!         scrSurface-&gt;Clear(0,0,0,0);
+!         clearBackground--;
+!       }
+! 
+!       scrSurface-&gt;SetBlittingFlags(DSBLIT_NOFX);
+!       scrSurface-&gt;StretchBlit(videoSurface, &amp;src, &amp;dst);
+!       if (OSDpresent)
+!       {
+!         osdsrc.x = osdsrc.y = 0;
+!         osdsrc.w = Xres;osdsrc.h=Yres;
+!         scrSurface-&gt;SetBlittingFlags(DSBLIT_BLEND_ALPHACHANNEL);
+!         scrSurface-&gt;Blit(osdSurface, &amp;osdsrc, 0, 0);
+!       }
+!       scrSurface-&gt;Flip(NULL, DSFLIP_WAITFORSYNC);
+! 
+!     }
+!     catch (DFBException *ex)
+!     {
+!       fprintf (stderr,&quot;[dfb] ShowOSD: action=%s, result=%s\n&quot;,
+!                ex-&gt;GetAction(), ex-&gt;GetResult());
+!       delete ex;
+      }
+-     osdMutex.Unlock();
+    }
+  }
+--- 1248,1280 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void cDFBVideoOut::ClearBorders()
+  {
+!   /* ---------------------------------------------------------------------
+!    * clear parts of screen when OSD is present and which are not
+!    * covered by video. This avoids fading effects when 16:9 video
+!    * is shown on 4:3 screen (top &amp; bottom) or when 4:3 video is shown
+!    * on 16:9 screen (left &amp; right).
+!    */
+!   if (OSDpresent || clearBackground &gt; 0) {
+!     scrSurface-&gt;SetColor(0,0,0,0);
+  
+!     if (clearBackground &gt; 0)
+!       clearBackground--;
+  
+!     /* -------------------------------------------------------------------
+!      * clear top &amp; bottom black bar area
+!      */
+!     if (lyoff) {
+!       scrSurface-&gt;FillRectangle(0,0,            dwidth,lyoff);
+!       scrSurface-&gt;FillRectangle(0,lyoff+lheight,dwidth,lyoff);
+      }
+  
+!     /* -------------------------------------------------------------------
+!      * clear left &amp; right black bar area
+!      */
+!     if (lxoff) {
+!       scrSurface-&gt;FillRectangle(0,0,           lxoff,dheight);
+!       scrSurface-&gt;FillRectangle(lxoff+lwidth,0,lxoff,dheight);
+      }
+    }
+  }
+***************
+*** 1301,1318 ****
+  void cDFBVideoOut::YUV(sPicBuffer *buf)
+  {
+!   uint8_t *dst;
+!   int pitch;
+!   int hi;
+!   uint8_t *Py=buf-&gt;pixel[0]
+!                 +(buf-&gt;edge_height)*buf-&gt;stride[0]
+!                 +buf-&gt;edge_width;
+!   uint8_t *Pu=buf-&gt;pixel[1]+(buf-&gt;edge_height/2)*buf-&gt;stride[1]
+!                 +buf-&gt;edge_width/2;
+!   uint8_t *Pv=buf-&gt;pixel[2]+(buf-&gt;edge_height/2)*buf-&gt;stride[2]
+!                 +buf-&gt;edge_width/2;
+!   int Ystride=buf-&gt;stride[0];
+!   int UVstride=buf-&gt;stride[1];
+!   int Width=buf-&gt;width;
+!   int Height=buf-&gt;height;
+  
+    if (!videoInitialized)
+--- 1284,1306 ----
+  void cDFBVideoOut::YUV(sPicBuffer *buf)
+  {
+!   DFBSurfaceFlipFlags   flipFlags;
+!   IDirectFBSurface      *flipSurface;
+! 
+!   uint8_t               *dst;
+!   int                   pitch;
+!   int                   hi;
+!   uint8_t               *Py = buf-&gt;pixel[0] +
+!                               (buf-&gt;edge_height)*buf-&gt;stride[0] +
+!                               buf-&gt;edge_width;
+!   uint8_t               *Pu = buf-&gt;pixel[1] +
+!                               (buf-&gt;edge_height/2)*buf-&gt;stride[1] +
+!                               buf-&gt;edge_width/2;
+!   uint8_t               *Pv = buf-&gt;pixel[2] +
+!                               (buf-&gt;edge_height/2)*buf-&gt;stride[2] +
+!                               buf-&gt;edge_width/2;
+!   int                   Ystride  = buf-&gt;stride[0];
+!   int                   UVstride = buf-&gt;stride[1];
+!   int                   Width    = buf-&gt;width;
+!   int                   Height   = buf-&gt;height;
+  
+    if (!videoInitialized)
+***************
+*** 1321,1324 ****
+--- 1309,1315 ----
+    SetParams();
+  
++   flipSurface = videoSurface;
++   flipFlags = (setupStore-&gt;tripleBuffering) ? DSFLIP_NONE : DSFLIP_ONSYNC;
++ 
+    //fprintf(stderr,&quot;[dfb] draw frame (%d x %d) Y: %d UV: %d\n&quot;, Width, Height, Ystride, UVstride);
+    try
+***************
+*** 1437,1487 ****
+        //fprintf (stderr, &quot;dst (%d,%d %dx%d)\n&quot;, lxoff,lyoff,lwidth,lheight);
+  
+!       osdMutex.Lock();
+!       clearBackground = (aspect_changed || osdClrBack) ? clearBackCount: clearBackground;
+!       osdClrBack = false;
+! 
+!       if (clearBackground)
+!       {
+!         scrSurface-&gt;Clear(0,0,0,0);
+!         clearBackground--;
+!       }
+! 
+!       osdMutex.Unlock();
+! 
+        scrSurface-&gt;SetBlittingFlags(DSBLIT_NOFX);
+        scrSurface-&gt;StretchBlit(videoSurface, &amp;src, &amp;dst);
+  
+!       if (OSDpresent)
+!       {
+!           DFBRectangle  osdsrc;
+!         osdsrc.x = osdsrc.y = 0;
+!         osdsrc.w = Xres;osdsrc.h=Yres;
+          scrSurface-&gt;SetBlittingFlags(DSBLIT_BLEND_ALPHACHANNEL);
+! #if 0
+!         /* --------------------------------------------------------------------
+!          * test for OSD scaleinf to 4:3 aspect on a 16:9 tv
+!          */
+!           DFBRectangle  osddest;
+!         osddest.x = 90; osddest.y = 0;
+!         osddest.w = 540; osddest.h = Yres;
+!         scrSurface-&gt;StretchBlit(osdSurface, &amp;osdsrc, &amp;osddest);
+! #else
+!         scrSurface-&gt;Blit(osdSurface, &amp;osdsrc, 0, 0);
+! #endif
+! 
+        }
+!       //scrSurface-&gt;Flip(NULL, (setupStore-&gt;useMGAtv) ? DSFLIP_WAITFORSYNC:DSFLIP_ONSYNC);
+!       scrSurface-&gt;Flip(NULL, DSFLIP_WAITFORSYNC);
+!     }
+!     else
+!     {
+!       if (setupStore-&gt;tripleBuffering)
+!         videoSurface-&gt;Flip(/*NULL, DSFLIP_ONSYNC*/);
+!       else
+!         videoSurface-&gt;Flip(NULL, DSFLIP_ONSYNC);
+      }
+    }
+!   catch (DFBException *ex)
+!   {
+      fprintf (stderr, &quot;[dfb] YUV: action=%s, result=%s\n&quot;,
+               ex-&gt;GetAction(), ex-&gt;GetResult());
+--- 1428,1449 ----
+        //fprintf (stderr, &quot;dst (%d,%d %dx%d)\n&quot;, lxoff,lyoff,lwidth,lheight);
+  
+!       clearBackground = (aspect_changed) ? clearBackCount: clearBackground;
+!       ClearBorders ();
+        scrSurface-&gt;SetBlittingFlags(DSBLIT_NOFX);
+        scrSurface-&gt;StretchBlit(videoSurface, &amp;src, &amp;dst);
+  
+!       if (OSDpresent) {
+          scrSurface-&gt;SetBlittingFlags(DSBLIT_BLEND_ALPHACHANNEL);
+!         scrSurface-&gt;Blit(osdSurface, NULL, 0, 0);
+        }
+! 
+!       flipFlags = DSFLIP_WAITFORSYNC;
+!       flipSurface = scrSurface;
+      }
++ 
++     flipSurface-&gt;Flip (NULL, flipFlags);
++ 
+    }
+!   catch (DFBException *ex) {
+      fprintf (stderr, &quot;[dfb] YUV: action=%s, result=%s\n&quot;,
+               ex-&gt;GetAction(), ex-&gt;GetResult());
+
+Index: video-dfb.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.h,v
+retrieving revision 1.22
+retrieving revision 1.23
+diff -C2 -d -r1.22 -r1.23
+*** video-dfb.h	17 Jun 2006 16:27:35 -0000	1.22
+--- video-dfb.h	29 Sep 2006 19:24:57 -0000	1.23
+***************
+*** 56,59 ****
+--- 56,65 ----
+      bool SetupCle266Buffers(int, int);
+  #endif // HAVE_CLE266_MPEG_DECODER
++ 
++     void ClearBorders();
++ 
++   protected:
++     virtual bool IsSoftOSDMode();
++ 
+    public:
+      IDirectFB	*dfb;
+***************
+*** 61,65 ****
+      virtual ~cDFBVideoOut();
+      void ProcessEvents ();
+-     void ShowOSD ();
+      void GetDisplayFrameTime();
+  
+--- 67,70 ----
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000442.html">[Softdevice-cvs] softdevice video-xv.c,1.62,1.63
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#443">[ date ]</a>
+              <a href="thread.html#443">[ thread ]</a>
+              <a href="subject.html#443">[ subject ]</a>
+              <a href="author.html#443">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

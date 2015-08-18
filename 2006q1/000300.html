@@ -1,0 +1,389 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.158,1.159 SoftOsd.c,1.9,1.10
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.158%2C1.159%20SoftOsd.c%2C1.9%2C1.10&In-Reply-To=%3C200603111017.k2BAH1b21314%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000299.html">
+   <LINK REL="Next"  HREF="000301.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.158,1.159 SoftOsd.c,1.9,1.10</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.158%2C1.159%20SoftOsd.c%2C1.9%2C1.10&In-Reply-To=%3C200603111017.k2BAH1b21314%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.158,1.159 SoftOsd.c,1.9,1.10">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Mar 11 11:17:01 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000299.html">[Softdevice-cvs] softdevice CHANGELOG,1.157,1.158 video.c,1.45,1.46
+</A></li>
+        <LI>Next message: <A HREF="000301.html">[Softdevice-cvs] softdevice CHANGELOG,1.159,1.160 video.h,1.30,1.31 video-dfb.c,1.50,1.51 video-vidix.c,1.16,1.17 video-xv.c,1.44,1.45 video.c,1.46,1.47
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#300">[ date ]</a>
+              <a href="thread.html#300">[ thread ]</a>
+              <a href="subject.html#300">[ subject ]</a>
+              <a href="author.html#300">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv13584
+
+Modified Files:
+	CHANGELOG SoftOsd.c 
+Log Message:
+
+- MMX version of AYUV_to_AYUV420P()
+- shortcut for AYUV no scale OSD modes
+      
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.158
+retrieving revision 1.159
+diff -C2 -d -r1.158 -r1.159
+*** CHANGELOG	10 Mar 2006 20:36:30 -0000	1.158
+--- CHANGELOG	11 Mar 2006 09:18:21 -0000	1.159
+***************
+*** 1,3 ****
+--- 1,6 ----
+  Changelog
++ 2005-03-11:
++    - MMX version of AYUV_to_AYUV420P()
++    - shortcut for AYUV no scale OSD modes
+  2005-03-10:
+     - tune some parameters to avoid unecessary rescaling/redrawing of the OSD
+
+Index: SoftOsd.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.c,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -C2 -d -r1.9 -r1.10
+*** SoftOsd.c	18 Feb 2006 22:20:29 -0000	1.9
+--- SoftOsd.c	11 Mar 2006 09:18:22 -0000	1.10
+***************
+*** 463,466 ****
+--- 463,651 ----
+  		    uint8_t *PAlphaUV,
+  		    color * pixmap1, color * pixmap2, int Pixel) {
++        
++ #ifdef USE_MMX2  
++         __asm__(
++                 &quot; pxor %%mm7,%%mm7 \n&quot; //mm7: 00 00 00 ...
++                 : : : &quot;memory&quot; ); 
++         // &quot;memory&quot; is not really needed but g++-2.95 wants to have it :-(
++                                  
++         
++ 	while (Pixel&gt;8*30) {
++                 __asm__ (
++                     &quot; prefetchnta 96(%0) \n&quot;
++                     &quot; prefetchnta 96(%1) \n&quot;
++                     : : &quot;r&quot; (pixmap1), &quot;r&quot; (pixmap2) );
++ 
++                 __asm__(
++                     &quot; movd  (%0),%%mm0\n&quot;    
++                     &quot; punpcklbw 4(%0),%%mm0\n&quot;// mm0: 1A 2A 1Y 2Y 1U 2U 1V 2V 
++                     &quot; movd  8(%0),%%mm1\n&quot;  
++                     &quot; punpcklbw 12(%0),%%mm1\n&quot;// mm1: 3A 4A 3Y 4Y 3U 4U 3V 4V 
++                    
++                     &quot; movq %%mm0, %%mm2 \n&quot;
++                     &quot; punpckhwd %%mm1, %%mm2 \n&quot; //mm2: 1A 2A 3A 4A 1Y 2Y 3Y 4Y
++                     &quot; movd %%mm2, (%2) \n&quot; // store alpha  values 1-4 first line
++                     &quot; punpckhdq %%mm2, %%mm2 \n&quot;
++                     &quot; movd %%mm2, (%1) \n&quot; // store luminance values 1-4 first line
++                     &quot; punpcklwd %%mm1, %%mm0 \n&quot; //mm0: 1U 2U 3U 4U 1V 2V 3V 4V
++                     &quot; movq %%mm0, %%mm1  \n&quot;
++                     &quot; punpckhbw %%mm7, %%mm0 \n&quot; //mm0: 1V 00 2V 00 3V 00 4V 00
++                     &quot; punpcklbw %%mm7, %%mm1 \n&quot; //mm1: 1U 00 2U 00 3U 00 4U 00
++                     : : &quot;r&quot; (pixmap1),
++                         &quot;r&quot; (PAlphaY1),
++                         &quot;r&quot; (PY1) : &quot;memory&quot;);
++                 
++                 __asm__(
++                     // second line
++                     &quot; movd  (%0),%%mm3\n&quot;    
++                     &quot; punpcklbw 4(%0),%%mm3\n&quot;// mm3: 1A 2A 1Y 2Y 1U 2U 1V 2V 
++                     &quot; movd  8(%0),%%mm4\n&quot;  
++                     &quot; punpcklbw 12(%0),%%mm4\n&quot;//mm4: 3A 4A 3Y 4Y 3U 4U 3V 4V  
++                     
++                     &quot; movq %%mm3, %%mm2 \n&quot;
++                     &quot; punpckhwd %%mm4, %%mm2 \n&quot; //mm2: 1A 2A 3A 4A 1Y 2Y 3Y 4Y
++                     &quot; movd %%mm2, (%2) \n&quot; // store alpha 1-4 second line
++                     &quot; punpckhdq %%mm2, %%mm2 \n&quot;
++                     &quot; movd %%mm2, (%1) \n&quot; // store luminance 1-4 second line
++  
++                     &quot; punpcklwd %%mm4, %%mm3 \n&quot; //mm3: 1U 2U 3U 4U 1V 2V 3V 4V
++ 
++                     &quot; movq %%mm3, %%mm4  \n&quot;
++                     &quot; punpckhbw %%mm7, %%mm3 \n&quot; //mm0: 1V 00 2V 00 3V 00 4V 00
++                     &quot; punpcklbw %%mm7, %%mm4 \n&quot; //mm1: 1U 00 2U 00 3U 00 4U 00
++ 
++                     // add U and V component of first and second line
++                     &quot; paddusw %%mm3, %%mm0 \n&quot;
++                     &quot; paddusw %%mm4, %%mm1 \n&quot;
++                     
++                     &quot; pshufw $0b11011101,%%mm0,%%mm2 \n&quot; //mm2: 2V 00 4V 00
++                     &quot; pshufw $0b10001000,%%mm0,%%mm6 \n&quot; //mm6: 1V 00 3V 00
++                     &quot; paddusw %%mm2, %%mm6 \n&quot; // mm6: 1V+2V  3V+4V
++                     &quot; psraw $2, %%mm6 \n&quot; // mm6 div 4
++                     
++                     &quot; pshufw $0b11011101,%%mm1,%%mm2 \n&quot; //mm2: 2U 00 4U 00
++                     &quot; pshufw $0b10001000,%%mm1,%%mm1 \n&quot; //mm1: 1U 00 3U 00
++                     &quot; paddusw %%mm2, %%mm1 \n&quot; // mm1: 1U+2U 3U+4U
++                     &quot; psraw $2, %%mm1 \n&quot; // mm1 div 4
++                     
++                     &quot; packuswb %%mm1,%%mm6 \n&quot; // mm6: 1u+2u 3u+4u XX XX 1v+2v 3v+4v XX XX
++                     : : &quot;r&quot; (pixmap2),
++                         &quot;r&quot; (PAlphaY2),
++                         &quot;r&quot; (PY2): &quot;memory&quot;);
++ 
++                 // next 4 pixels
++                 __asm__(   
++                     // inventory: mm6: 2 pixels u and v values    
++                     &quot; movd  16(%0),%%mm0\n&quot;    
++                     &quot; punpcklbw 20(%0),%%mm0\n&quot;// mm0: 1A 2A 1Y 2Y 1U 2U 1V 2V 
++                     &quot; movd  24(%0),%%mm1\n&quot;  
++                     &quot; punpcklbw 28(%0),%%mm1\n&quot;// mm1: 3A 4A 3Y 4Y 3U 4U 3V 4V 
++                    
++                     &quot; movq %%mm0, %%mm2 \n&quot;
++                     &quot; punpckhwd %%mm1, %%mm2 \n&quot; //mm2: 1A 2A 3A 4A 1Y 2Y 3Y 4Y
++                     &quot; movd %%mm2, 4(%2) \n&quot; // store alpha  values 1-4 first line
++                     &quot; punpckhdq %%mm2, %%mm2 \n&quot;
++                     &quot; movd %%mm2, 4(%1) \n&quot; // store luminance values 1-4 first line
++                     &quot; punpcklwd %%mm1, %%mm0 \n&quot; //mm0: 1U 2U 3U 4U 1V 2V 3V 4V
++                     &quot; movq %%mm0, %%mm1  \n&quot;
++                     &quot; punpckhbw %%mm7, %%mm0 \n&quot; //mm0: 1V 00 2V 00 3V 00 4V 00
++                     &quot; punpcklbw %%mm7, %%mm1 \n&quot; //mm1: 1U 00 2U 00 3U 00 4U 00
++                     : : &quot;r&quot; (pixmap1),
++                         &quot;r&quot; (PAlphaY1),
++                         &quot;r&quot; (PY1) : &quot;memory&quot;);
++                 
++                 __asm__(
++                     // second line
++                     &quot; movd  16(%0),%%mm3\n&quot;    
++                     &quot; punpcklbw 20(%0),%%mm3\n&quot;//mm3: 1A 2A 1Y 2Y 1U 2U 1V 2V 
++                     &quot; movd  24(%0),%%mm4\n&quot;  
++                     &quot; punpcklbw 28(%0),%%mm4\n&quot;//mm4: 3A 4A 3Y 4Y 3U 4U 3V 4V  
++                     
++                     &quot; movq %%mm3, %%mm2 \n&quot;
++                     &quot; punpckhwd %%mm4, %%mm2 \n&quot; //mm2: 1A 2A 3A 4A 1Y 2Y 3Y 4Y
++                     &quot; movd %%mm2, 4(%2) \n&quot; // store alpha 1-4 second line
++                     &quot; punpckhdq %%mm2, %%mm2 \n&quot;
++                     &quot; movd %%mm2, 4(%1) \n&quot; // store luminance 1-4 second line
++  
++                     &quot; punpcklwd %%mm4, %%mm3 \n&quot; //mm3: 1U 2U 3U 4U 1V 2V 3V 4V
++ 
++                     &quot; movq %%mm3, %%mm4  \n&quot;
++                     &quot; punpckhbw %%mm7, %%mm3 \n&quot; //mm0: 1V 00 2V 00 3V 00 4V 00
++                     &quot; punpcklbw %%mm7, %%mm4 \n&quot; //mm1: 1U 00 2U 00 3U 00 4U 00
++ 
++                     // add U and V component of first and second line
++                     &quot; paddusw %%mm3, %%mm0 \n&quot;
++                     &quot; paddusw %%mm4, %%mm1 \n&quot;
++                     
++                     &quot; pshufw $0b11011101,%%mm0,%%mm2 \n&quot; //mm2: 2V 00 4V 00
++                     &quot; pshufw $0b10001000,%%mm0,%%mm0 \n&quot; //mm0: 1V 00 3V 00
++                     &quot; paddusw %%mm2, %%mm0 \n&quot; // mm0: 1V+2V  3V+4V
++                     &quot; psraw $2, %%mm0 \n&quot; // mm0 div 4
++                     
++                     &quot; pshufw $0b11011101,%%mm1,%%mm2 \n&quot; //mm2: 2U 00 4U 00
++                     &quot; pshufw $0b10001000,%%mm1,%%mm1 \n&quot; //mm1: 1U 00 3U 00
++                     &quot; paddusw %%mm2, %%mm1 \n&quot; // mm1: 1U+2U 3U+4U
++                     &quot; psraw $2, %%mm1 \n&quot; // mm1 div 4
++                     
++                     &quot; packuswb %%mm1,%%mm0 \n&quot; // mm0: 1u+2u 3u+4u XX XX 1v+2v 3v+4v XX XX
++                     : : &quot;r&quot; (pixmap2),
++                         &quot;r&quot; (PAlphaY2),
++                         &quot;r&quot; (PY2): &quot;memory&quot;);
++                
++                 // now care about the missing u and v components
++                 __asm__(   
++                     // inventory: 
++                     // mm6: first 2 pixels u and v values    
++                     // mm0: second 2 pixels u and v values
++                     &quot; movq %%mm6, %%mm2 \n&quot;
++                     &quot; punpckhwd %%mm0, %%mm6\n&quot;
++                     &quot; punpcklwd %%mm0, %%mm2\n&quot;
++                     &quot; movd %%mm2, (%1)\n&quot;
++                     &quot; movd %%mm6, (%0) \n&quot;
++                     : : &quot;r&quot; (PU), &quot;r&quot; (PV) : &quot;memory&quot; );
++ 
++                 // and calculate PAlphaUV from PAlphaY1 and PAlphaY2
++                 __asm__(
++                     &quot; movd (%0), %%mm0 \n&quot;
++                     &quot; punpcklbw %%mm7, %%mm0 \n&quot;
++                     &quot; movd (%1), %%mm1 \n&quot;
++                     &quot; punpcklbw %%mm7, %%mm1 \n&quot;
++                     &quot; paddusw %%mm1, %%mm0 \n&quot; // mm1: PAlphaY1+PAlphaY2
++                     
++                     &quot; pshufw $0b11011101,%%mm0,%%mm1 \n&quot; //mm2: 2A 00 4A 00
++                     &quot; pshufw $0b10001000,%%mm0,%%mm0 \n&quot; //mm0: 1A 00 3A 00
++                     &quot; paddusw %%mm1, %%mm0 \n&quot; // mm0: 1A+2A  3A+4A
++                     &quot; psraw $2, %%mm0 \n&quot; // mm0 div 4
++                     &quot; packuswb %%mm0,%%mm0 \n&quot;
++ 
++                     &quot; movd 4(%0), %%mm2 \n&quot;
++                     &quot; punpcklbw %%mm7, %%mm2 \n&quot;
++                     &quot; movd 4(%1), %%mm3 \n&quot;
++                     &quot; punpcklbw %%mm7,%%mm3 \n&quot;
++                     &quot; paddusw %%mm3, %%mm2 \n&quot; // mm2: PAlphaY1+PAlphaY2
++ 
++                     &quot; pshufw $0b11011101,%%mm2,%%mm1 \n&quot; //mm2: 6A 00 8A 00
++                     &quot; pshufw $0b10001000,%%mm2,%%mm3 \n&quot; //mm0: 5A 00 7A 00
++                     &quot; paddusw %%mm1, %%mm3 \n&quot; // mm0: 5A+6A  7A+8A
++                     &quot; psraw $2, %%mm3 \n&quot; // mm0 div 4
++                     &quot; packuswb %%mm3,%%mm3 \n&quot;
++ 
++                     &quot; punpckhwd %%mm3, %%mm0\n&quot;
++                     &quot; movd %%mm0, (%2)\n&quot;
++                      
++                      : : &quot;r&quot; (PAlphaY1), &quot;r&quot; (PAlphaY2),
++                          &quot;r&quot; (PAlphaUV)
++                                  : &quot;memory&quot; );
++ 
++                 pixmap1+=8;
++                 pixmap2+=8;
++                 PAlphaY1+=8;PAlphaY2+=8;
++                 PY1+=8;PY2+=8;
++                 PU+=4;PV+=4;
++                 PAlphaUV+=4;
++                 Pixel-=8;
++         };       
++ 	EMMS;
++ #endif
+  	while (Pixel&gt;1) {
+  		*(PAlphaY1++)=pixmap1[0].a; *(PAlphaY1++)=pixmap1[1].a;
+***************
+*** 636,640 ****
+          };
+  };
+- 
+  //---------------------------YUV modes ----------------------
+  void cSoftOsd::CopyToBitmap(uint8_t *PY,uint8_t *PU, uint8_t *PV,
+--- 821,824 ----
+***************
+*** 659,663 ****
+          color *pixmap=(color*) OSD_Bitmap;
+          int dest_Stride=(dest_Width+32) &amp; ~0xf;
+!         color tmp_pixmap[2*dest_Stride];
+          uint8_t *pY;uint8_t *pU;uint8_t *pV;
+          uint8_t *pAlphaY; uint8_t *pAlphaUV;
+--- 843,848 ----
+          color *pixmap=(color*) OSD_Bitmap;
+          int dest_Stride=(dest_Width+32) &amp; ~0xf;
+!         color tmp_pixmap1[2*dest_Stride];
+!         color *tmp_pixmap=tmp_pixmap1;
+          uint8_t *pY;uint8_t *pU;uint8_t *pV;
+          uint8_t *pAlphaY; uint8_t *pAlphaUV;
+***************
+*** 666,670 ****
+                        ( dest_Width==OSD_WIDTH ? &amp;cSoftOsd::NoScaleHoriz_MMX :
+                          &amp;cSoftOsd::ScaleUpHoriz_MMX));
+!       
+          for (int y=0; y&lt;dest_Height; y+=2) {
+  
+--- 851,858 ----
+                        ( dest_Width==OSD_WIDTH ? &amp;cSoftOsd::NoScaleHoriz_MMX :
+                          &amp;cSoftOsd::ScaleUpHoriz_MMX));
+!         
+!         if (dest_Width==OSD_WIDTH) 
+!                 dest_Stride=OSD_STRIDE;
+!  
+          for (int y=0; y&lt;dest_Height; y+=2) {
+  
+***************
+*** 675,685 ****
+                          continue;
+  
+!                 //printf(&quot;Horiz scaling line %d\n&quot;,start_row+i);
+!                 (this-&gt;*ScaleHoriz)((uint8_t *)tmp_pixmap,dest_Width,
+!                                 &amp;pixmap[y*OSD_STRIDE],OSD_WIDTH-1); 
+!                 (this-&gt;*ScaleHoriz)((uint8_t *)&amp;tmp_pixmap[dest_Stride],
+!                                 dest_Width,
+!                                 &amp;pixmap[(y+1)*OSD_STRIDE],OSD_WIDTH-1); 
+! 
+                  // convert and copy to video out OSD layer
+                  pY=PY+(y+yPan)*Ystride+xPan;
+--- 863,876 ----
+                          continue;
+  
+!                 if (dest_Width==OSD_WIDTH) {
+!                         tmp_pixmap=&amp;pixmap[y*OSD_STRIDE];
+!                 } else {
+!                         //printf(&quot;Horiz scaling line %d\n&quot;,start_row+i);
+!                         (this-&gt;*ScaleHoriz)((uint8_t *)tmp_pixmap,dest_Width,
+!                                             &amp;pixmap[y*OSD_STRIDE],OSD_WIDTH-1); 
+!                         (this-&gt;*ScaleHoriz)((uint8_t *)&amp;tmp_pixmap[dest_Stride],
+!                                             dest_Width,
+!                                             &amp;pixmap[(y+1)*OSD_STRIDE],OSD_WIDTH-1); 
+!                 };
+                  // convert and copy to video out OSD layer
+                  pY=PY+(y+yPan)*Ystride+xPan;
+***************
+*** 723,727 ****
+          uint8_t *pY;uint8_t *pU;uint8_t *pV;
+          uint8_t *pAlphaY; uint8_t *pAlphaUV;
+!        
+          //printf(&quot;Scale to %d,%d\n&quot;,dest_Width,dest_Height);
+          const int ScaleFactor=1&lt;&lt;6;
+--- 914,918 ----
+          uint8_t *pY;uint8_t *pU;uint8_t *pV;
+          uint8_t *pAlphaY; uint8_t *pAlphaUV;
+!     
+          //printf(&quot;Scale to %d,%d\n&quot;,dest_Width,dest_Height);
+          const int ScaleFactor=1&lt;&lt;6;
+***************
+*** 841,847 ****
+          memset(scaleH_lines,-1,sizeof(scaleH_lines));
+          
+          color tmp_pixmap[20*dest_stride];//dest_Width];
+          //color tmp_pixmap[ScaleFactor/dest_Height*dest_stride];//dest_Width];
+!         
+  	for (int y=0; y&lt;dest_Height; y++) {
+                  int start_row=new_pixel_height*y/ScaleFactor;
+--- 1032,1039 ----
+          memset(scaleH_lines,-1,sizeof(scaleH_lines));
+          
++         // FIXME why 20*dest_stride?
+          color tmp_pixmap[20*dest_stride];//dest_Width];
+          //color tmp_pixmap[ScaleFactor/dest_Height*dest_stride];//dest_Width];
+! 
+  	for (int y=0; y&lt;dest_Height; y++) {
+                  int start_row=new_pixel_height*y/ScaleFactor;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000299.html">[Softdevice-cvs] softdevice CHANGELOG,1.157,1.158 video.c,1.45,1.46
+</A></li>
+	<LI>Next message: <A HREF="000301.html">[Softdevice-cvs] softdevice CHANGELOG,1.159,1.160 video.h,1.30,1.31 video-dfb.c,1.50,1.51 video-vidix.c,1.16,1.17 video-xv.c,1.44,1.45 video.c,1.46,1.47
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#300">[ date ]</a>
+              <a href="thread.html#300">[ thread ]</a>
+              <a href="subject.html#300">[ subject ]</a>
+              <a href="author.html#300">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

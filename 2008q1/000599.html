@@ -1,0 +1,181 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice PicBuffer.h,1.7,1.8
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2008q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20PicBuffer.h%2C1.7%2C1.8&In-Reply-To=%3C20080226073919.1F24112F16E%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000598.html">
+   <LINK REL="Next"  HREF="000600.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice PicBuffer.h,1.7,1.8</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20PicBuffer.h%2C1.7%2C1.8&In-Reply-To=%3C20080226073919.1F24112F16E%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice PicBuffer.h,1.7,1.8">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue Feb 26 08:39:19 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000598.html">[Softdevice-cvs] softdevice configure,1.45,1.46
+</A></li>
+        <LI>Next message: <A HREF="000600.html">[Softdevice-cvs] softdevice mpeg2decoder.h, 1.43, 1.44 VideoFilter.h,	1.5, 1.6 PicBuffer.h, 1.8, 1.9 configure, 1.46, 1.47 CHANGELOG,	1.325, 1.326
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#599">[ date ]</a>
+              <a href="thread.html#599">[ thread ]</a>
+              <a href="subject.html#599">[ subject ]</a>
+              <a href="author.html#599">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv25948
+
+Modified Files:
+	PicBuffer.h 
+Log Message:
+white space cleanup
+
+Index: PicBuffer.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/PicBuffer.h,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -C2 -d -r1.7 -r1.8
+*** PicBuffer.h	12 Mar 2007 20:05:44 -0000	1.7
+--- PicBuffer.h	26 Feb 2008 07:37:42 -0000	1.8
+***************
+*** 34,38 ****
+      int max_height;
+      cPicBufferManager *owner;
+!     
+      // picture context
+      int edge_width; // size of edges (needed by some ffmpeg codecs)
+--- 34,38 ----
+      int max_height;
+      cPicBufferManager *owner;
+! 
+      // picture context
+      int edge_width; // size of edges (needed by some ffmpeg codecs)
+***************
+*** 45,49 ****
+      bool interlaced_frame;
+      int pict_type;
+!  
+      int pic_num; // to calculate the age
+      int age; // needed by ffmpeg
+--- 45,49 ----
+      bool interlaced_frame;
+      int pict_type;
+! 
+      int pic_num; // to calculate the age
+      int age; // needed by ffmpeg
+***************
+*** 76,84 ****
+          { return ( buf_num&lt;LAST_PICBUF ? &amp;PicBuffer[buf_num] : NULL); };
+          // returns the address of the buffer buf_num
+!         
+          int GetBufNum(sPicBuffer *PicBuf);
+          // returns the buffer number of the picture buffer PicBuf
+          // returns -1 if the buffer has not been found
+!  
+          sPicBuffer *GetBuffer(PixelFormat pix_fmt,int width, int height);
+          // get a picture buffer ( to be called from decoders of filters )
+--- 76,84 ----
+          { return ( buf_num&lt;LAST_PICBUF ? &amp;PicBuffer[buf_num] : NULL); };
+          // returns the address of the buffer buf_num
+! 
+          int GetBufNum(sPicBuffer *PicBuf);
+          // returns the buffer number of the picture buffer PicBuf
+          // returns -1 if the buffer has not been found
+! 
+          sPicBuffer *GetBuffer(PixelFormat pix_fmt,int width, int height);
+          // get a picture buffer ( to be called from decoders of filters )
+***************
+*** 87,102 ****
+  
+          void LockBuffer(sPicBuffer *picture);
+!         // I want to keep this buffer ( not requested by me via GetBuffer() ) 
+          // longer
+          void UnlockBuffer(sPicBuffer *picture);
+          // don't need it anymore
+!         
+  
+          virtual bool AllocPicBuffer(int buf_num,PixelFormat pix_fmt,
+                          int w, int h);
+!         // actually allocates memory for the buffer. Can be overloaded for 
+!         // direct rendering. 
+          // Has to set up max_width/max_height and format!
+!         
+          virtual void ReleasePicBuffer(int buf_num);
+          // releases the memory of the buffer again
+--- 87,102 ----
+  
+          void LockBuffer(sPicBuffer *picture);
+!         // I want to keep this buffer ( not requested by me via GetBuffer() )
+          // longer
+          void UnlockBuffer(sPicBuffer *picture);
+          // don't need it anymore
+! 
+  
+          virtual bool AllocPicBuffer(int buf_num,PixelFormat pix_fmt,
+                          int w, int h);
+!         // actually allocates memory for the buffer. Can be overloaded for
+!         // direct rendering.
+          // Has to set up max_width/max_height and format!
+! 
+          virtual void ReleasePicBuffer(int buf_num);
+          // releases the memory of the buffer again
+***************
+*** 123,131 ****
+                  int cutTop, int cutBottom, int cutLeft, int cutRight);
+  
+! void CopyPicBufAlphaBlend(sPicBuffer *dst, 
+                  sPicBuffer *src,
+                  uint8_t *OsdPy,uint8_t *OsdPu, uint8_t *OsdPv,
+                  uint8_t *OsdPAlphaY, uint8_t *OsdPAlphaUV,int OsdStride,
+!                 int cutTop, int cutBottom,int cutLeft, int cutRight); 
+!  
+  #endif
+--- 123,131 ----
+                  int cutTop, int cutBottom, int cutLeft, int cutRight);
+  
+! void CopyPicBufAlphaBlend(sPicBuffer *dst,
+                  sPicBuffer *src,
+                  uint8_t *OsdPy,uint8_t *OsdPu, uint8_t *OsdPv,
+                  uint8_t *OsdPAlphaY, uint8_t *OsdPAlphaUV,int OsdStride,
+!                 int cutTop, int cutBottom,int cutLeft, int cutRight);
+! 
+  #endif
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000598.html">[Softdevice-cvs] softdevice configure,1.45,1.46
+</A></li>
+	<LI>Next message: <A HREF="000600.html">[Softdevice-cvs] softdevice mpeg2decoder.h, 1.43, 1.44 VideoFilter.h,	1.5, 1.6 PicBuffer.h, 1.8, 1.9 configure, 1.46, 1.47 CHANGELOG,	1.325, 1.326
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#599">[ date ]</a>
+              <a href="thread.html#599">[ thread ]</a>
+              <a href="subject.html#599">[ subject ]</a>
+              <a href="author.html#599">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

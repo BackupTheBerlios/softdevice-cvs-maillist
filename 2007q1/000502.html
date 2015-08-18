@@ -1,0 +1,251 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.290, 1.291 SoftOsd.c, 1.25,	1.26 SoftOsd.h, 1.11, 1.12
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.290%2C%201.291%20SoftOsd.c%2C%201.25%2C%0A%091.26%20SoftOsd.h%2C%201.11%2C%201.12&In-Reply-To=%3C20070128193814.D4F10CE95D%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000501.html">
+   <LINK REL="Next"  HREF="000503.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.290, 1.291 SoftOsd.c, 1.25,	1.26 SoftOsd.h, 1.11, 1.12</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.290%2C%201.291%20SoftOsd.c%2C%201.25%2C%0A%091.26%20SoftOsd.h%2C%201.11%2C%201.12&In-Reply-To=%3C20070128193814.D4F10CE95D%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.290, 1.291 SoftOsd.c, 1.25,	1.26 SoftOsd.h, 1.11, 1.12">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Jan 28 20:38:14 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000501.html">[Softdevice-cvs] softdevice CHANGELOG, 1.289, 1.290 configure, 1.32,	1.33
+</A></li>
+        <LI>Next message: <A HREF="000503.html">[Softdevice-cvs] softdevice softdevice.c, 1.76, 1.77 CHANGELOG,	1.291, 1.292
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#502">[ date ]</a>
+              <a href="thread.html#502">[ thread ]</a>
+              <a href="subject.html#502">[ subject ]</a>
+              <a href="author.html#502">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv8012
+
+Modified Files:
+	CHANGELOG SoftOsd.c SoftOsd.h 
+Log Message:
+- add StealToBitmap() for OSD in grabbed image.
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.290
+retrieving revision 1.291
+diff -C2 -d -r1.290 -r1.291
+*** CHANGELOG	28 Jan 2007 19:31:15 -0000	1.290
+--- CHANGELOG	28 Jan 2007 19:36:50 -0000	1.291
+***************
+*** 5,9 ****
+     - set ic-&gt;bp.is_streamed to true, to avoid calls to unimlemented seek method.
+     - add architecture &quot;x86_64&quot; to configure and report unsupported 
+!      architectures
+  2007-01-27:
+     - video-dfb: - Limit VIA-unichrome name compare to 19 chars.
+--- 5,10 ----
+     - set ic-&gt;bp.is_streamed to true, to avoid calls to unimlemented seek method.
+     - add architecture &quot;x86_64&quot; to configure and report unsupported 
+!      architectures.
+!    - add StealToBitmap() for OSD in grabbed image.
+  2007-01-27:
+     - video-dfb: - Limit VIA-unichrome name compare to 19 chars.
+
+Index: SoftOsd.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.c,v
+retrieving revision 1.25
+retrieving revision 1.26
+diff -C2 -d -r1.25 -r1.26
+*** SoftOsd.c	3 Dec 2006 19:55:15 -0000	1.25
+--- SoftOsd.c	28 Jan 2007 19:36:50 -0000	1.26
+***************
+*** 959,962 ****
+--- 959,1068 ----
+  };
+  
++ #define SCALEH_IDX(x) ((scaleH_strtIdx+(x))%lines_count)
++ void cSoftOsd::StealToBitmap(uint8_t *PY,uint8_t *PU, uint8_t *PV,
++                     uint8_t *PAlphaY,uint8_t *PAlphaUV,
++                     int Ystride, int UVstride,
++                     int dest_Width, int dest_Height) {
++         OSDDEB(&quot;StealToBitmap YUV no Vscale\n&quot;);
++ 
++         // upscaling is not supported for YUV modes
++         if (dest_Width&gt;OSD_WIDTH)
++                 dest_Width=OSD_WIDTH;
++         if (dest_Height&gt;OSD_HEIGHT)
++                 dest_Height=OSD_HEIGHT;
++ 
++         color *pixmap=(color*) OSD_Bitmap;
++         color tmp_pixmap[2*OSD_STRIDE];
++         uint8_t *pY;uint8_t *pU;uint8_t *pV;
++         uint8_t *pAlphaY; uint8_t *pAlphaUV;
++ 
++         //printf(&quot;Scale to %d,%d\n&quot;,dest_Width,dest_Height);
++         const int ScaleFactor=1&lt;&lt;6;
++         uint32_t new_pixel_height=(OSD_HEIGHT*ScaleFactor)/dest_Height;
++         int lines_count=(new_pixel_height/ScaleFactor*2+4);
++         color scaleH_pixmap[lines_count*OSD_STRIDE];
++         color *scaleH_Reference[lines_count];
++         int scaleH_lines[lines_count];
++         int scaleH_strtIdx=0;
++         memset(scaleH_lines,-1,sizeof(scaleH_lines));
++         memset(scaleH_Reference,0,sizeof(scaleH_Reference));
++         OSDDEB(&quot;new_pixel_height %d lines_count %d\n&quot;,
++                         new_pixel_height,lines_count);
++ 
++         for (int y=0; y&lt;dest_Height; y+=2) {
++                 int start_row=new_pixel_height*y/ScaleFactor;
++                 int32_t start_pos=new_pixel_height*y%ScaleFactor-ScaleFactor;
++                 //int32_t start_pos=new_pixel_height*y-ScaleFactor*(start_row+1);
++ 
++                 scaleH_strtIdx=SCALEH_IDX(lines_count-2);
++                 for (int i=0; i&lt;lines_count; i++) {
++                         scaleH_Reference[i]=&amp;scaleH_pixmap[SCALEH_IDX(i)*OSD_STRIDE];
++                         if (scaleH_lines[SCALEH_IDX(i)]!=start_row+i){
++                                 //printf(&quot;Horiz scaling line %d\n&quot;,start_row+i);
++                                 ScaleDownHoriz_MMX((uint32_t*)scaleH_Reference[i],dest_Width,
++                                                 &amp;pixmap[(start_row+i)*OSD_STRIDE],OSD_WIDTH-1);
++                                 scaleH_lines[SCALEH_IDX(i)]=start_row+i;
++                         }
++                 };
++                /*
++                    printf(&quot;strt_Idx %d scaleH_lines: &quot;,scaleH_strtIdx);
++                    for (int i=0; i&lt;lines_count; i++)
++                    printf(&quot;%d &quot;,scaleH_lines[i]);
++                    printf(&quot;\n&quot;);fflush(stdout);
++                  */
++                 OSDDEB(&quot;start_pos %d start_row %d\n&quot;,start_pos,start_row);
++                 ScaleDownVert_MMX((uint32_t*)tmp_pixmap,0,
++                                 new_pixel_height,start_pos,
++                                 scaleH_Reference,dest_Width);
++                                 //scaleH_Reference,OSD_WIDTH-1);
++                 int new_start_row=new_pixel_height*(y+1)/ScaleFactor;
++                 int start_row_idx=new_start_row-start_row;
++                 start_pos=new_pixel_height*(y+1)%ScaleFactor-ScaleFactor;
++ 
++                 if (scaleH_lines[SCALEH_IDX(start_row_idx)]!=
++                                 new_start_row)
++                         printf(&quot;start_row mismatch new_start_row %d : %d\n&quot;,
++                                         new_start_row,
++                                         scaleH_lines[SCALEH_IDX(start_row_idx)]);
++ 
++                 OSDDEB(&quot;start_pos %d new_start_row %d\n&quot;,start_pos,new_start_row);
++                 ScaleDownVert_MMX((uint32_t*)&amp;tmp_pixmap[OSD_STRIDE],0,
++                                 new_pixel_height,start_pos,
++                                 &amp;scaleH_Reference[start_row_idx],
++                                 dest_Width);
++                                 //OSD_WIDTH-1);
++ 
++                 if (bitmap_Format != PF_AYUV) {
++                         if (bitmap_Format == PF_inverseAlpha_ARGB32) {
++                                 // this is a hack to convert the inverse alpha
++                                 // channel back to normal...
++                              ConvertPalette((tColor *)tmp_pixmap, (tColor *)tmp_pixmap,
++                                              dest_Width);    
++                              ConvertPalette((tColor *)&amp;tmp_pixmap[OSD_STRIDE], 
++                                              (tColor *)&amp;tmp_pixmap[OSD_STRIDE],
++                                              dest_Width);    
++                         };
++                         ARGB_to_AYUV((uint32_t*)tmp_pixmap,(color *)tmp_pixmap,
++                                 dest_Width);
++                         ARGB_to_AYUV((uint32_t*)&amp;tmp_pixmap[OSD_STRIDE],
++                                 (color *)&amp;tmp_pixmap[OSD_STRIDE],
++                                 dest_Width);
++                 };
++ 
++                 // convert and copy to video out OSD layer
++                 pY=PY+(y+yPan)*Ystride+xPan;
++                 pU=PU+((y+yPan)*UVstride+xPan)/2;
++                 pV=PV+((y+yPan)*UVstride+xPan)/2;
++                 pAlphaY=PAlphaY+(y+yPan)*Ystride+xPan;
++                 pAlphaUV=PAlphaUV+((y+yPan)*UVstride+xPan)/2;
++                 AYUV_to_AYUV420P(pY,pY+Ystride,pU,pV,
++                                 pAlphaY,pAlphaY+Ystride,pAlphaUV,
++                                 //              &amp;pixmap[y*OSD_STRIDE],&amp;pixmap[(y+1)*OSD_STRIDE],
++                                 //              dest_Width);
++                         tmp_pixmap,&amp;tmp_pixmap[OSD_STRIDE],dest_Width);
++         };
++         OSDDEB(&quot;StealToBitmap YUV no Vscale end \n&quot;);
++ };
++ 
+  void cSoftOsd::NoVScaleCopyToBitmap(uint8_t *PY,uint8_t *PU, uint8_t *PV,
+                      uint8_t *PAlphaY,uint8_t *PAlphaUV,
+***************
+*** 1020,1024 ****
+  
+          OSDDEB(&quot;CopyToBitmap YUV down %d,%d\n&quot;,dest_Width,dest_Height);
+!         // upscaleing is not supported for YUV modes
+          if (dest_Width&gt;OSD_WIDTH)
+                  dest_Width=OSD_WIDTH;
+--- 1126,1130 ----
+  
+          OSDDEB(&quot;CopyToBitmap YUV down %d,%d\n&quot;,dest_Width,dest_Height);
+!         // upscaling is not supported for YUV modes
+          if (dest_Width&gt;OSD_WIDTH)
+                  dest_Width=OSD_WIDTH;
+
+Index: SoftOsd.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.h,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -C2 -d -r1.11 -r1.12
+*** SoftOsd.h	16 Nov 2006 21:03:18 -0000	1.11
+--- SoftOsd.h	28 Jan 2007 19:36:50 -0000	1.12
+***************
+*** 96,99 ****
+--- 96,106 ----
+      virtual void Flush(void);
+  
++     // Create a copy of the osd layer for the Grab() method.
++     // Does *not* change anything in the osd!!
++     void StealToBitmap(uint8_t *PY,uint8_t *PU, uint8_t *PV,
++ 		    uint8_t *PAlphaY,uint8_t *PAlphaUV,
++                     int Ystride, int UVstride,
++                     int dest_Width, int dest_Height);
++ 
+  protected:
+      bool SetMode(int Depth, bool HasAlpha, bool AlphaInversed,
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000501.html">[Softdevice-cvs] softdevice CHANGELOG, 1.289, 1.290 configure, 1.32,	1.33
+</A></li>
+	<LI>Next message: <A HREF="000503.html">[Softdevice-cvs] softdevice softdevice.c, 1.76, 1.77 CHANGELOG,	1.291, 1.292
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#502">[ date ]</a>
+              <a href="thread.html#502">[ thread ]</a>
+              <a href="subject.html#502">[ subject ]</a>
+              <a href="author.html#502">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

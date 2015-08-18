@@ -1,0 +1,496 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.71,1.72 README,1.5,1.6 i18n.c,1.3,1.4 setup-softdevice.c,1.17,1.18 setup-softdevice.h,1.12,1.13 video-dfb.c,1.26,1.27 video-vidix.c,1.7,1.8 video-xv.c,1.23,1.24 video.c,1.20,1.21 video.h,1.13,1.14
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.71%2C1.72%20README%2C1.5%2C1.6%20i18n.c%2C1.3%2C1.4%20setup-softdevice.c%2C1.17%2C1.18%20setup-softdevice.h%2C1.12%2C1.13%20video-dfb.c%2C1.26%2C1.27%20video-vidix.c%2C1.7%2C1.8%20video-xv.c%2C1.23%2C1.24%20video.c%2C1.20%2C1.21%20video.h%2C1.13%2C1.14&In-Reply-To=%3C200505291950.j4TJolm29901%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000134.html">
+   <LINK REL="Next"  HREF="000136.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.71,1.72 README,1.5,1.6 i18n.c,1.3,1.4 setup-softdevice.c,1.17,1.18 setup-softdevice.h,1.12,1.13 video-dfb.c,1.26,1.27 video-vidix.c,1.7,1.8 video-xv.c,1.23,1.24 video.c,1.20,1.21 video.h,1.13,1.14</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.71%2C1.72%20README%2C1.5%2C1.6%20i18n.c%2C1.3%2C1.4%20setup-softdevice.c%2C1.17%2C1.18%20setup-softdevice.h%2C1.12%2C1.13%20video-dfb.c%2C1.26%2C1.27%20video-vidix.c%2C1.7%2C1.8%20video-xv.c%2C1.23%2C1.24%20video.c%2C1.20%2C1.21%20video.h%2C1.13%2C1.14&In-Reply-To=%3C200505291950.j4TJolm29901%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.71,1.72 README,1.5,1.6 i18n.c,1.3,1.4 setup-softdevice.c,1.17,1.18 setup-softdevice.h,1.12,1.13 video-dfb.c,1.26,1.27 video-vidix.c,1.7,1.8 video-xv.c,1.23,1.24 video.c,1.20,1.21 video.h,1.13,1.14">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun May 29 21:50:47 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000134.html">[Softdevice-cvs] softdevice mpeg2decoder.c,1.37,1.38 mpeg2decoder.h,1.23,1.24 sync-timer.c,1.2,1.3 sync-timer.h,1.1,1.2 softdevice.c,1.33,1.34 CHANGELOG,1.70,1.71
+</A></li>
+        <LI>Next message: <A HREF="000136.html">[Softdevice-cvs] softdevice .cvsignore,NONE,1.1
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#135">[ date ]</a>
+              <a href="thread.html#135">[ thread ]</a>
+              <a href="subject.html#135">[ subject ]</a>
+              <a href="author.html#135">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv3438
+
+Modified Files:
+	CHANGELOG README i18n.c setup-softdevice.c setup-softdevice.h 
+	video-dfb.c video-vidix.c video-xv.c video.c video.h 
+Log Message:
+changed screen aspect ratio selection (based on suggestion by Nicolas Huillard)
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.71
+retrieving revision 1.72
+diff -C2 -d -r1.71 -r1.72
+*** CHANGELOG	29 May 2005 10:13:59 -0000	1.71
+--- CHANGELOG	29 May 2005 19:50:44 -0000	1.72
+***************
+*** 1,4 ****
+--- 1,5 ----
+  Changelog
+  2005-05-29:
++     - changed screen aspect ratio selection (based on suggestion by Nicolas Huillard)
+      - fix some segfaults on bad signal
+      - fix possible segfault when called without arguments 
+
+Index: README
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/README,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -C2 -d -r1.5 -r1.6
+*** README	18 May 2005 21:49:33 -0000	1.5
+--- README	29 May 2005 19:50:44 -0000	1.6
+***************
+*** 101,105 ****
+--- 101,107 ----
+  - Konrad Naumann
+  - Luca Olivetti
++ - Marko M&#228;kel&#228;
+  - Martin Wache
++ - Nicolas Huillard
+  - Roland Praml
+  - Stefan Lucke
+
+Index: i18n.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/i18n.c,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** i18n.c	19 Mar 2005 22:01:21 -0000	1.3
+--- i18n.c	29 May 2005 19:50:44 -0000	1.4
+***************
+*** 171,176 ****
+  #endif
+    },
+!   { &quot;Pixel Aspect&quot;,       //  1
+!     &quot;Seitenverh&#228;ltnis&quot;,   //  2
+      &quot;&quot;,             //  3 TODO
+      &quot;&quot;,             //  4 TODO
+--- 171,176 ----
+  #endif
+    },
+!   { &quot;Screen Aspect&quot;,       //  1
+!     &quot;Bildschirmformat&quot;,   //  2
+      &quot;&quot;,             //  3 TODO
+      &quot;&quot;,             //  4 TODO
+***************
+*** 265,268 ****
+--- 265,291 ----
+    { &quot;off&quot;,          //  1
+      &quot;aus&quot;,          //  2
++     &quot;&quot;,             //  3 TODO
++     &quot;&quot;,             //  4 TODO
++     &quot;&quot;,             //  5 TODO
++     &quot;&quot;,             //  6 TODO
++     &quot;&quot;,             //  7 TODO
++     &quot;&quot;,             //  8 TODO
++     &quot;&quot;,             //  9 TODO
++     &quot;&quot;,             // 10 TODO
++     &quot;&quot;,             // 11 TODO
++     &quot;&quot;,             // 12 TODO
++     &quot;&quot;,             // 13 TODO
++     &quot;&quot;,             // 14 TODO
++     &quot;&quot;,             // 15 TODO
++     &quot;&quot;,             // 16 TODO
++ #if VDRVERSNUM &gt;= 10316
++     &quot;&quot;,             // 17 TODO
++     &quot;&quot;,             // 18 TODO
++     &quot;&quot;,             // 19 TODO
++     &quot;&quot;,             // 20 TODO
++ #endif
++   },
++   { &quot;AC3 Mode&quot;,          //  1
++     &quot;AC3 Modus&quot;,          //  2
+      &quot;&quot;,             //  3 TODO
+      &quot;&quot;,             //  4 TODO
+
+Index: setup-softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.c,v
+retrieving revision 1.17
+retrieving revision 1.18
+diff -C2 -d -r1.17 -r1.18
+*** setup-softdevice.c	15 May 2005 09:53:24 -0000	1.17
+--- setup-softdevice.c	29 May 2005 19:50:44 -0000	1.18
+***************
+*** 83,104 ****
+   */
+  char *videoAspectNames [] = {
+!         &quot;Monitor&quot;,
+!         &quot;TV  4:3 PAL&quot;,
+!         &quot;TV 16:9 PAL&quot;,
+!         &quot;5:4 as 4:3&quot;,
+!         &quot;test 2&quot;,
+          NULL
+       };
+- struct sVideoAspectsValues {
+-   int   width,
+-         height;
+- } videoAspectValues [] = {
+-   { 768, 576},
+-   { 720, 576},
+-   { 540, 576},
+-   { 800, 576},
+-   {1280, 1024},
+-   {768,576}
+- };
+  
+  /* ----------------------------------------------------------------------------
+--- 83,93 ----
+   */
+  char *videoAspectNames [] = {
+!         &quot;Default&quot;,
+!         &quot;5:4&quot;,
+!         &quot;4:3&quot;,
+!         &quot;16:9&quot;,
+!         &quot;16:10&quot;,
+          NULL
+       };
+  
+  /* ----------------------------------------------------------------------------
+***************
+*** 265,276 ****
+  /* ---------------------------------------------------------------------------
+   */
+- void cSetupStore::getScreenDimension(int &amp;w, int &amp;h)
+- {
+-   w = videoAspectValues [screenPixelAspect]. width;
+-   h = videoAspectValues [screenPixelAspect]. height;
+- }
+- 
+- /* ---------------------------------------------------------------------------
+-  */
+  char *cSetupStore::getPPValue(void)
+  {
+--- 254,257 ----
+***************
+*** 384,390 ****
+                             MINAVOFFSET, MAXAVOFFSET));
+  
+!   Add(new cMenuEditStraItem(tr(&quot;Pixel Aspect&quot;),
+                              &amp;data-&gt;screenPixelAspect,
+-                             //2,
+                              5,
+                              videoAspectNames));
+--- 365,370 ----
+                             MINAVOFFSET, MAXAVOFFSET));
+  
+!   Add(new cMenuEditStraItem(tr(&quot;Screen Aspect&quot;),
+                              &amp;data-&gt;screenPixelAspect,
+                              5,
+                              videoAspectNames));
+
+Index: setup-softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.h,v
+retrieving revision 1.12
+retrieving revision 1.13
+diff -C2 -d -r1.12 -r1.13
+*** setup-softdevice.h	30 Apr 2005 20:50:42 -0000	1.12
+--- setup-softdevice.h	29 May 2005 19:50:44 -0000	1.13
+***************
+*** 26,30 ****
+      void          CropModeNext(void);
+  
+-     virtual void  getScreenDimension(int &amp;w, int &amp;h);
+      virtual bool  CatchRemoteKey(const char *remoteName, uint64 key);
+  
+--- 26,29 ----
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.26
+retrieving revision 1.27
+diff -C2 -d -r1.26 -r1.27
+*** video-dfb.c	16 May 2005 15:53:12 -0000	1.26
+--- video-dfb.c	29 May 2005 19:50:44 -0000	1.27
+***************
+*** 379,382 ****
+--- 379,383 ----
+    {
+        DFBSurfacePixelFormat fmt;
++       double                displayRatio;
+  
+      scrSurface-&gt;GetSize(&amp;Xres,&amp;Yres);
+***************
+*** 386,389 ****
+--- 387,393 ----
+      lwidth  = dwidth  = Xres;
+      lheight = dheight = Yres;
++ 
++     displayRatio = (double) Xres / (double) Yres;
++     SetParValues(displayRatio, displayRatio);
+  
+      fmt = scrSurface-&gt;GetPixelFormat();
+
+Index: video-vidix.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-vidix.c,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -C2 -d -r1.7 -r1.8
+*** video-vidix.c	16 May 2005 15:53:12 -0000	1.7
+--- video-vidix.c	29 May 2005 19:50:44 -0000	1.8
+***************
+*** 29,33 ****
+                    : cVideoOut(setupStore)
+  {
+!     int err;
+      if ((fbdev = open(FBDEV, O_RDWR)) == -1) {
+          esyslog(&quot;[cVidixVideoOut] Can't open framebuffer exiting\n&quot;);
+--- 29,35 ----
+                    : cVideoOut(setupStore)
+  {
+!     int     err;
+!     double  displayRatio;
+! 
+      if ((fbdev = open(FBDEV, O_RDWR)) == -1) {
+          esyslog(&quot;[cVidixVideoOut] Can't open framebuffer exiting\n&quot;);
+***************
+*** 107,110 ****
+--- 109,115 ----
+      fwidth = lwidth = dwidth = swidth = Xres;
+      fheight = lheight = dheight = sheight = Yres;
++ 
++     displayRatio = (double) Xres / (double) Yres;
++     SetParValues(displayRatio, displayRatio);
+  
+      printf(&quot;cVidixVideoOut: xres = %d yres= %d \n&quot;, fb_vinfo.xres, fb_vinfo.yres);
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.23
+retrieving revision 1.24
+diff -C2 -d -r1.23 -r1.24
+*** video-xv.c	16 May 2005 15:53:12 -0000	1.23
+--- video-xv.c	29 May 2005 19:50:44 -0000	1.24
+***************
+*** 627,630 ****
+--- 627,631 ----
+      XTextProperty       x_wname, x_iname;
+      struct timeval      current_time;
++     double              displayAspect, displayRatio;
+  
+    dsyslog(&quot;[XvVideoOut]: patch version (%s)&quot;, PATCH_VERSION);
+***************
+*** 657,660 ****
+--- 658,674 ----
+    XStringListToTextProperty(&amp;i_name, 1 ,&amp;x_iname);
+  
++   /* --------------------------------------------------------------------------
++    * set PAR values
++    */
++   displayAspect = (double) DisplayWidthMM(dpy, scn_id) /
++                     (double) DisplayHeightMM(dpy, scn_id);
++   displayRatio  = (double) DisplayWidth(dpy, scn_id) /
++                     (double) DisplayHeight(dpy, scn_id);
++ 
++   SetParValues(displayAspect, displayRatio);
++ 
++   fprintf(stderr,
++           &quot;[XvVideoOut]: displayAspect = %f, displayRatio = %f, PAR = %f\n&quot;,
++           displayAspect, displayRatio, parValues[0]);
+  
+    if (scale_size) {
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.20
+retrieving revision 1.21
+diff -C2 -d -r1.20 -r1.21
+*** video.c	21 May 2005 14:20:03 -0000	1.20
+--- video.c	29 May 2005 19:50:44 -0000	1.21
+***************
+*** 26,29 ****
+--- 26,33 ----
+    this-&gt;setupStore=setupStore;
+    freezeMode=false;
++ 
++   for (int i = 0; i &lt; MAX_PAR; ++i)
++     parValues [i] = 1.0;
++ 
+    //start osd thread
+    active=true;
+***************
+*** 134,142 ****
+  /* ---------------------------------------------------------------------------
+   */
+  void cVideoOut::CheckAspect(int new_afd, float new_asp)
+  {
+!     int           new_aspect,
+!                   screenWidth, screenHeight;
+!     double        d_asp, afd_asp;
+  
+    /* -------------------------------------------------------------------------
+--- 138,156 ----
+  /* ---------------------------------------------------------------------------
+   */
++ void cVideoOut::SetParValues(double displayAspect, double displayRatio)
++ {
++   parValues [0] = displayAspect / displayRatio;
++   parValues [1] = ( 5.0 /  4.0) / displayRatio;
++   parValues [2] = ( 4.0 /  3.0) / displayRatio;
++   parValues [3] = (16.0 /  9.0) / displayRatio;
++   parValues [4] = (16.0 / 10.0) / displayRatio;
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
+  void cVideoOut::CheckAspect(int new_afd, float new_asp)
+  {
+!     int           new_aspect;
+!     double        d_asp, afd_asp, p_asp;
+  
+    /* -------------------------------------------------------------------------
+***************
+*** 172,176 ****
+    }
+  
+-   setupStore-&gt;getScreenDimension (screenWidth, screenHeight);
+    aspect_changed = 1;
+  
+--- 186,189 ----
+***************
+*** 205,211 ****
+     * handle screen aspect support now
+     */
+!   afd_asp *= ((double) screenWidth / (double) screenHeight) * (3.0 / 4.0);
+  
+!   if (d_asp &gt; afd_asp) {
+      /* ------------------------------------------------------------------------
+       * display aspect is wider than frame aspect
+--- 218,224 ----
+     * handle screen aspect support now
+     */
+!   p_asp = parValues [screenPixelAspect];
+  
+!   if ((d_asp * p_asp) &gt; afd_asp) {
+      /* ------------------------------------------------------------------------
+       * display aspect is wider than frame aspect
+***************
+*** 213,219 ****
+       */
+      lheight = dheight;
+!     lwidth = (int) (0.5 + ((double) dheight * afd_asp));
+!     lxoff = (dwidth - lwidth) / 2;
+!     lyoff = 0;
+    } else {
+      /* ------------------------------------------------------------------------
+--- 226,230 ----
+       */
+      lheight = dheight;
+!     lwidth = (int) (0.5 + ((double) dheight * afd_asp / p_asp));
+    } else {
+      /* ------------------------------------------------------------------------
+***************
+*** 222,229 ****
+       */
+      lwidth = dwidth;
+!     lheight = (int) (0.5 + ((double) dwidth / afd_asp));
+!     lyoff = (dheight - lheight) / 2;
+!     lxoff = 0;
+    }
+  
+    dsyslog(&quot;[VideoOut]: %dx%d [%d,%d %dx%d] -&gt; %dx%d [%d,%d %dx%d]&quot;,
+--- 233,241 ----
+       */
+      lwidth = dwidth;
+!     lheight = (int) (0.5 + ((double) dwidth * p_asp / afd_asp));
+    }
++ 
++   lxoff = (dwidth - lwidth) / 2;
++   lyoff = (dheight - lheight) / 2;
+  
+    dsyslog(&quot;[VideoOut]: %dx%d [%d,%d %dx%d] -&gt; %dx%d [%d,%d %dx%d]&quot;,
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.13
+retrieving revision 1.14
+diff -C2 -d -r1.13 -r1.14
+*** video.h	21 May 2005 14:20:03 -0000	1.13
+--- video.h	29 May 2005 19:50:44 -0000	1.14
+***************
+*** 26,29 ****
+--- 26,31 ----
+  #define OSD_FULL_HEIGHT   576
+  
++ #define MAX_PAR 5
++ 
+  // MMX - 3Dnow! defines
+  
+***************
+*** 92,95 ****
+--- 94,98 ----
+              aspect_changed,
+              current_afd;
++     double  parValues[MAX_PAR];
+  
+      cSetupStore *setupStore;
+***************
+*** 110,113 ****
+--- 113,117 ----
+      virtual void YUV(uint8_t *Py, uint8_t *Pu, uint8_t *Pv, int Width, int Height, int Ystride, int UVstride) { return; };
+      virtual void Pause(void) {return;};
++     virtual void SetParValues(double displayAspect, double displayRatio);
+      virtual void CheckAspect(int new_afd, float new_asp);
+      virtual void CheckAspectDimensions (AVFrame *picture, AVCodecContext *context);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000134.html">[Softdevice-cvs] softdevice mpeg2decoder.c,1.37,1.38 mpeg2decoder.h,1.23,1.24 sync-timer.c,1.2,1.3 sync-timer.h,1.1,1.2 softdevice.c,1.33,1.34 CHANGELOG,1.70,1.71
+</A></li>
+	<LI>Next message: <A HREF="000136.html">[Softdevice-cvs] softdevice .cvsignore,NONE,1.1
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#135">[ date ]</a>
+              <a href="thread.html#135">[ thread ]</a>
+              <a href="subject.html#135">[ subject ]</a>
+              <a href="author.html#135">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

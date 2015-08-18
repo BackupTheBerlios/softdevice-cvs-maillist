@@ -1,0 +1,174 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice ShmClient.c, 1.22, 1.23 CHANGELOG, 1.309,	1.310
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20ShmClient.c%2C%201.22%2C%201.23%20CHANGELOG%2C%201.309%2C%0A%091.310&In-Reply-To=%3C20070412180008.C4B4CE1F6A%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000552.html">
+   <LINK REL="Next"  HREF="000555.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice ShmClient.c, 1.22, 1.23 CHANGELOG, 1.309,	1.310</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20ShmClient.c%2C%201.22%2C%201.23%20CHANGELOG%2C%201.309%2C%0A%091.310&In-Reply-To=%3C20070412180008.C4B4CE1F6A%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice ShmClient.c, 1.22, 1.23 CHANGELOG, 1.309,	1.310">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Thu Apr 12 20:00:08 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000552.html">[Softdevice-cvs] softdevice CHANGELOG,1.308,1.309
+</A></li>
+        <LI>Next message: <A HREF="000555.html">[Softdevice-cvs] softdevice CHANGELOG, 1.310, 1.311 ShmClient.c,	1.23, 1.24 VideoFilter.c, 1.4, 1.5 mpeg2decoder.c, 1.74,	1.75 setup-softdevice-menu.c, 1.12, 1.13 setup-softdevice.c,	1.52, 1.53 setup-softdevice.h, 1.40, 1.41 setup-softlog-menu.c,	1.2, 1.3 shm-common.h, 1.8, 1.9 softdevice.c, 1.81,	1.82 utils.c, 1.25, 1.26 utils.h, 1.16, 1.17 video-dfb.c, 1.79,	1.80 video-xv.c, 1.68, 1.69
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#553">[ date ]</a>
+              <a href="thread.html#553">[ thread ]</a>
+              <a href="subject.html#553">[ subject ]</a>
+              <a href="author.html#553">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv20702
+
+Modified Files:
+	ShmClient.c CHANGELOG 
+Log Message:
+revertet previous change, as it breaks argument style of softdevice
+
+Index: ShmClient.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/ShmClient.c,v
+retrieving revision 1.22
+retrieving revision 1.23
+diff -C2 -d -r1.22 -r1.23
+*** ShmClient.c	12 Apr 2007 08:31:33 -0000	1.22
+--- ShmClient.c	12 Apr 2007 17:58:11 -0000	1.23
+***************
+*** 83,99 ****
+          cSetupStore SetupStore;
+          SetupStore.xvFullscreen=0;
+- 
+-         if (argc &gt; 1) {
+-                 if (strcmp(argv[1], &quot;-f&quot;) == 0) {
+-                         SetupStore.xvFullscreen=1;
+-                 } else {
+-                         // unknown or -h option: report available options.
+-                         printf (&quot;Shared-Memory-Client for vdr-softdevice\n&quot;);
+-                         printf (&quot;Options:\n&quot;);
+-                         printf (&quot;  -f   Start fullscreen\n&quot;);
+-                         return 0;
+-                 }
+-         }
+- 
+          cXvVideoOut *vout=new cXvVideoOut(&amp;SetupStore);
+          xvRemote= new cShmRemote(&quot;softdevice-xv&quot;);
+--- 83,86 ----
+***************
+*** 123,136 ****
+                  exit(-1);
+          };
+! 
+          if ( !vout-&gt;Initialize()  ) {
+                  fprintf(stderr,&quot;Could not init video out!\n&quot;);
+                  exit(-1);
+          };
+! 
+!         while (!vout-&gt;Reconfigure(SetupStore.pixelFormat)
+                          &amp;&amp; SetupStore.pixelFormat &lt; 3 )
+                  SetupStore.pixelFormat++;
+! 
+          if ( vout-&gt;useShm &amp;&amp; vout-&gt;xv_image ) {
+                  ctl-&gt;pict_shmid= vout-&gt;shminfo.shmid;
+--- 110,123 ----
+                  exit(-1);
+          };
+!         
+          if ( !vout-&gt;Initialize()  ) {
+                  fprintf(stderr,&quot;Could not init video out!\n&quot;);
+                  exit(-1);
+          };
+!        
+!         while (!vout-&gt;Reconfigure(SetupStore.pixelFormat) 
+                          &amp;&amp; SetupStore.pixelFormat &lt; 3 )
+                  SetupStore.pixelFormat++;
+!         
+          if ( vout-&gt;useShm &amp;&amp; vout-&gt;xv_image ) {
+                  ctl-&gt;pict_shmid= vout-&gt;shminfo.shmid;
+***************
+*** 162,166 ****
+                                  break;
+                  };
+! 
+                  picture.pixel[0]=picture.pixel[1]=picture.pixel[2]=NULL;
+                  picture.stride[0]=picture.stride[1]=picture.stride[2]=0;
+--- 149,153 ----
+                                  break;
+                  };
+!                 
+                  picture.pixel[0]=picture.pixel[1]=picture.pixel[2]=NULL;
+                  picture.stride[0]=picture.stride[1]=picture.stride[2]=0;
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.309
+retrieving revision 1.310
+diff -C2 -d -r1.309 -r1.310
+*** CHANGELOG	12 Apr 2007 08:33:25 -0000	1.309
+--- CHANGELOG	12 Apr 2007 17:58:11 -0000	1.310
+***************
+*** 1,9 ****
+  Changelog
+  2007-04-12:
+     - configure: fix typo (yaepg),
+                  rm .dependencies in case of changes,
+                  new opt: --disable-xinerama (by Matthias Schwarzott)
+     - fix osdMode not initialized (by Matthias Schwarzott)
+!    - ShmClient: full screann start option (by Matthias Schwarzott)
+  2007-04-11: softdevice-0.4.0
+     - xv-out: activate suspend/resume key (r/R) via configure (by Artur Skawina).
+--- 1,11 ----
+  Changelog
+  2007-04-12:
++    - ShmClient: revertet previous change, as it breaks argument style
++                 of softdevice.
+     - configure: fix typo (yaepg),
+                  rm .dependencies in case of changes,
+                  new opt: --disable-xinerama (by Matthias Schwarzott)
+     - fix osdMode not initialized (by Matthias Schwarzott)
+!    - ShmClient: full screen start option (by Matthias Schwarzott)
+  2007-04-11: softdevice-0.4.0
+     - xv-out: activate suspend/resume key (r/R) via configure (by Artur Skawina).
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000552.html">[Softdevice-cvs] softdevice CHANGELOG,1.308,1.309
+</A></li>
+	<LI>Next message: <A HREF="000555.html">[Softdevice-cvs] softdevice CHANGELOG, 1.310, 1.311 ShmClient.c,	1.23, 1.24 VideoFilter.c, 1.4, 1.5 mpeg2decoder.c, 1.74,	1.75 setup-softdevice-menu.c, 1.12, 1.13 setup-softdevice.c,	1.52, 1.53 setup-softdevice.h, 1.40, 1.41 setup-softlog-menu.c,	1.2, 1.3 shm-common.h, 1.8, 1.9 softdevice.c, 1.81,	1.82 utils.c, 1.25, 1.26 utils.h, 1.16, 1.17 video-dfb.c, 1.79,	1.80 video-xv.c, 1.68, 1.69
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#553">[ date ]</a>
+              <a href="thread.html#553">[ thread ]</a>
+              <a href="subject.html#553">[ subject ]</a>
+              <a href="author.html#553">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,137 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice video.c, 1.62, 1.63 CHANGELOG, 1.222,	1.223
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video.c%2C%201.62%2C%201.63%20CHANGELOG%2C%201.222%2C%0A%091.223&In-Reply-To=%3C20060908045938.90D2975527%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000412.html">
+   <LINK REL="Next"  HREF="000414.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice video.c, 1.62, 1.63 CHANGELOG, 1.222,	1.223</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video.c%2C%201.62%2C%201.63%20CHANGELOG%2C%201.222%2C%0A%091.223&In-Reply-To=%3C20060908045938.90D2975527%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice video.c, 1.62, 1.63 CHANGELOG, 1.222,	1.223">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Sep  8 06:59:38 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000412.html">[Softdevice-cvs] softdevice CHANGELOG, 1.221, 1.222 PicBuffer.c, 1.6,	1.7
+</A></li>
+        <LI>Next message: <A HREF="000414.html">[Softdevice-cvs] softdevice CHANGELOG, 1.223, 1.224 softdevice.c,	1.66, 1.67
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#413">[ date ]</a>
+              <a href="thread.html#413">[ thread ]</a>
+              <a href="subject.html#413">[ subject ]</a>
+              <a href="author.html#413">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv3819
+
+Modified Files:
+	video.c CHANGELOG 
+Log Message:
+limit destination video offsets to even values
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.62
+retrieving revision 1.63
+diff -C2 -d -r1.62 -r1.63
+*** video.c	4 Sep 2006 20:29:54 -0000	1.62
+--- video.c	8 Sep 2006 04:59:02 -0000	1.63
+***************
+*** 264,271 ****
+  
+    /* -------------------------------------------------------------------------
+!    * center result on display
+     */
+!   lxoff = (dwidth - lwidth) / 2;
+!   lyoff = (dheight - lheight) / 2;
+  }
+  
+--- 264,271 ----
+  
+    /* -------------------------------------------------------------------------
+!    * center result on display, and force offsets to be even.
+     */
+!   lxoff = ((dwidth - lwidth) / 2) &amp; ~1;
+!   lyoff = ((dheight - lheight) / 2) &amp; ~1;
+  }
+  
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.222
+retrieving revision 1.223
+diff -C2 -d -r1.222 -r1.223
+*** CHANGELOG	4 Sep 2006 20:37:07 -0000	1.222
+--- CHANGELOG	8 Sep 2006 04:59:09 -0000	1.223
+***************
+*** 1,13 ****
+  Changelog
+! 2006-09-04:
+!    - fix wrong colors when using ShmClient (reported by Matthias Schwarzott
+!      and <A HREF="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">derWolf at vdrportal</A>)
+!    - disable debuging printouts
+!    - cleanup
+!    - set sPicBuffer completly to zero
+! 2006-08-27:
+!    - adjust ffmpeg library order in configure
+!    - enable different pixel formats in video-xv
+!    - properly init ctl-&gt;key (reported by Matthias Schwarzott)
+  2006-08-05:
+     - video-dfb: disable reported failed flags in SetParams()
+--- 1,15 ----
+  Changelog
+! 2006-09-08:
+!    - limit destination video offsets to even values
+! 2006-09-04:
+!    - fix wrong colors when using ShmClient (reported by Matthias Schwarzott
+!      and <A HREF="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">derWolf at vdrportal</A>)
+!    - disable debuging printouts
+!    - cleanup
+!    - set sPicBuffer completly to zero
+! 2006-08-27:
+!    - adjust ffmpeg library order in configure
+!    - enable different pixel formats in video-xv
+!    - properly init ctl-&gt;key (reported by Matthias Schwarzott)
+  2006-08-05:
+     - video-dfb: disable reported failed flags in SetParams()
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000412.html">[Softdevice-cvs] softdevice CHANGELOG, 1.221, 1.222 PicBuffer.c, 1.6,	1.7
+</A></li>
+	<LI>Next message: <A HREF="000414.html">[Softdevice-cvs] softdevice CHANGELOG, 1.223, 1.224 softdevice.c,	1.66, 1.67
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#413">[ date ]</a>
+              <a href="thread.html#413">[ thread ]</a>
+              <a href="subject.html#413">[ subject ]</a>
+              <a href="author.html#413">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

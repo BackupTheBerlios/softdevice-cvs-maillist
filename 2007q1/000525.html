@@ -1,0 +1,110 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice video.c, 1.73, 1.74 CHANGELOG, 1.299,	1.300
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video.c%2C%201.73%2C%201.74%20CHANGELOG%2C%201.299%2C%0A%091.300&In-Reply-To=%3C20070325090203.13D65D995D%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000524.html">
+   <LINK REL="Next"  HREF="000526.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice video.c, 1.73, 1.74 CHANGELOG, 1.299,	1.300</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video.c%2C%201.73%2C%201.74%20CHANGELOG%2C%201.299%2C%0A%091.300&In-Reply-To=%3C20070325090203.13D65D995D%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice video.c, 1.73, 1.74 CHANGELOG, 1.299,	1.300">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Mar 25 11:02:03 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000524.html">[Softdevice-cvs] softdevice mpeg2decoder.h, 1.40, 1.41 sync-timer.h,	1.4, 1.5
+</A></li>
+        <LI>Next message: <A HREF="000526.html">[Softdevice-cvs] softdevice video.h,1.51,1.52
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#525">[ date ]</a>
+              <a href="thread.html#525">[ thread ]</a>
+              <a href="subject.html#525">[ subject ]</a>
+              <a href="author.html#525">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv17703
+
+Modified Files:
+	video.c CHANGELOG 
+Log Message:
+- pts values are stored in uint64_t
+
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.73
+retrieving revision 1.74
+diff -C2 -d -r1.73 -r1.74
+*** video.c	26 Feb 2007 23:00:34 -0000	1.73
+--- video.c	25 Mar 2007 09:00:11 -0000	1.74
+***************
+*** 516,520 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cVideoOut::EvaluateDelay(int aPTS, int pts, int frametime)
+  {
+      int   offset,
+--- 516,520 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void cVideoOut::EvaluateDelay(uint64_t aPTS, uint64_t pts, int frametime)
+  {
+      int   offset,
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.299
+retrieving revision 1.300
+diff -C2 -d -r1.299 -r1.300
+*** CHANGELOG	12 Mar 2007 20:43:26 -0000	1.299
+--- CHANGELOG	25 Mar 2007 09:00:11 -0000	1.300
+***************
+*** 1,3 ****
+--- 1,6 ----
+  Changelog
++ 2007-03-25:
++    - fix types in GetTime().
++    - pts values are stored in uint64_t
+  2007-03-12:
+     - compile fix for recent ffmpeg SVN
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000524.html">[Softdevice-cvs] softdevice mpeg2decoder.h, 1.40, 1.41 sync-timer.h,	1.4, 1.5
+</A></li>
+	<LI>Next message: <A HREF="000526.html">[Softdevice-cvs] softdevice video.h,1.51,1.52
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#525">[ date ]</a>
+              <a href="thread.html#525">[ thread ]</a>
+              <a href="subject.html#525">[ subject ]</a>
+              <a href="author.html#525">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,266 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.80,1.81 sync-timer.c,1.3,1.4 sync-timer.h,1.2,1.3 video-dfb.c,1.30,1.31 video.c,1.23,1.24
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.80%2C1.81%20sync-timer.c%2C1.3%2C1.4%20sync-timer.h%2C1.2%2C1.3%20video-dfb.c%2C1.30%2C1.31%20video.c%2C1.23%2C1.24&In-Reply-To=%3C200506302146.j5ULkII18190%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000150.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.80,1.81 sync-timer.c,1.3,1.4 sync-timer.h,1.2,1.3 video-dfb.c,1.30,1.31 video.c,1.23,1.24</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.80%2C1.81%20sync-timer.c%2C1.3%2C1.4%20sync-timer.h%2C1.2%2C1.3%20video-dfb.c%2C1.30%2C1.31%20video.c%2C1.23%2C1.24&In-Reply-To=%3C200506302146.j5ULkII18190%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.80,1.81 sync-timer.c,1.3,1.4 sync-timer.h,1.2,1.3 video-dfb.c,1.30,1.31 video.c,1.23,1.24">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Thu Jun 30 23:46:18 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000150.html">[Softdevice-cvs] softdevice CHANGELOG,1.79,1.80 video-dfb.c,1.29,1.30 video-dfb.h,1.8,1.9 video.c,1.22,1.23 video.h,1.14,1.15
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#151">[ date ]</a>
+              <a href="thread.html#151">[ thread ]</a>
+              <a href="subject.html#151">[ subject ]</a>
+              <a href="author.html#151">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv9704
+
+Modified Files:
+	CHANGELOG sync-timer.c sync-timer.h video-dfb.c video.c 
+Log Message:
+dfb: activated device specific delay handling
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.80
+retrieving revision 1.81
+diff -C2 -d -r1.80 -r1.81
+*** CHANGELOG	30 Jun 2005 21:20:55 -0000	1.80
+--- CHANGELOG	30 Jun 2005 21:46:16 -0000	1.81
+***************
+*** 3,6 ****
+--- 3,7 ----
+      - changed delay clamping low limit and printout &quot;+&quot; if we drop frames
+      - dfb: report current frame duration
++     - dfb: activated device specific delay handling
+  2005-06-28:
+      - fix for loosing window dimensions upon switching from fullscreen mode to windowed mode
+
+Index: sync-timer.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/sync-timer.c,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** sync-timer.c	29 May 2005 10:13:59 -0000	1.3
+--- sync-timer.c	30 Jun 2005 21:46:16 -0000	1.4
+***************
+*** 58,65 ****
+  /* --- cSigTimer --------------------------------------------------------------
+   */
+! int cSigTimer::Sleep( int timeoutUS )
+  {
+    got_signal=false;
+!   if ( timeoutUS &lt; 0 )
+      return GetRelTime();
+  
+--- 58,65 ----
+  /* --- cSigTimer --------------------------------------------------------------
+   */
+! int cSigTimer::Sleep(int timeoutUS, int lowLimitUS)
+  {
+    got_signal=false;
+!   if ( timeoutUS &lt; lowLimitUS )
+      return GetRelTime();
+  
+***************
+*** 67,71 ****
+    gettimeofday(&amp;tv,NULL);
+    struct timespec timeout;
+!   timeout.tv_nsec=(tv.tv_usec+timeoutUS);//*1000;
+    timeout.tv_sec=tv.tv_sec + timeout.tv_nsec / 1000000;
+    timeout.tv_nsec%=1000000;
+--- 67,71 ----
+    gettimeofday(&amp;tv,NULL);
+    struct timespec timeout;
+!   timeout.tv_nsec=(tv.tv_usec+timeoutUS-lowLimitUS);//*1000;
+    timeout.tv_sec=tv.tv_sec + timeout.tv_nsec / 1000000;
+    timeout.tv_nsec%=1000000;
+***************
+*** 145,149 ****
+  /* ----------------------------------------------------------------------------
+   */
+! void cSyncTimer::Sleep(int *timeoutUS)
+  {
+    got_signal=false;
+--- 145,149 ----
+  /* ----------------------------------------------------------------------------
+   */
+! void cSyncTimer::Sleep(int *timeoutUS, int lowLimitUS)
+  {
+    got_signal=false;
+***************
+*** 151,155 ****
+    {
+      case emUsleepTimer: // usleep timer mode
+!       while (*timeoutUS &gt; 2200 &amp;&amp; !got_signal)
+        {
+          usleep (2200);
+--- 151,155 ----
+    {
+      case emUsleepTimer: // usleep timer mode
+!       while ((*timeoutUS - lowLimitUS) &gt; 2200 &amp;&amp; !got_signal)
+        {
+          usleep (2200);
+***************
+*** 158,167 ****
+        break;
+      case emRtcTimer: // rtc timer mode
+!       while (*timeoutUS &gt; 15000 &amp;&amp; !got_signal)
+        {
+          usleep (10000);
+          *timeoutUS -= GetRelTime();
+        }
+!       while (*timeoutUS &gt; 1200 &amp;&amp; !got_signal)
+        {
+            uint32_t  ts;
+--- 158,167 ----
+        break;
+      case emRtcTimer: // rtc timer mode
+!       while ((*timeoutUS - lowLimitUS) &gt; 15000 &amp;&amp; !got_signal)
+        {
+          usleep (10000);
+          *timeoutUS -= GetRelTime();
+        }
+!       while ((*timeoutUS - lowLimitUS) &gt; 1200 &amp;&amp; !got_signal)
+        {
+            uint32_t  ts;
+***************
+*** 177,181 ****
+        break;
+      case emSigTimer: // signal timer mode
+!       *timeoutUS -= cSigTimer::Sleep(*timeoutUS);
+        break;
+    }
+--- 177,181 ----
+        break;
+      case emSigTimer: // signal timer mode
+!       *timeoutUS -= cSigTimer::Sleep(*timeoutUS, lowLimitUS);
+        break;
+    }
+
+Index: sync-timer.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/sync-timer.h,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** sync-timer.h	29 May 2005 10:13:59 -0000	1.2
+--- sync-timer.h	30 Jun 2005 21:46:16 -0000	1.3
+***************
+*** 52,56 ****
+        };
+  
+!       int Sleep( int timeoutUS );
+  
+        virtual void Signal(void);
+--- 52,56 ----
+        };
+  
+!       int Sleep(int timeoutUS, int lowLimitUS = 0);
+  
+        virtual void Signal(void);
+***************
+*** 71,75 ****
+      virtual void Signal(void);      
+  
+!     virtual void Sleep(int *timeoutUS);
+  };
+  
+--- 71,75 ----
+      virtual void Signal(void);      
+  
+!     virtual void Sleep(int *timeoutUS, int lowLimitUS = 0);
+  };
+  
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.30
+retrieving revision 1.31
+diff -C2 -d -r1.30 -r1.31
+*** video-dfb.c	30 Jun 2005 21:20:55 -0000	1.30
+--- video-dfb.c	30 Jun 2005 21:46:16 -0000	1.31
+***************
+*** 513,517 ****
+      t2 = (tv2.tv_sec &amp; 1) * 1000000 + tv2.tv_usec;
+      fprintf (stderr,&quot;[dfb] Display frame time is %d&#181;s\n&quot;, t2 - t1);
+!     //displayTimeUS = t2 - t1;
+    }
+  }
+--- 513,517 ----
+      t2 = (tv2.tv_sec &amp; 1) * 1000000 + tv2.tv_usec;
+      fprintf (stderr,&quot;[dfb] Display frame time is %d&#181;s\n&quot;, t2 - t1);
+!     displayTimeUS = t2 - t1;
+    }
+  }
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.23
+retrieving revision 1.24
+diff -C2 -d -r1.23 -r1.24
+*** video.c	30 Jun 2005 21:20:55 -0000	1.23
+--- video.c	30 Jun 2005 21:46:16 -0000	1.24
+***************
+*** 328,332 ****
+  void cVideoOut::Sync(cSyncTimer *syncTimer, int *delay)
+  {
+!   syncTimer-&gt;Sleep(delay);
+    *delay -= syncTimer-&gt;GetRelTime();
+  }
+--- 328,332 ----
+  void cVideoOut::Sync(cSyncTimer *syncTimer, int *delay)
+  {
+!   syncTimer-&gt;Sleep(delay,displayTimeUS);
+    *delay -= syncTimer-&gt;GetRelTime();
+  }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000150.html">[Softdevice-cvs] softdevice CHANGELOG,1.79,1.80 video-dfb.c,1.29,1.30 video-dfb.h,1.8,1.9 video.c,1.22,1.23 video.h,1.14,1.15
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#151">[ date ]</a>
+              <a href="thread.html#151">[ thread ]</a>
+              <a href="subject.html#151">[ subject ]</a>
+              <a href="author.html#151">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

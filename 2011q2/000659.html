@@ -1,0 +1,186 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice audio-ac3pt.c, 1.5, 1.6 CHANGELOG, 1.348,	1.349
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2011q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20audio-ac3pt.c%2C%201.5%2C%201.6%20CHANGELOG%2C%201.348%2C%0A%091.349&In-Reply-To=%3C20110413212512.4772A48113B%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000658.html">
+   <LINK REL="Next"  HREF="000660.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice audio-ac3pt.c, 1.5, 1.6 CHANGELOG, 1.348,	1.349</H1>
+    <B>lucke at BerliOS</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20audio-ac3pt.c%2C%201.5%2C%201.6%20CHANGELOG%2C%201.348%2C%0A%091.349&In-Reply-To=%3C20110413212512.4772A48113B%40sheep.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice audio-ac3pt.c, 1.5, 1.6 CHANGELOG, 1.348,	1.349">lucke at sheep.berlios.de
+       </A><BR>
+    <I>Wed Apr 13 23:25:11 CEST 2011</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000658.html">[Softdevice-cvs] softdevice setup-softlog.c,1.9,1.10
+</A></li>
+        <LI>Next message: <A HREF="000660.html">[Softdevice-cvs] softdevice softdevice.c, 1.96, 1.97 softdevice.h,	1.15, 1.16
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#659">[ date ]</a>
+              <a href="thread.html#659">[ thread ]</a>
+              <a href="subject.html#659">[ subject ]</a>
+              <a href="author.html#659">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv18927
+
+Modified Files:
+	audio-ac3pt.c CHANGELOG 
+Log Message:
+Allow AC3 output via hdmi.
+
+Index: audio-ac3pt.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio-ac3pt.c,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -C 2 -d -r1.5 -r1.6
+*** audio-ac3pt.c	14 Jun 2009 18:02:45 -0000	1.5
+--- audio-ac3pt.c	13 Apr 2011 21:25:09 -0000	1.6
+***************
+*** 501,505 ****
+  cAlsaAC3pt::SpdifInitAC3(snd_pcm_t **handle, char *device, bool spdifPro)
+  {
+!     char                      pcm_name[256];
+      static snd_aes_iec958_t   spdif;
+      unsigned int              rate = 48000;
+--- 501,510 ----
+  cAlsaAC3pt::SpdifInitAC3(snd_pcm_t **handle, char *device, bool spdifPro)
+  {
+!     char                      pcm_name [256],
+!                               control_name [16],
+!                               card_name [16],
+!                               device_name [16],
+!                               *control_end,
+!                               *card_end;
+      static snd_aes_iec958_t   spdif;
+      unsigned int              rate = 48000;
+***************
+*** 543,547 ****
+      }
+  
+- 
+      snprintf(pcm_name, sizeof (pcm_name),
+               &quot;iec958:AES0=0x%.2x,AES1=0x%.2x,AES2=0x%.2x,AES3=0x%.2x,CARD=%1d&quot;,
+--- 548,551 ----
+***************
+*** 550,553 ****
+--- 554,612 ----
+               0);
+  
++     /* -----------------------------------------------------------------------
++      * check for syntax:
++      * &quot;control_name:card_name[,device_name]&quot;
++      */
++     memset (control_name, 0, sizeof (control_name));
++     memset (card_name, 0, sizeof (card_name));
++     memset (device_name, 0, sizeof (device_name));
++     if ((control_end = strchr (device, ':')))
++     {
++         int control_len = 0,
++             card_len = 0;
++ 
++       control_len = control_end - device;
++       if (control_len &lt; (int) sizeof (control_name))
++       {
++         strncpy (control_name, device, control_len);
++         card_len = strlen (device + control_len + 1);
++         if ((card_end = strchr (device + control_len + 1, ',')))
++         {
++           card_len = card_end - (device + control_len + 1);
++           if (card_len &gt;= (int) sizeof (card_name))
++           {
++             fprintf (stderr,
++                      &quot;ac3play: card name too long (%s,%d &gt;= %d)\n&quot;,
++                      device + control_len + 1, card_len, sizeof (card_name));
++           }
++         }
++         if (card_len)
++         {
++           strncpy (card_name, device + control_len + 1, card_len);
++           snprintf(pcm_name, sizeof (pcm_name),
++                    &quot;%s:AES0=0x%.2x,AES1=0x%.2x,AES2=0x%.2x,AES3=0x%.2x,CARD=%s&quot;,
++                    control_name,
++                    spdif. status [0], spdif. status [1],
++                    spdif. status [2], spdif. status [3],
++                    card_name);
++         }
++         else
++         {
++           fprintf (stderr,
++                    &quot;ac3play: card name not specified (%s)\n&quot;, device);
++         }
++       }
++       else
++       {
++         fprintf (stderr,
++                  &quot;ac3play: control name too long (%s,%d &gt;= %d)\n&quot;,
++                  device, control_end - device, sizeof (control_name));
++       }
++     }
++     else
++     {
++       fprintf (stderr, &quot;ac3play: separator ':' not found in %s\n&quot;, device);
++     }
++ 
+      err = snd_pcm_open (handle, pcm_name, SND_PCM_STREAM_PLAYBACK, 0);
+      if (err &gt;= 0) {
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.348
+retrieving revision 1.349
+diff -C 2 -d -r1.348 -r1.349
+*** CHANGELOG	14 Jun 2009 11:20:28 -0000	1.348
+--- CHANGELOG	13 Apr 2011 21:25:09 -0000	1.349
+***************
+*** 1,3 ****
+--- 1,8 ----
+  Changelog
++ 2011-04-13:
++    - setup-softlog: Fix crash during logging by 'scop'.
++    - audio-ac3: Don't stick to fixed control (iec958) and card names (0)
++                 Allow AC3 output via hdmi:
++                 -ao alsa:pcm=hw:1,3#ac3=hdmi:HDMI#
+  2009-06-14:
+     - build: Fix compiling with newer ffmpeg versions.
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000658.html">[Softdevice-cvs] softdevice setup-softlog.c,1.9,1.10
+</A></li>
+	<LI>Next message: <A HREF="000660.html">[Softdevice-cvs] softdevice softdevice.c, 1.96, 1.97 softdevice.h,	1.15, 1.16
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#659">[ date ]</a>
+              <a href="thread.html#659">[ thread ]</a>
+              <a href="subject.html#659">[ subject ]</a>
+              <a href="author.html#659">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

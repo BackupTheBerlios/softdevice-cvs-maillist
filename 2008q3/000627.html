@@ -1,0 +1,112 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice xscreensaver.c,1.8,1.9
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2008q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20xscreensaver.c%2C1.8%2C1.9&In-Reply-To=%3C20080714165924.05CC913726D%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000626.html">
+   <LINK REL="Next"  HREF="000628.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice xscreensaver.c,1.8,1.9</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20xscreensaver.c%2C1.8%2C1.9&In-Reply-To=%3C20080714165924.05CC913726D%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice xscreensaver.c,1.8,1.9">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon Jul 14 18:59:24 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000626.html">[Softdevice-cvs] softdevice xscreensaver.c,1.7,1.8
+</A></li>
+        <LI>Next message: <A HREF="000628.html">[Softdevice-cvs] softdevice video-xv.c,1.74,1.75
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#627">[ date ]</a>
+              <a href="thread.html#627">[ thread ]</a>
+              <a href="subject.html#627">[ subject ]</a>
+              <a href="author.html#627">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv12117
+
+Modified Files:
+	xscreensaver.c 
+Log Message:
+Workaround for DPMS not getting reenabled.
+
+Index: xscreensaver.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/xscreensaver.c,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -C2 -d -r1.8 -r1.9
+*** xscreensaver.c	13 Jul 2008 14:25:40 -0000	1.8
+--- xscreensaver.c	14 Jul 2008 16:59:20 -0000	1.9
+***************
+*** 55,58 ****
+--- 55,68 ----
+        dpms_on) {
+      DPMSEnable(dpy);
++ 
++     // Add workaround for xorg bug #13962.
++     //  DPMSEnable() did not rearm timeouts.
++     {
++         CARD16    t0, t1, t2;
++ 
++       DPMSGetTimeouts(dpy, &amp;t0, &amp;t1, &amp;t2);
++       DPMSSetTimeouts(dpy, t0, t1, t2);
++     }
++ 
+    }
+  #endif
+***************
+*** 103,106 ****
+--- 113,126 ----
+          DPMSForceLevel(dpy, DPMSModeOn);
+          DPMSInfo(dpy, &amp;dpms_state, &amp;dpms_on);
++ 
++         // Add workaround for xorg bug #13962.
++         //  DPMSEnable() did not rearm timeouts.
++         {
++             CARD16    t0, t1, t2;
++ 
++           DPMSGetTimeouts(dpy, &amp;t0, &amp;t1, &amp;t2);
++           DPMSSetTimeouts(dpy, t0, t1, t2);
++         }
++ 
+          if (dpms_on) {
+            dsyslog(&quot;[softdevice-xscreensaver]: Successfully enabled DPMS\n&quot;);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000626.html">[Softdevice-cvs] softdevice xscreensaver.c,1.7,1.8
+</A></li>
+	<LI>Next message: <A HREF="000628.html">[Softdevice-cvs] softdevice video-xv.c,1.74,1.75
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#627">[ date ]</a>
+              <a href="thread.html#627">[ thread ]</a>
+              <a href="subject.html#627">[ subject ]</a>
+              <a href="author.html#627">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

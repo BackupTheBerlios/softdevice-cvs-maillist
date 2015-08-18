@@ -1,0 +1,217 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice softdevice.c,1.77,1.78
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20softdevice.c%2C1.77%2C1.78&In-Reply-To=%3C20070209235652.C7380DB061%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000504.html">
+   <LINK REL="Next"  HREF="000506.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice softdevice.c,1.77,1.78</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20softdevice.c%2C1.77%2C1.78&In-Reply-To=%3C20070209235652.C7380DB061%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice softdevice.c,1.77,1.78">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Feb 10 00:56:52 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000504.html">[Softdevice-cvs] softdevice setup-softlog-menu.c, NONE,	1.1 setup-softlog-menu.h, NONE, 1.1 setup-softlog.c, NONE,	1.1 setup-softlog.h, NONE, 1.1
+</A></li>
+        <LI>Next message: <A HREF="000506.html">[Softdevice-cvs] softdevice setup-softdevice-menu.c, 1.8,	1.9 setup-softdevice-menu.h, 1.1, 1.2 setup-softdevice.c, 1.48,	1.49 setup-softdevice.h, 1.36, 1.37 Makefile, 1.35, 1.36
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#505">[ date ]</a>
+              <a href="thread.html#505">[ thread ]</a>
+              <a href="subject.html#505">[ subject ]</a>
+              <a href="author.html#505">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv16145
+
+Modified Files:
+	softdevice.c 
+Log Message:
+Pause the playback of recordings when suspended (by Marko M&#228;kel&#228;)
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.77
+retrieving revision 1.78
+diff -C2 -d -r1.77 -r1.78
+*** softdevice.c	28 Jan 2007 19:38:06 -0000	1.77
+--- softdevice.c	9 Feb 2007 23:55:22 -0000	1.78
+***************
+*** 526,529 ****
+--- 526,535 ----
+  {
+    SOFTDEB(&quot;PlayAudio... %p length %d\n&quot;,Data,Length);
++ #if VDRVERSNUM &gt;= 10342
++   if (setupStore.shouldSuspend &amp;&amp; !Transferring()) {
++     usleep(10000); // avoid burning CPU
++     return 0;
++   }
++ #endif
+    if (! packetMode)
+      return decoder-&gt;Decode(Data, Length);
+***************
+*** 580,585 ****
+  int cSoftDevice::PlayVideo(const uchar *Data, int Length)
+  {
+!    SOFTDEB(&quot;PlayVideo %x length %d\n&quot;,Data,Length);
+!    if (! packetMode)
+      return decoder-&gt;Decode(Data, Length);
+  
+--- 586,597 ----
+  int cSoftDevice::PlayVideo(const uchar *Data, int Length)
+  {
+!   SOFTDEB(&quot;PlayVideo %x length %d\n&quot;,Data,Length);
+! #if VDRVERSNUM &gt;= 10342
+!   if (setupStore.shouldSuspend &amp;&amp; !Transferring()) {
+!     usleep(10000); // avoid burning CPU
+!     return 0;
+!   }
+! #endif
+!   if (! packetMode)
+      return decoder-&gt;Decode(Data, Length);
+  
+***************
+*** 588,597 ****
+       ic=(AVFormatContext *) Data;
+       return -1;
+!   };
+    if ( packetMode &amp;&amp; ic &amp;&amp; Length == -2 ) {
+       // Length = -2 : pass pointer to packet
+       decoder-&gt;QueuePacket(ic,( AVPacket &amp;) *Data,true);
+       return -2;
+!   };
+    return 0;
+  }
+--- 600,609 ----
+       ic=(AVFormatContext *) Data;
+       return -1;
+!   }
+    if ( packetMode &amp;&amp; ic &amp;&amp; Length == -2 ) {
+       // Length = -2 : pass pointer to packet
+       decoder-&gt;QueuePacket(ic,( AVPacket &amp;) *Data,true);
+       return -2;
+!   }
+    return 0;
+  }
+***************
+*** 610,614 ****
+  
+    if (!orig_pic) {
+!     // got no video picture, but maybe there is OSD, so allocate a 
+      // black picture as a background.
+      orig_pic=(sPicBuffer*) malloc(sizeof(sPicBuffer));
+--- 622,626 ----
+  
+    if (!orig_pic) {
+!     // got no video picture, but maybe there is OSD, so allocate a
+      // black picture as a background.
+      orig_pic=(sPicBuffer*) malloc(sizeof(sPicBuffer));
+***************
+*** 627,631 ****
+    if (Quality&lt;0)
+      Quality=100;
+!  
+    sPicBuffer dst;
+    AllocatePicBuffer(&amp;dst,PIX_FMT_BGR24,SizeX,SizeY);
+--- 639,643 ----
+    if (Quality&lt;0)
+      Quality=100;
+! 
+    sPicBuffer dst;
+    AllocatePicBuffer(&amp;dst,PIX_FMT_BGR24,SizeX,SizeY);
+***************
+*** 633,637 ****
+    cSoftOsd *Osd=dynamic_cast&lt;cSoftOsd*&gt;(cSoftOsdProvider::GetOsd());
+    if (!Osd &amp;&amp; self_allocated_pic) {
+!     // no osd and no picture... return null to avoid 
+      // &quot;Empty JPEG image (DNL not supported)&quot; error message from libjpeg
+      DeallocatePicBuffer(orig_pic);
+--- 645,649 ----
+    cSoftOsd *Osd=dynamic_cast&lt;cSoftOsd*&gt;(cSoftOsdProvider::GetOsd());
+    if (!Osd &amp;&amp; self_allocated_pic) {
+!     // no osd and no picture... return null to avoid
+      // &quot;Empty JPEG image (DNL not supported)&quot; error message from libjpeg
+      DeallocatePicBuffer(orig_pic);
+***************
+*** 645,649 ****
+       uint8_t *OsdPv=(uint8_t*)malloc(OSD_HEIGHT*OSD_STRIDE/4+8);
+       uint8_t *OsdPAlphaY=(uint8_t*)malloc(OSD_HEIGHT*OSD_STRIDE+16);
+!      uint8_t *OsdPAlphaUV=(uint8_t*)malloc(OSD_HEIGHT*OSD_STRIDE/4+8); 
+       Osd-&gt;StealToBitmap(OsdPy,OsdPu,OsdPv,OsdPAlphaY,OsdPAlphaUV,
+                      OSD_STRIDE, OSD_STRIDE/2,
+--- 657,661 ----
+       uint8_t *OsdPv=(uint8_t*)malloc(OSD_HEIGHT*OSD_STRIDE/4+8);
+       uint8_t *OsdPAlphaY=(uint8_t*)malloc(OSD_HEIGHT*OSD_STRIDE+16);
+!      uint8_t *OsdPAlphaUV=(uint8_t*)malloc(OSD_HEIGHT*OSD_STRIDE/4+8);
+       Osd-&gt;StealToBitmap(OsdPy,OsdPu,OsdPv,OsdPAlphaY,OsdPAlphaUV,
+                      OSD_STRIDE, OSD_STRIDE/2,
+***************
+*** 653,659 ****
+  	   0,0,SizeX,SizeY,
+  	   OsdPy,OsdPv,OsdPu,OsdPAlphaY,OsdPAlphaUV,
+!            OSD_STRIDE, 
+  	   0,0,0,0);
+!      free(OsdPy); free(OsdPu); free(OsdPv); 
+       free(OsdPAlphaY); free(OsdPAlphaUV);
+    } else {
+--- 665,671 ----
+  	   0,0,SizeX,SizeY,
+  	   OsdPy,OsdPv,OsdPu,OsdPAlphaY,OsdPAlphaUV,
+!            OSD_STRIDE,
+  	   0,0,0,0);
+!      free(OsdPy); free(OsdPu); free(OsdPv);
+       free(OsdPAlphaY); free(OsdPAlphaUV);
+    } else {
+***************
+*** 665,669 ****
+    SizeX=dst.width;
+    SizeY=dst.height;
+!   if (!self_allocated_pic) 
+      videoOut-&gt;UnlockBuffer(orig_pic);
+    else {
+--- 677,681 ----
+    SizeX=dst.width;
+    SizeY=dst.height;
+!   if (!self_allocated_pic)
+      videoOut-&gt;UnlockBuffer(orig_pic);
+    else {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000504.html">[Softdevice-cvs] softdevice setup-softlog-menu.c, NONE,	1.1 setup-softlog-menu.h, NONE, 1.1 setup-softlog.c, NONE,	1.1 setup-softlog.h, NONE, 1.1
+</A></li>
+	<LI>Next message: <A HREF="000506.html">[Softdevice-cvs] softdevice setup-softdevice-menu.c, 1.8,	1.9 setup-softdevice-menu.h, 1.1, 1.2 setup-softdevice.c, 1.48,	1.49 setup-softdevice.h, 1.36, 1.37 Makefile, 1.35, 1.36
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#505">[ date ]</a>
+              <a href="thread.html#505">[ thread ]</a>
+              <a href="subject.html#505">[ subject ]</a>
+              <a href="author.html#505">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

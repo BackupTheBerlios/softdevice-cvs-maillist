@@ -1,0 +1,160 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice softdevice.c, 1.95, 1.96 softdevice.h,	1.14, 1.15
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2009q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20softdevice.c%2C%201.95%2C%201.96%20softdevice.h%2C%0A%091.14%2C%201.15&In-Reply-To=%3C20090614172537.CD5BB3C73D%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000653.html">
+   <LINK REL="Next"  HREF="000655.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice softdevice.c, 1.95, 1.96 softdevice.h,	1.14, 1.15</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20softdevice.c%2C%201.95%2C%201.96%20softdevice.h%2C%0A%091.14%2C%201.15&In-Reply-To=%3C20090614172537.CD5BB3C73D%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice softdevice.c, 1.95, 1.96 softdevice.h,	1.14, 1.15">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Jun 14 19:25:37 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000653.html">[Softdevice-cvs] softdevice setup-softdevice.c, 1.57,	1.58 setup-softdevice.h, 1.47, 1.48
+</A></li>
+        <LI>Next message: <A HREF="000655.html">[Softdevice-cvs] softdevice video-dfb.c, 1.85, 1.86 video-dfb.h,	1.29, 1.30
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#654">[ date ]</a>
+              <a href="thread.html#654">[ thread ]</a>
+              <a href="subject.html#654">[ subject ]</a>
+              <a href="author.html#654">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv17756
+
+Modified Files:
+	softdevice.c softdevice.h 
+Log Message:
+Fix compiler warnings
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.95
+retrieving revision 1.96
+diff -C2 -d -r1.95 -r1.96
+*** softdevice.c	22 Mar 2009 12:55:33 -0000	1.95
+--- softdevice.c	14 Jun 2009 17:25:35 -0000	1.96
+***************
+*** 174,178 ****
+  /* ----------------------------------------------------------------------------
+   */
+! cSoftDevice::cSoftDevice(int method,int audioMethod, char *pluginPath)
+  {
+      spuDecoder = NULL;
+--- 174,178 ----
+  /* ----------------------------------------------------------------------------
+   */
+! cSoftDevice::cSoftDevice(int method,int audioMethod, const char *pluginPath)
+  {
+      spuDecoder = NULL;
+***************
+*** 330,335 ****
+  /* ----------------------------------------------------------------------------
+   */
+! void cSoftDevice::LoadSubPlugin(char *outMethodName,
+!                                 char *pluginPath)
+  {
+      char  *subPluginFileName = NULL;
+--- 330,335 ----
+  /* ----------------------------------------------------------------------------
+   */
+! void cSoftDevice::LoadSubPlugin(const char *outMethodName,
+!                                 const char *pluginPath)
+  {
+      char  *subPluginFileName = NULL;
+
+Index: softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.h,v
+retrieving revision 1.14
+retrieving revision 1.15
+diff -C2 -d -r1.14 -r1.15
+*** softdevice.h	16 Apr 2008 10:41:40 -0000	1.14
+--- softdevice.h	14 Jun 2009 17:25:35 -0000	1.15
+***************
+*** 40,47 ****
+  class cPluginSoftDevice : public cPlugin {
+  private:
+!   int   voutMethod;
+!   int   aoutMethod;
+!   char  *pluginPath,
+!         *runtimePluginPath;
+  
+  public:
+--- 40,47 ----
+  class cPluginSoftDevice : public cPlugin {
+  private:
+!   int         voutMethod;
+!   int         aoutMethod;
+!   const char  *pluginPath,
+!               *runtimePluginPath;
+  
+  public:
+***************
+*** 79,83 ****
+  
+  public:
+!   cSoftDevice(int method, int audioMethod, char *pluginPath);
+    ~cSoftDevice();
+  
+--- 79,83 ----
+  
+  public:
+!   cSoftDevice(int method, int audioMethod, const char *pluginPath);
+    ~cSoftDevice();
+  
+***************
+*** 91,95 ****
+    { if (decoder) decoder-&gt;Freeze(Stream,Value); return 0;};
+  
+!   void LoadSubPlugin(char *outMethodName, char *pluginPath);
+  
+    virtual bool HasDecoder(void) const;
+--- 91,95 ----
+    { if (decoder) decoder-&gt;Freeze(Stream,Value); return 0;};
+  
+!   void LoadSubPlugin(const char *outMethodName, const char *pluginPath);
+  
+    virtual bool HasDecoder(void) const;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000653.html">[Softdevice-cvs] softdevice setup-softdevice.c, 1.57,	1.58 setup-softdevice.h, 1.47, 1.48
+</A></li>
+	<LI>Next message: <A HREF="000655.html">[Softdevice-cvs] softdevice video-dfb.c, 1.85, 1.86 video-dfb.h,	1.29, 1.30
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#654">[ date ]</a>
+              <a href="thread.html#654">[ thread ]</a>
+              <a href="subject.html#654">[ subject ]</a>
+              <a href="author.html#654">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,1324 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice softdevice.c,1.6,1.7 mpeg2decoder.c,1.7,1.8 mpeg2decoder.h,1.3,1.4
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2004q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20softdevice.c%2C1.6%2C1.7%20mpeg2decoder.c%2C1.7%2C1.8%20mpeg2decoder.h%2C1.3%2C1.4&In-Reply-To=%3C200411141624.iAEGOeB24979%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000029.html">
+   <LINK REL="Next"  HREF="000031.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice softdevice.c,1.6,1.7 mpeg2decoder.c,1.7,1.8 mpeg2decoder.h,1.3,1.4</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20softdevice.c%2C1.6%2C1.7%20mpeg2decoder.c%2C1.7%2C1.8%20mpeg2decoder.h%2C1.3%2C1.4&In-Reply-To=%3C200411141624.iAEGOeB24979%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice softdevice.c,1.6,1.7 mpeg2decoder.c,1.7,1.8 mpeg2decoder.h,1.3,1.4">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Nov 14 17:24:40 CET 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000029.html">[Softdevice-cvs] softdevice video-dfb.c,1.8,1.9
+</A></li>
+        <LI>Next message: <A HREF="000031.html">[Softdevice-cvs] softdevice CHANGELOG,1.18,1.19
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#30">[ date ]</a>
+              <a href="thread.html#30">[ thread ]</a>
+              <a href="subject.html#30">[ subject ]</a>
+              <a href="author.html#30">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv2545
+
+Modified Files:
+	softdevice.c mpeg2decoder.c mpeg2decoder.h 
+Log Message:
+new A-V sync &amp; new audio buffering &amp; added missing cDevice methods
+
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -C2 -d -r1.6 -r1.7
+*** softdevice.c	4 Nov 2004 07:01:52 -0000	1.6
+--- softdevice.c	14 Nov 2004 16:24:38 -0000	1.7
+***************
+*** 133,137 ****
+  };
+  
+! cSoftOsdProvider::cSoftOsdProvider(cVideoOut *VideoOut)
+  {
+      videoOut = VideoOut;
+--- 133,137 ----
+  };
+  
+! cSoftOsdProvider::cSoftOsdProvider(cVideoOut *VideoOut) : cOsdProvider()
+  {
+      videoOut = VideoOut;
+***************
+*** 259,262 ****
+--- 259,263 ----
+    virtual void StillPicture(const uchar *Data, int Length);
+    virtual bool Poll(cPoller &amp;Poller, int TimeoutMs = 0);
++   virtual int64_t GetSTC(void);
+    virtual int PlayVideo(const uchar *Data, int Length);
+  #if VDRVERSNUM &gt;= 10307
+***************
+*** 324,328 ****
+  }
+  
+! 
+  
+  #if VDRVERSNUM &gt;= 10307
+--- 325,331 ----
+  }
+  
+! int64_t cSoftDevice::GetSTC(void) {
+!   return decoder-&gt;GetSTC();
+! };
+  
+  #if VDRVERSNUM &gt;= 10307
+***************
+*** 388,399 ****
+  void cSoftDevice::TrickSpeed(int Speed)
+  {
+!     fprintf(stderr,&quot;[softdevice] Trickspeed not implemented yet...\n&quot;);
+  }
+  void cSoftDevice::Clear(void)
+  {
+!     fprintf(stderr,&quot;[softdevice] Clear not implemented yet...\n&quot;);
+  }
+  void cSoftDevice::Play(void)
+  {
+      playMutex.Lock();
+      freezeModeEnabled = false;
+--- 391,409 ----
+  void cSoftDevice::TrickSpeed(int Speed)
+  {
+!     //fprintf(stderr,&quot;[softdevice] Trickspeed(%d) ...\n&quot;,Speed);
+!     decoder-&gt;TrickSpeed(Speed);
+  }
+  void cSoftDevice::Clear(void)
+  {
+!     //fprintf(stderr,&quot;[softdevice] Clear ...\n&quot;);
+!     cDevice::Clear();
+!     decoder-&gt;Clear();
+  }
+  void cSoftDevice::Play(void)
+  {
++     //fprintf(stderr,&quot;[softdevice] Play...\n&quot;);
++     cDevice::Play();
++     decoder-&gt;TrickSpeed(1);
++     decoder-&gt;Play();
+      playMutex.Lock();
+      freezeModeEnabled = false;
+***************
+*** 401,418 ****
+      readyForPlayCondVar.Broadcast();
+  }
+  void cSoftDevice::Freeze(void)
+  {
+      playMutex.Lock();
+      freezeModeEnabled = true;
+      playMutex.Unlock();
+  }
+  void cSoftDevice::Mute(void)
+  {
+!     fprintf(stderr,&quot;[softdevice] Mute not implemented yet...\n&quot;);
+  }
+  
+  void cSoftDevice::SetVolumeDevice(int Volume)
+  {
+!   fprintf (stderr, &quot;[softdevice] should set volume to %d\n&quot;, Volume);
+    audioOut-&gt;SetVolume(Volume);
+  }
+--- 411,434 ----
+      readyForPlayCondVar.Broadcast();
+  }
++ 
+  void cSoftDevice::Freeze(void)
+  {
++     //fprintf(stderr,&quot;[softdevice] Freeze...\n&quot;);
++     cDevice::Freeze();
++     decoder-&gt;Freeze();
+      playMutex.Lock();
+      freezeModeEnabled = true;
+      playMutex.Unlock();
+  }
++ 
+  void cSoftDevice::Mute(void)
+  {
+!     //fprintf(stderr,&quot;[softdevice] Mute not implemented yet...\n&quot;);
+!     cDevice::Mute();
+  }
+  
+  void cSoftDevice::SetVolumeDevice(int Volume)
+  {
+!   //fprintf (stderr, &quot;[softdevice] should set volume to %d\n&quot;, Volume);
+    audioOut-&gt;SetVolume(Volume);
+  }
+***************
+*** 420,423 ****
+--- 436,440 ----
+  void cSoftDevice::StillPicture(const uchar *Data, int Length)
+  {
++     //fprintf(stderr,&quot;[softdevice] StillPicture...\n&quot;);
+      decoder-&gt;StillPicture((uchar *)Data,Length);
+  }
+***************
+*** 425,432 ****
+--- 442,457 ----
+  bool cSoftDevice::Poll(cPoller &amp;Poller, int TimeoutMs)
+  {
++   // fprintf(stderr,&quot;[softdevice] Poll TimeoutMs: %d ....\n&quot;,TimeoutMs);
+    playMutex.Lock();
+    if (freezeModeEnabled)
+      readyForPlayCondVar.TimedWait(playMutex,TimeoutMs);
+    playMutex.Unlock();
++ 
++   if (decoder-&gt;BufferFilled()) {
++      //fprintf(stderr,&quot;[softdevice] Buffer filled, sleeping\n&quot;);
++      usleep(TimeoutMs*1000);
++      return decoder-&gt;BufferFilled();
++   }
++ 
+    return true;
+  }
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -C2 -d -r1.7 -r1.8
+*** mpeg2decoder.c	9 Nov 2004 21:41:18 -0000	1.7
+--- mpeg2decoder.c	14 Nov 2004 16:24:38 -0000	1.8
+***************
+*** 7,12 ****
+--- 7,18 ----
+   */
+  
++ #include &lt;math.h&gt;
++ 
+  #include &lt;vdr/plugin.h&gt;
+  
++ // for RTC
++ #include &lt;sys/ioctl.h&gt;
++ #include &lt;linux/rtc.h&gt;
++ 
+  #include &quot;mpeg2decoder.h&quot;
+  #include &quot;audio.h&quot;
+***************
+*** 20,24 ****
+--- 26,48 ----
+  #define STREAM 500
+  
++ //#define HDRDEB(out...) {printf(&quot;header[%04d]:&quot;,getTimeMilis() % 10000);printf(out);}
++ 
++ #ifndef HDRDEB
++ #define HDRDEB(out...)
++ #endif
++ 
++ //#define MPGDEB(out...) {printf(&quot;mpegdec[%04d]:&quot;,getTimeMilis() % 10000);printf(out);}
++ 
++ #ifndef MPGDEB
++ #define MPGDEB(out...)
++ #endif
++ 
++ //#define BUFDEB(out...) {printf(&quot;BUF[%04d]:&quot;,getTimeMilis() % 10000);printf(out);}
+  
++ #ifndef BUFDEB
++ #define BUFDEB(out...)
++ #endif
++ 
++ //#define AV_STATS
+  
+  
+***************
+*** 36,39 ****
+--- 60,71 ----
+    streamID = StreamID;
+    frame=0;
++   freezeMode=false;
++   state=UNSYNCED;
++   pts=0;
++   validPTS=false;
++   ringBuffer=new cSoftRingBufferLinear(DVB_BUF_SIZE,1024,true);
++   //ringBuffer-&gt;SetTimeouts(100,10);
++   Start(); // starte thread
++   memset(header,0,MAX_HDR_LEN);
+  }
+  
+***************
+*** 42,53 ****
+  cStreamDecoder::~cStreamDecoder()
+  {
+! }
+! 
+! void cStreamDecoder::SyncPTS(uint64_t spts)
+! {
+!     int diff= (int)(pts-spts);
+! 
+!   if (abs(diff) &gt; 100)
+!     pts=spts;
+  }
+  
+--- 74,79 ----
+  cStreamDecoder::~cStreamDecoder()
+  {
+!   active=false;
+!   Cancel(3);
+  }
+  
+***************
+*** 88,93 ****
+          break;
+  
+!       case HEADER+2:      //wei&#223; ich nicht (immer 0x80 oder 0x85)
+          state++;
+          payload--;
+          break;
+--- 114,120 ----
+          break;
+  
+!       case HEADER+2:      //wei&#195;&#159; ich nicht (immer 0x80 oder 0x85)
+          state++;
++         *(uint8_t *)&amp;Header1 = * inbuf_ptr;
+          payload--;
+          break;
+***************
+*** 95,98 ****
+--- 122,126 ----
+        case HEADER+3:      // ??
+          state++;
++         *(uint8_t *)&amp;Header2 = *inbuf_ptr;
+          payload--;
+          break;
+***************
+*** 109,112 ****
+--- 137,142 ----
+            state=OPTHEADER;
+            hdr_ptr=header;
++           HDRDEB(&quot;ID 0x%x PtsDts 0x%x ESCR 0x%x ESRATE 0x%x optHLength 0x%x\n&quot;,
++              streamID,Header2.ptsdts_flags,Header2.has_escr,Header2.has_es_rate,headerLength); 
+          }
+          payload--;
+***************
+*** 114,123 ****
+  
+        case OPTHEADER:     // save PTS
+!         payload--;
+!         *hdr_ptr=*inbuf_ptr;
+!         hdr_ptr++;
+!         if (!--headerLength)
+!           state=STREAM;
+!         break;
+  
+        case STREAM:
+--- 144,161 ----
+  
+        case OPTHEADER:     // save PTS
+!             payload--;
+!             *hdr_ptr=*inbuf_ptr;
+!             hdr_ptr++;
+!             if (!--headerLength) {
+!               if (validPTS)
+!                 newPTS=GET_MPEG2_PTS(header)/90;
+!               else newPTS=0;
+!  
+!               state=STREAM;
+!               HDRDEB(&quot;ID: 0x%x PTS: %lld DTS: %lld ESCR: %lld\n&quot;,streamID,
+!                 GET_MPEG2_PTS(header),GET_MPEG2_PTS((header+5)),
+!                 GET_MPEG2_PTS((header+10)) );    
+!             }
+!             break;
+  
+        case STREAM:
+***************
+*** 137,148 ****
+  }
+  
+  // --- AUDIO ------------------------------------------------------------------
+  cAudioStreamDecoder::cAudioStreamDecoder(unsigned int StreamID,
+!                                          cAudioOut *AudioOut,
+!                                          uint64_t *commonPTS)
+!                                           : cStreamDecoder(StreamID)
+  {
+    audioOut=AudioOut;
+-   cPTS=commonPTS;
+    codec = avcodec_find_decoder(CODEC_ID_MP2);
+    if (!codec)
+--- 175,279 ----
+  }
+  
++ void cStreamDecoder::Write(uchar *Data, int Length)
++ {
++   int p;
++ 
++   p = ringBuffer-&gt;Put(Data, Length);
++ #define BLOCK_BUFFER
++ #ifdef BLOCK_BUFFER
++   while (p != Length)
++   {
++     //printf(&quot;ERROR: ring buffer overflow (%d bytes dropped)\n&quot;, Length - p);
++     //printf(&quot;[mpegdecoder] Videobuffer is full. This should not happen! Audio is playing too slow\n&quot;);
++     Length -= p;
++     Data += p;
++     p = ringBuffer-&gt;Put(Data, Length);
++     usleep(40000);
++   }
++ #endif
++ }
++ 
++ void cStreamDecoder::Action()
++ {
++   //printf(&quot;Neuer Thread gestartet: pid:%d ID: 0x%x\n&quot;,getpid(),streamID);
++   int size=0;
++   running=true;
++   active=true;
++ 
++   while ( (size&lt; 4*1024) &amp;&amp; active ) {
++     size = ringBuffer-&gt;Available();
++     usleep(5000);
++     //printf(&quot;buffer not filled ID 0x%x size: %d - wating\n&quot;,streamID,size);
++   };
++ 
++   while(active)
++   {
++ 
++     while (freezeMode)
++         usleep(10000);
++ 
++     mutex.Lock();
++     uchar *u =ringBuffer-&gt;Get(size);
++     BUFDEB(&quot;ringBuffer streamID 0x%x Get %d \n&quot;,streamID,size);
++     if (u)
++     {
++       if (size&gt;4*1024)
++          size=4*1024;
++ 
++       size=ParseStream(u,size);
++       ringBuffer-&gt;Del(size);
++       mutex.Unlock();
++     }
++     else
++     {
++       mutex.Unlock();
++       usleep(1000);
++     }
++   }
++   running=false;
++   //printf(&quot;Thread beendet ID: 0x%x \n&quot;,streamID);
++ }
++ 
++ void cStreamDecoder::Play(void)
++ {
++   freezeMode=false;
++ };
++ 
++ void cStreamDecoder::Freeze(void)
++ {
++   //printf(&quot;freeze mode\n&quot;);
++   freezeMode=true;
++ };
++ 
++ void cStreamDecoder::Stop(void) 
++ {
++   active=false;
++   Cancel(3);
++ }
++ 
++ void cStreamDecoder::Clear(void)
++ {
++   printf(&quot;[mpegdecoder] Stream 0x%0x Clear %d \n&quot;,streamID,(ringBuffer-&gt;Free()*100)/ ringBuffer-&gt;Size() );
++   mutex.Lock();
++   avcodec_flush_buffers(context);
++   ClearParseStream();
++   ringBuffer-&gt;Clear();
++   mutex.Unlock();
++   printf(&quot;[mpegdecoder] Stream 0x%0x Clear %d \n&quot;,streamID,(ringBuffer-&gt;Free()*100)/ ringBuffer-&gt;Size() );
++ }
++ 
++ int cStreamDecoder::BufferFill()
++ {
++   //fprintf(stderr,&quot;ringBuffer free %d %%\n&quot;,(ringBuffer-&gt;Free()*100)/ ringBuffer-&gt;Size() );
++   return ( ringBuffer-&gt;Available() ) *100/DVB_BUF_SIZE ;
++ }
++ 
++ 
+  // --- AUDIO ------------------------------------------------------------------
+  cAudioStreamDecoder::cAudioStreamDecoder(unsigned int StreamID,
+!                                          cAudioOut *AudioOut)
+!                                          : cStreamDecoder(StreamID)
+  {
+    audioOut=AudioOut;
+    codec = avcodec_find_decoder(CODEC_ID_MP2);
+    if (!codec)
+***************
+*** 160,175 ****
+  }
+  
+! void cAudioStreamDecoder::Write(uchar *Data, int Length)
+  {
+!     int size = Length;
+! 
+!   while (size &gt; 0)
+!   {
+!       int len = ParseStream(Data,size);
+! 
+!     Data += len;
+!     size -= len;
+!   }
+! }
+  
+  int cAudioStreamDecoder::DecodeData(uchar *Data, int Length)
+--- 291,298 ----
+  }
+  
+! uint64_t cAudioStreamDecoder::GetPTS() 
+  {
+!   return pts - audioOut-&gt;GetDelay() + setupStore.avOffset;
+! };
+  
+  int cAudioStreamDecoder::DecodeData(uchar *Data, int Length)
+***************
+*** 179,200 ****
+  
+    len=avcodec_decode_audio(context, (short *)audiosamples, &amp;audio_size, Data, Length);
+  
+!   if (audio_size &gt; 0)
+    {
+!     //fwrite(audiosamples,1,audio_size,fo);
+!     audioOut-&gt;SetParams(context-&gt;channels,context-&gt;sample_rate);
+!     audioOut-&gt;Write(audiosamples,audio_size);
+!     int delay = audioOut-&gt;GetDelay();
+!     if (delay &lt; 20)// if we have less than 20 ms in buffer we double frames
+!       audioOut-&gt;Write(audiosamples,audio_size);
+  
+!     pts += (audio_size/(48*4)); // PTS weiterz&#228;hlen, egal ob Samples gespielt oder nicht
+  
+!     //  printf(&quot;Audiodelay: %d \n&quot;,delay);
+!     *cPTS = pts - delay + setupStore.avOffset; // Das ist die Master-PTS die wird an den video Teil &#252;bergeben,
+!     // damit Video syncronisieren kann
+!     if (validPTS)
+!       SyncPTS(GET_MPEG2_PTS(header)/90); // milisekunden
+    }
+    return len;
+  }
+--- 302,337 ----
+  
+    len=avcodec_decode_audio(context, (short *)audiosamples, &amp;audio_size, Data, Length);
++   frame++;
++   MPGDEB(&quot;count: %d  Length: %d len: %d a_size: %d a_delay: %d\n&quot;,
++       frame,Length,len, audio_size, audioOut-&gt;GetDelay());
+  
+!   // no new frame decoded, return
+!   if (audio_size == 0) 
+!     return len;
+! 
+!   if (validPTS) 
+    {
+!     validPTS=false;
+!     MPGDEB(&quot;valid PTS : %lld pts - valid PTS: %lld \n&quot;,
+!       GET_MPEG2_PTS(header)/90,(int) pts - GET_MPEG2_PTS(header)/90);
+!     //pts = GET_MPEG2_PTS(header)/90;
+!     pts = newPTS;
+!   }
+  
+!   int delay = audioOut-&gt;GetDelay();
+! //  if (delay ==0)
+! //    printf(&quot;Buffer underrun \n&quot;);
+  
+!   audioOut-&gt;SetParams(context-&gt;channels,context-&gt;sample_rate);
+!   audioOut-&gt;Write(audiosamples,audio_size);
+!   /*    if (delay &lt; 80)
+!    {
+!   // if we have less than 80 ms in buffer we double frames
+!   audioOut-&gt;Write(audiosamples,audio_size);
+!   printf(&quot;doubleing audio frame!!!!\n&quot;);
+    }
++   //}
++    */
++   pts += (audio_size/(48*4)); // PTS weiterz&#195;&#164;hlen, egal ob Samples gespielt oder nicht
+    return len;
+  }
+***************
+*** 203,206 ****
+--- 340,344 ----
+  cAudioStreamDecoder::~cAudioStreamDecoder()
+  {
++   Cancel(3);
+    avcodec_close(context);
+    free(context);
+***************
+*** 211,217 ****
+  
+  cVideoStreamDecoder::cVideoStreamDecoder(unsigned int StreamID,
+!                                          cVideoOut *VideoOut,
+!                                          uint64_t *commonPTS)
+!                                           : cStreamDecoder(StreamID)
+  {
+    width = height = -1;
+--- 349,354 ----
+  
+  cVideoStreamDecoder::cVideoStreamDecoder(unsigned int StreamID,
+!                                          cVideoOut *VideoOut, cAudioStreamDecoder *AudioStreamDecoder)
+!                                          : cStreamDecoder(StreamID)
+  {
+    width = height = -1;
+***************
+*** 224,228 ****
+  #endif //PP_LIBAVCODEC
+    codec = avcodec_find_decoder(CODEC_ID_MPEG2VIDEO);
+-   avgOffset=0;
+    if (!codec)
+    {
+--- 361,364 ----
+***************
+*** 231,236 ****
+    }
+    videoOut = VideoOut;
+!   cPTS=commonPTS;
+!   //syncdevice = SyncDevice;
+    context=avcodec_alloc_context();
+    picture=avcodec_alloc_frame();
+--- 367,399 ----
+    }
+    videoOut = VideoOut;
+! 
+!   // init A-V syncing variables
+!   frametime=DEFAULT_FRAMETIME;
+!   syncOnAudio=1;
+!   offset=0;
+!   delay=0;
+!   (void) GetRelTime();
+!   AudioStream=AudioStreamDecoder;
+! 
+!   if ( (rtc_fd = open(&quot;/dev/rtc&quot;,O_RDONLY)) &lt; 0 ) 
+!     fprintf(stderr,&quot;Could not open /dev/rtc \n&quot;);
+!   else 
+!   {
+!     uint64_t irqp = 1024;
+! 
+!     if ( ioctl(rtc_fd, RTC_IRQP_SET, irqp) &lt; 0) 
+!     {
+!       fprintf(stderr,&quot;Could not set irq period\n&quot;);
+!       close(rtc_fd);
+!       rtc_fd=-1;
+!     }
+!     else if ( ioctl( rtc_fd, RTC_PIE_ON, 0 ) &lt; 0) 
+!     {
+!       fprintf(stderr,&quot;Error in rtc_pie on \n&quot;);
+!       close(rtc_fd);
+!       rtc_fd=-1;
+!     }// else  fprintf(stderr,&quot;Set up to use linux RTC\n&quot;);
+!  };
+! 
+    context=avcodec_alloc_context();
+    picture=avcodec_alloc_frame();
+***************
+*** 242,302 ****
+      exit(1);
+    }
+-   ringBuffer=new cRingBufferLinear(1024*1024,1024,true);
+-   //ringBuffer-&gt;SetTimeouts(100,10);
+-   Start(); // starte thread
+  }
+  
+! 
+! void cVideoStreamDecoder::Write(uchar *Data, int Length)
+! {
+!     int p;
+! 
+!   p = ringBuffer-&gt;Put(Data, Length);
+! #define BLOCK_BUFFER
+! #ifdef BLOCK_BUFFER
+!   while (p != Length)
+!   {
+!     //printf(&quot;ERROR: ring buffer overflow (%d bytes dropped)\n&quot;, Length - p);
+!     //printf(&quot;[mpegdecoder] Videobuffer is full. This should not happen! Audio is playing too slow\n&quot;);
+!     Length -= p;
+!     Data += p;
+!     p = ringBuffer-&gt;Put(Data, Length);
+!     usleep(1);
+!   }
+! #endif
+! }
+! 
+! 
+! void cVideoStreamDecoder::Action()
+  {
+! //    printf(&quot;Neuer Thread geatartet: pid:%d\n&quot;,getpid());
+!   running=true;
+!   active=true;
+!   while(active)
+!   {
+!       int size=10240;
+  
+!     mutex.Lock();
+!     uchar *u =ringBuffer-&gt;Get(size);
+!     if (u)
+!     {
+!       size=ParseStream(u,size);
+!       ringBuffer-&gt;Del(size);
+!       mutex.Unlock();
+!     }
+!     else
+!     {
+!       mutex.Unlock();
+!       usleep(1000);
+!     }
+    }
+!   running=false;
+! //    printf(&quot;Thread beendet\n&quot;);
+! }
+! 
+  
+  void cVideoStreamDecoder::resetCodec(void)
+  {
+!   printf(&quot;[mpegdecoder] resetting codec\n&quot;);
+    avcodec_close(context);
+    if(codec-&gt;capabilities&amp;CODEC_CAP_TRUNCATED)
+--- 405,431 ----
+      exit(1);
+    }
+  }
+  
+! int32_t cVideoStreamDecoder::GetRelTime() 
+  {
+!   struct timeval tv;
+!   struct timezone tz;
+!   int64_t now;
+!   int32_t ret;
+  
+!   gettimeofday(&amp;tv,&amp;tz);
+!   now=tv.tv_sec*1000000+tv.tv_usec;
+!   if ( now &lt; lastTime ) { 
+!     ret = (uint32_t) (now - lastTime + 60 *1000000); // untested
+!     MPGDEB(&quot;now %lld kleiner als lastTime %lld\n&quot;,now,lastTime);
+    }
+!   else ret = now - lastTime;
+!   lastTime=now;
+!   return ret;
+! };
+  
+  void cVideoStreamDecoder::resetCodec(void)
+  {
+!   //printf(&quot;[mpegdecoder] resetting codec\n&quot;);
+    avcodec_close(context);
+    if(codec-&gt;capabilities&amp;CODEC_CAP_TRUNCATED)
+***************
+*** 333,338 ****
+      return Length;
+    }
+!   if (got_picture)
+!   {
+      if (setupStore.mirror == 1)
+        Mirror();
+--- 462,468 ----
+      return Length;
+    }
+!   if (!got_picture)
+!     return len;
+! 
+      if (setupStore.mirror == 1)
+        Mirror();
+***************
+*** 360,434 ****
+  #endif //PP_LIBAVCODEC
+  
+!     width  = context-&gt;width;
+!     height = context-&gt;height;
+  
+!     if (validPTS &amp;&amp;
+!         (setupStore.syncOnFrames ||
+!          context-&gt;coded_frame-&gt;pict_type == FF_I_TYPE))
+!     {
+!       pts=(GET_MPEG2_PTS(header)/90);
+!     }
+  
+!     // this few lines does the whole syncing
+!     int offset = *cPTS - pts;
+!     if (offset &gt; 1000) offset = 1000;
+!     if (offset &lt; -1000) offset = -1000;
+  
+!     avgOffset = (int)( ( (24*avgOffset) + offset ) / 25);
+!     if (avgOffset &gt; 1000) avgOffset = offset;
+!     if (avgOffset &lt; -1000) avgOffset = offset;
+  
+!     int frametime = 40; //ms
+!     if (avgOffset &gt; 20 &amp;&amp; offset &gt; 0) {
+!       frametime -= (avgOffset / 10);
+!     }
+!     if (avgOffset &lt; -20 &amp;&amp; offset &lt; 0) {
+!       frametime -= (avgOffset / 10);
+!     }
+! #if 0
+!     if (!(frame % 10) || context-&gt;hurry_up) {
+!       printf (&quot;[mpegdecoder] Frame# %-5d A-V(ms) %-5d(Avg:%-4d) Frame Time:%-3d ms Hurry: %d\n&quot;,frame,(int)(*cPTS-pts),avgOffset, frametime,context-&gt;hurry_up);
+!     }
+! #endif
+!     //frametime=40;
+!     pts += 40;
+!     vpts += frametime; // 40 ms for PAL   // FIXME FOR NTSC
+  
+!     int delay;
+!     delay = vpts - getTimeMilis();
+!     if (delay &lt; -1000)
+!     {
+!       vpts = getTimeMilis();
+!       context-&gt;hurry_up++;
+      }
+!     else
+!     {
+!       if (delay &gt; 1000)
+!       {
+!         vpts = getTimeMilis();
+!       }
+!       else
+!       {
+!         while (delay &gt; 0)
+!         {
+!           usleep(1000);
+!           delay = vpts - getTimeMilis();
+!         }
+!       }
+!       if (context-&gt;hurry_up)
+!         context-&gt;hurry_up--;
+!       if (context-&gt;hurry_up &lt; 3)
+        {
+!           videoOut-&gt;CheckAspectDimensions(picture,context);
+!           videoOut-&gt;YUV(picture-&gt;data[0], picture-&gt;data[1],picture-&gt;data[2],
+!                         context-&gt;width,context-&gt;height,
+!                         picture-&gt;linesize[0],picture-&gt;linesize[1]);
+        }
+      }
+!     frame++;
+    }
+    return len;
+  }
+  
+  
+  uchar *cVideoStreamDecoder::allocatePicBuf(uchar *pic_buf)
+--- 490,630 ----
+  #endif //PP_LIBAVCODEC
+  
+!   width  = context-&gt;width;
+!   height = context-&gt;height;
+!   /*
+!      if ( abs(AudioStream-&gt;GetPTS() - pts)  &gt; 10000 ) 
+!      {
+!   //hmm, pts is completly wrong... just sync to audio
+!   pts=AudioStream-&gt;GetPTS();
+!   offset=0;
+!   MPGDEB(&quot;pts = AudioPTS\n&quot;);
+!   };
+!    */
+!   if (validPTS &amp;&amp;
+!       (setupStore.syncOnFrames ||
+!        context-&gt;coded_frame-&gt;pict_type == FF_I_TYPE))
+!   {
+!     //pts=(GET_MPEG2_PTS(header)/90);
+!     pts=newPTS;
+!     MPGDEB(&quot;Got Video PTS: %lld \n&quot;,pts); 
+!     validPTS=false;
+!   }
+  
+!   // this few lines does the whole syncing
+!   int pts_corr;
+  
+!   // calculate pts correction. Max. correction is 1/10 frametime.
+!   pts_corr = offset * 100;
+!   if (pts_corr &gt; (frametime*1000)/10)
+!     pts_corr = frametime*100;
+!   else if (pts_corr &lt; -frametime*100)
+!     pts_corr =-frametime*100;
+  
+!   // calculate delay
+!   delay += ( frametime *1000 - pts_corr ) ;
+!   //delay = ( frametime *1000 - pts_corr ) ;
+!   if (delay &gt; 2*frametime*1000)
+!     delay = 2*frametime*1000;
+!   else if (delay &lt; -2*frametime*1000)
+!     delay = -2*frametime*1000;    
+  
+!   // prepare picture for display
+!   videoOut-&gt;CheckAspectDimensions(picture,context);
+  
+!   MPGDEB(&quot;Frame# %-5d  aPTS: %lld offset: %d delay %d \n&quot;,frame,AudioStream-&gt;GetPTS(),offset,delay );
+! 
+!   if ( rtc_fd &gt;= 0 ) {
+!     // RTC timinig
+!     while (delay &gt; 15000) {
+!       //sleep one timer tick
+!       usleep(10000);
+!       //MPGDEB(&quot;RTC sleep loop %d \n&quot;,delay);
+!       delay-=GetRelTime();
+      }
+!     while (delay  &gt; 1200) {
+!       uint32_t ts;
+!       //MPGDEB(&quot;RTC Loop %d \n&quot;,delay);
+!       if ( read(rtc_fd, &amp;ts, sizeof(ts) )  &lt;= 0) 
+        {
+!         fprintf(stderr,&quot;Linux RTC read error, disableing RTC\n&quot;);
+!         close(rtc_fd);
+!         rtc_fd=-1;
+        }
++       delay-=GetRelTime();
+      }
+!   } else {
+!     // usleep timing
+!     const int rest=2200;
+!     while (delay &gt; rest) {     
+!       usleep(1000);
+!       delay  -= GetRelTime();
+!       //MPGDEB(&quot;Loop %d \n&quot;,delay);  return len;
+!     }
+!     // cpu burn timing
+!     //while (delay &gt; 100) { 
+!     //  delay  -= GetRelTime();
+!     //   printf(&quot;Loop2 %d \n&quot;,delay);
+!     //};
+!   }
+!   // display picture
+!   videoOut-&gt;YUV(picture-&gt;data[0], picture-&gt;data[1],picture-&gt;data[2],
+!       context-&gt;width,context-&gt;height,
+!       picture-&gt;linesize[0],picture-&gt;linesize[1]);
+! 
+!   // we just displayed a frame, now it's the right time to
+!   // measure the A-V offset
+!   // the A-V syncing code is partly based on MPlayer...
+!   uint64_t aPTS = AudioStream-&gt;GetPTS();
+! 
+!   if ( syncOnAudio &amp;&amp; aPTS )
+!     offset = aPTS - pts ;
+!   else offset = 0;
+! 
+! #ifdef AV_STATS
+!   {
+!     const int Freq=10;
+!     static float offsetSum=0;
+!     static float offsetSqSum=0;
+!     static int StatCount=0;
+! 
+!     offsetSum+=(float)offset;
+!     offsetSqSum+=(float) offset*offset;
+!     StatCount+=1;
+! 
+!     if ( (StatCount % Freq) == 0 )
+!     {
+!       printf(&quot;A-V: %02.2f+-%02.2f \n&quot;,offsetSum/(float)Freq,
+!        sqrt(offsetSqSum/((float)Freq)-(offsetSum*offsetSum)/((float)Freq*Freq)));
+!       offsetSum=offsetSqSum=0;
+!       StatCount=0;
+!     };
+!   };
+! #endif
+! 
+! #if 1 
+!   if (!(frame % 1) || context-&gt;hurry_up) {
+!     int dispTime=GetRelTime();
+!     MPGDEB(&quot;Frame# %-5d A-V(ms) %-5d delay %d FrameT: %s, dispTime(ms): %1.2f\n&quot;,
+!       frame,(int)(AudioStream-&gt;GetPTS()-pts),delay,
+!       (context-&gt;coded_frame-&gt;pict_type == FF_I_TYPE ? &quot;I_t&quot;:
+!       (context-&gt;coded_frame-&gt;pict_type == FF_P_TYPE ? &quot;P_t&quot;:
+!       (context-&gt;coded_frame-&gt;pict_type == FF_B_TYPE ? &quot;B_t&quot;:&quot;other&quot;
+!       )))
+!       ,(float)dispTime/1000 );
+!     delay-=dispTime;
+    }
++ #endif
++ 
++   // update video pts
++   pts += frametime;
++   frame++;
+    return len;
+  }
+  
++ void cVideoStreamDecoder::TrickSpeed(int Speed)
++ {
++   frametime = DEFAULT_FRAMETIME * Speed;
++   syncOnAudio = ( Speed == 1);
++ }
+  
+  uchar *cVideoStreamDecoder::allocatePicBuf(uchar *pic_buf)
+***************
+*** 688,692 ****
+  {
+    active = false;
+!   Cancel(3);
+    delete(ringBuffer);
+    avcodec_close(context);
+--- 884,892 ----
+  {
+    active = false;
+! 
+!   //RTC
+!   if (rtc_fd)
+!     close(rtc_fd);
+! 
+    delete(ringBuffer);
+    avcodec_close(context);
+***************
+*** 720,731 ****
+  void cMpeg2Decoder::Start(void)
+  {
+!   // ich wei&#223; nicht, ob man's so kompliziert machen soll, aber jetzt hab ich's
+    // schon so gemacht, das 2 Threads gestartet werden.
+    // Audio is the master, Video syncs on Audio
+!   aout = new cAudioStreamDecoder( 0x000001C0, audioOut, &amp;commonPTS);
+!   vout = new cVideoStreamDecoder( 0x000001E0, videoOut, &amp;commonPTS);
+    running=true;
+  }
+  
+  void cMpeg2Decoder::Stop(void)
+  {
+--- 920,943 ----
+  void cMpeg2Decoder::Start(void)
+  {
+!   // ich wei&#195;&#159; nicht, ob man's so kompliziert machen soll, aber jetzt hab ich's
+    // schon so gemacht, das 2 Threads gestartet werden.
+    // Audio is the master, Video syncs on Audio
+!   aout = new cAudioStreamDecoder( 0x000001C0, audioOut );
+!   vout = new cVideoStreamDecoder( 0x000001E0, videoOut,(cAudioStreamDecoder *) aout);
+    running=true;
+  }
+  
++ void cMpeg2Decoder::Play(void)
++ {
++   aout-&gt;Play();
++   vout-&gt;Play();
++ };
++ 
++ void cMpeg2Decoder::Freeze(void)
++ {
++   aout-&gt;Freeze();
++   vout-&gt;Freeze();
++ };
++   
+  void cMpeg2Decoder::Stop(void)
+  {
+***************
+*** 738,742 ****
+      if (vout)
+      {
+!     //	    vout-&gt;Stop();
+        delete(vout);
+      }
+--- 950,954 ----
+      if (vout)
+      {
+!       vout-&gt;Stop();
+        delete(vout);
+      }
+***************
+*** 744,748 ****
+      if (aout)
+      {
+!     //	    aout-&gt;Stop();
+        delete(aout);
+      }
+--- 956,960 ----
+      if (aout)
+      {
+!       aout-&gt;Stop();
+        delete(aout);
+      }
+***************
+*** 754,757 ****
+--- 966,990 ----
+  {
+    return vout-&gt;StillPicture(Data,Length);
++ }
++ 
++ void cMpeg2Decoder::Clear(void)
++ {
++   aout-&gt;Clear();
++   vout-&gt;Clear();
++ }
++ 
++ void cMpeg2Decoder::TrickSpeed(int Speed)
++ {
++   aout-&gt;TrickSpeed(Speed);
++   vout-&gt;TrickSpeed(Speed);
++ }
++ 
++ int64_t cMpeg2Decoder::GetSTC(void) {
++   return vout-&gt;GetPTS()*90;
++ };
++ 
++ bool cMpeg2Decoder::BufferFilled() 
++ {
++   return vout-&gt;BufferFill()&gt;95;
+  }
+  
+
+Index: mpeg2decoder.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.h,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** mpeg2decoder.h	29 Oct 2004 16:41:39 -0000	1.3
+--- mpeg2decoder.h	14 Nov 2004 16:24:38 -0000	1.4
+***************
+*** 18,25 ****
+  #define MAX_HDR_LEN 0xFF
+  
+  // Output device handler
+! class cStreamDecoder  {
+  private:
+!     unsigned int streamID; // stream to filter
+      unsigned int syncword;
+      int payload;
+--- 18,60 ----
+  #define MAX_HDR_LEN 0xFF
+  
++ #define DEFAULT_FRAMETIME 40   // for PAL
++ #define DVB_BUF_SIZE   (4* 256*1024)  // same value as in dvbplayer.c
++ #define AVG_FRAME_SIZE 15000         // dito 
++ 
++ struct PES_Header1 {
++   unsigned int is_original:1;
++   unsigned int has_copyright:1;
++   unsigned int data_alignment:1;
++   unsigned int priority:1;
++   unsigned int scrambling_ctrl:2;
++   unsigned int flag:2;
++ };
++ 
++ struct PES_Header2 {
++   unsigned int extension_exists:1;
++   unsigned int has_crc:1;
++   unsigned int has_copy_info:1;
++   unsigned int trick_mode_flag:1;
++   unsigned int has_es_rate:1;
++   unsigned int has_escr:1;
++   unsigned int ptsdts_flags:2;
++ };
++ 
++ // wrapper class to access protected methods
++ class cSoftRingBufferLinear : public cRingBufferLinear {
++ public:
++   cSoftRingBufferLinear(int Size, int Margin = 0, bool Statistics = false, const     char *Description = NULL) 
++      : cRingBufferLinear(Size,Margin,Statistics,Description) {};
++   ~cSoftRingBufferLinear() {};
++ 
++   virtual int Available(void) {return cRingBufferLinear::Available();} ;
++   int Size(void) { return cRingBufferLinear::Size(); }
++ };
++ 
+  // Output device handler
+! class cStreamDecoder : public cThread {
+  private:
+! 
+!     // used by ParseStreamIntern
+      unsigned int syncword;
+      int payload;
+***************
+*** 27,32 ****
+      int headerLength;
+      unsigned char * hdr_ptr;
+  protected:
+!     uint64_t *cPTS;
+      int64_t pts;
+      int frame;
+--- 62,74 ----
+      int headerLength;
+      unsigned char * hdr_ptr;
++ 
++     struct PES_Header1 Header1;
++     struct PES_Header2 Header2;
++ 
++ 
++     bool freezeMode;
+  protected:
+!     unsigned int streamID; // stream to filter
+!     int64_t newPTS;
+      int64_t pts;
+      int frame;
+***************
+*** 35,48 ****
+      AVCodec *codec;
+      AVCodecContext *context;
+      int ParseStream(uchar *Data, int Length);
+      int ParseStreamIntern(uchar *Data, int Length, unsigned int lowID, unsigned int highID);
+  public:
+      virtual int DecodeData(uchar *Data, int Length) = 0;
+!     virtual void Write(uchar *Data, int Length) = 0;
+      virtual int StillPicture(uchar *Data, int Length) {return 0;};
+  
+      cStreamDecoder(unsigned int StreamID);
+      virtual ~cStreamDecoder();
+-     void SyncPTS(uint64_t spts);
+  };
+  
+--- 77,104 ----
+      AVCodec *codec;
+      AVCodecContext *context;
++     
++     cMutex              mutex;
++     cSoftRingBufferLinear   *ringBuffer;
++     bool                active, running;
++     
+      int ParseStream(uchar *Data, int Length);
+      int ParseStreamIntern(uchar *Data, int Length, unsigned int lowID, unsigned int highID);
++     inline void ClearParseStream() {state=0;};
++     
++     virtual void Action(void);
+  public:
+      virtual int DecodeData(uchar *Data, int Length) = 0;
+!     virtual void Write(uchar *Data, int Length);
+!     virtual void Clear(void);
+!     virtual void Freeze(void);
+!     virtual void Play(void);
+!     virtual void TrickSpeed(int Speed) {return;};
+      virtual int StillPicture(uchar *Data, int Length) {return 0;};
++     virtual int BufferFill(void);
++     virtual uint64_t GetPTS()  {return pts;};
+  
++     virtual void Stop();
+      cStreamDecoder(unsigned int StreamID);
+      virtual ~cStreamDecoder();
+  };
+  
+***************
+*** 55,67 ****
+  public:
+      virtual int DecodeData(uchar *Data, int Length);
+!     cAudioStreamDecoder(unsigned int StreamID, cAudioOut *AudioOut, uint64_t *commonPTS);
+      ~cAudioStreamDecoder();
+!     virtual void Write(uchar *Data, int Length);
+! 
+  };
+  
+! class cVideoStreamDecoder : public cStreamDecoder , cThread {
+    private:
+!     cMutex              mutex;
+      AVFrame             *picture;
+      AVPicture           avpic_src, avpic_dest;
+--- 111,122 ----
+  public:
+      virtual int DecodeData(uchar *Data, int Length);
+!     cAudioStreamDecoder(unsigned int StreamID, cAudioOut *AudioOut);
+      ~cAudioStreamDecoder();
+!     virtual uint64_t GetPTS();
+  };
+  
+! class cVideoStreamDecoder : public cStreamDecoder {
+    private:
+!     cAudioStreamDecoder *AudioStream;
+      AVFrame             *picture;
+      AVPicture           avpic_src, avpic_dest;
+***************
+*** 76,84 ****
+  
+      cVideoOut           *videoOut;
+-     uint64_t            vpts;
+-     int                 avgOffset;
+-     cRingBufferLinear   *ringBuffer;
+-     bool                active, running;
+  
+      void    resetCodec(void);
+      uchar   *allocatePicBuf(uchar *pic_buf);
+--- 131,144 ----
+  
+      cVideoOut           *videoOut;
+  
++     // A-V syncing stuff
++     bool               syncOnAudio;
++     int64_t            lastTime;
++     int                offset;
++     int                delay;
++     int                rtc_fd; 
++     int                frametime;
++     int32_t GetRelTime();
++    
+      void    resetCodec(void);
+      uchar   *allocatePicBuf(uchar *pic_buf);
+***************
+*** 90,103 ****
+      void    Mirror(void);
+  
+-   protected:
+-     virtual void Action(void);
+- 
+    public:
+!     cVideoStreamDecoder(unsigned int StreamID, cVideoOut *VideoOut, uint64_t *commonPTS);
+      ~cVideoStreamDecoder();
+  
+      virtual int   DecodeData(uchar *Data, int Length);
+      virtual int   StillPicture(uchar *Data, int Length);
+!     virtual void  Write(uchar *Data, int Length);
+  };
+  
+--- 150,161 ----
+      void    Mirror(void);
+  
+    public:
+!     cVideoStreamDecoder(unsigned int StreamID, cVideoOut *VideoOut,
+!        cAudioStreamDecoder *AudioStreamDecoder );
+      ~cVideoStreamDecoder();
+  
+      virtual int   DecodeData(uchar *Data, int Length);
+      virtual int   StillPicture(uchar *Data, int Length);
+!     virtual void TrickSpeed(int Speed);
+  };
+  
+***************
+*** 112,116 ****
+      cAudioOut *audioOut;
+      cVideoOut *videoOut;
+-     uint64_t commonPTS;
+      bool running;
+      bool decoding;
+--- 170,173 ----
+***************
+*** 121,125 ****
+--- 178,188 ----
+      int StillPicture(uchar *Data, int Length);
+      void Start(void);
++     void Play(void);
++     void Freeze(void);
+      void Stop(void);
++     void Clear(void);
++     void TrickSpeed(int Speed);
++     bool BufferFilled(void);
++     int64_t GetSTC(void);
+  };
+  
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000029.html">[Softdevice-cvs] softdevice video-dfb.c,1.8,1.9
+</A></li>
+	<LI>Next message: <A HREF="000031.html">[Softdevice-cvs] softdevice CHANGELOG,1.18,1.19
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#30">[ date ]</a>
+              <a href="thread.html#30">[ thread ]</a>
+              <a href="subject.html#30">[ subject ]</a>
+              <a href="author.html#30">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

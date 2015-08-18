@@ -1,0 +1,875 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice SoftOsd.c, 1.23, 1.24 SoftOsd.h, 1.10,	1.11 video.c, 1.69, 1.70 video.h, 1.46, 1.47
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20SoftOsd.c%2C%201.23%2C%201.24%20SoftOsd.h%2C%201.10%2C%0A%091.11%20video.c%2C%201.69%2C%201.70%20video.h%2C%201.46%2C%201.47&In-Reply-To=%3C20061116210412.71DC2AE7B7%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000470.html">
+   <LINK REL="Next"  HREF="000472.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice SoftOsd.c, 1.23, 1.24 SoftOsd.h, 1.10,	1.11 video.c, 1.69, 1.70 video.h, 1.46, 1.47</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20SoftOsd.c%2C%201.23%2C%201.24%20SoftOsd.h%2C%201.10%2C%0A%091.11%20video.c%2C%201.69%2C%201.70%20video.h%2C%201.46%2C%201.47&In-Reply-To=%3C20061116210412.71DC2AE7B7%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice SoftOsd.c, 1.23, 1.24 SoftOsd.h, 1.10,	1.11 video.c, 1.69, 1.70 video.h, 1.46, 1.47">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Thu Nov 16 22:04:12 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000470.html">[Softdevice-cvs] softdevice CHANGELOG, 1.263, 1.264 video-dfb.c,	1.73, 1.74
+</A></li>
+        <LI>Next message: <A HREF="000472.html">[Softdevice-cvs] softdevice CHANGELOG,1.264,1.265
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#471">[ date ]</a>
+              <a href="thread.html#471">[ thread ]</a>
+              <a href="subject.html#471">[ subject ]</a>
+              <a href="author.html#471">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv12979
+
+Modified Files:
+	SoftOsd.c SoftOsd.h video.c video.h 
+Log Message:
+- better colorkey support in SoftOsd.c, with interface to video.c
+- fix a bug which causes bad resolution on upscaling
+- fix a bug which causes segfaults when upscaling to huge images
+- reintroduce the chessboard pattern for pseudo alpha blending
+- use WRITE_RGB macros from utils.h
+	       
+
+
+Index: SoftOsd.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.c,v
+retrieving revision 1.23
+retrieving revision 1.24
+diff -C2 -d -r1.23 -r1.24
+*** SoftOsd.c	11 Nov 2006 08:45:17 -0000	1.23
+--- SoftOsd.c	16 Nov 2006 21:03:18 -0000	1.24
+***************
+*** 27,30 ****
+--- 27,31 ----
+  static uint64_t pseudo_transparent = COLOR_64BIT(COLOR_KEY);
+  
++ int cSoftOsd::colorkey;
+  
+  //#undef USE_MMX
+***************
+*** 54,57 ****
+--- 55,61 ----
+          voutMutex.Lock();
+          videoOut-&gt;OpenOSD();
++         colorkey=videoOut-&gt;GetOSDColorkey();
++         pseudo_transparent=(uint64_t)colorkey | ((uint64_t) colorkey)&lt;&lt;32;
++         
+          xOfs=X;yOfs=Y;
+          ScreenOsdWidth=ScreenOsdHeight=0;
+***************
+*** 69,73 ****
+  void cSoftOsd::Clear() {
+          OSDDEB(&quot;Clear\n&quot;);
+!         uint32_t blank=COLOR_KEY;
+          ConvertPalette((tColor *)&amp;blank,(tColor *)&amp;blank,1);
+  
+--- 73,77 ----
+  void cSoftOsd::Clear() {
+          OSDDEB(&quot;Clear\n&quot;);
+!         uint32_t blank=0x00000000; //COLOR_KEY;
+          ConvertPalette((tColor *)&amp;blank,(tColor *)&amp;blank,1);
+  
+***************
+*** 313,319 ****
+  
+                         // replace transparent colors with color key
+!                         if ( IS_TRANSPARENT( (uint32_t)palette[i] &gt;&gt; 24  ) ) {
+                          //if (((uint32_t)palette[i] &amp; 0xFF000000) == 0x000000 ) {
+!                                 palette[i] = COLOR_KEY; // color key;
+                          };
+                  };
+--- 317,323 ----
+  
+                         // replace transparent colors with color key
+!                         if ( IS_TRANSPARENT( GET_A((uint32_t)palette[i]) ) ) {
+                          //if (((uint32_t)palette[i] &amp; 0xFF000000) == 0x000000 ) {
+!                                 palette[i] = 0x00000000; // color key;
+                          };
+                  };
+***************
+*** 404,410 ****
+          };
+  };
+  
+  /*---------------------------------------------------------------------*/
+! void cSoftOsd::ARGB_to_ARGB32(uint8_t * dest, color * pixmap, int Pixel) {
+          memcpy(dest,pixmap,Pixel*4);
+  };
+--- 408,495 ----
+          };
+  };
++  
++ /*---------------------------------------------------------------------*/
++ // pseudo alpha blending macros 
++ #define PSEUDO_ALPHA_TO_RGB(rgb) \
++         if ( !c ||       \
++              (IS_BACKGROUND(GET_A(c)) &amp;&amp; (!!((intptr_t)dest % (2*SIZE_##rgb)) ^ odd )) ) {   \
++                 WRITE_##rgb(dest,GET_R(colorkey),GET_G(colorkey),        \
++                                 GET_B(colorkey));             \
++                 /* color key! */                               \
++         } else {                                               \
++                 WRITE_##rgb(dest,GET_R(c),GET_G(c),GET_B(c));  \
++         };                                                     \
++         dest+=SIZE_##rgb;
++ 
++ #define PSEUDO_ALPHA_MMX_EVEN \
++                  /* second  and forth pixel */                  \
++                  &quot;movd 4(%0), %%mm1\n&quot;  /* load even pixels  */ \
++                  &quot;punpckldq 12(%0), %%mm1\n&quot;                    \
++                                                                 \
++                  &quot;movq %%mm1,%%mm0\n&quot;                           \
++                  &quot;movq %%mm1,%%mm2\n&quot;                           \
++                  &quot;psrlw $1,%%mm0 \n&quot;                            \
++                  &quot;psrlw $1,%%mm2 \n&quot;                            \
++                  &quot;pcmpgtb %%mm5,%%mm0 \n&quot;                       \
++                  &quot;pcmpgtb %%mm6,%%mm2 \n&quot;                       \
++                                                                 \
++                  &quot;pandn %%mm0,%%mm2 \n&quot;                         \
++                  &quot;psraw $8,%%mm2 \n&quot;                            \
++                  &quot;pshufw $0b11110101,%%mm2,%%mm3 \n&quot;            \
++                  &quot;pshufw $0b11110101,%%mm2,%%mm4 \n&quot;            \
++                                                                 \
++                  &quot;movd 0(%0), %%mm2\n&quot; /* load odd pixels */    \
++                  &quot;pandn %%mm1,%%mm4 \n&quot;                         \
++                  &quot;pand %%mm7,%%mm3 \n&quot;                          \
++                  &quot;por %%mm3,%%mm4\n&quot;                            \
++                  &quot;punpckldq 8(%0), %%mm3\n&quot; /* load odd pixels*/\
++                                                                 \
++                  &quot;punpckldq %%mm4,%%mm2 \n&quot;                     \
++                  &quot;punpckhdq %%mm4,%%mm3 \n&quot;                     \
++ 
++ #define PSEUDO_ALPHA_MMX_ODD \
++                  /* second  and forth pixel */                  \
++                  &quot;movd 0(%0), %%mm1\n&quot;  /* load odd pixels  */ \
++                  &quot;punpckldq 8(%0), %%mm1\n&quot;                    \
++                                                                 \
++                  &quot;movq %%mm1,%%mm0\n&quot;                           \
++                  &quot;movq %%mm1,%%mm2\n&quot;                           \
++                  &quot;psrlw $1,%%mm0 \n&quot;                            \
++                  &quot;psrlw $1,%%mm2 \n&quot;                            \
++                  &quot;pcmpgtb %%mm5,%%mm0 \n&quot;                       \
++                  &quot;pcmpgtb %%mm6,%%mm2 \n&quot;                       \
++                                                                 \
++                  &quot;pandn %%mm0,%%mm2 \n&quot;                         \
++                  &quot;psraw $8,%%mm2 \n&quot;                            \
++                  &quot;pshufw $0b11110101,%%mm2,%%mm3 \n&quot;            \
++                  &quot;pshufw $0b11110101,%%mm2,%%mm2 \n&quot;            \
++                                                                 \
++                  &quot;movd 4(%0), %%mm4\n&quot; /* load odd pixels */    \
++                  &quot;pandn %%mm1,%%mm2 \n&quot;                         \
++                  &quot;pand %%mm7,%%mm3 \n&quot;                          \
++                  &quot;por %%mm3,%%mm2\n&quot;                            \
++                  &quot;punpckldq 12(%0), %%mm4\n&quot; /* load odd pixels*/\
++                  &quot;movq %%mm2, %%mm3 \n&quot;                         \
++                                                                 \
++                  &quot;punpckldq %%mm4,%%mm2 \n&quot;                     \
++                  &quot;punpckhdq %%mm4,%%mm3 \n&quot;                     
+  
++ #define REPLACE_COLORKEY_MMX           \
++                  &quot;pxor %%mm0, %%mm0 \n&quot;                         \
++                  &quot;pxor %%mm1, %%mm1 \n&quot;                         \
++                  &quot;pcmpeqd %%mm2, %%mm0 \n&quot;                      \
++                  &quot;pcmpeqd %%mm3, %%mm1 \n&quot;                      \
++                  &quot;movq %%mm0, %%mm4 \n&quot;                         \
++                  &quot;pand %%mm7, %%mm0 \n&quot;                         \
++                  &quot;pandn %%mm2, %%mm4 \n&quot;                        \
++                  &quot;por %%mm4, %%mm0\n&quot;                           \
++                  &quot;movq %%mm1, %%mm4 \n&quot;                         \
++                  &quot;pand %%mm7, %%mm1 \n&quot;                         \
++                  &quot;pandn %%mm3, %%mm4 \n&quot;                        \
++                  &quot;por %%mm4, %%mm1\n&quot;                           
++  
+  /*---------------------------------------------------------------------*/
+! void cSoftOsd::ARGB_to_ARGB32(uint8_t * dest, color * pixmap, int Pixel,
+!                 int odd) {
+          memcpy(dest,pixmap,Pixel*4);
+  };
+***************
+*** 412,416 ****
+  /*----------------------------------------------------------------------*/
+  
+! void cSoftOsd::ARGB_to_RGB32(uint8_t * dest, color * pixmap, int Pixel) {
+          uint8_t *end_dest=dest+4*Pixel;
+  #ifdef USE_MMX2
+--- 497,502 ----
+  /*----------------------------------------------------------------------*/
+  
+! void cSoftOsd::ARGB_to_RGB32(uint8_t * dest, color * pixmap, int Pixel,
+!                 int odd) {
+          uint8_t *end_dest=dest+4*Pixel;
+  #ifdef USE_MMX2
+***************
+*** 425,467 ****
+                 );
+  
+!         while (end_dest&gt;dest) {
+!               // pseudo alpha blending
+!                __asm__(
+!                  // second  and forth pixel
+!                  &quot;movd 4(%0), %%mm4\n&quot;  // load even pixels
+!                  &quot;punpckldq 12(%0), %%mm4\n&quot;
+! 
+!                  &quot;movq %%mm4,%%mm3\n&quot;
+!                  &quot;psrlw $1,%%mm3 \n&quot;
+!                  &quot;pcmpgtb %%mm5,%%mm3 \n&quot;
+!                  //&quot;pcmpgtb (%1),%%mm3 \n&quot;
+! 
+!                  &quot;movq %%mm4,%%mm2\n&quot;
+!                  &quot;psrlw $1,%%mm2 \n&quot;
+!                  &quot;pcmpgtb %%mm6,%%mm2 \n&quot;
+!                  //&quot;pcmpgtb (%2),%%mm2 \n&quot;
+! 
+!                  &quot;pandn %%mm3,%%mm2 \n&quot;
+!                  &quot;psraw $8,%%mm2 \n&quot;
+!                  &quot;pshufw $0b11110101,%%mm2,%%mm3 \n&quot;
+!                  &quot;pshufw $0b11110101,%%mm2,%%mm2 \n&quot;
+! 
+!                  &quot;pand %%mm7,%%mm3 \n&quot;
+!                  //&quot;pand (%3),%%mm3 \n&quot;
+!                  &quot;pandn %%mm4,%%mm2 \n&quot;
+!                  &quot;por %%mm3,%%mm2\n&quot;
+! 
+!                  &quot;movd 0(%0), %%mm4\n&quot; // load odd pixels
+!                  &quot;punpckldq 8(%0), %%mm3\n&quot;
+  
+!                  &quot;punpckldq %%mm2,%%mm4 \n&quot;
+!                  &quot;punpckhdq %%mm2,%%mm3 \n&quot;
+!                  &quot;movq %%mm4, (%1) \n&quot;
+!                  &quot;movq %%mm3, 8(%1) \n&quot;
+  
+!                 : :
+!                  &quot;r&quot; (pixmap),&quot;r&quot; (dest));
+!                dest+=16;
+!                pixmap+=4;
+          };
+          EMMS;
+--- 511,540 ----
+                 );
+  
+!         if (odd) 
+!                 while (end_dest&gt;dest) {
+!                         // pseudo alpha blending
+!                         __asm__(
+!                                         PSEUDO_ALPHA_MMX_ODD
+!                                         REPLACE_COLORKEY_MMX
+  
+!                                         &quot;movq %%mm0, (%1) \n&quot;
+!                                         &quot;movq %%mm1, 8(%1) \n&quot;
+!                                         : :
+!                                         &quot;r&quot; (pixmap),&quot;r&quot; (dest));
+!                         dest+=16;
+!                         pixmap+=4;
+!                 }
+!         else while (end_dest&gt;dest) {
+!                 // pseudo alpha blending
+!                 __asm__(
+!                                 PSEUDO_ALPHA_MMX_EVEN
+!                                 REPLACE_COLORKEY_MMX
+  
+!                                 &quot;movq %%mm0, (%1) \n&quot;
+!                                 &quot;movq %%mm1, 8(%1) \n&quot;
+!                                 : :
+!                                 &quot;r&quot; (pixmap),&quot;r&quot; (dest));
+!                 dest+=16;
+!                 pixmap+=4;
+          };
+          EMMS;
+***************
+*** 471,484 ****
+          while (end_dest&gt;dest) {
+                  c=*pixmap;
+!                 if ( IS_BACKGROUND(GET_A(c)) &amp;&amp; (((intptr_t)dest) &amp; 0x4) ) {
+!                         dest[0] = 0; dest[1] = 0; dest[2] = 0; dest[3] = 0x00;
+!                         // color key!
+!                 } else {
+!                         dest[0]=GET_B(c);
+!                         dest[1]=GET_G(c);
+!                         dest[2]=GET_R(c);
+!                         dest[3]=GET_A(c);
+!                 }
+!                 dest+=4;
+                  pixmap++;
+          };
+--- 544,548 ----
+          while (end_dest&gt;dest) {
+                  c=*pixmap;
+!                 PSEUDO_ALPHA_TO_RGB(RGB32);
+                  pixmap++;
+          };
+***************
+*** 707,722 ****
+  /*---------------------------------------------------------------------------*/
+  
+! void cSoftOsd::ARGB_to_RGB24(uint8_t * dest, color * pixmap, int Pixel) {
+          int c;
+          while (Pixel) {
+                  c = *pixmap;
+!                 if ( IS_BACKGROUND(GET_A(c)) &amp;&amp; (Pixel &amp; 0x1) ) {
+!                         dest[0] = 0x0; dest[1] = 0x0; dest[1] = 0x0; // color key!
+!                 } else {
+!                         dest[0]=GET_B(c);
+!                         dest[1]=GET_G(c);
+!                         dest[2]=GET_R(c);
+!                 }
+!                 dest+=3;
+                  Pixel--;
+                  pixmap++;
+--- 771,780 ----
+  /*---------------------------------------------------------------------------*/
+  
+! void cSoftOsd::ARGB_to_RGB24(uint8_t * dest, color * pixmap, int Pixel,
+!                 int odd) {
+          int c;
+          while (Pixel) {
+                  c = *pixmap;
+!                 PSEUDO_ALPHA_TO_RGB(RGB24);
+                  Pixel--;
+                  pixmap++;
+***************
+*** 726,808 ****
+  /*---------------------------------------------------------------------------*/
+  
+! void cSoftOsd::ARGB_to_RGB16(uint8_t * dest, color * pixmap, int Pixel) {
+          uint8_t *end_dest=dest+2*Pixel;
+  #ifdef USE_MMX2
+          static uint64_t rb_mask =   {0x00f800f800f800f8LL};
+!         static uint64_t g_mask =    {0xf800f800f800f800LL};
+! 
+  
+          end_dest-=8;
+          __asm__(
+!                  &quot;movq (%0),%%mm6\n&quot;
+!                  &quot;movq (%1),%%mm5\n&quot;
+                          : :
+!                         &quot;r&quot; (&amp;rb_mask),&quot;r&quot; (&amp;g_mask) );
+!         while (end_dest&gt;dest) {
+!               // pseudo alpha blending
+!                __asm__(
+!                  // second  and forth pixel
+!                  &quot;movd 4(%0), %%mm4\n&quot;  // load even pixels
+!                  &quot;punpckldq 12(%0), %%mm4\n&quot;
+! 
+!                  &quot;movq %%mm4,%%mm3\n&quot;
+!                  &quot;psrlw $1,%%mm3 \n&quot;
+!                  //&quot;pcmpgtb %%mm5,%%mm3 \n&quot;
+!                  &quot;pcmpgtb (%2),%%mm3 \n&quot;
+  
+!                  &quot;movq %%mm4,%%mm2\n&quot;
+!                  &quot;psrlw $1,%%mm2 \n&quot;
+!                  //&quot;pcmpgtb %%mm6,%%mm2 \n&quot;
+!                  &quot;pcmpgtb (%3),%%mm2 \n&quot;
+  
+!                  &quot;pandn %%mm3,%%mm2 \n&quot;
+!                  &quot;psraw $8,%%mm2 \n&quot;
+!                  &quot;pshufw $0b11110101,%%mm2,%%mm3 \n&quot;
+!                  &quot;pshufw $0b11110101,%%mm2,%%mm2 \n&quot;
+  
+!                  //&quot;pand %%mm7,%%mm3 \n&quot;
+!                  &quot;pand (%4),%%mm3 \n&quot;
+!                  &quot;pandn %%mm4,%%mm2 \n&quot;
+!                  &quot;por %%mm3,%%mm2\n&quot;
+  
+!                  &quot;movd 0(%0), %%mm0\n&quot; // load odd pixels
+!                  &quot;punpckldq 8(%0), %%mm1\n&quot;
+  
+!                  &quot;punpckldq %%mm2,%%mm0 \n&quot;
+!                  &quot;punpckhdq %%mm2,%%mm1 \n&quot;
+!                  &quot;movq %%mm4, (%1) \n&quot;
+!                  &quot;movq %%mm3, 8(%1) \n&quot;
+!                 : :
+!                 &quot;r&quot; (pixmap),&quot;r&quot; (dest),
+!                 &quot;r&quot; (&amp;transparent_thr),&quot;r&quot; (&amp;opacity_thr),
+!                 &quot;r&quot; (&amp;pseudo_transparent)
+!                                 );
+!               // ARGB to RGB16
+!               __asm__(
+!                  // &quot;movq  (%0),%%mm0\n&quot;  // mm0: 1A 1R 1G 1B 2A 2R 2G 2B
+!                  // &quot;movq  8(%0),%%mm1\n&quot;  // mm1: 3A 3R 3G 3B 4A 4R 4G 4B
+!                   &quot;pshufw $0b11011101,%%mm0,%%mm2\n&quot;
+!                   &quot;pshufw $0b11011101,%%mm1,%%mm3\n&quot;
+!                   &quot;punpckldq %%mm3, %%mm2\n&quot; //mm2: alpha and r channels
+!                   &quot;pshufw $0b00101000,%%mm0,%%mm3\n&quot;
+!                   &quot;pshufw $0b00101000,%%mm1,%%mm1\n&quot;
+!                   &quot;punpckldq %%mm1, %%mm3\n&quot; //mm3: g and b channels
+  
+!                   &quot;pand %%mm6, %%mm2\n&quot; //mm2 : r-komponente
+!                   &quot;psllw $8,%%mm2\n&quot;    //mm2 : r-komponente
+!                   &quot;movq %%mm5, %%mm1\n&quot;
+!                   &quot;pand %%mm3, %%mm1\n&quot; //mm1 : g-komponente
+!                   &quot;pand %%mm6, %%mm3\n&quot; //mm3: b-komponente
+!                   &quot;psrlw $5,%%mm1\n&quot; //mm3 : g-komponente ok
+!                   &quot;psrlw $3,%%mm3\n&quot; //mm1 : b-komponente
+  
+!                   &quot;por %%mm3,%%mm2\n&quot;
+!                   &quot;por %%mm1,%%mm2\n&quot;
+  
+!                   &quot; movq %%mm2,(%1) \n&quot;
+!                   : : &quot;r&quot; (pixmap), &quot;r&quot; (dest)
+!                   : &quot;memory&quot;);
+!               pixmap+=4;
+!               dest+=8;
+          };
+          EMMS;
+--- 784,879 ----
+  /*---------------------------------------------------------------------------*/
+  
+! void cSoftOsd::ARGB_to_RGB16(uint8_t * dest, color * pixmap, int Pixel,
+!                 int odd) {
+          uint8_t *end_dest=dest+2*Pixel;
+  #ifdef USE_MMX2
+          static uint64_t rb_mask =   {0x00f800f800f800f8LL};
+!         static uint64_t g_mask =    {0xfc00fc00fc00fc00LL};
+!         //static uint64_t g_mask =    {0xf800f800f800f800LL};
+  
+          end_dest-=8;
+          __asm__(
+!                         &quot;movq (%0),%%mm5 \n&quot;
+!                         &quot;movq (%1),%%mm6 \n&quot;
+!                         &quot;movq (%2),%%mm7 \n&quot;
+                          : :
+!                         &quot;r&quot; (&amp;transparent_thr),&quot;r&quot; (&amp;opacity_thr),
+!                         &quot;r&quot; (&amp;pseudo_transparent)
+!                );
+!  
+!         if (odd)
+!                 while (end_dest&gt;dest) {
+!                         // pseudo alpha blending
+!                         __asm__(
+!                             PSEUDO_ALPHA_MMX_ODD
+!                             REPLACE_COLORKEY_MMX
+!                             : :
+!                             &quot;r&quot; (pixmap) );
+  
+!                         // ARGB to RGB16
+!                         __asm__(
+!                             // mm0: 1A 1R 1G 1B 2A 2R 2G 2B
+!                             // mm1: 3A 3R 3G 3B 4A 4R 4G 4B
+!                             &quot;pshufw $0b11011101,%%mm0,%%mm2\n&quot;
+!                             &quot;pshufw $0b11011101,%%mm1,%%mm3\n&quot;
+!                             &quot;punpckldq %%mm3, %%mm2\n&quot; //mm2: alpha and r channels
+!                             &quot;pshufw $0b00101000,%%mm0,%%mm3\n&quot;
+!                             &quot;pshufw $0b00101000,%%mm1,%%mm1\n&quot;
+!                             &quot;punpckldq %%mm1, %%mm3\n&quot; //mm3: g and b channels
+  
+!                             &quot;pand (%3), %%mm2\n&quot; //mm2 : r-komponente
+!                             &quot;psllw $8,%%mm2\n&quot;    //mm2 : r-komponente
+!                             &quot;movq (%2), %%mm1\n&quot;
+!                             &quot;pand %%mm3, %%mm1\n&quot; //mm1 : g-komponente
+!                             &quot;pand (%3), %%mm3\n&quot; //mm3: b-komponente
+!                             &quot;psrlw $5,%%mm1\n&quot; //mm3 : g-komponente ok
+!                             &quot;psrlw $3,%%mm3\n&quot; //mm1 : b-komponente
+  
+!                             &quot;por %%mm3,%%mm2\n&quot;
+!                             &quot;por %%mm1,%%mm2\n&quot;
+  
+!                             &quot; movq %%mm2,(%1) \n&quot;
+!                             : : &quot;r&quot; (pixmap), &quot;r&quot; (dest),
+!                             &quot;r&quot; (&amp;g_mask),&quot;r&quot; (&amp;rb_mask)
+!                             : &quot;memory&quot;);
+!                         pixmap+=4;
+!                         dest+=8;
+!                 }
+!         else while (end_dest&gt;dest) {
+!                 // pseudo alpha blending
+!                 __asm__(
+!                             PSEUDO_ALPHA_MMX_EVEN
+!                             REPLACE_COLORKEY_MMX
+!                             : :
+!                             &quot;r&quot; (pixmap) );
+  
+!                 // ARGB to RGB16
+!                 __asm__(
+!                        // mm0: 1A 1R 1G 1B 2A 2R 2G 2B
+!                        // mm1: 3A 3R 3G 3B 4A 4R 4G 4B
+!                        &quot;pshufw $0b11011101,%%mm0,%%mm2\n&quot;
+!                        &quot;pshufw $0b11011101,%%mm1,%%mm3\n&quot;
+!                        &quot;punpckldq %%mm3, %%mm2\n&quot; //mm2: alpha and r channels
+!                        &quot;pshufw $0b00101000,%%mm0,%%mm3\n&quot;
+!                        &quot;pshufw $0b00101000,%%mm1,%%mm1\n&quot;
+!                        &quot;punpckldq %%mm1, %%mm3\n&quot; //mm3: g and b channels
+  
+!                        &quot;pand (%3), %%mm2\n&quot; //mm2 : r-komponente
+!                        &quot;psllw $8,%%mm2\n&quot;    //mm2 : r-komponente
+!                        &quot;movq (%2), %%mm1\n&quot;
+!                        &quot;pand %%mm3, %%mm1\n&quot; //mm1 : g-komponente
+!                        &quot;pand (%3), %%mm3\n&quot; //mm3: b-komponente
+!                        &quot;psrlw $5,%%mm1\n&quot; //mm3 : g-komponente ok
+!                        &quot;psrlw $3,%%mm3\n&quot; //mm1 : b-komponente
+  
+!                        &quot;por %%mm3,%%mm2\n&quot;
+!                        &quot;por %%mm1,%%mm2\n&quot;
+  
+!                        &quot; movq %%mm2,(%1) \n&quot;
+!                        : : &quot;r&quot; (pixmap), &quot;r&quot; (dest),
+!                        &quot;r&quot; (&amp;g_mask),&quot;r&quot; (&amp;rb_mask)
+!                        : &quot;memory&quot;);
+!                 pixmap+=4;
+!                 dest+=8;
+          };
+          EMMS;
+***************
+*** 812,823 ****
+          while (end_dest&gt;dest) {
+                  c = *pixmap;
+!                 if ( IS_BACKGROUND(GET_A(c)) &amp;&amp; (((intptr_t)dest) &amp; 0x2) ) {
+!                         dest[0] = 0x0; dest[1] = 0x0; // color key!
+!                 } else {
+!                         dest[0] = ((GET_B(c) &gt;&gt; 3)&amp; 0x1F) |
+!                                 ((GET_G(c) &amp; 0x1C) &lt;&lt; 3);
+!                         dest[1] = (GET_R(c) &amp; 0xF8) | (GET_G(c) &gt;&gt; 5);
+!                 }
+!                 dest+=2;
+                  pixmap++;
+          };
+--- 883,887 ----
+          while (end_dest&gt;dest) {
+                  c = *pixmap;
+!                 PSEUDO_ALPHA_TO_RGB(RGB16);
+                  pixmap++;
+          };
+***************
+*** 826,830 ****
+  
+  void cSoftOsd::ARGB_to_RGB16_PixelMask(uint8_t * dest, color * pixmap,
+!                 int Pixel) {
+          uint8_t *end_dest=dest+2*Pixel;
+          int PixelCount=0;
+--- 890,894 ----
+  
+  void cSoftOsd::ARGB_to_RGB16_PixelMask(uint8_t * dest, color * pixmap,
+!                 int Pixel, int odd) {
+          uint8_t *end_dest=dest+2*Pixel;
+          int PixelCount=0;
+***************
+*** 1135,1139 ****
+                  //printf(&quot;Copy to destination y: %d\n&quot;,y);
+                  buf=dest+y*linesize;
+!                 (*OutputConvert)(buf,tmp_pixmap+1,dest_Width-2);
+                  if (pixelMask)
+                          CreatePixelMask(pixelMask+y*linesize/16,
+--- 1199,1203 ----
+                  //printf(&quot;Copy to destination y: %d\n&quot;,y);
+                  buf=dest+y*linesize;
+!                 (*OutputConvert)(buf,tmp_pixmap+1,dest_Width-2,y&amp;1);
+                  if (pixelMask)
+                          CreatePixelMask(pixelMask+y*linesize/16,
+***************
+*** 1148,1152 ****
+                          y++;
+                          buf=dest+y*linesize;
+!                         (*OutputConvert)(buf,((color*)src)+1,dest_Width-2);
+                          if (pixelMask)
+                                  CreatePixelMask(pixelMask+y*linesize/16,
+--- 1212,1216 ----
+                          y++;
+                          buf=dest+y*linesize;
+!                         (*OutputConvert)(buf,((color*)src)+1,dest_Width-2,y&amp;1);
+                          if (pixelMask)
+                                  CreatePixelMask(pixelMask+y*linesize/16,
+***************
+*** 1202,1206 ****
+                  buf=dest+y*linesize;
+                  //printf(&quot;copy to destination %d\n&quot;,y);
+!                 (*OutputConvert)(buf,tmp_pixmap+1,dest_Width-2);
+                  if (pixelMask)
+                          CreatePixelMask(pixelMask+y*linesize/16,
+--- 1266,1270 ----
+                  buf=dest+y*linesize;
+                  //printf(&quot;copy to destination %d\n&quot;,y);
+!                 (*OutputConvert)(buf,tmp_pixmap+1,dest_Width-2,y&amp;1);
+                  if (pixelMask)
+                          CreatePixelMask(pixelMask+y*linesize/16,
+***************
+*** 1278,1282 ****
+                  buf=dest+y*linesize;
+                  //printf(&quot;copy to destination %d\n&quot;,y);
+!                 (*OutputConvert)(buf,tmp_pixmap+1,dest_Width-2);
+                  if (pixelMask)
+                          CreatePixelMask(pixelMask+y*linesize/16,
+--- 1342,1346 ----
+                  buf=dest+y*linesize;
+                  //printf(&quot;copy to destination %d\n&quot;,y);
+!                 (*OutputConvert)(buf,tmp_pixmap+1,dest_Width-2,y&amp;1);
+                  if (pixelMask)
+                          CreatePixelMask(pixelMask+y*linesize/16,
+***************
+*** 1534,1538 ****
+                        &quot; movd %%mm0,(%0) \n&quot;
+                        &quot; pxor %%mm0,%%mm0 \n&quot;
+!                       : : &quot;r&quot;(dest) );
+  #endif
+                  SCALEDEBH(&quot;, %d, %d, %d\n&quot;,r_sum,g_sum,b_sum);
+--- 1598,1602 ----
+                        &quot; movd %%mm0,(%0) \n&quot;
+                        &quot; pxor %%mm0,%%mm0 \n&quot;
+!                       : : &quot;r&quot;(dest) : &quot;memory&quot; );
+  #endif
+                  SCALEDEBH(&quot;, %d, %d, %d\n&quot;,r_sum,g_sum,b_sum);
+***************
+*** 1568,1574 ****
+  };
+  
+- 
+  //-----------------------------------------------------------------------
+  #define SCALEUPDEBH(out...)
+  
+  void cSoftOsd::ScaleUpHoriz_MMX(uint32_t * dest, int dest_Width,
+--- 1632,1639 ----
+  };
+  
+  //-----------------------------------------------------------------------
+  #define SCALEUPDEBH(out...)
++ //#define SCALEUPDEBH(out...) printf(out)
++ 
+  
+  void cSoftOsd::ScaleUpHoriz_MMX(uint32_t * dest, int dest_Width,
+***************
+*** 1578,1582 ****
+          const int ScaleFactor=1&lt;&lt;SHIFT_BITS_NUM;
+          //const int ScaleFactor=100;
+-         color *end_pixmap=pixmap+Pixel;
+  #ifndef USE_MMX
+          unsigned int c=*pixmap;
+--- 1643,1646 ----
+***************
+*** 1602,1616 ****
+                  //&quot; pxor %%mm3, %%mm3 \n&quot;// mm2: pos copy
+                  : : &quot;r&quot; (pixmap) );
+          pixmap++;
+  #endif
+          uint32_t new_pixel_width=(OSD_WIDTH*ScaleFactor)/dest_Width;
+          int32_t pos=0;
+!         SCALEDEBH(&quot;Scale up OSD_WIDTH: %d dest_width: %d new_pixel_width: %d\n&quot;,
+                          OSD_WIDTH,dest_Width,new_pixel_width);
+          while (pixmap&lt;end_pixmap) {
+                  while (pos&lt;ScaleFactor) {
+!                         SCALEDEBH(&quot;while loop a_sum: %d pixmap-&gt;a: %d,%d,%d,%d\n&quot;,
+!                                         a_sum,pixmap-&gt;a,
+!                                         pixmap-&gt;r,pixmap-&gt;g,pixmap-&gt;b);
+  
+  #ifndef USE_MMX
+--- 1666,1681 ----
+                  //&quot; pxor %%mm3, %%mm3 \n&quot;// mm2: pos copy
+                  : : &quot;r&quot; (pixmap) );
++         SCALEUPDEBH(&quot;new pixel: 0x%04x\n&quot;,*pixmap);
+          pixmap++;
+  #endif
+          uint32_t new_pixel_width=(OSD_WIDTH*ScaleFactor)/dest_Width;
++         color *end_pixmap=pixmap+new_pixel_width*dest_Width/ScaleFactor;
+          int32_t pos=0;
+!         SCALEUPDEBH(&quot;Scale up OSD_WIDTH: %d dest_width: %d new_pixel_width: %d\n&quot;,
+                          OSD_WIDTH,dest_Width,new_pixel_width);
+          while (pixmap&lt;end_pixmap) {
+                  while (pos&lt;ScaleFactor) {
+!                         SCALEUPDEBH(&quot;while loop pos: %d pixmap: 0x%04x\n&quot;,
+!                                         pos,*pixmap);
+  
+  #ifndef USE_MMX
+***************
+*** 1632,1639 ****
+                                  &quot; packuswb %%mm0,%%mm0 \n&quot;
+                                  &quot; movd %%mm0,(%1) \n&quot;
+!                                 : : &quot;r&quot; (pos),&quot;r&quot; (dest) );
+  #endif
+  
+                          pos +=new_pixel_width;
+                          dest++;
+                  };
+--- 1697,1705 ----
+                                  &quot; packuswb %%mm0,%%mm0 \n&quot;
+                                  &quot; movd %%mm0,(%1) \n&quot;
+!                                 : : &quot;r&quot; (pos),&quot;r&quot; (dest) : &quot;memory&quot; );
+  #endif
+  
+                          pos +=new_pixel_width;
++                         SCALEUPDEBH(&quot;dest: 0x%04x\n&quot;,*dest);
+                          dest++;
+                  };
+***************
+*** 1657,1661 ****
+                          &quot; movq %%mm2, %%mm4 \n&quot;
+                          &quot; psubsw %%mm1, %%mm2 \n&quot;// mm2 pixel2-pixel1
+!                         : : &quot;r&quot; (pixmap) );
+  #endif
+          };
+--- 1723,1728 ----
+                          &quot; movq %%mm2, %%mm4 \n&quot;
+                          &quot; psubsw %%mm1, %%mm2 \n&quot;// mm2 pixel2-pixel1
+!                         : : &quot;r&quot; (pixmap) : &quot;memory&quot; );
+!                 SCALEUPDEBH(&quot;new pixel: 0x%04x\n&quot;,*pixmap);
+  #endif
+          };
+***************
+*** 1735,1739 ****
+                                  &quot; movd %0,%%mm3 \n&quot;
+                                  &quot; movq %%mm2,%%mm0 \n&quot;
+!                                 SPLAT_U16( &quot;%%mm2&quot; )
+                                  &quot; pmullw %%mm3, %%mm0 \n&quot;
+                                  &quot; psraw $&quot;SHIFT_BITS&quot;,%%mm0 \n&quot;
+--- 1802,1806 ----
+                                  &quot; movd %0,%%mm3 \n&quot;
+                                  &quot; movq %%mm2,%%mm0 \n&quot;
+!                                 SPLAT_U16( &quot;%%mm3&quot; )
+                                  &quot; pmullw %%mm3, %%mm0 \n&quot;
+                                  &quot; psraw $&quot;SHIFT_BITS&quot;,%%mm0 \n&quot;
+***************
+*** 1742,1746 ****
+                                  &quot; movd %%mm0,(%1) \n&quot;
+                                  : : &quot;r&quot; (pos),
+!                                 &quot;r&quot; (&amp;dest[ypos*linesize+currPixel]) );
+  #endif
+  
+--- 1809,1814 ----
+                                  &quot; movd %%mm0,(%1) \n&quot;
+                                  : : &quot;r&quot; (pos),
+!                                 &quot;r&quot; (&amp;dest[ypos*linesize+currPixel])
+!                                 : &quot;memory&quot; );
+  #endif
+  
+***************
+*** 1752,1754 ****
+--- 1820,1823 ----
+          EMMS;
+  };
++ 
+  
+
+Index: SoftOsd.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.h,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -C2 -d -r1.10 -r1.11
+*** SoftOsd.h	11 Nov 2006 08:45:17 -0000	1.10
+--- SoftOsd.h	16 Nov 2006 21:03:18 -0000	1.11
+***************
+*** 66,69 ****
+--- 66,70 ----
+      cVideoOut *videoOut;
+  protected:
++     static int colorkey;
+      int      xOfs, yOfs;
+      int      xPan, yPan;
+***************
+*** 72,76 ****
+      cMutex dirty_Mutex;
+  
+!     void (*OutputConvert)(uint8_t * dest, color * pixmap, int Pixel);
+      uint8_t *pixelMask;
+      enum PixFormat {
+--- 73,77 ----
+      cMutex dirty_Mutex;
+  
+!     void (*OutputConvert)(uint8_t * dest, color * pixmap, int Pixel, int odd);
+      uint8_t *pixelMask;
+      enum PixFormat {
+***************
+*** 109,118 ****
+  
+      static void ARGB_to_AYUV(uint32_t * dest, color * pixmap, int Pixel);
+!     static void ARGB_to_ARGB32(uint8_t * dest, color * pixmap, int Pixel);
+!     static void ARGB_to_RGB32(uint8_t * dest, color * pixmap, int Pixel);
+!     static void ARGB_to_RGB24(uint8_t * dest, color * pixmap, int Pixel);
+!     static void ARGB_to_RGB16(uint8_t * dest, color * pixmap, int Pixel);
+      static void ARGB_to_RGB16_PixelMask(uint8_t * dest, color * pixmap,
+!                     int Pixel);
+  
+      void CreatePixelMask(uint8_t * dest, color * pixmap, int Pixel);
+--- 110,123 ----
+  
+      static void ARGB_to_AYUV(uint32_t * dest, color * pixmap, int Pixel);
+!     static void ARGB_to_ARGB32(uint8_t * dest, color * pixmap, int Pixel,
+!                     int odd);
+!     static void ARGB_to_RGB32(uint8_t * dest, color * pixmap, int Pixel,
+!                     int odd);
+!     static void ARGB_to_RGB24(uint8_t * dest, color * pixmap, int Pixel,
+!                     int odd);
+!     static void ARGB_to_RGB16(uint8_t * dest, color * pixmap, int Pixel,
+!                     int odd);
+      static void ARGB_to_RGB16_PixelMask(uint8_t * dest, color * pixmap,
+!                     int Pixel, int odd);
+  
+      void CreatePixelMask(uint8_t * dest, color * pixmap, int Pixel);
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.69
+retrieving revision 1.70
+diff -C2 -d -r1.69 -r1.70
+*** video.c	11 Nov 2006 08:45:17 -0000	1.69
+--- video.c	16 Nov 2006 21:03:18 -0000	1.70
+***************
+*** 499,502 ****
+--- 499,508 ----
+  }
+  
++ int cVideoOut::GetOSDColorkey()
++ {
++   OSDDEB(&quot;GetOSDColorKey\n&quot;);
++   return 0x000000;
++ }
++ 
+  void cVideoOut::CloseOSD()
+  {
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.46
+retrieving revision 1.47
+diff -C2 -d -r1.46 -r1.47
+*** video.h	11 Nov 2006 08:45:17 -0000	1.46
+--- video.h	16 Nov 2006 21:03:18 -0000	1.47
+***************
+*** 186,189 ****
+--- 186,190 ----
+  
+      virtual void OpenOSD();
++     virtual int GetOSDColorkey();
+      virtual void CloseOSD();
+  
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000470.html">[Softdevice-cvs] softdevice CHANGELOG, 1.263, 1.264 video-dfb.c,	1.73, 1.74
+</A></li>
+	<LI>Next message: <A HREF="000472.html">[Softdevice-cvs] softdevice CHANGELOG,1.264,1.265
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#471">[ date ]</a>
+              <a href="thread.html#471">[ thread ]</a>
+              <a href="subject.html#471">[ subject ]</a>
+              <a href="author.html#471">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

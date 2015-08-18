@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.335, 1.336 configure, 1.48,	1.49
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2008q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.335%2C%201.336%20configure%2C%201.48%2C%0A%091.49&In-Reply-To=%3C20080714170305.C998F13726D%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000628.html">
+   <LINK REL="Next"  HREF="000630.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.335, 1.336 configure, 1.48,	1.49</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.335%2C%201.336%20configure%2C%201.48%2C%0A%091.49&In-Reply-To=%3C20080714170305.C998F13726D%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.335, 1.336 configure, 1.48,	1.49">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon Jul 14 19:03:05 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000628.html">[Softdevice-cvs] softdevice video-xv.c,1.74,1.75
+</A></li>
+        <LI>Next message: <A HREF="000630.html">[Softdevice-cvs] softdevice audio-alsa.c, 1.9, 1.10 audio-alsa.h,	1.5, 1.6
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#629">[ date ]</a>
+              <a href="thread.html#629">[ thread ]</a>
+              <a href="subject.html#629">[ subject ]</a>
+              <a href="author.html#629">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv15478
+
+Modified Files:
+	CHANGELOG configure 
+Log Message:
+Improve detection of yaepg patched vdr.
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.335
+retrieving revision 1.336
+diff -C2 -d -r1.335 -r1.336
+*** CHANGELOG	18 Apr 2008 15:15:40 -0000	1.335
+--- CHANGELOG	14 Jul 2008 17:03:03 -0000	1.336
+***************
+*** 1,3 ****
+--- 1,7 ----
+  Changelog
++ 2008-07-14:
++    - video-xv: - Workaround for DPMS not getting reenabled.
++                - Fix for reenable DPMS when quit from fullscreen mode.
++    - configure: Improve detection of yaepg patched vdr.
+  2008-04-18: softdevice-0.5.0
+     - Check configuration for ffmpeg &lt; r11816.
+
+Index: configure
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/configure,v
+retrieving revision 1.48
+retrieving revision 1.49
+diff -C2 -d -r1.48 -r1.49
+*** configure	18 Apr 2008 15:10:35 -0000	1.48
+--- configure	14 Jul 2008 17:03:03 -0000	1.49
+***************
+*** 9,12 ****
+--- 9,13 ----
+  TMPC=&quot;${TMPDIR1}/softdevice-conf-${RANDOM}-$$-${RANDOM}.c&quot;
+  TMPE=&quot;${TMPDIR1}/softdevice-conf-${RANDOM}-$$-${RANDOM}&quot;
++ TMPF=&quot;${TMPDIR1}/softdevice-conf-${RANDOM}-$$-${RANDOM}.makefile&quot;
+  TMPH=&quot;${TMPDIR1}/softdevice-conf-${RANDOM}-$$-${RANDOM}.h&quot;
+  TMPM=&quot;${TMPDIR1}/softdevice-conf-${RANDOM}-$$-${RANDOM}.mak&quot;
+***************
+*** 511,517 ****
+  
+  yaepg=&quot;no&quot;;
+! VDR_DIR=../../../
+  
+! grep vidWin $VDR_DIR/osd.h &gt;&gt; config.log 2&gt;&amp;1 &amp;&amp; yaepg=&quot;yes&quot;
+  
+  if test &quot;${yaepg}&quot; = &quot;yes&quot; ; then
+--- 512,534 ----
+  
+  yaepg=&quot;no&quot;;
+! VDR_DIR=../../..
+  
+! cat &gt; ${TMPF} &lt;&lt; EOF
+! DEFINES += -D_GNU_SOURCE
+! CFLAGS = -O2 -g -Wall
+! -include ../../../Make.config
+! ${TMPE}: ${TMPC}
+! 	$cc \$(CFLAGS)  \$(DEFINES) -I${VDR_DIR} -c -o $TMPE $TMPC &gt;&gt; config.log 2&gt;&amp;1
+! EOF
+! 
+! cat &gt; ${TMPC} &lt;&lt; EOF
+! #include &lt;osd.h&gt;
+! int test_func(cOsd *osd) {
+! 	return (osd -&gt; vidWin. bpp) ? 1 : 0;
+! }
+! EOF
+! 
+! rm ${TMPE}
+! make -f ${TMPF} &gt;&gt; config.log 2&gt;&amp;1 &amp;&amp; yaepg=&quot;yes&quot;
+  
+  if test &quot;${yaepg}&quot; = &quot;yes&quot; ; then
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000628.html">[Softdevice-cvs] softdevice video-xv.c,1.74,1.75
+</A></li>
+	<LI>Next message: <A HREF="000630.html">[Softdevice-cvs] softdevice audio-alsa.c, 1.9, 1.10 audio-alsa.h,	1.5, 1.6
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#629">[ date ]</a>
+              <a href="thread.html#629">[ thread ]</a>
+              <a href="subject.html#629">[ subject ]</a>
+              <a href="author.html#629">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

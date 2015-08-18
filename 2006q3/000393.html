@@ -1,0 +1,1303 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice audio-alsa.c,NONE,1.1 audio-alsa.h,NONE,1.1 audio.c,1.25,1.26 audio.h,1.11,1.12 Makefile,1.32,1.33 configure,1.19,1.20 CHANGELOG,1.208,1.209
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20audio-alsa.c%2CNONE%2C1.1%20audio-alsa.h%2CNONE%2C1.1%20audio.c%2C1.25%2C1.26%20audio.h%2C1.11%2C1.12%20Makefile%2C1.32%2C1.33%20configure%2C1.19%2C1.20%20CHANGELOG%2C1.208%2C1.209&In-Reply-To=%3C200607101940.k6AJeSY23110%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000392.html">
+   <LINK REL="Next"  HREF="000394.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice audio-alsa.c,NONE,1.1 audio-alsa.h,NONE,1.1 audio.c,1.25,1.26 audio.h,1.11,1.12 Makefile,1.32,1.33 configure,1.19,1.20 CHANGELOG,1.208,1.209</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20audio-alsa.c%2CNONE%2C1.1%20audio-alsa.h%2CNONE%2C1.1%20audio.c%2C1.25%2C1.26%20audio.h%2C1.11%2C1.12%20Makefile%2C1.32%2C1.33%20configure%2C1.19%2C1.20%20CHANGELOG%2C1.208%2C1.209&In-Reply-To=%3C200607101940.k6AJeSY23110%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice audio-alsa.c,NONE,1.1 audio-alsa.h,NONE,1.1 audio.c,1.25,1.26 audio.h,1.11,1.12 Makefile,1.32,1.33 configure,1.19,1.20 CHANGELOG,1.208,1.209">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon Jul 10 21:40:28 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000392.html">[Softdevice-cvs] softdevice CHANGELOG,1.207,1.208 softdevice.c,1.61,1.62 video.c,1.58,1.59
+</A></li>
+        <LI>Next message: <A HREF="000394.html">[Softdevice-cvs] softdevice softdevice.c,1.62,1.63
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#393">[ date ]</a>
+              <a href="thread.html#393">[ thread ]</a>
+              <a href="subject.html#393">[ subject ]</a>
+              <a href="author.html#393">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv23230
+
+Modified Files:
+	audio.c audio.h Makefile configure CHANGELOG 
+Added Files:
+	audio-alsa.c audio-alsa.h 
+Log Message:
+- move alsa related stuff into a separate file, enable build without alsa 
+  support
+     
+
+
+--- NEW FILE: audio-alsa.c ---
+/*
+ * audio-alsa.c: A plugin for the Video Disk Recorder
+ *
+ * See the README file for copyright information and how to reach the author.
+ *
+ * $Id: audio-alsa.c,v 1.1 2006/07/10 19:40:25 wachm Exp $
+ */
+#include &quot;audio-alsa.h&quot;
+
+#define ALSA_PCM_NEW_HW_PARAMS_API
+#define ALSA_PCM_NEW_SW_PARAMS_API
+#include &lt;alsa/asoundlib.h&gt;
+
+#define PCM_FMT SND_PCM_FORMAT_S16_LE
+#define NO_MIXER
+
+//#define AUDIODEB(out...) {printf(&quot;AUDIO-ALSA[%04d]:&quot;,(int)(getTimeMilis() % 10000));printf(out);}
+
+#ifndef AUDIODEB
+#define AUDIODEB(out...)
+#endif
+
+
+/*--------------------------------------------------------------------------
+*/
+cAlsaAudioOut::cAlsaAudioOut(cSetupStore *setupStore) {
+    int err;
+
+    if (strlen(setupStore-&gt;alsaDevice) == 0)
+      strcpy (setupStore-&gt;alsaDevice, &quot;default&quot;);
+    dsyslog(&quot;[softdevice-audio] Opening alsa device %s&quot;,setupStore-&gt;alsaDevice);
+    device = setupStore-&gt;alsaDevice;
+
+    if (strlen(setupStore-&gt;alsaAC3Device) == 0)
+      strcpy (setupStore-&gt;alsaAC3Device, &quot;hw:0,1&quot;);
+    dsyslog(&quot;[softdevice-audio] Using alsa AC3 device %s&quot;,
+            setupStore-&gt;alsaAC3Device);
+    ac3Device = setupStore-&gt;alsaAC3Device;
+
+    paused=false;
+    ac3PassThrough = false;
+    ac3SpdifPro = false;
+
+    if ((err = snd_pcm_open(&amp;handle, device, SND_PCM_STREAM_PLAYBACK, 0)) &lt; 0) {
+      esyslog(&quot;[softdevice-audio] Playback open error: %s, %s FATAL exiting&quot;,
+              device, snd_strerror(err));
+      exit(1);
+    }
+    oldContext.channels = currContext.channels=0;
+    oldContext.samplerate = currContext.samplerate=48000;
+    dsyslog(&quot;[softdevice-audio] Device opened! Ready to play&quot;);
+    scale_Factor=0x7FFF;
+}
+
+/* ----------------------------------------------------------------------------
+ */
+cAlsaAudioOut::~cAlsaAudioOut()
+{
+  if (handle)
+    snd_pcm_close(handle);
+  handle = NULL;
+}
+
+/* ----------------------------------------------------------------------------
+ */
+void cAlsaAudioOut::Suspend()
+{
+  if (handle)
+    snd_pcm_close(handle);
+  handle = NULL;
+}
+
+/* ----------------------------------------------------------------------------
+ */
+bool cAlsaAudioOut::Resume() {
+   int err;
+   printf(&quot;Device %s\n&quot;,device);
+   if ((err = snd_pcm_open(&amp;handle, device, SND_PCM_STREAM_PLAYBACK,SND_PCM_NONBLOCK )) &lt; 0) {
+     esyslog(&quot;[softdevice-audio] Playback open error: %s, %s &quot;,
+             device, snd_strerror(err));
+     return false;
+   }
+   //force setting of the parameters after resume 
+   currContext.channels=0;
+   return true;
+};
+
+/* ----------------------------------------------------------------------------
+ */
+  
+void cAlsaAudioOut::Write(uchar *Data, int Length)
+{
+    int     err;
+    size_t  size;
+
+  AUDIODEB(&quot;Write %p %d\n&quot;,Data,Length);
+
+  handleMutex.Lock();
+  if (ac3PassThrough)
+  {
+    ac3PassThrough = false;
+    SetAC3PassThroughMode(ac3PassThrough);
+  }
+  handleMutex.Unlock();
+
+  if (!currContext.channels)
+    size = Length / (2 * 2);
+  else
+    size = Length/(2*currContext.channels);
+
+#ifdef NO_MIXER
+  // change the volume
+  Scale((int16_t*)Data,Length/2,scale_Factor);
+#endif
+
+  while (size) {
+    while (paused) usleep(1000); // block
+    AUDIODEB(&quot;pcm_mmap_writei  handle %p Data %p size %d\n&quot;,handle,Data,size);
+    err = snd_pcm_mmap_writei(handle,Data, size);
+    AUDIODEB(&quot;pcm_mmap_writeei return value %d Data %p size %d \n&quot;,
+                   err,Data,size);
+    if (err == -EAGAIN || (err &gt;= 0 &amp;&amp; (size_t)err &lt; size)) {
+      AUDIODEB(&quot;wait \n&quot;);
+      snd_pcm_wait(handle, 1000);
+    } else if (err == -EPIPE) {
+      AUDIODEB(&quot;Xrun \n&quot;);
+      Xrun();
+      dsyslog(&quot;[softdevice-audio]: xrun&quot;);
+    } else if (err == -ESTRPIPE) {
+      //suspend();
+      AUDIODEB(&quot;Suspend \n&quot;);
+      dsyslog(&quot;[softdevice-audio]: Suspend&quot;);
+    } else if (err == -EINTR) {
+      dsyslog (&quot;[softdevice-audio]: EINTR&quot;);
+      AUDIODEB(&quot;EINTR \n&quot;);
+      return;
+    } else if (err &lt; 0) {
+      dsyslog(&quot;[softdevice-audio]: write error: %s FATAL exiting&quot;,
+              snd_strerror(err));
+      exit(EXIT_FAILURE);
+    }
+
+    if (err &gt; 0 ) {
+      if (!currContext.channels)
+        Data += err * 2 * 2;
+      else
+        Data += err * 2 * currContext.channels;
+      size -=err;
+    };
+  }
+  AUDIODEB(&quot;Write end\n&quot;);
+}
+
+/* ----------------------------------------------------------------------------
+ */
+bool
+cAlsaAudioOut::SetAC3PassThroughMode(bool on)
+{
+  if (on)
+  {
+    oldContext = currContext;
+
+    if (handle)
+      snd_pcm_close(handle);
+    handle = NULL;
+
+    // open S/P-DIF
+    if (ac3pt.SpdifInitAC3(&amp;handle, ac3Device, ac3SpdifPro) == 0)
+    {
+      currContext.channels = 0;
+      return true;
+    }
+    currContext = oldContext;
+    esyslog(&quot;[softdevice-audio] AC3 open error:&quot;);
+  }
+  return false;
+}
+
+/* ----------------------------------------------------------------------------
+ */
+void cAlsaAudioOut::WriteAC3(uchar *Data, int Length)
+{
+  handleMutex.Lock();
+  if (!ac3PassThrough)
+  {
+    ac3PassThrough = true;
+    SetAC3PassThroughMode(ac3PassThrough);
+  }
+  handleMutex.Unlock();
+
+  ac3pt.SpdifBurstAC3 (&amp;handle, Data, Length);
+}
+
+/* ----------------------------------------------------------------------------
+ */
+void cAlsaAudioOut::Pause(void) {
+    //    snd_pcm_pause(handle,1);
+    dsyslog(&quot;[softdevice-audio]: Should pause now&quot;);
+    paused=true;
+}
+
+/* ----------------------------------------------------------------------------
+ */
+void cAlsaAudioOut::Play(void) {
+//    snd_pcm_pause(handle,0);
+    paused=false;
+}
+
+/* ----------------------------------------------------------------------------
+ */
+int cAlsaAudioOut::GetDelay(void) {
+    int               res = 0;
+    snd_pcm_sframes_t r;
+
+  handleMutex.Lock();
+  if (!handle) {
+          handleMutex.Unlock();
+          return 0;
+  };
+
+  if ( snd_pcm_state(handle) != SND_PCM_STATE_RUNNING ) {
+          handleMutex.Unlock();
+          return 0;
+  };
+          
+  if (!snd_pcm_delay(handle, &amp;r) &amp;&amp;
+      currContext.samplerate) {
+    // successfully got delay
+    res = (long) r * 10000 / currContext.samplerate;
+    AUDIODEB(&quot;GetDelay %d\n&quot;,res);
+  }
+  handleMutex.Unlock();
+  return res;
+}
+
+/* ----------------------------------------------------------------------------
+ * I/O error handler
+ */
+void cAlsaAudioOut::Xrun(void)
+{
+	snd_pcm_status_t *status;
+	int res;
+	snd_pcm_status_alloca(&amp;status);
+        //printf(&quot;alsa-audio: Xrun\n&quot;);
+	if ((res = snd_pcm_status(handle, status))&lt;0) {
+    esyslog(&quot;[softdevice-audio]: Xrun status error: %s FATAL exiting&quot;,
+            snd_strerror(res));
+		exit(EXIT_FAILURE);
+	}
+	if (snd_pcm_status_get_state(status) == SND_PCM_STATE_XRUN) {
+//		snd_pcm_status_get_trigger_tstamp(status, &amp;tstamp);
+		if ((res = snd_pcm_prepare(handle))&lt;0) {
+      esyslog(&quot;[softdevice-audio]: Xrun prepare error: %s FATAL exiting&quot;,
+              snd_strerror(res));
+			exit(EXIT_FAILURE);
+		}
+		return;		/* ok, data should be accepted again */
+	}
+
+//	error(&quot;read/write error, state = %s&quot;, snd_pcm_state_name(snd_pcm_status_get_state(status)));
+  esyslog(&quot;[softdevice-audio]: read/write error FATAL exiting&quot;);
+	exit(EXIT_FAILURE);
+}
+
+/* ----------------------------------------------------------------------------
+ */
+int cAlsaAudioOut::SetParams(SampleContext &amp;context)
+//int cAlsaAudioOut::SetParams(int channels, unsigned int samplerate)
+{
+      int err;
+
+    // not needed to set again
+    //if ((chn == channels) &amp;&amp; (rate == samplerate)) return 0;
+    if (currContext.samplerate == context.samplerate &amp;&amp;
+        currContext.channels == context.channels ) {
+      context=currContext;
+      return 0;
+    };
+    //printf(&quot;alsa-audio: SetParams\n&quot;);
+    currContext=context;
+ 
+    handleMutex.Lock();
+    snd_pcm_close(handle);
+    if ((err = snd_pcm_open(&amp;handle,
+                            device,
+                            SND_PCM_STREAM_PLAYBACK, 0)) &lt; 0) {
+      esyslog(&quot;[softdevice-audio] Playback reopen error: %s, %s FATAL exiting&quot;,
+              device, snd_strerror(err));
+      exit(1);
+    }
+
+    dsyslog (&quot;[softdevice-audio] samplerate: %dHz, channels: #%d&quot;,
+             currContext.samplerate, currContext.channels);
+    //rate=samplerate;
+    //chn=channels;
+    snd_pcm_hw_params_t *params;
+    snd_pcm_sw_params_t *swparams;
+    snd_pcm_uframes_t xfer_align;
+    snd_pcm_hw_params_alloca(&amp;params);
+    snd_pcm_sw_params_alloca(&amp;swparams);
+
+    err = snd_pcm_hw_params_any(handle, params);
+    if (err &lt; 0) {
+      esyslog(&quot;[softdevice-audio] Broken config for this PCM: no configurations available&quot;);
+      exit(EXIT_FAILURE);
+    }
+
+    snd_pcm_access_mask_t *mask = (snd_pcm_access_mask_t *)alloca(snd_pcm_access_mask_sizeof());
+    snd_pcm_access_mask_none(mask);
+    snd_pcm_access_mask_set(mask, SND_PCM_ACCESS_MMAP_INTERLEAVED);
+    snd_pcm_access_mask_set(mask, SND_PCM_ACCESS_MMAP_NONINTERLEAVED);
+    snd_pcm_access_mask_set(mask, SND_PCM_ACCESS_MMAP_COMPLEX);
+    err = snd_pcm_hw_params_set_access_mask(handle, params, mask);
+    if (err &lt; 0) {
+      esyslog(&quot;[softdevice-audio] Access type not available FATAL exiting&quot;);
+      exit(EXIT_FAILURE);
+    }
+
+    err = snd_pcm_hw_params_set_format(handle, params, PCM_FMT);
+    if (err &lt; 0) {
+      esyslog(&quot;[softdevice-audio] Sample format non available FATAL exiting&quot;);
+      exit(EXIT_FAILURE);
+    }
+
+    err = snd_pcm_hw_params_set_channels(handle, params,currContext.channels);
+    if (err &lt; 0) {
+      esyslog(&quot;[softdevice-audio] Channels count non available FATAL exiting&quot;);
+      exit(EXIT_FAILURE);
+    }
+
+    err = snd_pcm_hw_params_set_rate_near(handle, params, &amp;currContext.samplerate, 0);
+    assert(err &gt;= 0);
+    if (currContext.samplerate != context.samplerate ) {
+      esyslog(&quot;[softdevice-audio] Rate %d Hz is not possible (and using instead %d Hz is not implemented) FATAL exiting&quot;,context.samplerate,currContext.samplerate);
+      exit(1);
+    }
+
+    // set period size
+    snd_pcm_uframes_t bufferSize;
+    snd_pcm_uframes_t periodSize;
+    //periodSize = 8;
+    periodSize = 4608 / 4;
+    err = snd_pcm_hw_params_set_period_size_near(handle, params, &amp;periodSize, 0);
+    if ( err &lt; 0)  {
+      esyslog(&quot;[softdevice-audio] Failed to set period size!&quot;);
+      exit(1);
+    }
+
+    snd_pcm_uframes_t buffersize = 2 * 4608;
+
+    err = snd_pcm_hw_params_set_buffer_size_near(handle, params, &amp;buffersize);
+    if ( err &lt; 0 ) {
+      esyslog(&quot;[softdevice-audio] Failed to set buffer size!&quot;);
+      exit(1);
+    }
+
+    err = snd_pcm_hw_params(handle, params);
+    if (err &lt; 0) {
+      esyslog(&quot;[softdevice-audio] Unable to install hw params: FATAL exiting&quot;);
+      exit(EXIT_FAILURE);
+    }
+
+    snd_pcm_hw_params_get_period_size(params, &amp;periodSize, 0);
+    snd_pcm_hw_params_get_buffer_size(params, &amp;bufferSize);
+    if (periodSize == bufferSize) {
+      esyslog(&quot;[softdevice-audio] Can't use period equal to buffer size (%lu == %lu) FATAL exiting&quot;,
+              periodSize, bufferSize);
+      exit(EXIT_FAILURE);
+    }
+    dsyslog(&quot;[softdevice-audio] Period size %lu Buffer size %lu&quot;,
+            periodSize, bufferSize);
+
+    currContext.buffer_size=bufferSize;
+    currContext.period_size=periodSize;
+
+    snd_pcm_sw_params_current(handle, swparams);
+    err = snd_pcm_sw_params_get_xfer_align(swparams, &amp;xfer_align);
+    if (err &lt; 0) {
+      esyslog(&quot;[softdevice-audio] Unable to obtain xfer align FATAL exiting&quot;);
+      exit(EXIT_FAILURE);
+    }
+    dsyslog(&quot;[softdevice-audio] Hardware initialized&quot;);
+    handleMutex.Unlock();
+
+    context=currContext;
+    return 0;
+}
+
+/* ----------------------------------------------------------------------------
+ */
+void cAlsaAudioOut::SetVolume (int vol)
+{
+#ifdef NO_MIXER
+  scale_Factor = CalcScaleFactor(vol);
+  //printf(&quot;vol %d scale_Factor 0x%04x\n&quot;,vol,scale_Factor);
+  //scale_Factor = vol;
+#else
+    int                   err;
+    long                  mixerMin, mixerMax,
+                          setVol;
+    double                mixerRange,
+                          volPercent;
+    char                  *mName = &quot;PCM&quot;,
+                          *cardName = &quot;default&quot;;
+    snd_mixer_t           *mHandle;
+    snd_mixer_elem_t      *mElem;
+    snd_mixer_selem_id_t  *sId;
+
+  snd_mixer_selem_id_alloca(&amp;sId);
+  snd_mixer_selem_id_set_name(sId, mName);
+  if ((err = snd_mixer_open(&amp;mHandle, 0)) &lt; 0) {
+      static int once = 0;
+    if (!once) {
+      dsyslog(&quot;[softdevice-audio]: cannot open mixer: %s (%s)&quot;,
+              mName,snd_strerror(err));
+      once = 1;
+    }
+    return;
+  }
+
+  snd_mixer_attach(mHandle, cardName);
+  snd_mixer_selem_register(mHandle, NULL, NULL);
+  snd_mixer_load(mHandle);
+  mElem = snd_mixer_find_selem(mHandle,sId);
+  /* --------------------------------------------------------------------------
+   * some cards don't have any master volume. so check return value
+   */
+  if (mElem)
+  {
+    snd_mixer_selem_get_playback_volume_range(mElem,&amp;mixerMin,&amp;mixerMax);
+    mixerRange = mixerMax - mixerMin;
+    volPercent = (double) vol / 255.0;
+    setVol = (int) (((double)mixerMin+(mixerRange*volPercent))+0.5);
+    snd_mixer_selem_set_playback_volume(mElem,SND_MIXER_SCHN_FRONT_LEFT,setVol);
+    snd_mixer_selem_set_playback_volume(mElem,SND_MIXER_SCHN_FRONT_RIGHT,setVol);
+    if (snd_mixer_selem_has_playback_switch(mElem))
+    {
+      snd_mixer_selem_set_playback_switch_all(mElem, (vol) ? 1 : 0);
+    }
+  }
+
+  snd_mixer_close(mHandle);
+#endif
+}
+
+
+--- NEW FILE: audio-alsa.h ---
+/*
+ * audio-alsa.h: A plugin for the Video Disk Recorder
+ *
+ * See the README file for copyright information and how to reach the author.
+ *
+ * $Id: audio-alsa.h,v 1.1 2006/07/10 19:40:25 wachm Exp $
+ */
+#ifndef __AUDIO_ALSA_H__
+#define __AUDIO_ALSA_H__
+
+#define ALSA_PCM_NEW_HW_PARAMS_API
+#define ALSA_PCM_NEW_SW_PARAMS_API
+#include &lt;alsa/asoundlib.h&gt;
+#include &lt;vdr/plugin.h&gt;
+
+#include &quot;audio.h&quot;
+#include &quot;audio-ac3pt.h&quot;
+
+/* ---------------------------------------------------------------------------
+ */
+class cAlsaAudioOut : public cAudioOut  {
+private:
+  cMutex            handleMutex;
+  snd_pcm_t         *handle;
+  char              *device,
+                    *ac3Device;
+  volatile bool     paused;
+  bool              ac3PassThrough,
+                    ac3SpdifPro;
+  SampleContext     oldContext;
+  cAlsaAC3pt        ac3pt;
+
+  bool  SetAC3PassThroughMode(bool on);
+  void  Xrun(void);
+  int scale_Factor;
+
+protected:
+public:
+  cAlsaAudioOut(cSetupStore *setupStore);
+  virtual ~cAlsaAudioOut();
+
+  virtual void  Write(uchar *Data, int Length);
+  virtual void  WriteAC3(uchar *Data, int Length);
+  //virtual int SetParams(int channels, unsigned int samplerate);
+  virtual int   SetParams(SampleContext &amp;context);
+  virtual int   GetDelay(void);
+  virtual void  Pause(void);
+  virtual void  Play(void);
+  virtual void  SetVolume(int vol);
+  virtual void  Suspend(void);
+  virtual bool  Resume(void);
+};
+
+
+#endif 
+
+Index: audio.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio.c,v
+retrieving revision 1.25
+retrieving revision 1.26
+diff -C2 -d -r1.25 -r1.26
+*** audio.c	27 Apr 2006 20:32:58 -0000	1.25
+--- audio.c	10 Jul 2006 19:40:25 -0000	1.26
+***************
+*** 10,23 ****
+  #include &lt;stdlib.h&gt;
+  #include &lt;stdio.h&gt;
+- #include &lt;math.h&gt;
+  
+- #define ALSA_PCM_NEW_HW_PARAMS_API
+- #define ALSA_PCM_NEW_SW_PARAMS_API
+- #include &lt;alsa/asoundlib.h&gt;
+  #include &quot;audio.h&quot;
+  #include &quot;utils.h&quot;
+  
+- #define PCM_FMT SND_PCM_FORMAT_S16_LE
+- #define NO_MIXER
+  
+  //#define AUDIODEB(out...) {printf(&quot;AUDIO[%04d]:&quot;,(int)(getTimeMilis() % 10000));printf(out);}
+--- 10,17 ----
+***************
+*** 30,95 ****
+  }
+  
+- cAlsaAudioOut::cAlsaAudioOut(cSetupStore *setupStore) {
+-     int err;
+- 
+-     if (strlen(setupStore-&gt;alsaDevice) == 0)
+-       strcpy (setupStore-&gt;alsaDevice, &quot;default&quot;);
+-     dsyslog(&quot;[softdevice-audio] Opening alsa device %s&quot;,setupStore-&gt;alsaDevice);
+-     device = setupStore-&gt;alsaDevice;
+- 
+-     if (strlen(setupStore-&gt;alsaAC3Device) == 0)
+-       strcpy (setupStore-&gt;alsaAC3Device, &quot;hw:0,1&quot;);
+-     dsyslog(&quot;[softdevice-audio] Using alsa AC3 device %s&quot;,
+-             setupStore-&gt;alsaAC3Device);
+-     ac3Device = setupStore-&gt;alsaAC3Device;
+- 
+-     paused=false;
+-     ac3PassThrough = false;
+-     ac3SpdifPro = false;
+- 
+-     if ((err = snd_pcm_open(&amp;handle, device, SND_PCM_STREAM_PLAYBACK, 0)) &lt; 0) {
+-       esyslog(&quot;[softdevice-audio] Playback open error: %s, %s FATAL exiting&quot;,
+-               device, snd_strerror(err));
+-       exit(1);
+-     }
+-     oldContext.channels = currContext.channels=0;
+-     oldContext.samplerate = currContext.samplerate=48000;
+-     dsyslog(&quot;[softdevice-audio] Device opened! Ready to play&quot;);
+-     scale_Factor=0x7FFF;
+- }
+- 
+- /* ----------------------------------------------------------------------------
+-  */
+- cAlsaAudioOut::~cAlsaAudioOut()
+- {
+-   if (handle)
+-     snd_pcm_close(handle);
+-   handle = NULL;
+- }
+- 
+- /* ----------------------------------------------------------------------------
+-  */
+- void cAlsaAudioOut::Suspend()
+- {
+-   if (handle)
+-     snd_pcm_close(handle);
+-   handle = NULL;
+- }
+- 
+- /* ----------------------------------------------------------------------------
+-  */
+- bool cAlsaAudioOut::Resume() {
+-    int err;
+-    printf(&quot;Device %s\n&quot;,device);
+-    if ((err = snd_pcm_open(&amp;handle, device, SND_PCM_STREAM_PLAYBACK,SND_PCM_NONBLOCK )) &lt; 0) {
+-      esyslog(&quot;[softdevice-audio] Playback open error: %s, %s &quot;,
+-              device, snd_strerror(err));
+-      return false;
+-    }
+-    //force setting of the parameters after resume 
+-    currContext.channels=0;
+-    return true;
+- };
+- 
+  /* ----------------------------------------------------------------------------
+   */
+--- 24,27 ----
+***************
+*** 104,464 ****
+    };
+  };
+-   
+- void cAlsaAudioOut::Write(uchar *Data, int Length)
+- {
+-     int     err;
+-     size_t  size;
+- 
+-   AUDIODEB(&quot;Write %p %d\n&quot;,Data,Length);
+- 
+-   handleMutex.Lock();
+-   if (ac3PassThrough)
+-   {
+-     ac3PassThrough = false;
+-     SetAC3PassThroughMode(ac3PassThrough);
+-   }
+-   handleMutex.Unlock();
+- 
+-   if (!currContext.channels)
+-     size = Length / (2 * 2);
+-   else
+-     size = Length/(2*currContext.channels);
+- 
+- #ifdef NO_MIXER
+-   // change the volume
+-   Scale((int16_t*)Data,Length/2,scale_Factor);
+- #endif
+- 
+-   while (size) {
+-     while (paused) usleep(1000); // block
+-     AUDIODEB(&quot;pcm_mmap_writei  handle %p Data %p size %d\n&quot;,handle,Data,size);
+-     err = snd_pcm_mmap_writei(handle,Data, size);
+-     AUDIODEB(&quot;pcm_mmap_writeei return value %d Data %p size %d \n&quot;,
+-                    err,Data,size);
+-     if (err == -EAGAIN || (err &gt;= 0 &amp;&amp; (size_t)err &lt; size)) {
+-       AUDIODEB(&quot;wait \n&quot;);
+-       snd_pcm_wait(handle, 1000);
+-     } else if (err == -EPIPE) {
+-       AUDIODEB(&quot;Xrun \n&quot;);
+-       Xrun();
+-       dsyslog(&quot;[softdevice-audio]: xrun&quot;);
+-     } else if (err == -ESTRPIPE) {
+-       //suspend();
+-       AUDIODEB(&quot;Suspend \n&quot;);
+-       dsyslog(&quot;[softdevice-audio]: Suspend&quot;);
+-     } else if (err == -EINTR) {
+-       dsyslog (&quot;[softdevice-audio]: EINTR&quot;);
+-       AUDIODEB(&quot;EINTR \n&quot;);
+-       return;
+-     } else if (err &lt; 0) {
+-       dsyslog(&quot;[softdevice-audio]: write error: %s FATAL exiting&quot;,
+-               snd_strerror(err));
+-       exit(EXIT_FAILURE);
+-     }
+- 
+-     if (err &gt; 0 ) {
+-       if (!currContext.channels)
+-         Data += err * 2 * 2;
+-       else
+-         Data += err * 2 * currContext.channels;
+-       size -=err;
+-     };
+-   }
+-   AUDIODEB(&quot;Write end\n&quot;);
+- }
+- 
+- /* ----------------------------------------------------------------------------
+-  */
+- bool
+- cAlsaAudioOut::SetAC3PassThroughMode(bool on)
+- {
+-   if (on)
+-   {
+-     oldContext = currContext;
+- 
+-     if (handle)
+-       snd_pcm_close(handle);
+-     handle = NULL;
+- 
+-     // open S/P-DIF
+-     if (ac3pt.SpdifInitAC3(&amp;handle, ac3Device, ac3SpdifPro) == 0)
+-     {
+-       currContext.channels = 0;
+-       return true;
+-     }
+-     currContext = oldContext;
+-     esyslog(&quot;[softdevice-audio] AC3 open error:&quot;);
+-   }
+-   return false;
+- }
+- 
+- /* ----------------------------------------------------------------------------
+-  */
+- void cAlsaAudioOut::WriteAC3(uchar *Data, int Length)
+- {
+-   handleMutex.Lock();
+-   if (!ac3PassThrough)
+-   {
+-     ac3PassThrough = true;
+-     SetAC3PassThroughMode(ac3PassThrough);
+-   }
+-   handleMutex.Unlock();
+- 
+-   ac3pt.SpdifBurstAC3 (&amp;handle, Data, Length);
+- }
+- 
+- /* ----------------------------------------------------------------------------
+-  */
+- void cAlsaAudioOut::Pause(void) {
+-     //    snd_pcm_pause(handle,1);
+-     dsyslog(&quot;[softdevice-audio]: Should pause now&quot;);
+-     paused=true;
+- }
+- 
+- /* ----------------------------------------------------------------------------
+-  */
+- void cAlsaAudioOut::Play(void) {
+- //    snd_pcm_pause(handle,0);
+-     paused=false;
+- }
+- 
+- /* ----------------------------------------------------------------------------
+-  */
+- int cAlsaAudioOut::GetDelay(void) {
+-     int               res = 0;
+-     snd_pcm_sframes_t r;
+- 
+-   handleMutex.Lock();
+-   if (!handle) {
+-           handleMutex.Unlock();
+-           return 0;
+-   };
+- 
+-   if ( snd_pcm_state(handle) != SND_PCM_STATE_RUNNING ) {
+-           handleMutex.Unlock();
+-           return 0;
+-   };
+-           
+-   if (!snd_pcm_delay(handle, &amp;r) &amp;&amp;
+-       currContext.samplerate) {
+-     // successfully got delay
+-     res = (long) r * 10000 / currContext.samplerate;
+-     AUDIODEB(&quot;GetDelay %d\n&quot;,res);
+-   }
+-   handleMutex.Unlock();
+-   return res;
+- }
+- 
+- /* ----------------------------------------------------------------------------
+-  * I/O error handler
+-  */
+- void cAlsaAudioOut::Xrun(void)
+- {
+- 	snd_pcm_status_t *status;
+- 	int res;
+- 	snd_pcm_status_alloca(&amp;status);
+-         //printf(&quot;alsa-audio: Xrun\n&quot;);
+- 	if ((res = snd_pcm_status(handle, status))&lt;0) {
+-     esyslog(&quot;[softdevice-audio]: Xrun status error: %s FATAL exiting&quot;,
+-             snd_strerror(res));
+- 		exit(EXIT_FAILURE);
+- 	}
+- 	if (snd_pcm_status_get_state(status) == SND_PCM_STATE_XRUN) {
+- //		snd_pcm_status_get_trigger_tstamp(status, &amp;tstamp);
+- 		if ((res = snd_pcm_prepare(handle))&lt;0) {
+-       esyslog(&quot;[softdevice-audio]: Xrun prepare error: %s FATAL exiting&quot;,
+-               snd_strerror(res));
+- 			exit(EXIT_FAILURE);
+- 		}
+- 		return;		/* ok, data should be accepted again */
+- 	}
+- 
+- //	error(&quot;read/write error, state = %s&quot;, snd_pcm_state_name(snd_pcm_status_get_state(status)));
+-   esyslog(&quot;[softdevice-audio]: read/write error FATAL exiting&quot;);
+- 	exit(EXIT_FAILURE);
+- }
+- 
+- /* ----------------------------------------------------------------------------
+-  */
+- int cAlsaAudioOut::SetParams(SampleContext &amp;context)
+- //int cAlsaAudioOut::SetParams(int channels, unsigned int samplerate)
+- {
+-       int err;
+- 
+-     // not needed to set again
+-     //if ((chn == channels) &amp;&amp; (rate == samplerate)) return 0;
+-     if (currContext.samplerate == context.samplerate &amp;&amp;
+-         currContext.channels == context.channels ) {
+-       context=currContext;
+-       return 0;
+-     };
+-     //printf(&quot;alsa-audio: SetParams\n&quot;);
+-     currContext=context;
+-  
+-     handleMutex.Lock();
+-     snd_pcm_close(handle);
+-     if ((err = snd_pcm_open(&amp;handle,
+-                             device,
+-                             SND_PCM_STREAM_PLAYBACK, 0)) &lt; 0) {
+-       esyslog(&quot;[softdevice-audio] Playback reopen error: %s, %s FATAL exiting&quot;,
+-               device, snd_strerror(err));
+-       exit(1);
+-     }
+- 
+-     dsyslog (&quot;[softdevice-audio] samplerate: %dHz, channels: #%d&quot;,
+-              currContext.samplerate, currContext.channels);
+-     //rate=samplerate;
+-     //chn=channels;
+-     snd_pcm_hw_params_t *params;
+-     snd_pcm_sw_params_t *swparams;
+-     snd_pcm_uframes_t xfer_align;
+-     snd_pcm_hw_params_alloca(&amp;params);
+-     snd_pcm_sw_params_alloca(&amp;swparams);
+- 
+-     err = snd_pcm_hw_params_any(handle, params);
+-     if (err &lt; 0) {
+-       esyslog(&quot;[softdevice-audio] Broken config for this PCM: no configurations available&quot;);
+-       exit(EXIT_FAILURE);
+-     }
+- 
+-     snd_pcm_access_mask_t *mask = (snd_pcm_access_mask_t *)alloca(snd_pcm_access_mask_sizeof());
+-     snd_pcm_access_mask_none(mask);
+-     snd_pcm_access_mask_set(mask, SND_PCM_ACCESS_MMAP_INTERLEAVED);
+-     snd_pcm_access_mask_set(mask, SND_PCM_ACCESS_MMAP_NONINTERLEAVED);
+-     snd_pcm_access_mask_set(mask, SND_PCM_ACCESS_MMAP_COMPLEX);
+-     err = snd_pcm_hw_params_set_access_mask(handle, params, mask);
+-     if (err &lt; 0) {
+-       esyslog(&quot;[softdevice-audio] Access type not available FATAL exiting&quot;);
+-       exit(EXIT_FAILURE);
+-     }
+- 
+-     err = snd_pcm_hw_params_set_format(handle, params, PCM_FMT);
+-     if (err &lt; 0) {
+-       esyslog(&quot;[softdevice-audio] Sample format non available FATAL exiting&quot;);
+-       exit(EXIT_FAILURE);
+-     }
+- 
+-     err = snd_pcm_hw_params_set_channels(handle, params,currContext.channels);
+-     if (err &lt; 0) {
+-       esyslog(&quot;[softdevice-audio] Channels count non available FATAL exiting&quot;);
+-       exit(EXIT_FAILURE);
+-     }
+- 
+-     err = snd_pcm_hw_params_set_rate_near(handle, params, &amp;currContext.samplerate, 0);
+-     assert(err &gt;= 0);
+-     if (currContext.samplerate != context.samplerate ) {
+-       esyslog(&quot;[softdevice-audio] Rate %d Hz is not possible (and using instead %d Hz is not implemented) FATAL exiting&quot;,context.samplerate,currContext.samplerate);
+-       exit(1);
+-     }
+- 
+-     // set period size
+-     snd_pcm_uframes_t bufferSize;
+-     snd_pcm_uframes_t periodSize;
+-     //periodSize = 8;
+-     periodSize = 4608 / 4;
+-     err = snd_pcm_hw_params_set_period_size_near(handle, params, &amp;periodSize, 0);
+-     if ( err &lt; 0)  {
+-       esyslog(&quot;[softdevice-audio] Failed to set period size!&quot;);
+-       exit(1);
+-     }
+- 
+-     snd_pcm_uframes_t buffersize = 2 * 4608;
+- 
+-     err = snd_pcm_hw_params_set_buffer_size_near(handle, params, &amp;buffersize);
+-     if ( err &lt; 0 ) {
+-       esyslog(&quot;[softdevice-audio] Failed to set buffer size!&quot;);
+-       exit(1);
+-     }
+- 
+-     err = snd_pcm_hw_params(handle, params);
+-     if (err &lt; 0) {
+-       esyslog(&quot;[softdevice-audio] Unable to install hw params: FATAL exiting&quot;);
+-       exit(EXIT_FAILURE);
+-     }
+- 
+-     snd_pcm_hw_params_get_period_size(params, &amp;periodSize, 0);
+-     snd_pcm_hw_params_get_buffer_size(params, &amp;bufferSize);
+-     if (periodSize == bufferSize) {
+-       esyslog(&quot;[softdevice-audio] Can't use period equal to buffer size (%lu == %lu) FATAL exiting&quot;,
+-               periodSize, bufferSize);
+-       exit(EXIT_FAILURE);
+-     }
+-     dsyslog(&quot;[softdevice-audio] Period size %lu Buffer size %lu&quot;,
+-             periodSize, bufferSize);
+- 
+-     currContext.buffer_size=bufferSize;
+-     currContext.period_size=periodSize;
+- 
+-     snd_pcm_sw_params_current(handle, swparams);
+-     err = snd_pcm_sw_params_get_xfer_align(swparams, &amp;xfer_align);
+-     if (err &lt; 0) {
+-       esyslog(&quot;[softdevice-audio] Unable to obtain xfer align FATAL exiting&quot;);
+-       exit(EXIT_FAILURE);
+-     }
+-     dsyslog(&quot;[softdevice-audio] Hardware initialized&quot;);
+-     handleMutex.Unlock();
+- 
+-     context=currContext;
+-     return 0;
+- }
+- 
+- /* ----------------------------------------------------------------------------
+-  */
+- void cAlsaAudioOut::SetVolume (int vol)
+- {
+- #ifdef NO_MIXER
+-   if (vol&gt;0)
+-           scale_Factor = (int) (pow(10.0, -2.3+2.3*vol/256.0)*0x7FFF);
+-   else scale_Factor = 0;
+-   //printf(&quot;vol %d scale_Factor 0x%04x\n&quot;,vol,scale_Factor);
+-   //scale_Factor = vol;
+- #else
+-     int                   err;
+-     long                  mixerMin, mixerMax,
+-                           setVol;
+-     double                mixerRange,
+-                           volPercent;
+-     char                  *mName = &quot;PCM&quot;,
+-                           *cardName = &quot;default&quot;;
+-     snd_mixer_t           *mHandle;
+-     snd_mixer_elem_t      *mElem;
+-     snd_mixer_selem_id_t  *sId;
+- 
+-   snd_mixer_selem_id_alloca(&amp;sId);
+-   snd_mixer_selem_id_set_name(sId, mName);
+-   if ((err = snd_mixer_open(&amp;mHandle, 0)) &lt; 0) {
+-       static int once = 0;
+-     if (!once) {
+-       dsyslog(&quot;[softdevice-audio]: cannot open mixer: %s (%s)&quot;,
+-               mName,snd_strerror(err));
+-       once = 1;
+-     }
+-     return;
+-   }
+- 
+-   snd_mixer_attach(mHandle, cardName);
+-   snd_mixer_selem_register(mHandle, NULL, NULL);
+-   snd_mixer_load(mHandle);
+-   mElem = snd_mixer_find_selem(mHandle,sId);
+-   /* --------------------------------------------------------------------------
+-    * some cards don't have any master volume. so check return value
+-    */
+-   if (mElem)
+-   {
+-     snd_mixer_selem_get_playback_volume_range(mElem,&amp;mixerMin,&amp;mixerMax);
+-     mixerRange = mixerMax - mixerMin;
+-     volPercent = (double) vol / 255.0;
+-     setVol = (int) (((double)mixerMin+(mixerRange*volPercent))+0.5);
+-     snd_mixer_selem_set_playback_volume(mElem,SND_MIXER_SCHN_FRONT_LEFT,setVol);
+-     snd_mixer_selem_set_playback_volume(mElem,SND_MIXER_SCHN_FRONT_RIGHT,setVol);
+-     if (snd_mixer_selem_has_playback_switch(mElem))
+-     {
+-       snd_mixer_selem_set_playback_switch_all(mElem, (vol) ? 1 : 0);
+-     }
+-   }
+- 
+-   snd_mixer_close(mHandle);
+- #endif
+- }
+  
+  /* ---------------------------------------------------------------------------
+--- 36,39 ----
+***************
+*** 467,471 ****
+  {
+    paused=false;
+!   dsyslog(&quot;[softdevice-audio-dummy] Device opened! Ready to play&quot;);
+  }
+  
+--- 42,46 ----
+  {
+    paused=false;
+!   dsyslog(&quot;[softdevice-audio-dummy] Device opened! Using dummy device -&gt; no audio!&quot;);
+  }
+  
+***************
+*** 501,505 ****
+  int cDummyAudioOut::GetDelay(void)
+  {
+!   return 0;
+  }
+  
+--- 76,80 ----
+  int cDummyAudioOut::GetDelay(void)
+  {
+!   return -1;
+  }
+  
+
+Index: audio.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio.h,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -C2 -d -r1.11 -r1.12
+*** audio.h	27 Apr 2006 20:32:58 -0000	1.11
+--- audio.h	10 Jul 2006 19:40:25 -0000	1.12
+***************
+*** 9,18 ****
+  #define AUDIO_H
+  
+! #define ALSA_PCM_NEW_HW_PARAMS_API
+! #define ALSA_PCM_NEW_SW_PARAMS_API
+! #include &lt;alsa/asoundlib.h&gt;
+  #include &lt;vdr/plugin.h&gt;
+  #include &quot;setup-softdevice.h&quot;
+- #include &quot;audio-ac3pt.h&quot;
+  
+  struct SampleContext {
+--- 9,16 ----
+  #define AUDIO_H
+  
+! #include &lt;math.h&gt;
+! 
+  #include &lt;vdr/plugin.h&gt;
+  #include &quot;setup-softdevice.h&quot;
+  
+  struct SampleContext {
+***************
+*** 24,27 ****
+--- 22,33 ----
+  };
+  
++ 
++ void Scale(int16_t *Data, int size,int scale_Factor);
++ // scaling of auido data (changing the volume)
++ 
++ static inline int CalcScaleFactor(int vol) 
++ { return (vol &lt;= 0 ? 0 
++           : (int) (pow(10.0, -2.3+2.3*vol/256.0)*0x7FFF)); };
++ 
+  /* ---------------------------------------------------------------------------
+   * Abstract class for an audio device
+***************
+*** 45,84 ****
+    virtual bool Resume(void)
+    {return true;};
+- };
+- 
+- 
+- /* ---------------------------------------------------------------------------
+-  */
+- class cAlsaAudioOut : public cAudioOut  {
+- private:
+-   cMutex            handleMutex;
+-   snd_pcm_t         *handle;
+-   char              *device,
+-                     *ac3Device;
+-   volatile bool     paused;
+-   bool              ac3PassThrough,
+-                     ac3SpdifPro;
+-   SampleContext     oldContext;
+-   cAlsaAC3pt        ac3pt;
+- 
+-   bool  SetAC3PassThroughMode(bool on);
+-   void  Xrun(void);
+-   int scale_Factor;
+- 
+- protected:
+- public:
+-   cAlsaAudioOut(cSetupStore *setupStore);
+-   virtual ~cAlsaAudioOut();
+- 
+-   virtual void  Write(uchar *Data, int Length);
+-   virtual void  WriteAC3(uchar *Data, int Length);
+-   //virtual int SetParams(int channels, unsigned int samplerate);
+-   virtual int   SetParams(SampleContext &amp;context);
+-   virtual int   GetDelay(void);
+-   virtual void  Pause(void);
+-   virtual void  Play(void);
+-   virtual void  SetVolume(int vol);
+-   virtual void  Suspend(void);
+-   virtual bool  Resume(void);
+  };
+  
+--- 51,54 ----
+
+Index: Makefile
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/Makefile,v
+retrieving revision 1.32
+retrieving revision 1.33
+diff -C2 -d -r1.32 -r1.33
+*** Makefile	18 Jun 2006 07:16:06 -0000	1.32
+--- Makefile	10 Jul 2006 19:40:25 -0000	1.33
+***************
+*** 58,61 ****
+--- 58,64 ----
+  LIBXDPMS_SUPPORT = 1
+  
++ # Set this if you want to use alsa audio
++ ALSA_SUPPORT = 1
++ 
+  # Set this if you want to be able to toggle suspend mode by keyboard (XV only)
+  SUSPEND_BY_KEY = 1
+***************
+*** 174,177 ****
+--- 177,184 ----
+  endif
+  
++ ifdef ALSA_SUPPORT
++   DEFINES += -DALSA_SUPPORT
++ endif
++ 
+  # #############################################################################
+  # end of section without configure
+***************
+*** 219,226 ****
+  
+  TARGETS = libvdr-$(PLUGIN).so
+! LIBS = $(FFMPEGLIBS) -lasound
+! OBJS = $(PLUGIN).o utils.o i18n.o video.o mpeg2decoder.o audio.o audio-ac3pt.o video-dummy.o setup-softdevice.o setup-softdevice-menu.o sync-timer.o SoftOsd.o PicBuffer.o VideoFilter.o
+  ALL_OBJS = $(OBJS)
+  
+  ifdef DFB_SUPPORT
+    ifdef USE_SUBPLUGINS
+--- 226,238 ----
+  
+  TARGETS = libvdr-$(PLUGIN).so
+! LIBS = $(FFMPEGLIBS)
+! OBJS = $(PLUGIN).o utils.o i18n.o video.o mpeg2decoder.o audio.o video-dummy.o setup-softdevice.o setup-softdevice-menu.o sync-timer.o SoftOsd.o PicBuffer.o VideoFilter.o
+  ALL_OBJS = $(OBJS)
+  
++ ifdef ALSA_SUPPORT
++   LIBS += -lasound
++   OBJS += audio-alsa.o audio-ac3pt.o
++ endif
++   
+  ifdef DFB_SUPPORT
+    ifdef USE_SUBPLUGINS
+
+Index: configure
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/configure,v
+retrieving revision 1.19
+retrieving revision 1.20
+diff -C2 -d -r1.19 -r1.20
+*** configure	18 Jun 2006 07:16:06 -0000	1.19
+--- configure	10 Jul 2006 19:40:25 -0000	1.20
+***************
+*** 36,39 ****
+--- 36,40 ----
+  with_mmx2=&quot;yes&quot;
+  cle266=&quot;yes&quot;
++ alsa=&quot;yes&quot;
+  
+  function help () {
+***************
+*** 48,51 ****
+--- 49,53 ----
+    echo &quot;  --disable-mmx&quot;
+    echo &quot;  --disable-mmx2&quot;
++   echo &quot;  --disable-alsa&quot;
+    echo &quot;  --with-ffmpeg-path YOUR_FFMPEG_PATH&quot;
+    echo &quot;  --with-vidix-path YOUR_VIDIX_PATH&quot;
+***************
+*** 67,70 ****
+--- 69,73 ----
+      --disable-mmx) shift; with_mmx=&quot;no&quot;;;
+      --disable-mmx2) shift; with_mmx2=&quot;no&quot;;;
++     --disable-alsa) shift; alsa=&quot;no&quot;;;
+      --with-ffmpeg-path) shift;
+        ffmpeg_path=$1 ;
+***************
+*** 148,151 ****
+--- 151,180 ----
+  
+  echo &quot;Ok.&quot;
++ ########################################################
++ # check for ALSA
++ echo -n &quot;Checking for ALSA sound... &quot;
++ echo &quot;Checking for ALSA sound.------------------&quot; &gt;&gt; config.log
++ 
++ if test &quot;${alsa}&quot; = &quot;yes&quot; ; then
++ cat &gt; ${TMPC} &lt;&lt; EOF
++ #define ALSA_PCM_NEW_HW_PARAMS_API
++ #define ALSA_PCM_NEW_SW_PARAMS_API
++ #include &lt;alsa/asoundlib.h&gt;
++ int main(void) {
++   snd_pcm_t         *handle;
++   char device[]=&quot;hw:0,1&quot;;
++   snd_pcm_open(&amp;handle, device, SND_PCM_STREAM_PLAYBACK, 0); 
++   return 0;
++ }
++ EOF
++ $cc $CFLAGS -lasound -o $TMPE $TMPC &gt;&gt; config.log 2&gt;&amp;1 || alsa=&quot;no&quot;
++ fi
++ 
++ if test &quot;${alsa}&quot; = &quot;yes&quot; ; then
++ echo &quot;Enabled audio-alsa.&quot;
++ else
++ echo &quot;Not Found.&quot;
++ fi
++ 
+  #########################################################
+  # start of DirectFB specific tests
+***************
+*** 405,408 ****
+--- 434,444 ----
+  fi
+  
++ ###############################################################################
++ # alsa defines
++ #
++ if test &quot;${alsa}&quot; = &quot;yes&quot; ; then
++   echo &quot;ALSA_SUPPORT = 1&quot; &gt;&gt; $TMPM
++   echo &quot;#define ALSA_SUPPORT 1&quot; &gt;&gt; $TMPH
++ fi
+  
+  ###############################################################################
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.208
+retrieving revision 1.209
+diff -C2 -d -r1.208 -r1.209
+*** CHANGELOG	10 Jul 2006 18:50:45 -0000	1.208
+--- CHANGELOG	10 Jul 2006 19:40:25 -0000	1.209
+***************
+*** 1,4 ****
+--- 1,6 ----
+  Changelog
+  2006-07-10:
++    - move alsa related stuff into a separate file, enable build without alsa 
++      support
+     - remove uneeded include of &quot;sys/mman.h&quot; and &quot;sys/ioctl.h&quot; from video.c
+     - set max_width and max_height for temporary PicBuffer
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000392.html">[Softdevice-cvs] softdevice CHANGELOG,1.207,1.208 softdevice.c,1.61,1.62 video.c,1.58,1.59
+</A></li>
+	<LI>Next message: <A HREF="000394.html">[Softdevice-cvs] softdevice softdevice.c,1.62,1.63
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#393">[ date ]</a>
+              <a href="thread.html#393">[ thread ]</a>
+              <a href="subject.html#393">[ subject ]</a>
+              <a href="author.html#393">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

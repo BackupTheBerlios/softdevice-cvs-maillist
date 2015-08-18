@@ -1,0 +1,91 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softplay Makefile,1.8,1.9
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softplay%20Makefile%2C1.8%2C1.9&In-Reply-To=%3C20070317085107.D4DC8DCB07%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000522.html">
+   <LINK REL="Next"  HREF="000524.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softplay Makefile,1.8,1.9</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softplay%20Makefile%2C1.8%2C1.9&In-Reply-To=%3C20070317085107.D4DC8DCB07%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softplay Makefile,1.8,1.9">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Mar 17 09:51:07 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000522.html">[Softdevice-cvs] softplay Makefile, 1.7, 1.8 Receiver.c, 1.1,	1.2 SoftPlayer.c, 1.15, 1.16
+</A></li>
+        <LI>Next message: <A HREF="000524.html">[Softdevice-cvs] softdevice mpeg2decoder.h, 1.40, 1.41 sync-timer.h,	1.4, 1.5
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#523">[ date ]</a>
+              <a href="thread.html#523">[ thread ]</a>
+              <a href="subject.html#523">[ subject ]</a>
+              <a href="author.html#523">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softplay
+In directory sheep:/tmp/cvs-serv357
+
+Modified Files:
+	Makefile 
+Log Message:
+fix compile for opensuse 10.2 x86-64
+
+Index: Makefile
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/Makefile,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -C2 -d -r1.8 -r1.9
+*** Makefile	12 Mar 2007 21:32:03 -0000	1.8
+--- Makefile	17 Mar 2007 08:49:24 -0000	1.9
+***************
+*** 21,25 ****
+  
+  CXX      ?= g++
+! CXXFLAGS ?= -g -O2 -Wall -Woverloaded-virtual  
+  
+  ### The directory environment:
+--- 21,25 ----
+  
+  CXX      ?= g++
+! CXXFLAGS ?= -g -O2 -fPIC -Wall -Woverloaded-virtual  
+  
+  ### The directory environment:
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000522.html">[Softdevice-cvs] softplay Makefile, 1.7, 1.8 Receiver.c, 1.1,	1.2 SoftPlayer.c, 1.15, 1.16
+</A></li>
+	<LI>Next message: <A HREF="000524.html">[Softdevice-cvs] softdevice mpeg2decoder.h, 1.40, 1.41 sync-timer.h,	1.4, 1.5
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#523">[ date ]</a>
+              <a href="thread.html#523">[ thread ]</a>
+              <a href="subject.html#523">[ subject ]</a>
+              <a href="author.html#523">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

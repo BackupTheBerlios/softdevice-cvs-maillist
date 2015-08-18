@@ -1,0 +1,141 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice video.c,1.13,1.14 CHANGELOG,1.48,1.49
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video.c%2C1.13%2C1.14%20CHANGELOG%2C1.48%2C1.49&In-Reply-To=%3C200503201546.j2KFkqM00892%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000078.html">
+   <LINK REL="Next"  HREF="000080.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice video.c,1.13,1.14 CHANGELOG,1.48,1.49</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video.c%2C1.13%2C1.14%20CHANGELOG%2C1.48%2C1.49&In-Reply-To=%3C200503201546.j2KFkqM00892%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice video.c,1.13,1.14 CHANGELOG,1.48,1.49">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Mar 20 16:46:52 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000078.html">[Softdevice-cvs] softdevice CHANGELOG,1.47,1.48 audio.c,1.11,1.12 audio.h,1.5,1.6 mpeg2decoder.c,1.22,1.23 mpeg2decoder.h,1.15,1.16 softdevice.c,1.21,1.22 softdevice.h,1.1,1.2
+</A></li>
+        <LI>Next message: <A HREF="000080.html">[Softdevice-cvs] softdevice mpeg2decoder.c,1.23,1.24
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#79">[ date ]</a>
+              <a href="thread.html#79">[ thread ]</a>
+              <a href="subject.html#79">[ subject ]</a>
+              <a href="author.html#79">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv10790
+
+Modified Files:
+	video.c CHANGELOG 
+Log Message:
+Draw(): set rgb to zero (colorkey) if alpha is zero
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.13
+retrieving revision 1.14
+diff -C2 -d -r1.13 -r1.14
+*** video.c	11 Mar 2005 15:56:22 -0000	1.13
+--- video.c	20 Mar 2005 15:46:49 -0000	1.14
+***************
+*** 319,323 ****
+  
+    if (OSDdirty)
+!     ClearOSD(); 
+  #endif
+  } 
+--- 319,323 ----
+  
+    if (OSDdirty)
+!     ClearOSD();
+  #endif
+  } 
+***************
+*** 506,510 ****
+          if (a&gt;TRANSPARENT_THRESHOLD)
+            PixelMaskPtr[x/8]|=(1&lt;&lt;x%8);
+!       };
+  
+        switch (depth) {
+--- 506,517 ----
+          if (a&gt;TRANSPARENT_THRESHOLD)
+            PixelMaskPtr[x/8]|=(1&lt;&lt;x%8);
+!       }
+! 
+!       /* ---------------------------------------------------------------------
+!        * pseudo spu drawing looks better if rgb values are set to colorkey
+!        * so that they are full transparent in case of zero alpha value
+!        */
+!       if (!a)
+!         r = g = b = 0;
+  
+        switch (depth) {
+***************
+*** 585,589 ****
+     //printf(&quot;dirty area (%d,%d) (%d,%d) \n&quot;,x1,y1,x2,y2);
+      
+!     if ( OSDdirty ) 
+      {
+        //printf(&quot;++++++++++++++++++++++new OsdHeight+++++++ OSDdirty %d+++++\n&quot;,
+--- 592,596 ----
+     //printf(&quot;dirty area (%d,%d) (%d,%d) \n&quot;,x1,y1,x2,y2);
+      
+!     if ( OSDdirty )
+      {
+        //printf(&quot;++++++++++++++++++++++new OsdHeight+++++++ OSDdirty %d+++++\n&quot;,
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.48
+retrieving revision 1.49
+diff -C2 -d -r1.48 -r1.49
+*** CHANGELOG	20 Mar 2005 12:21:27 -0000	1.48
+--- CHANGELOG	20 Mar 2005 15:46:49 -0000	1.49
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2005-03-20:
++     - video.c, Draw(): set rgb to zero (colorkey) if alpha is zero.
+      - preperations for sync on video option
+      - syncronize audio and video start
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000078.html">[Softdevice-cvs] softdevice CHANGELOG,1.47,1.48 audio.c,1.11,1.12 audio.h,1.5,1.6 mpeg2decoder.c,1.22,1.23 mpeg2decoder.h,1.15,1.16 softdevice.c,1.21,1.22 softdevice.h,1.1,1.2
+</A></li>
+	<LI>Next message: <A HREF="000080.html">[Softdevice-cvs] softdevice mpeg2decoder.c,1.23,1.24
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#79">[ date ]</a>
+              <a href="thread.html#79">[ thread ]</a>
+              <a href="subject.html#79">[ subject ]</a>
+              <a href="author.html#79">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

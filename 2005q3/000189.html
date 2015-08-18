@@ -1,0 +1,1339 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softplay PlayList.c,1.11,1.12 PlayList.h,1.9,1.10 PlayListMenu.c,1.1,1.2 SoftPlayer.c,1.12,1.13
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softplay%20PlayList.c%2C1.11%2C1.12%20PlayList.h%2C1.9%2C1.10%20PlayListMenu.c%2C1.1%2C1.2%20SoftPlayer.c%2C1.12%2C1.13&In-Reply-To=%3C200508151313.j7FDDG517586%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000188.html">
+   <LINK REL="Next"  HREF="000190.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softplay PlayList.c,1.11,1.12 PlayList.h,1.9,1.10 PlayListMenu.c,1.1,1.2 SoftPlayer.c,1.12,1.13</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softplay%20PlayList.c%2C1.11%2C1.12%20PlayList.h%2C1.9%2C1.10%20PlayListMenu.c%2C1.1%2C1.2%20SoftPlayer.c%2C1.12%2C1.13&In-Reply-To=%3C200508151313.j7FDDG517586%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softplay PlayList.c,1.11,1.12 PlayList.h,1.9,1.10 PlayListMenu.c,1.1,1.2 SoftPlayer.c,1.12,1.13">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon Aug 15 15:13:16 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000188.html">[Softdevice-cvs] softplay Makefile,1.3,1.4
+</A></li>
+        <LI>Next message: <A HREF="000190.html">[Softdevice-cvs] softdevice video-xv.c,1.31,1.32 video-xv.h,1.8,1.9
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#189">[ date ]</a>
+              <a href="thread.html#189">[ thread ]</a>
+              <a href="subject.html#189">[ subject ]</a>
+              <a href="author.html#189">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softplay
+In directory sheep:/tmp/cvs-serv701
+
+Modified Files:
+	PlayList.c PlayList.h PlayListMenu.c SoftPlayer.c 
+Log Message:
+- made ItemIdx a class instead of a struct
+- moved all methods concerning ItmIdx from cPlayList to cItemIdx
+- removed unused functions
+
+
+
+Index: PlayList.c
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/PlayList.c,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -C2 -d -r1.11 -r1.12
+*** PlayList.c	15 Aug 2005 09:07:30 -0000	1.11
+--- PlayList.c	15 Aug 2005 13:13:14 -0000	1.12
+***************
+*** 24,27 ****
+--- 24,259 ----
+  #endif
+  
++ // ---cItemIdx-------------------------------------------------------------
++ 
++ cItemIdx::cItemIdx(cPlayList *Owner ) {
++         owner = Owner;
++ 	currShuffleIdx=-1;
++ 	nIdx=0;
++ 	Idx=new sIdx[MAX_ITEMS];
++ 	memset(Idx,0,sizeof(sIdx[MAX_ITEMS]));
++ 	nAlbum=0;
++ 	Album=new sIdx[MAX_ITEMS/10];
++ 	memset(Album,0,sizeof(sIdx[MAX_ITEMS/10]));
++ };
++ 
++ cItemIdx::~cItemIdx() {
++         delete Idx;
++         delete Album;
++ };
++ 
++ cPlayList *cItemIdx::RemoveItem(cPlayListItem *Item) {
++         cPlayList *album;
++         if ( dynamic_cast &lt;cPlayList*&gt;(Item) ) {
++                 // remove a album 
++                 for (int i=0; i&lt;nAlbum; i++) 
++                         if (Album[i].Item==Item) {
++                                 album=Album[i].Album;
++                                 memmove(&amp;Album[i],&amp;Album[i+1],
++                                         sizeof(Album[i])*(nAlbum-i));
++                                 nAlbum--;
++                                 return album;
++                         };
++ 
++         } else {
++                 // remove a track
++                 for (int i=0; i&lt;nIdx; i++) 
++                         if (Idx[i].Item==Item) {
++                                 album=Idx[i].Album;
++                                 memmove(&amp;Idx[i],&amp;Idx[i+1],
++                                         sizeof(Idx[i])*(nIdx-i));
++                                 nIdx--;
++                                 if (i&lt;currShuffleIdx)
++                                         currShuffleIdx--;
++                                 return album;
++                         };
++         };
++         return NULL;
++ };     
++ 
++ void cItemIdx::AddItemAtEnd(cPlayList *album, cPlayListItem *Item) {
++         if ( dynamic_cast &lt;cPlayList*&gt;(Item) ) {
++                 Album[nAlbum].Album=album;
++                 Album[nAlbum].Item=Item;
++                 Album[nAlbum].Hash=SimpleHash(Item-&gt;GetFilename());
++                 LISTDEB(&quot;Hash %x Filename %s\n&quot;,Album[nAlbum].Hash,Item-&gt;GetFilename());
++                 nAlbum++;
++         } else {
++                 Idx[nIdx].Album=album;
++                 Idx[nIdx].Item=Item;
++                 Idx[nIdx].Hash=SimpleHash(Item-&gt;GetFilename());
++                 LISTDEB(&quot;Hash %x Filename %s\n&quot;,
++                                 Idx[nIdx].Hash,Item-&gt;GetFilename());
++                 nIdx++;
++         }
++ }; 
++ 
++ cPlayListItem *cItemIdx::GetTrackByFilename(const char *Filename) {
++ 	int32_t hash=SimpleHash(Filename);
++         
++         for ( int i=0; i &lt; nIdx; i++ ) 
++                 if ( hash==Idx[i].Hash &amp;&amp; Idx[i].Item
++                         &amp;&amp; strcmp(Filename,Idx[i].Item-&gt;GetFilename()) ==0)
++                         return Idx[i].Item;
++         return NULL;
++ };
++ 
++ cPlayListItem *cItemIdx::GetAlbumByFilename(const char *Filename) {
++ 	int32_t hash=SimpleHash(Filename);
++         
++         for ( int i=0; i &lt; nAlbum; i++ ) 
++                 if ( hash==Album[i].Hash &amp;&amp; Album[i].Item
++                         &amp;&amp; strcmp(Filename,Album[i].Item-&gt;GetFilename())==0)
++                         return Album[i].Item;
++         return NULL;
++ };
++ 
++ int cItemIdx::GetIndexByItem(const cPlayListItem *Item) {
++         for ( int i=0; i &lt; nIdx; i++ ) 
++                 if ( Item == Idx[i].Item )
++                         return i;
++         return -1;
++ };
++ 
++ const char * cItemIdx::NextFile() {
++         LISTDEB(&quot;NextFile currShuffleIdx %d\n&quot;,currShuffleIdx);
++         int saveCurrShuffleIdx=currShuffleIdx;
++ 
++         do {
++ 		++currShuffleIdx;
++                 if ( owner-&gt;options.autoRepeat &amp;&amp; currShuffleIdx &gt;= nIdx ) {
++                         currShuffleIdx=-1;
++                         if (owner-&gt;options.shuffle)
++                                 Shuffle();
++                         currShuffleIdx=0;
++                 };
++         } while ( currShuffleIdx &lt; nIdx 
++                         &amp;&amp; !Idx[currShuffleIdx].Item );
++ 	
++         LISTDEB(&quot;NextFile currShuffleIdx %d nIdx %d\n&quot;,currShuffleIdx,nIdx);
++ 
++         if ( currShuffleIdx &gt; nIdx )
++                 currShuffleIdx=nIdx;
++ 
++ 	if ( Idx[currShuffleIdx].Item )
++ 		return Idx[currShuffleIdx].Item-&gt;GetFilename();
++ 
++         currShuffleIdx=saveCurrShuffleIdx;
++ 	return NULL;
++ };
++ 
++ const char * cItemIdx::PrevFile() {
++         LISTDEB(&quot;PrevFile currShuffleIdx %d\n&quot;,currShuffleIdx);
++         do {
++ 		--currShuffleIdx;
++                 if (owner-&gt;options.autoRepeat &amp;&amp; currShuffleIdx&lt;0)
++                         currShuffleIdx=nIdx-1;
++ 
++         } while ( currShuffleIdx &gt; 0
++                         &amp;&amp; !Idx[currShuffleIdx].Item );
++ 	
++         LISTDEB(&quot;PrevFile currShuffleIdx %d\n&quot;,currShuffleIdx);
++  
++         if ( currShuffleIdx &lt; 0 )
++                 currShuffleIdx=0;
++ 
++ 	if ( Idx[ currShuffleIdx ].Item)
++ 		return Idx[ currShuffleIdx ].Item-&gt;GetFilename();
++ 	return NULL;
++ };
++ 
++ const char * cItemIdx::NextAlbumFile() {
++         cPlayList *currAlbum=Idx[currShuffleIdx].Album;
++         LISTDEB(&quot;NextAlbumFile currShuIdx %d currAlbum %p\n&quot;,
++                         currShuffleIdx,currAlbum);
++         int saveCurrShuffleIdx=currShuffleIdx;
++ 
++         do {
++ 		++currShuffleIdx;
++                 if ( owner-&gt;options.autoRepeat &amp;&amp; 
++                      currShuffleIdx &gt;= nIdx ) {
++                         if (owner-&gt;options.shuffle)
++                                 Shuffle();
++                         currShuffleIdx=0;
++                 };
++         } while ( currShuffleIdx &lt; nIdx 
++                  &amp;&amp; ( !Idx[currShuffleIdx].Item 
++                     || currAlbum==Idx[currShuffleIdx].Album ) );
++ 	
++         LISTDEB(&quot;NextAlbumFile currShuffleIdx %d \n&quot;,currShuffleIdx);
++         
++         if ( currShuffleIdx &gt; nIdx )
++                 currShuffleIdx=nIdx;
++         
++ 	if ( Idx[ currShuffleIdx ].Item )
++ 		return Idx[ currShuffleIdx ].Item-&gt;GetFilename();
++ 
++         currShuffleIdx=saveCurrShuffleIdx;
++ 	return NULL;
++ };
++ 
++ const char * cItemIdx::PrevAlbumFile() {
++         LISTDEB(&quot;PrevAlbumFile currShuffleIdx %d\n&quot;,currShuffleIdx);
++         cPlayList *currAlbum=Idx[currShuffleIdx].Album;
++         do {
++ 	        --currShuffleIdx;
++                 if ( owner-&gt;options.autoRepeat &amp;&amp; currShuffleIdx &lt; 0 )
++                         currShuffleIdx = nIdx - 1;
++         } while ( currShuffleIdx &gt; 0  
++                   &amp;&amp; ( !Idx[currShuffleIdx].Item 
++                     || currAlbum == Idx[currShuffleIdx].Album ) );
++ 	
++         LISTDEB(&quot;PrevFile currShuffleIdx %d\n&quot;,currShuffleIdx);
++ 
++         if (currShuffleIdx &lt; 0 )
++                 currShuffleIdx=0;
++         
++ 	if (Idx[currShuffleIdx].Item)
++ 		return Idx[currShuffleIdx].Item-&gt;GetFilename();
++ 	return NULL;
++ };
++ 
++ const char * cItemIdx::CurrFile() {
++         LISTDEB(&quot;CurrFile currShuffleIdx %d\n&quot;,currShuffleIdx);
++         
++ 	while ( !Idx[currShuffleIdx].Item &amp;&amp; currShuffleIdx &lt; nIdx )
++                 currShuffleIdx++;
++         
++         LISTDEB(&quot;CurrFile currShuffleIdx %d\n&quot;,currShuffleIdx);
++ 
++ 	if (Idx[currShuffleIdx].Item)
++ 		return Idx[currShuffleIdx].Item-&gt;GetFilename();
++ 	return NULL;
++ };
++ 
++ void cItemIdx::Shuffle() {
++         LISTDEB(&quot;Shuffle playlist nIdx %d currShuffleIdx %d\n&quot;,
++                         nIdx,currShuffleIdx);
++ 
++         sIdx index;
++         for (int i=0; i&lt;2*nIdx ; i++) {
++ 		//FIXME - I guess the ranges are not completly correct
++                 int xchange1=(int)( (float)(random())*(float)(nIdx-1-currShuffleIdx)/(float)(RAND_MAX))
++ 			+currShuffleIdx+1;
++                 int xchange2=(int)( (float)(random())*(float)(nIdx-1-currShuffleIdx)/(float)(RAND_MAX))
++ 			+currShuffleIdx+1;
++                 if (xchange1 &gt;=nIdx)
++                         LISTDEB(&quot;Martin, depp!! %d\n&quot;,xchange1);
++                 if (xchange2 &gt;=nIdx)
++                         LISTDEB(&quot;Martin, depp!! %d\n&quot;,xchange2);
++                 
++ 		LISTDEB(&quot;Shuffle %4d(%4d) - %4d(%4d) \n&quot;,
++                    xchange1,Idx[xchange1],xchange2,Idx[xchange2]);
++                 index=Idx[xchange1];
++                 Idx[xchange1]=Idx[xchange2];
++                 Idx[xchange2]=index;
++         };
++ 	reshuffled=true;
++ /*
++ 	for (int i=0; i&lt;nItems ; i++) 
++ 		LISTDEB(&quot;shuffleIdx[%d]: %d\n&quot;,i,shuffleIdx-&gt;Idx[i]);       
++ */
++ };
++ 
++ 
+  // ---cPlayListItem--------------------------------------------------------
+  cPlayListItem::cPlayListItem(const char *Filename, const char *Name) {
+***************
+*** 50,54 ****
+  
+  
+! void cPlayListItem::BuildIdx(sItemIdx *ShuffleIdx) {
+  };
+  
+--- 282,286 ----
+  
+  
+! void cPlayListItem::BuildIdx(cItemIdx *ShuffleIdx) {
+  };
+  
+***************
+*** 106,110 ****
+  // -----cPlayList------------------------------------------------------------
+  cPlayList::cPlayList(const char *Filename, const char *Name,
+!                 sItemIdx *ShuffleIdx) 
+                  : cPlayListItem(Filename,(Name ? Name : tr(&quot;Playlist 1&quot;))) {
+          first=NULL;
+--- 338,342 ----
+  // -----cPlayList------------------------------------------------------------
+  cPlayList::cPlayList(const char *Filename, const char *Name,
+!                 cItemIdx *ShuffleIdx) 
+                  : cPlayListItem(Filename,(Name ? Name : tr(&quot;Playlist 1&quot;))) {
+          first=NULL;
+***************
+*** 114,125 ****
+          
+          if (!ShuffleIdx) {
+! 	        shuffleIdx=new sItemIdx;
+!                 shuffleIdx-&gt;currShuffleIdx=-1;
+!                 shuffleIdx-&gt;nIdx=0;
+!                 shuffleIdx-&gt;Idx=new sIdx[MAX_ITEMS];
+!                 memset(shuffleIdx-&gt;Idx,0,sizeof(sIdx[MAX_ITEMS]));
+!                 shuffleIdx-&gt;nAlbum=0;
+!                 shuffleIdx-&gt;Album=new sIdx[MAX_ITEMS/10];
+!                 memset(shuffleIdx-&gt;Album,0,sizeof(sIdx[MAX_ITEMS/10]));
+                  shuffleIdxOwner=true;
+          } else {
+--- 346,350 ----
+          
+          if (!ShuffleIdx) {
+! 	        shuffleIdx=new cItemIdx(this);
+                  shuffleIdxOwner=true;
+          } else {
+***************
+*** 133,137 ****
+                  RemoveItem(first);
+          if (shuffleIdxOwner) {
+-                 delete shuffleIdx-&gt;Idx;
+                  delete shuffleIdx;
+                  shuffleIdx=NULL;
+--- 358,361 ----
+***************
+*** 139,175 ****
+  };
+  
+- bool cPlayList::RemoveItem(cPlayListItem *Item) {
+-         cPlayList *playList=dynamic_cast &lt;cPlayList*&gt;(Item);
+-         if (playList) {
+-                 for (int i=0; i&lt;shuffleIdx-&gt;nAlbum; i++) 
+-                         if (shuffleIdx-&gt;Album[i].Item==Item) {
+-                                 shuffleIdx-&gt;Album[i].Album-&gt;
+-                                         RemoveItemFromList(Item);
+-                                 memmove(&amp;shuffleIdx-&gt;Album[i],
+-                                                 &amp;shuffleIdx-&gt;Album[i+1],
+-                                                 sizeof(shuffleIdx-&gt;Album[i])*
+-                                                 (shuffleIdx-&gt;nAlbum-i));
+-                                 shuffleIdx-&gt;nAlbum--;
+-                                 return true;
+-                         };
+- 
+-         } else {
+-                 for (int i=0; i&lt;shuffleIdx-&gt;nIdx; i++) 
+-                         if (shuffleIdx-&gt;Idx[i].Item==Item) {
+-                                 shuffleIdx-&gt;Idx[i].Album-&gt;
+-                                         RemoveItemFromList(Item);
+-                                 memmove(&amp;shuffleIdx-&gt;Idx[i],
+-                                                 &amp;shuffleIdx-&gt;Idx[i+1],
+-                                                 sizeof(shuffleIdx-&gt;Idx[i])*
+-                                                 (shuffleIdx-&gt;nIdx-i));
+-                                 shuffleIdx-&gt;nIdx--;
+-                                 if (i&lt;shuffleIdx-&gt;currShuffleIdx)
+-                                         shuffleIdx-&gt;currShuffleIdx--;
+-                                 return true;
+-                         };
+-         };
+-         return true;
+- };
+- 
+  bool cPlayList::RemoveItemFromList(cPlayListItem *Item) {
+          LISTDEB(&quot;RemoveItemFromList %p, first %p last %p\n&quot;,Item,first,last);
+--- 363,366 ----
+***************
+*** 191,216 ****
+  };
+  
+! cPlayList *cPlayList::GetItemAlbum(cPlayListItem *Item) {
+!         LISTDEB(&quot;GetItemAlbum %p, first %p last %p\n&quot;,Item,first,last);
+! 	cPlayListItem *listItem=first;
+! 	cPlayList *List=NULL;
+!         cPlayList *Ret=NULL;
+! 	// find Item in list or in sublist
+! 	while (listItem &amp;&amp; listItem!=Item) {
+! 		// if listItem is a list ask list if it owns item 
+!                 if ( (List=dynamic_cast &lt;cPlayList*&gt;(listItem)) 
+! 			&amp;&amp; (Ret=List-&gt;GetItemAlbum(Item)) )
+! 			// return sublist if it owns Item
+! 			return Ret;
+!                 listItem=listItem-&gt;GetNext();
+! 	};
+! 	// item is in this list
+! 	if (listItem == Item)
+! 		return this;
+! 	
+!         return NULL;
+! };
+! 
+! void cPlayList::AddItemAtEnd(cPlayListItem *Item) {
+          if (!last) {
+                  Item-&gt;InsertSelfIntoList(NULL,NULL);
+--- 382,386 ----
+  };
+  
+! void cPlayList::AddItemAtEndToList(cPlayListItem *Item) {
+          if (!last) {
+                  Item-&gt;InsertSelfIntoList(NULL,NULL);
+***************
+*** 222,299 ****
+                  last = Item;
+          };
+-         if ( dynamic_cast &lt;cPlayList*&gt;(Item) ) {
+-                 shuffleIdx-&gt;Album[shuffleIdx-&gt;nAlbum].Album=this;
+-                 shuffleIdx-&gt;Album[shuffleIdx-&gt;nAlbum].Item=Item;
+-                 shuffleIdx-&gt;Album[shuffleIdx-&gt;nAlbum].Hash=
+-                         SimpleHash(Item-&gt;GetFilename());
+-                 LISTDEB(&quot;Hash %x Filename %s\n&quot;,shuffleIdx-&gt;Album[shuffleIdx-&gt;nAlbum].Hash,Item-&gt;GetFilename());
+-                 shuffleIdx-&gt;nAlbum++;
+-         } else {
+-                 shuffleIdx-&gt;Idx[shuffleIdx-&gt;nIdx].Album=this;
+-                 shuffleIdx-&gt;Idx[shuffleIdx-&gt;nIdx].Item=Item;
+-                 shuffleIdx-&gt;Idx[shuffleIdx-&gt;nIdx].Hash=
+-                         SimpleHash(Item-&gt;GetFilename());
+-                 LISTDEB(&quot;Hash %x Filename %s\n&quot;,shuffleIdx-&gt;Idx[shuffleIdx-&gt;nIdx].Hash,Item-&gt;GetFilename());
+-                 shuffleIdx-&gt;nIdx++;
+-         }
+- };                    
+- 
+- void cPlayList::BuildIdx(sItemIdx *ShuffleIdx) {
+-         shuffleIdx=ShuffleIdx;
+- 	cPlayListItem *currItem=NULL;
+- 	if (shuffleIdx-&gt;currShuffleIdx!=-1) {
+- 		// while playback rember current item, if this has been
+- 		// deleted find the next not deleted item
+- 		while ( ! (currItem=GetShuffledItemByIndex(shuffleIdx-&gt;currShuffleIdx) ) &amp;&amp; 
+- 				shuffleIdx-&gt;currShuffleIdx&lt;shuffleIdx-&gt;nIdx)
+- 			shuffleIdx-&gt;currShuffleIdx++;
+- 	};
+- 			
+-         cPlayListItem *Item=first;
+- 
+-         while (Item) {
+-                 LISTDEB(&quot;Item %p Item-&gt;GetNext() %p \n&quot;,Item,Item-&gt;GetNext());
+-                 Item-&gt;BuildIdx(shuffleIdx);
+-                 Item=Item-&gt;GetNext();
+-         };
+- /*	
+- 	if (currItem) {
+- 		// FIXME if currItem has been deleted do I have to subtract one?
+- 		currItemIdx=Item-&gt;GetIdx();
+- 		for (int i=0; i&lt;nItems; i++) 
+- 			if ( currItemIdx==shuffleIdx[i] ) {
+- 				currShuffleIdx=i;
+- 				break;
+- 			};
+- 	};
+-         */
+  };
+  
+! cPlayListItem *cPlayList::GetItemByFilename(const char *Filename) {
+! 	int32_t hash=SimpleHash(Filename);
+!         
+!         for (int i=0; i&lt;shuffleIdx-&gt;nIdx;i++) 
+!                 if ( hash==shuffleIdx-&gt;Idx[i].Hash &amp;&amp; shuffleIdx-&gt;Idx[i].Item
+!                         &amp;&amp; strcmp(Filename,shuffleIdx-&gt;Idx[i].Item-&gt;GetFilename()) ==0)
+!                         return shuffleIdx-&gt;Idx[i].Item;
+!         return NULL;
+! };
+  
+! int cPlayList::GetIndexByItem(const cPlayListItem *Item) {
+!         for (int i=0; i&lt;shuffleIdx-&gt;nIdx;i++) 
+!                 if ( Item==shuffleIdx-&gt;Idx[i].Item )
+!                         return i;
+!         return -1;
+  };
+  
+! cPlayListItem *cPlayList::GetAlbumByFilename(const char *Filename) {
+! 	int32_t hash=SimpleHash(Filename);
+!         
+!         for (int i=0; i&lt;shuffleIdx-&gt;nAlbum;i++) 
+!                 if ( hash==shuffleIdx-&gt;Album[i].Hash &amp;&amp; shuffleIdx-&gt;Album[i].Item
+!                         &amp;&amp; strcmp(Filename,shuffleIdx-&gt;Album[i].Item-&gt;GetFilename())==0)
+! 
+!                         return shuffleIdx-&gt;Album[i].Item;
+!         return NULL;
+  };
+  
+--- 392,413 ----
+                  last = Item;
+          };
+  };
+  
+! void cPlayList::AddItemAtEnd(cPlayListItem *Item) {
+!         AddItemAtEndToList(Item);
+!         if (shuffleIdx)
+!                 shuffleIdx-&gt;AddItemAtEnd(this,Item);        
+! };                    
+  
+! bool cPlayList::RemoveItem(cPlayListItem *Item) { 
+!         cPlayList *album=NULL;
+!         if (shuffleIdx )
+!                 album=shuffleIdx-&gt;RemoveItem(Item);
+!         if (album)
+!                 return album-&gt;RemoveItemFromList(Item);
+!         return false; 
+  };
+  
+! void cPlayList::BuildIdx(cItemIdx *ShuffleIdx) {
+  };
+  
+***************
+*** 326,329 ****
+--- 440,471 ----
+  };
+  
++ cPlayListItem *cPlayList::GetItem(int No) {
++         int count=0;
++         cPlayListItem *Item=first;
++         while ( Item &amp;&amp; count!=No ) {
++                 count++;
++                 Item=Item-&gt;GetNext();
++         };
++         return Item;
++ };
++   
++ void cPlayList::PrepareForPlayback() {
++ 	LISTDEB(&quot;PrepareForPlayback\n&quot;);
++ 	shuffleIdx-&gt;currShuffleIdx=-1;
++ 
++         BuildIdx();
++         if (options.shuffle)
++                 shuffleIdx-&gt;Shuffle();
++ };
++ 
++ void cPlayList::SetOptions( sPlayListOptions &amp;Options) {
++ 
++         if (Options.shuffle != options.shuffle 
++                         &amp;&amp; Options.shuffle)
++                 shuffleIdx-&gt;Shuffle();
++ 
++         options=Options;
++ };
++ 
+  bool cPlayList::ScanDir(char * dirname, bool recursive) {
+          struct dirent **namelist;
+***************
+*** 352,356 ****
+  
+                  // check type (non ext2/3 and symlinks)
+!                 if ( namelist[i]-&gt;d_type == 0 || namelist[i]-&gt;d_type == DT_LNK ) {
+                          struct stat stbuf;
+                          if ( !stat(Name,&amp;stbuf) ) {
+--- 494,499 ----
+  
+                  // check type (non ext2/3 and symlinks)
+!                 if ( namelist[i]-&gt;d_type == 0 || 
+!                                 namelist[i]-&gt;d_type == DT_LNK ) {
+                          struct stat stbuf;
+                          if ( !stat(Name,&amp;stbuf) ) {
+***************
+*** 372,575 ****
+  };
+  
+- char * cPlayList::NextFile() {
+-         LISTDEB(&quot;NextFile currShuffleIdx %d\n&quot;,
+-                         shuffleIdx-&gt;currShuffleIdx);
+-         int saveCurrShuffleIdx=shuffleIdx-&gt;currShuffleIdx;
+- 
+-         do {
+- 		++shuffleIdx-&gt;currShuffleIdx;
+-                 if ( options.autoRepeat &amp;&amp; 
+-                      shuffleIdx-&gt;currShuffleIdx &gt;= shuffleIdx-&gt;nIdx ) {
+-                         shuffleIdx-&gt;currShuffleIdx=-1;
+-                         if (options.shuffle)
+-                                 Shuffle();
+-                         shuffleIdx-&gt;currShuffleIdx=0;
+-                 };
+-         } while ( shuffleIdx-&gt;currShuffleIdx&lt;shuffleIdx-&gt;nIdx 
+-                         &amp;&amp; !shuffleIdx-&gt;Idx[shuffleIdx-&gt;currShuffleIdx].Item );
+- 	
+-         LISTDEB(&quot;NextFile currShuffleIdx %d nIdx %d\n&quot;,
+-                         shuffleIdx-&gt;currShuffleIdx,shuffleIdx-&gt;nIdx);
+- 
+-         if ( shuffleIdx-&gt;currShuffleIdx &gt; shuffleIdx-&gt;nIdx )
+-                 shuffleIdx-&gt;currShuffleIdx=shuffleIdx-&gt;nIdx;
+- 
+- 	if ( shuffleIdx-&gt;Idx[shuffleIdx-&gt;currShuffleIdx].Item )
+- 		return shuffleIdx-&gt;Idx[shuffleIdx-&gt;currShuffleIdx].Item-&gt;GetFilename();
+- 
+-         shuffleIdx-&gt;currShuffleIdx=saveCurrShuffleIdx;
+- 	return NULL;
+- };
+- 
+- char * cPlayList::PrevFile() {
+-         LISTDEB(&quot;PrevFile currShuffleIdx %d\n&quot;,
+-                         shuffleIdx-&gt;currShuffleIdx);
+-         do {
+- 		--shuffleIdx-&gt;currShuffleIdx;
+-                 if (options.autoRepeat &amp;&amp; shuffleIdx-&gt;currShuffleIdx&lt;0)
+-                         shuffleIdx-&gt;currShuffleIdx=shuffleIdx-&gt;nIdx-1;
+- 
+-         } while ( shuffleIdx-&gt;currShuffleIdx &gt; 0
+-                         &amp;&amp;!shuffleIdx-&gt;Idx[shuffleIdx-&gt;currShuffleIdx].Item );
+- 	
+-         LISTDEB(&quot;PrevFile currShuffleIdx %d\n&quot;,shuffleIdx-&gt;currShuffleIdx);
+-  
+-         if ( shuffleIdx-&gt;currShuffleIdx &lt; 0 )
+-                 shuffleIdx-&gt;currShuffleIdx=0;
+- 
+- 	if ( shuffleIdx-&gt;Idx[shuffleIdx-&gt;currShuffleIdx].Item)
+- 		return shuffleIdx-&gt;Idx[shuffleIdx-&gt;currShuffleIdx].Item-&gt;GetFilename();
+- 	return NULL;
+- };
+- 
+- char * cPlayList::NextAlbumFile() {
+-         cPlayList *currAlbum=shuffleIdx-&gt;Idx[shuffleIdx-&gt;currShuffleIdx].Album;
+-         LISTDEB(&quot;NextAlbumFile currShuIdx %d currAlbum %p\n&quot;,
+-                         shuffleIdx-&gt;currShuffleIdx,currAlbum);
+-         int saveCurrShuffleIdx=shuffleIdx-&gt;currShuffleIdx;
+- 
+-         do {
+- 		++shuffleIdx-&gt;currShuffleIdx;
+-                 if ( options.autoRepeat &amp;&amp; 
+-                      shuffleIdx-&gt;currShuffleIdx &gt;= shuffleIdx-&gt;nIdx ) {
+-                         shuffleIdx-&gt;currShuffleIdx=-1;
+-                         if (options.shuffle)
+-                                 Shuffle();
+-                         shuffleIdx-&gt;currShuffleIdx=0;
+-                 };
+-         } while ( shuffleIdx-&gt;currShuffleIdx&lt;shuffleIdx-&gt;nIdx 
+-                         &amp;&amp; ( !shuffleIdx-&gt;Idx[shuffleIdx-&gt;currShuffleIdx].Item 
+-                     || currAlbum==shuffleIdx-&gt;Idx[
+-                     shuffleIdx-&gt;currShuffleIdx].Album ) );
+- 	
+-         LISTDEB(&quot;NextAlbumFile currShuffleIdx %d \n&quot;,
+-                         shuffleIdx-&gt;currShuffleIdx);
+-         
+-         if ( shuffleIdx-&gt;currShuffleIdx &gt; shuffleIdx-&gt;nIdx )
+-                 shuffleIdx-&gt;currShuffleIdx=shuffleIdx-&gt;nIdx;
+-         
+- 	if (shuffleIdx-&gt;Idx[shuffleIdx-&gt;currShuffleIdx].Item)
+- 		return shuffleIdx-&gt;Idx[shuffleIdx-&gt;currShuffleIdx].Item-&gt;GetFilename();
+- 
+-         shuffleIdx-&gt;currShuffleIdx=saveCurrShuffleIdx;
+- 	return NULL;
+- };
+- 
+- char * cPlayList::PrevAlbumFile() {
+-         LISTDEB(&quot;PrevAlbumFile currShuffleIdx %d\n&quot;,
+-                         shuffleIdx-&gt;currShuffleIdx);
+-         cPlayList *currAlbum=shuffleIdx-&gt;Idx[shuffleIdx-&gt;currShuffleIdx].Album;
+-         do {
+- 	        --shuffleIdx-&gt;currShuffleIdx;
+-                 if (options.autoRepeat &amp;&amp; shuffleIdx-&gt;currShuffleIdx&lt;0)
+-                         shuffleIdx-&gt;currShuffleIdx=shuffleIdx-&gt;nIdx-1;
+-         } while ( shuffleIdx-&gt;currShuffleIdx &gt; 0  
+-                   &amp;&amp; ( !shuffleIdx-&gt;Idx[shuffleIdx-&gt;currShuffleIdx].Item 
+-                     || currAlbum==shuffleIdx-&gt;Idx[
+-                     shuffleIdx-&gt;currShuffleIdx].Album ) );
+- 	
+-         LISTDEB(&quot;PrevFile currShuffleIdx %d\n&quot;,shuffleIdx-&gt;currShuffleIdx);
+- 
+-         if (shuffleIdx-&gt;currShuffleIdx &lt; 0 )
+-                 shuffleIdx-&gt;currShuffleIdx=0;
+-         
+- 	if (shuffleIdx-&gt;Idx[shuffleIdx-&gt;currShuffleIdx].Item)
+- 		return shuffleIdx-&gt;Idx[shuffleIdx-&gt;currShuffleIdx].Item-&gt;GetFilename();
+- 	return NULL;
+- };
+- 
+- char * cPlayList::CurrFile() {
+-         LISTDEB(&quot;CurrFile shuffleIdx-&gt;currShuffleIdx %d\n&quot;,
+-                         shuffleIdx-&gt;currShuffleIdx);
+- 	while (!shuffleIdx-&gt;Idx[shuffleIdx-&gt;currShuffleIdx].Item
+-                         &amp;&amp; shuffleIdx-&gt;currShuffleIdx&lt;shuffleIdx-&gt;nIdx )
+-                 shuffleIdx-&gt;currShuffleIdx++;
+-         LISTDEB(&quot;CurrFile currShuffleIdx %d\n&quot;,shuffleIdx-&gt;currShuffleIdx);
+- 
+- 	if (shuffleIdx-&gt;Idx[shuffleIdx-&gt;currShuffleIdx].Item)
+- 		return shuffleIdx-&gt;Idx[shuffleIdx-&gt;currShuffleIdx].Item-&gt;GetFilename();
+- 	return NULL;
+- };
+- 
+- cPlayListItem *cPlayList::GetItem(int No) {
+-         int count=0;
+-         cPlayListItem *Item=first;
+-         while ( Item &amp;&amp; count!=No ) {
+-                 count++;
+-                 Item=Item-&gt;GetNext();
+-         };
+-         return Item;
+- };
+- 
+- int cPlayList::GetNoItems() {
+-         int count=0;
+-         cPlayListItem *Item=first;
+-         while ( Item ) {
+-                 count++;
+-                 Item=Item-&gt;GetNext();
+-         };
+-         return count;
+- };
+- 
+- int cPlayList::GetNoItemsRecursive() {
+-         int count=0;
+-         cPlayListItem *Item=first;
+-         cPlayList *List;
+-         while ( Item ) {
+-                 // count items of lists instead of list
+-                 if ( (List=dynamic_cast &lt;cPlayList*&gt;(Item)) )
+-                         count+=List-&gt;GetNoItemsRecursive();
+-                 else count++;
+-                 Item=Item-&gt;GetNext();
+-         };
+-         return count;
+- };
+-   
+- void cPlayList::PrepareForPlayback() {
+- 	LISTDEB(&quot;PrepareForPlayback\n&quot;);
+- 	shuffleIdx-&gt;currShuffleIdx=-1;
+- 
+-         BuildIdx();
+-         if (options.shuffle)
+-                 Shuffle();
+- };
+- 
+- void cPlayList::Shuffle() {
+-         LISTDEB(&quot;Shuffle playlist nIdx %d currShuffleIdx %d\n&quot;,
+-                         shuffleIdx-&gt;nIdx,shuffleIdx-&gt;currShuffleIdx);
+- 
+-         sIdx index;
+-         for (int i=0; i&lt;2*shuffleIdx-&gt;nIdx ; i++) {
+- 		//FIXME - I guess the ranges are not completly correct
+-                 int xchange1=(int)( (float)(random())*(float)(shuffleIdx-&gt;nIdx-1-shuffleIdx-&gt;currShuffleIdx)/(float)(RAND_MAX))
+- 			+shuffleIdx-&gt;currShuffleIdx+1;
+-                 int xchange2=(int)( (float)(random())*(float)(shuffleIdx-&gt;nIdx-1-shuffleIdx-&gt;currShuffleIdx)/(float)(RAND_MAX))
+- 			+shuffleIdx-&gt;currShuffleIdx+1;
+-                 if (xchange1 &gt;=shuffleIdx-&gt;nIdx)
+-                         LISTDEB(&quot;Martin, depp!! %d\n&quot;,xchange1);
+-                 if (xchange2 &gt;=shuffleIdx-&gt;nIdx)
+-                         LISTDEB(&quot;Martin, depp!! %d\n&quot;,xchange2);
+-                 
+- 		LISTDEB(&quot;Shuffle %4d(%4d) - %4d(%4d) \n&quot;,
+-                    xchange1,shuffleIdx[xchange1],xchange2,shuffleIdx[xchange2]);
+-                 index=shuffleIdx-&gt;Idx[xchange1];
+-                 shuffleIdx-&gt;Idx[xchange1]=shuffleIdx-&gt;Idx[xchange2];
+-                 shuffleIdx-&gt;Idx[xchange2]=index;
+-         };
+- 	shuffleIdx-&gt;reshuffled=true;
+- /*
+- 	for (int i=0; i&lt;nItems ; i++) 
+- 		LISTDEB(&quot;shuffleIdx[%d]: %d\n&quot;,i,shuffleIdx-&gt;Idx[i]);       
+- */
+- };
+- 
+- void cPlayList::SetOptions( sPlayListOptions &amp;Options) {
+- 
+-         if (Options.shuffle != options.shuffle 
+-                         &amp;&amp; Options.shuffle)
+-                 Shuffle();
+- 
+-         options=Options;
+- };
+  
+  void cPlayList::Save(FILE *out) {
+--- 515,518 ----
+
+Index: PlayList.h
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/PlayList.h,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -C2 -d -r1.9 -r1.10
+*** PlayList.h	15 Aug 2005 09:07:30 -0000	1.9
+--- PlayList.h	15 Aug 2005 13:13:14 -0000	1.10
+***************
+*** 26,36 ****
+  };
+                  
+! struct sItemIdx {
+!         int currShuffleIdx;
+!         int nIdx;
+!         sIdx *Idx;
+!         int nAlbum;
+!         sIdx *Album;
+! 	bool reshuffled;
+  };      
+  
+--- 26,66 ----
+  };
+                  
+! class cItemIdx {
+!         private:
+!                 cPlayList *owner;
+!                 
+!                 int nIdx;
+!                 sIdx *Idx;
+!                 int nAlbum;
+!                 sIdx *Album;
+!         public: 
+!                 bool reshuffled;
+!                 int currShuffleIdx;
+!                 
+!                 cItemIdx(cPlayList *Owner);
+!                 ~cItemIdx();
+! 
+!                 cPlayList *RemoveItem(cPlayListItem *Item);
+! 
+!                 void AddItemAtEnd(cPlayList *Album, cPlayListItem *Item);
+! 
+!                 cPlayListItem * GetTrackByFilename(const char *Filename);
+!                 cPlayListItem * GetAlbumByFilename(const char *Filename);
+!   
+!                 inline cPlayListItem* GetItemByIndex(int Index) 
+!                 { return Idx[Index].Item; };
+!                 
+!                 int GetIndexByItem(const cPlayListItem *Item);
+!                
+!                 const char *CurrFile();
+!                 const char *NextFile();
+!                 const char *PrevFile();
+!                 const char *NextAlbumFile();
+!                 const char *PrevAlbumFile();
+! 
+!                 inline int GetNIdx() 
+!                 { return nIdx; };
+! 
+!                 void Shuffle();
+  };      
+  
+***************
+*** 44,48 ****
+                  cPlayListItem *previous;
+          public:
+!                 cPlayListItem(const char *Filename=NULL,  const char *Name=NULL);
+                  virtual ~cPlayListItem();
+  
+--- 74,78 ----
+                  cPlayListItem *previous;
+          public:
+!                 cPlayListItem(const char *Filename=NULL, const char *Name=NULL);
+                  virtual ~cPlayListItem();
+  
+***************
+*** 67,75 ****
+  
+          public:
+!                 virtual void BuildIdx(sItemIdx *shuffleIdx);
+                          
+-                 virtual int GetNoItems()
+-                 {return 1; };
+- 
+                  inline cPlayListItem *GetNext()
+                  {return next;};
+--- 97,102 ----
+  
+          public:
+!                 virtual void BuildIdx(cItemIdx *shuffleIdx);
+                          
+                  inline cPlayListItem *GetNext()
+                  {return next;};
+***************
+*** 84,88 ****
+                  {};
+          protected:
+!                 const char *ParseTypeFilenameName(const char *Str, char *Type, char *Filename, char *Name);
+  };
+  
+--- 111,116 ----
+                  {};
+          protected:
+!                 const char *ParseTypeFilenameName(const char *Str, 
+!                                 char *Type, char *Filename, char *Name);
+  };
+  
+***************
+*** 141,157 ****
+  
+  class cPlayList : public cPlayListItem {
+- //	friend class cEditList;
+- //	friend class cReplayList;
+- 	
+  private:
+          cPlayListItem *first;
+          cPlayListItem *last;
+          bool shuffleIdxOwner;
+!         sItemIdx *shuffleIdx;
+         
+-         sPlayListOptions options;
+    public:
+          cPlayList(const char *Filename=NULL, const char *Name=NULL,
+!                         sItemIdx *shuffleIdx=NULL);
+    private:
+  	cPlayList(const cPlayList &amp;List) {};
+--- 169,182 ----
+  
+  class cPlayList : public cPlayListItem {
+  private:
+          cPlayListItem *first;
+          cPlayListItem *last;
+          bool shuffleIdxOwner;
+!         cItemIdx *shuffleIdx;
+         
+    public:
++         sPlayListOptions options;
+          cPlayList(const char *Filename=NULL, const char *Name=NULL,
+!                         cItemIdx *shuffleIdx=NULL);
+    private:
+  	cPlayList(const cPlayList &amp;List) {};
+***************
+*** 160,164 ****
+          virtual ~cPlayList();
+  
+!         virtual void BuildIdx(sItemIdx *ShuffleIdx);
+          inline void BuildIdx()
+          {BuildIdx(shuffleIdx);}; 
+--- 185,189 ----
+          virtual ~cPlayList();
+  
+!         virtual void BuildIdx(cItemIdx *ShuffleIdx);
+          inline void BuildIdx()
+          {BuildIdx(shuffleIdx);}; 
+***************
+*** 169,188 ****
+  	{ Options=options; };
+          
+-         inline cPlayListItem *GetShuffledItemByIndex(int Index) {   
+-                 if (!shuffleIdx) return NULL;
+-                 return shuffleIdx-&gt;Idx[Index].Item; 
+-         };
+-         cPlayListItem *GetItemByFilename(const char *Filename);
+-         cPlayListItem *GetAlbumByFilename(const char *Filename);
+-         int GetIndexByItem(const cPlayListItem *Item);
+- 
+    private:
+          bool RemoveItemFromList(cPlayListItem *Item);
+    public:
+!         bool RemoveItem(cPlayListItem *Item);
+          void AddItemAtEnd(cPlayListItem *Item);
+- 	cPlayList *GetItemAlbum(cPlayListItem *Item);
+-         
+-         bool AddFile(char * Filename,char *Title = NULL);
+  
+          cPlayListItem *GetItem(int No);
+--- 194,207 ----
+  	{ Options=options; };
+          
+    private:
++ 
++         void AddItemAtEndToList(cPlayListItem *Item);
++ 
+          bool RemoveItemFromList(cPlayListItem *Item);
++ 
+    public:
+!         bool RemoveItem(cPlayListItem *Item); 
+! 
+          void AddItemAtEnd(cPlayListItem *Item);
+  
+          cPlayListItem *GetItem(int No);
+***************
+*** 190,201 ****
+  	{ return first; };
+  
+! 	int GetNoItems();
+! 	int GetNoItemsRecursive();
+! 
+!         bool ScanDir(char * dirname, bool recursive = true);
+          bool AddDir(char * dirname,char *Title = NULL, bool recursive = true);
+          bool AddM3U(char * Filename,char *Title = NULL);
+  
+! 	void Shuffle();
+  	inline bool IsDirty()
+  	{ return shuffleIdx ? shuffleIdx-&gt;reshuffled : 0; };
+--- 209,224 ----
+  	{ return first; };
+  
+!         bool AddFile(char * Filename,char *Title = NULL);
+          bool AddDir(char * dirname,char *Title = NULL, bool recursive = true);
+          bool AddM3U(char * Filename,char *Title = NULL);
+  
+!         virtual void Save(FILE *out);
+! 	int Load(FILE *out, const char * StartLine=NULL);
+! 
+!         bool ScanDir(char * dirname, bool recursive = true);
+!         
+!         int LoadM3U(const char *Filename, const char *Name);
+! 
+!         // interface to cItemIdx        
+  	inline bool IsDirty()
+  	{ return shuffleIdx ? shuffleIdx-&gt;reshuffled : 0; };
+***************
+*** 204,225 ****
+  	{ if (shuffleIdx)  shuffleIdx-&gt;reshuffled = false; };
+  
+!         inline int GetCurrShuffleIdx()
+  	{ return shuffleIdx ? shuffleIdx-&gt;currShuffleIdx : -1; };
+          inline void SetCurrShuffleIdx(int Idx)
+  	{ if (shuffleIdx) shuffleIdx-&gt;currShuffleIdx = Idx; };
+  
+! 	inline int GetShuffleNIdx()
+! 	{ return shuffleIdx ? shuffleIdx-&gt;nIdx : -1; };
+  	
+! 	char *CurrFile();
+!         char *NextFile();
+! 	char *PrevFile();
+! 	char *NextAlbumFile();
+! 	char *PrevAlbumFile();
+  	
+! 	virtual void Save(FILE *out);
+! 	int Load(FILE *out, const char * StartLine=NULL);
+  
+-         int LoadM3U(const char *Filename, const char *Name);
+  };
+          
+--- 227,269 ----
+  	{ if (shuffleIdx)  shuffleIdx-&gt;reshuffled = false; };
+  
+!         inline int GetCurrIdx()
+  	{ return shuffleIdx ? shuffleIdx-&gt;currShuffleIdx : -1; };
+          inline void SetCurrShuffleIdx(int Idx)
+  	{ if (shuffleIdx) shuffleIdx-&gt;currShuffleIdx = Idx; };
+  
+! 	inline int GetNIdx()
+! 	{ return shuffleIdx ? shuffleIdx-&gt;GetNIdx() : -1; };
+  	
+! 	inline const char *CurrFile()
+!         { return shuffleIdx ? shuffleIdx-&gt;CurrFile() : NULL; };
+!         inline const char *NextFile()
+!         { return shuffleIdx ? shuffleIdx-&gt;NextFile() : NULL; };
+! 	inline const char *PrevFile()
+!         { return shuffleIdx ? shuffleIdx-&gt;PrevFile() : NULL; };
+! 	inline const char *NextAlbumFile()
+!         { return shuffleIdx ? shuffleIdx-&gt;NextAlbumFile() : NULL; };
+! 	inline const char *PrevAlbumFile()
+!         { return shuffleIdx ? shuffleIdx-&gt;PrevAlbumFile() : NULL; };
+  	
+!         inline cPlayListItem *GetShuffledItemByIndex(int Index) {   
+!                 return shuffleIdx ?
+!                         shuffleIdx-&gt;GetItemByIndex(Index) : NULL; 
+!         };
+!         
+!         inline cPlayListItem *GetItemByFilename(const char *Filename) { 
+!                 return shuffleIdx ?
+!                         shuffleIdx-&gt;GetTrackByFilename(Filename) : NULL; 
+!         };
+! 
+!         inline cPlayListItem *GetAlbumByFilename(const char *Filename) {
+!                 return shuffleIdx ?
+!                         shuffleIdx-&gt;GetAlbumByFilename(Filename) : NULL; 
+!         };
+! 
+!         inline int GetIndexByItem(const cPlayListItem *Item) {
+!                 return shuffleIdx ? 
+!                         shuffleIdx-&gt;GetIndexByItem(Item) : -1; 
+!         };
+  
+  };
+          
+
+Index: PlayListMenu.c
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/PlayListMenu.c,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1 -r1.2
+*** PlayListMenu.c	15 Aug 2005 09:07:30 -0000	1.1
+--- PlayListMenu.c	15 Aug 2005 13:13:14 -0000	1.2
+***************
+*** 100,104 ****
+  
+  void cReplayList::RebuildList() {
+!         int nItems=playList-&gt;GetNoItemsRecursive();
+          MENUDEB(&quot;RebuildList nItems %d \n&quot;,nItems);
+  
+--- 100,104 ----
+  
+  void cReplayList::RebuildList() {
+!         int nItems=playList-&gt;GetNIdx();
+          MENUDEB(&quot;RebuildList nItems %d \n&quot;,nItems);
+  
+***************
+*** 117,123 ****
+                     osUnknown),false);
+          };
+!         lastListItemCount = playList-&gt;GetNoItemsRecursive();
+  	playList-&gt;SetClean();
+!         SetCurrent(Get(playList-&gt;GetCurrShuffleIdx()));
+          lastActivity=time(NULL)-600;
+  };
+--- 117,123 ----
+                     osUnknown),false);
+          };
+!         lastListItemCount = playList-&gt;GetNIdx();
+  	playList-&gt;SetClean();
+!         SetCurrent(Get(playList-&gt;GetCurrIdx()));
+          lastActivity=time(NULL)-600;
+  };
+***************
+*** 136,146 ****
+                          current/3600,current/60%60,current%60,
+                          total/3600,total/60%60,total%60,
+!                         playList-&gt;GetCurrShuffleIdx()+1,
+! 			playList-&gt;GetShuffleNIdx());
+          SetStatus(Status);
+  
+!         if (displayedCurrIdx != playList-&gt;GetCurrShuffleIdx()){
+                  cPlayListItem *Item=playList-&gt;GetShuffledItemByIndex(
+!                                 playList-&gt;GetCurrShuffleIdx());
+                  if (Item) {
+                          PrintCutDownString(Name,Item-&gt;GetName(),30);
+--- 136,146 ----
+                          current/3600,current/60%60,current%60,
+                          total/3600,total/60%60,total%60,
+!                         playList-&gt;GetCurrIdx()+1,
+! 			playList-&gt;GetNIdx());
+          SetStatus(Status);
+  
+!         if (displayedCurrIdx != playList-&gt;GetCurrIdx()){
+                  cPlayListItem *Item=playList-&gt;GetShuffledItemByIndex(
+!                                 playList-&gt;GetCurrIdx());
+                  if (Item) {
+                          PrintCutDownString(Name,Item-&gt;GetName(),30);
+***************
+*** 149,154 ****
+                          SetTitle(Status);
+                          Display();
+!                         displayedCurrIdx=playList-&gt;GetCurrShuffleIdx();
+!                 } else printf(&quot;Didn't get currShuffleIdx %d!\n&quot;,playList-&gt;GetCurrShuffleIdx());
+          };
+  };
+--- 149,154 ----
+                          SetTitle(Status);
+                          Display();
+!                         displayedCurrIdx=playList-&gt;GetCurrIdx();
+!                 } else printf(&quot;Didn't get currShuffleIdx %d!\n&quot;,playList-&gt;GetCurrIdx());
+          };
+  };
+***************
+*** 162,169 ****
+                  lastActivity=time(NULL);
+          
+!         if (state != osUnknown ) 
+!                 return state;
+! 
+!         if ( lastListItemCount != playList-&gt;GetNoItemsRecursive()
+  	     || playList-&gt;IsDirty() ) {
+                  Clear();
+--- 162,166 ----
+                  lastActivity=time(NULL);
+          
+!         if ( lastListItemCount != playList-&gt;GetNIdx()
+  	     || playList-&gt;IsDirty() ) {
+                  Clear();
+***************
+*** 172,183 ****
+          };
+          
+!         if (Current() != playList-&gt;GetCurrShuffleIdx() &amp;&amp; 
+!                         time(NULL) - lastActivity &gt; 120 ) {
+                  MENUDEB(&quot;SetCurrent current title %d  time %d lastActivity %d\n&quot;,
+!                                 playList-&gt;GetCurrShuffleIdx(),time(NULL),lastActivity);
+!                 SetCurrent(Get(playList-&gt;GetCurrShuffleIdx()));
+                  Display();
+          };
+  
+          cPlayListItem *Item;
+          switch (Key) {
+--- 169,183 ----
+          };
+          
+!         if (Current() != playList-&gt;GetCurrIdx() &amp;&amp; 
+!                         time(NULL) - lastActivity &gt; 12 ) {
+                  MENUDEB(&quot;SetCurrent current title %d  time %d lastActivity %d\n&quot;,
+!                                 playList-&gt;GetCurrIdx(),time(NULL),lastActivity);
+!                 SetCurrent(Get(playList-&gt;GetCurrIdx()));
+                  Display();
+          };
+  
++ 	if (state != osUnknown ) 
++ 		return state;
++ 
+          cPlayListItem *Item;
+          switch (Key) {
+***************
+*** 212,217 ****
+                                          Item-&gt;GetName() );
+                          playList-&gt;RemoveItem(Item);
+! 			//playList-&gt;CleanShuffleIdx();
+! 			lastListItemCount = playList-&gt;GetNoItemsRecursive();
+                          Del(Current());
+                          Display();
+--- 212,216 ----
+                                          Item-&gt;GetName() );
+                          playList-&gt;RemoveItem(Item);
+! 			lastListItemCount = playList-&gt;GetNIdx();
+                          Del(Current());
+                          Display();
+
+Index: SoftPlayer.c
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/SoftPlayer.c,v
+retrieving revision 1.12
+retrieving revision 1.13
+diff -C2 -d -r1.12 -r1.13
+*** SoftPlayer.c	15 Aug 2005 09:07:30 -0000	1.12
+--- SoftPlayer.c	15 Aug 2005 13:13:14 -0000	1.13
+***************
+*** 386,390 ****
+    playList-&gt;PrepareForPlayback();
+    SoftPlayer = dynamic_cast&lt;cSoftPlayer*&gt; (player);
+!   char *nextfile=PlayList-&gt;NextFile();
+    if (nextfile)
+  	  SoftPlayer-&gt;OpenFile(nextfile);
+--- 386,390 ----
+    playList-&gt;PrepareForPlayback();
+    SoftPlayer = dynamic_cast&lt;cSoftPlayer*&gt; (player);
+!   const char *nextfile=PlayList-&gt;NextFile();
+    if (nextfile)
+  	  SoftPlayer-&gt;OpenFile(nextfile);
+***************
+*** 457,461 ****
+  	if ( !SoftPlayer-&gt;IsRunning()  ) {
+  		PLDBG(&quot;SoftPlayer not runnig. Looking for next file\n&quot;);
+!                 char * nextFile;
+                  if (!playList || !(nextFile=playList-&gt;NextFile())) {
+                          PLDBG(&quot;No playlist or no next file. Ending.\n&quot;);
+--- 457,461 ----
+  	if ( !SoftPlayer-&gt;IsRunning()  ) {
+  		PLDBG(&quot;SoftPlayer not runnig. Looking for next file\n&quot;);
+!                 const char * nextFile;
+                  if (!playList || !(nextFile=playList-&gt;NextFile())) {
+                          PLDBG(&quot;No playlist or no next file. Ending.\n&quot;);
+***************
+*** 470,474 ****
+                  state = privateMenu-&gt;ProcessKey(Key);
+                  if (state == PLAY_CURR_FILE ) {
+!                         char * nextFile;
+                          if (!playList || !(nextFile=playList-&gt;CurrFile())) {
+                                  PLDBG(&quot;No playlist or no curr file. Ending.\n&quot;);
+--- 470,474 ----
+                  state = privateMenu-&gt;ProcessKey(Key);
+                  if (state == PLAY_CURR_FILE ) {
+!                         const char * nextFile;
+                          if (!playList || !(nextFile=playList-&gt;CurrFile())) {
+                                  PLDBG(&quot;No playlist or no curr file. Ending.\n&quot;);
+***************
+*** 554,558 ****
+  			break;
+  		case k9: if (playList) {
+! 				 char * nextFile=playList-&gt;NextFile();
+  				 if (nextFile)
+  					 SoftPlayer-&gt;PlayFile(nextFile);
+--- 554,558 ----
+  			break;
+  		case k9: if (playList) {
+! 				 const char * nextFile=playList-&gt;NextFile();
+  				 if (nextFile)
+  					 SoftPlayer-&gt;PlayFile(nextFile);
+***************
+*** 565,569 ****
+  			 break;
+  		case k7: if (playList) {
+! 				 char * prevFile=playList-&gt;PrevFile();
+  				 printf(&quot;play PrevFile %p\n&quot;,prevFile);
+  				 if (prevFile)
+--- 565,569 ----
+  			 break;
+  		case k7: if (playList) {
+! 				 const char * prevFile=playList-&gt;PrevFile();
+  				 printf(&quot;play PrevFile %p\n&quot;,prevFile);
+  				 if (prevFile)
+***************
+*** 572,576 ****
+  			 break;
+  		case k6: if (playList) {
+! 				 char * nextFile=playList-&gt;NextAlbumFile();
+  				 if (nextFile)
+  					 SoftPlayer-&gt;PlayFile(nextFile);
+--- 572,576 ----
+  			 break;
+  		case k6: if (playList) {
+! 				 const char * nextFile=playList-&gt;NextAlbumFile();
+  				 if (nextFile)
+  					 SoftPlayer-&gt;PlayFile(nextFile);
+***************
+*** 583,587 ****
+  			 break;
+  		case k4: if (playList) {
+! 				 char * prevFile=playList-&gt;PrevAlbumFile();
+  				 if (prevFile)
+  					 SoftPlayer-&gt;PlayFile(prevFile);
+--- 583,587 ----
+  			 break;
+  		case k4: if (playList) {
+! 				 const char * prevFile=playList-&gt;PrevAlbumFile();
+  				 if (prevFile)
+  					 SoftPlayer-&gt;PlayFile(prevFile);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000188.html">[Softdevice-cvs] softplay Makefile,1.3,1.4
+</A></li>
+	<LI>Next message: <A HREF="000190.html">[Softdevice-cvs] softdevice video-xv.c,1.31,1.32 video-xv.h,1.8,1.9
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#189">[ date ]</a>
+              <a href="thread.html#189">[ thread ]</a>
+              <a href="subject.html#189">[ subject ]</a>
+              <a href="author.html#189">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

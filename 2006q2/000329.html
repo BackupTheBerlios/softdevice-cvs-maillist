@@ -1,0 +1,739 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice setup-softdevice-menu.h,NONE,1.1 VdrReplacements.c,NONE,1.1 VdrReplacements.h,NONE,1.1 CHANGELOG,1.174,1.175 Makefile,1.26,1.27 ShmClient.c,1.9,1.10 setup-softdevice-menu.c,1.2,1.3 setup-softdevice.h,1.26,1.27 softdevice.c,1.56,1.57 softdevice.h,1.8,1.9 utils.c,1.11,1.12 utils.h,1.6,1.7 video-shm.c,1.6,1.7 xscreensaver.c,1.3,1.4
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20setup-softdevice-menu.h%2CNONE%2C1.1%20VdrReplacements.c%2CNONE%2C1.1%20VdrReplacements.h%2CNONE%2C1.1%20CHANGELOG%2C1.174%2C1.175%20Makefile%2C1.26%2C1.27%20ShmClient.c%2C1.9%2C1.10%20setup-softdevice-menu.c%2C1.2%2C1.3%20setup-softdevice.h%2C1.26%2C1.27%20softdevice.c%2C1.56%2C1.57%20softdevice.h%2C1.8%2C1.9%20utils.c%2C1.11%2C1.12%20utils.h%2C1.6%2C1.7%20video-shm.c%2C1.6%2C1.7%20xscreensaver.c%2C1.3%2C1.4&In-Reply-To=%3C200604231955.k3NJtWt31885%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000328.html">
+   <LINK REL="Next"  HREF="000330.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice setup-softdevice-menu.h,NONE,1.1 VdrReplacements.c,NONE,1.1 VdrReplacements.h,NONE,1.1 CHANGELOG,1.174,1.175 Makefile,1.26,1.27 ShmClient.c,1.9,1.10 setup-softdevice-menu.c,1.2,1.3 setup-softdevice.h,1.26,1.27 softdevice.c,1.56,1.57 softdevice.h,1.8,1.9 utils.c,1.11,1.12 utils.h,1.6,1.7 video-shm.c,1.6,1.7 xscreensaver.c,1.3,1.4</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20setup-softdevice-menu.h%2CNONE%2C1.1%20VdrReplacements.c%2CNONE%2C1.1%20VdrReplacements.h%2CNONE%2C1.1%20CHANGELOG%2C1.174%2C1.175%20Makefile%2C1.26%2C1.27%20ShmClient.c%2C1.9%2C1.10%20setup-softdevice-menu.c%2C1.2%2C1.3%20setup-softdevice.h%2C1.26%2C1.27%20softdevice.c%2C1.56%2C1.57%20softdevice.h%2C1.8%2C1.9%20utils.c%2C1.11%2C1.12%20utils.h%2C1.6%2C1.7%20video-shm.c%2C1.6%2C1.7%20xscreensaver.c%2C1.3%2C1.4&In-Reply-To=%3C200604231955.k3NJtWt31885%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice setup-softdevice-menu.h,NONE,1.1 VdrReplacements.c,NONE,1.1 VdrReplacements.h,NONE,1.1 CHANGELOG,1.174,1.175 Makefile,1.26,1.27 ShmClient.c,1.9,1.10 setup-softdevice-menu.c,1.2,1.3 setup-softdevice.h,1.26,1.27 softdevice.c,1.56,1.57 softdevice.h,1.8,1.9 utils.c,1.11,1.12 utils.h,1.6,1.7 video-shm.c,1.6,1.7 xscreensaver.c,1.3,1.4">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Apr 23 21:55:32 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000328.html">[Softdevice-cvs] softdevice video-xv.c,1.51,1.52 video-xv.h,1.19,1.20 video-dfb.c,1.53,1.54 video-dfb.h,1.18,1.19 video.c,1.49,1.50 video.h,1.33,1.34
+</A></li>
+        <LI>Next message: <A HREF="000330.html">[Softdevice-cvs] softdevice setup-softdevice.c,1.41,1.42
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#329">[ date ]</a>
+              <a href="thread.html#329">[ thread ]</a>
+              <a href="subject.html#329">[ subject ]</a>
+              <a href="author.html#329">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv8357
+
+Modified Files:
+	CHANGELOG Makefile ShmClient.c setup-softdevice-menu.c 
+	setup-softdevice.h softdevice.c softdevice.h utils.c utils.h 
+	video-shm.c xscreensaver.c 
+Added Files:
+	setup-softdevice-menu.h VdrReplacements.c VdrReplacements.h 
+Log Message:
+- no longer link ShmClient to vdr objects
+
+
+--- NEW FILE: setup-softdevice-menu.h ---
+/*
+ * setup-softdevice-menu.h
+ *
+ * See the README file for copyright information and how to reach the authors.
+ *
+ * $Id: setup-softdevice-menu.h,v 1.1 2006/04/23 19:55:53 wachm Exp $
+ */
+
+#ifndef __SETUP_SOFTDEVICE_MENU_H
+#define __SETUP_SOFTDEVICE_MENU_H
+
+#include &quot;setup-softdevice.h&quot;
+
+/* ---------------------------------------------------------------------------
+ */
+class cMenuSetupVideoParm : public cOsdMenu
+{
+  private:
+    cSetupStore *data, copyData;
+
+  protected:
+    virtual eOSState ProcessKey(eKeys Key);
+
+  public:
+    cMenuSetupVideoParm(const char *name);
+};
+
+/* ---------------------------------------------------------------------------
+ */
+class cMenuSetupCropping : public cOsdMenu
+{
+  private:
+    cSetupStore *data, copyData;
+
+  protected:
+    virtual eOSState ProcessKey(eKeys Key);
+
+  public:
+    cMenuSetupCropping(const char *name);
+};
+
+/* ---------------------------------------------------------------------------
+ */
+class cMenuSetupPostproc : public cOsdMenu
+{
+  private:
+    cSetupStore *data, copyData;
+
+  protected:
+    virtual eOSState ProcessKey(eKeys Key);
+
+  public:
+    cMenuSetupPostproc(const char *name);
+};
+
+/* ---------------------------------------------------------------------------
+ */
+class cMenuSetupSoftdevice : public cMenuSetupPage {
+  private:
+    cSetupStore *data, copyData;
+
+  protected:
+    virtual eOSState ProcessKey(eKeys Key);
+    virtual void Store(void);
+
+  public:
+    cMenuSetupSoftdevice(cPlugin *plugin = NULL);
+};
+#endif
+
+
+--- NEW FILE: VdrReplacements.c ---
+/*
+ * softdevice plugin for VDR
+ *
+ * Copyright (C) 2005 Martin Wache
+ *
+ * This code is distributed under the terms and conditions of the
+ * GNU GENERAL PUBLIC LICENSE. See the file COPYING for details.
+ *
+ * $Id: VdrReplacements.c,v 1.1 2006/04/23 19:55:53 wachm Exp $
+ */
+
+#include &quot;VdrReplacements.h&quot;
+#include &lt;stdio.h&gt;
+#include &lt;unistd.h&gt;
+
+cMutex::cMutex() {
+        pthread_mutexattr_t attr;
+        pthread_mutexattr_init(&amp;attr);
+        pthread_mutexattr_settype(&amp;attr, PTHREAD_MUTEX_ERRORCHECK_NP);
+        pthread_mutex_init(&amp;mutex, &amp;attr);
+};
+
+cMutex::~cMutex() {
+        pthread_mutex_destroy(&amp;mutex);
+};
+
+void cMutex::Lock() {
+        pthread_mutex_lock(&amp;mutex);
+};
+
+void cMutex::Unlock() {
+        pthread_mutex_unlock(&amp;mutex);
+};
+
+//-------------------------------------------------------------------------
+
+void StartThread(cThread *thread) {
+        thread-&gt;active=true;
+        thread-&gt;Action();
+        thread-&gt;active=false;
+};
+
+cThread::cThread() {
+        active=false;
+};
+
+cThread::~cThread() {
+        Cancel();
+}; 
+
+bool cThread::Start() {
+        if (active)
+                return false;
+
+        active=true;
+        if ( pthread_create(&amp;childTid, NULL, (void *(*) (void*))&amp;StartThread,
+                                        (void *)this)!=0 ) {
+                fprintf(stderr,&quot;Error starting thread\n&quot;);
+                active=false;
+                return false;
+        };
+
+        pthread_detach(childTid);
+        return true;
+};
+
+void cThread::Cancel(int TimeOut) {
+        int timeoutms=TimeOut*1000;
+        while (active &amp;&amp; TimeOut&gt;0) {
+                usleep(5000);
+                timeoutms-=5000;
+        };
+
+        if (active) {
+                pthread_cancel(childTid);
+                childTid=0;
+                active=false;
+        };
+};
+
+
+--- NEW FILE: VdrReplacements.h ---
+/*
+ * softdevice plugin for VDR
+ *
+ * Copyright (C) 2005 Martin Wache
+ *
+ * This code is distributed under the terms and conditions of the
+ * GNU GENERAL PUBLIC LICENSE. See the file COPYING for details.
+ *
+ * $Id: VdrReplacements.h,v 1.1 2006/04/23 19:55:53 wachm Exp $
+ */
+
+#ifndef __VDRREPLACEMENTS_H__
+#define __VDRREPLACEMENTS_H__
+
+#include &lt;pthread.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;stdint.h&gt;
+
+#define VDRVERSNUM 10308
+
+#define esyslog(out...) while (0) { fprintf(stderr,&quot;esyslog:&quot;); \
+                                    fprintf(stderr,out);\
+                                    fprintf(stderr,&quot;\n&quot;); }
+#define dsyslog(out...) while (0) { fprintf(stderr,&quot;dsyslog:&quot;); \
+                                    fprintf(stderr,out);\
+                                    fprintf(stderr,&quot;\n&quot;); }
+#define isyslog(out...) while (0) { fprintf(stdout,&quot;isyslog:&quot;); \
+                                    fprintf(stdout,out);\
+                                    fprintf(stdout,&quot;\n&quot;); }
+
+#define tr(out) out
+
+typedef unsigned long long int uint64;
+typedef int eKeys;
+
+class cSoftRemote {
+  public: 
+          cSoftRemote(const char *Name) {};
+          virtual ~cSoftRemote()
+          {};
+          const char *Name() 
+          {return NULL; };
+          virtual bool PutKey(uint64_t Code, bool Repeat = false, 
+                          bool Release = false)
+          {return true;};
+};
+
+class cMutex {
+        private:
+                pthread_mutex_t mutex;
+
+        public:
+                cMutex();
+                ~cMutex();
+
+                void Lock();
+                void Unlock();
+
+};
+
+class cThread {
+        friend void StartThread(cThread *);
+        private:
+                bool active;
+                pthread_t childTid;
+        public:
+                cThread();
+                virtual ~cThread();
+
+                bool Start();
+                void Cancel( int Timeout = 0 );
+
+                virtual void Action()
+                {};
+};
+
+        
+
+#endif
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.174
+retrieving revision 1.175
+diff -C2 -d -r1.174 -r1.175
+*** CHANGELOG	23 Apr 2006 17:56:09 -0000	1.174
+--- CHANGELOG	23 Apr 2006 19:55:53 -0000	1.175
+***************
+*** 4,7 ****
+--- 4,11 ----
+       -DNO_MIXER, currently experimental
+     - fix for vdr-1.3.48
++    - remove duplicate remote code, call ProcessEvents() from the video thread
++      and remove the RC thread
++    - no longer link ShmClient to vdr objects
++    - fix some includes
+  2006-04-21:
+     - updated finnish translations (by Rolf Ahrenberg).
+
+Index: Makefile
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/Makefile,v
+retrieving revision 1.26
+retrieving revision 1.27
+diff -C2 -d -r1.26 -r1.27
+*** Makefile	23 Apr 2006 17:56:12 -0000	1.26
+--- Makefile	23 Apr 2006 19:55:53 -0000	1.27
+***************
+*** 351,357 ****
+  		      ../../../config.o ../../../plugin.o\
+  		      ../../../sources.o
+! SHM_CLIENT_OBJS  = video.o video-xv.o setup-softdevice.o xscreensaver.o \
+! 		   utils.o
+  
+! ShmClient: ShmClient.o $(SHM_CLIENT_OBJS)
+! 	$(CXX) $(CXXFLAGS) $(XV_LIBS) $(VDR_SHM_CLIENT_OBJS) $(SHM_CLIENT_OBJS) -lpthread -ljpeg $&lt; -o $@
+--- 351,361 ----
+  		      ../../../config.o ../../../plugin.o\
+  		      ../../../sources.o
+! SHM_CLIENT_OBJS  = video_shm.o video-xv_shm.o setup-softdevice_shm.o\
+! 		   xscreensaver_shm.o utils_shm.o VdrReplacements_shm.o\
+! 		   ShmClient_shm.o
+  
+! %_shm.o: %.c
+! 	$(CXX) $(CXXFLAGS) -c $(DEFINES) -DSTAND_ALONE $(INCLUDES) $&lt; -o $@
+! 		   
+! ShmClient: $(SHM_CLIENT_OBJS)
+! 	$(CXX) $(CXXFLAGS) $(XV_LIBS)  $(SHM_CLIENT_OBJS) -lpthread -o $@
+
+Index: ShmClient.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/ShmClient.c,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -C2 -d -r1.9 -r1.10
+*** ShmClient.c	1 Apr 2006 08:26:56 -0000	1.9
+--- ShmClient.c	23 Apr 2006 19:55:53 -0000	1.10
+***************
+*** 11,14 ****
+--- 11,17 ----
+  
+  #include &lt;signal.h&gt;
++ #include &lt;string.h&gt;
++ #include &lt;unistd.h&gt;
++ #include &lt;stdlib.h&gt;
+  
+  #include &quot;video-xv.h&quot;
+***************
+*** 16,20 ****
+  #include &quot;utils.h&quot;
+  
+! #define SHMDEB(out...) {printf(&quot;SHMCLIENT[%04d]:&quot;,(int)(getTimeMilis() % 10000));printf(out);}
+  
+  #ifndef SHMDEB
+--- 19,23 ----
+  #include &quot;utils.h&quot;
+  
+! //#define SHMDEB(out...) {printf(&quot;SHMCLIENT[%04d]:&quot;,(int)(getTimeMilis() % 10000));printf(out);}
+  
+  #ifndef SHMDEB
+***************
+*** 30,46 ****
+  };
+  
+! class cShmXvRemote : public cXvRemote {
+          public:  
+!                 cShmXvRemote(const char *Name, cXvVideoOut *vout)
+!                         : cXvRemote(Name,vout) 
+                          {};
+                          
+!                 ~cShmXvRemote()
+                  {};
+  
+!                 virtual void   PutKey (KeySym key);
+  };
+  
+! void cShmXvRemote::PutKey(KeySym key) {
+          if (ctl) 
+          {
+--- 33,51 ----
+  };
+  
+! class cShmRemote : public cSoftRemote {
+          public:  
+!                 cShmRemote(const char *Name)
+!                         : cSoftRemote(Name) 
+                          {};
+                          
+!                 ~cShmRemote()
+                  {};
+  
+!                 virtual bool PutKey(uint64 Code, bool Repeat = false, 
+!                                 bool Release = false);
+  };
+  
+! bool cShmRemote::PutKey(uint64 Code, bool Repeat, 
+!                                 bool Release) {
+          if (ctl) 
+          {
+***************
+*** 49,53 ****
+                  SHMDEB(&quot;got lock for the key\n&quot;);
+                  
+!                 ctl-&gt;key=(uint64_t) key;
+  
+                  // release lock
+--- 54,58 ----
+                  SHMDEB(&quot;got lock for the key\n&quot;);
+                  
+!                 ctl-&gt;key=Code;
+  
+                  // release lock
+***************
+*** 57,61 ****
+                  SHMDEB(&quot;signal new key\n&quot;);
+          };
+! 
+  };
+  
+--- 62,66 ----
+                  SHMDEB(&quot;signal new key\n&quot;);
+          };
+!         return true;
+  };
+  
+***************
+*** 64,68 ****
+          SetupStore.xvFullscreen=0;
+          cXvVideoOut *vout=new cXvVideoOut(&amp;SetupStore);
+!         xvRemote= new cShmXvRemote (&quot;softdevice-xv&quot;,vout);
+          
+          signal(SIGINT,sig_handler);
+--- 69,73 ----
+          SetupStore.xvFullscreen=0;
+          cXvVideoOut *vout=new cXvVideoOut(&amp;SetupStore);
+!         xvRemote= new cShmRemote(&quot;softdevice-xv&quot;);
+          
+          signal(SIGINT,sig_handler);
+***************
+*** 92,98 ****
+                  exit(-1);
+          };
+!         xvRemote-&gt;XvRemoteStart();
+!         
+!         if (vout-&gt;useShm) {
+                  ctl-&gt;pict_shmid= vout-&gt;shminfo.shmid;  
+                  ctl-&gt;max_width=vout-&gt;xv_image-&gt;width;
+--- 97,102 ----
+                  exit(-1);
+          };
+!        
+!         if ( vout-&gt;useShm &amp;&amp; vout-&gt;xv_image ) {
+                  ctl-&gt;pict_shmid= vout-&gt;shminfo.shmid;  
+                  ctl-&gt;max_width=vout-&gt;xv_image-&gt;width;
+
+Index: setup-softdevice-menu.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice-menu.c,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** setup-softdevice-menu.c	14 Apr 2006 18:56:34 -0000	1.2
+--- setup-softdevice-menu.c	23 Apr 2006 19:55:53 -0000	1.3
+***************
+*** 7,12 ****
+   */
+  
+! #include &quot;video.h&quot;
+! #include &quot;setup-softdevice.h&quot;
+  
+  /* ---------------------------------------------------------------------------
+--- 7,12 ----
+   */
+  
+! //#include &quot;video.h&quot;
+! #include &quot;setup-softdevice-menu.h&quot;
+  
+  /* ---------------------------------------------------------------------------
+
+Index: setup-softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.h,v
+retrieving revision 1.26
+retrieving revision 1.27
+diff -C2 -d -r1.26 -r1.27
+*** setup-softdevice.h	14 Apr 2006 18:56:34 -0000	1.26
+--- setup-softdevice.h	23 Apr 2006 19:55:53 -0000	1.27
+***************
+*** 9,12 ****
+--- 9,19 ----
+  #ifndef __SETUP_SOFTDEVICE_H
+  #define __SETUP_SOFTDEVICE_H
++ #include &lt;stdint.h&gt;
++ 
++ #ifndef STAND_ALONE
++ #include &lt;vdr/menu.h&gt;
++ #else
++ #include &quot;VdrReplacements.h&quot;
++ #endif
+  
+  #define VOUT_XV       1
+***************
+*** 106,110 ****
+      void          CropModeNext(void);
+  
+!     virtual bool  CatchRemoteKey(const char *remoteName, uint64 key);
+  
+      int   xvAspect;
+--- 113,117 ----
+      void          CropModeNext(void);
+  
+!     virtual bool  CatchRemoteKey(const char *remoteName, uint64_t key);
+  
+      int   xvAspect;
+***************
+*** 155,214 ****
+  #define OSDMODE_PSEUDO    0
+  #define OSDMODE_SOFTWARE  1
+- 
+- /* ---------------------------------------------------------------------------
+-  */
+- class cMenuSetupVideoParm : public cOsdMenu
+- {
+-   private:
+-     cSetupStore *data, copyData;
+- 
+-   protected:
+-     virtual eOSState ProcessKey(eKeys Key);
+- 
+-   public:
+-     cMenuSetupVideoParm(const char *name);
+- };
+- 
+- /* ---------------------------------------------------------------------------
+-  */
+- class cMenuSetupCropping : public cOsdMenu
+- {
+-   private:
+-     cSetupStore *data, copyData;
+- 
+-   protected:
+-     virtual eOSState ProcessKey(eKeys Key);
+- 
+-   public:
+-     cMenuSetupCropping(const char *name);
+- };
+- 
+- /* ---------------------------------------------------------------------------
+-  */
+- class cMenuSetupPostproc : public cOsdMenu
+- {
+-   private:
+-     cSetupStore *data, copyData;
+- 
+-   protected:
+-     virtual eOSState ProcessKey(eKeys Key);
+- 
+-   public:
+-     cMenuSetupPostproc(const char *name);
+- };
+- 
+- /* ---------------------------------------------------------------------------
+-  */
+- class cMenuSetupSoftdevice : public cMenuSetupPage {
+-   private:
+-     cSetupStore *data, copyData;
+- 
+-   protected:
+-     virtual eOSState ProcessKey(eKeys Key);
+-     virtual void Store(void);
+- 
+-   public:
+-     cMenuSetupSoftdevice(cPlugin *plugin = NULL);
+- };
+  
+  extern cSetupStore setupStore;
+--- 162,165 ----
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.56
+retrieving revision 1.57
+diff -C2 -d -r1.56 -r1.57
+*** softdevice.c	23 Apr 2006 17:56:12 -0000	1.56
+--- softdevice.c	23 Apr 2006 19:55:53 -0000	1.57
+***************
+*** 77,80 ****
+--- 77,83 ----
+  #include &quot;mpeg2decoder.h&quot;
+  #include &quot;utils.h&quot;
++ #include &quot;setup-softdevice.h&quot;
++ #include &quot;setup-softdevice-menu.h&quot;
++ 
+  static const char *VERSION        = &quot;0.2.2&quot;;
+  static const char *DESCRIPTION    = &quot;A software emulated MPEG2 device&quot;;
+
+Index: softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.h,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -C2 -d -r1.8 -r1.9
+*** softdevice.h	6 Feb 2006 06:58:49 -0000	1.8
+--- softdevice.h	23 Apr 2006 19:55:53 -0000	1.9
+***************
+*** 14,21 ****
+  
+  #include &quot;i18n.h&quot;
+- #include &quot;setup-softdevice.h&quot;
+  #include &quot;audio.h&quot;
+  #include &quot;mpeg2decoder.h&quot;
+! #include &quot;utils.h&quot;
+  
+  // ---- Service interface ----------------------------------------------------
+--- 14,20 ----
+  
+  #include &quot;i18n.h&quot;
+  #include &quot;audio.h&quot;
+  #include &quot;mpeg2decoder.h&quot;
+! //#include &quot;utils.h&quot;
+  
+  // ---- Service interface ----------------------------------------------------
+
+Index: utils.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/utils.c,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -C2 -d -r1.11 -r1.12
+*** utils.c	14 Apr 2006 15:45:43 -0000	1.11
+--- utils.c	23 Apr 2006 19:55:53 -0000	1.12
+***************
+*** 17,20 ****
+--- 17,21 ----
+   * Author: Olie Lho &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">ollie at sis.com.tw</A>&gt;
+  */
++ #include &lt;stdlib.h&gt;
+  
+  #include &quot;utils.h&quot;
+
+Index: utils.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/utils.h,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -C2 -d -r1.6 -r1.7
+*** utils.h	14 Apr 2006 15:45:43 -0000	1.6
+--- utils.h	23 Apr 2006 19:55:53 -0000	1.7
+***************
+*** 8,12 ****
+  #ifndef UTILS_H
+  #define UTILS_H
+! #include &lt;vdr/plugin.h&gt;
+  #include &lt;sys/time.h&gt;
+  #include &quot;mmx.h&quot;
+--- 8,13 ----
+  #ifndef UTILS_H
+  #define UTILS_H
+! //#include &lt;vdr/plugin.h&gt;
+! #include &lt;stdint.h&gt;
+  #include &lt;sys/time.h&gt;
+  #include &quot;mmx.h&quot;
+
+Index: video-shm.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-shm.c,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -C2 -d -r1.6 -r1.7
+*** video-shm.c	21 Mar 2006 18:45:14 -0000	1.6
+--- video-shm.c	23 Apr 2006 19:55:53 -0000	1.7
+***************
+*** 13,17 ****
+  #include &quot;utils.h&quot;
+  
+! #define SHMDEB(out...) {printf(&quot;SHMSERV[%04d]:&quot;,(int)(getTimeMilis() % 10000));printf(out);}
+  
+  #ifndef SHMDEB
+--- 13,17 ----
+  #include &quot;utils.h&quot;
+  
+! //#define SHMDEB(out...) {printf(&quot;SHMSERV[%04d]:&quot;,(int)(getTimeMilis() % 10000));printf(out);}
+  
+  #ifndef SHMDEB
+
+Index: xscreensaver.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/xscreensaver.c,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** xscreensaver.c	25 Oct 2004 02:36:18 -0000	1.3
+--- xscreensaver.c	23 Apr 2006 19:55:53 -0000	1.4
+***************
+*** 22,26 ****
+--- 22,32 ----
+   */
+  
++ #ifndef STAND_ALONE
+  #include &lt;vdr/plugin.h&gt;
++ #else
++ #include &quot;VdrReplacements.h&quot;
++ #endif
++ 
++ #include &lt;string.h&gt;
+  #include &quot;xscreensaver.h&quot;
+  #include &quot;utils.h&quot;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000328.html">[Softdevice-cvs] softdevice video-xv.c,1.51,1.52 video-xv.h,1.19,1.20 video-dfb.c,1.53,1.54 video-dfb.h,1.18,1.19 video.c,1.49,1.50 video.h,1.33,1.34
+</A></li>
+	<LI>Next message: <A HREF="000330.html">[Softdevice-cvs] softdevice setup-softdevice.c,1.41,1.42
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#329">[ date ]</a>
+              <a href="thread.html#329">[ thread ]</a>
+              <a href="subject.html#329">[ subject ]</a>
+              <a href="author.html#329">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,574 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.270, 1.271 shm-common.h,	1.6, 1.7 ShmClient.c, 1.19, 1.20 video-shm.c, 1.14,	1.15 video-shm.h, 1.8, 1.9 video-xv.c, 1.66, 1.67 video-xv.h,	1.25, 1.26
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.270%2C%201.271%20shm-common.h%2C%0A%091.6%2C%201.7%20ShmClient.c%2C%201.19%2C%201.20%20video-shm.c%2C%201.14%2C%0A%091.15%20video-shm.h%2C%201.8%2C%201.9%20video-xv.c%2C%201.66%2C%201.67%20video-xv.h%2C%0A%091.25%2C%201.26&In-Reply-To=%3C20061126190115.72F05B2F9A%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000477.html">
+   <LINK REL="Next"  HREF="000479.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.270, 1.271 shm-common.h,	1.6, 1.7 ShmClient.c, 1.19, 1.20 video-shm.c, 1.14,	1.15 video-shm.h, 1.8, 1.9 video-xv.c, 1.66, 1.67 video-xv.h,	1.25, 1.26</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.270%2C%201.271%20shm-common.h%2C%0A%091.6%2C%201.7%20ShmClient.c%2C%201.19%2C%201.20%20video-shm.c%2C%201.14%2C%0A%091.15%20video-shm.h%2C%201.8%2C%201.9%20video-xv.c%2C%201.66%2C%201.67%20video-xv.h%2C%0A%091.25%2C%201.26&In-Reply-To=%3C20061126190115.72F05B2F9A%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.270, 1.271 shm-common.h,	1.6, 1.7 ShmClient.c, 1.19, 1.20 video-shm.c, 1.14,	1.15 video-shm.h, 1.8, 1.9 video-xv.c, 1.66, 1.67 video-xv.h,	1.25, 1.26">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Nov 26 20:01:15 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000477.html">[Softdevice-cvs] softdevice PicBuffer.c, 1.14, 1.15 PicBuffer.h, 1.5,	1.6 CHANGELOG, 1.269, 1.270
+</A></li>
+        <LI>Next message: <A HREF="000479.html">[Softdevice-cvs] softdevice setup-softdevice.c, 1.47,	1.48 setup-softdevice.h, 1.35, 1.36 VdrReplacements.h, 1.2,	1.3 video.h, 1.47, 1.48 CHANGELOG, 1.271, 1.272
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#478">[ date ]</a>
+              <a href="thread.html#478">[ thread ]</a>
+              <a href="subject.html#478">[ subject ]</a>
+              <a href="author.html#478">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv2346
+
+Modified Files:
+	CHANGELOG shm-common.h ShmClient.c video-shm.c video-shm.h 
+	video-xv.c video-xv.h 
+Log Message:
+- make it possible to use a color key other than 0x000000 for video-xv,
+  video-shm and ShmClient
+- change the default color key of xv-out to 0x001a0f00LL
+- add support for X11 drivers without xv support
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.270
+retrieving revision 1.271
+diff -C2 -d -r1.270 -r1.271
+*** CHANGELOG	26 Nov 2006 18:53:41 -0000	1.270
+--- CHANGELOG	26 Nov 2006 19:00:17 -0000	1.271
+***************
+*** 4,7 ****
+--- 4,11 ----
+       and ARGB_TO_RGB.
+     - introduce FillPicBuffer()
++    - make it possible to use a color key other than 0x000000 for video-xv,
++      video-shm and ShmClient
++    - change the default color key of xv-out to 0x001a0f00LL
++    - add support for X11 drivers without xv support
+  2006-11-22:
+     - remove cShmVideo::Process() method, and instead signal PICT_SIG
+
+Index: shm-common.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/shm-common.h,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -C2 -d -r1.6 -r1.7
+*** shm-common.h	4 Sep 2006 20:25:17 -0000	1.6
+--- shm-common.h	26 Nov 2006 19:00:17 -0000	1.7
+***************
+*** 19,23 ****
+  
+  
+! #define CTL_KEY 5679 
+  
+  union semun {
+--- 19,23 ----
+  
+  
+! #define CTL_KEY 5680
+  
+  union semun {
+***************
+*** 69,72 ****
+--- 69,73 ----
+          int osd_stride;
+          int new_osd;
++         int colorkey;
+          
+          /* is a client attached */
+
+Index: ShmClient.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/ShmClient.c,v
+retrieving revision 1.19
+retrieving revision 1.20
+diff -C2 -d -r1.19 -r1.20
+*** ShmClient.c	22 Nov 2006 22:35:54 -0000	1.19
+--- ShmClient.c	26 Nov 2006 19:00:17 -0000	1.20
+***************
+*** 217,220 ****
+--- 217,221 ----
+          vout-&gt;GetOSDDimension(ctl-&gt;osd_width,ctl-&gt;osd_height,
+                                ctl-&gt;osd_xPan,ctl-&gt;osd_yPan);
++         ctl-&gt;colorkey=vout-&gt;GetOSDColorkey();
+          //printf(&quot;osd_shmid %d stride %d\n&quot;,ctl-&gt;osd_shmid,ctl-&gt;osd_stride);
+  
+
+Index: video-shm.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-shm.c,v
+retrieving revision 1.14
+retrieving revision 1.15
+diff -C2 -d -r1.14 -r1.15
+*** video-shm.c	7 Nov 2006 19:40:10 -0000	1.14
+--- video-shm.c	26 Nov 2006 19:00:17 -0000	1.15
+***************
+*** 275,287 ****
+  };
+  
+  void cShmVideoOut::ClearOSD() {
+          SHMDEB(&quot;ClearOsd\n&quot;);
+          cVideoOut::ClearOSD();
+!         if (current_osdMode == OSDMODE_SOFTWARE)
+                  return;
+! 
+          CheckShmIDs();
+!         if (osd_surface)
+!                 memset (osd_surface, 0, ctl-&gt;osd_stride *ctl-&gt;osd_max_height);
+          ctl-&gt;new_osd++;
+          sem_sig_unlock(ctl-&gt;semid,PICT_SIG);
+--- 275,334 ----
+  };
+  
++ int cShmVideoOut::GetOSDColorkey() {
++         SHMDEB(&quot;GetOSDColorkey\n&quot;);
++ 
++         CheckShmIDs();
++         if (!ctl)
++                 return 0x000000;
++           
++         return ctl-&gt;colorkey;
++ };
++ 
+  void cShmVideoOut::ClearOSD() {
+          SHMDEB(&quot;ClearOsd\n&quot;);
+          cVideoOut::ClearOSD();
+! /*        if (current_osdMode == OSDMODE_SOFTWARE)
+                  return;
+! */
+          CheckShmIDs();
+!         if (!ctl)
+!                 return;
+! 
+!         SHMDEB(&quot;osd_surface %p dim: %d,%d depth %d colorkey %d \n&quot;,
+!                         osd_surface,ctl-&gt;osd_max_height,ctl-&gt;osd_max_width,
+!                         ctl-&gt;osd_depth,ctl-&gt;colorkey);
+!         
+!         if (osd_surface) {
+!                 uint32_t *dst32=(uint32_t*)osd_surface;
+!                 uint16_t *dst16=(uint16_t*)osd_surface;
+!                 uint8_t *dst8=(uint8_t*)osd_surface;
+!                 int i=ctl-&gt;osd_max_height*ctl-&gt;osd_max_width;
+!                 switch (ctl-&gt;osd_depth) {
+!                         case 32: 
+!                                 while (i) {
+!                                         dst32[i]=ctl-&gt;colorkey;
+!                                         i--;
+!                                 };
+!                                 break;
+!                         case 16: 
+!                                 while (i) {
+!                                         ARGB_TO_RGB(RGB16,dst16,
+!                                                         ctl-&gt;colorkey);
+!                                         dst16++;
+!                                         i--;
+!                                 };
+!                                 break;
+!                         case 24: 
+!                                 while (i) {
+!                                         ARGB_TO_RGB(RGB24,dst8,
+!                                                         ctl-&gt;colorkey);
+!                                         dst8+=3;
+!                                         i--;
+!                                 };
+!                                 break;
+!                         default:
+!                                 memset (osd_surface, 0, ctl-&gt;osd_stride *ctl-&gt;osd_max_height);
+!                 };
+!         };
+          ctl-&gt;new_osd++;
+          sem_sig_unlock(ctl-&gt;semid,PICT_SIG);
+***************
+*** 294,304 ****
+  };
+  
+- void cShmVideoOut::ProcessEvents() {
+-         // I don't know if there is a timeout mechanism (which would probably the better solution),
+-         // so we just signal every once and a while so that the client processes its events.
+-         SIGDEB(&quot;ProcessEvents sending signal\n&quot;);
+-         sem_sig_unlock(ctl-&gt;semid,PICT_SIG);
+- }
+- 
+  void cShmVideoOut::Suspend() {
+          SHMDEB(&quot;Suspend shm server\n&quot;);
+--- 341,344 ----
+***************
+*** 351,355 ****
+          ctl-&gt;new_asp=GetAspect_F();
+          if (OSDpresent &amp;&amp; current_osdMode==OSDMODE_SOFTWARE) {
+- 
+                  CopyPicBufAlphaBlend(&amp;privBuf,buf,
+                                  OsdPy,OsdPu,OsdPv,OsdPAlphaY,OsdPAlphaUV, OSD_FULL_WIDTH,
+--- 391,394 ----
+
+Index: video-shm.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-shm.h,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -C2 -d -r1.8 -r1.9
+*** video-shm.h	18 Sep 2006 10:50:33 -0000	1.8
+--- video-shm.h	26 Nov 2006 19:00:17 -0000	1.9
+***************
+*** 46,51 ****
+          virtual void AdjustOSDMode();
+  
+-         virtual void ProcessEvents();
+- 
+          virtual void GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight,
+                                       int &amp;xPan, int &amp;yPan);
+--- 46,49 ----
+***************
+*** 59,62 ****
+--- 57,61 ----
+          virtual void CommitUnlockOsdSurface();
+          virtual void ClearOSD();
++         virtual int GetOSDColorkey();
+  
+          virtual void Suspend();
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.66
+retrieving revision 1.67
+diff -C2 -d -r1.66 -r1.67
+*** video-xv.c	20 Nov 2006 19:36:31 -0000	1.66
+--- video-xv.c	26 Nov 2006 19:00:17 -0000	1.67
+***************
+*** 33,36 ****
+--- 33,38 ----
+  
+  #define NO_DIRECT_RENDERING
++ //#define COLOR_KEY 0x00000000
++ #define COLOR_KEY 0x001a0f00LL
+  
+  int pixFormat[3]={
+***************
+*** 42,45 ****
+--- 44,48 ----
+  cSoftRemote        *xvRemote = NULL;
+  static cScreensaver     *xScreensaver = NULL;
++ static int colorkey;
+  
+  static XErrorHandler old_handler = 0;
+***************
+*** 1026,1035 ****
+            }
+    };
+    if (osd_image) {
+            Bpp=osd_image-&gt;bits_per_pixel;
+            fprintf(stderr, &quot;[XvVideoOut]: got osd_image: width&quot;
+!                           &quot; %d height %d, bytes per line %d\n&quot;,
+                            osd_max_width, osd_max_height,
+!                           osd_image-&gt;bytes_per_line);
+    };
+    rc = XClearArea (dpy, win, 0, 0, 0, 0, True);
+--- 1029,1052 ----
+            }
+    };
++   InitPicBuffer(&amp;osdBuf);
+    if (osd_image) {
+            Bpp=osd_image-&gt;bits_per_pixel;
+            fprintf(stderr, &quot;[XvVideoOut]: got osd_image: width&quot;
+!                           &quot; %d height %d, bytes per line %d, Bpp %d\n&quot;,
+                            osd_max_width, osd_max_height,
+!                           osd_image-&gt;bytes_per_line,osd_image-&gt;bits_per_pixel);
+!           switch (osd_image-&gt;bits_per_pixel) {
+!                   case 32 : osdBuf.format=PIX_FMT_RGBA32;
+!                             break;
+!                   case 24 : osdBuf.format=PIX_FMT_RGB24;
+!                             break;
+!                   case 16 : 
+!                   default:
+!                            osdBuf.format=PIX_FMT_RGB555;
+!           };
+!           osdBuf.max_width=osd_max_width;
+!           osdBuf.max_height=osd_max_height;
+!           osdBuf.pixel[0]=(uint8_t*)osd_image-&gt;data;
+!           osdBuf.stride[0]=osd_image-&gt;bytes_per_line;
+    };
+    rc = XClearArea (dpy, win, 0, 0, 0, 0, True);
+***************
+*** 1107,1110 ****
+--- 1124,1130 ----
+    xvHeight=height;
+  
++ //  pthread_mutex_unlock(&amp;xv_mutex);
++ //  return false;
++ 
+    /*
+     * So let's first check for an available adaptor and port
+***************
+*** 1221,1225 ****
+    attributeStore.SetXInfo(dpy,port,setupStore);
+    attributeStore.Save();
+!   attributeStore.SetColorkey(0x00000000);
+    attributeStore.SetValue(&quot;XV_AUTOPAINT_COLORKEY&quot;,0);
+  
+--- 1241,1261 ----
+    attributeStore.SetXInfo(dpy,port,setupStore);
+    attributeStore.Save();
+! 
+!   switch (osdBuf.format) {
+!           case PIX_FMT_RGBA32:
+!                   ARGB_TO_RGB(RGB32,&amp;colorkey,COLOR_KEY);
+!                   break;
+!           case PIX_FMT_RGB24:
+!                   ARGB_TO_RGB(RGB24,&amp;colorkey,COLOR_KEY);
+!                   break;
+!           case PIX_FMT_RGB555:
+!           default:
+!                   ARGB_TO_RGB(RGB16,&amp;colorkey,COLOR_KEY);
+!                   break;
+!   };               
+!   dsyslog(&quot;[XvVideoOut]: using color key 0x%0x&quot;,colorkey);
+!   FillPicBuffer(&amp;osdBuf,colorkey);
+!   attributeStore.SetColorkey(colorkey);
+!   //attributeStore.SetColorkey(0x00000000);
+    attributeStore.SetValue(&quot;XV_AUTOPAINT_COLORKEY&quot;,0);
+  
+***************
+*** 1282,1285 ****
+--- 1318,1322 ----
+    rc = PutXvImage(xv_image,privBuf.edge_width,privBuf.edge_height);
+    rc = XClearArea (dpy, win, 0, 0, 0, 0, True);
++   ShowOSD();
+    rc = XSync(dpy, False);
+  
+***************
+*** 1576,1596 ****
+  }
+  
+- 
+- /* ---------------------------------------------------------------------------
+-  */
+- void cXvVideoOut::CloseOSD()
+- {
+-   cVideoOut::CloseOSD();
+-   if (videoInitialized)
+-   {
+-     memset (osd_buffer, 0, osd_image-&gt;bytes_per_line * osd_max_height);
+-     pthread_mutex_lock(&amp;xv_mutex);
+-     XClearArea (dpy, win, 0, 0, 0, 0, False);
+-     ShowOSD();
+-     XSync(dpy, False);
+-     pthread_mutex_unlock(&amp;xv_mutex);
+-   }
+- }
+- 
+  /* ---------------------------------------------------------------------------
+   */
+--- 1613,1616 ----
+***************
+*** 1600,1605 ****
+    if ( videoInitialized ) {
+      pthread_mutex_lock(&amp;xv_mutex);
+!     memset (osd_buffer, 0, osd_image-&gt;bytes_per_line * osd_max_height);
+!     XClearArea (dpy, win, 0, 0, 0, 0, False);
+      XSync(dpy, False);
+      pthread_mutex_unlock(&amp;xv_mutex);
+--- 1620,1625 ----
+    if ( videoInitialized ) {
+      pthread_mutex_lock(&amp;xv_mutex);
+!     FillPicBuffer(&amp;osdBuf,colorkey);
+!     ShowOSD();
+      XSync(dpy, False);
+      pthread_mutex_unlock(&amp;xv_mutex);
+***************
+*** 1613,1617 ****
+    if (xv_initialized)
+            current_osdMode = setupStore-&gt;osdMode;
+!   else current_osdMode = OSDMODE_PSEUDO;
+  }
+  
+--- 1633,1644 ----
+    if (xv_initialized)
+            current_osdMode = setupStore-&gt;osdMode;
+!   else current_osdMode = OSDMODE_SOFTWARE;
+! }
+! 
+! /* ---------------------------------------------------------------------------
+!  */
+! int cXvVideoOut::GetOSDColorkey()
+! {
+!   return COLOR_KEY;
+  }
+  
+***************
+*** 1684,1690 ****
+  void cXvVideoOut::ShowOSD ()
+  {
+!   if (current_osdMode==OSDMODE_PSEUDO ) {
+      int x= lwidth &gt; osd_max_width ?(lwidth - osd_max_width)/2+lxoff:lxoff;
+      int y= lheight &gt; osd_max_height ? (lheight - osd_max_height) / 2+lyoff:lyoff;
+      if (useShm)
+        XShmPutImage (dpy, win, gc, osd_image,
+--- 1711,1718 ----
+  void cXvVideoOut::ShowOSD ()
+  {
+! //  if (current_osdMode==OSDMODE_PSEUDO ) {
+      int x= lwidth &gt; osd_max_width ?(lwidth - osd_max_width)/2+lxoff:lxoff;
+      int y= lheight &gt; osd_max_height ? (lheight - osd_max_height) / 2+lyoff:lyoff;
++     //printf(&quot; %d, %d, off %d, %d dim %d, %d \n&quot;,1,1,x,y,lwidth-1,lheight-1);fflush(stdout);
+      if (useShm)
+        XShmPutImage (dpy, win, gc, osd_image,
+***************
+*** 1699,1703 ****
+            x,y,
+            lwidth-1,lheight-1);
+!   }
+  }
+  
+--- 1727,1731 ----
+            x,y,
+            lwidth-1,lheight-1);
+!   //}
+  }
+  
+***************
+*** 1713,1723 ****
+                    DeInitXv();
+            if ( !Reconfigure(setupStore-&gt;pixelFormat,
+!                                   buf-&gt;max_width,buf-&gt;max_height) )
+                    return;
+    };
+  
+!   if (!videoInitialized || !xv_initialized)
+      return;
+  
+    pthread_mutex_lock(&amp;xv_mutex);
+    if (aspect_changed ||
+--- 1741,1793 ----
+                    DeInitXv();
+            if ( !Reconfigure(setupStore-&gt;pixelFormat,
+!                                   buf-&gt;max_width,buf-&gt;max_height) ) {
+!                   printf(&quot;reconfigure failed\n&quot;);
+                    return;
++           };
+    };
+  
+!   if (!videoInitialized)
+      return;
+  
++   if (!xv_initialized) { 
++           // no xv, use software scaler and yuv-&gt;rgb conversion
++           pthread_mutex_lock(&amp;xv_mutex);
++           if (aspect_changed ||
++                           cutTop != setupStore-&gt;cropTopLines ||
++                           cutBottom != setupStore-&gt;cropBottomLines ||
++                           cutLeft != setupStore-&gt;cropLeftCols ||
++                           cutRight != setupStore-&gt;cropRightCols)
++           {
++                   XClearArea(dpy, win, 0, 0, 0, 0, False);
++                   aspect_changed = 0;
++                   cutTop = setupStore-&gt;cropTopLines;
++                   cutBottom = setupStore-&gt;cropBottomLines;
++                   cutLeft = setupStore-&gt;cropLeftCols;
++                   cutRight = setupStore-&gt;cropRightCols;
++                   ClearPicBuffer(&amp;osdBuf);
++           }
++           if ( OSDpresent ) {
++                   CopyScalePicBufAlphaBlend(&amp;osdBuf,buf,
++                                   sxoff, syoff,
++                                   swidth, sheight,
++                                   0,  0,
++                                   lwidth, lheight,
++                                   OsdPy,OsdPu,OsdPv,
++                                   OsdPAlphaY,OsdPAlphaUV,OSD_FULL_WIDTH,
++                                   cutTop,cutBottom,cutLeft,cutRight);
++           } else {
++                   CopyScalePicBuf(&amp;osdBuf, buf,                   
++                                   sxoff, syoff,
++                                   swidth, sheight,
++                                   0,  0,    
++                                   lwidth, lheight,
++                                   0,0,0,0);
++           };
++           ShowOSD();
++           XSync(dpy, False);
++           pthread_mutex_unlock(&amp;xv_mutex);
++           return;
++   };
++   
+    pthread_mutex_lock(&amp;xv_mutex);
+    if (aspect_changed ||
+
+Index: video-xv.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.h,v
+retrieving revision 1.25
+retrieving revision 1.26
+diff -C2 -d -r1.25 -r1.26
+*** video-xv.h	11 Nov 2006 08:45:17 -0000	1.25
+--- video-xv.h	26 Nov 2006 19:00:17 -0000	1.26
+***************
+*** 146,149 ****
+--- 146,150 ----
+    int               xv_max_width,xv_max_height;
+    sPicBuffer        privBuf;
++   sPicBuffer        osdBuf;
+  
+    XvImage           *dr_image[LAST_PICBUF];
+***************
+*** 179,182 ****
+--- 180,184 ----
+    virtual void ClearOSD();
+    virtual void AdjustOSDMode();
++   virtual int GetOSDColorkey();
+    virtual void GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight,
+                                 int &amp;xPan, int &amp;yPan);
+***************
+*** 186,190 ****
+                    bool *&amp;dirtyLines);
+    virtual void CommitUnlockOsdSurface();
+-   virtual void CloseOSD();
+    virtual bool Initialize (void);
+    virtual bool Reconfigure (int format = 0,
+--- 188,191 ----
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000477.html">[Softdevice-cvs] softdevice PicBuffer.c, 1.14, 1.15 PicBuffer.h, 1.5,	1.6 CHANGELOG, 1.269, 1.270
+</A></li>
+	<LI>Next message: <A HREF="000479.html">[Softdevice-cvs] softdevice setup-softdevice.c, 1.47,	1.48 setup-softdevice.h, 1.35, 1.36 VdrReplacements.h, 1.2,	1.3 video.h, 1.47, 1.48 CHANGELOG, 1.271, 1.272
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#478">[ date ]</a>
+              <a href="thread.html#478">[ thread ]</a>
+              <a href="subject.html#478">[ subject ]</a>
+              <a href="author.html#478">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

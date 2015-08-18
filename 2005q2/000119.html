@@ -1,0 +1,102 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice video-fb.c,1.8,1.9
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-fb.c%2C1.8%2C1.9&In-Reply-To=%3C200505202136.j4KLa6m29654%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000118.html">
+   <LINK REL="Next"  HREF="000120.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice video-fb.c,1.8,1.9</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-fb.c%2C1.8%2C1.9&In-Reply-To=%3C200505202136.j4KLa6m29654%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice video-fb.c,1.8,1.9">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri May 20 23:36:06 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000118.html">[Softdevice-cvs] softdevice CHANGELOG,1.66,1.67 README,1.4,1.5 video.c,1.18,1.19
+</A></li>
+        <LI>Next message: <A HREF="000120.html">[Softdevice-cvs] softdevice mpeg2decoder.c,1.35,1.36
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#119">[ date ]</a>
+              <a href="thread.html#119">[ thread ]</a>
+              <a href="subject.html#119">[ subject ]</a>
+              <a href="author.html#119">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv18340
+
+Modified Files:
+	video-fb.c 
+Log Message:
+- fix possible segfault when resolution smaller than osd size
+
+
+Index: video-fb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-fb.c,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -C2 -d -r1.8 -r1.9
+*** video-fb.c	3 Mar 2005 20:22:17 -0000	1.8
+--- video-fb.c	20 May 2005 21:36:04 -0000	1.9
+***************
+*** 124,132 ****
+        printf(&quot;[video-fb] Using mmx_unpack_15rgb\n&quot;);
+      };
+!       
+  #if VDRVERSNUM &lt; 10307
+!     PixelMask = (unsigned char *)malloc(Xres*Yres/8 ); // where the Video window should be transparent
+  #else
+!     PixelMask = (unsigned char *)malloc(Yres*line_len / ((Bpp+7) / 8) / 8); // where the Video window should be transparent
+  #endif
+  
+--- 124,134 ----
+        printf(&quot;[video-fb] Using mmx_unpack_15rgb\n&quot;);
+      };
+! 
+!     int OsdYres=Yres&gt;OSD_FULL_HEIGHT?Yres:OSD_FULL_HEIGHT;
+  #if VDRVERSNUM &lt; 10307
+!     int OsdXres=Xres&gt;OSD_FULL_WIDTH?Xres:OSD_FULL_WIDTH;
+!     PixelMask = (unsigned char *)malloc(OsdXres*OsdYres/8 ); // where the Video window should be transparent
+  #else
+!     PixelMask = (unsigned char *)malloc(OsdYres*line_len / ((Bpp+7) / 8) / 8); // where the Video window should be transparent
+  #endif
+  
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000118.html">[Softdevice-cvs] softdevice CHANGELOG,1.66,1.67 README,1.4,1.5 video.c,1.18,1.19
+</A></li>
+	<LI>Next message: <A HREF="000120.html">[Softdevice-cvs] softdevice mpeg2decoder.c,1.35,1.36
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#119">[ date ]</a>
+              <a href="thread.html#119">[ thread ]</a>
+              <a href="subject.html#119">[ subject ]</a>
+              <a href="author.html#119">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

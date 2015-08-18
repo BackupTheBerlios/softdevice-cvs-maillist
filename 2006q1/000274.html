@@ -1,0 +1,1945 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice ShmClient.c,NONE,1.1 shm-common.h,NONE,1.1 video-shm.c,NONE,1.1 video-shm.h,NONE,1.1 setup-softdevice-menu.c,NONE,1.1 CHANGELOG,1.141,1.142 README,1.11,1.12 setup-softdevice.c,1.39,1.40 setup-softdevice.h,1.24,1.25 Makefile,1.21,1.22 softdevice.c,1.50,1.51 video.c,1.39,1.40 video.h,1.25,1.26
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20ShmClient.c%2CNONE%2C1.1%20shm-common.h%2CNONE%2C1.1%20video-shm.c%2CNONE%2C1.1%20video-shm.h%2CNONE%2C1.1%20setup-softdevice-menu.c%2CNONE%2C1.1%20CHANGELOG%2C1.141%2C1.142%20README%2C1.11%2C1.12%20setup-softdevice.c%2C1.39%2C1.40%20setup-softdevice.h%2C1.24%2C1.25%20Makefile%2C1.21%2C1.22%20softdevice.c%2C1.50%2C1.51%20video.c%2C1.39%2C1.40%20video.h%2C1.25%2C1.26&In-Reply-To=%3C200601172045.k0HKjmx31719%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000273.html">
+   <LINK REL="Next"  HREF="000275.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice ShmClient.c,NONE,1.1 shm-common.h,NONE,1.1 video-shm.c,NONE,1.1 video-shm.h,NONE,1.1 setup-softdevice-menu.c,NONE,1.1 CHANGELOG,1.141,1.142 README,1.11,1.12 setup-softdevice.c,1.39,1.40 setup-softdevice.h,1.24,1.25 Makefile,1.21,1.22 softdevice.c,1.50,1.51 video.c,1.39,1.40 video.h,1.25,1.26</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20ShmClient.c%2CNONE%2C1.1%20shm-common.h%2CNONE%2C1.1%20video-shm.c%2CNONE%2C1.1%20video-shm.h%2CNONE%2C1.1%20setup-softdevice-menu.c%2CNONE%2C1.1%20CHANGELOG%2C1.141%2C1.142%20README%2C1.11%2C1.12%20setup-softdevice.c%2C1.39%2C1.40%20setup-softdevice.h%2C1.24%2C1.25%20Makefile%2C1.21%2C1.22%20softdevice.c%2C1.50%2C1.51%20video.c%2C1.39%2C1.40%20video.h%2C1.25%2C1.26&In-Reply-To=%3C200601172045.k0HKjmx31719%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice ShmClient.c,NONE,1.1 shm-common.h,NONE,1.1 video-shm.c,NONE,1.1 video-shm.h,NONE,1.1 setup-softdevice-menu.c,NONE,1.1 CHANGELOG,1.141,1.142 README,1.11,1.12 setup-softdevice.c,1.39,1.40 setup-softdevice.h,1.24,1.25 Makefile,1.21,1.22 softdevice.c,1.50,1.51 video.c,1.39,1.40 video.h,1.25,1.26">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue Jan 17 21:45:48 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000273.html">[Softdevice-cvs] softdevice video.c,1.38,1.39 video.h,1.24,1.25 CHANGELOG,1.140,1.141
+</A></li>
+        <LI>Next message: <A HREF="000275.html">[Softdevice-cvs] softdevice CHANGELOG,1.142,1.143 video.c,1.40,1.41
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#274">[ date ]</a>
+              <a href="thread.html#274">[ thread ]</a>
+              <a href="subject.html#274">[ subject ]</a>
+              <a href="author.html#274">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv8595
+
+Modified Files:
+	CHANGELOG README setup-softdevice.c setup-softdevice.h 
+	Makefile softdevice.c video.c video.h 
+Added Files:
+	ShmClient.c shm-common.h video-shm.c video-shm.h 
+	setup-softdevice-menu.c 
+Log Message:
+- add video-shm and ShmClient, a simple server/client model for the 
+  softdevice. See the file README for details.   
+
+
+
+--- NEW FILE: ShmClient.c ---
+/*
+ * softdevice plugin for VDR
+ *
+ * Copyright (C) 2005 Martin Wache
+ *
+ * This code is distributed under the terms and conditions of the
+ * GNU GENERAL PUBLIC LICENSE. See the file COPYING for details.
+ *
+ * $Id: ShmClient.c,v 1.1 2006/01/17 20:45:46 wachm Exp $
+ */
+
+#include &lt;signal.h&gt;
+
+#include &quot;video-xv.h&quot;
+#include &quot;shm-common.h&quot;
+#include &quot;vdr/keys.h&quot;
+#include &quot;utils.h&quot;
+
+#define SHMDEB(out...) {printf(&quot;SHMCLIENT[%04d]:&quot;,(int)(getTimeMilis() % 10000));printf(out);}
+
+#ifndef SHMDEB
+#define SHMDEB(out...)
+#endif
+
+ShmCtlBlock * ctl;
+bool active=true;
+
+void sig_handler(int signal) {
+        printf(&quot;got signal, ending\n&quot;);
+        active=false;
+};
+
+class cShmXvRemote : public cXvRemote {
+        public:  
+                cShmXvRemote(const char *Name, cXvVideoOut *vout)
+                        : cXvRemote(Name,vout) 
+                        {};
+                        
+                ~cShmXvRemote()
+                {};
+
+                virtual void   PutKey (KeySym key);
+};
+
+void cShmXvRemote::PutKey(KeySym key) {
+        if (ctl) 
+        {
+                SHMDEB(&quot;get lock for the key\n&quot;);
+                sem_wait_lock(ctl-&gt;semid,KEY_MUT);
+                SHMDEB(&quot;got lock for the key\n&quot;);
+                
+                ctl-&gt;key=(uint64_t) key;
+
+                // release lock
+                sem_sig_unlock(ctl-&gt;semid,KEY_MUT);
+                // signal new key
+                sem_sig_unlock(ctl-&gt;semid,KEY_SIG);
+                SHMDEB(&quot;signal new key\n&quot;);
+        };
+
+};
+
+int main(int argc, char **argv) {
+        cSetupStore SetupStore;
+        cXvVideoOut *vout=new cXvVideoOut(&amp;SetupStore);
+        xvRemote= new cShmXvRemote (&quot;softdevice-xv&quot;,vout);
+        
+        signal(SIGINT,sig_handler);
+        signal(SIGQUIT,sig_handler);
+        
+        int ctl_shmid;
+        key_t ctl_key=CTL_KEY;
+ 
+        int curr_pict_shmid;
+        uint8_t *curr_pict;
+        uint8_t *pixel[4];
+       
+        if ((ctl_shmid = shmget(ctl_key, sizeof( ShmCtlBlock ), 0666)) &lt; 0) {
+                fprintf(stderr,&quot;ctl_shmid error in shmget!\n&quot;);
+                exit(1);
+        }
+        
+        if ( (ctl = (ShmCtlBlock *)shmat(ctl_shmid,NULL,0)) 
+                        == (ShmCtlBlock *) -1 ) {
+                fprintf(stderr,&quot;ctl_shmid error attatching shm ctl!\n&quot;);
+                exit(-1);
+        };
+
+        
+        // create a picture in shm
+        ctl-&gt;max_width=736;
+        ctl-&gt;max_height=576;
+        ctl-&gt;stride0=ctl-&gt;max_width;
+        ctl-&gt;stride2=ctl-&gt;stride1=ctl-&gt;max_width/2;
+        
+        if ( (ctl-&gt;pict_shmid = shmget(IPC_PRIVATE,
+                          ctl-&gt;max_width*ctl-&gt;max_height*2, 
+                          IPC_CREAT | 0666)) &lt; 0 ) {
+                fprintf(stderr,&quot;error creating  pict_shm!\n&quot;);
+                exit(-1);
+        };
+        
+        if ( (curr_pict = (uint8_t*)shmat(ctl-&gt;pict_shmid,NULL,0)) 
+                        == (uint8_t*) -1 ) {
+                fprintf(stderr,&quot;error attatching shm ctl!\n&quot;);
+                exit(-1);
+        };
+
+        // request removeing after detaching
+        if ( ctl-&gt;pict_shmid &gt; 0)
+                shmctl (ctl-&gt;pict_shmid, IPC_RMID, 0);
+ 
+        pixel[0]=curr_pict;
+        pixel[1]=curr_pict+ctl-&gt;height*ctl-&gt;stride0;
+        pixel[2]=pixel[1]+ctl-&gt;height/2*ctl-&gt;stride1;
+
+        ctl-&gt;attached=1;
+        
+        if ( !vout-&gt;Initialize() || !vout-&gt;Reconfigure(FOURCC_YV12) ) {
+                fprintf(stderr,&quot;Could not init video out!\n&quot;);
+                exit(-1);
+        };
+        xvRemote-&gt;XvRemoteStart();
+        
+                
+        ctl-&gt;key=NO_KEY;
+        // wakeup remote thread to unsuspend video/audio
+        sem_sig_unlock(ctl-&gt;semid,KEY_SIG);
+
+        while (active) {
+                //SHMDEB(&quot;wait for signal\n&quot;);
+                sem_wait_lock(ctl-&gt;semid,PICT_SIG);
+                //SHMDEB(&quot;got signal\n&quot;);
+                sem_wait_lock(ctl-&gt;semid,PICT_MUT,SEM_UNDO);
+                //SHMDEB(&quot;got lock\n&quot;);
+                
+                int width=ctl-&gt;width&gt;ctl-&gt;max_width?ctl-&gt;max_width:ctl-&gt;width;
+                int height=ctl-&gt;height&gt;ctl-&gt;max_height?
+                        ctl-&gt;max_height:ctl-&gt;height;
+
+                vout-&gt;CheckArea(width,height);
+                vout-&gt;CheckAspect(ctl-&gt;new_afd,ctl-&gt;new_asp);
+                vout-&gt;YUV(pixel[0],pixel[1],pixel[2],
+                                width,height,
+                                ctl-&gt;stride0,ctl-&gt;stride1);
+                ctl-&gt;new_pict=0;
+                
+                // consumed all pictures - set semaphore to 0
+                sem_zero(ctl-&gt;semid,PICT_SIG);
+                // unlock picture ctl
+                sem_sig_unlock(ctl-&gt;semid,PICT_MUT,SEM_UNDO);
+                //SHMDEB(&quot;released the lock\n&quot;);
+                
+        };
+        ctl-&gt;attached=0;
+        ctl-&gt;pict_shmid=-1;
+};
+
+
+--- NEW FILE: shm-common.h ---
+/*
+ * softdevice plugin for VDR
+ *
+ * Copyright (C) 2005 Martin Wache
+ *
+ * This code is distributed under the terms and conditions of the
+ * GNU GENERAL PUBLIC LICENSE. See the file COPYING for details.
+ *
+ * $Id: shm-common.h,v 1.1 2006/01/17 20:45:46 wachm Exp $
+ */
+#ifndef __SHM_COMMON_H__
+#define __SHM_COMMON_H__
+
+
+#include &lt;sys/types.h&gt;
+#include &lt;sys/ipc.h&gt; 
+#include &lt;sys/shm.h&gt; 
+#include &lt;sys/sem.h&gt; 
+
+#include &quot;vdr/keys.h&quot;
+
+#define CTL_KEY 5678 
+
+union semun {
+        int val;                  
+        struct semid_ds *buf;     
+        unsigned short *array;    
+};
+
+
+#define PICT_SIG 0
+#define PICT_MUT 1
+
+#define KEY_SIG 2
+#define KEY_MUT 3
+
+#define NO_KEY 0x000000
+
+struct ShmCtlBlock {
+        /* semaphores */
+        int semid;
+        
+        /* picture control */
+        int pict_shmid;
+        
+        int max_width;
+        int max_height;        
+        int width;
+        int height;
+        int new_afd;
+        double new_asp;
+        int stride0;
+        int stride1;
+        int stride2;
+        int new_pict;
+        
+        /* is a client attached */
+        int attached;
+
+        /* keypress events */
+        uint64_t key;
+};
+
+inline void sem_wait_lock(int semid, int idx, int flag=0) 
+{
+        struct sembuf sem_op = { idx, -1, flag };
+        
+        semop(semid, &amp;sem_op,1);
+};
+
+inline void sem_sig_unlock(int semid, int idx,int flag=0) 
+{
+        struct sembuf sem_op = { idx, 1, flag };
+        
+        semop(semid, &amp;sem_op,1);
+};
+ 
+inline void sem_zero(int semid,int idx) {
+        semun sem_val;
+        sem_val.val = 0; 
+        semctl(semid,idx, SETVAL, sem_val);
+};
+
+#endif // SHM_COMMON
+
+--- NEW FILE: video-shm.c ---
+/*
+ * softdevice plugin for VDR
+ *
+ * Copyright (C) 2005 Martin Wache
+ *
+ * This code is distributed under the terms and conditions of the
+ * GNU GENERAL PUBLIC LICENSE. See the file COPYING for details.
+ *
+ * $Id: video-shm.c,v 1.1 2006/01/17 20:45:46 wachm Exp $
+ */
+
+#include &quot;video-shm.h&quot;
+#include &quot;utils.h&quot;
+#include &quot;SoftOsd.h&quot;
+
+#define SHMDEB(out...) {printf(&quot;SHMSERV[%04d]:&quot;,(int)(getTimeMilis() % 10000));printf(out);}
+
+#ifndef SHMDEB
+#define SHMDEB(out...)
+#endif
+  
+cShmRemote::~cShmRemote(){
+        SHMDEB(&quot;~cShmRemote\n&quot;);
+        Stop();
+        SHMDEB(&quot;~cShmRemote returned from cancel\n&quot;);
+};
+
+void cShmRemote::Action(void) {
+        while (active) {
+                SHMDEB(&quot;cShmRemote trying to get a lock\n&quot;);
+                sem_wait_lock(vout-&gt;ctl-&gt;semid,KEY_MUT);
+                SHMDEB(&quot;cShmRemote got lock\n&quot;);
+                
+                if (!vout-&gt;ctl-&gt;attached) {
+                        vout-&gt;setupStore-&gt;shouldSuspend=1;
+                } else vout-&gt;setupStore-&gt;shouldSuspend=0;
+            
+                if (vout-&gt;ctl-&gt;key!=NO_KEY) {
+                        SHMDEB(&quot;cShmRemote put key\n&quot;);
+                        // put and clear
+                        Put(vout-&gt;ctl-&gt;key);
+                        vout-&gt;ctl-&gt;key=NO_KEY;
+                };
+                        
+                // clear signal
+                sem_zero(vout-&gt;ctl-&gt;semid,KEY_SIG);
+                // release lock
+                sem_sig_unlock(vout-&gt;ctl-&gt;semid,KEY_MUT);
+
+                SHMDEB(&quot;wait for a new key\n&quot;);
+                sem_wait_lock(vout-&gt;ctl-&gt;semid,KEY_SIG);
+        };
+        SHMDEB(&quot;ShmRemote thread ended\n&quot;);
+};
+
+
+/*----------------------------------------------------------------------------*/
+cShmVideoOut::cShmVideoOut(cSetupStore *setupStore) 
+        : cVideoOut(setupStore) {
+        ctl_key = CTL_KEY;
+        bool Clear_Ctl=false;
+
+        // first try to get an existing ShmCltBlock
+        if  ( (ctl_shmid = shmget(ctl_key,sizeof(ShmCtlBlock), 0666)) &gt;= 0 ) {
+                fprintf(stderr,&quot;got ctl_shmid %d shm ctl!\n&quot;,ctl_shmid);
+        } else if ( (ctl_shmid = shmget(ctl_key,sizeof(ShmCtlBlock), 
+                                        IPC_CREAT | 0666)) &gt;= 0 ) {
+                fprintf(stderr,&quot;created ctl_shmid %d shm ctl!\n&quot;,ctl_shmid);
+                // created ShmCltBlock, clear it
+                Clear_Ctl=true;
+        } else {
+                fprintf(stderr,&quot;error creating shm ctl!\n&quot;);
+                exit(-1);
+        };
+
+        // attach to the control block
+        if ( (ctl = (ShmCtlBlock*)shmat(ctl_shmid,NULL,0)) 
+                        == (ShmCtlBlock*) -1 ) {
+                fprintf(stderr,&quot;error attatching shm ctl!\n&quot;);
+                exit(-1);
+        };
+
+        if (Clear_Ctl) {
+                ctl-&gt;semid=-1;
+                ctl-&gt;pict_shmid=-1;
+                ctl-&gt;attached = 0;
+        };
+
+        if ( ctl-&gt;semid == -1 ) {
+                // create semaphores
+                if ( (ctl-&gt;semid = semget(IPC_PRIVATE, 4, 0666 | IPC_CREAT) )
+                                == -1) {
+                        fprintf(stderr,&quot;error creating semaphore set!\n&quot;);
+                        exit(-1);
+                };
+                printf(&quot;created semaphores id %d\n&quot;,ctl-&gt;semid);
+        };
+
+        semun sem_val;
+        sem_val.val = 0; // nothing available
+        if ( semctl(ctl-&gt;semid,PICT_SIG, SETVAL, sem_val) == -1 ) {
+                printf(&quot;error resetting semaphore PICT_SIG\n&quot;);
+                exit(-1);
+        };
+        if ( semctl(ctl-&gt;semid,KEY_SIG,SETVAL,sem_val) == -1 ) {
+                printf(&quot;error resetting semaphore KEY_SIG\n&quot;);
+                exit(-1);
+        };
+        
+        sem_val.val = 1; // not locked
+        if ( semctl(ctl-&gt;semid,PICT_MUT, SETVAL, sem_val) == -1 ) {
+                printf(&quot;error resetting semaphore PICT_MUT\n&quot;);
+                exit(-1);
+        };
+        if ( semctl(ctl-&gt;semid,KEY_MUT,SETVAL,sem_val) == -1 ) {
+                printf(&quot;error resetting semaphore KEY_MUT\n&quot;);
+                exit(-1);
+        };
+   
+        curr_pict_shmid=0;
+        //ctl-&gt;pict_shmid=-1;
+        curr_pict=NULL;
+        ctl-&gt;key=kNone;
+        remote = new cShmRemote(&quot;softdevice-xv&quot;,this);
+};
+
+cShmVideoOut::~cShmVideoOut() {
+        // stop&amp;delete remote
+        remote-&gt;Stop();
+        
+        semun sem_val;
+        // remove semaphore 
+        if ( semctl(ctl-&gt;semid, 0, IPC_RMID, sem_val ) == -1) {
+            fprintf(stderr,&quot;error removeing semaphore set!\n&quot;);
+            exit(1);
+        }
+        ctl-&gt;semid=-1;
+        
+        if (curr_pict)
+                shmdt(curr_pict);
+        curr_pict=NULL;
+/*
+        if ( ctl_shmid &gt; 0)
+                shmctl (ctl_shmid, IPC_RMID, 0);
+*/
+};
+
+void cShmVideoOut::RefreshOSD(cSoftOsd *Osd,bool RefreshAll)
+{
+    if (current_osdMode==OSDMODE_SOFTWARE)
+	    Osd-&gt;CopyToBitmap(OsdPy,OsdPv,OsdPu,OsdPAlphaY,OsdPAlphaUV,
+                            OSD_FULL_WIDTH,OSD_FULL_WIDTH/2,
+			    OsdWidth,OsdHeight,RefreshAll);
+};
+
+void cShmVideoOut::YUV(uint8_t *Py, uint8_t *Pu, uint8_t *Pv,
+                     int Width, int Height, int Ystride, int UVstride) {
+        OsdRefreshCounter=0; 
+
+        if (!ctl-&gt;attached) {
+                setupStore-&gt;shouldSuspend=1;
+                return;
+        } else setupStore-&gt;shouldSuspend=0;
+
+        //SHMDEB(&quot;trying to get a lock\n&quot;);
+        sem_wait_lock(ctl-&gt;semid,PICT_MUT);
+        //SHMDEB(&quot;got a lock\n&quot;);
+        
+        if ( ctl-&gt;pict_shmid != curr_pict_shmid ) {
+                if (curr_pict) {
+                        shmdt(curr_pict);
+                        curr_pict=NULL;
+                };
+                
+                if ( ctl-&gt;pict_shmid != -1 ) {
+                       if ( (curr_pict = (uint8_t *)shmat(ctl-&gt;pict_shmid,NULL,0)) 
+                                       == (uint8_t*) -1 ) {
+                               fprintf(stderr,&quot;error attatching shm pict! Assumeing no client connected\n&quot;);
+                               ctl-&gt;pict_shmid = -1;
+                               ctl-&gt;attached = 0;
+                               curr_pict=NULL;
+                               sem_sig_unlock(ctl-&gt;semid,PICT_MUT);
+                               return;
+                       } 
+                       pixels[0]=curr_pict;
+                       pixels[1]=curr_pict+ctl-&gt;height*ctl-&gt;stride0;
+                       pixels[2]=pixels[1]+ctl-&gt;height/2*ctl-&gt;stride1;
+                       curr_pict_shmid=ctl-&gt;pict_shmid;
+                };
+        };
+
+        
+        if (!ctl-&gt;pict_shmid || !curr_pict) {
+                // unlock picture ctl
+                sem_sig_unlock(ctl-&gt;semid,PICT_MUT);
+                SHMDEB(&quot; no pict_shmid or no curr_pict unlock and return\n&quot;);
+                return;
+        };
+      
+        int width= ctl-&gt;max_width &lt; Width ? ctl-&gt;max_width : Width;
+        int height= ctl-&gt;max_height &lt; Height ? ctl-&gt;max_height : Height;    
+        
+        ctl-&gt;width=fwidth;
+        ctl-&gt;height=fheight;
+        ctl-&gt;new_afd=current_afd;
+        ctl-&gt;new_asp=GetAspect_F();
+        if (OSDpresent &amp;&amp; current_osdMode==OSDMODE_SOFTWARE) {
+                
+                for (int i = 0; i &lt; height; i++)
+                        AlphaBlend(pixels [0] + i * ctl-&gt;stride0,
+                                       OsdPy+i*OSD_FULL_WIDTH,
+                                       Py + i * Ystride,
+                                       OsdPAlphaY+i*OSD_FULL_WIDTH,
+                                       width );
+                for (int i = 0; i &lt; height / 2; i++)
+                        AlphaBlend(pixels [1] + i * ctl-&gt;stride1,
+                                        OsdPu+i*OSD_FULL_WIDTH/2,
+                                        Pu + i * UVstride ,
+                                        OsdPAlphaUV+i*OSD_FULL_WIDTH/2,
+                                        width/2);
+                for (int i = 0; i &lt; height / 2 ; i++)
+                        AlphaBlend(pixels [2] + i * ctl-&gt;stride2 ,
+                                        OsdPv+i*OSD_FULL_WIDTH/2,
+                                        Pv + i * UVstride,
+                                        OsdPAlphaUV+i*OSD_FULL_WIDTH/2,
+                                        width / 2);
+        } else {
+                
+                for (int i = 0; i &lt; height; i++)
+                        fast_memcpy(pixels [0] + i * ctl-&gt;stride0,
+                                        Py + i * Ystride,
+                                        width );
+                for (int i = 0; i &lt; height / 2; i++)
+                        fast_memcpy (pixels [1] + i * ctl-&gt;stride1,
+                                        Pu + i * UVstride,
+                                        width / 2);
+                for (int i = 0; i &lt; height / 2 ; i++)
+                        fast_memcpy (pixels [2] + i * ctl-&gt;stride2 ,
+                                        Pv + i * UVstride,
+                                        width / 2);
+
+        };
+        ctl-&gt;new_pict++;
+        if (ctl-&gt;new_pict&gt;30) {
+                printf(&quot;new_pict &gt; 30; assueming client died!\n&quot;);
+                ctl-&gt;attached=0;
+        };
+        sem_sig_unlock(ctl-&gt;semid,PICT_MUT);
+        sem_sig_unlock(ctl-&gt;semid,PICT_SIG);
+        //SHMDEB(&quot;send signal\n&quot;);
+        
+};
+
+void cShmVideoOut::GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight) {
+   if (current_osdMode==OSDMODE_SOFTWARE) {
+                OsdWidth=swidth;
+                OsdHeight=sheight;
+    };
+};
+
+#ifdef USE_SUBPLUGINS
+/* ---------------------------------------------------------------------------
+ */
+extern &quot;C&quot; void *
+SubPluginCreator(cSetupStore *s)
+{
+  return new cShmVideoOut(s);
+}
+#endif
+
+--- NEW FILE: video-shm.h ---
+/*
+ * softdevice plugin for VDR
+ *
+ * Copyright (C) 2005 Martin Wache
+ *
+ * This code is distributed under the terms and conditions of the
+ * GNU GENERAL PUBLIC LICENSE. See the file COPYING for details.
+ *
+ * $Id: video-shm.h,v 1.1 2006/01/17 20:45:46 wachm Exp $
+ */
+
+#ifndef __VIDEO_SHM_H__
+#define __VIDEO_SHM_H__
+
+#include &quot;video.h&quot;
+#include &quot;shm-common.h&quot;
+
+#include &lt;sys/types.h&gt;
+#include &lt;sys/ipc.h&gt; 
+#include &lt;sys/shm.h&gt; 
+#include &lt;sys/sem.h&gt; 
+
+#include &lt;vdr/remote.h&gt;
+
+/*-------------------------------------------------------------------------*/
+class cShmVideoOut : public cVideoOut {
+        friend class cShmRemote;
+        cShmRemote *remote;
+        int ctl_shmid;
+        key_t ctl_key;
+        ShmCtlBlock * ctl;
+
+        int curr_pict_shmid;
+        uint8_t *curr_pict;
+        uint8_t *pixels[4];
+
+        public:
+        cShmVideoOut(cSetupStore *setupStore);
+        ~cShmVideoOut();
+        void cShmVideoOut::RefreshOSD(cSoftOsd*, bool RefreshAll);
+        
+        virtual void GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight);
+        
+        virtual void GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+                    bool &amp;IsYUV, uint8_t *&amp;PixelMask)
+        { IsYUV=true; PixelMask=NULL;};
+
+        virtual void YUV(uint8_t *Py, uint8_t *Pu, uint8_t *Pv,
+                     int Width, int Height, int Ystride, int UVstride);
+
+};
+
+/* ---------------------------------------------------------------------------
+ */
+class cShmRemote : public cRemote, private cThread {
+  private:
+    bool        active;
+    cShmVideoOut *vout;
+
+    virtual void Action(void);
+  public:
+          cShmRemote(const char *Name, cShmVideoOut *video_out) 
+                  : cRemote(Name) {
+                  vout=video_out;
+                  active=true;
+                  Start();
+          };
+          
+          ~cShmRemote(); 
+          
+          void Stop()
+          {
+                  if (!vout || !active)
+                          return;
+
+                  active = false;
+                  // signal new key to stop the thread from waiting
+                  sem_sig_unlock(vout-&gt;ctl-&gt;semid,KEY_SIG);
+        
+                  Cancel(2);
+                  vout=NULL;
+          };
+
+};
+
+#endif // __VIDEO_SHM_H__
+
+--- NEW FILE: setup-softdevice-menu.c ---
+/*
+ * setup-softdevice-menu.c
+ *
+ * See the README file for copyright information and how to reach the authors.
+ *
+ * $Id: setup-softdevice-menu.c,v 1.1 2006/01/17 20:45:46 wachm Exp $
+ */
+
+#include &quot;video.h&quot;
+#include &quot;setup-softdevice.h&quot;
+
+/* ---------------------------------------------------------------------------
+ */
+cMenuSetupVideoParm::cMenuSetupVideoParm(const char *name) : cOsdMenu(name, 33)
+{
+  copyData = setupStore;
+  data = &setupStore;
+
+  if (data-&gt;vidCaps &amp; CAP_BRIGHTNESS)
+  {
+    Add(new cMenuEditIntItem(tr(&quot;Brightness&quot;),
+                             &amp;data-&gt;vidBrightness,
+                             0,
+                             VID_MAX_PARM_VALUE));
+  }
+  if (data-&gt;vidCaps &amp; CAP_CONTRAST)
+  {
+    Add(new cMenuEditIntItem(tr(&quot;Contrast&quot;),
+                             &amp;data-&gt;vidContrast,
+                             0,
+                             VID_MAX_PARM_VALUE));
+  }
+  if (data-&gt;vidCaps &amp; CAP_HUE)
+  {
+    Add(new cMenuEditIntItem(tr(&quot;Hue&quot;),
+                             &amp;data-&gt;vidHue,
+                             0,
+                             VID_MAX_PARM_VALUE));
+  }
+  if (data-&gt;vidCaps &amp; CAP_SATURATION)
+  {
+    Add(new cMenuEditIntItem(tr(&quot;Saturation&quot;),
+                             &amp;data-&gt;vidSaturation,
+                             0,
+                             VID_MAX_PARM_VALUE));
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ */
+eOSState cMenuSetupVideoParm::ProcessKey(eKeys Key)
+{
+    eOSState state = cOsdMenu::ProcessKey(Key);
+
+  switch (state)
+  {
+    case osUnknown:
+      switch (Key)
+      {
+        case kOk:
+          state = osBack;
+          break;
+        default:
+          break;
+      }
+      break;
+    case osBack:
+      setupStore = copyData;
+      fprintf (stderr, &quot;[setup-videoparm] restoring setup state\n&quot;);
+      break;
+    default:
+      break;
+  }
+  return state;
+}
+
+/* ---------------------------------------------------------------------------
+ */
+cMenuSetupCropping::cMenuSetupCropping(const char *name) : cOsdMenu(name, 33)
+{
+  copyData = setupStore;
+  data = &setupStore;
+
+  crop_str[0] = tr(&quot;none&quot;);
+  Add(new cMenuEditStraItem(tr(&quot;CropMode&quot;),
+                            &amp;data-&gt;cropMode,
+                            SETUP_CROPMODES,
+                            crop_str));
+
+  userKeyUsage[0] = tr(&quot;none&quot;);
+  Add(new cMenuEditStraItem(tr(&quot;CropModeToggleKey&quot;),
+                            &amp;data-&gt;cropModeToggleKey,
+                            (SETUP_USERKEYS-1),
+                            userKeyUsage));
+
+  if (data-&gt;outputMethod != VOUT_FB)
+  {
+#if VDRVERSNUM &gt;= 10334
+    Add(new cOsdItem(&quot; &quot;, osUnknown, false));
+#else
+    Add(new cOsdItem(&quot; &quot;, osUnknown));
+#endif
+
+    Add(new cMenuEditIntItem(tr(&quot;Crop lines from top&quot;),
+                             &amp;data-&gt;cropTopLines,
+                             0,
+                             MAX_CROP_LINES));
+
+    Add(new cMenuEditIntItem(tr(&quot;Crop lines from bottom&quot;),
+                             &amp;data-&gt;cropBottomLines,
+                             0,
+                             MAX_CROP_LINES));
+  }
+
+  if (data-&gt;outputMethod == VOUT_XV || data-&gt;outputMethod == VOUT_DFB)
+  {
+    Add(new cMenuEditIntItem(tr(&quot;Crop columns from left&quot;),
+                             &amp;data-&gt;cropLeftCols,
+                             0,
+                             MAX_CROP_COLS));
+    Add(new cMenuEditIntItem(tr(&quot;Crop columns from right&quot;),
+                             &amp;data-&gt;cropRightCols,
+                             0,
+                             MAX_CROP_COLS));
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ */
+eOSState cMenuSetupCropping::ProcessKey(eKeys Key)
+{
+    eOSState state = cOsdMenu::ProcessKey(Key);
+
+  switch (state)
+  {
+    case osUnknown:
+      switch (Key)
+      {
+        case kOk:
+          state = osBack;
+          break;
+        default:
+          break;
+      }
+      break;
+    case osBack:
+      setupStore = copyData;
+      fprintf (stderr, &quot;[setup-cropping] restoring setup state\n&quot;);
+      break;
+    default:
+      break;
+  }
+  return state;
+}
+
+/* ---------------------------------------------------------------------------
+ */
+cMenuSetupPostproc::cMenuSetupPostproc(const char *name) : cOsdMenu(name, 33)
+{
+  copyData = setupStore;
+  data = &setupStore;
+
+  deint_str[0] = tr(&quot;none&quot;);
+  if (data-&gt;outputMethod == VOUT_FB)
+  {
+    Add(new cMenuEditStraItem(tr(&quot;Deinterlace Method&quot;),
+                              &amp;data-&gt;deintMethod,
+#ifdef PP_LIBAVCODEC
+                              8,
+#else
+                              3,
+#endif //PP_LIBAVCODEC
+                              deint_str));
+  }
+  else
+  {
+    Add(new cMenuEditStraItem(tr(&quot;Deinterlace Method&quot;),
+                              &amp;data-&gt;deintMethod,
+#ifdef PP_LIBAVCODEC
+                              7,
+#else
+                              2,
+#endif //PP_LIBAVCODEC
+                              deint_str));
+  }
+
+#ifdef PP_LIBAVCODEC
+  pp_str[0] = tr(&quot;none&quot;);
+  pp_str[1] = tr(&quot;fast&quot;);
+  pp_str[2] = tr(&quot;default&quot;);
+  Add(new cMenuEditStraItem(tr(&quot;Postprocessing Method&quot;),
+                              &amp;data-&gt;ppMethod,(SETUP_PPMODES-1),pp_str));
+  Add(new cMenuEditIntItem(tr(&quot;Postprocessing Quality&quot;),
+                              &amp;data-&gt;ppQuality,0,6));
+#endif
+
+  Add(new cMenuEditBoolItem(tr(&quot;Picture mirroring&quot;),
+                            &amp;data-&gt;mirror, tr(&quot;off&quot;), tr(&quot;on&quot;)));
+
+}
+
+/* ---------------------------------------------------------------------------
+ */
+eOSState cMenuSetupPostproc::ProcessKey(eKeys Key)
+{
+    eOSState state = cOsdMenu::ProcessKey(Key);
+
+  switch (state)
+  {
+    case osUnknown:
+      switch (Key)
+      {
+        case kOk:
+          state = osBack;
+          break;
+        default:
+          break;
+      }
+      break;
+    case osBack:
+      setupStore = copyData;
+      fprintf (stderr, &quot;[setup-postproc] restoring setup state\n&quot;);
+      break;
+    default:
+      break;
+  }
+  return state;
+}
+
+/* ---------------------------------------------------------------------------
+ */
+cMenuSetupSoftdevice::cMenuSetupSoftdevice(cPlugin *plugin)
+{
+  if (plugin)
+    SetPlugin(plugin);
+
+  copyData = setupStore;
+  data = &setupStore;
+
+  Add(new cOsdItem(tr(&quot;Cropping&quot;)));
+  Add(new cOsdItem(tr(&quot;Post processing&quot;)));
+
+  if (data-&gt;vidCaps)
+  {
+    Add(new cOsdItem(tr(&quot;Video out&quot;)));
+  }
+
+#if VDRVERSNUM &gt;= 10334
+  Add(new cOsdItem(&quot; &quot;, osUnknown, false));
+#else
+  Add(new cOsdItem(&quot; &quot;, osUnknown));
+#endif
+
+  if (data-&gt;outputMethod == VOUT_XV)
+  {
+    xv_startup_aspect[0] = tr(&quot;16:9 wide&quot;);
+    xv_startup_aspect[1] = tr(&quot;4:3 normal&quot;);
+    Add(new cMenuEditStraItem(tr(&quot;Xv startup aspect&quot;),
+                             &amp;data-&gt;xvAspect,
+                             (SETUP_XVSTARTUPASPECT-1),
+                             xv_startup_aspect));
+  }
+
+  videoAspectNames[0] = tr(&quot;default&quot;);
+  Add(new cMenuEditStraItem(tr(&quot;Screen Aspect&quot;),
+                            &amp;data-&gt;screenPixelAspect,
+                            (SETUP_VIDEOASPECTNAMES-1),
+                            videoAspectNames));
+
+  osdModeNames[0] = tr(&quot;pseudo&quot;);
+  osdModeNames[1] = tr(&quot;software&quot;);
+  Add(new cMenuEditStraItem(tr(&quot;OSD alpha blending&quot;),
+                            &amp;data-&gt;osdMode,
+                            (SETUP_OSDMODES-1),
+                            osdModeNames));
+
+#if VDRVERSNUM &gt;= 10334
+  Add(new cOsdItem(&quot; &quot;, osUnknown, false));
+#else
+  Add(new cOsdItem(&quot; &quot;, osUnknown));
+#endif
+
+  bufferModes[0] = tr(&quot;safe&quot;);
+  bufferModes[1] = tr(&quot;good seeking&quot;);
+  bufferModes[2] = tr(&quot;HDTV&quot;);
+  Add(new cMenuEditStraItem(tr(&quot;Buffer Mode&quot;),
+                              &amp;data-&gt;bufferMode,(SETUP_BUFFERMODES-1),bufferModes));
+
+  suspendVideo[0] = tr(&quot;playing&quot;);
+  suspendVideo[1] = tr(&quot;suspended&quot;);
+  Add(new cMenuEditStraItem(tr(&quot;Playback&quot;),
+                            &amp;data-&gt;shouldSuspend,
+                            (SETUP_SUSPENDVIDEO-1),
+                            suspendVideo));
+
+#if VDRVERSNUM &gt;= 10334
+  Add(new cOsdItem(&quot; &quot;, osUnknown, false));
+#else
+  Add(new cOsdItem(&quot; &quot;, osUnknown));
+#endif
+
+  Add(new cMenuEditIntItem(tr(&quot;A/V Delay&quot;),
+                           &amp;data-&gt;avOffset,
+                           MINAVOFFSET, MAXAVOFFSET));
+
+  Add(new cMenuEditStraItem(tr(&quot;AC3 Mode&quot;),
+                            &amp;data-&gt;ac3Mode,
+                            (SETUP_AC3MODENAMES-1),
+                            ac3ModeNames));
+
+  Add(new cMenuEditStraItem(tr(&quot;Sync Mode&quot;),
+                            &amp;data-&gt;syncTimerMode,
+                            (SETUP_SYNC_TIMER_NAMES-1),
+                            syncTimerNames));
+
+#if VDRVERSNUM &gt;= 10334
+  Add(new cOsdItem(&quot; &quot;, osUnknown, false));
+#else
+  Add(new cOsdItem(&quot; &quot;, osUnknown));
+#endif
+
+  if (data-&gt;outputMethod == VOUT_DFB || data-&gt;outputMethod == VOUT_VIDIX)
+  {
+    Add(new cMenuEditStraItem(tr(&quot;Pixel Format&quot;),
+                              &amp;data-&gt;pixelFormat,
+                              (SETUP_PIXFMT-1),
+                              pix_fmt));
+  }
+
+  if (data-&gt;outputMethod == VOUT_DFB)
+  {
+    Add(new cMenuEditBoolItem(tr(&quot;Use StretchBlit&quot;),
+                              &amp;data-&gt;useStretchBlit, tr(&quot;off&quot;), tr(&quot;on&quot;)));
+  }
+
+  Add(new cMenuEditBoolItem(tr(&quot;Hide main menu entry&quot;),
+                            &amp;data-&gt;mainMenu, tr(&quot;yes&quot;), tr(&quot;no&quot;)));
+}
+
+/* ---------------------------------------------------------------------------
+ */
+eOSState cMenuSetupSoftdevice::ProcessKey(eKeys Key)
+{
+    eOSState state = cOsdMenu::ProcessKey(Key);
+
+  switch (state)
+  {
+    case osUnknown:
+      switch (Key)
+      {
+        case kOk:
+          if (!strcmp(Get(Current())-&gt;Text(),tr(&quot;Cropping&quot;)))
+          {
+            return AddSubMenu (new cMenuSetupCropping(tr(&quot;Cropping&quot;)));
+          }
+          else if (!strcmp(Get(Current())-&gt;Text(),tr(&quot;Post processing&quot;)))
+          {
+            return AddSubMenu (new cMenuSetupPostproc(tr(&quot;Post processing&quot;)));
+          }
+          else if (!strcmp(Get(Current())-&gt;Text(),tr(&quot;Video out&quot;)))
+          {
+            return AddSubMenu (new cMenuSetupVideoParm(tr(&quot;Video out&quot;)));
+          }
+          Store();
+          state = osBack;
+          break;
+        default:
+          break;
+      }
+      break;
+    case osBack:
+      setupStore = copyData;
+      fprintf (stderr, &quot;[setup-softdevice] restoring setup state\n&quot;);
+      break;
+    default:
+      break;
+  }
+  return state;
+}
+
+/* ---------------------------------------------------------------------------
+ */
+void cMenuSetupSoftdevice::Store(void)
+{
+#if 0
+  if (setupStore.deintMethod != data.deintMethod) {
+    fprintf(stderr,
+            &quot;[setup-softdevice] deinterlace method changed to (%d) %s\n&quot;,
+            data.deintMethod, deint_str [data.deintMethod]);
+  }
+#endif
+
+
+  fprintf (stderr, &quot;[setup-softdevice] storing data\n&quot;);
+//  setupStore = data;
+  SetupStore (&quot;Xv-Aspect&quot;,          setupStore.xvAspect);
+  // don't save max area value as it is ignored on load
+  //SetupStore (&quot;Xv-MaxArea&quot;,         setupStore.xvMaxArea);
+  SetupStore (&quot;CropMode&quot;,           setupStore.cropMode);
+  SetupStore (&quot;CropModeToggleKey&quot;,     setupStore.cropModeToggleKey);
+  SetupStore (&quot;CropTopLines&quot;,        setupStore.cropTopLines);
+  SetupStore (&quot;CropBottomLines&quot;,     setupStore.cropBottomLines);
+  SetupStore (&quot;CropLeftCols&quot;,        setupStore.cropLeftCols);
+  SetupStore (&quot;CropRightCols&quot;,       setupStore.cropRightCols);
+  SetupStore (&quot;Deinterlace Method&quot;, setupStore.deintMethod);
+  SetupStore (&quot;Postprocess Method&quot;, setupStore.ppMethod);
+  SetupStore (&quot;Postprocess Quality&quot;, setupStore.ppQuality);
+  SetupStore (&quot;PixelFormat&quot;,        setupStore.pixelFormat);
+  SetupStore (&quot;UseStretchBlit&quot;,     setupStore.useStretchBlit);
+  SetupStore (&quot;Picture mirroring&quot;,  setupStore.mirror);
+  SetupStore (&quot;avOffset&quot;,           setupStore.avOffset);
+  SetupStore (&quot;AlsaDevice&quot;,         setupStore.alsaDevice);
+  SetupStore (&quot;AlsaAC3Device&quot;,      setupStore.alsaAC3Device);
+  SetupStore (&quot;PixelAspect&quot;,        setupStore.screenPixelAspect);
+  SetupStore (&quot;Suspend&quot;,            setupStore.shouldSuspend);
+  SetupStore (&quot;OSDalphablend&quot;,      setupStore.osdMode);
+  SetupStore (&quot;AC3Mode&quot;,            setupStore.ac3Mode);
+  SetupStore (&quot;bufferMode&quot;,           setupStore.bufferMode);
+  SetupStore (&quot;mainMenu&quot;,             setupStore.mainMenu);
+  SetupStore (&quot;syncTimerMode&quot;,        setupStore.syncTimerMode);
+  SetupStore (&quot;vidBrightness&quot;,        setupStore.vidBrightness);
+  SetupStore (&quot;vidContrast&quot;,          setupStore.vidContrast);
+  SetupStore (&quot;vidHue&quot;,               setupStore.vidHue);
+  SetupStore (&quot;vidSaturation&quot;,        setupStore.vidSaturation);
+}
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.141
+retrieving revision 1.142
+diff -C2 -d -r1.141 -r1.142
+*** CHANGELOG	15 Jan 2006 21:11:25 -0000	1.141
+--- CHANGELOG	17 Jan 2006 20:45:46 -0000	1.142
+***************
+*** 1,3 ****
+--- 1,6 ----
+  Changelog
++ 2006-01-17:
++    - add video-shm and ShmClient, a simple server/client model for the 
++      softdevice. See the file README for details.
+  2006-01-15:
+     - compile fix for vdr-1.2.6
+
+Index: README
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/README,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -C2 -d -r1.11 -r1.12
+*** README	6 Nov 2005 17:56:06 -0000	1.11
+--- README	17 Jan 2006 20:45:46 -0000	1.12
+***************
+*** 105,108 ****
+--- 105,124 ----
+  many thanks to the authors of that program.
+  
++ 
++ Shared Memory Client/Server
++ ---------------------------
++ 
++ There is now an experimental client/server model in the softdevice. To use
++ it compile the softdevice with SHM_SUPPORT enabled and start it using
++ &quot;-vo shm:&quot;. The softdevice will then start with the decoding suspended until
++ a client connects to the shared memory. For now there is only an Xv client,
++ to build it type &quot;make ShmClient&quot; in the plugin's source directory. To start
++ the Xv client simply type &quot;ShmClient&quot;, and a window will open from which you
++ can use Vdr just like you are used to from the Xv-out will open up. When
++ this window is closed the Softdevice will automatically suspend the decoding.
++ It is possible to make a client for the other video-out methods too, but
++ I found the Xv-Client the most usefull for combined desktop/vdr machines :-)
++ 
++ 
+  Problems/todo:
+  --------------
+
+Index: setup-softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.c,v
+retrieving revision 1.39
+retrieving revision 1.40
+diff -C2 -d -r1.39 -r1.40
+*** setup-softdevice.c	15 Nov 2005 23:05:23 -0000	1.39
+--- setup-softdevice.c	17 Jan 2006 20:45:46 -0000	1.40
+***************
+*** 11,29 ****
+  #include &quot;mpeg2decoder.h&quot;
+  
+- #define MINAVOFFSET (-250)
+- #define MAXAVOFFSET (250)
+- 
+- #define MAX_CROP_LINES  50
+- #define MAX_CROP_COLS   50
+  
+  /* ----------------------------------------------------------------------------
+   * index to this array correspond to AFD values
+   */
+- #define SETUP_CROPMODES 4
+  const char *crop_str[SETUP_CROPMODES+1];
+  
+  /* ---------------------------------------------------------------------------
+   */
+- #define SETUP_DEINTMODES 9
+  const char *deint_str[SETUP_DEINTMODES] = {
+          &quot;none&quot;,      // translated in cMenuSetupSoftdevice::cMenuSetupSoftdevice()
+--- 11,22 ----
+***************
+*** 44,48 ****
+  /*-----------------------------------------------------------------------------
+   */
+- #define SETUP_PPMODES 4
+  const char *pp_str[SETUP_PPMODES];
+  
+--- 37,40 ----
+***************
+*** 50,54 ****
+   * allow changing of output pixfmt
+   */
+- #define SETUP_PIXFMT 4
+  const char *pix_fmt[SETUP_PIXFMT];
+  
+--- 42,45 ----
+***************
+*** 56,60 ****
+   * give some readable values for aspect ratio selection instead fo 0, 1 values
+   */
+- #define SETUP_XVSTARTUPASPECT 3
+  const char *xv_startup_aspect[SETUP_XVSTARTUPASPECT];
+  
+--- 47,50 ----
+***************
+*** 66,93 ****
+  /*-----------------------------------------------------------------------------
+   */
+- #define SETUP_OSDMODES 3
+  const char *osdModeNames[SETUP_OSDMODES];
+  
+  /*-----------------------------------------------------------------------------
+   */
+- #define SETUP_VIDEOASPECTNAMES 6
+  const char *videoAspectNames[SETUP_VIDEOASPECTNAMES];
+  
+  /*-----------------------------------------------------------------------------
+   */
+- #define SETUP_BUFFERMODES 4
+  const char *bufferModes[SETUP_BUFFERMODES];
+  
+  /*-----------------------------------------------------------------------------
+   */
+- #define SETUP_AC3MODENAMES 5
+  const char *ac3ModeNames[SETUP_AC3MODENAMES];
+  
+- /*-----------------------------------------------------------------------------
+-  */
+- #define SETUP_USERKEYS 11
+  const char *userKeyUsage[SETUP_USERKEYS];
+  
+- #define SETUP_SYNC_TIMER_NAMES  4
+  const char *syncTimerNames[SETUP_SYNC_TIMER_NAMES];
+  
+--- 56,75 ----
+***************
+*** 431,846 ****
+  }
+  
+- /* ---------------------------------------------------------------------------
+-  */
+- cMenuSetupVideoParm::cMenuSetupVideoParm(const char *name) : cOsdMenu(name, 33)
+- {
+-   copyData = setupStore;
+-   data = &setupStore;
+- 
+-   if (data-&gt;vidCaps &amp; CAP_BRIGHTNESS)
+-   {
+-     Add(new cMenuEditIntItem(tr(&quot;Brightness&quot;),
+-                              &amp;data-&gt;vidBrightness,
+-                              0,
+-                              VID_MAX_PARM_VALUE));
+-   }
+-   if (data-&gt;vidCaps &amp; CAP_CONTRAST)
+-   {
+-     Add(new cMenuEditIntItem(tr(&quot;Contrast&quot;),
+-                              &amp;data-&gt;vidContrast,
+-                              0,
+-                              VID_MAX_PARM_VALUE));
+-   }
+-   if (data-&gt;vidCaps &amp; CAP_HUE)
+-   {
+-     Add(new cMenuEditIntItem(tr(&quot;Hue&quot;),
+-                              &amp;data-&gt;vidHue,
+-                              0,
+-                              VID_MAX_PARM_VALUE));
+-   }
+-   if (data-&gt;vidCaps &amp; CAP_SATURATION)
+-   {
+-     Add(new cMenuEditIntItem(tr(&quot;Saturation&quot;),
+-                              &amp;data-&gt;vidSaturation,
+-                              0,
+-                              VID_MAX_PARM_VALUE));
+-   }
+- }
+- 
+- /* ---------------------------------------------------------------------------
+-  */
+- eOSState cMenuSetupVideoParm::ProcessKey(eKeys Key)
+- {
+-     eOSState state = cOsdMenu::ProcessKey(Key);
+- 
+-   switch (state)
+-   {
+-     case osUnknown:
+-       switch (Key)
+-       {
+-         case kOk:
+-           state = osBack;
+-           break;
+-         default:
+-           break;
+-       }
+-       break;
+-     case osBack:
+-       setupStore = copyData;
+-       fprintf (stderr, &quot;[setup-videoparm] restoring setup state\n&quot;);
+-       break;
+-     default:
+-       break;
+-   }
+-   return state;
+- }
+- 
+- /* ---------------------------------------------------------------------------
+-  */
+- cMenuSetupCropping::cMenuSetupCropping(const char *name) : cOsdMenu(name, 33)
+- {
+-   copyData = setupStore;
+-   data = &setupStore;
+- 
+-   crop_str[0] = tr(&quot;none&quot;);
+-   Add(new cMenuEditStraItem(tr(&quot;CropMode&quot;),
+-                             &amp;data-&gt;cropMode,
+-                             SETUP_CROPMODES,
+-                             crop_str));
+- 
+-   userKeyUsage[0] = tr(&quot;none&quot;);
+-   Add(new cMenuEditStraItem(tr(&quot;CropModeToggleKey&quot;),
+-                             &amp;data-&gt;cropModeToggleKey,
+-                             (SETUP_USERKEYS-1),
+-                             userKeyUsage));
+- 
+-   if (data-&gt;outputMethod != VOUT_FB)
+-   {
+- #if VDRVERSNUM &gt;= 10334
+-     Add(new cOsdItem(&quot; &quot;, osUnknown, false));
+- #else
+-     Add(new cOsdItem(&quot; &quot;, osUnknown));
+- #endif
+- 
+-     Add(new cMenuEditIntItem(tr(&quot;Crop lines from top&quot;),
+-                              &amp;data-&gt;cropTopLines,
+-                              0,
+-                              MAX_CROP_LINES));
+- 
+-     Add(new cMenuEditIntItem(tr(&quot;Crop lines from bottom&quot;),
+-                              &amp;data-&gt;cropBottomLines,
+-                              0,
+-                              MAX_CROP_LINES));
+-   }
+- 
+-   if (data-&gt;outputMethod == VOUT_XV || data-&gt;outputMethod == VOUT_DFB)
+-   {
+-     Add(new cMenuEditIntItem(tr(&quot;Crop columns from left&quot;),
+-                              &amp;data-&gt;cropLeftCols,
+-                              0,
+-                              MAX_CROP_COLS));
+-     Add(new cMenuEditIntItem(tr(&quot;Crop columns from right&quot;),
+-                              &amp;data-&gt;cropRightCols,
+-                              0,
+-                              MAX_CROP_COLS));
+-   }
+- }
+- 
+- /* ---------------------------------------------------------------------------
+-  */
+- eOSState cMenuSetupCropping::ProcessKey(eKeys Key)
+- {
+-     eOSState state = cOsdMenu::ProcessKey(Key);
+- 
+-   switch (state)
+-   {
+-     case osUnknown:
+-       switch (Key)
+-       {
+-         case kOk:
+-           state = osBack;
+-           break;
+-         default:
+-           break;
+-       }
+-       break;
+-     case osBack:
+-       setupStore = copyData;
+-       fprintf (stderr, &quot;[setup-cropping] restoring setup state\n&quot;);
+-       break;
+-     default:
+-       break;
+-   }
+-   return state;
+- }
+- 
+- /* ---------------------------------------------------------------------------
+-  */
+- cMenuSetupPostproc::cMenuSetupPostproc(const char *name) : cOsdMenu(name, 33)
+- {
+-   copyData = setupStore;
+-   data = &setupStore;
+- 
+-   deint_str[0] = tr(&quot;none&quot;);
+-   if (data-&gt;outputMethod == VOUT_FB)
+-   {
+-     Add(new cMenuEditStraItem(tr(&quot;Deinterlace Method&quot;),
+-                               &amp;data-&gt;deintMethod,
+- #ifdef PP_LIBAVCODEC
+-                               8,
+- #else
+-                               3,
+- #endif //PP_LIBAVCODEC
+-                               deint_str));
+-   }
+-   else
+-   {
+-     Add(new cMenuEditStraItem(tr(&quot;Deinterlace Method&quot;),
+-                               &amp;data-&gt;deintMethod,
+- #ifdef PP_LIBAVCODEC
+-                               7,
+- #else
+-                               2,
+- #endif //PP_LIBAVCODEC
+-                               deint_str));
+-   }
+- 
+- #ifdef PP_LIBAVCODEC
+-   pp_str[0] = tr(&quot;none&quot;);
+-   pp_str[1] = tr(&quot;fast&quot;);
+-   pp_str[2] = tr(&quot;default&quot;);
+-   Add(new cMenuEditStraItem(tr(&quot;Postprocessing Method&quot;),
+-                               &amp;data-&gt;ppMethod,(SETUP_PPMODES-1),pp_str));
+-   Add(new cMenuEditIntItem(tr(&quot;Postprocessing Quality&quot;),
+-                               &amp;data-&gt;ppQuality,0,6));
+- #endif
+- 
+-   Add(new cMenuEditBoolItem(tr(&quot;Picture mirroring&quot;),
+-                             &amp;data-&gt;mirror, tr(&quot;off&quot;), tr(&quot;on&quot;)));
+- 
+- }
+- 
+- /* ---------------------------------------------------------------------------
+-  */
+- eOSState cMenuSetupPostproc::ProcessKey(eKeys Key)
+- {
+-     eOSState state = cOsdMenu::ProcessKey(Key);
+- 
+-   switch (state)
+-   {
+-     case osUnknown:
+-       switch (Key)
+-       {
+-         case kOk:
+-           state = osBack;
+-           break;
+-         default:
+-           break;
+-       }
+-       break;
+-     case osBack:
+-       setupStore = copyData;
+-       fprintf (stderr, &quot;[setup-postproc] restoring setup state\n&quot;);
+-       break;
+-     default:
+-       break;
+-   }
+-   return state;
+- }
+- 
+- /* ---------------------------------------------------------------------------
+-  */
+- cMenuSetupSoftdevice::cMenuSetupSoftdevice(cPlugin *plugin)
+- {
+-   if (plugin)
+-     SetPlugin(plugin);
+- 
+-   copyData = setupStore;
+-   data = &setupStore;
+- 
+-   Add(new cOsdItem(tr(&quot;Cropping&quot;)));
+-   Add(new cOsdItem(tr(&quot;Post processing&quot;)));
+- 
+-   if (data-&gt;vidCaps)
+-   {
+-     Add(new cOsdItem(tr(&quot;Video out&quot;)));
+-   }
+- 
+- #if VDRVERSNUM &gt;= 10334
+-   Add(new cOsdItem(&quot; &quot;, osUnknown, false));
+- #else
+-   Add(new cOsdItem(&quot; &quot;, osUnknown));
+- #endif
+- 
+-   if (data-&gt;outputMethod == VOUT_XV)
+-   {
+-     xv_startup_aspect[0] = tr(&quot;16:9 wide&quot;);
+-     xv_startup_aspect[1] = tr(&quot;4:3 normal&quot;);
+-     Add(new cMenuEditStraItem(tr(&quot;Xv startup aspect&quot;),
+-                              &amp;data-&gt;xvAspect,
+-                              (SETUP_XVSTARTUPASPECT-1),
+-                              xv_startup_aspect));
+-   }
+- 
+-   videoAspectNames[0] = tr(&quot;default&quot;);
+-   Add(new cMenuEditStraItem(tr(&quot;Screen Aspect&quot;),
+-                             &amp;data-&gt;screenPixelAspect,
+-                             (SETUP_VIDEOASPECTNAMES-1),
+-                             videoAspectNames));
+- 
+-   osdModeNames[0] = tr(&quot;pseudo&quot;);
+-   osdModeNames[1] = tr(&quot;software&quot;);
+-   Add(new cMenuEditStraItem(tr(&quot;OSD alpha blending&quot;),
+-                             &amp;data-&gt;osdMode,
+-                             (SETUP_OSDMODES-1),
+-                             osdModeNames));
+- 
+- #if VDRVERSNUM &gt;= 10334
+-   Add(new cOsdItem(&quot; &quot;, osUnknown, false));
+- #else
+-   Add(new cOsdItem(&quot; &quot;, osUnknown));
+- #endif
+- 
+-   bufferModes[0] = tr(&quot;safe&quot;);
+-   bufferModes[1] = tr(&quot;good seeking&quot;);
+-   bufferModes[2] = tr(&quot;HDTV&quot;);
+-   Add(new cMenuEditStraItem(tr(&quot;Buffer Mode&quot;),
+-                               &amp;data-&gt;bufferMode,(SETUP_BUFFERMODES-1),bufferModes));
+- 
+-   suspendVideo[0] = tr(&quot;playing&quot;);
+-   suspendVideo[1] = tr(&quot;suspended&quot;);
+-   Add(new cMenuEditStraItem(tr(&quot;Playback&quot;),
+-                             &amp;data-&gt;shouldSuspend,
+-                             (SETUP_SUSPENDVIDEO-1),
+-                             suspendVideo));
+- 
+- #if VDRVERSNUM &gt;= 10334
+-   Add(new cOsdItem(&quot; &quot;, osUnknown, false));
+- #else
+-   Add(new cOsdItem(&quot; &quot;, osUnknown));
+- #endif
+- 
+-   Add(new cMenuEditIntItem(tr(&quot;A/V Delay&quot;),
+-                            &amp;data-&gt;avOffset,
+-                            MINAVOFFSET, MAXAVOFFSET));
+- 
+-   Add(new cMenuEditStraItem(tr(&quot;AC3 Mode&quot;),
+-                             &amp;data-&gt;ac3Mode,
+-                             (SETUP_AC3MODENAMES-1),
+-                             ac3ModeNames));
+- 
+-   Add(new cMenuEditStraItem(tr(&quot;Sync Mode&quot;),
+-                             &amp;data-&gt;syncTimerMode,
+-                             (SETUP_SYNC_TIMER_NAMES-1),
+-                             syncTimerNames));
+- 
+- #if VDRVERSNUM &gt;= 10334
+-   Add(new cOsdItem(&quot; &quot;, osUnknown, false));
+- #else
+-   Add(new cOsdItem(&quot; &quot;, osUnknown));
+- #endif
+- 
+-   if (data-&gt;outputMethod == VOUT_DFB || data-&gt;outputMethod == VOUT_VIDIX)
+-   {
+-     Add(new cMenuEditStraItem(tr(&quot;Pixel Format&quot;),
+-                               &amp;data-&gt;pixelFormat,
+-                               (SETUP_PIXFMT-1),
+-                               pix_fmt));
+-   }
+- 
+-   if (data-&gt;outputMethod == VOUT_DFB)
+-   {
+-     Add(new cMenuEditBoolItem(tr(&quot;Use StretchBlit&quot;),
+-                               &amp;data-&gt;useStretchBlit, tr(&quot;off&quot;), tr(&quot;on&quot;)));
+-   }
+- 
+-   Add(new cMenuEditBoolItem(tr(&quot;Hide main menu entry&quot;),
+-                             &amp;data-&gt;mainMenu, tr(&quot;yes&quot;), tr(&quot;no&quot;)));
+- }
+- 
+- /* ---------------------------------------------------------------------------
+-  */
+- eOSState cMenuSetupSoftdevice::ProcessKey(eKeys Key)
+- {
+-     eOSState state = cOsdMenu::ProcessKey(Key);
+- 
+-   switch (state)
+-   {
+-     case osUnknown:
+-       switch (Key)
+-       {
+-         case kOk:
+-           if (!strcmp(Get(Current())-&gt;Text(),tr(&quot;Cropping&quot;)))
+-           {
+-             return AddSubMenu (new cMenuSetupCropping(tr(&quot;Cropping&quot;)));
+-           }
+-           else if (!strcmp(Get(Current())-&gt;Text(),tr(&quot;Post processing&quot;)))
+-           {
+-             return AddSubMenu (new cMenuSetupPostproc(tr(&quot;Post processing&quot;)));
+-           }
+-           else if (!strcmp(Get(Current())-&gt;Text(),tr(&quot;Video out&quot;)))
+-           {
+-             return AddSubMenu (new cMenuSetupVideoParm(tr(&quot;Video out&quot;)));
+-           }
+-           Store();
+-           state = osBack;
+-           break;
+-         default:
+-           break;
+-       }
+-       break;
+-     case osBack:
+-       setupStore = copyData;
+-       fprintf (stderr, &quot;[setup-softdevice] restoring setup state\n&quot;);
+-       break;
+-     default:
+-       break;
+-   }
+-   return state;
+- }
+- 
+- /* ---------------------------------------------------------------------------
+-  */
+- void cMenuSetupSoftdevice::Store(void)
+- {
+- #if 0
+-   if (setupStore.deintMethod != data.deintMethod) {
+-     fprintf(stderr,
+-             &quot;[setup-softdevice] deinterlace method changed to (%d) %s\n&quot;,
+-             data.deintMethod, deint_str [data.deintMethod]);
+-   }
+- #endif
+- 
+- 
+-   fprintf (stderr, &quot;[setup-softdevice] storing data\n&quot;);
+- //  setupStore = data;
+-   SetupStore (&quot;Xv-Aspect&quot;,          setupStore.xvAspect);
+-   // don't save max area value as it is ignored on load
+-   //SetupStore (&quot;Xv-MaxArea&quot;,         setupStore.xvMaxArea);
+-   SetupStore (&quot;CropMode&quot;,           setupStore.cropMode);
+-   SetupStore (&quot;CropModeToggleKey&quot;,     setupStore.cropModeToggleKey);
+-   SetupStore (&quot;CropTopLines&quot;,        setupStore.cropTopLines);
+-   SetupStore (&quot;CropBottomLines&quot;,     setupStore.cropBottomLines);
+-   SetupStore (&quot;CropLeftCols&quot;,        setupStore.cropLeftCols);
+-   SetupStore (&quot;CropRightCols&quot;,       setupStore.cropRightCols);
+-   SetupStore (&quot;Deinterlace Method&quot;, setupStore.deintMethod);
+-   SetupStore (&quot;Postprocess Method&quot;, setupStore.ppMethod);
+-   SetupStore (&quot;Postprocess Quality&quot;, setupStore.ppQuality);
+-   SetupStore (&quot;PixelFormat&quot;,        setupStore.pixelFormat);
+-   SetupStore (&quot;UseStretchBlit&quot;,     setupStore.useStretchBlit);
+-   SetupStore (&quot;Picture mirroring&quot;,  setupStore.mirror);
+-   SetupStore (&quot;avOffset&quot;,           setupStore.avOffset);
+-   SetupStore (&quot;AlsaDevice&quot;,         setupStore.alsaDevice);
+-   SetupStore (&quot;AlsaAC3Device&quot;,      setupStore.alsaAC3Device);
+-   SetupStore (&quot;PixelAspect&quot;,        setupStore.screenPixelAspect);
+-   SetupStore (&quot;Suspend&quot;,            setupStore.shouldSuspend);
+-   SetupStore (&quot;OSDalphablend&quot;,      setupStore.osdMode);
+-   SetupStore (&quot;AC3Mode&quot;,            setupStore.ac3Mode);
+-   SetupStore (&quot;bufferMode&quot;,           setupStore.bufferMode);
+-   SetupStore (&quot;mainMenu&quot;,             setupStore.mainMenu);
+-   SetupStore (&quot;syncTimerMode&quot;,        setupStore.syncTimerMode);
+-   SetupStore (&quot;vidBrightness&quot;,        setupStore.vidBrightness);
+-   SetupStore (&quot;vidContrast&quot;,          setupStore.vidContrast);
+-   SetupStore (&quot;vidHue&quot;,               setupStore.vidHue);
+-   SetupStore (&quot;vidSaturation&quot;,        setupStore.vidSaturation);
+- }
+--- 413,414 ----
+
+Index: setup-softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.h,v
+retrieving revision 1.24
+retrieving revision 1.25
+diff -C2 -d -r1.24 -r1.25
+*** setup-softdevice.h	6 Nov 2005 17:56:06 -0000	1.24
+--- setup-softdevice.h	17 Jan 2006 20:45:46 -0000	1.25
+***************
+*** 15,18 ****
+--- 15,19 ----
+  #define VOUT_VIDIX    4
+  #define VOUT_DUMMY    5
++ #define VOUT_SHM      6
+  
+  #define ALSA_DEVICE_NAME_LENGTH  64
+***************
+*** 24,27 ****
+--- 25,97 ----
+  
+  #define VID_MAX_PARM_VALUE  100
++ 
++ #define MINAVOFFSET (-250)
++ #define MAXAVOFFSET (250)
++ 
++ #define MAX_CROP_LINES  50
++ #define MAX_CROP_COLS   50
++ 
++ /* ----------------------------------------------------------------------------
++  * index to this array correspond to AFD values
++  */
++ #define SETUP_CROPMODES 4
++ extern const char *crop_str[SETUP_CROPMODES+1];
++ 
++ /*-----------------------------------------------------------------------------
++  */
++ #define SETUP_USERKEYS 11
++ extern const char *userKeyUsage[SETUP_USERKEYS];
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ #define SETUP_DEINTMODES 9
++ extern const char *deint_str[SETUP_DEINTMODES];
++ 
++ /*-----------------------------------------------------------------------------
++  */
++ #define SETUP_PPMODES 4
++ extern const char *pp_str[SETUP_PPMODES];
++ 
++ /* ----------------------------------------------------------------------------
++  * give some readable values for aspect ratio selection instead fo 0, 1 values
++  */
++ #define SETUP_XVSTARTUPASPECT 3
++ extern const char *xv_startup_aspect[SETUP_XVSTARTUPASPECT];
++ 
++ /*-----------------------------------------------------------------------------
++  */
++ #define SETUP_OSDMODES 3
++ extern const char *osdModeNames[SETUP_OSDMODES];
++ 
++ /*-----------------------------------------------------------------------------
++  */
++ #define SETUP_VIDEOASPECTNAMES 6
++ extern const char *videoAspectNames[SETUP_VIDEOASPECTNAMES];
++ 
++ /*-----------------------------------------------------------------------------
++  */
++ #define SETUP_BUFFERMODES 4
++ extern const char *bufferModes[SETUP_BUFFERMODES];
++ 
++ /*-----------------------------------------------------------------------------
++  */
++ #define SETUP_AC3MODENAMES 5
++ extern const char *ac3ModeNames[SETUP_AC3MODENAMES];
++ 
++ extern const char *userKeyUsage[SETUP_USERKEYS];
++ 
++ #define SETUP_SYNC_TIMER_NAMES  4
++ extern const char *syncTimerNames[SETUP_SYNC_TIMER_NAMES];
++ 
++ /* ----------------------------------------------------------------------------
++  * allow changing of output pixfmt
++  */
++ #define SETUP_PIXFMT 4
++ extern const char *pix_fmt[SETUP_PIXFMT];
++ 
++ /*-----------------------------------------------------------------------------
++  */
++ #define SETUP_SUSPENDVIDEO 3
++ extern const char *suspendVideo[SETUP_SUSPENDVIDEO];
+  
+  /* ---------------------------------------------------------------------------
+
+Index: Makefile
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/Makefile,v
+retrieving revision 1.21
+retrieving revision 1.22
+diff -C2 -d -r1.21 -r1.22
+*** Makefile	15 Jan 2006 20:41:15 -0000	1.21
+--- Makefile	17 Jan 2006 20:45:46 -0000	1.22
+***************
+*** 29,34 ****
+--- 29,40 ----
+  -include config.mak
+  
++ # uncomment to build the shared memory video server
++ # 
++ #SHM_SUPPORT = 1
++ 
++ 
+  ifndef WITH_CONFIGURE
+  
++ 
+  # -----------------------------------------------------------------------------
+  # framebuffer device name
+***************
+*** 210,214 ****
+  TARGETS = libvdr-$(PLUGIN).so
+  LIBS = $(FFMPEGLIBS) -lasound
+! OBJS = $(PLUGIN).o utils.o i18n.o video.o mpeg2decoder.o audio.o audio-ac3pt.o video-dummy.o setup-softdevice.o sync-timer.o SoftOsd.o
+  ALL_OBJS = $(OBJS)
+  
+--- 216,220 ----
+  TARGETS = libvdr-$(PLUGIN).so
+  LIBS = $(FFMPEGLIBS) -lasound
+! OBJS = $(PLUGIN).o utils.o i18n.o video.o mpeg2decoder.o audio.o audio-ac3pt.o video-dummy.o setup-softdevice.o setup-softdevice-menu.o sync-timer.o SoftOsd.o
+  ALL_OBJS = $(OBJS)
+  
+***************
+*** 259,262 ****
+--- 265,279 ----
+  endif
+  
++ ifdef SHM_SUPPORT
++   ifdef USE_SUBPLUGINS
++     SHM_OBJS  = utils.o video.o video-shm.o SoftOsd.o
++     ALL_OBJS    += $(SHM_OBJS)
++     TARGETS     += libsubvdr-$(PLUGIN)-shm.so
++   else
++     OBJS += video-shm.o
++   endif
++   DEFINES += -DSHM_SUPPORT
++ endif
++ 
+  ### Implicit rules:
+  
+***************
+*** 300,303 ****
+--- 317,324 ----
+  	@cp $@ $(LIBDIR)/$@.$(VDRVERSION)
+  
++ libsubvdr-$(PLUGIN)-shm.so: $(SHM_OBJS)
++ 	$(CXX) $(CXXFLAGS) -shared $(SHM_OBJS) $(SHM_LIBS) -o $@
++ 	@cp $@ $(LIBDIR)/$@.$(VDRVERSION)
++ 
+  endif
+  
+***************
+*** 315,316 ****
+--- 336,347 ----
+  clean:
+  	@-rm -f $(OBJS) $(DEPFILE) *.so *.o *.tgz core* *~
++ 
++ VDR_SHM_CLIENT_OBJS = ../../../osd.o ../../../tools.o ../../../thread.o \
++ 		      ../../../remote.o ../../../i18n.o ../../../keys.o \
++ 		      ../../../font.o ../../../config.o ../../../plugin.o\
++ 		      ../../../sources.o
++ SHM_CLIENT_OBJS  = video.o video-xv.o setup-softdevice.o xscreensaver.o \
++ 		   utils.o SoftOsd.o
++ 
++ ShmClient: ShmClient.o $(SHM_CLIENT_OBJS)
++ 	$(CXX) $(CXXFLAGS) $(XV_LIBS) $(VDR_SHM_CLIENT_OBJS) $(SHM_CLIENT_OBJS) -lpthread $&lt; -o $@
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.50
+retrieving revision 1.51
+diff -C2 -d -r1.50 -r1.51
+*** softdevice.c	7 Jan 2006 14:30:11 -0000	1.50
+--- softdevice.c	17 Jan 2006 20:45:46 -0000	1.51
+***************
+*** 52,55 ****
+--- 52,59 ----
+  #endif
+  
++ #ifdef SHM_SUPPORT
++ #include &quot;video-shm.h&quot;
++ #endif
++ 
+  #ifdef DFB_SUPPORT
+  #include &quot;video-dfb.h&quot;
+***************
+*** 206,209 ****
+--- 210,218 ----
+  #endif
+          break;
++       case VOUT_SHM:
++ #ifdef SHM_SUPPORT
++         LoadSubPlugin (&quot;shm&quot;, 0, pluginPath);
++ #endif
++         break;
+        case VOUT_DUMMY:
+          videoOut=new cDummyVideoOut(&amp;setupStore);
+***************
+*** 232,235 ****
+--- 241,249 ----
+  #endif
+          break;
++       case VOUT_SHM:
++ #ifdef SHM_SUPPORT
++         videoOut=new cShmVideoOut(&amp;setupStore);
++ #endif
++         break;
+        case VOUT_DFB:
+  #ifdef DFB_SUPPORT
+***************
+*** 318,321 ****
+--- 332,336 ----
+      {
+        esyslog(&quot;[softdevice] videoOut failure exiting\n&quot;);
++       fprintf(stderr,&quot;[softdevice] videoOut failure exiting\n&quot;);
+        exit (1);
+      }
+***************
+*** 724,727 ****
+--- 739,750 ----
+  #else
+            fprintf(stderr,&quot;[softdevice] fb support not compiled in\n&quot;);
++ #endif
++         } else if (!strncmp (vo_argv, &quot;shm:&quot;, 3)) {
++           vo_argv += 4;
++           setupStore.voArgs = vo_argv;
++ #ifdef SHM_SUPPORT
++           voutMethod = VOUT_SHM;
++ #else
++           fprintf(stderr,&quot;[softdevice] shm support not compiled in\n&quot;);
+  #endif
+          } else if (!strncmp (vo_argv, &quot;dfb:&quot;, 4)) {
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.39
+retrieving revision 1.40
+diff -C2 -d -r1.39 -r1.40
+*** video.c	15 Jan 2006 21:11:25 -0000	1.39
+--- video.c	17 Jan 2006 20:45:46 -0000	1.40
+***************
+*** 225,229 ****
+    }
+  
+!   if (new_aspect == current_aspect &amp;&amp; new_afd == current_afd)
+    {
+      aspect_changed = 0;
+--- 225,229 ----
+    }
+  
+!   if (new_aspect == current_aspect &amp;&amp; new_afd == current_afd &amp;&amp; !aspect_changed)
+    {
+      aspect_changed = 0;
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.25
+retrieving revision 1.26
+diff -C2 -d -r1.25 -r1.26
+*** video.h	15 Jan 2006 21:11:25 -0000	1.25
+--- video.h	17 Jan 2006 20:45:46 -0000	1.26
+***************
+*** 83,86 ****
+--- 83,89 ----
+      int     aspect_I;
+      double  aspect_F;
++ protected:
++     inline double GetAspect_F()
++     { return aspect_F;};
+  
+  protected:
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000273.html">[Softdevice-cvs] softdevice video.c,1.38,1.39 video.h,1.24,1.25 CHANGELOG,1.140,1.141
+</A></li>
+	<LI>Next message: <A HREF="000275.html">[Softdevice-cvs] softdevice CHANGELOG,1.142,1.143 video.c,1.40,1.41
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#274">[ date ]</a>
+              <a href="thread.html#274">[ thread ]</a>
+              <a href="subject.html#274">[ subject ]</a>
+              <a href="author.html#274">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

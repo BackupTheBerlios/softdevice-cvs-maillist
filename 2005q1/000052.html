@@ -1,0 +1,207 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice audio.c,1.6,1.7 audio.h,1.2,1.3 setup-softdevice.c,1.7,1.8 setup-softdevice.h,1.4,1.5
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20audio.c%2C1.6%2C1.7%20audio.h%2C1.2%2C1.3%20setup-softdevice.c%2C1.7%2C1.8%20setup-softdevice.h%2C1.4%2C1.5&In-Reply-To=%3C200501231456.j0NEuAN07844%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000051.html">
+   <LINK REL="Next"  HREF="000053.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice audio.c,1.6,1.7 audio.h,1.2,1.3 setup-softdevice.c,1.7,1.8 setup-softdevice.h,1.4,1.5</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20audio.c%2C1.6%2C1.7%20audio.h%2C1.2%2C1.3%20setup-softdevice.c%2C1.7%2C1.8%20setup-softdevice.h%2C1.4%2C1.5&In-Reply-To=%3C200501231456.j0NEuAN07844%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice audio.c,1.6,1.7 audio.h,1.2,1.3 setup-softdevice.c,1.7,1.8 setup-softdevice.h,1.4,1.5">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Jan 23 15:56:10 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000051.html">[Softdevice-cvs] softdevice video.h,1.6,1.7 video-xv.c,1.12,1.13 video-xv.h,1.3,1.4 mpeg2decoder.c,1.13,1.14 mpeg2decoder.h,1.10,1.11 Makefile,1.4,1.5 CHANGELOG,1.30,1.31
+</A></li>
+        <LI>Next message: <A HREF="000053.html">[Softdevice-cvs] softdevice CHANGELOG,1.31,1.32 video-dfb.c,1.15,1.16 video-xv.c,1.13,1.14
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#52">[ date ]</a>
+              <a href="thread.html#52">[ thread ]</a>
+              <a href="subject.html#52">[ subject ]</a>
+              <a href="author.html#52">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv27046
+
+Modified Files:
+	audio.c audio.h setup-softdevice.c setup-softdevice.h 
+Log Message:
+-added playback suspend patch
+
+
+Index: audio.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio.c,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -C2 -d -r1.6 -r1.7
+*** audio.c	21 Nov 2004 13:45:37 -0000	1.6
+--- audio.c	23 Jan 2005 14:56:08 -0000	1.7
+***************
+*** 35,38 ****
+--- 35,39 ----
+        exit(1);
+      }
++     chn=0;
+      dsyslog(&quot;[softdevice-audio] Device opened! Ready to play&quot;);
+  }
+***************
+*** 42,45 ****
+--- 43,63 ----
+      snd_pcm_close(handle);
+  }
++ 
++ void cAlsaAudioOut::Suspend() {
++   snd_pcm_close(handle);
++ }
++ 
++ bool cAlsaAudioOut::Resume() {
++    int err;
++    printf(&quot;Device %s\n&quot;,device);
++    if ((err = snd_pcm_open(&amp;handle, device, SND_PCM_STREAM_PLAYBACK, 0)) &lt; 0) {
++      dsyslog(&quot;[softdevice-audio] Playback open error: %s, %s FATAL exiting&quot;,
++              device, snd_strerror(err));
++      return false;
++    }
++    //force setting of the parameters after resume 
++    chn=0;
++    return true;
++ };
+  
+  void cAlsaAudioOut::Write(uchar *Data, int Length)
+
+Index: audio.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio.h,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** audio.h	29 Oct 2004 16:41:39 -0000	1.2
+--- audio.h	23 Jan 2005 14:56:08 -0000	1.3
+***************
+*** 28,31 ****
+--- 28,35 ----
+    virtual void Play(void)=0;
+    virtual void SetVolume(int vol)=0;
++   virtual void Suspend(void) 
++   {return;};
++   virtual bool Resume(void) 
++   {return true;};
+  };
+  
+***************
+*** 51,54 ****
+--- 55,60 ----
+    virtual void Play(void);
+    virtual void SetVolume(int vol);
++   virtual void Suspend(void);
++   virtual bool Resume(void);
+  };
+  #endif
+
+Index: setup-softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.c,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -C2 -d -r1.7 -r1.8
+*** setup-softdevice.c	13 Jan 2005 20:48:20 -0000	1.7
+--- setup-softdevice.c	23 Jan 2005 14:56:08 -0000	1.8
+***************
+*** 66,69 ****
+--- 66,77 ----
+          NULL
+       };
++ /* ----------------------------------------------------------------------------
++  */
++ char *suspendVideo [] = {
++         &quot;playing&quot;,
++         &quot;suspended&quot;,
++         NULL
++      };
++ 
+  
+  /* ----------------------------------------------------------------------------
+***************
+*** 112,115 ****
+--- 120,124 ----
+    syncOnFrames  = 0;
+    avOffset      = 0;
++   shouldSuspend = 0;
+  
+    useMGAtv      = 0;
+***************
+*** 280,283 ****
+--- 289,296 ----
+                              videoAspectNames));
+  
++   Add(new cMenuEditStraItem(tr(&quot;Playback&quot;),
++                             &amp;data-&gt;shouldSuspend,
++                             2,
++                             suspendVideo));
+  }
+  
+***************
+*** 332,334 ****
+--- 345,348 ----
+    SetupStore (&quot;AlsaDevice&quot;,         setupStore.alsaDevice);
+    SetupStore (&quot;PixelAspect&quot;,        setupStore.screenPixelAspect);
++   SetupStore (&quot;Suspend&quot;,            setupStore.shouldSuspend);
+  }
+
+Index: setup-softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.h,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -C2 -d -r1.4 -r1.5
+*** setup-softdevice.h	21 Dec 2004 05:55:42 -0000	1.4
+--- setup-softdevice.h	23 Jan 2005 14:56:08 -0000	1.5
+***************
+*** 36,39 ****
+--- 36,40 ----
+      int   screenPixelAspect;
+      int   useMGAtv;
++     int   shouldSuspend;
+      char  alsaDevice [ALSA_DEVICE_NAME_LENGTH];
+  };
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000051.html">[Softdevice-cvs] softdevice video.h,1.6,1.7 video-xv.c,1.12,1.13 video-xv.h,1.3,1.4 mpeg2decoder.c,1.13,1.14 mpeg2decoder.h,1.10,1.11 Makefile,1.4,1.5 CHANGELOG,1.30,1.31
+</A></li>
+	<LI>Next message: <A HREF="000053.html">[Softdevice-cvs] softdevice CHANGELOG,1.31,1.32 video-dfb.c,1.15,1.16 video-xv.c,1.13,1.14
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#52">[ date ]</a>
+              <a href="thread.html#52">[ thread ]</a>
+              <a href="subject.html#52">[ subject ]</a>
+              <a href="author.html#52">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

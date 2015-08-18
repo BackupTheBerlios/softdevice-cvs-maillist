@@ -1,0 +1,86 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice Makefile,1.17,1.18
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20Makefile%2C1.17%2C1.18&In-Reply-To=%3C200510031857.j93IvE915899%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000216.html">
+   <LINK REL="Next"  HREF="000218.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice Makefile,1.17,1.18</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20Makefile%2C1.17%2C1.18&In-Reply-To=%3C200510031857.j93IvE915899%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice Makefile,1.17,1.18">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon Oct  3 20:57:14 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000216.html">[Softdevice-cvs] softdevice configure,1.4,1.5
+</A></li>
+        <LI>Next message: <A HREF="000218.html">[Softdevice-cvs] softdevice configure,1.5,1.6
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#217">[ date ]</a>
+              <a href="thread.html#217">[ thread ]</a>
+              <a href="subject.html#217">[ subject ]</a>
+              <a href="author.html#217">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv17702
+
+Modified Files:
+	Makefile 
+Log Message:
+don't link vidix into core, when USE_SUBPLUGINS is specified
+
+Index: Makefile
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/Makefile,v
+retrieving revision 1.17
+retrieving revision 1.18
+diff -C2 -d -r1.17 -r1.18
+*** Makefile	18 Sep 2005 15:17:44 -0000	1.17
+--- Makefile	3 Oct 2005 18:57:11 -0000	1.18
+***************
+*** 256,260 ****
+      LIBS        += -lvidix
+    endif
+-   LIBS        += $(VIDIX_LIBS)
+    INCLUDES    += $(VIDIX_CFLAGS)
+  endif
+--- 256,259 ----
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000216.html">[Softdevice-cvs] softdevice configure,1.4,1.5
+</A></li>
+	<LI>Next message: <A HREF="000218.html">[Softdevice-cvs] softdevice configure,1.5,1.6
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#217">[ date ]</a>
+              <a href="thread.html#217">[ thread ]</a>
+              <a href="subject.html#217">[ subject ]</a>
+              <a href="author.html#217">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

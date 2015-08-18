@@ -1,0 +1,593 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice video-dfb.c, 1.74, 1.75 utils.c, 1.22,	1.23 utils.h, 1.14, 1.15
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-dfb.c%2C%201.74%2C%201.75%20utils.c%2C%201.22%2C%0A%091.23%20utils.h%2C%201.14%2C%201.15&In-Reply-To=%3C20061217224058.BA8E4CE428%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000489.html">
+   <LINK REL="Next"  HREF="000491.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice video-dfb.c, 1.74, 1.75 utils.c, 1.22,	1.23 utils.h, 1.14, 1.15</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-dfb.c%2C%201.74%2C%201.75%20utils.c%2C%201.22%2C%0A%091.23%20utils.h%2C%201.14%2C%201.15&In-Reply-To=%3C20061217224058.BA8E4CE428%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice video-dfb.c, 1.74, 1.75 utils.c, 1.22,	1.23 utils.h, 1.14, 1.15">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Dec 17 23:40:58 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000489.html">[Softdevice-cvs] softdevice CHANGELOG, 1.279, 1.280 audio-oss.c, 1.1,	1.2
+</A></li>
+        <LI>Next message: <A HREF="000491.html">[Softdevice-cvs] softdevice CHANGELOG, 1.280, 1.281 utils.c, 1.23,	1.24
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#490">[ date ]</a>
+              <a href="thread.html#490">[ thread ]</a>
+              <a href="subject.html#490">[ subject ]</a>
+              <a href="author.html#490">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv26662
+
+Modified Files:
+	video-dfb.c utils.c utils.h 
+Log Message:
+Silence some warnings with gcc 4.1.1 . Adjust MMX and C version of fast_memcpy() to the same return type.
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.74
+retrieving revision 1.75
+diff -C2 -d -r1.74 -r1.75
+*** video-dfb.c	16 Nov 2006 20:41:36 -0000	1.74
+--- video-dfb.c	17 Dec 2006 22:39:52 -0000	1.75
+***************
+*** 968,973 ****
+              int     *dst, i, j;
+              int     pitch;
+  
+!             videoSurface-&gt;Lock(DSLF_WRITE, (void **)&amp;dst, &amp;pitch);
+              for(i = 0; i &lt; vidDsc.height; ++i, dst += pitch/4)
+                for (j = 0; j &lt; vidDsc.width / 2; ++j)
+--- 968,975 ----
+              int     *dst, i, j;
+              int     pitch;
++             void    *tmp_dst;
+  
+!             videoSurface-&gt;Lock(DSLF_WRITE, &amp;tmp_dst, &amp;pitch);
+!             dst = (int *) tmp_dst;
+              for(i = 0; i &lt; vidDsc.height; ++i, dst += pitch/4)
+                for (j = 0; j &lt; vidDsc.width / 2; ++j)
+***************
+*** 1055,1059 ****
+  {
+    int               pitch;
+!   uint8_t           *dst;
+  
+    dirtyLines = DirtyLines = NULL;
+--- 1057,1061 ----
+  {
+    int               pitch;
+!   void              *dst;
+  
+    dirtyLines = DirtyLines = NULL;
+***************
+*** 1071,1077 ****
+  
+      tmpOsdSurface = (useStretchBlit) ? osdSurface : scrSurface;
+!     tmpOsdSurface-&gt;Lock(DSLF_WRITE, (void **)&amp;dst, &amp;pitch) ;
+      //printf(&quot;GetLockOsdSurface %p\n&quot;,tmpOsdSurface);fflush(stdout);
+!     osd=dst;stride=pitch;
+    }
+    catch (DFBException *ex)
+--- 1073,1079 ----
+  
+      tmpOsdSurface = (useStretchBlit) ? osdSurface : scrSurface;
+!     tmpOsdSurface-&gt;Lock(DSLF_WRITE, &amp;dst, &amp;pitch) ;
+      //printf(&quot;GetLockOsdSurface %p\n&quot;,tmpOsdSurface);fflush(stdout);
+!     osd=(uint8_t *)dst;stride=pitch;
+    }
+    catch (DFBException *ex)
+***************
+*** 1246,1249 ****
+--- 1248,1252 ----
+  
+    uint8_t               *dst;
++   void                  *tmp_dst;
+    int                   pitch;
+    int                   hi;
+***************
+*** 1285,1289 ****
+      } else {
+  #endif // HAVE_CLE266_MPEG_DECODER
+!       videoSurface-&gt;Lock(DSLF_WRITE, (void **)&amp;dst, &amp;pitch);
+        if (pixelformat == DSPF_I420 || pixelformat == DSPF_YV12)
+        {
+--- 1288,1293 ----
+      } else {
+  #endif // HAVE_CLE266_MPEG_DECODER
+!       videoSurface-&gt;Lock(DSLF_WRITE, &amp;tmp_dst, &amp;pitch);
+!       dst = (uint8_t *) tmp_dst;
+        if (pixelformat == DSPF_I420 || pixelformat == DSPF_YV12)
+        {
+
+Index: utils.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/utils.c,v
+retrieving revision 1.22
+retrieving revision 1.23
+diff -C2 -d -r1.22 -r1.23
+*** utils.c	3 Dec 2006 19:25:08 -0000	1.22
+--- utils.c	17 Dec 2006 22:39:52 -0000	1.23
+***************
+*** 104,114 ****
+   * lang: MMX2
+   */
+! void yuv420_to_yuy2(uint8_t *dest1, uint8_t *dest2, 
+                  uint8_t *yc1, uint8_t *yc2, uint8_t *uc, uint8_t *vc,
+                  int pixel)
+  {
+    int i=pixel;
+!   
+! #ifdef USE_MMX 
+    for(i = pixel/8; i--; )
+    {
+--- 104,114 ----
+   * lang: MMX2
+   */
+! void yuv420_to_yuy2(uint8_t *dest1, uint8_t *dest2,
+                  uint8_t *yc1, uint8_t *yc2, uint8_t *uc, uint8_t *vc,
+                  int pixel)
+  {
+    int i=pixel;
+! 
+! #ifdef USE_MMX
+    for(i = pixel/8; i--; )
+    {
+***************
+*** 141,152 ****
+  
+  /* This altivec optimization is based on vlc's i420_yuy2.c with the copyright notice:
+!  * 
+   * Copyright (C) 2000, 2001 the VideoLAN team
+   *
+   * Authors: Samuel Hocevar &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">sam at zoy.org</A>&gt;
+   */
+!   
+     vector unsigned char u_vec;
+!    vector unsigned char v_vec; 
+     vector unsigned char uv_vec;
+     vector unsigned char y_vec;
+--- 141,152 ----
+  
+  /* This altivec optimization is based on vlc's i420_yuy2.c with the copyright notice:
+!  *
+   * Copyright (C) 2000, 2001 the VideoLAN team
+   *
+   * Authors: Samuel Hocevar &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">sam at zoy.org</A>&gt;
+   */
+! 
+     vector unsigned char u_vec;
+!    vector unsigned char v_vec;
+     vector unsigned char uv_vec;
+     vector unsigned char y_vec;
+***************
+*** 160,166 ****
+          vec_st( vec_mergel( y_vec, uv_vec), 0, dest1); dest1+=16;
+          y_vec = vec_ld( 0, yc2); yc2+=16;
+!         vec_st( vec_mergeh( y_vec, uv_vec), 0, dest2); dest2+=16;        
+!         vec_st( vec_mergel( y_vec, uv_vec), 0, dest2); dest2+=16;             
+!         
+          uv_vec = vec_mergel( u_vec, v_vec);
+          y_vec = vec_ld( 0, yc1); yc1+=16;
+--- 160,166 ----
+          vec_st( vec_mergel( y_vec, uv_vec), 0, dest1); dest1+=16;
+          y_vec = vec_ld( 0, yc2); yc2+=16;
+!         vec_st( vec_mergeh( y_vec, uv_vec), 0, dest2); dest2+=16;
+!         vec_st( vec_mergel( y_vec, uv_vec), 0, dest2); dest2+=16;
+! 
+          uv_vec = vec_mergel( u_vec, v_vec);
+          y_vec = vec_ld( 0, yc1); yc1+=16;
+***************
+*** 168,173 ****
+          vec_st( vec_mergel( y_vec, uv_vec), 0, dest1); dest1+=16;
+          y_vec = vec_ld( 0, yc2); yc2+=16;
+!         vec_st( vec_mergeh( y_vec, uv_vec), 0, dest2); dest2+=16;        
+!         vec_st( vec_mergel( y_vec, uv_vec), 0, dest2); dest2+=16;        
+     }
+  #endif
+--- 168,173 ----
+          vec_st( vec_mergel( y_vec, uv_vec), 0, dest1); dest1+=16;
+          y_vec = vec_ld( 0, yc2); yc2+=16;
+!         vec_st( vec_mergeh( y_vec, uv_vec), 0, dest2); dest2+=16;
+!         vec_st( vec_mergel( y_vec, uv_vec), 0, dest2); dest2+=16;
+     }
+  #endif
+***************
+*** 192,196 ****
+                            uint8_t *pu, uint8_t *pv,
+                            uint8_t *dst, int width, int height,
+!                           const int lumStride, const int chromStride, 
+                            const int dstStride)
+  {
+--- 192,196 ----
+                            uint8_t *pu, uint8_t *pv,
+                            uint8_t *dst, int width, int height,
+!                           const int lumStride, const int chromStride,
+                            const int dstStride)
+  {
+***************
+*** 210,214 ****
+                  py + lumStride, py + lumStride * 3,pu + chromStride, pv + chromStride,
+                  width);
+!     
+      py  += 4*lumStride;
+      pu  += 2*chromStride;
+--- 210,214 ----
+                  py + lumStride, py + lumStride * 3,pu + chromStride, pv + chromStride,
+                  width);
+! 
+      py  += 4*lumStride;
+      pu  += 2*chromStride;
+***************
+*** 264,268 ****
+                            int lumStride, int chromStride, int dstStride)
+  {
+! #ifdef USE_MMX 
+    for (int i=0; i&lt;height; i++)
+    {
+--- 264,268 ----
+                            int lumStride, int chromStride, int dstStride)
+  {
+! #ifdef USE_MMX
+    for (int i=0; i&lt;height; i++)
+    {
+***************
+*** 714,718 ****
+      dst2+=2*SIZE_##FMT;                 \
+      pu++;                               \
+!     pv++;                               
+  
+  // MMX macros taken from libswscale
+--- 714,718 ----
+      dst2+=2*SIZE_##FMT;                 \
+      pu++;                               \
+!     pv++;
+  
+  // MMX macros taken from libswscale
+***************
+*** 724,728 ****
+   *
+   * This file is part of mpeg2dec, a free MPEG-2 video decoder
+!  * 
+   * 15,24 bpp and dithering from Michael Niedermayer (<A HREF="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">michaelni at gmx.at</A>)
+   * MMX/MMX2 Template stuff from Michael Niedermayer (needed for fast movntq support)
+--- 724,728 ----
+   *
+   * This file is part of mpeg2dec, a free MPEG-2 video decoder
+!  *
+   * 15,24 bpp and dithering from Michael Niedermayer (<A HREF="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">michaelni at gmx.at</A>)
+   * MMX/MMX2 Template stuff from Michael Niedermayer (needed for fast movntq support)
+***************
+*** 759,764 ****
+          0x00ff00ff00ff00ffULL, /* mask_00ff  */
+          0xf8f8f8f8f8f8f8f8ULL, /* red_mask   */
+!         0xfcfcfcfcfcfcfcfcULL, /* green_mask */ 
+!         0x00FF0000FF0000FFULL, /* M24A */  
+          0xFF0000FF0000FF00ULL, /* M24B */
+          0x0000FF0000FF0000ULL, /* M24C */
+--- 759,764 ----
+          0x00ff00ff00ff00ffULL, /* mask_00ff  */
+          0xf8f8f8f8f8f8f8f8ULL, /* red_mask   */
+!         0xfcfcfcfcfcfcfcfcULL, /* green_mask */
+!         0x00FF0000FF0000FFULL, /* M24A */
+          0xFF0000FF0000FF00ULL, /* M24B */
+          0x0000FF0000FF0000ULL, /* M24C */
+***************
+*** 951,959 ****
+  	&quot;pxor %%mm4, %%mm4\n&quot; /* zero mm4 */\
+  
+!                   
+  // end of MMX macros from libswscale
+  
+  void yuv420_to_rgb32(uint8_t *dst1, uint8_t *dst2,
+!                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
+                   int pixel)
+  {
+--- 951,959 ----
+  	&quot;pxor %%mm4, %%mm4\n&quot; /* zero mm4 */\
+  
+! 
+  // end of MMX macros from libswscale
+  
+  void yuv420_to_rgb32(uint8_t *dst1, uint8_t *dst2,
+!                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv,
+                   int pixel)
+  {
+***************
+*** 976,980 ****
+                  : : &quot;r&quot; (MMX_Constants),&quot;r&quot; (dst1)
+                  : &quot;memory&quot;);
+!     
+      __asm__ __volatile__ (
+            &quot;movd (%1), %%mm6  \n&quot;
+--- 976,980 ----
+                  : : &quot;r&quot; (MMX_Constants),&quot;r&quot; (dst1)
+                  : &quot;memory&quot;);
+! 
+      __asm__ __volatile__ (
+            &quot;movd (%1), %%mm6  \n&quot;
+***************
+*** 1001,1005 ****
+    pixel/=2;
+    while (pixel) {
+!     YUV420P_TO_RGB(RGB32);  
+      pixel--;
+    };
+--- 1001,1005 ----
+    pixel/=2;
+    while (pixel) {
+!     YUV420P_TO_RGB(RGB32);
+      pixel--;
+    };
+***************
+*** 1008,1012 ****
+  
+  void yuv420_to_rgb24(uint8_t *dst1, uint8_t *dst2,
+!                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
+                   int pixel)
+  {
+--- 1008,1012 ----
+  
+  void yuv420_to_rgb24(uint8_t *dst1, uint8_t *dst2,
+!                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv,
+                   int pixel)
+  {
+***************
+*** 1029,1033 ****
+                  : : &quot;r&quot; (MMX_Constants),&quot;r&quot; (dst1)
+                  : &quot;memory&quot;);
+!     
+      __asm__ __volatile__ (
+            &quot;movd (%1), %%mm6  \n&quot;
+--- 1029,1033 ----
+                  : : &quot;r&quot; (MMX_Constants),&quot;r&quot; (dst1)
+                  : &quot;memory&quot;);
+! 
+      __asm__ __volatile__ (
+            &quot;movd (%1), %%mm6  \n&quot;
+***************
+*** 1054,1058 ****
+    pixel/=2;
+    while (pixel) {
+!     YUV420P_TO_RGB(RGB24);  
+      pixel--;
+    };
+--- 1054,1058 ----
+    pixel/=2;
+    while (pixel) {
+!     YUV420P_TO_RGB(RGB24);
+      pixel--;
+    };
+***************
+*** 1061,1070 ****
+  
+  void yuv420_to_bgr24(uint8_t *dst1, uint8_t *dst2,
+!                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
+                   int pixel)
+  {
+    pixel/=2;
+    while (pixel) {
+!     YUV420P_TO_RGB(BGR24);  
+      pixel--;
+    };
+--- 1061,1070 ----
+  
+  void yuv420_to_bgr24(uint8_t *dst1, uint8_t *dst2,
+!                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv,
+                   int pixel)
+  {
+    pixel/=2;
+    while (pixel) {
+!     YUV420P_TO_RGB(BGR24);
+      pixel--;
+    };
+***************
+*** 1072,1076 ****
+  
+  void yuv420_to_rgb16(uint8_t *dst1, uint8_t *dst2,
+!                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
+                   int pixel)
+  {
+--- 1072,1076 ----
+  
+  void yuv420_to_rgb16(uint8_t *dst1, uint8_t *dst2,
+!                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv,
+                   int pixel)
+  {
+***************
+*** 1117,1121 ****
+    pixel/=2;
+    while (pixel) {
+!     YUV420P_TO_RGB(RGB16);  
+      pixel--;
+    };
+--- 1117,1121 ----
+    pixel/=2;
+    while (pixel) {
+!     YUV420P_TO_RGB(RGB16);
+      pixel--;
+    };
+***************
+*** 1190,1194 ****
+  #endif //USE_MMX
+  
+! #ifdef USE_ALTIVEC 
+         vector unsigned char zero = vec_splat_u8(0);
+         vector unsigned short one = vec_splat_u16(1);
+--- 1190,1194 ----
+  #endif //USE_MMX
+  
+! #ifdef USE_ALTIVEC
+         vector unsigned char zero = vec_splat_u8(0);
+         vector unsigned short one = vec_splat_u16(1);
+***************
+*** 1206,1222 ****
+                  p2l = (vector short) vec_mergel( zero, (vector unsigned char) p2h);
+                  ah  = (vector short) vec_ld(0,alpha);
+!                 
+                  p1h = (vector short) vec_mergeh( zero, (vector unsigned char) p1h);
+                  p2h = (vector short) vec_mergeh( zero, (vector unsigned char) p2h);
+!                 
+                  al = (vector short) vec_mergel( zero, (vector unsigned char) ah);
+                  ah = (vector short) vec_mergeh( zero, (vector unsigned char) ah);
+!                 
+                  p1h = vec_subs(p1h,p2h);
+                  p1l = vec_subs(p1l,p2l);
+!                 
+                  ah = vec_sr(ah, one);
+                  al = vec_sr(al, one);
+!        
+                  p1h = vec_mladd( p1h, ah, (vector short) zero);
+                  p1l = vec_mladd( p1l, al, (vector short) zero);
+--- 1206,1222 ----
+                  p2l = (vector short) vec_mergel( zero, (vector unsigned char) p2h);
+                  ah  = (vector short) vec_ld(0,alpha);
+! 
+                  p1h = (vector short) vec_mergeh( zero, (vector unsigned char) p1h);
+                  p2h = (vector short) vec_mergeh( zero, (vector unsigned char) p2h);
+! 
+                  al = (vector short) vec_mergel( zero, (vector unsigned char) ah);
+                  ah = (vector short) vec_mergeh( zero, (vector unsigned char) ah);
+! 
+                  p1h = vec_subs(p1h,p2h);
+                  p1l = vec_subs(p1l,p2l);
+! 
+                  ah = vec_sr(ah, one);
+                  al = vec_sr(al, one);
+! 
+                  p1h = vec_mladd( p1h, ah, (vector short) zero);
+                  p1l = vec_mladd( p1l, al, (vector short) zero);
+***************
+*** 1231,1235 ****
+  
+                  vec_st((vector unsigned char) p1h, 0, dest);
+!                 
+                  P1+=16;
+                  P2+=16;
+--- 1231,1235 ----
+  
+                  vec_st((vector unsigned char) p1h, 0, dest);
+! 
+                  P1+=16;
+                  P2+=16;
+***************
+*** 1238,1242 ****
+         }
+  #endif // USE_ALTIVEC
+!        
+         //fallback version and the last missing bytes...
+         for (int i=0; i &lt; count; i++){
+--- 1238,1242 ----
+         }
+  #endif // USE_ALTIVEC
+! 
+         //fallback version and the last missing bytes...
+         for (int i=0; i &lt; count; i++){
+***************
+*** 1284,1288 ****
+  #ifndef USE_MMX
+  
+! void * fast_memcpy(void * to, const void * from, size_t len) {
+          memcpy(to,from,len);
+  }
+--- 1284,1288 ----
+  #ifndef USE_MMX
+  
+! void fast_memcpy(void * to, const void * from, size_t len) {
+          memcpy(to,from,len);
+  }
+***************
+*** 1314,1322 ****
+  }
+  
+! void * fast_memcpy(void * to, const void * from, size_t len)
+  {
+- 	void *retval;
+  	size_t i;
+- 	retval = to;
+  #ifdef USE_MMX2
+          /* PREFETCH has effect even for MOVSB instruction ;) */
+--- 1314,1320 ----
+  }
+  
+! void fast_memcpy(void * to, const void * from, size_t len)
+  {
+  	size_t i;
+  #ifdef USE_MMX2
+          /* PREFETCH has effect even for MOVSB instruction ;) */
+***************
+*** 1413,1417 ****
+  	 */
+  	if(len) small_memcpy(to, from, len);
+- 	return retval;
+  }
+  
+--- 1411,1414 ----
+
+Index: utils.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/utils.h,v
+retrieving revision 1.14
+retrieving revision 1.15
+diff -C2 -d -r1.14 -r1.15
+*** utils.h	3 Dec 2006 19:25:08 -0000	1.14
+--- utils.h	17 Dec 2006 22:39:52 -0000	1.15
+***************
+*** 142,146 ****
+  
+  
+! void * fast_memcpy(void * to, const void * from, size_t len);
+  
+  // RGB pixel write macros
+--- 142,146 ----
+  
+  
+! void fast_memcpy(void * to, const void * from, size_t len);
+  
+  // RGB pixel write macros
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000489.html">[Softdevice-cvs] softdevice CHANGELOG, 1.279, 1.280 audio-oss.c, 1.1,	1.2
+</A></li>
+	<LI>Next message: <A HREF="000491.html">[Softdevice-cvs] softdevice CHANGELOG, 1.280, 1.281 utils.c, 1.23,	1.24
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#490">[ date ]</a>
+              <a href="thread.html#490">[ thread ]</a>
+              <a href="subject.html#490">[ subject ]</a>
+              <a href="author.html#490">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

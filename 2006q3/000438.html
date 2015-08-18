@@ -1,0 +1,262 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.244, 1.245 SoftOsd.c, 1.20,	1.21 SoftOsd.h, 1.8, 1.9
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.244%2C%201.245%20SoftOsd.c%2C%201.20%2C%0A%091.21%20SoftOsd.h%2C%201.8%2C%201.9&In-Reply-To=%3C20060921103623.47804819D5%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000437.html">
+   <LINK REL="Next"  HREF="000439.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.244, 1.245 SoftOsd.c, 1.20,	1.21 SoftOsd.h, 1.8, 1.9</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.244%2C%201.245%20SoftOsd.c%2C%201.20%2C%0A%091.21%20SoftOsd.h%2C%201.8%2C%201.9&In-Reply-To=%3C20060921103623.47804819D5%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.244, 1.245 SoftOsd.c, 1.20,	1.21 SoftOsd.h, 1.8, 1.9">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Thu Sep 21 12:36:23 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000437.html">[Softdevice-cvs] softdevice CHANGELOG, 1.243, 1.244 video.c, 1.63,	1.64
+</A></li>
+        <LI>Next message: <A HREF="000439.html">[Softdevice-cvs] softdevice CHANGELOG, 1.245, 1.246 video.c, 1.64,	1.65 video.h, 1.41, 1.42
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#438">[ date ]</a>
+              <a href="thread.html#438">[ thread ]</a>
+              <a href="subject.html#438">[ subject ]</a>
+              <a href="author.html#438">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv1190
+
+Modified Files:
+	CHANGELOG SoftOsd.c SoftOsd.h 
+Log Message:
+- introduce a mutex to protect calls to videoOut from SoftOsd
+- initialize parameters for the vout-&gt;GetOSDMode() call
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.244
+retrieving revision 1.245
+diff -C2 -d -r1.244 -r1.245
+*** CHANGELOG	19 Sep 2006 13:23:51 -0000	1.244
+--- CHANGELOG	21 Sep 2006 10:35:51 -0000	1.245
+***************
+*** 1,3 ****
+--- 1,6 ----
+  Changelog
++ 2006-09-21:
++    - introduce a mutex to protect calls to videoOut from SoftOsd
++    - initialize parameters for the vout-&gt;GetOSDMode() call
+  2006-09-19:
+     - fix &quot;Error! Trying to unlock a nil picture... Ignoring&quot; error message.
+
+Index: SoftOsd.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.c,v
+retrieving revision 1.20
+retrieving revision 1.21
+diff -C2 -d -r1.20 -r1.21
+*** SoftOsd.c	18 Sep 2006 09:46:38 -0000	1.20
+--- SoftOsd.c	21 Sep 2006 10:35:51 -0000	1.21
+***************
+*** 53,61 ****
+          videoOut = VideoOut;
+          xPan = yPan = 0;
+  	videoOut-&gt;OpenOSD();
+  	xOfs=X;yOfs=Y;
+          ScreenOsdWidth=ScreenOsdHeight=0;
+!         int Depth; bool HasAlpha; bool AlphaInversed; bool IsYUV; 
+!         uint8_t *PixelMask;
+          videoOut-&gt;AdjustOSDMode();
+          videoOut-&gt;GetOSDMode(Depth,HasAlpha,AlphaInversed,
+--- 53,62 ----
+          videoOut = VideoOut;
+          xPan = yPan = 0;
++         voutMutex.Lock();
+  	videoOut-&gt;OpenOSD();
+  	xOfs=X;yOfs=Y;
+          ScreenOsdWidth=ScreenOsdHeight=0;
+!         int Depth=16; bool HasAlpha=false; bool AlphaInversed=false; 
+!         bool IsYUV=false; uint8_t *PixelMask=NULL;
+          videoOut-&gt;AdjustOSDMode();
+          videoOut-&gt;GetOSDMode(Depth,HasAlpha,AlphaInversed,
+***************
+*** 63,66 ****
+--- 64,68 ----
+          SetMode(Depth,HasAlpha,AlphaInversed,
+                          IsYUV,PixelMask);
++         voutMutex.Unlock();
+  };
+  
+***************
+*** 87,92 ****
+--- 89,96 ----
+          Cancel(3);
+          if (videoOut) {
++                 voutMutex.Lock();
+                  videoOut-&gt;CloseOSD();
+                  videoOut=0;
++                 voutMutex.Unlock();
+          }
+          delete[] OSD_Bitmap;
+***************
+*** 102,105 ****
+--- 106,115 ----
+                  int newXPan, newYPan;
+  
++                 voutMutex.Lock();
++                 if (!videoOut) {
++                         voutMutex.Unlock();
++                         continue;
++                 };
++                 
+                  videoOut-&gt;AdjustOSDMode();
+                  videoOut-&gt;GetOSDDimension(newOsdWidth,newOsdHeight,newXPan,newYPan);
+***************
+*** 110,115 ****
+                  }
+  
+!                 int Depth; bool HasAlpha; bool AlphaInversed; bool IsYUV;
+!                 uint8_t *PixelMask;
+                  videoOut-&gt;GetOSDMode(Depth,HasAlpha,AlphaInversed,
+                                  IsYUV,PixelMask);
+--- 120,125 ----
+                  }
+  
+!                 int Depth=16; bool HasAlpha=false; bool AlphaInversed=false; 
+!                 bool IsYUV=false; uint8_t *PixelMask=NULL;
+                  videoOut-&gt;GetOSDMode(Depth,HasAlpha,AlphaInversed,
+                                  IsYUV,PixelMask);
+***************
+*** 131,134 ****
+--- 141,146 ----
+                          OsdCommit();
+                  }
++                 voutMutex.Unlock();
++ 
+                  usleep(17000);
+          }
+***************
+*** 156,161 ****
+          };
+  
+!         int Depth; bool HasAlpha; bool AlphaInversed; bool IsYUV;
+!         uint8_t *PixelMask;
+          videoOut-&gt;GetOSDMode(Depth,HasAlpha,AlphaInversed,IsYUV,PixelMask);
+          bool modeChanged=SetMode(Depth,HasAlpha,AlphaInversed,IsYUV,PixelMask);
+--- 168,173 ----
+          };
+  
+!         int Depth=16; bool HasAlpha=false; bool AlphaInversed=false; 
+!         bool IsYUV=false; uint8_t *PixelMask=NULL;
+          videoOut-&gt;GetOSDMode(Depth,HasAlpha,AlphaInversed,IsYUV,PixelMask);
+          bool modeChanged=SetMode(Depth,HasAlpha,AlphaInversed,IsYUV,PixelMask);
+***************
+*** 256,262 ****
+          OSDDEB(&quot;SoftOsd::Flush \n&quot;);
+  	bool OSD_changed=FlushBitmaps(true);
+! 	
+          if (OSD_changed)
+                  OsdCommit();
+  
+  	// give priority to the other threads
+--- 268,276 ----
+          OSDDEB(&quot;SoftOsd::Flush \n&quot;);
+  	bool OSD_changed=FlushBitmaps(true);
+! 
+!         voutMutex.Lock();
+          if (OSD_changed)
+                  OsdCommit();
++         voutMutex.Unlock();
+  
+  	// give priority to the other threads
+
+Index: SoftOsd.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.h,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -C2 -d -r1.8 -r1.9
+*** SoftOsd.h	17 Sep 2006 20:49:05 -0000	1.8
+--- SoftOsd.h	21 Sep 2006 10:35:51 -0000	1.9
+***************
+*** 65,68 ****
+--- 65,69 ----
+  class cSoftOsd : public cOsd,cThread {
+  private:
++     cMutex voutMutex; // lock all operations on videoOut!
+      cVideoOut *videoOut;
+  protected:
+***************
+*** 94,98 ****
+--- 95,101 ----
+      cSoftOsd(cVideoOut *VideoOut, int XOfs, int XOfs);
+      virtual ~cSoftOsd();
++     virtual void Flush(void);
+  
++ protected:
+      bool SetMode(int Depth, bool HasAlpha, bool AlphaInversed, 
+                   bool IsYUV, uint8_t *PixelMask=NULL);
+***************
+*** 100,105 ****
+      bool FlushBitmaps(bool OnlyDirty);
+      bool DrawConvertBitmap(cBitmap *Bitmap, bool OnlyDirty);
+!     virtual void Flush(void);
+!     void OsdCommit();
+      
+      void Clear();
+--- 103,109 ----
+      bool FlushBitmaps(bool OnlyDirty);
+      bool DrawConvertBitmap(cBitmap *Bitmap, bool OnlyDirty);
+!     
+!     void OsdCommit(); 
+!     // may only be called if the caller holds voutMutex
+      
+      void Clear();
+***************
+*** 166,171 ****
+                  color **pixmap, int Pixel);
+  
+-  public:
+- 	    
+  };
+  
+--- 170,173 ----
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000437.html">[Softdevice-cvs] softdevice CHANGELOG, 1.243, 1.244 video.c, 1.63,	1.64
+</A></li>
+	<LI>Next message: <A HREF="000439.html">[Softdevice-cvs] softdevice CHANGELOG, 1.245, 1.246 video.c, 1.64,	1.65 video.h, 1.41, 1.42
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#438">[ date ]</a>
+              <a href="thread.html#438">[ thread ]</a>
+              <a href="subject.html#438">[ subject ]</a>
+              <a href="author.html#438">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

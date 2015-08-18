@@ -1,0 +1,392 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.58,1.59 setup-softdevice.c,1.15,1.16 setup-softdevice.h,1.11,1.12 video-dfb.c,1.23,1.24 video-xv.c,1.21,1.22
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.58%2C1.59%20setup-softdevice.c%2C1.15%2C1.16%20setup-softdevice.h%2C1.11%2C1.12%20video-dfb.c%2C1.23%2C1.24%20video-xv.c%2C1.21%2C1.22&In-Reply-To=%3C200504302050.j3UKojm26332%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000097.html">
+   <LINK REL="Next"  HREF="000099.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.58,1.59 setup-softdevice.c,1.15,1.16 setup-softdevice.h,1.11,1.12 video-dfb.c,1.23,1.24 video-xv.c,1.21,1.22</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.58%2C1.59%20setup-softdevice.c%2C1.15%2C1.16%20setup-softdevice.h%2C1.11%2C1.12%20video-dfb.c%2C1.23%2C1.24%20video-xv.c%2C1.21%2C1.22&In-Reply-To=%3C200504302050.j3UKojm26332%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.58,1.59 setup-softdevice.c,1.15,1.16 setup-softdevice.h,1.11,1.12 video-dfb.c,1.23,1.24 video-xv.c,1.21,1.22">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Apr 30 22:50:45 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000097.html">[Softdevice-cvs] softdevice CHANGELOG,1.57,1.58 video-dfb.c,1.22,1.23
+</A></li>
+        <LI>Next message: <A HREF="000099.html">[Softdevice-cvs] softdevice CHANGELOG,1.59,1.60 audio.c,1.14,1.15 audio.h,1.7,1.8
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#98">[ date ]</a>
+              <a href="thread.html#98">[ thread ]</a>
+              <a href="subject.html#98">[ subject ]</a>
+              <a href="author.html#98">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv25025
+
+Modified Files:
+	CHANGELOG setup-softdevice.c setup-softdevice.h video-dfb.c 
+	video-xv.c 
+Log Message:
+    - some preparations for ac3 out selection
+    - xv-out &amp; dfb-out: catch userX keys and map one of them to crop mode selection
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.58
+retrieving revision 1.59
+diff -C2 -d -r1.58 -r1.59
+*** CHANGELOG	23 Apr 2005 19:20:46 -0000	1.58
+--- CHANGELOG	30 Apr 2005 20:50:42 -0000	1.59
+***************
+*** 1,3 ****
+--- 1,6 ----
+  Changelog
++ 2005-04-30:
++     - some preparations for ac3 out selection
++     - xv-out &amp; dfb-out: catch userX keys and map one of them to crop mode selection
+  2005-04-23:
+      - dfb-out: commented out use of DFBCardCapabilities required for current DirectFB cvs.
+
+Index: setup-softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.c,v
+retrieving revision 1.15
+retrieving revision 1.16
+diff -C2 -d -r1.15 -r1.16
+*** setup-softdevice.c	9 Apr 2005 06:49:57 -0000	1.15
+--- setup-softdevice.c	30 Apr 2005 20:50:42 -0000	1.16
+***************
+*** 23,27 ****
+--- 23,30 ----
+          NULL
+       };
++ #define CROPMODEMAX 2
+  
++ /* ---------------------------------------------------------------------------
++  */
+  char *deint_str [] = {
+          &quot;none&quot;,
+***************
+*** 99,102 ****
+--- 102,130 ----
+  /* ----------------------------------------------------------------------------
+   */
++ char *ac3ModeNames [] = {
++         &quot;Stereo (2CH)&quot;,
++         &quot;5.1 S/P-DIF&quot;,
++         &quot;5.1 Analog (4CH)&quot;,
++         &quot;5.1 Analog (6CH)&quot;,
++         NULL
++      };
++ 
++ /* ----------------------------------------------------------------------------
++  */
++ char *userKeyUsage [] = {
++         &quot;none&quot;,
++         &quot;User1&quot;,
++         &quot;User2&quot;,
++         &quot;User3&quot;,
++         &quot;User4&quot;,
++         &quot;User5&quot;,
++         &quot;User6&quot;,
++         &quot;User7&quot;,
++         &quot;User8&quot;,
++         &quot;User9&quot;,
++         NULL
++      };
++ /* ----------------------------------------------------------------------------
++  */
+  static inline int clamp (int min, int val, int max)
+  {
+***************
+*** 118,126 ****
+    outputMethod  = 0;
+    cropMode      = 0;
+    deintMethod   = 0;
+    syncOnFrames  = 0;
+    avOffset      = 0;
+    shouldSuspend = 0;
+! 
+    useMGAtv      = 0;
+    /* --------------------------------------------------------------------------
+--- 146,155 ----
+    outputMethod  = 0;
+    cropMode      = 0;
++   cropModeToggleKey = 0;
+    deintMethod   = 0;
+    syncOnFrames  = 0;
+    avOffset      = 0;
+    shouldSuspend = 0;
+!   ac3Mode       = 0;
+    useMGAtv      = 0;
+    /* --------------------------------------------------------------------------
+***************
+*** 131,134 ****
+--- 160,164 ----
+  
+    strcpy (alsaDevice, &quot;&quot;);
++   strcpy (alsaSPDIFDevice, &quot;hw:0,2&quot;);
+    voArgs = aoArgs = NULL;
+  }
+***************
+*** 163,166 ****
+--- 193,203 ----
+               cropMode,
+               crop_str [cropMode]);
++   } else if(!strcasecmp(Name,&quot;CropModeToggleKey&quot;)) {
++     cropModeToggleKey = atoi(Value);
++     cropModeToggleKey = clamp (0, cropModeToggleKey, 9);
++     fprintf (stderr,
++              &quot;[setup-softdevice] cropping mode toggle key set to %d (%s)\n&quot;,
++              cropModeToggleKey,
++              userKeyUsage [cropModeToggleKey]);
+    } else if (!strcasecmp(Name,&quot;PixelFormat&quot;)) {
+      pixelFormat = atoi(Value);
+***************
+*** 215,218 ****
+--- 252,259 ----
+      fprintf(stderr, &quot;[setup-softdevice] shouldSuspend to: %d\n&quot;, shouldSuspend);
+      shouldSuspend = clamp (0, shouldSuspend, 1);
++   } else if (!strcasecmp(Name, &quot;AC3Mode&quot;)) {
++     ac3Mode = atoi (Value);
++     fprintf(stderr, &quot;[setup-softdevice] alsa ac3Mode set to: %d\n&quot;, ac3Mode);
++     ac3Mode = clamp (0, ac3Mode, 3);
+    }  else  return false;
+  
+***************
+*** 242,245 ****
+--- 283,314 ----
+  /* ---------------------------------------------------------------------------
+   */
++ void cSetupStore::CropModeNext(void)
++ {
++   cropMode = (cropMode == CROPMODEMAX) ? 0 : cropMode + 1;
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ bool cSetupStore::CatchRemoteKey(const char *remoteName, uint64 key)
++ {
++     char  buffer[32];
++     eKeys keySym;
++ 
++   snprintf(buffer, sizeof(buffer), &quot;%016LX&quot;, (uint64) key);
++   keySym = Keys.Get(remoteName, buffer);
++   if (keySym &gt;= kUser1 &amp;&amp; keySym &lt;= kUser9)
++   {
++     keySym = (eKeys) (keySym - kUser1 + 1);
++     if (cropModeToggleKey &amp;&amp; cropModeToggleKey == keySym)
++     {
++       CropModeNext();
++       return true;
++     }
++   }
++   return false;
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
+  cMenuSetupSoftdevice::cMenuSetupSoftdevice(cPlugin *plugin)
+  {
+***************
+*** 270,273 ****
+--- 339,347 ----
+                              crop_str));
+  
++   Add(new cMenuEditStraItem(tr(&quot;CropModeToggleKey&quot;),
++                             &amp;data-&gt;cropModeToggleKey,
++                             10,
++                             userKeyUsage));
++ 
+    if (data-&gt;outputMethod == VOUT_FB)
+    {
+***************
+*** 322,325 ****
+--- 396,404 ----
+                              2,
+                              osdMode));
++ 
++   Add(new cMenuEditStraItem(tr(&quot;AC3 Mode&quot;),
++                             &amp;data-&gt;ac3Mode,
++                             4,
++                             ac3ModeNames));
+  }
+  
+***************
+*** 369,372 ****
+--- 448,452 ----
+    //SetupStore (&quot;Xv-MaxArea&quot;,         setupStore.xvMaxArea);
+    SetupStore (&quot;CropMode&quot;,           setupStore.cropMode);
++   SetupStore (&quot;CropModeToggleKey&quot;,     setupStore.cropModeToggleKey);
+    SetupStore (&quot;Deinterlace Method&quot;, setupStore.deintMethod);
+    SetupStore (&quot;PixelFormat&quot;,        setupStore.pixelFormat);
+***************
+*** 374,379 ****
+--- 454,461 ----
+    SetupStore (&quot;avOffset&quot;,           setupStore.avOffset);
+    SetupStore (&quot;AlsaDevice&quot;,         setupStore.alsaDevice);
++   SetupStore (&quot;AlsaSPDIFDevice&quot;,    setupStore.alsaSPDIFDevice);
+    SetupStore (&quot;PixelAspect&quot;,        setupStore.screenPixelAspect);
+    SetupStore (&quot;Suspend&quot;,            setupStore.shouldSuspend);
+    SetupStore (&quot;OSDalphablend&quot;,      setupStore.osdMode);
++   SetupStore (&quot;AC3Mode&quot;,            setupStore.ac3Mode);
+  }
+
+Index: setup-softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.h,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -C2 -d -r1.11 -r1.12
+*** setup-softdevice.h	9 Apr 2005 08:47:10 -0000	1.11
+--- setup-softdevice.h	30 Apr 2005 20:50:42 -0000	1.12
+***************
+*** 24,28 ****
+--- 24,31 ----
+      bool          SetupParse(const char *Name, const char *Value);
+      char          *getPPValue(void);
++     void          CropModeNext(void);
++ 
+      virtual void  getScreenDimension(int &amp;w, int &amp;h);
++     virtual bool  CatchRemoteKey(const char *remoteName, uint64 key);
+  
+      int   xvAspect;
+***************
+*** 32,35 ****
+--- 35,39 ----
+      int   pixelFormat;
+      int   cropMode;
++     int   cropModeToggleKey;
+      int   deintMethod;
+      int   mirror;
+***************
+*** 40,44 ****
+--- 44,50 ----
+      int   shouldSuspend;
+      int   osdMode;
++     int   ac3Mode;
+      char  alsaDevice [ALSA_DEVICE_NAME_LENGTH];
++     char  alsaSPDIFDevice [ALSA_DEVICE_NAME_LENGTH];
+      char  *voArgs;
+      char  *aoArgs;
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.23
+retrieving revision 1.24
+diff -C2 -d -r1.23 -r1.24
+*** video-dfb.c	23 Apr 2005 19:20:47 -0000	1.23
+--- video-dfb.c	30 Apr 2005 20:50:42 -0000	1.24
+***************
+*** 528,532 ****
+                break;
+              default:
+!               dfbRemote-&gt;PutKey(event.key_symbol);
+                break;
+            }
+--- 528,536 ----
+                break;
+              default:
+!               if (!setupStore-&gt;CatchRemoteKey(dfbRemote-&gt;Name(),
+!                                               event.key_symbol))
+!               {
+!                 dfbRemote-&gt;PutKey(event.key_symbol);
+!               }
+                break;
+            }
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.21
+retrieving revision 1.22
+diff -C2 -d -r1.21 -r1.22
+*** video-xv.c	9 Apr 2005 08:47:10 -0000	1.21
+--- video-xv.c	30 Apr 2005 20:50:42 -0000	1.22
+***************
+*** 509,513 ****
+  #endif
+            default:
+!             if (xvRemote) {
+                xvRemote-&gt;PutKey (keysym);
+              }
+--- 509,514 ----
+  #endif
+            default:
+!             if (xvRemote &amp;&amp;
+!                 !setupStore-&gt;CatchRemoteKey(xvRemote-&gt;Name(), keysym)) {
+                xvRemote-&gt;PutKey (keysym);
+              }
+***************
+*** 524,527 ****
+--- 525,529 ----
+                     CurrentTime);
+            if (map_count &gt; 2 &amp;&amp; xv_initialized) {
++             XClearArea (dpy, win, 0, 0, 0, 0, True);
+              XvShmPutImage(dpy, port,
+                            win, gc,
+***************
+*** 551,554 ****
+--- 553,557 ----
+  
+    if (xv_initialized &amp;&amp; map_count) {
++     XClearArea (dpy, win, 0, 0, 0, 0, True);
+      XvShmPutImage(dpy, port,
+                    win, gc,
+***************
+*** 1231,1234 ****
+--- 1234,1244 ----
+    if (!initialized || !xv_initialized)
+      return;
++ 
++   if (aspect_changed)
++   {
++     XClearArea (dpy, win, 0, 0, 0, 0, True);
++     aspect_changed = 0;
++   }
++ 
+  #if VDRVERSNUM &gt;= 10307
+    OsdRefreshCounter=0;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000097.html">[Softdevice-cvs] softdevice CHANGELOG,1.57,1.58 video-dfb.c,1.22,1.23
+</A></li>
+	<LI>Next message: <A HREF="000099.html">[Softdevice-cvs] softdevice CHANGELOG,1.59,1.60 audio.c,1.14,1.15 audio.h,1.7,1.8
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#98">[ date ]</a>
+              <a href="thread.html#98">[ thread ]</a>
+              <a href="subject.html#98">[ subject ]</a>
+              <a href="author.html#98">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

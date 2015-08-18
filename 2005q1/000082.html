@@ -1,0 +1,525 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.50,1.51 video-dfb.c,1.19,1.20 video-dfb.h,1.5,1.6
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.50%2C1.51%20video-dfb.c%2C1.19%2C1.20%20video-dfb.h%2C1.5%2C1.6&In-Reply-To=%3C200503280802.j2S82PL16503%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000081.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.50,1.51 video-dfb.c,1.19,1.20 video-dfb.h,1.5,1.6</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.50%2C1.51%20video-dfb.c%2C1.19%2C1.20%20video-dfb.h%2C1.5%2C1.6&In-Reply-To=%3C200503280802.j2S82PL16503%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.50,1.51 video-dfb.c,1.19,1.20 video-dfb.h,1.5,1.6">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon Mar 28 10:02:25 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000081.html">[Softdevice-cvs] softdevice CHANGELOG,1.49,1.50 softdevice.h,1.2,1.3 softdevice.c,1.22,1.23 mpeg2decoder.h,1.16,1.17 mpeg2decoder.c,1.24,1.25
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#82">[ date ]</a>
+              <a href="thread.html#82">[ thread ]</a>
+              <a href="subject.html#82">[ subject ]</a>
+              <a href="author.html#82">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv22930
+
+Modified Files:
+	CHANGELOG video-dfb.c video-dfb.h 
+Log Message:
+- dfb-out: chg. OSD drawing to update only modified areas.
+           chg. videolayer to double buffered.
+           report surface capabilities in a single line.
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.50
+retrieving revision 1.51
+diff -C2 -d -r1.50 -r1.51
+*** CHANGELOG	25 Mar 2005 13:42:30 -0000	1.50
+--- CHANGELOG	28 Mar 2005 08:02:22 -0000	1.51
+***************
+*** 1,3 ****
+--- 1,7 ----
+  Changelog
++ 2005-03-28:
++     - dfb-out: chg. OSD drawing to update only modified areas.
++                chg. videolayer to double buffered.
++                report surface capabilities in a single line
+  2005-03-25:
+      - respect replay mode
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.19
+retrieving revision 1.20
+diff -C2 -d -r1.19 -r1.20
+*** video-dfb.c	27 Feb 2005 08:52:33 -0000	1.19
+--- video-dfb.c	28 Mar 2005 08:02:22 -0000	1.20
+***************
+*** 205,220 ****
+  
+    scaps = surf-&gt;GetCapabilities();
+!   fprintf(stderr,&quot;%s:\n&quot;, name);
+  
+!   if (scaps &amp; DSCAPS_NONE) fprintf(stderr,&quot; - none\n&quot;);
+!   if (scaps &amp; DSCAPS_PRIMARY) fprintf(stderr,&quot; - primary\n&quot;);
+!   if (scaps &amp; DSCAPS_SYSTEMONLY) fprintf(stderr,&quot; - systemonly\n&quot;);
+!   if (scaps &amp; DSCAPS_VIDEOONLY) fprintf(stderr,&quot; - videoonly\n&quot;);
+!   if (scaps &amp; DSCAPS_FLIPPING) fprintf(stderr,&quot; - flipping\n&quot;);
+!   if (scaps &amp; DSCAPS_SUBSURFACE) fprintf(stderr,&quot; - subsurface\n&quot;);
+!   if (scaps &amp; DSCAPS_INTERLACED) fprintf(stderr,&quot; - interlaced\n&quot;);
+!   if (scaps &amp; DSCAPS_SEPARATED) fprintf(stderr,&quot; - separated\n&quot;);
+!   if (scaps &amp; DSCAPS_STATIC_ALLOC) fprintf(stderr,&quot; - static alloc\n&quot;);
+!   if (scaps &amp; DSCAPS_TRIPLE) fprintf(stderr,&quot; - triple buffered\n&quot;);
+  }
+  
+--- 205,222 ----
+  
+    scaps = surf-&gt;GetCapabilities();
+!   fprintf(stderr,&quot;[surface capabilities] %s: &quot;, name);
+  
+!   if (scaps == DSCAPS_NONE) fprintf(stderr,&quot;none &quot;);
+!   if (scaps &amp; DSCAPS_PRIMARY) fprintf(stderr,&quot;primary &quot;);
+!   if (scaps &amp; DSCAPS_SYSTEMONLY) fprintf(stderr,&quot;systemonly &quot;);
+!   if (scaps &amp; DSCAPS_VIDEOONLY) fprintf(stderr,&quot;videoonly &quot;);
+!   if (scaps &amp; DSCAPS_DOUBLE) fprintf(stderr,&quot;double-buffered &quot;);
+!   if (scaps &amp; DSCAPS_FLIPPING) fprintf(stderr,&quot;flipping &quot;);
+!   if (scaps &amp; DSCAPS_SUBSURFACE) fprintf(stderr,&quot;subsurface &quot;);
+!   if (scaps &amp; DSCAPS_INTERLACED) fprintf(stderr,&quot;interlaced &quot;);
+!   if (scaps &amp; DSCAPS_SEPARATED) fprintf(stderr,&quot;separated &quot;);
+!   if (scaps &amp; DSCAPS_STATIC_ALLOC) fprintf(stderr,&quot;static-alloc &quot;);
+!   if (scaps &amp; DSCAPS_TRIPLE) fprintf(stderr,&quot;triple-buffered &quot;);
+!   fprintf(stderr,&quot;\n&quot;);
+  }
+  
+***************
+*** 351,354 ****
+--- 353,358 ----
+    }
+  
++   reportSurfaceCapabilities (&quot;scrSurface&quot;, scrSurface);
++ 
+    if (!videoLayer)
+    {
+***************
+*** 384,391 ****
+      Bpp = DFB_BITS_PER_PIXEL(fmt);
+  
+!     if (Xres &gt; 768)
+!       Xres = 768;
+!     if (Yres &gt; 576)
+!       Yres = 576;
+  
+      /* ------------------------------------------------------------------------
+--- 388,395 ----
+      Bpp = DFB_BITS_PER_PIXEL(fmt);
+  
+!     if (Xres &gt; OSD_FULL_WIDTH)
+!       Xres = OSD_FULL_WIDTH;
+!     if (Yres &gt; OSD_FULL_HEIGHT)
+!       Yres = OSD_FULL_HEIGHT;
+  
+      /* ------------------------------------------------------------------------
+***************
+*** 430,434 ****
+              desc.name, osdSurface-&gt;GetWidth(), osdSurface-&gt;GetHeight());
+  
+!     reportSurfaceCapabilities (&quot;osdSurface:&quot;, osdSurface);
+  
+      vidDsc.flags = (DFBSurfaceDescriptionFlags) (DSDESC_CAPS |
+--- 434,438 ----
+              desc.name, osdSurface-&gt;GetWidth(), osdSurface-&gt;GetHeight());
+  
+!     reportSurfaceCapabilities (&quot;osdSurface&quot;, osdSurface);
+  
+      vidDsc.flags = (DFBSurfaceDescriptionFlags) (DSDESC_CAPS |
+***************
+*** 444,459 ****
+      {
+        videoSurface = dfb-&gt;CreateSurface (vidDsc);
+!       videoSurface-&gt;Clear(0,0,0,0); //clear and
+      }
+      else
+      {
+        videoSurface=videoLayer-&gt;GetSurface();
+!       videoSurface-&gt;Clear(COLORKEY,0); //clear and
+        videoSurface-&gt;Flip(); // Flip the field
+!       videoSurface-&gt;Clear(COLORKEY,0); //clear and
+        videoSurface-&gt;Flip(); // Flip the field
+      }
+  
+!     reportSurfaceCapabilities (&quot;videoSurface:&quot;, videoSurface);
+  
+      if (!setupStore-&gt;useMGAtv)
+--- 448,463 ----
+      {
+        videoSurface = dfb-&gt;CreateSurface (vidDsc);
+!       videoSurface-&gt;Clear(0,0,0,clearAlpha); //clear and
+      }
+      else
+      {
+        videoSurface=videoLayer-&gt;GetSurface();
+!       videoSurface-&gt;Clear(COLORKEY,clearAlpha); //clear and
+        videoSurface-&gt;Flip(); // Flip the field
+!       videoSurface-&gt;Clear(COLORKEY,clearAlpha); //clear and
+        videoSurface-&gt;Flip(); // Flip the field
+      }
+  
+!     reportSurfaceCapabilities (&quot;videoSurface&quot;, videoSurface);
+  
+      if (!setupStore-&gt;useMGAtv)
+***************
+*** 536,539 ****
+--- 540,544 ----
+      DFBDisplayLayerConfig       dlc;
+      DFBDisplayLayerDescription  desc;
++     DFBDisplayLayerConfigFlags  failed;
+  
+    if (videoLayer || useStretchBlit)
+***************
+*** 585,591 ****
+        }
+  #endif
+!       dlc.flags = (DFBDisplayLayerConfigFlags)((int) dlc.flags | DLCONF_OPTIONS);
+  
+!       dlc.options = DLOP_FIELD_PARITY;
+  
+        vidDsc.flags = (DFBSurfaceDescriptionFlags) (DSDESC_CAPS |
+--- 590,602 ----
+        }
+  #endif
+!       dlc.flags = (DFBDisplayLayerConfigFlags)((int) dlc.flags |
+!                                                       DLCONF_OPTIONS);
+!       dlc.options       = DLOP_FIELD_PARITY;
+  
+! #if 1
+!       dlc.flags = (DFBDisplayLayerConfigFlags)
+!                       ((int) dlc.flags | DLCONF_SURFACE_CAPS);
+!       dlc.surface_caps  = DSCAPS_DOUBLE;
+! #endif
+  
+        vidDsc.flags = (DFBSurfaceDescriptionFlags) (DSDESC_CAPS |
+***************
+*** 653,660 ****
+          catch (DFBException *ex)
+          {
+!           fprintf (stderr,&quot;Caught: action=%s, result=%s\n&quot;,
+                     ex-&gt;GetAction(), ex-&gt;GetResult());
+          }
+  
+          /* --------------------------------------------------------------------
+           * OK, try to set the video layer configuration
+--- 664,695 ----
+          catch (DFBException *ex)
+          {
+!           fprintf (stderr,&quot;Caught: action=%s, result=%s Failed: SetLevel()\n&quot;,
+                     ex-&gt;GetAction(), ex-&gt;GetResult());
+          }
+  
++         /*
++          * --------------------------------------------------------------------
++          * Try with tripple or double buffering
++          */
++         dlc.flags = (DFBDisplayLayerConfigFlags)
++                       ((int) dlc.flags | DLCONF_BUFFERMODE);
++ 
++         //dlc.buffermode = DLBM_TRIPLE;
++ 
++         //videoLayer-&gt;TestConfiguration(dlc, &amp;failed);
++         //if (failed &amp; DLCONF_BUFFERMODE)
++         //{
++         //  fprintf(stderr, &quot;[dfb]: SetParms (): failed to set buffermode &quot;
++         //          &quot;to tripple mode, trying back video\n&quot;);
++           dlc.buffermode = DLBM_BACKVIDEO;
++           videoLayer-&gt;TestConfiguration(dlc, &amp;failed);
++           if (failed &amp; DLCONF_BUFFERMODE)
++           {
++             fprintf(stderr, &quot;[dfb]: SetParms (): failed to set buffermode &quot;
++                     &quot;to back video, reverting to normal\n&quot;);
++             dlc.buffermode = DLBM_FRONTONLY;
++           }
++         //}
++ 
+          /* --------------------------------------------------------------------
+           * OK, try to set the video layer configuration
+***************
+*** 725,728 ****
+--- 760,764 ----
+          videoSurface=dfb-&gt;CreateSurface(vidDsc);
+        }
++       reportSurfaceCapabilities (&quot;videoSurface&quot;, videoSurface);
+  
+        fprintf(stderr,&quot;[dfb] (re)configured 0x%08x\n&quot;,pixelformat);
+***************
+*** 744,760 ****
+  #if VDRVERSNUM &gt;= 10307
+  
+! /* ---------------------------------------------------------------------------
+   */
+! void cDFBVideoOut::OSDStart()
+  {
+      IDirectFBSurface  *tmpSurface;
+  
+    tmpSurface = (useStretchBlit) ? osdSurface : scrSurface;
+! 
+!   /* --------------------------------------------------------------------------
+!    * ?? if that clear is removed, radeon OSD does not flicker
+!    * any more. but it has some other negative effects on mga.
+!    * ??
+!    */
+    tmpSurface-&gt;Clear(0,0,0,clearAlpha);
+  }
+--- 780,793 ----
+  #if VDRVERSNUM &gt;= 10307
+  
+! /* ----------------------------------------------------------------------------
+   */
+! void cDFBVideoOut::OpenOSD (int x, int y)
+  {
+      IDirectFBSurface  *tmpSurface;
+  
++   cVideoOut::OpenOSD(x, y);
+    tmpSurface = (useStretchBlit) ? osdSurface : scrSurface;
+!   tmpSurface-&gt;Clear(0,0,0,clearAlpha);
+!   tmpSurface-&gt;Flip();
+    tmpSurface-&gt;Clear(0,0,0,clearAlpha);
+  }
+***************
+*** 762,771 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cDFBVideoOut::OSDCommit()
+  {
+      IDirectFBSurface  *tmpSurface;
+  
+    tmpSurface = (useStretchBlit) ? osdSurface : scrSurface;
+!   tmpSurface-&gt;Flip();
+  }
+  
+--- 795,812 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void cDFBVideoOut::OSDStart()
+  {
+      IDirectFBSurface  *tmpSurface;
+  
+    tmpSurface = (useStretchBlit) ? osdSurface : scrSurface;
+!   tmpSurface-&gt;SetBlittingFlags(DSBLIT_NOFX);
+! }
+! 
+! /* ---------------------------------------------------------------------------
+!  */
+! void cDFBVideoOut::OSDCommit()
+! {
+!   OSDdirty=false;
+!   OSDpresent = true;
+  }
+  
+***************
+*** 774,812 ****
+  void cDFBVideoOut::Refresh(cBitmap *Bitmap)
+  {
+!     int pitch;
+!     uint8_t *dst;
+      IDirectFBSurface  *tmpSurface;
+  
+!   // don't update only dirty areas
+!   OSDdirty=true;
+! 
+!   tmpSurface = (useStretchBlit) ? osdSurface : scrSurface;
+! 
+!   tmpSurface-&gt;Lock(DSLF_WRITE, (void **)&amp;dst, &amp;pitch) ;
+! #if 0
+    {
+      /* ------------------------------------------------------------------------
+!      * handling of dirty/modified regions only, does not work for now
+!      * due to double buffering :-( .
+       */
+!       int dx1 = 0, dx2 = 0, dy1 = 0, dy2 = 0;
+  
+!     if (Bitmap-&gt;Dirty(dx1,dy1,dx2,dy2))
+!     {
+!       Draw(Bitmap,dst,pitch,(isVIAUnichrome) ? true:false);
+!       Bitmap-&gt;Clean();
+!     }
+!   }
+! #else
+!   Draw(Bitmap,dst,pitch,(isVIAUnichrome) ? true:false);
+! #endif
+!   tmpSurface-&gt;Unlock();
+  
+!   if (useStretchBlit)
+!   {
+!     OSDpresent = true;
+!     //tmpSurface-&gt;Flip();
+    }
+-     OSDpresent = true;
+  }
+  
+--- 815,850 ----
+  void cDFBVideoOut::Refresh(cBitmap *Bitmap)
+  {
+!     int               pitch;
+!     uint8_t           *dst;
+      IDirectFBSurface  *tmpSurface;
++     DFBRegion         modArea;
++     DFBRectangle      osdsrc;
+  
+!   if (Bitmap-&gt;Dirty(modArea.x1,modArea.y1,modArea.x2,modArea.y2))
+    {
++     tmpSurface = (useStretchBlit) ? osdSurface : scrSurface;
++     tmpSurface-&gt;Lock(DSLF_WRITE, (void **)&amp;dst, &amp;pitch) ;
++     Draw(Bitmap,dst,pitch,(isVIAUnichrome) ? true:false);
++     tmpSurface-&gt;Unlock();
++ 
+      /* ------------------------------------------------------------------------
+!      * TODO: Have to get area coordinates in screen dimensions from Draw().
+!      *       In case Draw() scales down, bitmap dirty area coordinates
+!      *       could not be transformed the following way.
+       */
+!     modArea.x1 += OSDxOfs;
+!     modArea.y1 += OSDyOfs;
+!     modArea.x2 += OSDxOfs;
+!     modArea.y2 += OSDyOfs;
+  
+!     tmpSurface-&gt;Flip(&amp;modArea,DSFLIP_WAIT);
+!     osdsrc.x = modArea.x1;
+!     osdsrc.y = modArea.y1;
+!     osdsrc.w = modArea.x2 - modArea.x1 + 1;
+!     osdsrc.h = modArea.y2 - modArea.y1 + 1;
+!     tmpSurface-&gt;Blit(tmpSurface, &amp;osdsrc, modArea.x1, modArea.y1);
+  
+!     Bitmap-&gt;Clean();
+    }
+  }
+  
+***************
+*** 852,857 ****
+      OSDpresent  = false;
+      osdClrBack = true;
+-     tmpSurface-&gt;Clear(COLORKEY,0); //clear and
+      osdMutex.Unlock();
+    }
+    else
+--- 890,895 ----
+      OSDpresent  = false;
+      osdClrBack = true;
+      osdMutex.Unlock();
++     tmpSurface-&gt;Clear(COLORKEY,0); //clear and
+    }
+    else
+***************
+*** 1034,1037 ****
+--- 1072,1076 ----
+      {
+          DFBRectangle  src, dst;
++         int     clearBackground;
+  
+        src.x = sxoff;
+***************
+*** 1047,1051 ****
+  
+        osdMutex.Lock();
+!       if (aspect_changed || osdClrBack)
+          scrSurface-&gt;Clear(0,0,0,0);
+  
+--- 1086,1094 ----
+  
+        osdMutex.Lock();
+!       clearBackground = (aspect_changed || osdClrBack) ? 1: 0;
+!       osdClrBack = false;
+!       osdMutex.Unlock();
+! 
+!       if (clearBackground)
+          scrSurface-&gt;Clear(0,0,0,0);
+  
+***************
+*** 1072,1086 ****
+  
+        }
+!       scrSurface-&gt;Flip(NULL, (setupStore-&gt;useMGAtv) ? DSFLIP_WAITFORSYNC:DSFLIP_ONSYNC);
+  
+!       if (aspect_changed || osdClrBack)
+          scrSurface-&gt;Clear(0,0,0,0);
+- 
+-       osdClrBack = false;
+-       osdMutex.Unlock();
+      }
+      else
+      {
+!       videoSurface-&gt;Flip();
+      }
+    } catch (DFBException *ex){
+--- 1115,1128 ----
+  
+        }
+!       //scrSurface-&gt;Flip(NULL, (setupStore-&gt;useMGAtv) ? DSFLIP_WAITFORSYNC:DSFLIP_ONSYNC);
+!       scrSurface-&gt;Flip(NULL, DSFLIP_WAITFORSYNC);
+  
+!       if (clearBackground)
+          scrSurface-&gt;Clear(0,0,0,0);
+      }
+      else
+      {
+!       //videoSurface-&gt;Flip();
+!       videoSurface-&gt;Flip(NULL, DSFLIP_ONSYNC);
+      }
+    } catch (DFBException *ex){
+
+Index: video-dfb.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.h,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -C2 -d -r1.5 -r1.6
+*** video-dfb.h	24 Feb 2005 22:35:51 -0000	1.5
+--- video-dfb.h	28 Mar 2005 08:02:22 -0000	1.6
+***************
+*** 48,51 ****
+--- 48,52 ----
+      void ProcessEvents ();
+      void ShowOSD ();
++     virtual void OpenOSD(int x, int y);
+  
+  #if VDRVERSNUM &gt;= 10307
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000081.html">[Softdevice-cvs] softdevice CHANGELOG,1.49,1.50 softdevice.h,1.2,1.3 softdevice.c,1.22,1.23 mpeg2decoder.h,1.16,1.17 mpeg2decoder.c,1.24,1.25
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#82">[ date ]</a>
+              <a href="thread.html#82">[ thread ]</a>
+              <a href="subject.html#82">[ subject ]</a>
+              <a href="author.html#82">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

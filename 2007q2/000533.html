@@ -1,0 +1,224 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.303, 1.304 SoftOsd.c, 1.26,	1.27 SoftOsd.h, 1.12, 1.13
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.303%2C%201.304%20SoftOsd.c%2C%201.26%2C%0A%091.27%20SoftOsd.h%2C%201.12%2C%201.13&In-Reply-To=%3C20070403194222.47A602D108%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000532.html">
+   <LINK REL="Next"  HREF="000534.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.303, 1.304 SoftOsd.c, 1.26,	1.27 SoftOsd.h, 1.12, 1.13</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.303%2C%201.304%20SoftOsd.c%2C%201.26%2C%0A%091.27%20SoftOsd.h%2C%201.12%2C%201.13&In-Reply-To=%3C20070403194222.47A602D108%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.303, 1.304 SoftOsd.c, 1.26,	1.27 SoftOsd.h, 1.12, 1.13">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue Apr  3 21:42:22 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000532.html">[Softdevice-cvs] softdevice Makefile,1.38,1.39
+</A></li>
+        <LI>Next message: <A HREF="000534.html">[Softdevice-cvs] softdevice Makefile,1.39,1.40
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#533">[ date ]</a>
+              <a href="thread.html#533">[ thread ]</a>
+              <a href="subject.html#533">[ subject ]</a>
+              <a href="author.html#533">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv8523
+
+Modified Files:
+	CHANGELOG SoftOsd.c SoftOsd.h 
+Log Message:
+- compile fix for darwin
+- add BGRA32 mode to SoftOsd
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.303
+retrieving revision 1.304
+diff -C2 -d -r1.303 -r1.304
+*** CHANGELOG	3 Apr 2007 19:23:30 -0000	1.303
+--- CHANGELOG	3 Apr 2007 19:40:29 -0000	1.304
+***************
+*** 4,7 ****
+--- 4,8 ----
+     - altivec needs 16 byte alignment
+     - compile fix for Darwin
++    - add BGRA32 mode to SoftOsd
+  2007-03-25:
+     - fix types in GetTime().
+
+Index: SoftOsd.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.c,v
+retrieving revision 1.26
+retrieving revision 1.27
+diff -C2 -d -r1.26 -r1.27
+*** SoftOsd.c	28 Jan 2007 19:36:50 -0000	1.26
+--- SoftOsd.c	3 Apr 2007 19:40:29 -0000	1.27
+***************
+*** 191,196 ****
+          }
+  
+!         if (modeChanged)
+                  videoOut-&gt;ClearOSD();
+  
+          if (IsYUV) {
+--- 191,198 ----
+          }
+  
+!         if (modeChanged) {
+!                 OSDDEB(&quot;mode changed\n&quot;);
+                  videoOut-&gt;ClearOSD();
++         };
+  
+          if (IsYUV) {
+***************
+*** 230,233 ****
+--- 232,236 ----
+                          Clear();
+                          FlushBitmaps(false);
++                         OSDDEB(&quot;SetMode switched to YUV mode\n&quot;);
+                          return true;
+                  };
+***************
+*** 267,271 ****
+          if (old_bitmap_Format != bitmap_Format) {
+                  Clear();
+!                 FlushBitmaps(false);
+                  return true;
+          };
+--- 270,276 ----
+          if (old_bitmap_Format != bitmap_Format) {
+                  Clear();
+! 		FlushBitmaps(false);
+!                 OSDDEB(&quot;SetMode switched old_bitmap_Format %d -&gt; bitmap_Format %d\n&quot;,
+!                         old_bitmap_Format,bitmap_Format);
+                  return true;
+          };
+***************
+*** 290,294 ****
+--- 295,302 ----
+  
+          // give priority to the other threads
++ #ifndef __APPLE__
+          pthread_yield();
++ #endif
++ 
+          if (!active &amp;&amp; !close)
+                  Start();
+***************
+*** 502,505 ****
+--- 510,527 ----
+   
+  /*---------------------------------------------------------------------*/
++ void cSoftOsd::ARGB_to_BGRA32(uint8_t * dest1, color * pixmap, int Pixel,
++                 int odd) {
++         unsigned int c;
++         uint32_t *dest=(uint32_t*) dest1;
++         while (Pixel&gt;0) {
++                 c=*pixmap;
++                 *dest++ = SET_A(GET_R(c)) | SET_R(GET_G(c)) | SET_G(GET_B(c)) | SET_B(GET_A(c));
++                 pixmap++;
++                 Pixel--;
++         };
++ };
++ 
++ 
++ /*---------------------------------------------------------------------*/
+  void cSoftOsd::ARGB_to_ARGB32(uint8_t * dest, color * pixmap, int Pixel,
+                  int odd) {
+***************
+*** 1349,1354 ****
+                  int dest_Width, int dest_Height, bool RefreshAll,
+                  bool *dest_dirtyLines) {
+! 
+!         OSDDEB(&quot;CopyToBitmap RGB down\n&quot;);
+          if ( bitmap_Format == PF_AYUV ) {
+                  fprintf(stderr,&quot;cSoftOsd error did not call SetMode()!\n&quot;);
+--- 1371,1376 ----
+                  int dest_Width, int dest_Height, bool RefreshAll,
+                  bool *dest_dirtyLines) {
+!         OSDDEB(&quot;CopyToBitmap RGB no scale\n&quot;);
+! 	
+          if ( bitmap_Format == PF_AYUV ) {
+                  fprintf(stderr,&quot;cSoftOsd error did not call SetMode()!\n&quot;);
+
+Index: SoftOsd.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.h,v
+retrieving revision 1.12
+retrieving revision 1.13
+diff -C2 -d -r1.12 -r1.13
+*** SoftOsd.h	28 Jan 2007 19:36:50 -0000	1.12
+--- SoftOsd.h	3 Apr 2007 19:40:29 -0000	1.13
+***************
+*** 76,84 ****
+      uint8_t *pixelMask;
+      enum PixFormat {
+! 	    PF_None,
+! 	    PF_ARGB32,
+! 	    PF_inverseAlpha_ARGB32,
+! 	    PF_pseudoAlpha_ARGB32,
+! 	    PF_AYUV
+      };
+      PixFormat bitmap_Format;
+--- 76,85 ----
+      uint8_t *pixelMask;
+      enum PixFormat {
+!             PF_None,
+!             PF_ARGB32,
+!             PF_inverseAlpha_ARGB32,
+!             PF_pseudoAlpha_ARGB32,
+!             PF_AYUV,
+!             PF_BGRA32
+      };
+      PixFormat bitmap_Format;
+***************
+*** 118,121 ****
+--- 119,124 ----
+      static void ARGB_to_AYUV(uint32_t * dest, color * pixmap, int Pixel);
+      static void ARGB_to_ARGB32(uint8_t * dest, color * pixmap, int Pixel,
++                     int odd);
++     static void ARGB_to_BGRA32(uint8_t * dest, color * pixmap, int Pixel,
+                      int odd);
+      static void ARGB_to_RGB32(uint8_t * dest, color * pixmap, int Pixel,
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000532.html">[Softdevice-cvs] softdevice Makefile,1.38,1.39
+</A></li>
+	<LI>Next message: <A HREF="000534.html">[Softdevice-cvs] softdevice Makefile,1.39,1.40
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#533">[ date ]</a>
+              <a href="thread.html#533">[ thread ]</a>
+              <a href="subject.html#533">[ subject ]</a>
+              <a href="author.html#533">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

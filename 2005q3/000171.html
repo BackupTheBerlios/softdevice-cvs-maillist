@@ -1,0 +1,1157 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.95,1.96 i18n.c,1.5,1.6 mpeg2decoder.c,1.48,1.49 setup-softdevice.c,1.24,1.25 video-dfb.c,1.35,1.36
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.95%2C1.96%20i18n.c%2C1.5%2C1.6%20mpeg2decoder.c%2C1.48%2C1.49%20setup-softdevice.c%2C1.24%2C1.25%20video-dfb.c%2C1.35%2C1.36&In-Reply-To=%3C200507272057.j6RKv3I27113%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000170.html">
+   <LINK REL="Next"  HREF="000172.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.95,1.96 i18n.c,1.5,1.6 mpeg2decoder.c,1.48,1.49 setup-softdevice.c,1.24,1.25 video-dfb.c,1.35,1.36</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.95%2C1.96%20i18n.c%2C1.5%2C1.6%20mpeg2decoder.c%2C1.48%2C1.49%20setup-softdevice.c%2C1.24%2C1.25%20video-dfb.c%2C1.35%2C1.36&In-Reply-To=%3C200507272057.j6RKv3I27113%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.95,1.96 i18n.c,1.5,1.6 mpeg2decoder.c,1.48,1.49 setup-softdevice.c,1.24,1.25 video-dfb.c,1.35,1.36">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Wed Jul 27 22:57:03 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000170.html">[Softdevice-cvs] softieee1394 HISTORY,1.1.1.1,1.2 i18n.c,1.1.1.1,1.2 softieee1394.c,1.1.1.1,1.2
+</A></li>
+        <LI>Next message: <A HREF="000172.html">[Softdevice-cvs] softdevice CHANGELOG,1.96,1.97 i18n.c,1.6,1.7 setup-softdevice.c,1.25,1.26
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#171">[ date ]</a>
+              <a href="thread.html#171">[ thread ]</a>
+              <a href="subject.html#171">[ subject ]</a>
+              <a href="author.html#171">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv25045
+
+Modified Files:
+	CHANGELOG i18n.c mpeg2decoder.c setup-softdevice.c video-dfb.c 
+Log Message:
+compile fix for newer ffmpeg versions (&gt; 2005-07-17 22:24:35) by Antonio
+fix for video-dfb.c change from 2005-07-16 by Rolf Ahrenberg
+more OSD entries translateable by Rolf Ahrenberg
+more finnish translations by Rolf Ahrenberg
+limit cropping amount to 50 each
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.95
+retrieving revision 1.96
+diff -C2 -d -r1.95 -r1.96
+*** CHANGELOG	24 Jul 2005 20:16:38 -0000	1.95
+--- CHANGELOG	27 Jul 2005 20:57:00 -0000	1.96
+***************
+*** 1,3 ****
+--- 1,9 ----
+  Changelog
++ 2005-07-27:
++     - compile fix for newer ffmpeg versions (&gt; 2005-07-17 22:24:35) by Antonio
++     - fix for video-dfb.c change from 2005-07-16 by Rolf Ahrenberg
++     - more OSD entries translateable by Rolf Ahrenberg
++     - more finnish translations by Rolf Ahrenberg
++     - limit cropping amount to 50 each
+  2005-07-24:
+      - finnish translations by Rolf Ahrenberg
+
+Index: i18n.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/i18n.c,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -C2 -d -r1.5 -r1.6
+*** i18n.c	24 Jul 2005 20:16:38 -0000	1.5
+--- i18n.c	27 Jul 2005 20:57:00 -0000	1.6
+***************
+*** 87,91 ****
+      &quot;&quot;,             //  7 TODO
+      &quot;&quot;,             //  8 TODO
+!     &quot;Kuvan leikkaus&quot;,   //  9
+      &quot;&quot;,             // 10 TODO
+      &quot;&quot;,             // 11 TODO
+--- 87,91 ----
+      &quot;&quot;,             //  7 TODO
+      &quot;&quot;,             //  8 TODO
+!     &quot;Kuvan rajaustapa&quot;, //  9
+      &quot;&quot;,             // 10 TODO
+      &quot;&quot;,             // 11 TODO
+***************
+*** 317,321 ****
+      &quot;&quot;,             //  7 TODO
+      &quot;&quot;,             //  8 TODO
+!     &quot;AC3-tapa&quot;,     //  9
+      &quot;&quot;,             // 10 TODO
+      &quot;&quot;,             // 11 TODO
+--- 317,321 ----
+      &quot;&quot;,             //  7 TODO
+      &quot;&quot;,             //  8 TODO
+!     &quot;AC3-&#228;&#228;net&quot;,    //  9
+      &quot;&quot;,             // 10 TODO
+      &quot;&quot;,             // 11 TODO
+***************
+*** 340,344 ****
+      &quot;&quot;,             //  7 TODO
+      &quot;&quot;,             //  8 TODO
+!     &quot;Puskurointi&quot;,  //  9
+      &quot;&quot;,             // 10 TODO
+      &quot;&quot;,             // 11 TODO
+--- 340,344 ----
+      &quot;&quot;,             //  7 TODO
+      &quot;&quot;,             //  8 TODO
+!     &quot;Puskurointitapa&quot;, //  9
+      &quot;&quot;,             // 10 TODO
+      &quot;&quot;,             // 11 TODO
+***************
+*** 363,367 ****
+      &quot;&quot;,             //  7 TODO
+      &quot;&quot;,             //  8 TODO
+!     &quot;N&#228;pp&#228;in kuvan leikkaukselle&quot;, //  9
+      &quot;&quot;,             // 10 TODO
+      &quot;&quot;,             // 11 TODO
+--- 363,367 ----
+      &quot;&quot;,             //  7 TODO
+      &quot;&quot;,             //  8 TODO
+!     &quot;N&#228;pp&#228;in kuvan rajaukselle&quot;, //  9
+      &quot;&quot;,             // 10 TODO
+      &quot;&quot;,             // 11 TODO
+***************
+*** 386,390 ****
+      &quot;&quot;,             //  7 TODO
+      &quot;&quot;,             //  8 TODO
+!     &quot;Leikkaa kuvaa ylh&#228;&#228;lt&#228;&quot;, //  9
+      &quot;&quot;,             // 10 TODO
+      &quot;&quot;,             // 11 TODO
+--- 386,390 ----
+      &quot;&quot;,             //  7 TODO
+      &quot;&quot;,             //  8 TODO
+!     &quot;Rajaa kuvaa ylh&#228;&#228;lt&#228;&quot;, //  9
+      &quot;&quot;,             // 10 TODO
+      &quot;&quot;,             // 11 TODO
+***************
+*** 409,413 ****
+      &quot;&quot;,             //  7 TODO
+      &quot;&quot;,             //  8 TODO
+!     &quot;Leikkaa kuvaa alhaalta&quot;, //  9
+      &quot;&quot;,             // 10 TODO
+      &quot;&quot;,             // 11 TODO
+--- 409,413 ----
+      &quot;&quot;,             //  7 TODO
+      &quot;&quot;,             //  8 TODO
+!     &quot;Rajaa kuvaa alhaalta&quot;, //  9
+      &quot;&quot;,             // 10 TODO
+      &quot;&quot;,             // 11 TODO
+***************
+*** 432,436 ****
+      &quot;&quot;,             //  7 TODO
+      &quot;&quot;,             //  8 TODO
+!     &quot;Leikkaa kuvaa vasemmalta&quot;, //  9
+      &quot;&quot;,             // 10 TODO
+      &quot;&quot;,             // 11 TODO
+--- 432,436 ----
+      &quot;&quot;,             //  7 TODO
+      &quot;&quot;,             //  8 TODO
+!     &quot;Rajaa kuvaa vasemmalta&quot;, //  9
+      &quot;&quot;,             // 10 TODO
+      &quot;&quot;,             // 11 TODO
+***************
+*** 455,459 ****
+      &quot;&quot;,             //  7 TODO
+      &quot;&quot;,             //  8 TODO
+!     &quot;Leikkaa kuvaa oikealta&quot;, //  9
+      &quot;&quot;,             // 10 TODO
+      &quot;&quot;,             // 11 TODO
+--- 455,459 ----
+      &quot;&quot;,             //  7 TODO
+      &quot;&quot;,             //  8 TODO
+!     &quot;Rajaa kuvaa oikealta&quot;, //  9
+      &quot;&quot;,             // 10 TODO
+      &quot;&quot;,             // 11 TODO
+***************
+*** 478,482 ****
+      &quot;&quot;,             //  7 TODO
+      &quot;&quot;,             //  8 TODO
+!     &quot;Kuvan j&#228;lkik&#228;sittely&quot;, //  9                                                                                                      
+      &quot;&quot;,             // 10 TODO
+      &quot;&quot;,             // 11 TODO
+--- 478,482 ----
+      &quot;&quot;,             //  7 TODO
+      &quot;&quot;,             //  8 TODO
+!     &quot;Kuvan j&#228;lkik&#228;sittely&quot;, //  9
+      &quot;&quot;,             // 10 TODO
+      &quot;&quot;,             // 11 TODO
+***************
+*** 525,528 ****
+--- 525,804 ----
+      &quot;&quot;,             //  8 TODO
+      &quot;K&#228;yt&#228; StretchBlit-metodia&quot;, //  9
++     &quot;&quot;,             // 10 TODO
++     &quot;&quot;,             // 11 TODO
++     &quot;&quot;,             // 12 TODO
++     &quot;&quot;,             // 13 TODO
++     &quot;&quot;,             // 14 TODO
++     &quot;&quot;,             // 15 TODO
++     &quot;&quot;,             // 16 TODO
++ #if VDRVERSNUM &gt;= 10316
++     &quot;&quot;,             // 17 TODO
++     &quot;&quot;,             // 18 TODO
++     &quot;&quot;,             // 19 TODO
++     &quot;&quot;,             // 20 TODO
++ #endif
++   },
++   { &quot;none&quot;,         //  1
++     &quot;keine&quot;,        //  2
++     &quot;&quot;,             //  3 TODO
++     &quot;&quot;,             //  4 TODO
++     &quot;&quot;,             //  5 TODO
++     &quot;&quot;,             //  6 TODO
++     &quot;&quot;,             //  7 TODO
++     &quot;&quot;,             //  8 TODO
++     &quot;ei&quot;,           //  9
++     &quot;&quot;,             // 10 TODO
++     &quot;&quot;,             // 11 TODO
++     &quot;&quot;,             // 12 TODO
++     &quot;&quot;,             // 13 TODO
++     &quot;&quot;,             // 14 TODO
++     &quot;&quot;,             // 15 TODO
++     &quot;&quot;,             // 16 TODO
++ #if VDRVERSNUM &gt;= 10316
++     &quot;&quot;,             // 17 TODO
++     &quot;&quot;,             // 18 TODO
++     &quot;&quot;,             // 19 TODO
++     &quot;&quot;,             // 20 TODO
++ #endif
++   },
++   { &quot;fast&quot;,         //  1
++     &quot;&quot;,             //  2 TODO
++     &quot;&quot;,             //  3 TODO
++     &quot;&quot;,             //  4 TODO
++     &quot;&quot;,             //  5 TODO
++     &quot;&quot;,             //  6 TODO
++     &quot;&quot;,             //  7 TODO
++     &quot;&quot;,             //  8 TODO
++     &quot;nopea&quot;,        //  9
++     &quot;&quot;,             // 10 TODO
++     &quot;&quot;,             // 11 TODO
++     &quot;&quot;,             // 12 TODO
++     &quot;&quot;,             // 13 TODO
++     &quot;&quot;,             // 14 TODO
++     &quot;&quot;,             // 15 TODO
++     &quot;&quot;,             // 16 TODO
++ #if VDRVERSNUM &gt;= 10316
++     &quot;&quot;,             // 17 TODO
++     &quot;&quot;,             // 18 TODO
++     &quot;&quot;,             // 19 TODO
++     &quot;&quot;,             // 20 TODO
++ #endif
++   },
++   { &quot;default&quot;,      //  1
++     &quot;&quot;,             //  2 TODO
++     &quot;&quot;,             //  3 TODO
++     &quot;&quot;,             //  4 TODO
++     &quot;&quot;,             //  5 TODO
++     &quot;&quot;,             //  6 TODO
++     &quot;&quot;,             //  7 TODO
++     &quot;&quot;,             //  8 TODO
++     &quot;oletus&quot;,       //  9
++     &quot;&quot;,             // 10 TODO
++     &quot;&quot;,             // 11 TODO
++     &quot;&quot;,             // 12 TODO
++     &quot;&quot;,             // 13 TODO
++     &quot;&quot;,             // 14 TODO
++     &quot;&quot;,             // 15 TODO
++     &quot;&quot;,             // 16 TODO
++ #if VDRVERSNUM &gt;= 10316
++     &quot;&quot;,             // 17 TODO
++     &quot;&quot;,             // 18 TODO
++     &quot;&quot;,             // 19 TODO
++     &quot;&quot;,             // 20 TODO
++ #endif
++   },
++   { &quot;playing&quot;,      //  1
++     &quot;&quot;,             //  2 TODO
++     &quot;&quot;,             //  3 TODO
++     &quot;&quot;,             //  4 TODO
++     &quot;&quot;,             //  5 TODO
++     &quot;&quot;,             //  6 TODO
++     &quot;&quot;,             //  7 TODO
++     &quot;&quot;,             //  8 TODO
++     &quot;p&#228;&#228;ll&#228;&quot;,       //  9
++     &quot;&quot;,             // 10 TODO
++     &quot;&quot;,             // 11 TODO
++     &quot;&quot;,             // 12 TODO
++     &quot;&quot;,             // 13 TODO
++     &quot;&quot;,             // 14 TODO
++     &quot;&quot;,             // 15 TODO
++     &quot;&quot;,             // 16 TODO
++ #if VDRVERSNUM &gt;= 10316
++     &quot;&quot;,             // 17 TODO
++     &quot;&quot;,             // 18 TODO
++     &quot;&quot;,             // 19 TODO
++     &quot;&quot;,             // 20 TODO
++ #endif
++   },
++   { &quot;suspended&quot;,    //  1
++     &quot;&quot;,             //  2 TODO
++     &quot;&quot;,             //  3 TODO
++     &quot;&quot;,             //  4 TODO
++     &quot;&quot;,             //  5 TODO
++     &quot;&quot;,             //  6 TODO
++     &quot;&quot;,             //  7 TODO
++     &quot;&quot;,             //  8 TODO
++     &quot;keskeytetty&quot;,  //  9
++     &quot;&quot;,             // 10 TODO
++     &quot;&quot;,             // 11 TODO
++     &quot;&quot;,             // 12 TODO
++     &quot;&quot;,             // 13 TODO
++     &quot;&quot;,             // 14 TODO
++     &quot;&quot;,             // 15 TODO
++     &quot;&quot;,             // 16 TODO
++ #if VDRVERSNUM &gt;= 10316
++     &quot;&quot;,             // 17 TODO
++     &quot;&quot;,             // 18 TODO
++     &quot;&quot;,             // 19 TODO
++     &quot;&quot;,             // 20 TODO
++ #endif
++   },
++   { &quot;pseudo&quot;,       //  1
++     &quot;&quot;,             //  2 TODO
++     &quot;&quot;,             //  3 TODO
++     &quot;&quot;,             //  4 TODO
++     &quot;&quot;,             //  5 TODO
++     &quot;&quot;,             //  6 TODO
++     &quot;&quot;,             //  7 TODO
++     &quot;&quot;,             //  8 TODO
++     &quot;n&#228;enn&#228;inen&quot;,   //  9
++     &quot;&quot;,             // 10 TODO
++     &quot;&quot;,             // 11 TODO
++     &quot;&quot;,             // 12 TODO
++     &quot;&quot;,             // 13 TODO
++     &quot;&quot;,             // 14 TODO
++     &quot;&quot;,             // 15 TODO
++     &quot;&quot;,             // 16 TODO
++ #if VDRVERSNUM &gt;= 10316
++     &quot;&quot;,             // 17 TODO
++     &quot;&quot;,             // 18 TODO
++     &quot;&quot;,             // 19 TODO
++     &quot;&quot;,             // 20 TODO
++ #endif
++   },
++   { &quot;software&quot;,     //  1
++     &quot;&quot;,             //  2 TODO
++     &quot;&quot;,             //  3 TODO
++     &quot;&quot;,             //  4 TODO
++     &quot;&quot;,             //  5 TODO
++     &quot;&quot;,             //  6 TODO
++     &quot;&quot;,             //  7 TODO
++     &quot;&quot;,             //  8 TODO
++     &quot;ohjelmallinen&quot;,//  9
++     &quot;&quot;,             // 10 TODO
++     &quot;&quot;,             // 11 TODO
++     &quot;&quot;,             // 12 TODO
++     &quot;&quot;,             // 13 TODO
++     &quot;&quot;,             // 14 TODO
++     &quot;&quot;,             // 15 TODO
++     &quot;&quot;,             // 16 TODO
++ #if VDRVERSNUM &gt;= 10316
++     &quot;&quot;,             // 17 TODO
++     &quot;&quot;,             // 18 TODO
++     &quot;&quot;,             // 19 TODO
++     &quot;&quot;,             // 20 TODO
++ #endif
++   },
++   { &quot;save&quot;,         //  1
++     &quot;&quot;,             //  2 TODO
++     &quot;&quot;,             //  3 TODO
++     &quot;&quot;,             //  4 TODO
++     &quot;&quot;,             //  5 TODO
++     &quot;&quot;,             //  6 TODO
++     &quot;&quot;,             //  7 TODO
++     &quot;&quot;,             //  8 TODO
++     &quot;tallennus&quot;,    //  9
++     &quot;&quot;,             // 10 TODO
++     &quot;&quot;,             // 11 TODO
++     &quot;&quot;,             // 12 TODO
++     &quot;&quot;,             // 13 TODO
++     &quot;&quot;,             // 14 TODO
++     &quot;&quot;,             // 15 TODO
++     &quot;&quot;,             // 16 TODO
++ #if VDRVERSNUM &gt;= 10316
++     &quot;&quot;,             // 17 TODO
++     &quot;&quot;,             // 18 TODO
++     &quot;&quot;,             // 19 TODO
++     &quot;&quot;,             // 20 TODO
++ #endif
++   },
++   { &quot;good seeking&quot;, //  1
++     &quot;&quot;,             //  2 TODO
++     &quot;&quot;,             //  3 TODO
++     &quot;&quot;,             //  4 TODO
++     &quot;&quot;,             //  5 TODO
++     &quot;&quot;,             //  6 TODO
++     &quot;&quot;,             //  7 TODO
++     &quot;&quot;,             //  8 TODO
++     &quot;nopea haku&quot;,   //  9
++     &quot;&quot;,             // 10 TODO
++     &quot;&quot;,             // 11 TODO
++     &quot;&quot;,             // 12 TODO
++     &quot;&quot;,             // 13 TODO
++     &quot;&quot;,             // 14 TODO
++     &quot;&quot;,             // 15 TODO
++     &quot;&quot;,             // 16 TODO
++ #if VDRVERSNUM &gt;= 10316
++     &quot;&quot;,             // 17 TODO
++     &quot;&quot;,             // 18 TODO
++     &quot;&quot;,             // 19 TODO
++     &quot;&quot;,             // 20 TODO
++ #endif
++   },
++   { &quot;HDTV&quot;,         //  1
++     &quot;&quot;,             //  2 TODO
++     &quot;&quot;,             //  3 TODO
++     &quot;&quot;,             //  4 TODO
++     &quot;&quot;,             //  5 TODO
++     &quot;&quot;,             //  6 TODO
++     &quot;&quot;,             //  7 TODO
++     &quot;&quot;,             //  8 TODO
++     &quot;HDTV&quot;,         //  9
++     &quot;&quot;,             // 10 TODO
++     &quot;&quot;,             // 11 TODO
++     &quot;&quot;,             // 12 TODO
++     &quot;&quot;,             // 13 TODO
++     &quot;&quot;,             // 14 TODO
++     &quot;&quot;,             // 15 TODO
++     &quot;&quot;,             // 16 TODO
++ #if VDRVERSNUM &gt;= 10316
++     &quot;&quot;,             // 17 TODO
++     &quot;&quot;,             // 18 TODO
++     &quot;&quot;,             // 19 TODO
++     &quot;&quot;,             // 20 TODO
++ #endif
++   },
++   { &quot;16:9 wide&quot;,    //  1
++     &quot;&quot;,             //  2 TODO
++     &quot;&quot;,             //  3 TODO
++     &quot;&quot;,             //  4 TODO
++     &quot;&quot;,             //  5 TODO
++     &quot;&quot;,             //  6 TODO
++     &quot;&quot;,             //  7 TODO
++     &quot;&quot;,             //  8 TODO
++     &quot;16:9 laaja&quot;,   //  9
++     &quot;&quot;,             // 10 TODO
++     &quot;&quot;,             // 11 TODO
++     &quot;&quot;,             // 12 TODO
++     &quot;&quot;,             // 13 TODO
++     &quot;&quot;,             // 14 TODO
++     &quot;&quot;,             // 15 TODO
++     &quot;&quot;,             // 16 TODO
++ #if VDRVERSNUM &gt;= 10316
++     &quot;&quot;,             // 17 TODO
++     &quot;&quot;,             // 18 TODO
++     &quot;&quot;,             // 19 TODO
++     &quot;&quot;,             // 20 TODO
++ #endif
++   },
++   { &quot;4:3 normal&quot;,   //  1
++     &quot;&quot;,             //  2 TODO
++     &quot;&quot;,             //  3 TODO
++     &quot;&quot;,             //  4 TODO
++     &quot;&quot;,             //  5 TODO
++     &quot;&quot;,             //  6 TODO
++     &quot;&quot;,             //  7 TODO
++     &quot;&quot;,             //  8 TODO
++     &quot;4:3 normaali&quot;, //  9
+      &quot;&quot;,             // 10 TODO
+      &quot;&quot;,             // 11 TODO
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.48
+retrieving revision 1.49
+diff -C2 -d -r1.48 -r1.49
+*** mpeg2decoder.c	22 Jul 2005 21:18:41 -0000	1.48
+--- mpeg2decoder.c	27 Jul 2005 20:57:00 -0000	1.49
+***************
+*** 1192,1198 ****
+    // check if there are new streams
+    if (AudioIdx != DONT_PLAY &amp;&amp; ic-&gt;streams[pkt.stream_index] &amp;&amp;
+!       ic-&gt;streams[pkt.stream_index]-&gt;codec.codec_type == CODEC_TYPE_AUDIO &amp;&amp; 
+        AudioIdx != pkt.stream_index) {
+!    
+      CMDDEB(&quot;new Audio stream index.. old %d new %d\n&quot;,
+        AudioIdx,pkt.stream_index);
+--- 1192,1202 ----
+    // check if there are new streams
+    if (AudioIdx != DONT_PLAY &amp;&amp; ic-&gt;streams[pkt.stream_index] &amp;&amp;
+! #if LIBAVFORMAT_BUILD &gt; 4628
+!       ic-&gt;streams[pkt.stream_index]-&gt;codec-&gt;codec_type == CODEC_TYPE_AUDIO &amp;&amp;
+! #else
+!       ic-&gt;streams[pkt.stream_index]-&gt;codec.codec_type == CODEC_TYPE_AUDIO &amp;&amp;
+! #endif
+        AudioIdx != pkt.stream_index) {
+! 
+      CMDDEB(&quot;new Audio stream index.. old %d new %d\n&quot;,
+        AudioIdx,pkt.stream_index);
+***************
+*** 1203,1213 ****
+        aout=NULL;
+      };
+      aout = new cAudioStreamDecoder(&amp;ic-&gt;streams[pkt.stream_index]-&gt;codec,
+                   audioOut, audioMode );
+!   } else 
+    if (VideoIdx != DONT_PLAY &amp;&amp; ic-&gt;streams[pkt.stream_index] &amp;&amp;
+!       ic-&gt;streams[pkt.stream_index]-&gt;codec.codec_type == CODEC_TYPE_VIDEO &amp;&amp; 
+        VideoIdx!=pkt.stream_index) {
+!   
+      CMDDEB(&quot;new Video stream index.. old %d new %d\n&quot;,
+        VideoIdx,pkt.stream_index);
+--- 1207,1225 ----
+        aout=NULL;
+      };
++ #if LIBAVFORMAT_BUILD &gt; 4628
++     aout = new cAudioStreamDecoder(ic-&gt;streams[pkt.stream_index]-&gt;codec,
++ #else
+      aout = new cAudioStreamDecoder(&amp;ic-&gt;streams[pkt.stream_index]-&gt;codec,
++ #endif
+                   audioOut, audioMode );
+!   } else
+    if (VideoIdx != DONT_PLAY &amp;&amp; ic-&gt;streams[pkt.stream_index] &amp;&amp;
+! #if LIBAVFORMAT_BUILD &gt; 4628
+!       ic-&gt;streams[pkt.stream_index]-&gt;codec-&gt;codec_type == CODEC_TYPE_VIDEO &amp;&amp;
+! #else
+!       ic-&gt;streams[pkt.stream_index]-&gt;codec.codec_type == CODEC_TYPE_VIDEO &amp;&amp;
+! #endif
+        VideoIdx!=pkt.stream_index) {
+! 
+      CMDDEB(&quot;new Video stream index.. old %d new %d\n&quot;,
+        VideoIdx,pkt.stream_index);
+***************
+*** 1218,1222 ****
+--- 1230,1238 ----
+        vout = NULL;
+      };
++ #if LIBAVFORMAT_BUILD &gt; 4628
++     vout = new cVideoStreamDecoder(ic-&gt;streams[pkt.stream_index]-&gt;codec,
++ #else
+      vout = new cVideoStreamDecoder(&amp;ic-&gt;streams[pkt.stream_index]-&gt;codec,
++ #endif
+                     videoOut, &amp;clock, Speed );
+    };
+
+Index: setup-softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.c,v
+retrieving revision 1.24
+retrieving revision 1.25
+diff -C2 -d -r1.24 -r1.25
+*** setup-softdevice.c	20 Jul 2005 20:24:10 -0000	1.24
+--- setup-softdevice.c	27 Jul 2005 20:57:00 -0000	1.25
+***************
+*** 14,44 ****
+  #define MAXAVOFFSET (250)
+  
+  /* ----------------------------------------------------------------------------
+   * index to this array correspond to AFD values
+   */
+! char *crop_str [] = {
+!         &quot;none&quot;,
+!         &quot;4:3&quot;,
+!         &quot;16:9&quot;,
+!         &quot;14:9&quot;,
+!         NULL
+!      };
+! #define CROPMODEMAX 3
+! #define CROPMODES (CROPMODEMAX+1)
+  
+  /* ---------------------------------------------------------------------------
+   */
+! char *deint_str [] = {
+!         &quot;none&quot;,
+!         &quot;lavc&quot;,
+  #ifdef FB_SUPPORT
+!         &quot;FB-intern&quot;,
+  #endif        
+  #ifdef PP_LIBAVCODEC
+!         &quot;linblend&quot;,
+!         &quot;linipol&quot;,
+!         &quot;cubicipol&quot;,
+!         &quot;median&quot;,
+!         &quot;ffmpeg&quot;,
+  #endif //PP_LIBAVCODEC
+          NULL
+--- 14,41 ----
+  #define MAXAVOFFSET (250)
+  
++ #define MAX_CROP_LINES  50
++ #define MAX_CROP_COLS   50
++ 
+  /* ----------------------------------------------------------------------------
+   * index to this array correspond to AFD values
+   */
+! #define SETUP_CROPMODES 5
+! const char *crop_str[SETUP_CROPMODES];
+  
+  /* ---------------------------------------------------------------------------
+   */
+! #define SETUP_DEINTMODES 9
+! const char *deint_str[SETUP_DEINTMODES] = {
+!         &quot;none&quot;,      // translated in cMenuSetupSoftdevice::cMenuSetupSoftdevice()
+!         &quot;lavc&quot;,      // no need to translate
+  #ifdef FB_SUPPORT
+!         &quot;FB-intern&quot;, // no need to translate
+  #endif        
+  #ifdef PP_LIBAVCODEC
+!         &quot;linblend&quot;,  // no need to translate
+!         &quot;linipol&quot;,   // no need to translate
+!         &quot;cubicipol&quot;, // no need to translate
+!         &quot;median&quot;,    // no need to translate
+!         &quot;ffmpeg&quot;,    // no need to translate
+  #endif //PP_LIBAVCODEC
+          NULL
+***************
+*** 47,136 ****
+  /*-----------------------------------------------------------------------------
+   */
+! char *pp_str[]={
+!         &quot;none&quot;,
+!         &quot;fast&quot;,
+!         &quot;default&quot;,
+!         NULL
+!       };
+  
+  /* ----------------------------------------------------------------------------
+   * allow changing of output pixfmt
+   */
+! char *pix_fmt [] = {
+!         &quot;I420&quot;,
+!         &quot;YV12&quot;,
+!         &quot;YUY2&quot;,
+!         NULL
+!      };
+  
+  /* ----------------------------------------------------------------------------
+   * give some readable values for aspect ratio selection instead fo 0, 1 values
+   */
+! char *xv_startup_aspect [] = {
+!         &quot;16:9 wide&quot;,
+!         &quot;4:3 normal&quot;,
+!         NULL
+!      };
+  
+! /* ----------------------------------------------------------------------------
+   */
+! char *suspendVideo [] = {
+!         &quot;playing&quot;,
+!         &quot;suspended&quot;,
+!         NULL
+!      };
+  
+! /* ----------------------------------------------------------------------------
+   */
+! char *osdMode [] = {
+!         &quot;pseudo&quot;,
+!         &quot;software&quot;,
+!         NULL
+!      };
+  
+! /* ----------------------------------------------------------------------------
+   */
+! char *videoAspectNames [] = {
+!         &quot;Default&quot;,
+!         &quot;5:4&quot;,
+!         &quot;4:3&quot;,
+!         &quot;16:9&quot;,
+!         &quot;16:10&quot;,
+!         NULL
+!      };
+! /* ----------------------------------------------------------------------------
+   */
+! char *bufferModes [] = {
+!         &quot;save&quot;,
+!         &quot;good seeking&quot;,
+!         &quot;HDTV&quot;,
+!         NULL
+!      };
+  
+! /* ----------------------------------------------------------------------------
+   */
+! char *ac3ModeNames [] = {
+!         &quot;Stereo (2CH)&quot;,
+!         &quot;5.1 S/P-DIF&quot;,
+!         &quot;5.1 Analog (4CH)&quot;,
+!         &quot;5.1 Analog (6CH)&quot;,
+!         NULL
+!      };
+  
+! /* ----------------------------------------------------------------------------
+   */
+! char *userKeyUsage [] = {
+!         &quot;none&quot;,
+!         &quot;User1&quot;,
+!         &quot;User2&quot;,
+!         &quot;User3&quot;,
+!         &quot;User4&quot;,
+!         &quot;User5&quot;,
+!         &quot;User6&quot;,
+!         &quot;User7&quot;,
+!         &quot;User8&quot;,
+!         &quot;User9&quot;,
+!         NULL
+!      };
+  /* ----------------------------------------------------------------------------
+   */
+--- 44,94 ----
+  /*-----------------------------------------------------------------------------
+   */
+! #ifdef PP_LIBAVCODEC
+! #define SETUP_PPMODES 4
+! const char *pp_str[SETUP_PPMODES];
+! #endif //PP_LIBAVCODEC
+  
+  /* ----------------------------------------------------------------------------
+   * allow changing of output pixfmt
+   */
+! #define SETUP_PIXFMT 4
+! const char *pix_fmt[SETUP_PIXFMT];
+  
+  /* ----------------------------------------------------------------------------
+   * give some readable values for aspect ratio selection instead fo 0, 1 values
+   */
+! #define SETUP_XVSTARTUPASPECT 3
+! const char *xv_startup_aspect[SETUP_XVSTARTUPASPECT];
+  
+! /*-----------------------------------------------------------------------------
+   */
+! #define SETUP_SUSPENDVIDEO 3
+! const char *suspendVideo[SETUP_SUSPENDVIDEO];
+  
+! /*-----------------------------------------------------------------------------
+   */
+! #define SETUP_OSDMODES 3
+! const char *osdMode[SETUP_OSDMODES];
+  
+! /*-----------------------------------------------------------------------------
+   */
+! #define SETUP_VIDEOASPECTNAMES 6
+! const char *videoAspectNames[SETUP_VIDEOASPECTNAMES];
+! 
+! /*-----------------------------------------------------------------------------
+   */
+! #define SETUP_BUFFERMODES 4
+! const char *bufferModes[SETUP_BUFFERMODES];
+  
+! /*-----------------------------------------------------------------------------
+   */
+! #define SETUP_AC3MODENAMES 5
+! const char *ac3ModeNames[SETUP_AC3MODENAMES];
+  
+! /*-----------------------------------------------------------------------------
+   */
+! #define SETUP_USERKEYS 11
+! const char *userKeyUsage[SETUP_USERKEYS];
+! 
+  /* ----------------------------------------------------------------------------
+   */
+***************
+*** 219,223 ****
+    else if(!strcasecmp(Name,&quot;CropMode&quot;)) {
+      cropMode = atoi(Value);
+!     cropMode = clamp (0, cropMode, CROPMODEMAX);
+      fprintf (stderr, &quot;[setup-softdevice] cropping mode set to %d (%s)\n&quot;,
+               cropMode,
+--- 177,181 ----
+    else if(!strcasecmp(Name,&quot;CropMode&quot;)) {
+      cropMode = atoi(Value);
+!     cropMode = clamp (0, cropMode, (SETUP_CROPMODES-1));
+      fprintf (stderr, &quot;[setup-softdevice] cropping mode set to %d (%s)\n&quot;,
+               cropMode,
+***************
+*** 232,251 ****
+    } else if(!strcasecmp(Name,&quot;CropTopLines&quot;)) {
+      cropTopLines = atoi(Value);
+!     cropTopLines = clamp (0, cropTopLines, 100);
+      fprintf(stderr,&quot;[setup-softdevice] Cropping %d lines from top\n&quot;,
+              cropTopLines);
+    } else if(!strcasecmp(Name,&quot;CropBottomLines&quot;)) {
+      cropBottomLines = atoi(Value);
+!     cropBottomLines = clamp (0, cropBottomLines, 100);
+      fprintf(stderr,&quot;[setup-softdevice] Cropping %d lines from bottom\n&quot;,
+              cropBottomLines);
+    } else if(!strcasecmp(Name,&quot;CropLeftCols&quot;)) {
+      cropLeftCols = atoi(Value);
+!     cropLeftCols = clamp (0, cropLeftCols, 100);
+      fprintf(stderr,&quot;[setup-softdevice] Cropping %d columns from left\n&quot;,
+              cropLeftCols);
+    } else if(!strcasecmp(Name,&quot;CropRightCols&quot;)) {
+      cropRightCols = atoi(Value);
+!     cropRightCols = clamp (0, cropRightCols, 100);
+      fprintf(stderr,&quot;[setup-softdevice] Cropping %d columns from right\n&quot;,
+              cropRightCols);
+--- 190,209 ----
+    } else if(!strcasecmp(Name,&quot;CropTopLines&quot;)) {
+      cropTopLines = atoi(Value);
+!     cropTopLines = clamp (0, cropTopLines, MAX_CROP_LINES);
+      fprintf(stderr,&quot;[setup-softdevice] Cropping %d lines from top\n&quot;,
+              cropTopLines);
+    } else if(!strcasecmp(Name,&quot;CropBottomLines&quot;)) {
+      cropBottomLines = atoi(Value);
+!     cropBottomLines = clamp (0, cropBottomLines, MAX_CROP_LINES);
+      fprintf(stderr,&quot;[setup-softdevice] Cropping %d lines from bottom\n&quot;,
+              cropBottomLines);
+    } else if(!strcasecmp(Name,&quot;CropLeftCols&quot;)) {
+      cropLeftCols = atoi(Value);
+!     cropLeftCols = clamp (0, cropLeftCols, MAX_CROP_COLS);
+      fprintf(stderr,&quot;[setup-softdevice] Cropping %d columns from left\n&quot;,
+              cropLeftCols);
+    } else if(!strcasecmp(Name,&quot;CropRightCols&quot;)) {
+      cropRightCols = atoi(Value);
+!     cropRightCols = clamp (0, cropRightCols, MAX_CROP_COLS);
+      fprintf(stderr,&quot;[setup-softdevice] Cropping %d columns from right\n&quot;,
+              cropRightCols);
+***************
+*** 326,337 ****
+    else return NULL;
+  }
+  /* ---------------------------------------------------------------------------
+   */
+- 
+  char *cSetupStore::getPPValue(void)
+  {
+!   if (strcmp(pp_str[ppMethod], &quot;none&quot;) == 0) return &quot;&quot;;
+!   else if (strcmp(pp_str[ppMethod], &quot;fast&quot;) == 0) return &quot;fa&quot;;
+!   else if (strcmp(pp_str[ppMethod], &quot;default&quot;) == 0) return &quot;de&quot;;
+    else return NULL;
+  }
+--- 284,295 ----
+    else return NULL;
+  }
++ 
+  /* ---------------------------------------------------------------------------
+   */
+  char *cSetupStore::getPPValue(void)
+  {
+!   if (strcmp(pp_str[ppMethod], tr(&quot;none&quot;)) == 0) return &quot;&quot;;
+!   else if (strcmp(pp_str[ppMethod], tr(&quot;fast&quot;)) == 0) return &quot;fa&quot;;
+!   else if (strcmp(pp_str[ppMethod], tr(&quot;default&quot;)) == 0) return &quot;de&quot;;
+    else return NULL;
+  }
+***************
+*** 341,345 ****
+  void cSetupStore::CropModeNext(void)
+  {
+!   cropMode = (cropMode == CROPMODEMAX) ? 0 : cropMode + 1;
+  }
+  
+--- 299,303 ----
+  void cSetupStore::CropModeNext(void)
+  {
+!   cropMode = (cropMode == (SETUP_CROPMODES-1)) ? 0 : cropMode + 1;
+  }
+  
+***************
+*** 365,370 ****
+  }
+  
+! /* ---------------------------------------------------------------------------
+!  */
+  cMenuSetupSoftdevice::cMenuSetupSoftdevice(cPlugin *plugin)
+  {
+--- 323,327 ----
+  }
+  
+! /* --------------------------------------------------------------------------- */
+  cMenuSetupSoftdevice::cMenuSetupSoftdevice(cPlugin *plugin)
+  {
+***************
+*** 377,383 ****
+    if (data-&gt;outputMethod == VOUT_XV)
+    {
+      Add(new cMenuEditStraItem(tr(&quot;Xv startup aspect&quot;),
+                               &amp;data-&gt;xvAspect,
+!                              2,
+                               xv_startup_aspect));
+  
+--- 334,343 ----
+    if (data-&gt;outputMethod == VOUT_XV)
+    {
++     xv_startup_aspect[0] = tr(&quot;16:9 wide&quot;);
++     xv_startup_aspect[1] = tr(&quot;4:3 normal&quot;);
++     xv_startup_aspect[2] = NULL;
+      Add(new cMenuEditStraItem(tr(&quot;Xv startup aspect&quot;),
+                               &amp;data-&gt;xvAspect,
+!                              (SETUP_XVSTARTUPASPECT-1),
+                               xv_startup_aspect));
+  
+***************
+*** 390,401 ****
+    }
+  
+    Add(new cMenuEditStraItem(tr(&quot;CropMode&quot;),
+                              &amp;data-&gt;cropMode,
+!                             CROPMODES,
+                              crop_str));
+  
+    Add(new cMenuEditStraItem(tr(&quot;CropModeToggleKey&quot;),
+                              &amp;data-&gt;cropModeToggleKey,
+!                             10,
+                              userKeyUsage));
+  
+--- 350,377 ----
+    }
+  
++   crop_str[0] = tr(&quot;none&quot;);
++   crop_str[1] = &quot;4:3&quot;;  // no need to translate
++   crop_str[2] = &quot;16:9&quot;; // no need to translate
++   crop_str[3] = &quot;14:9&quot;; // no need to translate
++   crop_str[4] = NULL;
+    Add(new cMenuEditStraItem(tr(&quot;CropMode&quot;),
+                              &amp;data-&gt;cropMode,
+!                             (SETUP_CROPMODES-1),
+                              crop_str));
+  
++   userKeyUsage[0] = tr(&quot;none&quot;);
++   userKeyUsage[1] = &quot;User1&quot;; // no need to translate
++   userKeyUsage[2] = &quot;User2&quot;; // no need to translate
++   userKeyUsage[3] = &quot;User3&quot;; // no need to translate
++   userKeyUsage[4] = &quot;User4&quot;; // no need to translate
++   userKeyUsage[5] = &quot;User5&quot;; // no need to translate
++   userKeyUsage[6] = &quot;User6&quot;; // no need to translate
++   userKeyUsage[7] = &quot;User7&quot;; // no need to translate
++   userKeyUsage[8] = &quot;User8&quot;; // no need to translate
++   userKeyUsage[9] = &quot;User9&quot;; // no need to translate
++   userKeyUsage[10] = NULL;
+    Add(new cMenuEditStraItem(tr(&quot;CropModeToggleKey&quot;),
+                              &amp;data-&gt;cropModeToggleKey,
+!                             (SETUP_USERKEYS-1),
+                              userKeyUsage));
+  
+***************
+*** 405,415 ****
+                               &amp;data-&gt;cropTopLines,
+                               0,
+!                              100));
+  
+      Add(new cMenuEditIntItem(tr(&quot;Crop lines from bottom&quot;),
+                               &amp;data-&gt;cropBottomLines,
+                               0,
+!                              100));
+!   }                            
+  
+    if (data-&gt;outputMethod == VOUT_XV || data-&gt;outputMethod == VOUT_DFB)
+--- 381,391 ----
+                               &amp;data-&gt;cropTopLines,
+                               0,
+!                              MAX_CROP_LINES));
+  
+      Add(new cMenuEditIntItem(tr(&quot;Crop lines from bottom&quot;),
+                               &amp;data-&gt;cropBottomLines,
+                               0,
+!                              MAX_CROP_LINES));
+!   }
+  
+    if (data-&gt;outputMethod == VOUT_XV || data-&gt;outputMethod == VOUT_DFB)
+***************
+*** 418,428 ****
+                               &amp;data-&gt;cropLeftCols,
+                               0,
+!                              100));
+      Add(new cMenuEditIntItem(tr(&quot;Crop columns from right&quot;),
+                               &amp;data-&gt;cropRightCols,
+                               0,
+!                              100));
+    }
+  
+    if (data-&gt;outputMethod == VOUT_FB)
+    {
+--- 394,405 ----
+                               &amp;data-&gt;cropLeftCols,
+                               0,
+!                              MAX_CROP_COLS));
+      Add(new cMenuEditIntItem(tr(&quot;Crop columns from right&quot;),
+                               &amp;data-&gt;cropRightCols,
+                               0,
+!                              MAX_CROP_COLS));
+    }
+  
++   deint_str[0] = tr(&quot;none&quot;);
+    if (data-&gt;outputMethod == VOUT_FB)
+    {
+***************
+*** 449,465 ****
+    
+  #ifdef PP_LIBAVCODEC
+    Add(new cMenuEditStraItem(tr(&quot;Postprocessing Method&quot;),
+!                               &amp;data-&gt;ppMethod,3,pp_str));
+    Add(new cMenuEditIntItem(tr(&quot;Postprocessing Quality&quot;),
+                                &amp;data-&gt;ppQuality,0,6));
+  #endif
+    Add(new cMenuEditStraItem(tr(&quot;Buffer Mode&quot;),
+!                               &amp;data-&gt;bufferMode,3,bufferModes));
+    
+    if (data-&gt;outputMethod == VOUT_DFB || data-&gt;outputMethod == VOUT_VIDIX)
+    {
+      Add(new cMenuEditStraItem(tr(&quot;Pixel Format&quot;),
+                                &amp;data-&gt;pixelFormat,
+!                               3,
+                                pix_fmt));
+    }
+--- 426,455 ----
+    
+  #ifdef PP_LIBAVCODEC
++   pp_str[0] = tr(&quot;none&quot;);
++   pp_str[1] = tr(&quot;fast&quot;);
++   pp_str[2] = tr(&quot;default&quot;);
++   pp_str[3] = NULL;
+    Add(new cMenuEditStraItem(tr(&quot;Postprocessing Method&quot;),
+!                               &amp;data-&gt;ppMethod,(SETUP_PPMODES-1),pp_str));
+    Add(new cMenuEditIntItem(tr(&quot;Postprocessing Quality&quot;),
+                                &amp;data-&gt;ppQuality,0,6));
+  #endif
++ 
++   bufferModes[0] = tr(&quot;save&quot;);
++   bufferModes[1] = tr(&quot;good seeking&quot;);
++   bufferModes[2] = tr(&quot;HDTV&quot;);
++   bufferModes[3] = NULL;
+    Add(new cMenuEditStraItem(tr(&quot;Buffer Mode&quot;),
+!                               &amp;data-&gt;bufferMode,(SETUP_BUFFERMODES-1),bufferModes));
+    
+    if (data-&gt;outputMethod == VOUT_DFB || data-&gt;outputMethod == VOUT_VIDIX)
+    {
++     pix_fmt[0] = &quot;I420&quot;; // no need to translate
++     pix_fmt[1] = &quot;YV12&quot;; // no need to translate
++     pix_fmt[2] = &quot;YUY2&quot;; // no need to translate
++     pix_fmt[3] = NULL;
+      Add(new cMenuEditStraItem(tr(&quot;Pixel Format&quot;),
+                                &amp;data-&gt;pixelFormat,
+!                               (SETUP_PIXFMT-1),
+                                pix_fmt));
+    }
+***************
+*** 478,498 ****
+                             MINAVOFFSET, MAXAVOFFSET));
+  
+    Add(new cMenuEditStraItem(tr(&quot;Screen Aspect&quot;),
+                              &amp;data-&gt;screenPixelAspect,
+!                             5,
+                              videoAspectNames));
+  
+    Add(new cMenuEditStraItem(tr(&quot;Playback&quot;),
+                              &amp;data-&gt;shouldSuspend,
+!                             2,
+                              suspendVideo));
+    Add(new cMenuEditStraItem(tr(&quot;OSD alpha blending&quot;),
+                              &amp;data-&gt;osdMode,
+!                             2,
+                              osdMode));
+  
+    Add(new cMenuEditStraItem(tr(&quot;AC3 Mode&quot;),
+                              &amp;data-&gt;ac3Mode,
+!                             4,
+                              ac3ModeNames));
+  }
+--- 468,506 ----
+                             MINAVOFFSET, MAXAVOFFSET));
+  
++   videoAspectNames[0] = tr(&quot;default&quot;);
++   videoAspectNames[1] = &quot;5:4&quot;;   // no need to translate
++   videoAspectNames[2] = &quot;4:3&quot;;   // no need to translate
++   videoAspectNames[3] = &quot;16:9&quot;;  // no need to translate
++   videoAspectNames[4] = &quot;16:10&quot;; // no need to translate
++   videoAspectNames[5] = NULL;
+    Add(new cMenuEditStraItem(tr(&quot;Screen Aspect&quot;),
+                              &amp;data-&gt;screenPixelAspect,
+!                             (SETUP_VIDEOASPECTNAMES-1),
+                              videoAspectNames));
+  
++   suspendVideo[0] = tr(&quot;playing&quot;);
++   suspendVideo[1] = tr(&quot;suspended&quot;);
++   suspendVideo[2] = NULL;
+    Add(new cMenuEditStraItem(tr(&quot;Playback&quot;),
+                              &amp;data-&gt;shouldSuspend,
+!                             (SETUP_SUSPENDVIDEO-1),
+                              suspendVideo));
++ 
++   osdMode[0] = tr(&quot;pseudo&quot;);
++   osdMode[1] = tr(&quot;software&quot;);
++   osdMode[2] = NULL;
+    Add(new cMenuEditStraItem(tr(&quot;OSD alpha blending&quot;),
+                              &amp;data-&gt;osdMode,
+!                             (SETUP_OSDMODES-1),
+                              osdMode));
+  
++   ac3ModeNames[0] = &quot;Stereo (2CH)&quot;;     // no need to translate?
++   ac3ModeNames[1] = &quot;5.1 S/P-DIF&quot;;      // no need to translate?
++   ac3ModeNames[2] = &quot;5.1 Analog (4CH)&quot;; // no need to translate?
++   ac3ModeNames[3] = &quot;5.1 Analog (6CH)&quot;; // no need to translate?
++   ac3ModeNames[4] = NULL;
+    Add(new cMenuEditStraItem(tr(&quot;AC3 Mode&quot;),
+                              &amp;data-&gt;ac3Mode,
+!                             (SETUP_AC3MODENAMES-1),
+                              ac3ModeNames));
+  }
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.35
+retrieving revision 1.36
+diff -C2 -d -r1.35 -r1.36
+*** video-dfb.c	20 Jul 2005 20:24:10 -0000	1.35
+--- video-dfb.c	27 Jul 2005 20:57:00 -0000	1.36
+***************
+*** 20,26 ****
+  # define HAVE_SetSourceLocation 0
+  # if (DIRECTFB_MAJOR_VERSION == 0) &amp;&amp; (DIRECTFB_MINOR_VERSION == 9) &amp;&amp; (DIRECTFB_MICRO_VERSION &lt; 23)
+! #   define GraphicsDeviceDescription 0
+  # else
+! #   define GraphicsDeviceDescription 1
+  # endif
+  # if (DIRECTFB_MAJOR_VERSION &gt; 0 || ((DIRECTFB_MINOR_VERSION == 9) &amp;&amp; DIRECTFB_MICRO_VERSION &gt; 22))
+--- 20,26 ----
+  # define HAVE_SetSourceLocation 0
+  # if (DIRECTFB_MAJOR_VERSION == 0) &amp;&amp; (DIRECTFB_MINOR_VERSION == 9) &amp;&amp; (DIRECTFB_MICRO_VERSION &lt; 23)
+! #   define HAVE_GraphicsDeviceDescription 0
+  # else
+! #   define HAVE_GraphicsDeviceDescription 1
+  # endif
+  # if (DIRECTFB_MAJOR_VERSION &gt; 0 || ((DIRECTFB_MINOR_VERSION == 9) &amp;&amp; DIRECTFB_MICRO_VERSION &gt; 22))
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000170.html">[Softdevice-cvs] softieee1394 HISTORY,1.1.1.1,1.2 i18n.c,1.1.1.1,1.2 softieee1394.c,1.1.1.1,1.2
+</A></li>
+	<LI>Next message: <A HREF="000172.html">[Softdevice-cvs] softdevice CHANGELOG,1.96,1.97 i18n.c,1.6,1.7 setup-softdevice.c,1.25,1.26
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#171">[ date ]</a>
+              <a href="thread.html#171">[ thread ]</a>
+              <a href="subject.html#171">[ subject ]</a>
+              <a href="author.html#171">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

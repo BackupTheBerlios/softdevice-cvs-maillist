@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice configure,1.22,1.23
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20configure%2C1.22%2C1.23&In-Reply-To=%3C20060716130420.A746B598AC%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000399.html">
+   <LINK REL="Next"  HREF="000401.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice configure,1.22,1.23</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20configure%2C1.22%2C1.23&In-Reply-To=%3C20060716130420.A746B598AC%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice configure,1.22,1.23">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Jul 16 15:04:20 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000399.html">[Softdevice-cvs] softdevice CHANGELOG, 1.213, 1.214 configure, 1.21,	1.22
+</A></li>
+        <LI>Next message: <A HREF="000401.html">[Softdevice-cvs] softdevice CHANGELOG, 1.214, 1.215 audio-alsa.c,	1.1, 1.2
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#400">[ date ]</a>
+              <a href="thread.html#400">[ thread ]</a>
+              <a href="subject.html#400">[ subject ]</a>
+              <a href="author.html#400">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv12542
+
+Modified Files:
+	configure 
+Log Message:
+- remove (); from bash script
+
+
+Index: configure
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/configure,v
+retrieving revision 1.22
+retrieving revision 1.23
+diff -C2 -d -r1.22 -r1.23
+*** configure	16 Jul 2006 11:35:36 -0000	1.22
+--- configure	16 Jul 2006 13:04:15 -0000	1.23
+***************
+*** 367,371 ****
+  if test &quot;${xv}&quot; = &quot;yes&quot; ; then
+    xv_libs=&quot;-L/usr/X11R6/lib -lXext -lX11 -lm -lXv&quot;
+!   test_xv();
+  
+    if test &quot;${xv}&quot; = &quot;no&quot; ; then
+--- 367,371 ----
+  if test &quot;${xv}&quot; = &quot;yes&quot; ; then
+    xv_libs=&quot;-L/usr/X11R6/lib -lXext -lX11 -lm -lXv&quot;
+!   test_xv
+  
+    if test &quot;${xv}&quot; = &quot;no&quot; ; then
+***************
+*** 373,377 ****
+      echo &quot;Xv test failed. Maybe -lXi is needed?&quot; &gt;&gt; config.log
+      xv_libs+=&quot; -lXi&quot;
+!     test_xv();
+    fi
+  fi
+--- 373,377 ----
+      echo &quot;Xv test failed. Maybe -lXi is needed?&quot; &gt;&gt; config.log
+      xv_libs+=&quot; -lXi&quot;
+!     test_xv
+    fi
+  fi
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000399.html">[Softdevice-cvs] softdevice CHANGELOG, 1.213, 1.214 configure, 1.21,	1.22
+</A></li>
+	<LI>Next message: <A HREF="000401.html">[Softdevice-cvs] softdevice CHANGELOG, 1.214, 1.215 audio-alsa.c,	1.1, 1.2
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#400">[ date ]</a>
+              <a href="thread.html#400">[ thread ]</a>
+              <a href="subject.html#400">[ subject ]</a>
+              <a href="author.html#400">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

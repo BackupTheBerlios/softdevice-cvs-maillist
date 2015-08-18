@@ -1,0 +1,1622 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.310, 1.311 ShmClient.c,	1.23, 1.24 VideoFilter.c, 1.4, 1.5 mpeg2decoder.c, 1.74,	1.75 setup-softdevice-menu.c, 1.12, 1.13 setup-softdevice.c,	1.52, 1.53 setup-softdevice.h, 1.40, 1.41 setup-softlog-menu.c,	1.2, 1.3 shm-common.h, 1.8, 1.9 softdevice.c, 1.81,	1.82 utils.c, 1.25, 1.26 utils.h, 1.16, 1.17 video-dfb.c, 1.79,	1.80 video-xv.c, 1.68, 1.69
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.310%2C%201.311%20ShmClient.c%2C%0A%091.23%2C%201.24%20VideoFilter.c%2C%201.4%2C%201.5%20mpeg2decoder.c%2C%201.74%2C%0A%091.75%20setup-softdevice-menu.c%2C%201.12%2C%201.13%20setup-softdevice.c%2C%0A%091.52%2C%201.53%20setup-softdevice.h%2C%201.40%2C%201.41%20setup-softlog-menu.c%2C%0A%091.2%2C%201.3%20shm-common.h%2C%201.8%2C%201.9%20softdevice.c%2C%201.81%2C%0A%091.82%20utils.c%2C%201.25%2C%201.26%20utils.h%2C%201.16%2C%201.17%20video-dfb.c%2C%201.79%2C%0A%091.80%20video-xv.c%2C%201.68%2C%201.69&In-Reply-To=%3C20070510195159.52CE2D7E48%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000553.html">
+   <LINK REL="Next"  HREF="000556.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.310, 1.311 ShmClient.c,	1.23, 1.24 VideoFilter.c, 1.4, 1.5 mpeg2decoder.c, 1.74,	1.75 setup-softdevice-menu.c, 1.12, 1.13 setup-softdevice.c,	1.52, 1.53 setup-softdevice.h, 1.40, 1.41 setup-softlog-menu.c,	1.2, 1.3 shm-common.h, 1.8, 1.9 softdevice.c, 1.81,	1.82 utils.c, 1.25, 1.26 utils.h, 1.16, 1.17 video-dfb.c, 1.79,	1.80 video-xv.c, 1.68, 1.69</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.310%2C%201.311%20ShmClient.c%2C%0A%091.23%2C%201.24%20VideoFilter.c%2C%201.4%2C%201.5%20mpeg2decoder.c%2C%201.74%2C%0A%091.75%20setup-softdevice-menu.c%2C%201.12%2C%201.13%20setup-softdevice.c%2C%0A%091.52%2C%201.53%20setup-softdevice.h%2C%201.40%2C%201.41%20setup-softlog-menu.c%2C%0A%091.2%2C%201.3%20shm-common.h%2C%201.8%2C%201.9%20softdevice.c%2C%201.81%2C%0A%091.82%20utils.c%2C%201.25%2C%201.26%20utils.h%2C%201.16%2C%201.17%20video-dfb.c%2C%201.79%2C%0A%091.80%20video-xv.c%2C%201.68%2C%201.69&In-Reply-To=%3C20070510195159.52CE2D7E48%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.310, 1.311 ShmClient.c,	1.23, 1.24 VideoFilter.c, 1.4, 1.5 mpeg2decoder.c, 1.74,	1.75 setup-softdevice-menu.c, 1.12, 1.13 setup-softdevice.c,	1.52, 1.53 setup-softdevice.h, 1.40, 1.41 setup-softlog-menu.c,	1.2, 1.3 shm-common.h, 1.8, 1.9 softdevice.c, 1.81,	1.82 utils.c, 1.25, 1.26 utils.h, 1.16, 1.17 video-dfb.c, 1.79,	1.80 video-xv.c, 1.68, 1.69">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Thu May 10 21:51:59 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000553.html">[Softdevice-cvs] softdevice ShmClient.c, 1.22, 1.23 CHANGELOG, 1.309,	1.310
+</A></li>
+        <LI>Next message: <A HREF="000556.html">[Softdevice-cvs] softdevice CHANGELOG, 1.311, 1.312 ShmClient.c,	1.24, 1.25 audio-alsa.c, 1.5, 1.6 audio-alsa.h, 1.3,	1.4 audio-macos.c, 1.1, 1.2 audio-macos.h, 1.1,	1.2 audio-oss.c, 1.3, 1.4 audio-oss.h, 1.2, 1.3 audio.c, 1.27,	1.28 audio.h, 1.14, 1.15 setup-softdevice.c, 1.53,	1.54 setup-softdevice.h, 1.41, 1.42 setup-softlog-menu.c, 1.3,	1.4 softdevice.c, 1.82, 1.83 video-dfb.c, 1.80,	1.81 video-dfb.h, 1.26, 1.27 video-dummy.c, 1.4,	1.5 video-dummy.h, 1.4, 1.5 video-fb.c, 1.18, 1.19 video-fb.h,	1.10, 1.11 video-quartz.c, 1.1, 1.2 video-quartz.h, 1.1,	1.2 video-shm.c, 1.17, 1.18 video-shm.h, 1.9,	1.10 video-vidix.c, 1.25, 1.26 video-vidix.h, 1.12,	1.13 video-xv.c, 1.69, 1.70 video-xv.h, 1.26, 1.27 video.c,	1.74, 1.75 video.h, 1.52, 1.53
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#555">[ date ]</a>
+              <a href="thread.html#555">[ thread ]</a>
+              <a href="subject.html#555">[ subject ]</a>
+              <a href="author.html#555">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv17487
+
+Modified Files:
+	CHANGELOG ShmClient.c VideoFilter.c mpeg2decoder.c 
+	setup-softdevice-menu.c setup-softdevice.c setup-softdevice.h 
+	setup-softlog-menu.c shm-common.h softdevice.c utils.c utils.h 
+	video-dfb.c video-xv.c 
+Log Message:
+- move setupStore into a shared memory block. This allows ShmClient to
+  have acces to the setupStore.
+- move CatchRemoteKey() into utils.c, else setup-softdevice.o would
+  have to be linked into libsoftdevice-xv.so and -dfb.so
+
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.310
+retrieving revision 1.311
+diff -C2 -d -r1.310 -r1.311
+*** CHANGELOG	12 Apr 2007 17:58:11 -0000	1.310
+--- CHANGELOG	10 May 2007 19:49:51 -0000	1.311
+***************
+*** 1,3 ****
+--- 1,8 ----
+  Changelog
++ 2007-05-10:
++    - move setupStore into a shared memory block. This allows ShmClient to
++      have acces to the setupStore.
++    - move CatchRemoteKey() into utils.c, else setup-softdevice.o would
++      have to be linked into libsoftdevice-xv.so and -dfb.so
+  2007-04-12:
+     - ShmClient: revertet previous change, as it breaks argument style
+
+Index: ShmClient.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/ShmClient.c,v
+retrieving revision 1.23
+retrieving revision 1.24
+diff -C2 -d -r1.23 -r1.24
+*** ShmClient.c	12 Apr 2007 17:58:11 -0000	1.23
+--- ShmClient.c	10 May 2007 19:49:51 -0000	1.24
+***************
+*** 81,88 ****
+  
+  int main(int argc, char **argv) {
+!         cSetupStore SetupStore;
+!         SetupStore.xvFullscreen=0;
+!         cXvVideoOut *vout=new cXvVideoOut(&amp;SetupStore);
+!         xvRemote= new cShmRemote(&quot;softdevice-xv&quot;);
+  
+          signal(SIGINT,sig_handler);
+--- 81,85 ----
+  
+  int main(int argc, char **argv) {
+!         cSetupStore *SetupStore=NULL;
+  
+          signal(SIGINT,sig_handler);
+***************
+*** 110,114 ****
+                  exit(-1);
+          };
+!         
+          if ( !vout-&gt;Initialize()  ) {
+                  fprintf(stderr,&quot;Could not init video out!\n&quot;);
+--- 107,123 ----
+                  exit(-1);
+          };
+! 
+!         if ( (SetupStore = (cSetupStore *) shmat(ctl-&gt;setup_shmid,NULL,0))
+!                         == (cSetupStore *) -1 ) {
+!                 fprintf(stderr,&quot;Error attatching to setupStore shm (id: %d)!\n&quot;,
+!                                 ctl-&gt;setup_shmid);
+!                 exit(-1);
+!         };
+! 
+!         cXvVideoOut *vout=new cXvVideoOut(SetupStore);
+!         xvRemote= new cShmRemote(&quot;softdevice-xv&quot;);
+!         //SetupStore.InitSetupStore();
+!         SetupStore-&gt;xvFullscreen=0;
+! 
+          if ( !vout-&gt;Initialize()  ) {
+                  fprintf(stderr,&quot;Could not init video out!\n&quot;);
+***************
+*** 116,122 ****
+          };
+         
+!         while (!vout-&gt;Reconfigure(SetupStore.pixelFormat) 
+!                         &amp;&amp; SetupStore.pixelFormat &lt; 3 )
+!                 SetupStore.pixelFormat++;
+          
+          if ( vout-&gt;useShm &amp;&amp; vout-&gt;xv_image ) {
+--- 125,131 ----
+          };
+         
+!         while (!vout-&gt;Reconfigure(SetupStore-&gt;pixelFormat) 
+!                         &amp;&amp; SetupStore-&gt;pixelFormat &lt; 3 )
+!                 SetupStore-&gt;pixelFormat++;
+          
+          if ( vout-&gt;useShm &amp;&amp; vout-&gt;xv_image ) {
+
+Index: VideoFilter.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/VideoFilter.c,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -C2 -d -r1.4 -r1.5
+*** VideoFilter.c	3 Apr 2007 19:06:17 -0000	1.4
+--- VideoFilter.c	10 May 2007 19:49:51 -0000	1.5
+***************
+*** 91,95 ****
+                  &quot;[softdevice] no picture buffer is allocated for mirroring !\n&quot;
+                  &quot;[softdevice] switching mirroring off !\n&quot;);
+!             setupStore.mirror = 0;
+              return;
+      }
+--- 91,95 ----
+                  &quot;[softdevice] no picture buffer is allocated for mirroring !\n&quot;
+                  &quot;[softdevice] switching mirroring off !\n&quot;);
+!             setupStore-&gt;mirror = 0;
+              return;
+      }
+***************
+*** 160,164 ****
+                  &quot;[softdevice] no picture buffer is allocated for deinterlacing!\n&quot;
+                  &quot;[softdevice] switching deinterlacing off !\n&quot;);
+!             setupStore.deintMethod = 0;
+              return;
+      }
+--- 160,164 ----
+                  &quot;[softdevice] no picture buffer is allocated for deinterlacing!\n&quot;
+                  &quot;[softdevice] switching deinterlacing off !\n&quot;);
+!             setupStore-&gt;deintMethod = 0;
+              return;
+      }
+***************
+*** 191,195 ****
+                              &quot;[softdevice] error, libavcodec deinterlacer failure\n&quot;
+                              &quot;[softdevice] switching deinterlacing off !\n&quot;);
+!             setupStore.deintMethod = 0;
+              return;
+      }
+--- 191,195 ----
+                              &quot;[softdevice] error, libavcodec deinterlacer failure\n&quot;
+                              &quot;[softdevice] switching deinterlacing off !\n&quot;);
+!             setupStore-&gt;deintMethod = 0;
+              return;
+      }
+***************
+*** 441,445 ****
+                                  &quot;[softdevice] no picture buffer is allocated for post processing!\n&quot;
+                                  &quot;[softdevice] switching post processing off !\n&quot;);
+!                 setupStore.deintMethod = setupStore.ppMethod = 0;
+                  return;
+          }
+--- 441,445 ----
+                                  &quot;[softdevice] no picture buffer is allocated for post processing!\n&quot;
+                                  &quot;[softdevice] switching post processing off !\n&quot;);
+!                 setupStore-&gt;deintMethod = setupStore-&gt;ppMethod = 0;
+                  return;
+          }
+***************
+*** 480,490 ****
+          
+          if ( ppmode == NULL 
+!                         || currentDeintMethod != setupStore.deintMethod 
+!                         || currentppMethod != setupStore.ppMethod
+!                         || currentppQuality != setupStore.ppQuality ) {
+                  // reallocate ppmode if method or quality changed
+!                 currentDeintMethod = setupStore.deintMethod;
+!                 currentppMethod = setupStore.ppMethod;
+!                 currentppQuality = setupStore.ppQuality;
+  
+                  if (ppmode)  {
+--- 480,490 ----
+          
+          if ( ppmode == NULL 
+!                         || currentDeintMethod != setupStore-&gt;deintMethod 
+!                         || currentppMethod != setupStore-&gt;ppMethod
+!                         || currentppQuality != setupStore-&gt;ppQuality ) {
+                  // reallocate ppmode if method or quality changed
+!                 currentDeintMethod = setupStore-&gt;deintMethod;
+!                 currentppMethod = setupStore-&gt;ppMethod;
+!                 currentppQuality = setupStore-&gt;ppQuality;
+  
+                  if (ppmode)  {
+***************
+*** 493,503 ****
+                  }
+                  char mode[60]=&quot;&quot;;
+!                 if (setupStore.getPPdeintValue() &amp;&amp; setupStore.getPPValue())
+!                         sprintf(mode,&quot;%s,%s&quot;,setupStore.getPPdeintValue(),
+!                                         setupStore.getPPValue());
+!                 else if (setupStore.getPPdeintValue() )
+!                         sprintf(mode,&quot;%s&quot;,setupStore.getPPdeintValue());
+!                 else if (setupStore.getPPValue() )
+!                         sprintf(mode,&quot;%s&quot;,setupStore.getPPValue());
+  
+                  ppmode = pp_get_mode_by_name_and_quality(mode, currentppQuality);
+--- 493,503 ----
+                  }
+                  char mode[60]=&quot;&quot;;
+!                 if (setupStore-&gt;getPPdeintValue() &amp;&amp; setupStore-&gt;getPPValue())
+!                         sprintf(mode,&quot;%s,%s&quot;,setupStore-&gt;getPPdeintValue(),
+!                                         setupStore-&gt;getPPValue());
+!                 else if (setupStore-&gt;getPPdeintValue() )
+!                         sprintf(mode,&quot;%s&quot;,setupStore-&gt;getPPdeintValue());
+!                 else if (setupStore-&gt;getPPValue() )
+!                         sprintf(mode,&quot;%s&quot;,setupStore-&gt;getPPValue());
+  
+                  ppmode = pp_get_mode_by_name_and_quality(mode, currentppQuality);
+***************
+*** 508,513 ****
+                          &quot;[softdevice] pp-filter %s couldn't be initialized,\n&quot;
+                          &quot;[softdevice] switching postprocessing off !\n&quot;,
+!                         setupStore.getPPValue());
+!                 setupStore.deintMethod = setupStore.ppMethod = 0;
+                  return;
+          }
+--- 508,513 ----
+                          &quot;[softdevice] pp-filter %s couldn't be initialized,\n&quot;
+                          &quot;[softdevice] switching postprocessing off !\n&quot;,
+!                         setupStore-&gt;getPPValue());
+!                 setupStore-&gt;deintMethod = setupStore-&gt;ppMethod = 0;
+                  return;
+          }
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.74
+retrieving revision 1.75
+diff -C2 -d -r1.74 -r1.75
+*** mpeg2decoder.c	3 Apr 2007 19:23:30 -0000	1.74
+--- mpeg2decoder.c	10 May 2007 19:49:51 -0000	1.75
+***************
+*** 137,141 ****
+  
+  cStreamDecoder::cStreamDecoder(AVCodecContext *Context, bool packetMode)
+!         : PacketQueue(packet_buf_size[setupStore.bufferMode])
+  {
+    context=Context;
+--- 137,141 ----
+  
+  cStreamDecoder::cStreamDecoder(AVCodecContext *Context, bool packetMode)
+!         : PacketQueue(packet_buf_size[setupStore-&gt;bufferMode])
+  {
+    context=Context;
+***************
+*** 335,339 ****
+  {
+    MPGDEB(&quot;pts %lld aDelay: %d &quot;,pts,audioOut-&gt;GetDelay());
+!   uint64_t PTS= pts - audioOut-&gt;GetDelay() + setupStore.avOffset*10;
+   return PTS;
+  };
+--- 335,339 ----
+  {
+    MPGDEB(&quot;pts %lld aDelay: %d &quot;,pts,audioOut-&gt;GetDelay());
+!   uint64_t PTS= pts - audioOut-&gt;GetDelay() + setupStore-&gt;avOffset*10;
+   return PTS;
+  };
+***************
+*** 376,380 ****
+    if (context-&gt;codec_id == CODEC_ID_AC3)
+    {
+!     switch(setupStore.ac3Mode)
+      {
+        case 0:
+--- 376,380 ----
+    if (context-&gt;codec_id == CODEC_ID_AC3)
+    {
+!     switch(setupStore-&gt;ac3Mode)
+      {
+        case 0:
+***************
+*** 406,410 ****
+            pkt-&gt;pts=AV_NOPTS_VALUE;
+          }
+!         PTS = pts - audioOut-&gt;GetDelay() + setupStore.avOffset*10;
+  #if AC3_PTS_TRACE
+          fprintf (stderr, &quot;audio pts offset %lld %d\n&quot;,
+--- 406,410 ----
+            pkt-&gt;pts=AV_NOPTS_VALUE;
+          }
+!         PTS = pts - audioOut-&gt;GetDelay() + setupStore-&gt;avOffset*10;
+  #if AC3_PTS_TRACE
+          fprintf (stderr, &quot;audio pts offset %lld %d\n&quot;,
+***************
+*** 487,491 ****
+        pkt-&gt;pts=AV_NOPTS_VALUE;
+      }
+!     uint64_t PTS= pts - audioOut-&gt;GetDelay() + setupStore.avOffset*10;
+  
+      MPGDEB(&quot;audio pts offset %lld\n&quot;,cClock::GetTime()-PTS);
+--- 487,491 ----
+        pkt-&gt;pts=AV_NOPTS_VALUE;
+      }
+!     uint64_t PTS= pts - audioOut-&gt;GetDelay() + setupStore-&gt;avOffset*10;
+  
+      MPGDEB(&quot;audio pts offset %lld\n&quot;,cClock::GetTime()-PTS);
+***************
+*** 607,611 ****
+    // init A-V syncing variables
+    offset=0;
+!   syncTimer = new cSyncTimer ((eSyncMode) setupStore.syncTimerMode);
+    syncTimer-&gt;Reset();
+    videoOut-&gt;ResetDelay();
+--- 607,611 ----
+    // init A-V syncing variables
+    offset=0;
+!   syncTimer = new cSyncTimer ((eSyncMode) setupStore-&gt;syncTimerMode);
+    syncTimer-&gt;Reset();
+    videoOut-&gt;ResetDelay();
+***************
+*** 833,837 ****
+          pkt-&gt;stream_index,data,size);
+  #ifdef HAVE_CLE266_MPEG_DECODER
+!     if (setupStore.cle266HWdecode &amp;&amp; context-&gt;codec_id == CODEC_ID_MPEG2VIDEO)
+              len = DecodePicture_cle266(pic, got_picture,
+                                  data, size, pkt-&gt;pts);
+--- 833,837 ----
+          pkt-&gt;stream_index,data,size);
+  #ifdef HAVE_CLE266_MPEG_DECODER
+!     if (setupStore-&gt;cle266HWdecode &amp;&amp; context-&gt;codec_id == CODEC_ID_MPEG2VIDEO)
+              len = DecodePicture_cle266(pic, got_picture,
+                                  data, size, pkt-&gt;pts);
+***************
+*** 878,895 ****
+  
+      // postproc stuff....
+!     if (setupStore.mirror == 1)
+        Mirror.Filter(pic,pic);
+  
+!     if (setupStore.deintMethod == 1)
+        DeintLibav.Filter(pic,pic);
+  
+!     if (setupStore.autodetectAspect)
+              BorderDetect.Filter(pic,pic);
+      
+  #ifdef PP_LIBAVCODEC
+  #ifdef FB_SUPPORT
+!     if (setupStore.deintMethod &gt; 2 || setupStore.ppMethod!=0 )
+  #else
+!     if (setupStore.deintMethod &gt; 1 || setupStore.ppMethod!=0 )
+  #endif //FB_SUPPORT
+        LibAvPostProc.Filter(pic,pic);
+--- 878,895 ----
+  
+      // postproc stuff....
+!     if (setupStore-&gt;mirror == 1)
+        Mirror.Filter(pic,pic);
+  
+!     if (setupStore-&gt;deintMethod == 1)
+        DeintLibav.Filter(pic,pic);
+  
+!     if (setupStore-&gt;autodetectAspect)
+              BorderDetect.Filter(pic,pic);
+      
+  #ifdef PP_LIBAVCODEC
+  #ifdef FB_SUPPORT
+!     if (setupStore-&gt;deintMethod &gt; 2 || setupStore-&gt;ppMethod!=0 )
+  #else
+!     if (setupStore-&gt;deintMethod &gt; 1 || setupStore-&gt;ppMethod!=0 )
+  #endif //FB_SUPPORT
+        LibAvPostProc.Filter(pic,pic);
+***************
+*** 1101,1105 ****
+     };
+  
+!    init_put_byte(&amp;ic-&gt;pb, NULL,dvb_buf_size[setupStore.bufferMode]/2, 0, this,
+         read_packet_RingBuffer,NULL,seek_RingBuffer);
+     ic-&gt;pb.buf_end=NULL;
+--- 1101,1105 ----
+     };
+  
+!    init_put_byte(&amp;ic-&gt;pb, NULL,dvb_buf_size[setupStore-&gt;bufferMode]/2, 0, this,
+         read_packet_RingBuffer,NULL,seek_RingBuffer);
+     ic-&gt;pb.buf_end=NULL;
+***************
+*** 1310,1314 ****
+  	StreamBuffer=NULL;
+    };
+!   StreamBuffer=new cSoftRingBufferLinear(dvb_buf_size[setupStore.bufferMode],0);
+    StreamBuffer-&gt;Clear();
+    initStream();
+--- 1310,1314 ----
+  	StreamBuffer=NULL;
+    };
+!   StreamBuffer=new cSoftRingBufferLinear(dvb_buf_size[setupStore-&gt;bufferMode],0);
+    StreamBuffer-&gt;Clear();
+    initStream();
+***************
+*** 1341,1345 ****
+          fprintf(stderr,&quot;Could not open video out! Sleeping again...\n&quot;);
+          videoOut-&gt;Suspend();
+!         setupStore.shouldSuspend=true;
+          IsSuspended=true;
+          return;
+--- 1341,1345 ----
+          fprintf(stderr,&quot;Could not open video out! Sleeping again...\n&quot;);
+          videoOut-&gt;Suspend();
+!         setupStore-&gt;shouldSuspend=true;
+          IsSuspended=true;
+          return;
+***************
+*** 1348,1352 ****
+    if (!audioOut-&gt;Resume()) {
+          fprintf(stderr,&quot;Could not open audio out! Sleeping again...\n&quot;);
+!         setupStore.shouldSuspend=true;
+          IsSuspended=true;
+          videoOut-&gt;Suspend();
+--- 1348,1352 ----
+    if (!audioOut-&gt;Resume()) {
+          fprintf(stderr,&quot;Could not open audio out! Sleeping again...\n&quot;);
+!         setupStore-&gt;shouldSuspend=true;
+          IsSuspended=true;
+          videoOut-&gt;Suspend();
+***************
+*** 1617,1625 ****
+    BUFDEB(&quot;Decode %p, Length %d\n&quot;,Data,Length);
+  
+!   if (running &amp;&amp; !IsSuspended &amp;&amp; setupStore.shouldSuspend)
+       // still running and should suspend
+       Suspend();
+  
+!   if (!running &amp;&amp; IsSuspended &amp;&amp; !setupStore.shouldSuspend)
+       // not running and should resume
+       Resume();
+--- 1617,1625 ----
+    BUFDEB(&quot;Decode %p, Length %d\n&quot;,Data,Length);
+  
+!   if (running &amp;&amp; !IsSuspended &amp;&amp; setupStore-&gt;shouldSuspend)
+       // still running and should suspend
+       Suspend();
+  
+!   if (!running &amp;&amp; IsSuspended &amp;&amp; !setupStore-&gt;shouldSuspend)
+       // not running and should resume
+       Resume();
+
+Index: setup-softdevice-menu.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice-menu.c,v
+retrieving revision 1.12
+retrieving revision 1.13
+diff -C2 -d -r1.12 -r1.13
+*** setup-softdevice-menu.c	11 Apr 2007 08:26:05 -0000	1.12
+--- setup-softdevice-menu.c	10 May 2007 19:49:51 -0000	1.13
+***************
+*** 15,20 ****
+  cMenuSetupVideoParm::cMenuSetupVideoParm(const char *name) : cOsdMenu(name, 33)
+  {
+!   copyData = setupStore;
+!   data = &setupStore;
+  
+    if (data-&gt;vidCaps &amp; CAP_BRIGHTNESS)
+--- 15,20 ----
+  cMenuSetupVideoParm::cMenuSetupVideoParm(const char *name) : cOsdMenu(name, 33)
+  {
+!   copyData = *setupStore;
+!   data = setupStore;
+  
+    if (data-&gt;vidCaps &amp; CAP_BRIGHTNESS)
+***************
+*** 74,78 ****
+        break;
+      case osBack:
+!       setupStore = copyData;
+        fprintf (stderr, &quot;[setup-videoparm] restoring setup state\n&quot;);
+        break;
+--- 74,78 ----
+        break;
+      case osBack:
+!       *setupStore = copyData;
+        fprintf (stderr, &quot;[setup-videoparm] restoring setup state\n&quot;);
+        break;
+***************
+*** 87,92 ****
+  cMenuSetupCropping::cMenuSetupCropping(const char *name) : cOsdMenu(name, 33)
+  {
+!   copyData = setupStore;
+!   data = &setupStore;
+  
+    crop_str[0] = tr(&quot;none&quot;);
+--- 87,92 ----
+  cMenuSetupCropping::cMenuSetupCropping(const char *name) : cOsdMenu(name, 33)
+  {
+!   copyData = *setupStore;
+!   data = setupStore;
+  
+    crop_str[0] = tr(&quot;none&quot;);
+***************
+*** 189,193 ****
+        break;
+      case osBack:
+!       setupStore = copyData;
+        fprintf (stderr, &quot;[setup-cropping] restoring setup state\n&quot;);
+        break;
+--- 189,193 ----
+        break;
+      case osBack:
+!       *setupStore = copyData;
+        fprintf (stderr, &quot;[setup-cropping] restoring setup state\n&quot;);
+        break;
+***************
+*** 202,207 ****
+  cMenuSetupPostproc::cMenuSetupPostproc(const char *name) : cOsdMenu(name, 33)
+  {
+!   copyData = setupStore;
+!   data = &setupStore;
+  
+    deint_str[0] = tr(&quot;none&quot;);
+--- 202,207 ----
+  cMenuSetupPostproc::cMenuSetupPostproc(const char *name) : cOsdMenu(name, 33)
+  {
+!   copyData = *setupStore;
+!   data = setupStore;
+  
+    deint_str[0] = tr(&quot;none&quot;);
+***************
+*** 263,267 ****
+        break;
+      case osBack:
+!       setupStore = copyData;
+        fprintf (stderr, &quot;[setup-postproc] restoring setup state\n&quot;);
+        break;
+--- 263,267 ----
+        break;
+      case osBack:
+!       *setupStore = copyData;
+        fprintf (stderr, &quot;[setup-postproc] restoring setup state\n&quot;);
+        break;
+***************
+*** 280,285 ****
+    this-&gt;plugin = plugin;
+  
+!   copyData = setupStore;
+!   data = &setupStore;
+  
+    Add(new cOsdItem(tr(&quot;Cropping&quot;)));
+--- 280,285 ----
+    this-&gt;plugin = plugin;
+  
+!   copyData = *setupStore;
+!   data = setupStore;
+  
+    Add(new cOsdItem(tr(&quot;Cropping&quot;)));
+***************
+*** 433,437 ****
+        break;
+      case osBack:
+!       setupStore = copyData;
+        fprintf (stderr, &quot;[setup-softdevice] restoring setup state\n&quot;);
+        break;
+--- 433,437 ----
+        break;
+      case osBack:
+!       *setupStore = copyData;
+        fprintf (stderr, &quot;[setup-softdevice] restoring setup state\n&quot;);
+        break;
+***************
+*** 447,451 ****
+  {
+  #if 0
+!   if (setupStore.deintMethod != data.deintMethod) {
+      fprintf(stderr,
+              &quot;[setup-softdevice] deinterlace method changed to (%d) %s\n&quot;,
+--- 447,451 ----
+  {
+  #if 0
+!   if (setupStore-&gt;deintMethod != data.deintMethod) {
+      fprintf(stderr,
+              &quot;[setup-softdevice] deinterlace method changed to (%d) %s\n&quot;,
+***************
+*** 457,492 ****
+    fprintf (stderr, &quot;[setup-softdevice] storing data\n&quot;);
+  //  setupStore = data;
+!   SetupStore (&quot;Xv-Aspect&quot;,          setupStore.xvAspect);
+    // don't save max area value as it is ignored on load
+!   //SetupStore (&quot;Xv-MaxArea&quot;,         setupStore.xvMaxArea);
+!   SetupStore (&quot;CropMode&quot;,           setupStore.cropMode);
+!   SetupStore (&quot;CropModeToggleKey&quot;,     setupStore.cropModeToggleKey);
+!   SetupStore (&quot;CropTopLines&quot;,        setupStore.cropTopLines);
+!   SetupStore (&quot;CropBottomLines&quot;,     setupStore.cropBottomLines);
+!   SetupStore (&quot;CropLeftCols&quot;,        setupStore.cropLeftCols);
+!   SetupStore (&quot;CropRightCols&quot;,       setupStore.cropRightCols);
+!   SetupStore (&quot;Deinterlace Method&quot;, setupStore.deintMethod);
+!   SetupStore (&quot;Postprocess Method&quot;, setupStore.ppMethod);
+!   SetupStore (&quot;Postprocess Quality&quot;, setupStore.ppQuality);
+!   SetupStore (&quot;PixelFormat&quot;,        setupStore.pixelFormat);
+!   SetupStore (&quot;UseStretchBlit&quot;,     setupStore.useStretchBlit);
+!   SetupStore (&quot;UseSetSourceRectangle&quot;,     setupStore.useSetSourceRectangle);
+!   SetupStore (&quot;Picture mirroring&quot;,  setupStore.mirror);
+!   SetupStore (&quot;avOffset&quot;,           setupStore.avOffset);
+!   SetupStore (&quot;AlsaDevice&quot;,         setupStore.alsaDevice);
+!   SetupStore (&quot;AlsaAC3Device&quot;,      setupStore.alsaAC3Device);
+!   SetupStore (&quot;PixelAspect&quot;,        setupStore.screenPixelAspect);
+!   SetupStore (&quot;Suspend&quot;,            setupStore.shouldSuspend);
+!   SetupStore (&quot;OSDalphablend&quot;,      setupStore.osdMode);
+!   SetupStore (&quot;AC3Mode&quot;,            setupStore.ac3Mode);
+!   SetupStore (&quot;bufferMode&quot;,           setupStore.bufferMode);
+!   SetupStore (&quot;mainMenu&quot;,             setupStore.mainMenu);
+!   SetupStore (&quot;syncTimerMode&quot;,        setupStore.syncTimerMode);
+!   SetupStore (&quot;vidBrightness&quot;,        setupStore.vidBrightness);
+!   SetupStore (&quot;vidContrast&quot;,          setupStore.vidContrast);
+!   SetupStore (&quot;vidHue&quot;,               setupStore.vidHue);
+!   SetupStore (&quot;vidSaturation&quot;,        setupStore.vidSaturation);
+!   SetupStore (&quot;ExpandTopBottomLines&quot;, setupStore.expandTopBottomLines);
+!   SetupStore (&quot;ExpandLeftRightCols&quot;,  setupStore.expandLeftRightCols);
+!   SetupStore (&quot;autodetectAspect&quot;,     setupStore.autodetectAspect);
+  }
+--- 457,492 ----
+    fprintf (stderr, &quot;[setup-softdevice] storing data\n&quot;);
+  //  setupStore = data;
+!   SetupStore (&quot;Xv-Aspect&quot;,          setupStore-&gt;xvAspect);
+    // don't save max area value as it is ignored on load
+!   //SetupStore (&quot;Xv-MaxArea&quot;,         setupStore-&gt;xvMaxArea);
+!   SetupStore (&quot;CropMode&quot;,           setupStore-&gt;cropMode);
+!   SetupStore (&quot;CropModeToggleKey&quot;,     setupStore-&gt;cropModeToggleKey);
+!   SetupStore (&quot;CropTopLines&quot;,        setupStore-&gt;cropTopLines);
+!   SetupStore (&quot;CropBottomLines&quot;,     setupStore-&gt;cropBottomLines);
+!   SetupStore (&quot;CropLeftCols&quot;,        setupStore-&gt;cropLeftCols);
+!   SetupStore (&quot;CropRightCols&quot;,       setupStore-&gt;cropRightCols);
+!   SetupStore (&quot;Deinterlace Method&quot;, setupStore-&gt;deintMethod);
+!   SetupStore (&quot;Postprocess Method&quot;, setupStore-&gt;ppMethod);
+!   SetupStore (&quot;Postprocess Quality&quot;, setupStore-&gt;ppQuality);
+!   SetupStore (&quot;PixelFormat&quot;,        setupStore-&gt;pixelFormat);
+!   SetupStore (&quot;UseStretchBlit&quot;,     setupStore-&gt;useStretchBlit);
+!   SetupStore (&quot;UseSetSourceRectangle&quot;,     setupStore-&gt;useSetSourceRectangle);
+!   SetupStore (&quot;Picture mirroring&quot;,  setupStore-&gt;mirror);
+!   SetupStore (&quot;avOffset&quot;,           setupStore-&gt;avOffset);
+!   SetupStore (&quot;AlsaDevice&quot;,         setupStore-&gt;alsaDevice);
+!   SetupStore (&quot;AlsaAC3Device&quot;,      setupStore-&gt;alsaAC3Device);
+!   SetupStore (&quot;PixelAspect&quot;,        setupStore-&gt;screenPixelAspect);
+!   SetupStore (&quot;Suspend&quot;,            setupStore-&gt;shouldSuspend);
+!   SetupStore (&quot;OSDalphablend&quot;,      setupStore-&gt;osdMode);
+!   SetupStore (&quot;AC3Mode&quot;,            setupStore-&gt;ac3Mode);
+!   SetupStore (&quot;bufferMode&quot;,           setupStore-&gt;bufferMode);
+!   SetupStore (&quot;mainMenu&quot;,             setupStore-&gt;mainMenu);
+!   SetupStore (&quot;syncTimerMode&quot;,        setupStore-&gt;syncTimerMode);
+!   SetupStore (&quot;vidBrightness&quot;,        setupStore-&gt;vidBrightness);
+!   SetupStore (&quot;vidContrast&quot;,          setupStore-&gt;vidContrast);
+!   SetupStore (&quot;vidHue&quot;,               setupStore-&gt;vidHue);
+!   SetupStore (&quot;vidSaturation&quot;,        setupStore-&gt;vidSaturation);
+!   SetupStore (&quot;ExpandTopBottomLines&quot;, setupStore-&gt;expandTopBottomLines);
+!   SetupStore (&quot;ExpandLeftRightCols&quot;,  setupStore-&gt;expandLeftRightCols);
+!   SetupStore (&quot;autodetectAspect&quot;,     setupStore-&gt;autodetectAspect);
+  }
+
+Index: setup-softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.c,v
+retrieving revision 1.52
+retrieving revision 1.53
+diff -C2 -d -r1.52 -r1.53
+*** setup-softdevice.c	12 Apr 2007 08:09:15 -0000	1.52
+--- setup-softdevice.c	10 May 2007 19:49:51 -0000	1.53
+***************
+*** 75,81 ****
+  /* ----------------------------------------------------------------------------
+   */
+! cSetupStore setupStore;
+  
+! cSetupStore::cSetupStore ()
+  {
+    xvAspect      = 1;   // XV_FORMAT_NORMAL;
+--- 75,82 ----
+  /* ----------------------------------------------------------------------------
+   */
+! cSetupStore *setupStore=NULL;
+! int setupStoreShmId=-1;
+  
+! void cSetupStore::InitSetupStore()
+  {
+    xvAspect      = 1;   // XV_FORMAT_NORMAL;
+***************
+*** 131,135 ****
+    strcpy (alsaDevice, &quot;&quot;);
+    strcpy (alsaAC3Device, &quot;&quot;);
+-   voArgs = aoArgs = NULL;
+  
+    xv_startup_aspect[0] = tr(&quot;16:9 wide&quot;);
+--- 132,135 ----
+***************
+*** 413,444 ****
+  }
+  
+- /* ---------------------------------------------------------------------------
+-  */
+- void cSetupStore::CropModeNext(void)
+- {
+-   cropMode = (cropMode == (SETUP_CROPMODES-1)) ? 0 : cropMode + 1;
+- }
+- 
+- /* ---------------------------------------------------------------------------
+-  */
+- bool cSetupStore::CatchRemoteKey(const char *remoteName, uint64_t key)
+- {
+- #ifndef STAND_ALONE
+-     char  buffer[32];
+-     eKeys keySym;
+- 
+-   snprintf(buffer, sizeof(buffer), &quot;%016LX&quot;, (uint64_t) key);
+-   keySym = Keys.Get(remoteName, buffer);
+-   if (keySym &gt;= kUser1 &amp;&amp; keySym &lt;= kUser9)
+-   {
+-     keySym = (eKeys) (keySym - kUser1 + 1);
+-     if (cropModeToggleKey &amp;&amp; cropModeToggleKey == keySym)
+-     {
+-       CropModeNext();
+-       return true;
+-     }
+-   }
+- #endif
+-   return false;
+- }
+  
+--- 413,415 ----
+
+Index: setup-softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.h,v
+retrieving revision 1.40
+retrieving revision 1.41
+diff -C2 -d -r1.40 -r1.41
+*** setup-softdevice.h	3 Apr 2007 21:00:40 -0000	1.40
+--- setup-softdevice.h	10 May 2007 19:49:51 -0000	1.41
+***************
+*** 116,129 ****
+  /* ---------------------------------------------------------------------------
+   */
+! class cSetupStore {
+    public:
+!                   cSetupStore ();
+!     virtual       ~cSetupStore () {};
+      bool          SetupParse(const char *Name, const char *Value);
+      char          *getPPdeintValue(void);
+      char          *getPPValue(void);
+!     void          CropModeNext(void);
+! 
+!     virtual bool  CatchRemoteKey(const char *remoteName, uint64_t key);
+  
+      int   xvAspect;
+--- 116,128 ----
+  /* ---------------------------------------------------------------------------
+   */
+! struct cSetupStore {
+    public:
+!     void InitSetupStore();
+      bool          SetupParse(const char *Name, const char *Value);
+      char          *getPPdeintValue(void);
+      char          *getPPValue(void);
+!     inline void CropModeNext(void) {
+!        cropMode = (cropMode == (SETUP_CROPMODES-1)) ? 0 : cropMode + 1;
+!     };
+  
+      int   xvAspect;
+***************
+*** 177,182 ****
+      char  alsaDevice [ALSA_DEVICE_NAME_LENGTH];
+      char  alsaAC3Device [ALSA_DEVICE_NAME_LENGTH];
+-     char  *voArgs;
+-     char  *aoArgs;
+  
+      cSetupSoftlog *softlog;
+--- 176,179 ----
+***************
+*** 197,201 ****
+  }
+  
+! extern cSetupStore setupStore;
+  
+  #endif //__SETUP_SOFTDEVICE_H
+--- 194,199 ----
+  }
+  
+! extern cSetupStore *setupStore;
+! extern int setupStoreShmId;
+  
+  #endif //__SETUP_SOFTDEVICE_H
+
+Index: setup-softlog-menu.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softlog-menu.c,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** setup-softlog-menu.c	11 Feb 2007 10:31:27 -0000	1.2
+--- setup-softlog-menu.c	10 May 2007 19:49:51 -0000	1.3
+***************
+*** 16,22 ****
+      SetPlugin(plugin);
+  
+!   strncpy(newLogFileName, setupStore.softlog-&gt;GetLogFileName(), 256);
+!   newLogPriorities = setupStore.softlog-&gt;GetLogPriorities();
+!   newAppendMode = setupStore.softlog-&gt;GetAppendMode();
+  
+    Add(new cMenuEditBitItem(tr(&quot;Info Messages&quot;),
+--- 16,22 ----
+      SetPlugin(plugin);
+  
+!   strncpy(newLogFileName, setupStore-&gt;softlog-&gt;GetLogFileName(), 256);
+!   newLogPriorities = setupStore-&gt;softlog-&gt;GetLogPriorities();
+!   newAppendMode = setupStore-&gt;softlog-&gt;GetAppendMode();
+  
+    Add(new cMenuEditBitItem(tr(&quot;Info Messages&quot;),
+***************
+*** 77,90 ****
+  void cMenuSetupSoftlog::Store(void)
+  {
+!   if (strcmp(newLogFileName, setupStore.softlog-&gt;GetLogFileName()))
+!     setupStore.softlog-&gt;SetLogFile(newLogFileName);
+!   SetupStore (&quot;softlog-file&quot;,       setupStore.softlog-&gt;GetLogFileName());
+  
+!   setupStore.softlog-&gt;SetAppendMode(newAppendMode);
+!   SetupStore (&quot;softlog-appendpid&quot;,  setupStore.softlog-&gt;GetAppendMode());
+  
+!   if (newLogPriorities != setupStore.softlog-&gt;GetLogPriorities())
+!     setupStore.softlog-&gt;SetLogPriorities(newLogPriorities);
+!   SetupStore (&quot;softlog-priorities&quot;, setupStore.softlog-&gt;GetLogPriorities());
+  
+  }
+--- 77,90 ----
+  void cMenuSetupSoftlog::Store(void)
+  {
+!   if (strcmp(newLogFileName, setupStore-&gt;softlog-&gt;GetLogFileName()))
+!     setupStore-&gt;softlog-&gt;SetLogFile(newLogFileName);
+!   SetupStore (&quot;softlog-file&quot;,       setupStore-&gt;softlog-&gt;GetLogFileName());
+  
+!   setupStore-&gt;softlog-&gt;SetAppendMode(newAppendMode);
+!   SetupStore (&quot;softlog-appendpid&quot;,  setupStore-&gt;softlog-&gt;GetAppendMode());
+  
+!   if (newLogPriorities != setupStore-&gt;softlog-&gt;GetLogPriorities())
+!     setupStore-&gt;softlog-&gt;SetLogPriorities(newLogPriorities);
+!   SetupStore (&quot;softlog-priorities&quot;, setupStore-&gt;softlog-&gt;GetLogPriorities());
+  
+  }
+
+Index: shm-common.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/shm-common.h,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -C2 -d -r1.8 -r1.9
+*** shm-common.h	3 Apr 2007 19:24:31 -0000	1.8
+--- shm-common.h	10 May 2007 19:49:51 -0000	1.9
+***************
+*** 19,23 ****
+  
+  
+! #define CTL_KEY 5680
+  
+  #ifndef __APPLE__ // should rather be #ifdef LINUX
+--- 19,23 ----
+  
+  
+! #define CTL_KEY 5681
+  
+  #ifndef __APPLE__ // should rather be #ifdef LINUX
+***************
+*** 77,80 ****
+--- 77,83 ----
+          /* keypress events */
+          uint64_t key;
++ 
++         /* setupStore shm id */
++         int setup_shmid;
+  };
+  
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.81
+retrieving revision 1.82
+diff -C2 -d -r1.81 -r1.82
+*** softdevice.c	11 Apr 2007 08:35:57 -0000	1.81
+--- softdevice.c	10 May 2007 19:49:51 -0000	1.82
+***************
+*** 153,157 ****
+              &quot;[softdevice] ffmpeg build(%d)\n&quot;,
+               LIBAVCODEC_BUILD);
+!     setupStore.outputMethod = method;
+  #ifdef USE_SUBPLUGINS
+      switch (method) {
+--- 153,157 ----
+              &quot;[softdevice] ffmpeg build(%d)\n&quot;,
+               LIBAVCODEC_BUILD);
+!     setupStore-&gt;outputMethod = method;
+  #ifdef USE_SUBPLUGINS
+      switch (method) {
+***************
+*** 183,187 ****
+          break;
+        case VOUT_DUMMY:
+!         videoOut=new cDummyVideoOut(&amp;setupStore);
+          break;
+        default:
+--- 183,187 ----
+          break;
+        case VOUT_DUMMY:
+!         videoOut=new cDummyVideoOut(setupStore);
+          break;
+        default:
+***************
+*** 194,209 ****
+        case VOUT_XV:
+  #ifdef XV_SUPPORT
+!         videoOut = new cXvVideoOut (&amp;setupStore);
+          if ( videoOut-&gt;Initialize() ) {
+  
+            if (!videoOut-&gt;Reconfigure()) {
+                    // XVideo intialization failed, try different pix formats
+!                   setupStore.pixelFormat=0;
+!                   while (!videoOut-&gt;Reconfigure(setupStore.pixelFormat)
+!                                   &amp;&amp; setupStore.pixelFormat &lt; 3)
+!                           setupStore.pixelFormat++;
+                    // reset to default if all failed...
+!                   if (setupStore.pixelFormat == 3)
+!                           setupStore.pixelFormat = 0;
+            };
+  
+--- 194,209 ----
+        case VOUT_XV:
+  #ifdef XV_SUPPORT
+!         videoOut = new cXvVideoOut(setupStore);
+          if ( videoOut-&gt;Initialize() ) {
+  
+            if (!videoOut-&gt;Reconfigure()) {
+                    // XVideo intialization failed, try different pix formats
+!                   setupStore-&gt;pixelFormat=0;
+!                   while (!videoOut-&gt;Reconfigure(setupStore-&gt;pixelFormat)
+!                                   &amp;&amp; setupStore-&gt;pixelFormat &lt; 3)
+!                           setupStore-&gt;pixelFormat++;
+                    // reset to default if all failed...
+!                   if (setupStore-&gt;pixelFormat == 3)
+!                           setupStore-&gt;pixelFormat = 0;
+            };
+  
+***************
+*** 217,221 ****
+        case VOUT_FB:
+  #ifdef FB_SUPPORT
+!         videoOut=new cFBVideoOut(&amp;setupStore);
+          videoOut-&gt;Initialize();
+  #endif
+--- 217,221 ----
+        case VOUT_FB:
+  #ifdef FB_SUPPORT
+!         videoOut=new cFBVideoOut(setupStore);
+          videoOut-&gt;Initialize();
+  #endif
+***************
+*** 223,227 ****
+        case VOUT_SHM:
+  #ifdef SHM_SUPPORT
+!         videoOut=new cShmVideoOut(&amp;setupStore);
+          videoOut-&gt;Initialize();
+  #endif
+--- 223,227 ----
+        case VOUT_SHM:
+  #ifdef SHM_SUPPORT
+!         videoOut=new cShmVideoOut(setupStore);
+          videoOut-&gt;Initialize();
+  #endif
+***************
+*** 229,233 ****
+        case VOUT_DFB:
+  #ifdef DFB_SUPPORT
+!         videoOut=new cDFBVideoOut(&amp;setupStore);
+          videoOut-&gt;Initialize();
+  #endif
+--- 229,233 ----
+        case VOUT_DFB:
+  #ifdef DFB_SUPPORT
+!         videoOut=new cDFBVideoOut(setupStore);
+          videoOut-&gt;Initialize();
+  #endif
+***************
+*** 235,249 ****
+        case VOUT_VIDIX:
+  #ifdef VIDIX_SUPPORT
+!         videoOut=new cVidixVideoOut(&amp;setupStore);
+          videoOut-&gt;Initialize();
+  #endif
+        case VOUT_QUARTZ:
+  #ifdef QUARTZ_SUPPORT
+!         videoOut=new cQuartzVideoOut(&amp;setupStore);
+          videoOut-&gt;Initialize();
+  #endif
+          break;
+        case VOUT_DUMMY:
+!         videoOut=new cDummyVideoOut(&amp;setupStore);
+          videoOut-&gt;Initialize();
+          break;
+--- 235,249 ----
+        case VOUT_VIDIX:
+  #ifdef VIDIX_SUPPORT
+!         videoOut=new cVidixVideoOut(setupStore);
+          videoOut-&gt;Initialize();
+  #endif
+        case VOUT_QUARTZ:
+  #ifdef QUARTZ_SUPPORT
+!         videoOut=new cQuartzVideoOut(setupStore);
+          videoOut-&gt;Initialize();
+  #endif
+          break;
+        case VOUT_DUMMY:
+!         videoOut=new cDummyVideoOut(setupStore);
+          videoOut-&gt;Initialize();
+          break;
+***************
+*** 262,266 ****
+        case AOUT_ALSA:
+  #ifdef ALSA_SUPPORT
+!         audioOut=new cAlsaAudioOut(&amp;setupStore);
+          break;
+  #else
+--- 262,266 ----
+        case AOUT_ALSA:
+  #ifdef ALSA_SUPPORT
+!         audioOut=new cAlsaAudioOut(setupStore);
+          break;
+  #else
+***************
+*** 269,273 ****
+        case AOUT_MACOS:
+  #ifdef MACOSAO_SUPPORT
+!         audioOut=new cMacOsAudioOut(&amp;setupStore);
+          break;
+  #else
+--- 269,273 ----
+        case AOUT_MACOS:
+  #ifdef MACOSAO_SUPPORT
+!         audioOut=new cMacOsAudioOut(setupStore);
+          break;
+  #else
+***************
+*** 276,280 ****
+        case AOUT_OSS:
+  #ifdef OSS_SUPPORT
+!         audioOut=new cOSSAudioOut(&amp;setupStore);
+          break;
+  #else
+--- 276,280 ----
+        case AOUT_OSS:
+  #ifdef OSS_SUPPORT
+!         audioOut=new cOSSAudioOut(setupStore);
+          break;
+  #else
+***************
+*** 282,286 ****
+  #endif
+        case AOUT_DUMMY:
+!         audioOut=new cDummyAudioOut(&amp;setupStore);
+          break;
+      }
+--- 282,286 ----
+  #endif
+        case AOUT_DUMMY:
+!         audioOut=new cDummyAudioOut(setupStore);
+          break;
+      }
+***************
+*** 333,337 ****
+      if (!err)
+      {
+!       videoOut = (cVideoOut *) creator (&amp;setupStore);
+      }
+      else
+--- 333,337 ----
+      if (!err)
+      {
+!       videoOut = (cVideoOut *) creator(setupStore);
+      }
+      else
+***************
+*** 554,558 ****
+    SOFTDEB(&quot;PlayAudio... %p length %d\n&quot;,Data,Length);
+  #if VDRVERSNUM &gt;= 10342
+!   if (setupStore.shouldSuspend &amp;&amp; !Transferring()) {
+      usleep(10000); // avoid burning CPU
+      return 0;
+--- 554,558 ----
+    SOFTDEB(&quot;PlayAudio... %p length %d\n&quot;,Data,Length);
+  #if VDRVERSNUM &gt;= 10342
+!   if (setupStore-&gt;shouldSuspend &amp;&amp; !Transferring()) {
+      usleep(10000); // avoid burning CPU
+      return 0;
+***************
+*** 615,619 ****
+    SOFTDEB(&quot;PlayVideo %x length %d\n&quot;,Data,Length);
+  #if VDRVERSNUM &gt;= 10342
+!   if (setupStore.shouldSuspend &amp;&amp; !Transferring()) {
+      usleep(10000); // avoid burning CPU
+      return 0;
+--- 615,619 ----
+    SOFTDEB(&quot;PlayVideo %x length %d\n&quot;,Data,Length);
+  #if VDRVERSNUM &gt;= 10342
+!   if (setupStore-&gt;shouldSuspend &amp;&amp; !Transferring()) {
+      usleep(10000); // avoid burning CPU
+      return 0;
+***************
+*** 785,788 ****
+--- 785,852 ----
+    pluginPath = PLUGINLIBDIR;
+    runtimePluginPath = GetLibPath();
++ 
++ #ifndef VOUT_SHM 
++   setupStore = (cSetupStore *) malloc( sizeof(cSetupStore) );
++   setupStore-&gt;InitSetupStore();
++ #else
++   int ctl_shmid;
++   ShmCtlBlock *ctl=NULL;
++   key_t ctl_key=CTL_KEY;
++ 
++   // try to get an existing ShmCltBlock
++   if  ( (ctl_shmid = shmget(ctl_key,sizeof(ShmCtlBlock), 0666)) &gt;= 0 ) {
++           fprintf(stderr,&quot;softdevice: Got ctl_shmid %d shm ctl!\n&quot;,ctl_shmid);
++   }; 
++ 
++   // attach to the control block
++   if ( ctl_shmid&gt;0 &amp;&amp; ( (ctl = (ShmCtlBlock*)shmat(ctl_shmid,NULL,0)) 
++                           == (ShmCtlBlock*) -1 )) {
++           fprintf(stderr,&quot;softdevice: Error attatching shm ctl!\n&quot;);
++           ctl=NULL;
++   };
++ 
++   if ( ctl &amp;&amp; ctl-&gt;setup_shmid&gt;0 ) {
++           setupStoreShmId=ctl-&gt;setup_shmid;
++           // try to attach to an existing setupStore
++           if ( (setupStore = (cSetupStore*)shmat(setupStoreShmId,NULL,0)) 
++                           == (cSetupStore*) -1 ) {
++                   fprintf(stderr,&quot;softdevice: Error attatching existing setupStore shm!\n&quot;);
++                   setupStoreShmId=-1;
++                   setupStore=NULL;
++                   printf(&quot;setupStoreShmId %d setupStore %p\n&quot;,
++                                   setupStoreShmId,setupStore);
++           } else fprintf(stderr,&quot;softdevice: Attatched to setupStore %d at %p\n&quot;,
++                           setupStoreShmId,setupStore);
++                                  
++   };
++ 
++   if ( !setupStore ) {
++           if ( (setupStoreShmId = shmget(IPC_PRIVATE,sizeof(cSetupStore), 
++                                           IPC_CREAT | 0666)) &gt;= 0 ) {
++                   fprintf(stderr,&quot;softdevice: Created setupStoreId %d!\n&quot;,
++                                   setupStoreShmId);
++           };
++           // try to attach to the new setupStore
++           if ( (setupStore = (cSetupStore*)shmat(setupStoreShmId,NULL,0)) 
++                           == (cSetupStore*) -1 ) {
++                   fprintf(stderr,&quot;softdevice: Error attatching setupStore shm!\n&quot;);
++                   exit(-1);
++           } else 
++                   fprintf(stderr,&quot;softdevice: Attatched to setupStoreId %d at %p.\n&quot;,
++                           setupStoreShmId,setupStore);
++           
++           if (ctl&gt;0)
++                   ctl-&gt;setup_shmid=setupStoreShmId;
++                           // request removing after detaching
++           if ( setupStoreShmId &gt; 0)
++                         shmctl(setupStoreShmId, IPC_RMID, 0);
++ 
++   };
++   if ( ctl&gt;0 ) {
++           shmdt(ctl);
++           ctl=NULL;
++   };
++   setupStore-&gt;InitSetupStore();
++ #endif
+  }
+  
+***************
+*** 800,804 ****
+  const char *cPluginSoftDevice::MainMenuEntry(void)
+  {
+!   if (setupStore.mainMenu)
+      return tr(MAINMENUENTRY);
+    return NULL;
+--- 864,868 ----
+  const char *cPluginSoftDevice::MainMenuEntry(void)
+  {
+!   if (setupStore-&gt;mainMenu)
+      return tr(MAINMENUENTRY);
+    return NULL;
+***************
+*** 873,877 ****
+          if (!strncmp (vo_argv, &quot;xv:&quot;, 3)) {
+            vo_argv += 3;
+-           setupStore.voArgs = vo_argv;
+  #ifdef XV_SUPPORT
+            voutMethod = VOUT_XV;
+--- 937,940 ----
+***************
+*** 885,894 ****
+                  fprintf (stderr,
+                           &quot;[ProcessArgs] xv: startup aspect ratio set to wide (16:9)\n&quot;);
+!                 setupStore. xvAspect = XV_FORMAT_WIDE;
+                  vo_argv += 4;
+                } else if (!strncmp (vo_argv, &quot;normal&quot;, 6)) {
+                  fprintf (stderr,
+                           &quot;[ProcessArgs] xv: startup aspect ratio set to normal (4:3)\n&quot;);
+!                 setupStore. xvAspect = XV_FORMAT_NORMAL;
+                  vo_argv += 6;
+                } else {
+--- 948,957 ----
+                  fprintf (stderr,
+                           &quot;[ProcessArgs] xv: startup aspect ratio set to wide (16:9)\n&quot;);
+!                 setupStore-&gt;xvAspect = XV_FORMAT_WIDE;
+                  vo_argv += 4;
+                } else if (!strncmp (vo_argv, &quot;normal&quot;, 6)) {
+                  fprintf (stderr,
+                           &quot;[ProcessArgs] xv: startup aspect ratio set to normal (4:3)\n&quot;);
+!                 setupStore-&gt;xvAspect = XV_FORMAT_NORMAL;
+                  vo_argv += 6;
+                } else {
+***************
+*** 900,909 ****
+                }
+              } else if (!strncmp (vo_argv, &quot;max-area&quot;, 8)) {
+!               setupStore.xvMaxArea = 1;
+                fprintf (stderr,
+                         &quot;[ProcessArgs] xv: using max available area\n&quot;);
+                vo_argv += 8;
+              } else if (!strncmp (vo_argv, &quot;full&quot;, 4)) {
+!               setupStore.xvFullscreen = 1;
+                fprintf (stderr,
+                         &quot;[ProcessArgs] xv: start up fullscreen\n&quot;);
+--- 963,972 ----
+                }
+              } else if (!strncmp (vo_argv, &quot;max-area&quot;, 8)) {
+!               setupStore-&gt;xvMaxArea = 1;
+                fprintf (stderr,
+                         &quot;[ProcessArgs] xv: using max available area\n&quot;);
+                vo_argv += 8;
+              } else if (!strncmp (vo_argv, &quot;full&quot;, 4)) {
+!               setupStore-&gt;xvFullscreen = 1;
+                fprintf (stderr,
+                         &quot;[ProcessArgs] xv: start up fullscreen\n&quot;);
+***************
+*** 912,916 ****
+                fprintf (stderr,
+                         &quot;[ProcessArgs] xv: don't change brigtness etc on startup\n&quot;);
+!               setupStore.xvUseDefaults=true;
+                vo_argv += 12;
+              } else {
+--- 975,979 ----
+                fprintf (stderr,
+                         &quot;[ProcessArgs] xv: don't change brigtness etc on startup\n&quot;);
+!               setupStore-&gt;xvUseDefaults=true;
+                vo_argv += 12;
+              } else {
+***************
+*** 927,931 ****
+          } else if (!strncmp (vo_argv, &quot;fb:&quot;, 3)) {
+            vo_argv += 3;
+-           setupStore.voArgs = vo_argv;
+  #ifdef FB_SUPPORT
+            voutMethod = VOUT_FB;
+--- 990,993 ----
+***************
+*** 935,939 ****
+          } else if (!strncmp (vo_argv, &quot;shm:&quot;, 3)) {
+            vo_argv += 4;
+-           setupStore.voArgs = vo_argv;
+  #ifdef SHM_SUPPORT
+            voutMethod = VOUT_SHM;
+--- 997,1000 ----
+***************
+*** 943,947 ****
+          } else if (!strncmp (vo_argv, &quot;dfb:&quot;, 4)) {
+            vo_argv += 4;
+-           setupStore.voArgs = vo_argv;
+  #ifdef DFB_SUPPORT
+            voutMethod = VOUT_DFB;
+--- 1004,1007 ----
+***************
+*** 951,968 ****
+  
+              if (!strncmp (vo_argv, &quot;mgatv&quot;, 5)) {
+!               setupStore.useMGAtv = 1;
+                vo_argv += 5;
+              } else if (!strncmp (vo_argv, &quot;viatv&quot;, 5)) {
+!               setupStore.viaTv = 1;
+                fprintf(stderr,&quot;[softdevice] enabling field parity\n&quot;);
+                vo_argv += 5;
+  #ifdef HAVE_CLE266_MPEG_DECODER
+              } else if (!strncmp (vo_argv, &quot;cle266&quot;, 6)) {
+!               setupStore.cle266HWdecode = 1;
+                vo_argv += 6;
+                fprintf(stderr,&quot;[softdevice] enabling CLE266 HW decoding\n&quot;);
+  #endif // HAVE_CLE266_MPEG_DECODER
+              } else if (!strncmp (vo_argv, &quot;triple&quot;, 6)) {
+!               setupStore.tripleBuffering = 1;
+                vo_argv += 6;
+                fprintf(stderr,&quot;[softdevice] enabling triple buffering\n&quot;);
+--- 1011,1028 ----
+  
+              if (!strncmp (vo_argv, &quot;mgatv&quot;, 5)) {
+!               setupStore-&gt;useMGAtv = 1;
+                vo_argv += 5;
+              } else if (!strncmp (vo_argv, &quot;viatv&quot;, 5)) {
+!               setupStore-&gt;viaTv = 1;
+                fprintf(stderr,&quot;[softdevice] enabling field parity\n&quot;);
+                vo_argv += 5;
+  #ifdef HAVE_CLE266_MPEG_DECODER
+              } else if (!strncmp (vo_argv, &quot;cle266&quot;, 6)) {
+!               setupStore-&gt;cle266HWdecode = 1;
+                vo_argv += 6;
+                fprintf(stderr,&quot;[softdevice] enabling CLE266 HW decoding\n&quot;);
+  #endif // HAVE_CLE266_MPEG_DECODER
+              } else if (!strncmp (vo_argv, &quot;triple&quot;, 6)) {
+!               setupStore-&gt;tripleBuffering = 1;
+                vo_argv += 6;
+                fprintf(stderr,&quot;[softdevice] enabling triple buffering\n&quot;);
+***************
+*** 980,984 ****
+          } else if (!strncmp (vo_argv, &quot;vidix:&quot;, 6)) {
+            vo_argv += 6;
+-           setupStore.voArgs = vo_argv;
+  #ifdef VIDIX_SUPPORT
+            voutMethod = VOUT_VIDIX;
+--- 1040,1043 ----
+***************
+*** 989,993 ****
+          } else if (!strncmp (vo_argv, &quot;quartz:&quot;, 7)) {
+            vo_argv += 6;
+-           setupStore.voArgs = vo_argv;
+  #ifdef QUARTZ_SUPPORT
+            voutMethod = VOUT_QUARTZ;
+--- 1048,1051 ----
+***************
+*** 997,1001 ****
+          } else if (!strncmp (vo_argv, &quot;dummy:&quot;, 6)) {
+            vo_argv += 6;
+-           setupStore.voArgs = vo_argv;
+            voutMethod = VOUT_DUMMY;
+            fprintf(stderr,&quot;[softdevice] using dummy video out\n&quot;);
+--- 1055,1058 ----
+***************
+*** 1014,1018 ****
+          if (!strncmp(ao_argv, &quot;alsa:&quot;, 5)) {
+            ao_argv += 5;
+-           setupStore.aoArgs = ao_argv;
+            aoutMethod = AOUT_ALSA;
+            while (strlen(ao_argv) &gt; 1) {
+--- 1071,1074 ----
+***************
+*** 1035,1042 ****
+                        ALSA_DEVICE_NAME_LENGTH : len;
+                if (len) {
+!                 strncpy(setupStore.alsaDevice, ao_argv, len);
+!                 setupStore.alsaDevice [len] = 0;
+                  fprintf (stderr, &quot;[softdevice] using PCM alsa device %s\n&quot;,
+!                          setupStore.alsaDevice);
+                }
+                ao_argv += len;
+--- 1091,1098 ----
+                        ALSA_DEVICE_NAME_LENGTH : len;
+                if (len) {
+!                 strncpy(setupStore-&gt;alsaDevice, ao_argv, len);
+!                 setupStore-&gt;alsaDevice[len]= 0;
+                  fprintf (stderr, &quot;[softdevice] using PCM alsa device %s\n&quot;,
+!                          setupStore-&gt;alsaDevice);
+                }
+                ao_argv += len;
+***************
+*** 1047,1064 ****
+                        ALSA_DEVICE_NAME_LENGTH : len;
+                if (len) {
+!                 strncpy(setupStore.alsaAC3Device, ao_argv, len);
+!                 setupStore.alsaAC3Device [len] = 0;
+                  fprintf (stderr, &quot;[softdevice] using AC3 alsa device %s\n&quot;,
+!                          setupStore.alsaAC3Device);
+                }
+                ao_argv += len;
+              } else if (!strncmp(ao_argv, &quot;mixer&quot;, 5)) {
+                ao_argv += 5;
+!               setupStore.useMixer = 1;
+                fprintf(stderr,
+                        &quot;[softdevice] using alsa mixer for volume control\n&quot;);
+              } else {
+                fprintf(stderr, &quot;[softdevice] using alsa device %s\n&quot;, ao_argv);
+!               strncpy(setupStore.alsaDevice, ao_argv, ALSA_DEVICE_NAME_LENGTH);
+                ao_argv += strlen(ao_argv);
+              }
+--- 1103,1120 ----
+                        ALSA_DEVICE_NAME_LENGTH : len;
+                if (len) {
+!                 strncpy(setupStore-&gt;alsaAC3Device, ao_argv, len);
+!                 setupStore-&gt;alsaAC3Device[len] = 0;
+                  fprintf (stderr, &quot;[softdevice] using AC3 alsa device %s\n&quot;,
+!                          setupStore-&gt;alsaAC3Device);
+                }
+                ao_argv += len;
+              } else if (!strncmp(ao_argv, &quot;mixer&quot;, 5)) {
+                ao_argv += 5;
+!               setupStore-&gt;useMixer = 1;
+                fprintf(stderr,
+                        &quot;[softdevice] using alsa mixer for volume control\n&quot;);
+              } else {
+                fprintf(stderr, &quot;[softdevice] using alsa device %s\n&quot;, ao_argv);
+!               strncpy(setupStore-&gt;alsaDevice, ao_argv, ALSA_DEVICE_NAME_LENGTH);
+                ao_argv += strlen(ao_argv);
+              }
+***************
+*** 1067,1080 ****
+          } else if (!strncmp(ao_argv, &quot;oss:&quot;, 4)) {
+            ao_argv += 4;
+-           setupStore.aoArgs = ao_argv;
+            aoutMethod = AOUT_OSS;
+            if (!strncmp(ao_argv, &quot;mixer&quot;, 5)) {
+                  printf(&quot;mixer argv: '%s' \n&quot;,ao_argv);
+                ao_argv += 5;
+!               setupStore.useMixer = 1;
+            }
+          } else if (!strncmp(ao_argv, &quot;dummy:&quot;, 6)) {
+            ao_argv += 6;
+-           setupStore.aoArgs = ao_argv;
+            aoutMethod = AOUT_DUMMY;
+          } else {
+--- 1123,1134 ----
+          } else if (!strncmp(ao_argv, &quot;oss:&quot;, 4)) {
+            ao_argv += 4;
+            aoutMethod = AOUT_OSS;
+            if (!strncmp(ao_argv, &quot;mixer&quot;, 5)) {
+                  printf(&quot;mixer argv: '%s' \n&quot;,ao_argv);
+                ao_argv += 5;
+!               setupStore-&gt;useMixer = 1;
+            }
+          } else if (!strncmp(ao_argv, &quot;dummy:&quot;, 6)) {
+            ao_argv += 6;
+            aoutMethod = AOUT_DUMMY;
+          } else {
+***************
+*** 1188,1192 ****
+  {
+    // Parse your own setup parameters and store their values.
+!   return setupStore.SetupParse(Name, Value);
+  }
+  
+--- 1242,1246 ----
+  {
+    // Parse your own setup parameters and store their values.
+!   return setupStore-&gt;SetupParse(Name, Value);
+  }
+  
+
+Index: utils.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/utils.c,v
+retrieving revision 1.25
+retrieving revision 1.26
+diff -C2 -d -r1.25 -r1.26
+*** utils.c	15 Jan 2007 19:35:13 -0000	1.25
+--- utils.c	10 May 2007 19:49:51 -0000	1.26
+***************
+*** 1290,1293 ****
+--- 1290,1314 ----
+  }
+  
++ /* ---------------------------------------------------------------------------
++  */
++ bool CatchRemoteKey(const char *remoteName, uint64_t key,
++                 const int cropModeToggleKey)
++ {
++ #ifndef STAND_ALONE
++   char  buffer[32];
++   eKeys keySym;
++ 
++   snprintf(buffer, sizeof(buffer), &quot;%016LX&quot;, (uint64_t) key);
++   keySym = Keys.Get(remoteName, buffer);
++   if (keySym &gt;= kUser1 &amp;&amp; keySym &lt;= kUser9)
++   {
++     keySym = (eKeys) (keySym - kUser1 + 1);
++     if (cropModeToggleKey &amp;&amp; cropModeToggleKey == keySym)
++       return true;
++   }
++ #endif
++   return false;
++ }
++ 
+  /* taken from MPlayer's aclib */
+  
+
+Index: utils.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/utils.h,v
+retrieving revision 1.16
+retrieving revision 1.17
+diff -C2 -d -r1.16 -r1.17
+*** utils.h	15 Jan 2007 19:35:13 -0000	1.16
+--- utils.h	10 May 2007 19:49:51 -0000	1.17
+***************
+*** 139,142 ****
+--- 139,144 ----
+  uint64_t  getTimeMilis(void);
+  char      *getFBName(void);
++ bool  CatchRemoteKey(const char *remoteName, uint64_t key, 
++                 const int ToggleKey);
+  
+  void mmx_unpack_16rgb (uint8_t * image, int lines, int stride);
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.79
+retrieving revision 1.80
+diff -C2 -d -r1.79 -r1.80
+*** video-dfb.c	4 Mar 2007 17:45:38 -0000	1.79
+--- video-dfb.c	10 May 2007 19:49:51 -0000	1.80
+***************
+*** 700,705 ****
+          break;
+        default:
+!         if (!setupStore-&gt;CatchRemoteKey(dfbRemote-&gt;Name(), event.key_symbol))
+!         {
+  #if HAVE_DIEF_REPEAT
+            dfbRemote-&gt;PutKey(event.key_symbol, event.flags &amp; DIEF_REPEAT);
+--- 700,707 ----
+          break;
+        default:
+!         if ( CatchRemoteKey(dfbRemote-&gt;Name(), event.key_symbol,
+!                         setupStore-&gt;cropModeToggleKey) ) {
+!                 setupStore-&gt;CropModeNext();
+!         } else {
+  #if HAVE_DIEF_REPEAT
+            dfbRemote-&gt;PutKey(event.key_symbol, event.flags &amp; DIEF_REPEAT);
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.68
+retrieving revision 1.69
+diff -C2 -d -r1.68 -r1.69
+*** video-xv.c	14 Dec 2006 22:31:57 -0000	1.68
+--- video-xv.c	10 May 2007 19:49:51 -0000	1.69
+***************
+*** 696,702 ****
+  #endif
+            default:
+!             if (xvRemote &amp;&amp;
+!                 !setupStore-&gt;CatchRemoteKey(xvRemote-&gt;Name(), keysym)) {
+!               xvRemote-&gt;PutKey (keysym);
+              }
+              break;
+--- 696,706 ----
+  #endif
+            default:
+!             if (xvRemote) {
+!               if ( CatchRemoteKey(xvRemote-&gt;Name(), keysym,
+!                                   setupStore-&gt;cropModeToggleKey) ) {
+!                  setupStore-&gt;CropModeNext();
+!               } else {
+!                  xvRemote-&gt;PutKey(keysym);
+!               };
+              }
+              break;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000553.html">[Softdevice-cvs] softdevice ShmClient.c, 1.22, 1.23 CHANGELOG, 1.309,	1.310
+</A></li>
+	<LI>Next message: <A HREF="000556.html">[Softdevice-cvs] softdevice CHANGELOG, 1.311, 1.312 ShmClient.c,	1.24, 1.25 audio-alsa.c, 1.5, 1.6 audio-alsa.h, 1.3,	1.4 audio-macos.c, 1.1, 1.2 audio-macos.h, 1.1,	1.2 audio-oss.c, 1.3, 1.4 audio-oss.h, 1.2, 1.3 audio.c, 1.27,	1.28 audio.h, 1.14, 1.15 setup-softdevice.c, 1.53,	1.54 setup-softdevice.h, 1.41, 1.42 setup-softlog-menu.c, 1.3,	1.4 softdevice.c, 1.82, 1.83 video-dfb.c, 1.80,	1.81 video-dfb.h, 1.26, 1.27 video-dummy.c, 1.4,	1.5 video-dummy.h, 1.4, 1.5 video-fb.c, 1.18, 1.19 video-fb.h,	1.10, 1.11 video-quartz.c, 1.1, 1.2 video-quartz.h, 1.1,	1.2 video-shm.c, 1.17, 1.18 video-shm.h, 1.9,	1.10 video-vidix.c, 1.25, 1.26 video-vidix.h, 1.12,	1.13 video-xv.c, 1.69, 1.70 video-xv.h, 1.26, 1.27 video.c,	1.74, 1.75 video.h, 1.52, 1.53
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#555">[ date ]</a>
+              <a href="thread.html#555">[ thread ]</a>
+              <a href="subject.html#555">[ subject ]</a>
+              <a href="author.html#555">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

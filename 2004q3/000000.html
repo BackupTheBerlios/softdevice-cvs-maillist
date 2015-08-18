@@ -1,0 +1,109 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice mpeg2decoder.c,1.1.1.1,1.2
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2004q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20mpeg2decoder.c%2C1.1.1.1%2C1.2&In-Reply-To=%3C200408052200.i75M0x600330%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000001.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice mpeg2decoder.c,1.1.1.1,1.2</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20mpeg2decoder.c%2C1.1.1.1%2C1.2&In-Reply-To=%3C200408052200.i75M0x600330%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice mpeg2decoder.c,1.1.1.1,1.2">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Aug  6 00:00:59 CEST 2004</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000001.html">[Softdevice-cvs] softdevice video-dfb.c,1.1.1.1,1.2
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#0">[ date ]</a>
+              <a href="thread.html#0">[ thread ]</a>
+              <a href="subject.html#0">[ subject ]</a>
+              <a href="author.html#0">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv25094
+
+Modified Files:
+	mpeg2decoder.c 
+Log Message:
+cosmetic cleanup
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1.1.1 -r1.2
+*** mpeg2decoder.c	1 Aug 2004 05:07:03 -0000	1.1.1.1
+--- mpeg2decoder.c	5 Aug 2004 22:00:56 -0000	1.2
+***************
+*** 24,28 ****
+  
+  #define GET_MPEG2_PTS(x)   ( ((uint64_t)x[4]&amp;0xFE) &gt;&gt;1     | \
+!      		    	     ((uint64_t)x[3])      &lt;&lt;7     | \
+                               ((uint64_t)x[2]&amp;0xFE) &lt;&lt;14    | \
+                               ((uint64_t)x[1])      &lt;&lt;22    | \
+--- 24,28 ----
+  
+  #define GET_MPEG2_PTS(x)   ( ((uint64_t)x[4]&amp;0xFE) &gt;&gt;1     | \
+!                              ((uint64_t)x[3])      &lt;&lt;7     | \
+                               ((uint64_t)x[2]&amp;0xFE) &lt;&lt;14    | \
+[...1177 lines suppressed...]
++         state=PAYLOADDATA;
++         break;
++       case PAYLOADDATA:
++         streamlen =min(payload,size);
++         if (streamtype == 0xE0)
++           vout-&gt;Write(inbuf_ptr,streamlen);
++         if (streamtype == 0xC0)
++           aout-&gt;Write(inbuf_ptr,streamlen);
++         payload-=streamlen;
++         len = streamlen;
++         if (payload &lt;= 0)
++           state=UNSYNCED;
++         break;
++     }
++     size -= len;
++     inbuf_ptr += len;
++   }
++   decoding=false;
++   return Length;
++ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000001.html">[Softdevice-cvs] softdevice video-dfb.c,1.1.1.1,1.2
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#0">[ date ]</a>
+              <a href="thread.html#0">[ thread ]</a>
+              <a href="subject.html#0">[ subject ]</a>
+              <a href="author.html#0">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

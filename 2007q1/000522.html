@@ -1,0 +1,225 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softplay Makefile, 1.7, 1.8 Receiver.c, 1.1,	1.2 SoftPlayer.c, 1.15, 1.16
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softplay%20Makefile%2C%201.7%2C%201.8%20Receiver.c%2C%201.1%2C%0A%091.2%20SoftPlayer.c%2C%201.15%2C%201.16&In-Reply-To=%3C20070312213350.0CECDDAD00%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000521.html">
+   <LINK REL="Next"  HREF="000523.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softplay Makefile, 1.7, 1.8 Receiver.c, 1.1,	1.2 SoftPlayer.c, 1.15, 1.16</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softplay%20Makefile%2C%201.7%2C%201.8%20Receiver.c%2C%201.1%2C%0A%091.2%20SoftPlayer.c%2C%201.15%2C%201.16&In-Reply-To=%3C20070312213350.0CECDDAD00%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softplay Makefile, 1.7, 1.8 Receiver.c, 1.1,	1.2 SoftPlayer.c, 1.15, 1.16">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon Mar 12 22:33:50 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000521.html">[Softdevice-cvs] softdevice PicBuffer.c, 1.18, 1.19 CHANGELOG, 1.298,	1.299
+</A></li>
+        <LI>Next message: <A HREF="000523.html">[Softdevice-cvs] softplay Makefile,1.8,1.9
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#522">[ date ]</a>
+              <a href="thread.html#522">[ thread ]</a>
+              <a href="subject.html#522">[ subject ]</a>
+              <a href="author.html#522">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softplay
+In directory sheep:/tmp/cvs-serv3922
+
+Modified Files:
+	Makefile Receiver.c SoftPlayer.c 
+Log Message:
+- compile fix for vdr-1.5.0 and recent ffmpeg SVN
+
+
+Index: Makefile
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/Makefile,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -C2 -d -r1.7 -r1.8
+*** Makefile	2 Nov 2006 19:01:08 -0000	1.7
+--- Makefile	12 Mar 2007 21:32:03 -0000	1.8
+***************
+*** 21,25 ****
+  
+  CXX      ?= g++
+! CXXFLAGS ?= -g -O2 -Wall -Woverloaded-virtual -L$(LIBFFMPEG) -L$(LIBFFMPEG)/libavformat -L$(LIBFFMPEG)/libavcodec -L$(LIBFFMPEG)/libavutil 
+  
+  ### The directory environment:
+--- 21,25 ----
+  
+  CXX      ?= g++
+! CXXFLAGS ?= -g -O2 -Wall -Woverloaded-virtual  
+  
+  ### The directory environment:
+***************
+*** 53,57 ****
+  INCLUDES += -I$(VDRDIR)/include -I$(DVBDIR)/include -I$(LIBFFMPEG) -I$(LIBFFMPEG)/libavformat -I$(LIBFFMPEG)/libavcodec -I$(LIBFFMPEG)/libavutil 
+  
+! DEFINES += -D_GNU_SOURCE -DPLUGIN_NAME_I18N='&quot;$(PLUGIN)&quot;'
+  
+  
+--- 53,57 ----
+  INCLUDES += -I$(VDRDIR)/include -I$(DVBDIR)/include -I$(LIBFFMPEG) -I$(LIBFFMPEG)/libavformat -I$(LIBFFMPEG)/libavcodec -I$(LIBFFMPEG)/libavutil 
+  
+! DEFINES += -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -DPLUGIN_NAME_I18N='&quot;$(PLUGIN)&quot;'
+  
+  
+***************
+*** 60,64 ****
+  OBJS = $(PLUGIN).o SoftPlayer.o PlayList.o PlayListMenu.o i18n.o FileIndex.o Receiver.o Setup.o
+  
+! LIBS = -lavformat -lavcodec -lz
+  
+  ### recent ffmpegs require -lavutil: 
+--- 60,64 ----
+  OBJS = $(PLUGIN).o SoftPlayer.o PlayList.o PlayListMenu.o i18n.o FileIndex.o Receiver.o Setup.o
+  
+! LIBS = -L$(LIBFFMPEG) -L$(LIBFFMPEG)/libavformat -L$(LIBFFMPEG)/libavcodec -L$(LIBFFMPEG)/libavutil -lavformat -lavcodec -lz
+  
+  ### recent ffmpegs require -lavutil: 
+
+Index: Receiver.c
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/Receiver.c,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1 -r1.2
+*** Receiver.c	12 Mar 2006 20:23:23 -0000	1.1
+--- Receiver.c	12 Mar 2007 21:32:03 -0000	1.2
+***************
+*** 35,39 ****
+--- 35,43 ----
+  cSoftplayReceiver::cSoftplayReceiver(const cChannel *Channel, cDevice *Device,
+                  PacketHandlesV100 &amp;SoftHandles) 
++ #if VDRVERSNUM &gt;= 10500
++         : cReceiver(Channel-&gt;GetChannelID(),1,Channel-&gt;Vpid()),startChannel(*Channel),
++ #else
+          : cReceiver(Channel-&gt;Ca(),0,Channel-&gt;Vpid()),startChannel(*Channel),
++ #endif
+            currChannel(*Channel) {
+                  RECEIVER_DEB(&quot;cSoftplayReceiver&quot;);
+
+Index: SoftPlayer.c
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/SoftPlayer.c,v
+retrieving revision 1.15
+retrieving revision 1.16
+diff -C2 -d -r1.15 -r1.16
+*** SoftPlayer.c	25 Jul 2006 20:03:33 -0000	1.15
+--- SoftPlayer.c	12 Mar 2007 21:32:03 -0000	1.16
+***************
+*** 331,335 ****
+--- 331,339 ----
+                  Receiver=new cSoftplayReceiver(channel,
+                                  cDevice::PrimaryDevice(),SoftHandles);
++ #if VDRVERSNUM &gt;= 10500 
++                 cDevice *receiveDev=cDevice::GetDevice(channel,1,false);
++ #else
+                  cDevice *receiveDev=cDevice::GetDevice(channel,1);
++ #endif
+                  if (receiveDev)
+                          receiveDev-&gt;AttachReceiver(Receiver);
+***************
+*** 517,521 ****
+          Receiver=NULL;
+                 
+!         cDevice *receiveDev=cDevice::GetDevice(channel, 1);
+  
+          if (!receiveDev) {
+--- 521,529 ----
+          Receiver=NULL;
+                 
+! #if VDRVERSNUM &gt;= 10500 
+!         cDevice *receiveDev=cDevice::GetDevice(channel,1,false);
+! #else
+!         cDevice *receiveDev=cDevice::GetDevice(channel,1);
+! #endif
+  
+          if (!receiveDev) {
+***************
+*** 523,527 ****
+                  Skins.Message(mtError, tr(&quot;Channel not available!&quot;));
+                  channel = Channels.GetByNumber( currChannelNo );
+!                 receiveDev=cDevice::GetDevice(channel, 1);
+                  if (!receiveDev) {
+                          printf(&quot;Jetzt bin ich angeschmiert\n&quot;);
+--- 531,539 ----
+                  Skins.Message(mtError, tr(&quot;Channel not available!&quot;));
+                  channel = Channels.GetByNumber( currChannelNo );
+! #if VDRVERSNUM &gt;= 10500 
+!                 receiveDev=cDevice::GetDevice(channel,1,false);
+! #else
+!                 receiveDev=cDevice::GetDevice(channel,1);
+! #endif
+                  if (!receiveDev) {
+                          printf(&quot;Jetzt bin ich angeschmiert\n&quot;);
+***************
+*** 831,836 ****
+  		case k9: if (playList) {
+  				 const char * nextFile=playList-&gt;NextFile();
+  				 if ( nextFile 
+!                                       &amp;&amp; SoftplaySetup.ReturnToLiveTV() )
+  					 SoftPlayer-&gt;PlayFile(nextFile);
+                                   else {  // last file
+--- 843,850 ----
+  		case k9: if (playList) {
+  				 const char * nextFile=playList-&gt;NextFile();
++                                  printf(&quot;nextfile %p ReturnToLiveTv() %d\n&quot;,
++                                                  nextFile,SoftplaySetup.ReturnToLiveTV());
+  				 if ( nextFile 
+!                                       || !SoftplaySetup.ReturnToLiveTV() )
+  					 SoftPlayer-&gt;PlayFile(nextFile);
+                                   else {  // last file
+***************
+*** 854,858 ****
+  		case k6: if (playList) {
+  				 const char * nextFile=playList-&gt;NextAlbumFile();
+! 				 if (nextFile)
+  					 SoftPlayer-&gt;PlayFile(nextFile);
+                                   else {  // last file
+--- 868,873 ----
+  		case k6: if (playList) {
+  				 const char * nextFile=playList-&gt;NextAlbumFile();
+! 				 if ( nextFile
+!                                       || !SoftplaySetup.ReturnToLiveTV() )
+  					 SoftPlayer-&gt;PlayFile(nextFile);
+                                   else {  // last file
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000521.html">[Softdevice-cvs] softdevice PicBuffer.c, 1.18, 1.19 CHANGELOG, 1.298,	1.299
+</A></li>
+	<LI>Next message: <A HREF="000523.html">[Softdevice-cvs] softplay Makefile,1.8,1.9
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#522">[ date ]</a>
+              <a href="thread.html#522">[ thread ]</a>
+              <a href="subject.html#522">[ subject ]</a>
+              <a href="author.html#522">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

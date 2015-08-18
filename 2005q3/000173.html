@@ -1,0 +1,119 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.97,1.98 setup-softdevice.c,1.26,1.27
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.97%2C1.98%20setup-softdevice.c%2C1.26%2C1.27&In-Reply-To=%3C200507310758.j6V7wPI07061%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000172.html">
+   <LINK REL="Next"  HREF="000174.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.97,1.98 setup-softdevice.c,1.26,1.27</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.97%2C1.98%20setup-softdevice.c%2C1.26%2C1.27&In-Reply-To=%3C200507310758.j6V7wPI07061%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.97,1.98 setup-softdevice.c,1.26,1.27">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Jul 31 09:58:25 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000172.html">[Softdevice-cvs] softdevice CHANGELOG,1.96,1.97 i18n.c,1.6,1.7 setup-softdevice.c,1.25,1.26
+</A></li>
+        <LI>Next message: <A HREF="000174.html">[Softdevice-cvs] softdevice CHANGELOG,1.98,1.99 softdevice.c,1.37,1.38
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#173">[ date ]</a>
+              <a href="thread.html#173">[ thread ]</a>
+              <a href="subject.html#173">[ subject ]</a>
+              <a href="author.html#173">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv25277
+
+Modified Files:
+	CHANGELOG setup-softdevice.c 
+Log Message:
+- return NULL in getPPValue when compiled without libpostproc
+
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.97
+retrieving revision 1.98
+diff -C2 -d -r1.97 -r1.98
+*** CHANGELOG	29 Jul 2005 20:45:40 -0000	1.97
+--- CHANGELOG	31 Jul 2005 07:58:20 -0000	1.98
+***************
+*** 1,3 ****
+--- 1,6 ----
+  Changelog
++ 2005-07-31:
++     - return NULL in getPPValue when compiled without postproc lib 
++       (suggested by Antonio)
+  2005-07-29:
+      - some small changes on finnish translations by Rolf Ahrenberg
+
+Index: setup-softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.c,v
+retrieving revision 1.26
+retrieving revision 1.27
+diff -C2 -d -r1.26 -r1.27
+*** setup-softdevice.c	29 Jul 2005 20:45:40 -0000	1.26
+--- setup-softdevice.c	31 Jul 2005 07:58:20 -0000	1.27
+***************
+*** 347,354 ****
+  char *cSetupStore::getPPValue(void)
+  {
+    if (strcmp(pp_str[ppMethod], tr(&quot;none&quot;)) == 0) return &quot;&quot;;
+    else if (strcmp(pp_str[ppMethod], tr(&quot;fast&quot;)) == 0) return &quot;fa&quot;;
+    else if (strcmp(pp_str[ppMethod], tr(&quot;default&quot;)) == 0) return &quot;de&quot;;
+!   else return NULL;
+  }
+  
+--- 347,356 ----
+  char *cSetupStore::getPPValue(void)
+  {
++ #ifdef PP_LIBAVCODEC
+    if (strcmp(pp_str[ppMethod], tr(&quot;none&quot;)) == 0) return &quot;&quot;;
+    else if (strcmp(pp_str[ppMethod], tr(&quot;fast&quot;)) == 0) return &quot;fa&quot;;
+    else if (strcmp(pp_str[ppMethod], tr(&quot;default&quot;)) == 0) return &quot;de&quot;;
+! #endif
+!   return NULL;
+  }
+  
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000172.html">[Softdevice-cvs] softdevice CHANGELOG,1.96,1.97 i18n.c,1.6,1.7 setup-softdevice.c,1.25,1.26
+</A></li>
+	<LI>Next message: <A HREF="000174.html">[Softdevice-cvs] softdevice CHANGELOG,1.98,1.99 softdevice.c,1.37,1.38
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#173">[ date ]</a>
+              <a href="thread.html#173">[ thread ]</a>
+              <a href="subject.html#173">[ subject ]</a>
+              <a href="author.html#173">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

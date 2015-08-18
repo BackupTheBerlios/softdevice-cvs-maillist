@@ -1,0 +1,211 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.107,1.108 configure,1.2,1.3 video-dfb.c,1.39,1.40
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.107%2C1.108%20configure%2C1.2%2C1.3%20video-dfb.c%2C1.39%2C1.40&In-Reply-To=%3C200509151823.j8FIN8104352%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000208.html">
+   <LINK REL="Next"  HREF="000210.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.107,1.108 configure,1.2,1.3 video-dfb.c,1.39,1.40</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.107%2C1.108%20configure%2C1.2%2C1.3%20video-dfb.c%2C1.39%2C1.40&In-Reply-To=%3C200509151823.j8FIN8104352%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.107,1.108 configure,1.2,1.3 video-dfb.c,1.39,1.40">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Thu Sep 15 20:23:08 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000208.html">[Softdevice-cvs] softieee1394 HISTORY,1.2,1.3 Makefile,1.1.1.1,1.2 README,1.1.1.1,1.2 avc-handler.c,1.1.1.1,1.2 avc-handler.h,1.1.1.1,1.2 softieee1394.c,1.2,1.3
+</A></li>
+        <LI>Next message: <A HREF="000210.html">[Softdevice-cvs] softdevice CHANGELOG,1.108,1.109 video.c,1.30,1.31 video.h,1.21,1.22
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#209">[ date ]</a>
+              <a href="thread.html#209">[ thread ]</a>
+              <a href="subject.html#209">[ subject ]</a>
+              <a href="author.html#209">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv20129
+
+Modified Files:
+	CHANGELOG configure video-dfb.c 
+Log Message:
+video-dfb: keyrepeat handling + configure check for DIET_REPEAT
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.107
+retrieving revision 1.108
+diff -C2 -d -r1.107 -r1.108
+*** CHANGELOG	11 Sep 2005 09:22:30 -0000	1.107
+--- CHANGELOG	15 Sep 2005 18:23:05 -0000	1.108
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2005-09-15:
++     - video-dfb: keyrepeat handling + configure check for DIET_REPEAT
+  2005-09-11:
+      - fix for segfaults with some OSD activity
+
+Index: configure
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/configure,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** configure	11 Sep 2005 08:22:39 -0000	1.2
+--- configure	15 Sep 2005 18:23:05 -0000	1.3
+***************
+*** 77,80 ****
+--- 77,81 ----
+  dfb_sourcelocation=&quot;yes&quot;
+  dfb_dscaps_double=&quot;yes&quot;
++ dfb_dief_repeat=&quot;yes&quot;
+  
+  cat &gt; ${TMPC} &lt;&lt; EOF
+***************
+*** 116,119 ****
+--- 117,132 ----
+  $cc $CFLAGS $dfb_opts -o $TMPE $TMPC &gt; /dev/null 2&gt;&amp;1 || dfb_dscaps_double=&quot;no&quot;
+  
++ cat &gt; ${TMPC} &lt;&lt; EOF
++ #include &lt;stdio.h&gt;
++ #include &lt;dfb++.h&gt;
++ #include &lt;directfb.h&gt;
++ int main(void) {
++     DFBInputEvent event;
++   event.flags |= DIEF_REPEAT;
++   return 0;
++ }
++ EOF
++ $cc $CFLAGS $dfb_opts -o $TMPE $TMPC &gt; /dev/null 2&gt;&amp;1 || dfb_dief_repeat=&quot;no&quot;
++ 
+    fi
+  fi
+***************
+*** 213,216 ****
+--- 226,235 ----
+    else
+      echo &quot;#define HAVE_DSCAPS_DOUBLE              0&quot; &gt;&gt; $TMPH
++   fi
++ 
++   if test &quot;${dfb_dfb_dief_repeat}&quot; = &quot;yes&quot; ; then
++     echo &quot;#define HAVE_DIEF_REPEAT                1&quot; &gt;&gt; $TMPH
++   else
++     echo &quot;#define HAVE_DIEF_REPEAT                0&quot; &gt;&gt; $TMPH
+    fi
+  fi
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.39
+retrieving revision 1.40
+diff -C2 -d -r1.39 -r1.40
+*** video-dfb.c	4 Sep 2005 05:49:18 -0000	1.39
+--- video-dfb.c	15 Sep 2005 18:23:05 -0000	1.40
+***************
+*** 21,26 ****
+--- 21,28 ----
+  # if (DIRECTFB_MAJOR_VERSION == 0) &amp;&amp; (DIRECTFB_MINOR_VERSION == 9) &amp;&amp; (DIRECTFB_MICRO_VERSION &lt; 23)
+  #   define HAVE_GraphicsDeviceDescription 0
++ #   define HAVE_DIEF_REPEAT               0
+  # else
+  #   define HAVE_GraphicsDeviceDescription 1
++ #   define HAVE_DIEF_REPEAT               1
+  # endif
+  # if (DIRECTFB_MAJOR_VERSION &gt; 0 || ((DIRECTFB_MINOR_VERSION == 9) &amp;&amp; DIRECTFB_MICRO_VERSION &gt; 22))
+***************
+*** 563,593 ****
+    while (events-&gt;GetEvent( DFB_EVENT(&amp;event) ))
+    {
+!     switch (event.type)
+      {
+!       case DIET_KEYPRESS:
+! #ifdef DFB_SUPPORTS_REPEAT
+!       case DIET_KEYREPEAT:
+! #endif /* DFB_SUPPORTS_REPEAT */
+!         if (dfbRemote)
+!         {
+!           switch (event.key_symbol)
+!           {
+!             case DIKS_SHIFT: case DIKS_CONTROL: case DIKS_ALT:
+!             case DIKS_ALTGR: case DIKS_META: case DIKS_SUPER: case DIKS_HYPER:
+!               break;
+!             default:
+!               if (event.type != DIET_KEYPRESS ||
+!                   !setupStore-&gt;CatchRemoteKey(dfbRemote-&gt;Name(),
+!                                               event.key_symbol))
+!               {
+!                 dfbRemote-&gt;PutKey(event.key_symbol,
+!                                   event.type != DIET_KEYPRESS);
+!               }
+!               break;
+!           }
+!         }
+          break;
+        default:
+          break;
+      }
+    }
+--- 565,586 ----
+    while (events-&gt;GetEvent( DFB_EVENT(&amp;event) ))
+    {
+!     if (event.type == DIET_KEYPRESS &amp;&amp; dfbRemote)
+      {
+!       switch (event.key_symbol)
+!       {
+!       case DIKS_SHIFT: case DIKS_CONTROL: case DIKS_ALT:
+!       case DIKS_ALTGR: case DIKS_META: case DIKS_SUPER: case DIKS_HYPER:
+          break;
+        default:
++         if (!setupStore-&gt;CatchRemoteKey(dfbRemote-&gt;Name(), event.key_symbol))
++         {
++ #if HAVE_DIEF_REPEAT
++           dfbRemote-&gt;PutKey(event.key_symbol, event.flags &amp; DIEF_REPEAT);
++ #else
++           dfbRemote-&gt;PutKey(event.key_symbol, false);
++ #endif
++         }
+          break;
++       }
+      }
+    }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000208.html">[Softdevice-cvs] softieee1394 HISTORY,1.2,1.3 Makefile,1.1.1.1,1.2 README,1.1.1.1,1.2 avc-handler.c,1.1.1.1,1.2 avc-handler.h,1.1.1.1,1.2 softieee1394.c,1.2,1.3
+</A></li>
+	<LI>Next message: <A HREF="000210.html">[Softdevice-cvs] softdevice CHANGELOG,1.108,1.109 video.c,1.30,1.31 video.h,1.21,1.22
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#209">[ date ]</a>
+              <a href="thread.html#209">[ thread ]</a>
+              <a href="subject.html#209">[ subject ]</a>
+              <a href="author.html#209">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

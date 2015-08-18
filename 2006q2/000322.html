@@ -1,0 +1,260 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice video.h,1.32,1.33 video.c,1.48,1.49 video-dfb.h,1.17,1.18 video-dfb.c,1.52,1.53
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video.h%2C1.32%2C1.33%20video.c%2C1.48%2C1.49%20video-dfb.h%2C1.17%2C1.18%20video-dfb.c%2C1.52%2C1.53&In-Reply-To=%3C200604210646.k3L6klt31208%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000321.html">
+   <LINK REL="Next"  HREF="000323.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice video.h,1.32,1.33 video.c,1.48,1.49 video-dfb.h,1.17,1.18 video-dfb.c,1.52,1.53</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video.h%2C1.32%2C1.33%20video.c%2C1.48%2C1.49%20video-dfb.h%2C1.17%2C1.18%20video-dfb.c%2C1.52%2C1.53&In-Reply-To=%3C200604210646.k3L6klt31208%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice video.h,1.32,1.33 video.c,1.48,1.49 video-dfb.h,1.17,1.18 video-dfb.c,1.52,1.53">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Apr 21 08:46:47 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000321.html">[Softdevice-cvs] softdevice i18n.c,1.18,1.19
+</A></li>
+        <LI>Next message: <A HREF="000323.html">[Softdevice-cvs] softdevice CHANGELOG,1.170,1.171
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#322">[ date ]</a>
+              <a href="thread.html#322">[ thread ]</a>
+              <a href="subject.html#322">[ subject ]</a>
+              <a href="author.html#322">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv17466
+
+Modified Files:
+	video.h video.c video-dfb.h video-dfb.c 
+Log Message:
+video-dfb: fix for crash at startup when software OSD blending was active
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.32
+retrieving revision 1.33
+diff -C2 -d -r1.32 -r1.33
+*** video.h	14 Apr 2006 18:56:34 -0000	1.32
+--- video.h	21 Apr 2006 06:47:10 -0000	1.33
+***************
+*** 123,126 ****
+--- 123,128 ----
+      double  parValues[MAX_PAR];
+  
++     bool    videoInitialized;
++ 
+      AVFrame *old_picture;
+      int     old_width, old_height;
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.48
+retrieving revision 1.49
+diff -C2 -d -r1.48 -r1.49
+*** video.c	14 Apr 2006 18:56:34 -0000	1.48
+--- video.c	21 Apr 2006 06:47:10 -0000	1.49
+***************
+*** 47,50 ****
+--- 47,51 ----
+    this-&gt;setupStore=setupStore;
+    freezeMode=false;
++   videoInitialized = false;
+    old_picture = NULL;
+  
+
+Index: video-dfb.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.h,v
+retrieving revision 1.17
+retrieving revision 1.18
+diff -C2 -d -r1.17 -r1.18
+*** video-dfb.h	18 Feb 2006 22:20:29 -0000	1.17
+--- video-dfb.h	21 Apr 2006 06:47:10 -0000	1.18
+***************
+*** 43,46 ****
+--- 43,47 ----
+            clearBackground,
+            fieldParity;
++     int   prevOsdMode;
+  
+      void SetParams();
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.52
+retrieving revision 1.53
+diff -C2 -d -r1.52 -r1.53
+*** video-dfb.c	14 Apr 2006 18:56:34 -0000	1.52
+--- video-dfb.c	21 Apr 2006 06:47:10 -0000	1.53
+***************
+*** 295,298 ****
+--- 295,300 ----
+    screenPixelAspect = -1;
+    currentPixelFormat = setupStore-&gt;pixelFormat;
++   prevOsdMode = setupStore-&gt;osdMode;
++   setupStore-&gt;osdMode = 0;
+    isVIAUnichrome = false;
+    clearAlpha = 0x00;
+***************
+*** 626,629 ****
+--- 628,633 ----
+      dfbRemote-&gt;DFBRemoteStart();
+    }
++   videoInitialized = true;
++ 
+    return true;
+  }
+***************
+*** 994,997 ****
+--- 998,1004 ----
+      IDirectFBSurface  *tmpSurface;
+  
++   if (!videoInitialized)
++     return;
++ 
+    cVideoOut::OpenOSD();
+    try
+***************
+*** 1016,1019 ****
+--- 1023,1029 ----
+      IDirectFBSurface  *tmpSurface;
+  
++   if (!videoInitialized)
++     return;
++ 
+    try
+    {
+***************
+*** 1032,1039 ****
+   */
+  void cDFBVideoOut::GetLockOsdSurface(uint8_t *&amp;osd, int &amp;stride,
+!                                      bool *&amp;DirtyLines) {
+    int               pitch;
+    uint8_t           *dst;
+  
+    try
+    {
+--- 1042,1057 ----
+   */
+  void cDFBVideoOut::GetLockOsdSurface(uint8_t *&amp;osd, int &amp;stride,
+!                                      bool *&amp;DirtyLines)
+! {
+    int               pitch;
+    uint8_t           *dst;
+  
++   dirtyLines = DirtyLines = NULL;
++   osd = NULL;
++   stride = 0;
++ 
++   if (!videoInitialized)
++     return;
++ 
+    try
+    {
+***************
+*** 1055,1060 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cDFBVideoOut::CommitUnlockOsdSurface() {
+!   if (!tmpOsdSurface)
+      return;
+  
+--- 1073,1079 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void cDFBVideoOut::CommitUnlockOsdSurface()
+! {
+!   if (!videoInitialized || !dirtyLines || !tmpOsdSurface)
+      return;
+  
+***************
+*** 1233,1236 ****
+--- 1252,1258 ----
+      IDirectFBSurface  *tmpSurface;
+  
++   if (!videoInitialized)
++     return;
++ 
+    tmpSurface = (useStretchBlit) ? osdSurface : scrSurface;
+  
+***************
+*** 1266,1269 ****
+--- 1288,1294 ----
+      IDirectFBSurface  *tmpSurface;
+  
++   if (!videoInitialized)
++     return;
++ 
+    tmpSurface = (useStretchBlit) ? osdSurface : scrSurface;
+  
+***************
+*** 1301,1304 ****
+--- 1326,1332 ----
+  void cDFBVideoOut::ShowOSD ()
+  {
++   if (!videoInitialized)
++     return;
++ 
+    if (useStretchBlit &amp;&amp; (OSDpresent || osdClrBack)) {
+      // do image and OSD mix here
+***************
+*** 1358,1361 ****
+--- 1386,1392 ----
+      int hi;
+  
++   if (!videoInitialized)
++     return;
++ 
+    events_not_done = 0;
+    SetParams();
+***************
+*** 1514,1517 ****
+--- 1545,1550 ----
+  {
+    fprintf(stderr,&quot;Releasing DFB\n&quot;);
++ 
++   setupStore-&gt;osdMode = prevOsdMode;
+  
+    if (videoSurface) videoSurface-&gt;Release();
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000321.html">[Softdevice-cvs] softdevice i18n.c,1.18,1.19
+</A></li>
+	<LI>Next message: <A HREF="000323.html">[Softdevice-cvs] softdevice CHANGELOG,1.170,1.171
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#322">[ date ]</a>
+              <a href="thread.html#322">[ thread ]</a>
+              <a href="subject.html#322">[ subject ]</a>
+              <a href="author.html#322">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

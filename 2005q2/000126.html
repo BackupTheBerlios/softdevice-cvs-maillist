@@ -1,0 +1,168 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice video.c,1.19,1.20 video.h,1.12,1.13
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video.c%2C1.19%2C1.20%20video.h%2C1.12%2C1.13&In-Reply-To=%3C200505211420.j4LEK6m20718%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000125.html">
+   <LINK REL="Next"  HREF="000127.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice video.c,1.19,1.20 video.h,1.12,1.13</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video.c%2C1.19%2C1.20%20video.h%2C1.12%2C1.13&In-Reply-To=%3C200505211420.j4LEK6m20718%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice video.c,1.19,1.20 video.h,1.12,1.13">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat May 21 16:20:06 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000125.html">[Softdevice-cvs] softplay PlayList.c,1.3,1.4 PlayList.h,1.3,1.4 SoftPlayer.c,1.7,1.8 HISTORY,1.1.1.1,1.2 README,1.1.1.1,1.2
+</A></li>
+        <LI>Next message: <A HREF="000127.html">[Softdevice-cvs] softplay README,1.2,1.3
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#126">[ date ]</a>
+              <a href="thread.html#126">[ thread ]</a>
+              <a href="subject.html#126">[ subject ]</a>
+              <a href="author.html#126">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv11263
+
+Modified Files:
+	video.c video.h 
+Log Message:
+- compile fix for pre vdr-1.3.7
+
+
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.19
+retrieving revision 1.20
+diff -C2 -d -r1.19 -r1.20
+*** video.c	18 May 2005 21:49:33 -0000	1.19
+--- video.c	21 May 2005 14:20:03 -0000	1.20
+***************
+*** 368,371 ****
+--- 368,390 ----
+  }
+  
++ /* ---------------------------------------------------------------------------
++  */
++ void cVideoOut::ClearOSD()
++ {
++   //if (current_osdMode==OSDMODE_SOFTWARE) 
++   {
++     if (OsdPy)
++        memset(OsdPy,0,OSD_FULL_WIDTH*OSD_FULL_HEIGHT);
++     if (OsdPu)
++        memset(OsdPu,127,OSD_FULL_WIDTH*OSD_FULL_HEIGHT/4);
++     if (OsdPv)
++        memset(OsdPv,127,OSD_FULL_WIDTH*OSD_FULL_HEIGHT/4);
++     if (OsdPAlphaY)
++        memset(OsdPAlphaY,0,OSD_FULL_WIDTH*OSD_FULL_HEIGHT);
++     if (OsdPAlphaUV)
++        memset(OsdPAlphaUV,0,OSD_FULL_WIDTH*OSD_FULL_HEIGHT/4);
++    };
++ };
++ 
+  #if VDRVERSNUM &gt;= 10307
+  
+***************
+*** 389,410 ****
+  }
+  
+- /* ---------------------------------------------------------------------------
+-  */
+- void cVideoOut::ClearOSD()
+- {
+-   //if (current_osdMode==OSDMODE_SOFTWARE) 
+-   {
+-     if (OsdPy)
+-        memset(OsdPy,0,OSD_FULL_WIDTH*OSD_FULL_HEIGHT);
+-     if (OsdPu)
+-        memset(OsdPu,127,OSD_FULL_WIDTH*OSD_FULL_HEIGHT/4);
+-     if (OsdPv)
+-        memset(OsdPv,127,OSD_FULL_WIDTH*OSD_FULL_HEIGHT/4);
+-     if (OsdPAlphaY)
+-        memset(OsdPAlphaY,0,OSD_FULL_WIDTH*OSD_FULL_HEIGHT);
+-     if (OsdPAlphaUV)
+-        memset(OsdPAlphaUV,0,OSD_FULL_WIDTH*OSD_FULL_HEIGHT/4);
+-    };
+- };
+  
+  /* ---------------------------------------------------------------------------
+--- 408,411 ----
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.12
+retrieving revision 1.13
+diff -C2 -d -r1.12 -r1.13
+*** video.h	17 May 2005 19:58:06 -0000	1.12
+--- video.h	21 May 2005 14:20:03 -0000	1.13
+***************
+*** 131,135 ****
+  
+      uint8_t *PixelMask;
+- #if VDRVERSNUM &gt;= 10307
+      int Osd_changed;
+      uint8_t *OsdPy;
+--- 131,134 ----
+***************
+*** 149,152 ****
+--- 148,155 ----
+      // (software alpha blending mode).  
+  
++     virtual void ClearOSD();
++     // clear the OSD buffer
++ 
++ #if VDRVERSNUM &gt;= 10307
+      virtual void GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight)
+      // called whenever OSD is to be displayed
+***************
+*** 155,160 ****
+      { OsdWidth=-1;OsdHeight=-1;};
+  
+-     virtual void ClearOSD();
+-     // clear the OSD buffer
+      
+      virtual void Refresh(cBitmap *Bitmap) { return; };
+--- 158,161 ----
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000125.html">[Softdevice-cvs] softplay PlayList.c,1.3,1.4 PlayList.h,1.3,1.4 SoftPlayer.c,1.7,1.8 HISTORY,1.1.1.1,1.2 README,1.1.1.1,1.2
+</A></li>
+	<LI>Next message: <A HREF="000127.html">[Softdevice-cvs] softplay README,1.2,1.3
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#126">[ date ]</a>
+              <a href="thread.html#126">[ thread ]</a>
+              <a href="subject.html#126">[ subject ]</a>
+              <a href="author.html#126">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

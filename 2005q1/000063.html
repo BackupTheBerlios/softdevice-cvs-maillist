@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.37,1.38 video-fb.c,1.6,1.7
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.37%2C1.38%20video-fb.c%2C1.6%2C1.7&In-Reply-To=%3C200503031832.j23IWmN28249%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000062.html">
+   <LINK REL="Next"  HREF="000064.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.37,1.38 video-fb.c,1.6,1.7</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.37%2C1.38%20video-fb.c%2C1.6%2C1.7&In-Reply-To=%3C200503031832.j23IWmN28249%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.37,1.38 video-fb.c,1.6,1.7">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Thu Mar  3 19:32:48 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000062.html">[Softdevice-cvs] softdevice video.c,1.11,1.12
+</A></li>
+        <LI>Next message: <A HREF="000064.html">[Softdevice-cvs] softdevice video-fb.c,1.7,1.8 video-fb.h,1.3,1.4
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#63">[ date ]</a>
+              <a href="thread.html#63">[ thread ]</a>
+              <a href="subject.html#63">[ subject ]</a>
+              <a href="author.html#63">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv20369
+
+Modified Files:
+	CHANGELOG video-fb.c 
+Log Message:
+fb-out: fix locking during video and OSD drawing
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.37
+retrieving revision 1.38
+diff -C2 -d -r1.37 -r1.38
+*** CHANGELOG	2 Mar 2005 08:39:36 -0000	1.37
+--- CHANGELOG	3 Mar 2005 18:32:46 -0000	1.38
+***************
+*** 1,3 ****
+--- 1,7 ----
+  Changelog
++  2005-03-03:
++     - fb-out: fix for build option USE_SUBPLUGINS
++               fix alpha mask misplacement
++               fix locking during video and OSD drawing
+   2005-03-02:
+      - increased osd fallback timeout
+
+Index: video-fb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-fb.c,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -C2 -d -r1.6 -r1.7
+*** video-fb.c	3 Mar 2005 18:16:26 -0000	1.6
+--- video-fb.c	3 Mar 2005 18:32:46 -0000	1.7
+***************
+*** 172,177 ****
+--- 172,179 ----
+  void cFBVideoOut::Refresh(cBitmap *Bitmap)
+  {
++   pthread_mutex_lock(&amp;fb_mutex);
+    OSDpresent=true;
+    Draw(Bitmap,fb,line_len);
++   pthread_mutex_unlock(&amp;fb_mutex);
+  }
+  
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000062.html">[Softdevice-cvs] softdevice video.c,1.11,1.12
+</A></li>
+	<LI>Next message: <A HREF="000064.html">[Softdevice-cvs] softdevice video-fb.c,1.7,1.8 video-fb.h,1.3,1.4
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#63">[ date ]</a>
+              <a href="thread.html#63">[ thread ]</a>
+              <a href="subject.html#63">[ subject ]</a>
+              <a href="author.html#63">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

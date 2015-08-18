@@ -1,0 +1,260 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.293,	1.294 setup-softlog-menu.c, 1.1, 1.2 setup-softlog-menu.h, 1.1,	1.2 setup-softlog.c, 1.1, 1.2 setup-softlog.h, 1.1, 1.2
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.293%2C%0A%091.294%20setup-softlog-menu.c%2C%201.1%2C%201.2%20setup-softlog-menu.h%2C%201.1%2C%0A%091.2%20setup-softlog.c%2C%201.1%2C%201.2%20setup-softlog.h%2C%201.1%2C%201.2&In-Reply-To=%3C20070211103306.E6AF1D84F5%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000507.html">
+   <LINK REL="Next"  HREF="000509.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.293,	1.294 setup-softlog-menu.c, 1.1, 1.2 setup-softlog-menu.h, 1.1,	1.2 setup-softlog.c, 1.1, 1.2 setup-softlog.h, 1.1, 1.2</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.293%2C%0A%091.294%20setup-softlog-menu.c%2C%201.1%2C%201.2%20setup-softlog-menu.h%2C%201.1%2C%0A%091.2%20setup-softlog.c%2C%201.1%2C%201.2%20setup-softlog.h%2C%201.1%2C%201.2&In-Reply-To=%3C20070211103306.E6AF1D84F5%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.293,	1.294 setup-softlog-menu.c, 1.1, 1.2 setup-softlog-menu.h, 1.1,	1.2 setup-softlog.c, 1.1, 1.2 setup-softlog.h, 1.1, 1.2">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Feb 11 11:33:06 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000507.html">[Softdevice-cvs] softdevice CHANGELOG, 1.292, 1.293 audio-alsa.c,	1.4, 1.5 audio-alsa.h, 1.2, 1.3
+</A></li>
+        <LI>Next message: <A HREF="000509.html">[Softdevice-cvs] softdevice CHANGELOG, 1.294, 1.295 setup-softlog.c,	1.2, 1.3
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#508">[ date ]</a>
+              <a href="thread.html#508">[ thread ]</a>
+              <a href="subject.html#508">[ subject ]</a>
+              <a href="author.html#508">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv2129
+
+Modified Files:
+	CHANGELOG setup-softlog-menu.c setup-softlog-menu.h 
+	setup-softlog.c setup-softlog.h 
+Log Message:
+Some more options selectable via log menu.
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.293
+retrieving revision 1.294
+diff -C2 -d -r1.293 -r1.294
+*** CHANGELOG	10 Feb 2007 00:05:45 -0000	1.293
+--- CHANGELOG	11 Feb 2007 10:31:27 -0000	1.294
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2007-02-11:
++    - Some more options selectable via log menu.
+  2007-02-10:
+     - Pause the playback of recordings when suspended (by Marko M&#228;kel&#228;)
+
+Index: setup-softlog-menu.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softlog-menu.c,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1 -r1.2
+*** setup-softlog-menu.c	9 Feb 2007 23:46:47 -0000	1.1
+--- setup-softlog-menu.c	11 Feb 2007 10:31:27 -0000	1.2
+***************
+*** 16,21 ****
+      SetPlugin(plugin);
+  
+!   newLogFileName = strdup(setupStore.softlog-&gt;GetLogFileName());
+    newLogPriorities = setupStore.softlog-&gt;GetLogPriorities();
+  
+  #if VDRVERSNUM &gt;= 10334
+--- 16,32 ----
+      SetPlugin(plugin);
+  
+!   strncpy(newLogFileName, setupStore.softlog-&gt;GetLogFileName(), 256);
+    newLogPriorities = setupStore.softlog-&gt;GetLogPriorities();
++   newAppendMode = setupStore.softlog-&gt;GetAppendMode();
++ 
++   Add(new cMenuEditBitItem(tr(&quot;Info Messages&quot;),
++                            (uint *) &amp;newLogPriorities,
++                            SOFT_LOG_INFO));
++   Add(new cMenuEditBitItem(tr(&quot;Debug Messages&quot;),
++                            (uint *) &amp;newLogPriorities,
++                            SOFT_LOG_DEBUG));
++   Add(new cMenuEditBitItem(tr(&quot;Trace Messages&quot;),
++                            (uint *) &amp;newLogPriorities,
++                            SOFT_LOG_TRACE));
+  
+  #if VDRVERSNUM &gt;= 10334
+***************
+*** 25,29 ****
+  #endif
+  
+!   Add(new cMenuEditStrItem(tr(&quot;Logfile&quot;), newLogFileName, 64, NULL));
+  }
+  
+--- 36,41 ----
+  #endif
+  
+!   Add(new cMenuEditStrItem(tr(&quot;Logfile&quot;), newLogFileName, 256, tr(FileNameChars)));
+!   Add(new cMenuEditBoolItem(tr(&quot;Append PID&quot;), &amp;newAppendMode));
+  }
+  
+***************
+*** 32,37 ****
+  cMenuSetupSoftlog::~cMenuSetupSoftlog()
+  {
+-   free(newLogFileName);
+-   newLogFileName = NULL;
+  }
+  
+--- 44,47 ----
+***************
+*** 70,73 ****
+--- 80,86 ----
+      setupStore.softlog-&gt;SetLogFile(newLogFileName);
+    SetupStore (&quot;softlog-file&quot;,       setupStore.softlog-&gt;GetLogFileName());
++ 
++   setupStore.softlog-&gt;SetAppendMode(newAppendMode);
++   SetupStore (&quot;softlog-appendpid&quot;,  setupStore.softlog-&gt;GetAppendMode());
+  
+    if (newLogPriorities != setupStore.softlog-&gt;GetLogPriorities())
+
+Index: setup-softlog-menu.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softlog-menu.h,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1 -r1.2
+*** setup-softlog-menu.h	9 Feb 2007 23:46:47 -0000	1.1
+--- setup-softlog-menu.h	11 Feb 2007 10:31:27 -0000	1.2
+***************
+*** 22,27 ****
+  class cMenuSetupSoftlog : public cMenuSetupPage {
+    private:
+!     char  *newLogFileName;
+      int   newLogPriorities;
+  
+    protected:
+--- 22,28 ----
+  class cMenuSetupSoftlog : public cMenuSetupPage {
+    private:
+!     char  newLogFileName[256];
+      int   newLogPriorities;
++     int   newAppendMode;
+  
+    protected:
+
+Index: setup-softlog.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softlog.c,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1 -r1.2
+*** setup-softlog.c	9 Feb 2007 23:46:47 -0000	1.1
+--- setup-softlog.c	11 Feb 2007 10:31:27 -0000	1.2
+***************
+*** 79,83 ****
+      int oldenabledPriorities = enabledPriorities;
+  
+!   enabledPriorities = newPriorities;
+    return oldenabledPriorities;
+  }
+--- 79,86 ----
+      int oldenabledPriorities = enabledPriorities;
+  
+!   /* -------------------------------------------------------------------------
+!    * set new priority flags, but error messages are allways enabled
+!    */
+!   enabledPriorities = (newPriorities | SOFT_LOG_ERROR);
+    return oldenabledPriorities;
+  }
+***************
+*** 109,112 ****
+--- 112,136 ----
+  /* ---------------------------------------------------------------------------
+   */
++ int cSetupSoftlog::SetAppendMode(int newMode)
++ {
++     int oldMode = appendPID;
++ 
++   if (newMode != appendPID) {
++     appendPID = newMode;
++     SetLogFile(logFileName);
++   }
++ 
++   return oldMode;
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ int cSetupSoftlog::GetAppendMode()
++ {
++   return appendPID;
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
+  int cSetupSoftlog::SetLogFile(const char *fileName)
+  {
+***************
+*** 204,207 ****
+--- 228,233 ----
+    else if (!strcasecmp(name,&quot;softlog-file&quot;))
+      SetLogFile(value);
++   else if (!strcasecmp(name,&quot;softlog-appendpid&quot;))
++     SetAppendMode(atoi(value));
+    else
+      return false;
+
+Index: setup-softlog.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softlog.h,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1 -r1.2
+*** setup-softlog.h	9 Feb 2007 23:46:47 -0000	1.1
+--- setup-softlog.h	11 Feb 2007 10:31:27 -0000	1.2
+***************
+*** 49,52 ****
+--- 49,54 ----
+                    SetTraceFlags(int newFlags),
+                    GetTraceFlags(),
++                   SetAppendMode(int newMode),
++                   GetAppendMode(),
+                    SetLogFile(const char *fileName);
+      virtual char  *GetLogFileName();
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000507.html">[Softdevice-cvs] softdevice CHANGELOG, 1.292, 1.293 audio-alsa.c,	1.4, 1.5 audio-alsa.h, 1.2, 1.3
+</A></li>
+	<LI>Next message: <A HREF="000509.html">[Softdevice-cvs] softdevice CHANGELOG, 1.294, 1.295 setup-softlog.c,	1.2, 1.3
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#508">[ date ]</a>
+              <a href="thread.html#508">[ thread ]</a>
+              <a href="subject.html#508">[ subject ]</a>
+              <a href="author.html#508">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

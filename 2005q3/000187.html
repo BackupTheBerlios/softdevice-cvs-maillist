@@ -1,0 +1,893 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softplay PlayListMenu.c,NONE,1.1 PlayListMenu.h,NONE,1.1 PlayList.c,1.10,1.11 PlayList.h,1.8,1.9 softplay.c,1.8,1.9 SoftPlayer.c,1.11,1.12
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softplay%20PlayListMenu.c%2CNONE%2C1.1%20PlayListMenu.h%2CNONE%2C1.1%20PlayList.c%2C1.10%2C1.11%20PlayList.h%2C1.8%2C1.9%20softplay.c%2C1.8%2C1.9%20SoftPlayer.c%2C1.11%2C1.12&In-Reply-To=%3C200508150907.j7F97X510425%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000186.html">
+   <LINK REL="Next"  HREF="000188.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softplay PlayListMenu.c,NONE,1.1 PlayListMenu.h,NONE,1.1 PlayList.c,1.10,1.11 PlayList.h,1.8,1.9 softplay.c,1.8,1.9 SoftPlayer.c,1.11,1.12</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softplay%20PlayListMenu.c%2CNONE%2C1.1%20PlayListMenu.h%2CNONE%2C1.1%20PlayList.c%2C1.10%2C1.11%20PlayList.h%2C1.8%2C1.9%20softplay.c%2C1.8%2C1.9%20SoftPlayer.c%2C1.11%2C1.12&In-Reply-To=%3C200508150907.j7F97X510425%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softplay PlayListMenu.c,NONE,1.1 PlayListMenu.h,NONE,1.1 PlayList.c,1.10,1.11 PlayList.h,1.8,1.9 softplay.c,1.8,1.9 SoftPlayer.c,1.11,1.12">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon Aug 15 11:07:33 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000186.html">[Softdevice-cvs] softplay PlayList.c,1.9,1.10 PlayList.h,1.7,1.8
+</A></li>
+        <LI>Next message: <A HREF="000188.html">[Softdevice-cvs] softplay Makefile,1.3,1.4
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#187">[ date ]</a>
+              <a href="thread.html#187">[ thread ]</a>
+              <a href="subject.html#187">[ subject ]</a>
+              <a href="author.html#187">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softplay
+In directory sheep:/tmp/cvs-serv30572
+
+Modified Files:
+	PlayList.c PlayList.h softplay.c SoftPlayer.c 
+Added Files:
+	PlayListMenu.c PlayListMenu.h 
+Log Message:
+- moved all playlist menus into seperate files PlayListMenu.[ch]
+- renamed cEditList to cAlbumList
+
+
+
+--- NEW FILE: PlayListMenu.c ---
+/*
+ * Media Player plugin for VDR
+ *
+ * Copyright (C) 2005 Martin Wache
+ *
+ * This code is distributed under the terms and conditions of the
+ * GNU GENERAL PUBLIC LICENSE. See the file COPYING for details.
+ *
+ * $Id: PlayListMenu.c,v 1.1 2005/08/15 09:07:30 wachm Exp $
+ */
+#include &quot;vdr/player.h&quot;
+
+#include &quot;PlayListMenu.h&quot;
+
+#define MENUDEB(out...) {printf(&quot;MENUDEB: &quot;);printf(out);}
+
+#ifndef MENUDEB
+#define MENUDEB(out...)
+#endif
+
+
+// ----cAlbumList------------------------------------------------------------
+cAlbumList::cAlbumList(cPlayList * List) : cOsdMenu(List-&gt;GetName()) {
+        playList=List;
+        cPlayListItem * Item=playList-&gt;GetFirst();
+        while (Item) {
+                MENUDEB(&quot;EditList add %s: %p\n&quot;,Item-&gt;GetName(),Item);
+                Add(new cOsdItem(Item-&gt;GetName(),
+                   osUnknown),false);
+                Item=Item-&gt;GetNext();
+        };
+        SetHelp(tr(&quot;Options&quot;),tr(&quot;(Add Files)&quot;),tr(&quot;Delete&quot;),tr(&quot;Stop&quot;));
+        lastActivity=time(NULL);
+};
+
+cAlbumList::~cAlbumList() {
+};
+
+eOSState cAlbumList::ProcessKey(eKeys Key) {
+        eOSState state = cOsdMenu::ProcessKey(Key);
+        if (state != osUnknown ) 
+                return state;
+
+        cPlayList *List;
+        cPlayListItem *Item;
+        switch (Key) {
+                case kOk:
+                        MENUDEB(&quot;Current %d GetItem %p\n&quot;,Current(),playList-&gt;GetItem(Current()));
+                        Item=playList-&gt;GetItem(Current());
+                        List=dynamic_cast&lt;cPlayList*&gt;(Item);
+                        MENUDEB(&quot;Item %p\n&quot;,Item);
+
+                        if (List) {
+                                cAlbumList *Menu=new cAlbumList(List);
+                                return AddSubMenu(Menu);
+                        }  else {
+                                // skip to current track
+                                playList-&gt;SetCurrShuffleIdx(
+                                        playList-&gt;GetIndexByItem(Item) );
+                                state = PLAY_CURR_FILE;
+                        };
+                        break;
+                case kBack:
+                        state= osBack;
+                        break;
+                case kBlue:
+                        state= osEnd;
+                        break;
+                case kRed:
+                        return AddSubMenu(new cPlOptionsMenu(playList));
+                        break;
+                case kYellow:
+                        MENUDEB(&quot;Del current %d: %s\n&quot;,
+                                        Current(),
+                                        playList-&gt;GetItem(Current())-&gt;GetName() );
+                        playList-&gt;RemoveItem(
+                                        playList-&gt;GetItem(Current()));
+                        MENUDEB(&quot;Remove finished\n&quot;);
+                        Del(Current());
+                        Display();
+                        state=osContinue;
+                        break;
+
+                default:    
+                        break;
+        }
+
+        return state;
+}
+
+// ----cReplayList------------------------------------------------------------
+cReplayList::cReplayList(cPlayList * List) : cOsdMenu(List-&gt;GetName()) {
+        playList=List;
+        SetHelp(tr(&quot;Options&quot;),tr(&quot;(Add)&quot;),tr(&quot;Delete&quot;),tr(&quot;Stop&quot;));
+        RebuildList();
+};
+
+cReplayList::~cReplayList() {
+};
+
+void cReplayList::RebuildList() {
+        int nItems=playList-&gt;GetNoItemsRecursive();
+        MENUDEB(&quot;RebuildList nItems %d \n&quot;,nItems);
+
+        cPlayListItem * Item;
+        for (int i = 0 ; i&lt;nItems; i++) {
+		Item=playList-&gt;GetShuffledItemByIndex(i);
+                if (!Item) {
+                        printf(&quot;Error getting all files for list index %d\n&quot;,
+                                        i);
+                        continue;
+                };
+                
+		MENUDEB(&quot;Add item %d (%p)  %s\n&quot;,
+                                i,Item,Item-&gt;GetName());
+                Add(new cOsdItem(Item-&gt;GetName(),
+                   osUnknown),false);
+        };
+        lastListItemCount = playList-&gt;GetNoItemsRecursive();
+	playList-&gt;SetClean();
+        SetCurrent(Get(playList-&gt;GetCurrShuffleIdx()));
+        lastActivity=time(NULL)-600;
+};
+
+void cReplayList::UpdateStatus() {
+        int current;
+        int total;
+        char Status[60];
+        char Name[60];
+        
+        if (!cControl::Control() || 
+                        !cControl::Control()-&gt;GetIndex(current,total))
+                return;
+        
+        snprintf(Status,60,&quot;Time %02d:%02d:%02d/%02d:%02d:%02d Title %d/%d&quot;,
+                        current/3600,current/60%60,current%60,
+                        total/3600,total/60%60,total%60,
+                        playList-&gt;GetCurrShuffleIdx()+1,
+			playList-&gt;GetShuffleNIdx());
+        SetStatus(Status);
+
+        if (displayedCurrIdx != playList-&gt;GetCurrShuffleIdx()){
+                cPlayListItem *Item=playList-&gt;GetShuffledItemByIndex(
+                                playList-&gt;GetCurrShuffleIdx());
+                if (Item) {
+                        PrintCutDownString(Name,Item-&gt;GetName(),30);
+                        snprintf(Status,60,&quot;%s: %s&quot;,playList-&gt;GetName(),
+                                                Name);
+                        SetTitle(Status);
+                        Display();
+                        displayedCurrIdx=playList-&gt;GetCurrShuffleIdx();
+                } else printf(&quot;Didn't get currShuffleIdx %d!\n&quot;,playList-&gt;GetCurrShuffleIdx());
+        };
+};
+
+eOSState cReplayList::ProcessKey(eKeys Key) {
+        eOSState state = cOsdMenu::ProcessKey(Key);
+
+	// don't move cursor when it has been moved by the user
+	// a short while ago
+        if ( Key==kUp || Key==kDown || Key==kRight || Key==kLeft ) 
+                lastActivity=time(NULL);
+        
+        if (state != osUnknown ) 
+                return state;
+
+        if ( lastListItemCount != playList-&gt;GetNoItemsRecursive()
+	     || playList-&gt;IsDirty() ) {
+                Clear();
+                RebuildList();
+                Display();
+        };
+        
+        if (Current() != playList-&gt;GetCurrShuffleIdx() &amp;&amp; 
+                        time(NULL) - lastActivity &gt; 120 ) {
+                MENUDEB(&quot;SetCurrent current title %d  time %d lastActivity %d\n&quot;,
+                                playList-&gt;GetCurrShuffleIdx(),time(NULL),lastActivity);
+                SetCurrent(Get(playList-&gt;GetCurrShuffleIdx()));
+                Display();
+        };
+
+        cPlayListItem *Item;
+        switch (Key) {
+                case kOk:
+                        // skip to current track
+                        playList-&gt;SetCurrShuffleIdx( Current() );
+                        state = PLAY_CURR_FILE;
+                        // want to have automatic track change
+                        lastActivity=time(NULL)-300;
+                        break;
+                case kBack:
+                        state= osBack;
+                        break;
+                case kBlue:
+                        state= osEnd;
+                        break;
+                case kGreen:
+			// not yet implemented
+                        state= osContinue;
+                        break;
+                case kRed:
+                        return AddSubMenu(new cPlOptionsMenu(playList));
+                        break;
+                case kYellow:
+                        Item=playList-&gt;GetShuffledItemByIndex(Current());
+                        if (!Item) {
+                                printf(&quot;No current Item %d!\n&quot;,Current());
+                                break;
+                        };
+                        MENUDEB(&quot;Del current %d: %s\n&quot;,
+                                        Current(),
+                                        Item-&gt;GetName() );
+                        playList-&gt;RemoveItem(Item);
+			//playList-&gt;CleanShuffleIdx();
+			lastListItemCount = playList-&gt;GetNoItemsRecursive();
+                        Del(Current());
+                        Display();
+                        state=osContinue;
+                        break;
+
+                default:    
+                        break;
+        }
+        if (!HasSubMenu())
+                UpdateStatus();
+		
+        return state;
+}
+
+
+// ---cPlOptionsMenu-------------------------------------------------------
+
+cPlOptionsMenu::cPlOptionsMenu(cPlayList *PlayList)
+        : cOsdMenu(tr(&quot;Options&quot;),33) {
+        playList=PlayList;
+        playList-&gt;GetOptions(playListOptions);
+        Add(new cMenuEditBoolItem(tr(&quot;Shuffle Mode&quot;),
+                               &amp;playListOptions.shuffle, tr(&quot;no&quot;), tr(&quot;yes&quot;)));
+        Add(new cMenuEditBoolItem(tr(&quot;Auto Repeat&quot;),
+                               &amp;playListOptions.autoRepeat, tr(&quot;no&quot;), tr(&quot;yes&quot;)));
+};                                   
+
+cPlOptionsMenu::cPlOptionsMenu(sPlayListOptions *Options)
+        : cOsdMenu(tr(&quot;Options&quot;),33) {
+        playList=NULL;
+        playListOptions=*Options;
+        options=Options;
+        Add(new cMenuEditBoolItem(tr(&quot;Shuffle Mode&quot;),
+                               &amp;playListOptions.shuffle, tr(&quot;no&quot;), tr(&quot;yes&quot;)));
+        Add(new cMenuEditBoolItem(tr(&quot;Auto Repeat&quot;),
+                               &amp;playListOptions.autoRepeat, tr(&quot;no&quot;), tr(&quot;yes&quot;)));
+};          
+
+cPlOptionsMenu::~cPlOptionsMenu() {
+};
+
+eOSState cPlOptionsMenu::ProcessKey(eKeys Key)
+{
+  eOSState state = cOsdMenu::ProcessKey(Key);
+                                                                                
+  if (state == osUnknown) {
+     switch (Key) {
+       case kOk: if (playList)
+                         playList-&gt;SetOptions(playListOptions);
+                 else *options=playListOptions;
+                 state = osBack;
+                 break;
+       default: break;
+       }
+     }
+  return state;
+}
+                                                                                
+
+
+
+--- NEW FILE: PlayListMenu.h ---
+/*
+ * Copyright (C) 2005 Martin Wache
+ *
+ * This code is distributed under the terms and conditions of the
+ * GNU GENERAL PUBLIC LICENSE. See the file COPYING for details.
+ *
+ * $Id: PlayListMenu.h,v 1.1 2005/08/15 09:07:30 wachm Exp $
+ */
+
+#ifndef __PLAYLISTMENU_H__
+#define __PLAYLISTMENU_H__
+
+#include &quot;vdr/osdbase.h&quot;
+#include &quot;PlayList.h&quot;
+
+class cAlbumList: public cOsdMenu {
+        time_t lastActivity;
+        int displayedCurrIdx;
+        cPlayList *playList;
+        public:
+        cAlbumList(cPlayList * List);
+        ~cAlbumList();
+        eOSState ProcessKey(eKeys Key);
+};
+
+class cReplayList: public cOsdMenu {
+        time_t lastActivity;
+        int displayedCurrIdx;
+        cPlayList *playList;
+	int lastListItemCount;
+        public:
+        cReplayList(cPlayList * List);
+        ~cReplayList();
+	void RebuildList();
+        eOSState ProcessKey(eKeys Key);
+        void UpdateStatus();
+};
+
+class cPlOptionsMenu : public cOsdMenu {
+        protected:
+                sPlayListOptions playListOptions;
+                sPlayListOptions *options;
+                cPlayList *playList;
+        public:
+                cPlOptionsMenu(cPlayList *PlayList);
+                cPlOptionsMenu(sPlayListOptions *Options);
+                ~cPlOptionsMenu();
+                eOSState ProcessKey(eKeys Key);
+};
+        
+
+
+#endif
+
+
+Index: PlayList.c
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/PlayList.c,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -C2 -d -r1.10 -r1.11
+*** PlayList.c	15 Aug 2005 08:05:15 -0000	1.10
+--- PlayList.c	15 Aug 2005 09:07:30 -0000	1.11
+***************
+*** 24,72 ****
+  #endif
+  
+- // ---cPlOptionsMenu-------------------------------------------------------
+- 
+- 
+- cPlOptionsMenu::cPlOptionsMenu(cPlayList *PlayList)
+-         : cOsdMenu(tr(&quot;Options&quot;),33) {
+-         playList=PlayList;
+-         playList-&gt;GetOptions(playListOptions);
+-         Add(new cMenuEditBoolItem(tr(&quot;Shuffle Mode&quot;),
+-                                &amp;playListOptions.shuffle, tr(&quot;no&quot;), tr(&quot;yes&quot;)));
+-         Add(new cMenuEditBoolItem(tr(&quot;Auto Repeat&quot;),
+-                                &amp;playListOptions.autoRepeat, tr(&quot;no&quot;), tr(&quot;yes&quot;)));
+- };                                   
+- 
+- cPlOptionsMenu::cPlOptionsMenu(sPlayListOptions *Options)
+-         : cOsdMenu(tr(&quot;Options&quot;),33) {
+-         playList=NULL;
+-         playListOptions=*Options;
+-         options=Options;
+-         Add(new cMenuEditBoolItem(tr(&quot;Shuffle Mode&quot;),
+-                                &amp;playListOptions.shuffle, tr(&quot;no&quot;), tr(&quot;yes&quot;)));
+-         Add(new cMenuEditBoolItem(tr(&quot;Auto Repeat&quot;),
+-                                &amp;playListOptions.autoRepeat, tr(&quot;no&quot;), tr(&quot;yes&quot;)));
+- };          
+- 
+- cPlOptionsMenu::~cPlOptionsMenu() {
+- };
+- 
+- eOSState cPlOptionsMenu::ProcessKey(eKeys Key)
+- {
+-   eOSState state = cOsdMenu::ProcessKey(Key);
+-                                                                                 
+-   if (state == osUnknown) {
+-      switch (Key) {
+-        case kOk: if (playList)
+-                          playList-&gt;SetOptions(playListOptions);
+-                  else *options=playListOptions;
+-                  state = osBack;
+-                  break;
+-        default: break;
+-        }
+-      }
+-   return state;
+- }
+-                                                                                 
+- 
+  // ---cPlayListItem--------------------------------------------------------
+  cPlayListItem::cPlayListItem(const char *Filename, const char *Name) {
+--- 24,27 ----
+***************
+*** 148,360 ****
+          fprintf(out,&quot;\n&quot;);
+  };
+- 
+- // ----cEditList------------------------------------------------------------
+- cEditList::cEditList(cPlayList * List) : cOsdMenu(List-&gt;GetName()) {
+-         playList=List;
+-         cPlayListItem * Item=playList-&gt;first;
+-         while (Item) {
+-                 LISTDEB(&quot;EditList add %s: %p\n&quot;,Item-&gt;GetName(),Item);
+-                 Add(new cOsdItem(Item-&gt;GetName(),
+-                    osUnknown),false);
+-                 Item=Item-&gt;GetNext();
+-         };
+-         SetHelp(tr(&quot;Options&quot;),tr(&quot;(Add Files)&quot;),tr(&quot;Delete&quot;),tr(&quot;Stop&quot;));
+-         lastActivity=time(NULL);
+- };
+- 
+- cEditList::~cEditList() {
+- };
+- 
+- eOSState cEditList::ProcessKey(eKeys Key) {
+-         eOSState state = cOsdMenu::ProcessKey(Key);
+-         if (state != osUnknown ) 
+-                 return state;
+- 
+-         cPlayList *List;
+-         cPlayListItem *Item;
+-         switch (Key) {
+-                 case kOk:
+-                         LISTDEB(&quot;Current %d GetItem %p\n&quot;,Current(),playList-&gt;GetItem(Current()));
+-                         Item=playList-&gt;GetItem(Current());
+-                         List=dynamic_cast&lt;cPlayList*&gt;(Item);
+-                         LISTDEB(&quot;Item %p\n&quot;,Item);
+- 
+-                         if (List) {
+-                                 cEditList *Menu=new cEditList(List);
+-                                 return AddSubMenu(Menu);
+-                         }  else {
+-                                 // skip to current track
+-                                 playList-&gt;shuffleIdx-&gt;currShuffleIdx = 
+-                                         playList-&gt;GetIndexByItem(Item);
+-                                 state = PLAY_CURR_FILE;
+-                         };
+-                         break;
+-                 case kBack:
+-                         state= osBack;
+-                         break;
+-                 case kBlue:
+-                         state= osEnd;
+-                         break;
+-                 case kRed:
+-                         return AddSubMenu(new cPlOptionsMenu(playList));
+-                         break;
+-                 case kYellow:
+-                         LISTDEB(&quot;Del current %d: %s\n&quot;,
+-                                         Current(),
+-                                         playList-&gt;GetItem(Current())-&gt;GetName() );
+-                         playList-&gt;RemoveItem(
+-                                         playList-&gt;GetItem(Current()));
+-                         LISTDEB(&quot;Remove finished\n&quot;);
+-                         Del(Current());
+-                         Display();
+-                         state=osContinue;
+-                         break;
+- 
+-                 default:    
+-                         break;
+-         }
+- 
+-         return state;
+- }
+- 
+- // ----cReplayList------------------------------------------------------------
+- cReplayList::cReplayList(cPlayList * List) : cOsdMenu(List-&gt;GetName()) {
+-         playList=List;
+-         SetHelp(tr(&quot;Options&quot;),tr(&quot;(Add)&quot;),tr(&quot;Delete&quot;),tr(&quot;Stop&quot;));
+-         RebuildList();
+- };
+- 
+- cReplayList::~cReplayList() {
+- };
+- 
+- void cReplayList::RebuildList() {
+-         int nItems=playList-&gt;GetNoItemsRecursive();
+-         LISTDEB(&quot;RebuildList nItems %d nIdx %d \n&quot;,
+-                         nItems,playList-&gt;shuffleIdx-&gt;nIdx);
+- 
+-         cPlayListItem * Item;
+-         for (int i = 0 ; i&lt;nItems; i++) {
+- 		Item=playList-&gt;GetShuffledItemByIndex(i);
+-                 if (!Item) {
+-                         printf(&quot;Error getting all files for list index %d shuffleIdx %d\n&quot;,
+-                                         i,playList-&gt;shuffleIdx[i]);
+-                         continue;
+-                 };
+-                 
+- 		LISTDEB(&quot;Add item %d (%p)  %s\n&quot;,
+-                                 i,Item,Item-&gt;GetName());
+-                 Add(new cOsdItem(Item-&gt;GetName(),
+-                    osUnknown),false);
+-         };
+-         lastListItemCount = playList-&gt;GetNoItemsRecursive();
+- 	playList-&gt;shuffleIdx-&gt;reshuffled = false;
+-         SetCurrent(Get(playList-&gt;shuffleIdx-&gt;currShuffleIdx));
+-         lastActivity=time(NULL)-600;
+- };
+- 
+- void cReplayList::UpdateStatus() {
+-         int current;
+-         int total;
+-         char Status[60];
+-         char Name[60];
+-         
+-         if (!cControl::Control() || 
+-                         !cControl::Control()-&gt;GetIndex(current,total))
+-                 return;
+-         
+-         snprintf(Status,60,&quot;Time %02d:%02d:%02d/%02d:%02d:%02d Title %d/%d&quot;,
+-                         current/3600,current/60%60,current%60,
+-                         total/3600,total/60%60,total%60,
+-                         playList-&gt;shuffleIdx-&gt;currShuffleIdx+1,playList-&gt;shuffleIdx-&gt;nIdx);
+-         SetStatus(Status);
+- 
+-         if (displayedCurrIdx != playList-&gt;shuffleIdx-&gt;currShuffleIdx){
+-                 cPlayListItem *Item=playList-&gt;GetShuffledItemByIndex(
+-                                 playList-&gt;shuffleIdx-&gt;currShuffleIdx);
+-                 if (Item) {
+-                         PrintCutDownString(Name,Item-&gt;GetName(),30);
+-                         snprintf(Status,60,&quot;%s: %s&quot;,playList-&gt;GetName(),
+-                                                 Name);
+-                         SetTitle(Status);
+-                         Display();
+-                         displayedCurrIdx=playList-&gt;shuffleIdx-&gt;currShuffleIdx;
+-                 } else printf(&quot;Didn't get currShuffleIdx %d!\n&quot;,playList-&gt;shuffleIdx-&gt;currShuffleIdx);
+-         };
+- };
+- 
+- eOSState cReplayList::ProcessKey(eKeys Key) {
+-         eOSState state = cOsdMenu::ProcessKey(Key);
+- 
+- 	// don't move cursor when it has been moved by the user
+- 	// a short while ago
+-         if ( Key==kUp || Key==kDown || Key==kRight || Key==kLeft ) 
+-                 lastActivity=time(NULL);
+-         
+-         if (state != osUnknown ) 
+-                 return state;
+- 
+-         if ( lastListItemCount != playList-&gt;GetNoItemsRecursive()
+- 	     || playList-&gt;shuffleIdx-&gt;reshuffled ) {
+-                 Clear();
+-                 RebuildList();
+-                 Display();
+-         };
+-         
+-         if (Current() != playList-&gt;shuffleIdx-&gt;currShuffleIdx &amp;&amp; 
+-                         time(NULL) - lastActivity &gt; 120 ) {
+-                 LISTDEB(&quot;SetCurrent current title %d  time %d lastActivity %d\n&quot;,
+-                                 playList-&gt;shuffleIdx-&gt;currShuffleIdx,time(NULL),lastActivity);
+-                 SetCurrent(Get(playList-&gt;shuffleIdx-&gt;currShuffleIdx));
+-                 Display();
+-         };
+- 
+-         cPlayListItem *Item;
+-         switch (Key) {
+-                 case kOk:
+-                         // skip to current track
+-                         playList-&gt;shuffleIdx-&gt;currShuffleIdx = Current();
+-                         state = PLAY_CURR_FILE;
+-                         // want to have automatic track change
+-                         lastActivity=time(NULL)-300;
+-                         break;
+-                 case kBack:
+-                         state= osBack;
+-                         break;
+-                 case kBlue:
+-                         state= osEnd;
+-                         break;
+-                 case kGreen:
+- 			// not yet implemented
+-                         state= osContinue;
+-                         break;
+-                 case kRed:
+-                         return AddSubMenu(new cPlOptionsMenu(playList));
+-                         break;
+-                 case kYellow:
+-                         Item=playList-&gt;GetShuffledItemByIndex(Current());
+-                         if (!Item) {
+-                                 printf(&quot;No current Item %d!\n&quot;,Current());
+-                                 break;
+-                         };
+-                         LISTDEB(&quot;Del current %d: %s\n&quot;,
+-                                         Current(),
+-                                         Item-&gt;GetName() );
+-                         playList-&gt;RemoveItem(Item);
+- 			//playList-&gt;CleanShuffleIdx();
+- 			lastListItemCount = playList-&gt;GetNoItemsRecursive();
+-                         Del(Current());
+-                         Display();
+-                         state=osContinue;
+-                         break;
+- 
+-                 default:    
+-                         break;
+-         }
+-         if (!HasSubMenu())
+-                 UpdateStatus();
+- 		
+-         return state;
+- }
+- 
+  
+  // -----cPlayList------------------------------------------------------------
+--- 103,106 ----
+
+Index: PlayList.h
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/PlayList.h,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -C2 -d -r1.8 -r1.9
+*** PlayList.h	15 Aug 2005 08:05:15 -0000	1.8
+--- PlayList.h	15 Aug 2005 09:07:30 -0000	1.9
+***************
+*** 13,17 ****
+  #define __PLAYLIST_H__
+  
+- #include &quot;vdr/osdbase.h&quot;
+  #include &quot;softplay.h&quot;
+  
+--- 13,16 ----
+***************
+*** 136,162 ****
+  }; 
+  
+- class cEditList: public cOsdMenu {
+-         time_t lastActivity;
+-         int displayedCurrIdx;
+-         cPlayList *playList;
+-         public:
+-         cEditList(cPlayList * List);
+-         ~cEditList();
+-         eOSState ProcessKey(eKeys Key);
+- };
+- 
+- class cReplayList: public cOsdMenu {
+-         time_t lastActivity;
+-         int displayedCurrIdx;
+-         cPlayList *playList;
+- 	int lastListItemCount;
+-         public:
+-         cReplayList(cPlayList * List);
+-         ~cReplayList();
+- 	void RebuildList();
+-         eOSState ProcessKey(eKeys Key);
+-         void UpdateStatus();
+- };
+- 
+  struct sPlayListOptions {
+  	int shuffle;
+--- 135,138 ----
+***************
+*** 165,172 ****
+  
+  class cPlayList : public cPlayListItem {
+! 	friend class cEditList;
+! 	friend class cReplayList;
+  	
+- 	//char ListName[STR_LENGTH];
+  private:
+          cPlayListItem *first;
+--- 141,147 ----
+  
+  class cPlayList : public cPlayListItem {
+! //	friend class cEditList;
+! //	friend class cReplayList;
+  	
+  private:
+          cPlayListItem *first;
+***************
+*** 212,215 ****
+--- 187,193 ----
+  
+          cPlayListItem *GetItem(int No);
++ 	inline cPlayListItem *GetFirst()
++ 	{ return first; };
++ 
+  	int GetNoItems();
+  	int GetNoItemsRecursive();
+***************
+*** 220,225 ****
+  
+  	void Shuffle();
+  
+!         char *CurrFile();
+          char *NextFile();
+  	char *PrevFile();
+--- 198,216 ----
+  
+  	void Shuffle();
++ 	inline bool IsDirty()
++ 	{ return shuffleIdx ? shuffleIdx-&gt;reshuffled : 0; };
+  
+! 	inline void SetClean()
+! 	{ if (shuffleIdx)  shuffleIdx-&gt;reshuffled = false; };
+! 
+!         inline int GetCurrShuffleIdx()
+! 	{ return shuffleIdx ? shuffleIdx-&gt;currShuffleIdx : -1; };
+!         inline void SetCurrShuffleIdx(int Idx)
+! 	{ if (shuffleIdx) shuffleIdx-&gt;currShuffleIdx = Idx; };
+! 
+! 	inline int GetShuffleNIdx()
+! 	{ return shuffleIdx ? shuffleIdx-&gt;nIdx : -1; };
+! 	
+! 	char *CurrFile();
+          char *NextFile();
+  	char *PrevFile();
+***************
+*** 232,248 ****
+          int LoadM3U(const char *Filename, const char *Name);
+  };
+- 
+- class cPlOptionsMenu : public cOsdMenu {
+-         protected:
+-                 sPlayListOptions playListOptions;
+-                 sPlayListOptions *options;
+-                 cPlayList *playList;
+-         public:
+-                 cPlOptionsMenu(cPlayList *PlayList);
+-                 cPlOptionsMenu(sPlayListOptions *Options);
+-                 ~cPlOptionsMenu();
+-                 eOSState ProcessKey(eKeys Key);
+- };
+-         
+          
+  #endif
+--- 223,226 ----
+
+Index: softplay.c
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/softplay.c,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -C2 -d -r1.8 -r1.9
+*** softplay.c	15 Aug 2005 07:27:42 -0000	1.8
+--- softplay.c	15 Aug 2005 09:07:30 -0000	1.9
+***************
+*** 11,14 ****
+--- 11,15 ----
+  #include &quot;SoftPlayer.h&quot;
+  #include &quot;PlayList.h&quot;
++ #include &quot;PlayListMenu.h&quot;
+  #include &quot;i18n.h&quot;
+  
+***************
+*** 146,150 ****
+            };
+  	  
+! 	  // add to menu using original names
+            PrintItemName(Name, Entries[nEntries],nEntries);
+  
+--- 147,151 ----
+            };
+  	  
+! 	  // add to menu useing original names
+            PrintItemName(Name, Entries[nEntries],nEntries);
+  
+***************
+*** 202,206 ****
+          if (play) {
+                  // FIXME remove
+!                Softplay-&gt;SaveList(PlayList);
+                 cControl::Launch(new cSoftControl(PlayList));
+                 return osEnd;
+--- 203,207 ----
+          if (play) {
+                  // FIXME remove
+!                // Softplay-&gt;SaveList(PlayList);
+                 cControl::Launch(new cSoftControl(PlayList));
+                 return osEnd;
+***************
+*** 326,330 ****
+              break;
+  
+!     case CURR_PLAYLIST: return AddSubMenu(new cEditList(*currList));
+              break;
+  
+--- 327,331 ----
+              break;
+  
+!     case CURR_PLAYLIST: return AddSubMenu(new cAlbumList(*currList));
+              break;
+  
+
+Index: SoftPlayer.c
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/SoftPlayer.c,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -C2 -d -r1.11 -r1.12
+*** SoftPlayer.c	8 Aug 2005 08:39:33 -0000	1.11
+--- SoftPlayer.c	15 Aug 2005 09:07:30 -0000	1.12
+***************
+*** 12,15 ****
+--- 12,16 ----
+  #include &quot;SoftPlayer.h&quot;
+  #include &quot;softplay.h&quot;
++ #include &quot;PlayListMenu.h&quot;
+  
+  #define PLDBG(out...) { printf(&quot;PLDBG: &quot;);printf(out);}
+***************
+*** 513,517 ****
+  				Hide();
+  				OsdActive=OsdPrivMenu;
+! 				privateMenu=new cEditList(Softplay-&gt;currList);
+  				privateMenu-&gt;Display();
+  				return osContinue;
+--- 514,518 ----
+  				Hide();
+  				OsdActive=OsdPrivMenu;
+! 				privateMenu=new cAlbumList(Softplay-&gt;currList);
+  				privateMenu-&gt;Display();
+  				return osContinue;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000186.html">[Softdevice-cvs] softplay PlayList.c,1.9,1.10 PlayList.h,1.7,1.8
+</A></li>
+	<LI>Next message: <A HREF="000188.html">[Softdevice-cvs] softplay Makefile,1.3,1.4
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#187">[ date ]</a>
+              <a href="thread.html#187">[ thread ]</a>
+              <a href="subject.html#187">[ subject ]</a>
+              <a href="author.html#187">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

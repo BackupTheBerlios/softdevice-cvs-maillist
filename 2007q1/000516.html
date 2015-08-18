@@ -1,0 +1,112 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice configure, 1.34, 1.35 Makefile, 1.37,	1.38
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20configure%2C%201.34%2C%201.35%20Makefile%2C%201.37%2C%0A%091.38&In-Reply-To=%3C20070312200142.2F5ACCE576%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000515.html">
+   <LINK REL="Next"  HREF="000517.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice configure, 1.34, 1.35 Makefile, 1.37,	1.38</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20configure%2C%201.34%2C%201.35%20Makefile%2C%201.37%2C%0A%091.38&In-Reply-To=%3C20070312200142.2F5ACCE576%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice configure, 1.34, 1.35 Makefile, 1.37,	1.38">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon Mar 12 21:01:42 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000515.html">[Softdevice-cvs] softdevice CHANGELOG, 1.297, 1.298 configure, 1.33,	1.34 setup-softdevice-menu.c, 1.9, 1.10 setup-softdevice.c,	1.49, 1.50 setup-softdevice.h, 1.37, 1.38 video-dfb.c, 1.78,	1.79 video-dfb.h, 1.25, 1.26
+</A></li>
+        <LI>Next message: <A HREF="000517.html">[Softdevice-cvs] softdevice PicBuffer.h, 1.6, 1.7 mpeg2decoder.h,	1.39, 1.40
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#516">[ date ]</a>
+              <a href="thread.html#516">[ thread ]</a>
+              <a href="subject.html#516">[ subject ]</a>
+              <a href="author.html#516">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv30341
+
+Modified Files:
+	configure Makefile 
+Log Message:
+- compile fix for recent ffmpeg SVN
+
+
+
+Index: configure
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/configure,v
+retrieving revision 1.34
+retrieving revision 1.35
+diff -C2 -d -r1.34 -r1.35
+*** configure	4 Mar 2007 17:45:38 -0000	1.34
+--- configure	12 Mar 2007 20:00:00 -0000	1.35
+***************
+*** 162,165 ****
+--- 162,166 ----
+    ffmpeg=&quot;yes&quot;;
+  cat &gt; ${TMPC} &lt;&lt; EOF
++ #define __STDC_CONSTANT_MACROS
+  #include &lt;stdlib.h&gt;
+  #include &lt;avcodec.h&gt;
+
+Index: Makefile
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/Makefile,v
+retrieving revision 1.37
+retrieving revision 1.38
+diff -C2 -d -r1.37 -r1.38
+*** Makefile	24 Feb 2007 14:04:14 -0000	1.37
+--- Makefile	12 Mar 2007 20:00:00 -0000	1.38
+***************
+*** 200,204 ****
+  
+  CXX      ?= g++
+! CXXFLAGS ?= -O2 -g -Wall -fPIC -Woverloaded-virtual $(ADD_CXXFLAGS)
+  
+  ### The directory environment:
+--- 200,206 ----
+  
+  CXX      ?= g++
+! CXXFLAGS ?= -O2 -g -Wall -fPIC -Woverloaded-virtual 
+! CXXFLAGS += $(ADD_CXXFLAGS)
+! DEFINES  += -D__STDC_CONSTANT_MACROS
+  
+  ### The directory environment:
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000515.html">[Softdevice-cvs] softdevice CHANGELOG, 1.297, 1.298 configure, 1.33,	1.34 setup-softdevice-menu.c, 1.9, 1.10 setup-softdevice.c,	1.49, 1.50 setup-softdevice.h, 1.37, 1.38 video-dfb.c, 1.78,	1.79 video-dfb.h, 1.25, 1.26
+</A></li>
+	<LI>Next message: <A HREF="000517.html">[Softdevice-cvs] softdevice PicBuffer.h, 1.6, 1.7 mpeg2decoder.h,	1.39, 1.40
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#516">[ date ]</a>
+              <a href="thread.html#516">[ thread ]</a>
+              <a href="subject.html#516">[ subject ]</a>
+              <a href="author.html#516">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

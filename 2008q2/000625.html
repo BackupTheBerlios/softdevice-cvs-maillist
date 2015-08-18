@@ -1,0 +1,120 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.334, 1.335 softdevice.c,	1.92, 1.93
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2008q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.334%2C%201.335%20softdevice.c%2C%0A%091.92%2C%201.93&In-Reply-To=%3C20080418151543.461318D945%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000624.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.334, 1.335 softdevice.c,	1.92, 1.93</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.334%2C%201.335%20softdevice.c%2C%0A%091.92%2C%201.93&In-Reply-To=%3C20080418151543.461318D945%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.334, 1.335 softdevice.c,	1.92, 1.93">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Apr 18 17:15:43 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000624.html">[Softdevice-cvs] softdevice VideoFilter.c, 1.10, 1.11 configure,	1.47, 1.48
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#625">[ date ]</a>
+              <a href="thread.html#625">[ thread ]</a>
+              <a href="subject.html#625">[ subject ]</a>
+              <a href="author.html#625">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv13726
+
+Modified Files:
+	CHANGELOG softdevice.c 
+Log Message:
+softdevice-0.5.0
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.334
+retrieving revision 1.335
+diff -C2 -d -r1.334 -r1.335
+*** CHANGELOG	16 Apr 2008 10:41:39 -0000	1.334
+--- CHANGELOG	18 Apr 2008 15:15:40 -0000	1.335
+***************
+*** 1,3 ****
+--- 1,6 ----
+  Changelog
++ 2008-04-18: softdevice-0.5.0
++    - Check configuration for ffmpeg &lt; r11816.
++    - Removed timestamps, email addrs and src line # comments from *.po.
+  2008-04-16:
+     - Silence some warnings.
+***************
+*** 5,9 ****
+     - Suspend output on user inactivity (see README): patch by Marko M&#228;kel&#228;
+  2008-04-15:
+!    - Fixed (changed) som italian chars.
+     - Added local translations of yes/no.
+     - Switched to vdr-1.5.x OSD translation.
+--- 8,12 ----
+     - Suspend output on user inactivity (see README): patch by Marko M&#228;kel&#228;
+  2008-04-15:
+!    - Fixed (changed) some italian chars.
+     - Added local translations of yes/no.
+     - Switched to vdr-1.5.x OSD translation.
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.92
+retrieving revision 1.93
+diff -C2 -d -r1.92 -r1.93
+*** softdevice.c	16 Apr 2008 10:41:40 -0000	1.92
+--- softdevice.c	18 Apr 2008 15:15:41 -0000	1.93
+***************
+*** 98,102 ****
+  #include &quot;setup-softdevice-menu.h&quot;
+  
+! static const char *VERSION        = &quot;0.4.0&quot;;
+  #if VDRVERSNUM &gt;= 10507
+  static const char *DESCRIPTION    = trNOOP(&quot;A software emulated MPEG2 device&quot;);
+--- 98,102 ----
+  #include &quot;setup-softdevice-menu.h&quot;
+  
+! static const char *VERSION        = &quot;0.5.0&quot;;
+  #if VDRVERSNUM &gt;= 10507
+  static const char *DESCRIPTION    = trNOOP(&quot;A software emulated MPEG2 device&quot;);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000624.html">[Softdevice-cvs] softdevice VideoFilter.c, 1.10, 1.11 configure,	1.47, 1.48
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#625">[ date ]</a>
+              <a href="thread.html#625">[ thread ]</a>
+              <a href="subject.html#625">[ subject ]</a>
+              <a href="author.html#625">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

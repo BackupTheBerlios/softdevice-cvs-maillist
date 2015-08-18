@@ -1,0 +1,1053 @@
+From nobody at sheep.berlios.de  Sat Jan 19 20:00:10 2008
+From: nobody at sheep.berlios.de (lucke)
+Date: Sat, 19 Jan 2008 20:00:10 +0100 (CET)
+Subject: [Softdevice-cvs] softdevice SoftOsd.c, 1.31, 1.32 SoftOsd.h, 1.16,
+	1.17 CHANGELOG, 1.322, 1.323
+Message-ID: <20080119190010.1EC57123DB9@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv21517
+
+Modified Files:
+	SoftOsd.c SoftOsd.h CHANGELOG 
+Log Message:
+OSD: fix drawing (missing method SetAreas()).
+
+Index: SoftOsd.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.c,v
+retrieving revision 1.31
+retrieving revision 1.32
+diff -C2 -d -r1.31 -r1.32
+*** SoftOsd.c	28 Aug 2007 22:28:36 -0000	1.31
+--- SoftOsd.c	19 Jan 2008 18:58:47 -0000	1.32
+***************
+*** 60,63 ****
+--- 60,64 ----
+          videoOut = VideoOut;
+          xPan = yPan = 0;
++         shown = false;
+          voutMutex.Lock();
+          videoOut->OpenOSD();
+***************
+*** 110,113 ****
+--- 111,124 ----
+  
+  /* -------------------------------------------------------------------------*/
++ eOsdError cSoftOsd::SetAreas(const tArea *Areas, int NumAreas)
++ {
++         if (shown) {
++                 Clear();
++                 shown = false;
++         }
++         return cOsd::SetAreas(Areas, NumAreas);
++ }
++ 
++ /* -------------------------------------------------------------------------*/
+  void cSoftOsd::Action() {
+          OSDDEB("OSD thread started\n");
+***************
+*** 297,300 ****
+--- 308,313 ----
+          if (!active && !close)
+                  Start();
++ 
++         shown = true;
+  }
+  
+
+Index: SoftOsd.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.h,v
+retrieving revision 1.16
+retrieving revision 1.17
+diff -C2 -d -r1.16 -r1.17
+*** SoftOsd.h	28 Aug 2007 22:28:36 -0000	1.16
+--- SoftOsd.h	19 Jan 2008 18:58:47 -0000	1.17
+***************
+*** 89,92 ****
+--- 89,93 ----
+      bool active;
+      bool close;
++     bool shown;
+      int ScreenOsdWidth;
+      int ScreenOsdHeight;
+***************
+*** 99,102 ****
+--- 100,104 ----
+      virtual ~cSoftOsd();
+      virtual void Flush(void);
++     virtual eOsdError SetAreas(const tArea *Areas, int NumAreas);
+  
+      // Create a copy of the osd layer for the Grab() method.
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.322
+retrieving revision 1.323
+diff -C2 -d -r1.322 -r1.323
+*** CHANGELOG	25 Dec 2007 21:04:30 -0000	1.322
+--- CHANGELOG	19 Jan 2008 18:58:47 -0000	1.323
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2008-01-19:
++    - OSD: fix drawing (missing method SetAreas()).
+  2007-12-25:
+     - license: included gpl notice "v2 or any later" to README.
+
+
+
+From nobody at sheep.berlios.de  Sat Jan 26 00:57:11 2008
+From: nobody at sheep.berlios.de (lucke)
+Date: Sat, 26 Jan 2008 00:57:11 +0100 (CET)
+Subject: [Softdevice-cvs] softdevice CHANGELOG, 1.323, 1.324 SoftOsd.c, 1.32,
+	1.33
+Message-ID: <20080125235711.456C81263BF@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv25489
+
+Modified Files:
+	CHANGELOG SoftOsd.c 
+Log Message:
+OSD: missing call to ClearOSD() of output device.
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.323
+retrieving revision 1.324
+diff -C2 -d -r1.323 -r1.324
+*** CHANGELOG	19 Jan 2008 18:58:47 -0000	1.323
+--- CHANGELOG	25 Jan 2008 23:55:44 -0000	1.324
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2008-01-26:
++    - OSD: missing call to ClearOSD() of output device.
+  2008-01-19:
+     - OSD: fix drawing (missing method SetAreas()).
+
+Index: SoftOsd.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.c,v
+retrieving revision 1.32
+retrieving revision 1.33
+diff -C2 -d -r1.32 -r1.33
+*** SoftOsd.c	19 Jan 2008 18:58:47 -0000	1.32
+--- SoftOsd.c	25 Jan 2008 23:55:44 -0000	1.33
+***************
+*** 52,56 ****
+  cSoftOsd::cSoftOsd(cVideoOut *VideoOut, int X, int Y)
+          : cOsd(X, Y),active(false),close(false) {
+! #endif	
+          OSDDEB("cSoftOsd constructor\n");
+          OutputConvert=&cSoftOsd::ARGB_to_ARGB32;
+--- 52,56 ----
+  cSoftOsd::cSoftOsd(cVideoOut *VideoOut, int X, int Y)
+          : cOsd(X, Y),active(false),close(false) {
+! #endif
+          OSDDEB("cSoftOsd constructor\n");
+          OutputConvert=&cSoftOsd::ARGB_to_ARGB32;
+***************
+*** 115,118 ****
+--- 115,119 ----
+          if (shown) {
+                  Clear();
++                 videoOut->ClearOSD();
+                  shown = false;
+          }
+
+
+
+From jean.palazuelos at free.fr  Sat Feb  9 23:57:37 2008
+From: jean.palazuelos at free.fr (Jean P.)
+Date: Sat, 09 Feb 2008 23:57:37 +0100
+Subject: [Softdevice-cvs] Softplay - fast forward / backwar
+Message-ID: <1202597857.11091.16.camel@localhost.localdomain>
+
+Hi All,
+
+I can't use fast forward with softplay (softplay/softdevice: svn from 7
+FEB 2008).
+I can see in readme.txt that fast forward / backward are in TODO list.
+But when I take a look at the code in softplayer.c I can see :  
+#if LIBAVFORMAT_BUILD > 4618
+			av_seek_frame(ic,-1,
+			   (SoftDevice->GetSTC()/9+skip*10000)*100,
+			   AVSEEK_FLAG_BACKWARD);
+#else
+			av_seek_frame(ic,-1,
+			   (SoftDevice->GetSTC()/9+skip*10000)*100);
+#endif
+
+Softdevice log say : 
+ [softdevice] ffmpeg build(3352578)
+And ffmpeg say:
+ libavutil   3212288
+ libavcodec  3352578
+ libavformat 3345152
+
+My remote seems to be well configured: 
+softdevice-xv.Left       0000000100010069
+softdevice-xv.Right      000000010001006A
+
+
+Could you please help me about this?
+
+THX a lot.
+Jean
+
+
+
+
+
+From nobody at sheep.berlios.de  Wed Feb 20 09:07:17 2008
+From: nobody at sheep.berlios.de (lucke)
+Date: Wed, 20 Feb 2008 09:07:17 +0100 (CET)
+Subject: [Softdevice-cvs] softdevice VideoFilter.c, 1.9, 1.10 CHANGELOG,
+	1.324, 1.325
+Message-ID: <20080220080717.17C2611B042@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv25314
+
+Modified Files:
+	VideoFilter.c CHANGELOG 
+Log Message:
+fix some warnings and compile error with ffmpeg >= r11816
+
+Index: VideoFilter.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/VideoFilter.c,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -C2 -d -r1.9 -r1.10
+*** VideoFilter.c	25 Dec 2007 10:32:56 -0000	1.9
+--- VideoFilter.c	20 Feb 2008 08:05:42 -0000	1.10
+***************
+*** 330,335 ****
+  void cBorderDetect::Filter(sPicBuffer *&dest, sPicBuffer *orig) {
+      int black_border=0;
+!     int     lim;
+!     float   new_aspect;
+  
+      dest = orig; // "copy" do not modify
+--- 330,335 ----
+  void cBorderDetect::Filter(sPicBuffer *&dest, sPicBuffer *orig) {
+      int black_border=0;
+!     int     lim = 0;
+!     float   new_aspect = 1.0;
+  
+      dest = orig; // "copy" do not modify
+***************
+*** 415,421 ****
+              else tmp_asp = 4.0 / 3.0;
+              //printf("Bordersize: %d  Calculated aspect %f\n",edge_pos, new_aspect);
+!             lim = 3 + (orig->height / 2) -
+!                      (orig->aspect_ratio * orig->height) /
+!                        ((16.0 / 9.0) * 2);
+              lim &= ~3;
+      }
+--- 415,421 ----
+              else tmp_asp = 4.0 / 3.0;
+              //printf("Bordersize: %d  Calculated aspect %f\n",edge_pos, new_aspect);
+!             lim = (int) (3 + (orig->height / 2) -
+!                            (orig->aspect_ratio * orig->height) /
+!                          ((16.0 / 9.0) * 2));
+              lim &= ~3;
+      }
+***************
+*** 573,577 ****
+          memcpy(avpic_dest.linesize,dest->stride,sizeof(avpic_dest.linesize));
+  
+!         pp_postprocess(avpic_src.data,
+                          avpic_src.linesize,
+                          avpic_dest.data,
+--- 573,577 ----
+          memcpy(avpic_dest.linesize,dest->stride,sizeof(avpic_dest.linesize));
+  
+!         pp_postprocess((const uint8_t **) avpic_src.data,
+                          avpic_src.linesize,
+                          avpic_dest.data,
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.324
+retrieving revision 1.325
+diff -C2 -d -r1.324 -r1.325
+*** CHANGELOG	25 Jan 2008 23:55:44 -0000	1.324
+--- CHANGELOG	20 Feb 2008 08:05:42 -0000	1.325
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2008-02-20:
++    - VideoFilter.c: fix some warnings and compile error with ffmpeg >= r11816
+  2008-01-26:
+     - OSD: missing call to ClearOSD() of output device.
+
+
+
+From nobody at sheep.berlios.de  Tue Feb 26 07:59:35 2008
+From: nobody at sheep.berlios.de (lucke)
+Date: Tue, 26 Feb 2008 07:59:35 +0100 (CET)
+Subject: [Softdevice-cvs] softdevice configure,1.45,1.46
+Message-ID: <20080226065935.0F984122138@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv23761
+
+Modified Files:
+	configure 
+Log Message:
+remove some unused code and some cosmetic changes
+
+Index: configure
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/configure,v
+retrieving revision 1.45
+retrieving revision 1.46
+diff -C2 -d -r1.45 -r1.46
+*** configure	23 Sep 2007 08:33:40 -0000	1.45
+--- configure	26 Feb 2008 06:57:57 -0000	1.46
+***************
+*** 180,189 ****
+  }
+  int main(void) {
+- /*  if ( avcodec_build() != LIBAVCODEC_BUILD ) {
+-      fprintf(stderr,"Fatal Error! Libavcodec library build(%d) doesn't match avcodec.h build(%d)!!!\n",avcodec_build(),LIBAVCODEC_BUILD);
+-      fprintf(stderr,"Check your ffmpeg installation / the pathes in the Makefile!!!\n");
+-      exit(-1);
+-   };
+- */
+    avcodec_init();
+    avcodec_register_all();
+--- 180,183 ----
+***************
+*** 258,267 ****
+  }
+  int main(void) {
+- /*  if ( avcodec_build() != LIBAVCODEC_BUILD ) {
+-      fprintf(stderr,"Fatal Error! Libavcodec library build(%d) doesn't match avcodec.h build(%d)!!!\n",avcodec_build(),LIBAVCODEC_BUILD);
+-      fprintf(stderr,"Check your ffmpeg installation / the pathes in the Makefile!!!\n");
+-      exit(-1);
+-   };
+- */
+    avcodec_init();
+    avcodec_register_all();
+--- 252,255 ----
+***************
+*** 642,675 ****
+  if test "${with_subplugins}" = "yes" ; then
+    echo "USE_SUBPLUGINS = 1" >> $TMPM
+!   echo "#define USE_SUBPLUGINS 1" >> $TMPH
+  fi
+  
+  if test "${with_mmx}" = "yes" ; then
+!   echo "#define USE_MMX 1" >> $TMPH
+  
+    if test "${with_mmx2}" = "yes" ; then
+!     echo "#define USE_MMX2 1" >> $TMPH
+    fi
+  fi
+  
+  if test "${with_altivec}" = "yes" ; then
+!   echo "#define USE_ALTIVEC 1" >> $TMPH
+    echo "ADD_CXXFLAGS += -faltivec" >> $TMPM
+  fi
+  
+  if test "${suspendkey}" = "yes" ; then
+!   echo "#define SUSPEND_BY_KEY 1" >> $TMPH
+  fi
+  
+  if test "${cpu_bigendian}" = "yes" ; then
+!   echo "#define CPU_BIGENDIAN 1" >> $TMPH
+  fi
+  
+  if test "${yaepg}" = "yes" ; then
+!   echo "#define HAVE_YAEPGPATCH 1" >> $TMPH
+  fi
+  
+  if test "${system}" = "Linux"; then
+!   echo "#define LINUX_RTC 1" >> $TMPH
+  fi
+  
+--- 630,663 ----
+  if test "${with_subplugins}" = "yes" ; then
+    echo "USE_SUBPLUGINS = 1" >> $TMPM
+!   echo "#define USE_SUBPLUGINS                  1" >> $TMPH
+  fi
+  
+  if test "${with_mmx}" = "yes" ; then
+!   echo "#define USE_MMX                         1" >> $TMPH
+  
+    if test "${with_mmx2}" = "yes" ; then
+!     echo "#define USE_MMX2                        1" >> $TMPH
+    fi
+  fi
+  
+  if test "${with_altivec}" = "yes" ; then
+!   echo "#define USE_ALTIVEC                     1" >> $TMPH
+    echo "ADD_CXXFLAGS += -faltivec" >> $TMPM
+  fi
+  
+  if test "${suspendkey}" = "yes" ; then
+!   echo "#define SUSPEND_BY_KEY                  1" >> $TMPH
+  fi
+  
+  if test "${cpu_bigendian}" = "yes" ; then
+!   echo "#define CPU_BIGENDIAN                   1" >> $TMPH
+  fi
+  
+  if test "${yaepg}" = "yes" ; then
+!   echo "#define HAVE_YAEPGPATCH                 1" >> $TMPH
+  fi
+  
+  if test "${system}" = "Linux"; then
+!   echo "#define LINUX_RTC                       1" >> $TMPH
+  fi
+  
+***************
+*** 680,686 ****
+    echo "SHARED_FLAG = -dynamiclib -Wl,-single_module,-undefined,dynamic_lookup " >> $TMPM
+    echo "QUARTZ_SUPPORT = 1" >> $TMPM
+!   echo "#define QUARTZ_SUPPORT 1 ">> $TMPH
+    echo "MACOSAO_SUPPORT = 1" >> $TMPM
+!   echo "#define MACOSAO_SUPPORT 1 ">> $TMPH
+    echo "MACVDRCLIENT_SUPPORT = 1" >> $TMPM
+  fi
+--- 668,674 ----
+    echo "SHARED_FLAG = -dynamiclib -Wl,-single_module,-undefined,dynamic_lookup " >> $TMPM
+    echo "QUARTZ_SUPPORT = 1" >> $TMPM
+!   echo "#define QUARTZ_SUPPORT                  1" >> $TMPH
+    echo "MACOSAO_SUPPORT = 1" >> $TMPM
+!   echo "#define MACOSAO_SUPPORT                 1" >> $TMPH
+    echo "MACVDRCLIENT_SUPPORT = 1" >> $TMPM
+  fi
+***************
+*** 691,695 ****
+  if test "${alsa}" = "yes" ; then
+    echo "ALSA_SUPPORT = 1" >> $TMPM
+!   echo "#define ALSA_SUPPORT 1" >> $TMPH
+  fi
+  
+--- 679,683 ----
+  if test "${alsa}" = "yes" ; then
+    echo "ALSA_SUPPORT = 1" >> $TMPM
+!   echo "#define ALSA_SUPPORT                    1" >> $TMPH
+  fi
+  
+***************
+*** 699,703 ****
+  if test "${oss}" = "yes" ; then
+    echo "OSS_SUPPORT = 1" >> $TMPM
+!   echo "#define OSS_SUPPORT 1" >> $TMPH
+  fi
+  
+--- 687,691 ----
+  if test "${oss}" = "yes" ; then
+    echo "OSS_SUPPORT = 1" >> $TMPM
+!   echo "#define OSS_SUPPORT                     1" >> $TMPH
+  fi
+  
+***************
+*** 707,711 ****
+  if test "${dfb}" = "yes" ; then
+    echo "DFB_SUPPORT=1" >> $TMPM
+!   echo "#define DFB_SUPPORT                       1" >> $TMPH
+    echo "DFB_LIBS = ${dfb_libs}" >> $TMPM
+    echo "DFB_CFLAGS = ${dfb_cflags}" >> $TMPM
+--- 695,699 ----
+  if test "${dfb}" = "yes" ; then
+    echo "DFB_SUPPORT=1" >> $TMPM
+!   echo "#define DFB_SUPPORT                     1" >> $TMPH
+    echo "DFB_LIBS = ${dfb_libs}" >> $TMPM
+    echo "DFB_CFLAGS = ${dfb_cflags}" >> $TMPM
+
+
+
+From nobody at sheep.berlios.de  Tue Feb 26 08:39:19 2008
+From: nobody at sheep.berlios.de (lucke)
+Date: Tue, 26 Feb 2008 08:39:19 +0100 (CET)
+Subject: [Softdevice-cvs] softdevice PicBuffer.h,1.7,1.8
+Message-ID: <20080226073919.1F24112F16E@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv25948
+
+Modified Files:
+	PicBuffer.h 
+Log Message:
+white space cleanup
+
+Index: PicBuffer.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/PicBuffer.h,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -C2 -d -r1.7 -r1.8
+*** PicBuffer.h	12 Mar 2007 20:05:44 -0000	1.7
+--- PicBuffer.h	26 Feb 2008 07:37:42 -0000	1.8
+***************
+*** 34,38 ****
+      int max_height;
+      cPicBufferManager *owner;
+!     
+      // picture context
+      int edge_width; // size of edges (needed by some ffmpeg codecs)
+--- 34,38 ----
+      int max_height;
+      cPicBufferManager *owner;
+! 
+      // picture context
+      int edge_width; // size of edges (needed by some ffmpeg codecs)
+***************
+*** 45,49 ****
+      bool interlaced_frame;
+      int pict_type;
+!  
+      int pic_num; // to calculate the age
+      int age; // needed by ffmpeg
+--- 45,49 ----
+      bool interlaced_frame;
+      int pict_type;
+! 
+      int pic_num; // to calculate the age
+      int age; // needed by ffmpeg
+***************
+*** 76,84 ****
+          { return ( buf_num<LAST_PICBUF ? &PicBuffer[buf_num] : NULL); };
+          // returns the address of the buffer buf_num
+!         
+          int GetBufNum(sPicBuffer *PicBuf);
+          // returns the buffer number of the picture buffer PicBuf
+          // returns -1 if the buffer has not been found
+!  
+          sPicBuffer *GetBuffer(PixelFormat pix_fmt,int width, int height);
+          // get a picture buffer ( to be called from decoders of filters )
+--- 76,84 ----
+          { return ( buf_num<LAST_PICBUF ? &PicBuffer[buf_num] : NULL); };
+          // returns the address of the buffer buf_num
+! 
+          int GetBufNum(sPicBuffer *PicBuf);
+          // returns the buffer number of the picture buffer PicBuf
+          // returns -1 if the buffer has not been found
+! 
+          sPicBuffer *GetBuffer(PixelFormat pix_fmt,int width, int height);
+          // get a picture buffer ( to be called from decoders of filters )
+***************
+*** 87,102 ****
+  
+          void LockBuffer(sPicBuffer *picture);
+!         // I want to keep this buffer ( not requested by me via GetBuffer() ) 
+          // longer
+          void UnlockBuffer(sPicBuffer *picture);
+          // don't need it anymore
+!         
+  
+          virtual bool AllocPicBuffer(int buf_num,PixelFormat pix_fmt,
+                          int w, int h);
+!         // actually allocates memory for the buffer. Can be overloaded for 
+!         // direct rendering. 
+          // Has to set up max_width/max_height and format!
+!         
+          virtual void ReleasePicBuffer(int buf_num);
+          // releases the memory of the buffer again
+--- 87,102 ----
+  
+          void LockBuffer(sPicBuffer *picture);
+!         // I want to keep this buffer ( not requested by me via GetBuffer() )
+          // longer
+          void UnlockBuffer(sPicBuffer *picture);
+          // don't need it anymore
+! 
+  
+          virtual bool AllocPicBuffer(int buf_num,PixelFormat pix_fmt,
+                          int w, int h);
+!         // actually allocates memory for the buffer. Can be overloaded for
+!         // direct rendering.
+          // Has to set up max_width/max_height and format!
+! 
+          virtual void ReleasePicBuffer(int buf_num);
+          // releases the memory of the buffer again
+***************
+*** 123,131 ****
+                  int cutTop, int cutBottom, int cutLeft, int cutRight);
+  
+! void CopyPicBufAlphaBlend(sPicBuffer *dst, 
+                  sPicBuffer *src,
+                  uint8_t *OsdPy,uint8_t *OsdPu, uint8_t *OsdPv,
+                  uint8_t *OsdPAlphaY, uint8_t *OsdPAlphaUV,int OsdStride,
+!                 int cutTop, int cutBottom,int cutLeft, int cutRight); 
+!  
+  #endif
+--- 123,131 ----
+                  int cutTop, int cutBottom, int cutLeft, int cutRight);
+  
+! void CopyPicBufAlphaBlend(sPicBuffer *dst,
+                  sPicBuffer *src,
+                  uint8_t *OsdPy,uint8_t *OsdPu, uint8_t *OsdPv,
+                  uint8_t *OsdPAlphaY, uint8_t *OsdPAlphaUV,int OsdStride,
+!                 int cutTop, int cutBottom,int cutLeft, int cutRight);
+! 
+  #endif
+
+
+
+From nobody at sheep.berlios.de  Tue Feb 26 09:07:54 2008
+From: nobody at sheep.berlios.de (lucke)
+Date: Tue, 26 Feb 2008 09:07:54 +0100 (CET)
+Subject: [Softdevice-cvs] softdevice mpeg2decoder.h, 1.43, 1.44 VideoFilter.h,
+	1.5, 1.6 PicBuffer.h, 1.8, 1.9 configure, 1.46, 1.47 CHANGELOG,
+	1.325, 1.326
+Message-ID: <20080226080754.EC842F1F58@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv28413
+
+Modified Files:
+	mpeg2decoder.h VideoFilter.h PicBuffer.h configure CHANGELOG 
+Log Message:
+fix for ffmpeg >= r12194
+
+Index: mpeg2decoder.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.h,v
+retrieving revision 1.43
+retrieving revision 1.44
+diff -C2 -d -r1.43 -r1.44
+*** mpeg2decoder.h	24 Dec 2007 11:43:31 -0000	1.43
+--- mpeg2decoder.h	26 Feb 2008 08:06:18 -0000	1.44
+***************
+*** 15,20 ****
+  #include <sys/time.h>
+  extern "C" {
+! #include <avcodec.h>
+! #include <avformat.h>
+  }
+  
+--- 15,25 ----
+  #include <sys/time.h>
+  extern "C" {
+! #if HAVE_FFMPEG_LOCAL
+! # include <libavcodec/avcodec.h>
+! # include <libavformat/avformat.h>
+! #else
+! # include <avcodec.h>
+! # include <avformat.h>
+! #endif
+  }
+  
+
+Index: VideoFilter.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/VideoFilter.h,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -C2 -d -r1.5 -r1.6
+*** VideoFilter.h	11 Jul 2007 17:56:57 -0000	1.5
+--- VideoFilter.h	26 Feb 2008 08:06:18 -0000	1.6
+***************
+*** 15,20 ****
+  #ifdef PP_LIBAVCODEC
+  #include <stdint.h> //needed by postproc.h
+  extern "C" {
+!   #include <postprocess.h>
+    //#include <postproc/postprocess.h>
+  }
+--- 15,25 ----
+  #ifdef PP_LIBAVCODEC
+  #include <stdint.h> //needed by postproc.h
++ 
+  extern "C" {
+! #if HAVE_FFMPEG_LOCAL
+! # include <libpostproc/postprocess.h>
+! #else
+! # include <postprocess.h>
+! #endif
+    //#include <postproc/postprocess.h>
+  }
+***************
+*** 64,68 ****
+  #ifdef USE_SWSCALE
+  extern "C" {
+! #include <swscale.h>
+  }
+  #endif
+--- 69,77 ----
+  #ifdef USE_SWSCALE
+  extern "C" {
+! #if HAVE_FFMPEG_LOCAL
+! # include <libswscale/swscale.h>
+! #else
+! # include <swscale.h>
+! #endif
+  }
+  #endif
+
+Index: PicBuffer.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/PicBuffer.h,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -C2 -d -r1.8 -r1.9
+*** PicBuffer.h	26 Feb 2008 07:37:42 -0000	1.8
+--- PicBuffer.h	26 Feb 2008 08:06:18 -0000	1.9
+***************
+*** 12,17 ****
+  #define __PIC_BUFFER_H__
+  
+  extern "C" {
+! #include <avcodec.h>
+  }
+  
+--- 12,25 ----
+  #define __PIC_BUFFER_H__
+  
++ #ifdef HAVE_CONFIG
++ # include "config.h"
++ #endif
++ 
+  extern "C" {
+! #if HAVE_FFMPEG_LOCAL
+! # include <libavcodec/avcodec.h>
+! #else
+! # include <avcodec.h>
+! #endif
+  }
+  
+
+Index: configure
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/configure,v
+retrieving revision 1.46
+retrieving revision 1.47
+diff -C2 -d -r1.46 -r1.47
+*** configure	26 Feb 2008 06:57:57 -0000	1.46
+--- configure	26 Feb 2008 08:06:18 -0000	1.47
+***************
+*** 25,28 ****
+--- 25,29 ----
+  use_pkgconfig="yes"
+  ffmpeg="yes"
++ ffmpeg_local="no"
+  libswscale="no"
+  ffmpeg_use_path="no"
+***************
+*** 169,172 ****
+--- 170,174 ----
+  echo  "Checking for ffmpeg.------------------------------------" >> config.log
+  
++ #########################################################
+  test_ffmpeg()
+  {
+***************
+*** 189,192 ****
+--- 191,215 ----
+  };
+  
++ #########################################################
++ test_ffmpeg_local()
++ {
++   ffmpeg="yes";
++ cat > ${TMPC} << EOF
++ #define __STDC_CONSTANT_MACROS
++ extern "C" {
++ #include <stdlib.h>
++ #include <libavcodec/avcodec.h>
++ #include <libavformat/avformat.h>
++ }
++ int main(void) {
++   avcodec_init();
++   avcodec_register_all();
++ 
++  return 0;
++ }
++ EOF
++   $cc $CFLAGS $ffmpeg_cflags -o $TMPE $TMPC $ffmpeg_libs  >> config.log 2>&1 || ffmpeg="no"
++ };
++ 
+  ffmpeg="no" # = not yet configured
+  if test "${use_pkgconfig}" = "yes" ; then
+***************
+*** 208,211 ****
+--- 231,242 ----
+  
+  if test "${ffmpeg}" = "no" ; then
++   # try the latest ffmpeg change
++   test_ffmpeg_local
++   if test "${ffmpeg}" = "yes" ; then
++     ffmpeg_local="yes"
++   fi
++ fi
++ 
++ if test "${ffmpeg}" = "no" ; then
+    echo "pkg-config failed, try the default/parameter path." >> config.log
+    ffmpeg="yes"
+***************
+*** 266,274 ****
+  };
+  
+  swscale_libs=`PKG_CONFIG_PATH=$PKG_CONFIG_PATH pkg-config --libs libswscale 2>> config.log` || libswscale="no"
+  swscale_cflags=`PKG_CONFIG_PATH=$PKG_CONFIG_PATH pkg-config --cflags libswscale 2>> config.log`
+  
+  #test if it works
+! test_swscale
+  
+  if test "${swscale}" = "no" ; then
+--- 297,335 ----
+  };
+  
++ test_swscale_local()
++ {
++   swscale="yes";
++ cat > ${TMPC} << EOF
++ #define __STDC_CONSTANT_MACROS
++ #include <stdlib.h>
++ extern "C" {
++ #include <libavcodec/avcodec.h>
++ #include <libavformat/avformat.h>
++ #include <libswscale/swscale.h>
++ }
++ int main(void) {
++   avcodec_init();
++   avcodec_register_all();
++   struct SwsContext *img_convert_ctx = sws_getContext(120, 120,
++                                 PIX_FMT_YUV420P,
++                                 100, 100,
++                                 PIX_FMT_YUV420P,
++                                 SWS_BICUBIC, NULL, NULL, NULL);
++ 
++  return 0;
++ }
++ EOF
++   $cc $CFLAGS $ffmpeg_cflags $swscale_cflags -o $TMPE $TMPC $swscale_libs $ffmpeg_libs >> config.log 2>&1 || swscale="no"
++ };
++ 
+  swscale_libs=`PKG_CONFIG_PATH=$PKG_CONFIG_PATH pkg-config --libs libswscale 2>> config.log` || libswscale="no"
+  swscale_cflags=`PKG_CONFIG_PATH=$PKG_CONFIG_PATH pkg-config --cflags libswscale 2>> config.log`
+  
+  #test if it works
+! if test "${ffmpeg_local}" = "no" ; then
+!   test_swscale
+! else
+!   test_swscale_local
+! fi
+  
+  if test "${swscale}" = "no" ; then
+***************
+*** 660,663 ****
+--- 721,730 ----
+  if test "${system}" = "Linux"; then
+    echo "#define LINUX_RTC                       1" >> $TMPH
++ fi
++ 
++ if test "${ffmpeg_local}" = "yes"; then
++   echo "#define HAVE_FFMPEG_LOCAL               1" >> $TMPH
++ else
++   echo "#define HAVE_FFMPEG_LOCAL               0" >> $TMPH
+  fi
+  
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.325
+retrieving revision 1.326
+diff -C2 -d -r1.325 -r1.326
+*** CHANGELOG	20 Feb 2008 08:05:42 -0000	1.325
+--- CHANGELOG	26 Feb 2008 08:06:18 -0000	1.326
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2008-02-26:
++    - fix for ffmpeg >= r12194.
+  2008-02-20:
+     - VideoFilter.c: fix some warnings and compile error with ffmpeg >= r11816
+
+
+
+From nobody at sheep.berlios.de  Tue Feb 26 11:50:22 2008
+From: nobody at sheep.berlios.de (lucke)
+Date: Tue, 26 Feb 2008 11:50:22 +0100 (CET)
+Subject: [Softdevice-cvs] softdevice video-fb.c,1.19,1.20
+Message-ID: <20080226105022.28A04128C88@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv15328
+
+Modified Files:
+	video-fb.c 
+Log Message:
+white space cleanup
+
+Index: video-fb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-fb.c,v
+retrieving revision 1.19
+retrieving revision 1.20
+diff -C2 -d -r1.19 -r1.20
+*** video-fb.c	10 May 2007 19:54:44 -0000	1.19
+--- video-fb.c	26 Feb 2008 10:48:45 -0000	1.20
+***************
+*** 57,61 ****
+      privBuf.stride[0]=line_len;
+      if (fb_vinfo.red.length==5 && fb_vinfo.green.length==5
+!          && fb_vinfo.blue.length==5 ) 
+              Bpp=15;
+      else Bpp=fb_vinfo.bits_per_pixel;
+--- 57,61 ----
+      privBuf.stride[0]=line_len;
+      if (fb_vinfo.red.length==5 && fb_vinfo.green.length==5
+!          && fb_vinfo.blue.length==5 )
+              Bpp=15;
+      else Bpp=fb_vinfo.bits_per_pixel;
+***************
+*** 65,69 ****
+              case 24 : privBuf.format=PIX_FMT_RGB24;
+                        break;
+!             case 16 : 
+                        privBuf.format=PIX_FMT_RGB565;
+                        break;
+--- 65,69 ----
+              case 24 : privBuf.format=PIX_FMT_RGB24;
+                        break;
+!             case 16 :
+                        privBuf.format=PIX_FMT_RGB565;
+                        break;
+***************
+*** 180,187 ****
+          cutTop,cutBottom,cutLeft,cutRight);
+    } else {
+!     CopyScalePicBuf(&privBuf, buf,                   
+          sxoff, syoff,
+          swidth, sheight,
+!         lxoff,  lyoff,    
+          lwidth, lheight,
+          cutTop,cutBottom,cutLeft,cutRight);
+--- 180,187 ----
+          cutTop,cutBottom,cutLeft,cutRight);
+    } else {
+!     CopyScalePicBuf(&privBuf, buf,
+          sxoff, syoff,
+          swidth, sheight,
+!         lxoff,  lyoff,
+          lwidth, lheight,
+          cutTop,cutBottom,cutLeft,cutRight);
+
+
+
+From nobody at sheep.berlios.de  Tue Feb 26 11:54:59 2008
+From: nobody at sheep.berlios.de (lucke)
+Date: Tue, 26 Feb 2008 11:54:59 +0100 (CET)
+Subject: [Softdevice-cvs] softdevice CHANGELOG, 1.326, 1.327 video-fb.c, 1.20,
+	1.21
+Message-ID: <20080226105459.67E89128C88@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv16077
+
+Modified Files:
+	CHANGELOG video-fb.c 
+Log Message:
+via OSD selected screen aspect was not honored
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.326
+retrieving revision 1.327
+diff -C2 -d -r1.326 -r1.327
+*** CHANGELOG	26 Feb 2008 08:06:18 -0000	1.326
+--- CHANGELOG	26 Feb 2008 10:53:22 -0000	1.327
+***************
+*** 2,5 ****
+--- 2,6 ----
+  2008-02-26:
+     - fix for ffmpeg >= r12194.
++    - video-fb: via OSD selected screen aspect was not honored.
+  2008-02-20:
+     - VideoFilter.c: fix some warnings and compile error with ffmpeg >= r11816
+
+Index: video-fb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-fb.c,v
+retrieving revision 1.20
+retrieving revision 1.21
+diff -C2 -d -r1.20 -r1.21
+*** video-fb.c	26 Feb 2008 10:48:45 -0000	1.20
+--- video-fb.c	26 Feb 2008 10:53:22 -0000	1.21
+***************
+*** 74,77 ****
+--- 74,80 ----
+      privBuf.max_height=dheight=fb_vinfo.yres;
+  
++     SetParValues ((double) fb_vinfo.xres / (double) fb_vinfo.yres,
++                   (double) fb_vinfo.xres / (double) fb_vinfo.yres);
++ 
+      switch (fb_finfo.visual) {
+         case FB_VISUAL_TRUECOLOR:
+
+
+
+From nobody at sheep.berlios.de  Sat Mar  1 11:11:21 2008
+From: nobody at sheep.berlios.de (lucke)
+Date: Sat,  1 Mar 2008 11:11:21 +0100 (CET)
+Subject: [Softdevice-cvs] softplay softplay.c,1.11,1.12
+Message-ID: <20080301101121.2904D1270AA@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softplay
+In directory sheep:/tmp/cvs-serv21341
+
+Modified Files:
+	softplay.c 
+Log Message:
+Fix segfault at termination.
+
+Index: softplay.c
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/softplay.c,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -C2 -d -r1.11 -r1.12
+*** softplay.c	2 Apr 2006 20:19:12 -0000	1.11
+--- softplay.c	1 Mar 2008 10:09:42 -0000	1.12
+***************
+*** 464,475 ****
+  
+  void cSoftPlay::SaveList(cPlayList *List, const char* Name) {
+! 	char filename[60];
+! 	if (Name)
+!                 sprintf(filename,"%s/%s.playlist",configDir,Name);
+! 	else
+!                 sprintf(filename,"%s/%s.playlist",configDir,List->GetName());
+  
+  	printf("Save list as %s\n",filename);
+  	FILE *out=fopen(filename,"w");
+  	if (!out)
+  		return;
+--- 464,477 ----
+  
+  void cSoftPlay::SaveList(cPlayList *List, const char* Name) {
+! 	char *filename;
+! 	if (asprintf(&filename,
+! 		     "%s/%s.playlist",
+! 		     configDir,
+! 		     (Name) ? Name: List->GetName()) < 0)
+! 		return;
+  
+  	printf("Save list as %s\n",filename);
+  	FILE *out=fopen(filename,"w");
++ 	free (filename);
+  	if (!out)
+  		return;
+
+
+

@@ -1,0 +1,370 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.35,1.36 Makefile,1.6,1.7 setup-softdevice.c,1.10,1.11 setup-softdevice.h,1.7,1.8 softdevice.c,1.14,1.15 video-dfb.c,1.18,1.19
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.35%2C1.36%20Makefile%2C1.6%2C1.7%20setup-softdevice.c%2C1.10%2C1.11%20setup-softdevice.h%2C1.7%2C1.8%20softdevice.c%2C1.14%2C1.15%20video-dfb.c%2C1.18%2C1.19&In-Reply-To=%3C200502270852.j1R8qaN07137%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000058.html">
+   <LINK REL="Next"  HREF="000060.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.35,1.36 Makefile,1.6,1.7 setup-softdevice.c,1.10,1.11 setup-softdevice.h,1.7,1.8 softdevice.c,1.14,1.15 video-dfb.c,1.18,1.19</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.35%2C1.36%20Makefile%2C1.6%2C1.7%20setup-softdevice.c%2C1.10%2C1.11%20setup-softdevice.h%2C1.7%2C1.8%20softdevice.c%2C1.14%2C1.15%20video-dfb.c%2C1.18%2C1.19&In-Reply-To=%3C200502270852.j1R8qaN07137%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.35,1.36 Makefile,1.6,1.7 setup-softdevice.c,1.10,1.11 setup-softdevice.h,1.7,1.8 softdevice.c,1.14,1.15 video-dfb.c,1.18,1.19">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Feb 27 09:52:36 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000058.html">[Softdevice-cvs] softdevice CHANGELOG,1.34,1.35 Makefile,1.5,1.6 mpeg2decoder.c,1.15,1.16 setup-softdevice.c,1.9,1.10 setup-softdevice.h,1.6,1.7 softdevice.c,1.13,1.14 video-dfb.c,1.17,1.18 video-dfb.h,1.4,1.5 video-dummy.c,1.1.1.1,1.2 video-dummy.h,1.1.1.1,1.2 video-fb.c,1.4,1.5 video-fb.h,1.2,1.3 video-vidix.c,1.5,1.6 video-vidix.h,1.2,1.3 video-xv.c,1.15,1.16 video-xv.h,1.5,1.6 video.c,1.9,1.10 video.h,1.8,1.9
+</A></li>
+        <LI>Next message: <A HREF="000060.html">[Softdevice-cvs] softdevice video.c,1.10,1.11 CHANGELOG,1.36,1.37
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#59">[ date ]</a>
+              <a href="thread.html#59">[ thread ]</a>
+              <a href="subject.html#59">[ subject ]</a>
+              <a href="author.html#59">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv32080
+
+Modified Files:
+	CHANGELOG Makefile setup-softdevice.c setup-softdevice.h 
+	softdevice.c video-dfb.c 
+Log Message:
+- save &quot;vo&quot; and &quot;ao&quot; calling args in setup store.
+- new runtime arg &quot;-L path_name&quot;. Default set in Makefile to: &quot;./PLUGINS/lib&quot;
+- USE_SUBPLUGINS is now default build option
+- dfb-out: fix for segfault on via unichrome with current DirectFB cvs.
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.35
+retrieving revision 1.36
+diff -C2 -d -r1.35 -r1.36
+*** CHANGELOG	24 Feb 2005 22:35:50 -0000	1.35
+--- CHANGELOG	27 Feb 2005 08:52:33 -0000	1.36
+***************
+*** 1,3 ****
+--- 1,8 ----
+  Changelog
++  2005-02-27:
++     - save &quot;vo&quot; and &quot;ao&quot; calling args in setup store.
++     - new runtime arg &quot;-L path_name&quot;. Default set in Makefile to: &quot;./PLUGINS/lib&quot;
++     - USE_SUBPLUGINS is now default build option
++     - dfb-out: fix for segfault on via unichrome with current DirectFB cvs.
+   2005-02-25:
+      - vidix-out: fix segfaults upon switch from software OSD back to pseudo mode.
+
+Index: Makefile
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/Makefile,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -C2 -d -r1.6 -r1.7
+*** Makefile	24 Feb 2005 22:35:50 -0000	1.6
+--- Makefile	27 Feb 2005 08:52:33 -0000	1.7
+***************
+*** 56,60 ****
+  # -----------------------------------------------------------------------------
+  # if you want output methods build as separate libs uncomment this
+! #USE_SUBPLUGINS = 1
+  
+  # -----------------------------------------------------------------------------
+--- 56,60 ----
+  # -----------------------------------------------------------------------------
+  # if you want output methods build as separate libs uncomment this
+! USE_SUBPLUGINS = 1
+  
+  # -----------------------------------------------------------------------------
+***************
+*** 146,149 ****
+--- 146,150 ----
+  
+  DEFINES += -DPLUGIN_NAME_I18N='&quot;$(PLUGIN)&quot;' -D_GNU_SOURCE
++ DEFINES += -DPLUGINLIBDIR='&quot;./PLUGINS/lib&quot;'
+  
+  ### The object files (add further files here):
+
+Index: setup-softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.c,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -C2 -d -r1.10 -r1.11
+*** setup-softdevice.c	24 Feb 2005 22:35:51 -0000	1.10
+--- setup-softdevice.c	27 Feb 2005 08:52:33 -0000	1.11
+***************
+*** 130,133 ****
+--- 130,134 ----
+  
+    strcpy (alsaDevice, &quot;&quot;);
++   voArgs = aoArgs = NULL;
+  }
+  
+
+Index: setup-softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.h,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -C2 -d -r1.7 -r1.8
+*** setup-softdevice.h	24 Feb 2005 22:35:51 -0000	1.7
+--- setup-softdevice.h	27 Feb 2005 08:52:33 -0000	1.8
+***************
+*** 39,42 ****
+--- 39,44 ----
+      int   osdMode;
+      char  alsaDevice [ALSA_DEVICE_NAME_LENGTH];
++     char  *voArgs;
++     char  *aoArgs;
+  };
+  
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.14
+retrieving revision 1.15
+diff -C2 -d -r1.14 -r1.15
+*** softdevice.c	24 Feb 2005 22:35:51 -0000	1.14
+--- softdevice.c	27 Feb 2005 08:52:33 -0000	1.15
+***************
+*** 226,230 ****
+  class cPluginSoftDevice : public cPlugin {
+  private:
+!   int voutMethod;
+  
+  public:
+--- 226,231 ----
+  class cPluginSoftDevice : public cPlugin {
+  private:
+!   int   voutMethod;
+!   char  *pluginPath;
+  
+  public:
+***************
+*** 266,270 ****
+  
+  public:
+!   cSoftDevice(int method = 0);
+    ~cSoftDevice();
+    virtual bool HasDecoder(void) const;
+--- 267,271 ----
+  
+  public:
+!   cSoftDevice(int method, char *pluginPath);
+    ~cSoftDevice();
+    virtual bool HasDecoder(void) const;
+***************
+*** 295,299 ****
+  };
+  
+! cSoftDevice::cSoftDevice(int method)
+  {
+      freezeModeEnabled = false;
+--- 296,300 ----
+  };
+  
+! cSoftDevice::cSoftDevice(int method,char *pluginPath)
+  {
+      freezeModeEnabled = false;
+***************
+*** 306,310 ****
+  #ifdef USE_SUBPLUGINS
+    {
+-       char  *pluginPath = &quot;./PLUGINS/lib&quot;;
+        char  *subPluginFileName = NULL;
+        char  *outMethodName  = NULL;
+--- 307,310 ----
+***************
+*** 612,615 ****
+--- 612,616 ----
+    voutMethod = 0;
+  #endif
++   pluginPath = PLUGINLIBDIR;
+  }
+  
+***************
+*** 639,642 ****
+--- 640,644 ----
+    &quot;  -vo vidix:               enable output via vidix driver\n&quot;
+  #endif
++   &quot;  -L &lt;plugin_path_name&gt;    search path for loading subplugins\n&quot;
+    &quot;\n&quot;;
+  }
+***************
+*** 658,661 ****
+--- 660,664 ----
+          if (!strncmp (vo_argv, &quot;xv:&quot;, 3)) {
+            vo_argv += 3;
++           setupStore.voArgs = vo_argv;
+  #ifdef XV_SUPPORT
+            voutMethod = VOUT_XV;
+***************
+*** 681,684 ****
+--- 684,688 ----
+          } else if (!strncmp (vo_argv, &quot;fb:&quot;, 3)) {
+            vo_argv += 3;
++           setupStore.voArgs = vo_argv;
+  #ifdef FB_SUPPORT
+            voutMethod = VOUT_FB;
+***************
+*** 688,691 ****
+--- 692,696 ----
+          } else if (!strncmp (vo_argv, &quot;dfb:&quot;, 4)) {
+            vo_argv += 4;
++           setupStore.voArgs = vo_argv;
+  #ifdef DFB_SUPPORT
+            voutMethod = VOUT_DFB;
+***************
+*** 697,700 ****
+--- 702,706 ----
+          } else if (!strncmp (vo_argv, &quot;vidix:&quot;, 6)) {
+            vo_argv += 6;
++           setupStore.voArgs = vo_argv;
+  #ifdef VIDIX_SUPPORT
+            voutMethod = VOUT_VIDIX;
+***************
+*** 711,718 ****
+--- 717,730 ----
+          if (!strncmp(ao_argv, &quot;alsa:&quot;, 5)) {
+            ao_argv += 5;
++           setupStore.aoArgs = ao_argv;
+            fprintf(stderr, &quot;[softdevice] using alsa device %s\n&quot;, ao_argv);
+            strncpy(setupStore.alsaDevice, ao_argv, ALSA_DEVICE_NAME_LENGTH);
+          }
+        }
++     } else if (!strcmp (argv[i], &quot;-L&quot;)) {
++       ++i; --argc;
++       if (argc &gt; 0) {
++         pluginPath = argv[i];
++       }
+      }
+      ++i;
+***************
+*** 733,737 ****
+    // Start any background activities the plugin shall perform.
+    fprintf(stderr,&quot;[softdevice] initializing Plugin\n&quot;);
+!   new cSoftDevice(voutMethod);
+    return true;
+  }
+--- 745,749 ----
+    // Start any background activities the plugin shall perform.
+    fprintf(stderr,&quot;[softdevice] initializing Plugin\n&quot;);
+!   new cSoftDevice(voutMethod,pluginPath);
+    return true;
+  }
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.18
+retrieving revision 1.19
+diff -C2 -d -r1.18 -r1.19
+*** video-dfb.c	24 Feb 2005 22:35:51 -0000	1.18
+--- video-dfb.c	27 Feb 2005 08:52:33 -0000	1.19
+***************
+*** 585,591 ****
+        }
+  #endif
+!                dlc.flags   = (DFBDisplayLayerConfigFlags)
+!                               ((int) dlc.flags | DLCONF_OPTIONS);
+!                dlc.options  = DLOP_FIELD_PARITY; //DLOP_NONE; //DLOP_FIELD_PARITY;
+  
+        vidDsc.flags = (DFBSurfaceDescriptionFlags) (DSDESC_CAPS |
+--- 585,591 ----
+        }
+  #endif
+!       dlc.flags = (DFBDisplayLayerConfigFlags)((int) dlc.flags | DLCONF_OPTIONS);
+! 
+!       dlc.options = DLOP_FIELD_PARITY;
+  
+        vidDsc.flags = (DFBSurfaceDescriptionFlags) (DSDESC_CAPS |
+***************
+*** 646,652 ****
+            dlc.options = (DFBDisplayLayerOptions)((int)dlc.options|
+                                                   DLOP_FIELD_PARITY);
+! 
+!         if (isVIAUnichrome)
+!           videoLayer-&gt;SetLevel(1);
+  
+          /* --------------------------------------------------------------------
+--- 646,659 ----
+            dlc.options = (DFBDisplayLayerOptions)((int)dlc.options|
+                                                   DLOP_FIELD_PARITY);
+!         try
+!         {
+!           if (isVIAUnichrome)
+!             videoLayer-&gt;SetLevel(1);
+!         }
+!         catch (DFBException *ex)
+!         {
+!           fprintf (stderr,&quot;Caught: action=%s, result=%s\n&quot;,
+!                    ex-&gt;GetAction(), ex-&gt;GetResult());
+!         }
+  
+          /* --------------------------------------------------------------------
+***************
+*** 661,670 ****
+            fprintf (stderr,&quot;Caught: action=%s, result=%s\n&quot;,
+                     ex-&gt;GetAction(), ex-&gt;GetResult());
+-           //exit(1);
+          }
+  
+-         //if (setupStore-&gt;useMGAtv)
+-           //videoLayer-&gt;SetFieldParity(0);
+- 
+  #if HAVE_SetSourceLocation
+          try
+--- 668,673 ----
+***************
+*** 775,779 ****
+      IDirectFBSurface  *tmpSurface;
+  
+!   // don't update only dirty areas 
+    OSDdirty=true;
+  
+--- 778,782 ----
+      IDirectFBSurface  *tmpSurface;
+  
+!   // don't update only dirty areas
+    OSDdirty=true;
+  
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000058.html">[Softdevice-cvs] softdevice CHANGELOG,1.34,1.35 Makefile,1.5,1.6 mpeg2decoder.c,1.15,1.16 setup-softdevice.c,1.9,1.10 setup-softdevice.h,1.6,1.7 softdevice.c,1.13,1.14 video-dfb.c,1.17,1.18 video-dfb.h,1.4,1.5 video-dummy.c,1.1.1.1,1.2 video-dummy.h,1.1.1.1,1.2 video-fb.c,1.4,1.5 video-fb.h,1.2,1.3 video-vidix.c,1.5,1.6 video-vidix.h,1.2,1.3 video-xv.c,1.15,1.16 video-xv.h,1.5,1.6 video.c,1.9,1.10 video.h,1.8,1.9
+</A></li>
+	<LI>Next message: <A HREF="000060.html">[Softdevice-cvs] softdevice video.c,1.10,1.11 CHANGELOG,1.36,1.37
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#59">[ date ]</a>
+              <a href="thread.html#59">[ thread ]</a>
+              <a href="subject.html#59">[ subject ]</a>
+              <a href="author.html#59">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

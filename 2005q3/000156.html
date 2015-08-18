@@ -1,0 +1,192 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.83,1.84 video-dfb.c,1.32,1.33
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.83%2C1.84%20video-dfb.c%2C1.32%2C1.33&In-Reply-To=%3C200507161252.j6GCq7I11390%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000155.html">
+   <LINK REL="Next"  HREF="000157.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.83,1.84 video-dfb.c,1.32,1.33</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.83%2C1.84%20video-dfb.c%2C1.32%2C1.33&In-Reply-To=%3C200507161252.j6GCq7I11390%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.83,1.84 video-dfb.c,1.32,1.33">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Jul 16 14:52:07 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000155.html">[Softdevice-cvs] softdevice CHANGELOG,1.82,1.83 Makefile,1.13,1.14 README,1.7,1.8 mpeg2decoder.c,1.43,1.44 setup-softdevice.c,1.20,1.21 setup-softdevice.h,1.14,1.15 utils.c,1.5,1.6 utils.h,1.4,1.5 video-dfb.c,1.31,1.32 video-vidix.c,1.9,1.10 video.c,1.24,1.25 video.h,1.15,1.16
+</A></li>
+        <LI>Next message: <A HREF="000157.html">[Softdevice-cvs] softdevice CHANGELOG,1.84,1.85 utils.c,1.6,1.7
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#156">[ date ]</a>
+              <a href="thread.html#156">[ thread ]</a>
+              <a href="subject.html#156">[ subject ]</a>
+              <a href="author.html#156">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv5111
+
+Modified Files:
+	CHANGELOG video-dfb.c 
+Log Message:
+- fix for cropBottom in dfb with YUY2 pixelformat
+- some preparations for configure in video-dfb.c
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.83
+retrieving revision 1.84
+diff -C2 -d -r1.83 -r1.84
+*** CHANGELOG	15 Jul 2005 20:42:16 -0000	1.83
+--- CHANGELOG	16 Jul 2005 12:52:04 -0000	1.84
+***************
+*** 1,3 ****
+--- 1,6 ----
+  Changelog
++ 2005-07-16:
++     - fix for cropBottom in dfb with YUY2 pixelformat
++     - some preparations for configure in video-dfb.c
+  2005-07-15:
+      - by Vadim Catana:
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.32
+retrieving revision 1.33
+diff -C2 -d -r1.32 -r1.33
+*** video-dfb.c	15 Jul 2005 20:42:16 -0000	1.32
+--- video-dfb.c	16 Jul 2005 12:52:04 -0000	1.33
+***************
+*** 15,19 ****
+  #include &quot;setup-softdevice.h&quot;
+  
+! #define HAVE_SetSourceLocation 0
+  
+  //#define COLORKEY 17,8,79
+--- 15,33 ----
+  #include &quot;setup-softdevice.h&quot;
+  
+! #ifdef HAVE_CONFIG
+! # include &quot;config.h&quot;
+! #else
+! # define HAVE_SetSourceLocation 0
+! # if (DIRECTFB_MAJOR_VERSION == 0) &amp;&amp; (DIRECTFB_MINOR_VERSION == 9) &amp;&amp; (DIRECTFB_MICRO_VERSION &lt; 23)
+! #   define GraphicsDeviceDescription 0
+! # else
+! #   define GraphicsDeviceDescription 1
+! # endif
+! # if (DIRECTFB_MAJOR_VERSION &gt; 0 || ((DIRECTFB_MINOR_VERSION == 9) &amp;&amp; DIRECTFB_MICRO_VERSION &gt; 22))
+! #   define HAVE_DSCAPS_DOUBLE 1
+! # else
+! #   define HAVE_DSCAPS_DOUBLE 0
+! # endif
+! #endif
+  
+  //#define COLORKEY 17,8,79
+***************
+*** 157,168 ****
+  static void reportCardInfo (IDirectFB *dfb)
+  {
+! #if (DIRECTFB_MAJOR_VERSION == 0) &amp;&amp; (DIRECTFB_MINOR_VERSION == 9) &amp;&amp; (DIRECTFB_MICRO_VERSION &lt; 23)
+!     DFBCardCapabilities           caps;
+! 
+!   dfb-&gt;GetCardCapabilities(&amp;caps);
+! #else
+      DFBGraphicsDeviceDescription  caps;
+  
+    dfb-&gt;GetDeviceDescription(&amp;caps);
+  #endif
+  
+--- 171,182 ----
+  static void reportCardInfo (IDirectFB *dfb)
+  {
+! #if HAVE_GraphicsDeviceDescription
+      DFBGraphicsDeviceDescription  caps;
+  
+    dfb-&gt;GetDeviceDescription(&amp;caps);
++ #else
++     DFBCardCapabilities           caps;
++ 
++   dfb-&gt;GetCardCapabilities(&amp;caps);
+  #endif
+  
+***************
+*** 636,640 ****
+        dlc.options       = DLOP_FIELD_PARITY;
+  
+! #if (DIRECTFB_MAJOR_VERSION &gt; 0 || ((DIRECTFB_MINOR_VERSION == 9) &amp;&amp; DIRECTFB_MICRO_VERSION &gt; 22))
+        dlc.flags = (DFBDisplayLayerConfigFlags)
+                        ((int) dlc.flags | DLCONF_SURFACE_CAPS);
+--- 650,654 ----
+        dlc.options       = DLOP_FIELD_PARITY;
+  
+! #if HAVE_DSCAPS_DOUBLE
+        dlc.flags = (DFBDisplayLayerConfigFlags)
+                        ((int) dlc.flags | DLCONF_SURFACE_CAPS);
+***************
+*** 800,803 ****
+--- 814,837 ----
+  
+          videoSurface=dfb-&gt;CreateSurface(vidDsc);
++         /* --------------------------------------------------------------------
++          * Here is probably a bug in DirectFB, as Clear() does _not_ work
++          * the same, as manual wipe out YUY2 surface. I tried Clear() on my
++          * tests, but it did not solve the problem. That happens with my
++          * Matrox G550.
++          * videoSurface-&gt;Clear(0,0,0,0);
++          * The workaround code assumes that in case of stretchBlit, pixelformat
++          * YUY2 is used.
++          */
++         {
++             int     *dst, i, j;
++             int     pitch;
++ 
++           videoSurface-&gt;Lock(DSLF_WRITE, (void **)&amp;dst, &amp;pitch);
++           for(i = 0; i &lt; vidDsc.height; ++i, dst += pitch/4)
++             for (j = 0; j &lt; vidDsc.width / 2; ++j)
++               dst [j] = 0x80008000;
++           videoSurface-&gt;Unlock();
++         }
++ 
+        }
+        reportSurfaceCapabilities (&quot;videoSurface&quot;, videoSurface);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000155.html">[Softdevice-cvs] softdevice CHANGELOG,1.82,1.83 Makefile,1.13,1.14 README,1.7,1.8 mpeg2decoder.c,1.43,1.44 setup-softdevice.c,1.20,1.21 setup-softdevice.h,1.14,1.15 utils.c,1.5,1.6 utils.h,1.4,1.5 video-dfb.c,1.31,1.32 video-vidix.c,1.9,1.10 video.c,1.24,1.25 video.h,1.15,1.16
+</A></li>
+	<LI>Next message: <A HREF="000157.html">[Softdevice-cvs] softdevice CHANGELOG,1.84,1.85 utils.c,1.6,1.7
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#156">[ date ]</a>
+              <a href="thread.html#156">[ thread ]</a>
+              <a href="subject.html#156">[ subject ]</a>
+              <a href="author.html#156">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

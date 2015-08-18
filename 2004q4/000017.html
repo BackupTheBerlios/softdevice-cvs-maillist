@@ -1,0 +1,165 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice video-dfb.c,1.6,1.7 video-dfb.h,1.1.1.1,1.2
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2004q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-dfb.c%2C1.6%2C1.7%20video-dfb.h%2C1.1.1.1%2C1.2&In-Reply-To=%3C200410240807.i9O87iB10922%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000016.html">
+   <LINK REL="Next"  HREF="000018.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice video-dfb.c,1.6,1.7 video-dfb.h,1.1.1.1,1.2</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-dfb.c%2C1.6%2C1.7%20video-dfb.h%2C1.1.1.1%2C1.2&In-Reply-To=%3C200410240807.i9O87iB10922%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice video-dfb.c,1.6,1.7 video-dfb.h,1.1.1.1,1.2">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Oct 24 10:07:44 CEST 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000016.html">[Softdevice-cvs] softdevice video-dfb.c,1.5,1.6
+</A></li>
+        <LI>Next message: <A HREF="000018.html">[Softdevice-cvs] softdevice CHANGELOG,1.10,1.11 video-dfb.c,1.7,1.8 video-dfb.h,1.2,1.3
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#17">[ date ]</a>
+              <a href="thread.html#17">[ thread ]</a>
+              <a href="subject.html#17">[ subject ]</a>
+              <a href="author.html#17">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv21575
+
+Modified Files:
+	video-dfb.c video-dfb.h 
+Log Message:
+use flag from parent class
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -C2 -d -r1.6 -r1.7
+*** video-dfb.c	24 Oct 2004 07:50:25 -0000	1.6
+--- video-dfb.c	24 Oct 2004 08:07:42 -0000	1.7
+***************
+*** 224,228 ****
+    currentPixelFormat = setupStore.pixelFormat;
+  
+!   osdActive = false;
+  
+    DirectFB::Init();
+--- 224,228 ----
+    currentPixelFormat = setupStore.pixelFormat;
+  
+!   OSDpresent = false;
+  
+    DirectFB::Init();
+***************
+*** 627,631 ****
+    if (useStretchBlit)
+    {
+!     osdActive = true;
+      //tmpSurface-&gt;Flip();
+    }
+--- 627,631 ----
+    if (useStretchBlit)
+    {
+!     OSDpresent = true;
+      //tmpSurface-&gt;Flip();
+    }
+***************
+*** 655,659 ****
+  
+    if (useStretchBlit)
+!     osdActive = true;
+  
+    tmpSurface-&gt;Flip();
+--- 655,659 ----
+  
+    if (useStretchBlit)
+!     OSDpresent = true;
+  
+    tmpSurface-&gt;Flip();
+***************
+*** 672,676 ****
+    {
+      osdMutex.Lock();
+!     osdActive  = false;
+      osdClrBack = true;
+      osdMutex.Unlock();
+--- 672,676 ----
+    {
+      osdMutex.Lock();
+!     OSDpresent  = false;
+      osdClrBack = true;
+      osdMutex.Unlock();
+***************
+*** 821,825 ****
+        scrSurface-&gt;StretchBlit(videoSurface, &amp;src, &amp;dst);
+  
+!       if (osdActive)
+        {
+            DFBRectangle  osdsrc;
+--- 821,825 ----
+        scrSurface-&gt;StretchBlit(videoSurface, &amp;src, &amp;dst);
+  
+!       if (OSDpresent)
+        {
+            DFBRectangle  osdsrc;
+
+Index: video-dfb.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.h,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1.1.1 -r1.2
+*** video-dfb.h	1 Aug 2004 05:07:06 -0000	1.1.1.1
+--- video-dfb.h	24 Oct 2004 08:07:42 -0000	1.2
+***************
+*** 34,38 ****
+      bool alphablend;
+      bool useStretchBlit;
+!     bool osdActive, osdClrBack;
+      void SetParams();
+  
+--- 34,38 ----
+      bool alphablend;
+      bool useStretchBlit;
+!     bool osdClrBack;
+      void SetParams();
+  
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000016.html">[Softdevice-cvs] softdevice video-dfb.c,1.5,1.6
+</A></li>
+	<LI>Next message: <A HREF="000018.html">[Softdevice-cvs] softdevice CHANGELOG,1.10,1.11 video-dfb.c,1.7,1.8 video-dfb.h,1.2,1.3
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#17">[ date ]</a>
+              <a href="thread.html#17">[ thread ]</a>
+              <a href="subject.html#17">[ subject ]</a>
+              <a href="author.html#17">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

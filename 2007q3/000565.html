@@ -1,0 +1,293 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice SoftOsd.c,1.28,1.29
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20SoftOsd.c%2C1.28%2C1.29&In-Reply-To=%3C20070711194936.222D64DD81%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000564.html">
+   <LINK REL="Next"  HREF="000566.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice SoftOsd.c,1.28,1.29</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20SoftOsd.c%2C1.28%2C1.29&In-Reply-To=%3C20070711194936.222D64DD81%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice SoftOsd.c,1.28,1.29">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Wed Jul 11 21:49:36 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000564.html">[Softdevice-cvs] softdevice video-xv.c,1.71,1.72
+</A></li>
+        <LI>Next message: <A HREF="000566.html">[Softdevice-cvs] softdevice PicBuffer.c,1.20,1.21
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#565">[ date ]</a>
+              <a href="thread.html#565">[ thread ]</a>
+              <a href="subject.html#565">[ subject ]</a>
+              <a href="author.html#565">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv13698
+
+Modified Files:
+	SoftOsd.c 
+Log Message:
+whitespace cleanup
+
+Index: SoftOsd.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.c,v
+retrieving revision 1.28
+retrieving revision 1.29
+diff -C2 -d -r1.28 -r1.29
+*** SoftOsd.c	10 May 2007 21:57:26 -0000	1.28
+--- SoftOsd.c	11 Jul 2007 19:49:28 -0000	1.29
+***************
+*** 60,68 ****
+          colorkey=videoOut-&gt;GetOSDColorkey();
+          pseudo_transparent=(uint64_t)colorkey | ((uint64_t) colorkey)&lt;&lt;32;
+!         
+          xOfs=X;yOfs=Y;
+          ScreenOsdWidth=ScreenOsdHeight=0;
+          int Depth=16; bool HasAlpha=false; bool AlphaInversed=false;
+!         bool IsYUV=false; 
+          videoOut-&gt;AdjustOSDMode();
+          videoOut-&gt;GetOSDMode(Depth,HasAlpha,AlphaInversed,IsYUV);
+--- 60,68 ----
+          colorkey=videoOut-&gt;GetOSDColorkey();
+          pseudo_transparent=(uint64_t)colorkey | ((uint64_t) colorkey)&lt;&lt;32;
+! 
+          xOfs=X;yOfs=Y;
+          ScreenOsdWidth=ScreenOsdHeight=0;
+          int Depth=16; bool HasAlpha=false; bool AlphaInversed=false;
+!         bool IsYUV=false;
+          videoOut-&gt;AdjustOSDMode();
+          videoOut-&gt;GetOSDMode(Depth,HasAlpha,AlphaInversed,IsYUV);
+***************
+*** 96,100 ****
+                  videoOut-&gt;CloseOSD();
+  #ifdef HAVE_YAEPGPATCH
+!                 if (vidWin.bpp!=0) 
+                          videoOut-&gt;SetVidWin(0,0,0,0,0);
+  #endif
+--- 96,100 ----
+                  videoOut-&gt;CloseOSD();
+  #ifdef HAVE_YAEPGPATCH
+!                 if (vidWin.bpp!=0)
+                          videoOut-&gt;SetVidWin(0,0,0,0,0);
+  #endif
+***************
+*** 129,133 ****
+  
+                  int Depth=16; bool HasAlpha=false; bool AlphaInversed=false;
+!                 bool IsYUV=false; 
+                  videoOut-&gt;GetOSDMode(Depth,HasAlpha,AlphaInversed,IsYUV);
+                  bool modeChanged=SetMode(Depth,HasAlpha,AlphaInversed,IsYUV);
+--- 129,133 ----
+  
+                  int Depth=16; bool HasAlpha=false; bool AlphaInversed=false;
+!                 bool IsYUV=false;
+                  videoOut-&gt;GetOSDMode(Depth,HasAlpha,AlphaInversed,IsYUV);
+                  bool modeChanged=SetMode(Depth,HasAlpha,AlphaInversed,IsYUV);
+***************
+*** 175,179 ****
+  
+          int Depth=16; bool HasAlpha=false; bool AlphaInversed=false;
+!         bool IsYUV=false; 
+          videoOut-&gt;GetOSDMode(Depth,HasAlpha,AlphaInversed,IsYUV);
+          bool modeChanged=SetMode(Depth,HasAlpha,AlphaInversed,IsYUV);
+--- 175,179 ----
+  
+          int Depth=16; bool HasAlpha=false; bool AlphaInversed=false;
+!         bool IsYUV=false;
+          videoOut-&gt;GetOSDMode(Depth,HasAlpha,AlphaInversed,IsYUV);
+          bool modeChanged=SetMode(Depth,HasAlpha,AlphaInversed,IsYUV);
+***************
+*** 261,265 ****
+          if (old_bitmap_Format != bitmap_Format) {
+                  Clear();
+! 		FlushBitmaps(false);
+                  OSDDEB(&quot;SetMode switched old_bitmap_Format %d -&gt; bitmap_Format %d\n&quot;,
+                          old_bitmap_Format,bitmap_Format);
+--- 261,265 ----
+          if (old_bitmap_Format != bitmap_Format) {
+                  Clear();
+!                 FlushBitmaps(false);
+                  OSDDEB(&quot;SetMode switched old_bitmap_Format %d -&gt; bitmap_Format %d\n&quot;,
+                          old_bitmap_Format,bitmap_Format);
+***************
+*** 278,282 ****
+          voutMutex.Lock();
+  #ifdef HAVE_YAEPGPATCH
+!         if (vidWin.bpp!=0) 
+                  videoOut-&gt;SetVidWin(1,vidWin.x1,vidWin.y1,vidWin.x2,vidWin.y2);
+  #endif
+--- 278,282 ----
+          voutMutex.Lock();
+  #ifdef HAVE_YAEPGPATCH
+!         if (vidWin.bpp!=0)
+                  videoOut-&gt;SetVidWin(1,vidWin.x1,vidWin.y1,vidWin.x2,vidWin.y2);
+  #endif
+***************
+*** 419,425 ****
+          };
+  };
+!  
+  /*---------------------------------------------------------------------*/
+! // pseudo alpha blending macros 
+  #define PSEUDO_ALPHA_TO_RGB(rgb) \
+          if ( !c ||       \
+--- 419,425 ----
+          };
+  };
+! 
+  /*---------------------------------------------------------------------*/
+! // pseudo alpha blending macros
+  #define PSEUDO_ALPHA_TO_RGB(rgb) \
+          if ( !c ||       \
+***************
+*** 484,488 ****
+                                                                  \
+                   &quot;punpckldq %%mm4,%%mm2 \n&quot;                     \
+!                  &quot;punpckhdq %%mm4,%%mm3 \n&quot;                     
+  
+  #define REPLACE_COLORKEY_MMX           \
+--- 484,488 ----
+                                                                  \
+                   &quot;punpckldq %%mm4,%%mm2 \n&quot;                     \
+!                  &quot;punpckhdq %%mm4,%%mm3 \n&quot;
+  
+  #define REPLACE_COLORKEY_MMX           \
+***************
+*** 498,503 ****
+                   &quot;pand %%mm7, %%mm1 \n&quot;                         \
+                   &quot;pandn %%mm3, %%mm4 \n&quot;                        \
+!                  &quot;por %%mm4, %%mm1\n&quot;                           
+!  
+  /*---------------------------------------------------------------------*/
+  void cSoftOsd::ARGB_to_BGRA32(uint8_t * dest1, color * pixmap, int Pixel,
+--- 498,503 ----
+                   &quot;pand %%mm7, %%mm1 \n&quot;                         \
+                   &quot;pandn %%mm3, %%mm4 \n&quot;                        \
+!                  &quot;por %%mm4, %%mm1\n&quot;
+! 
+  /*---------------------------------------------------------------------*/
+  void cSoftOsd::ARGB_to_BGRA32(uint8_t * dest1, color * pixmap, int Pixel,
+***************
+*** 536,540 ****
+                 );
+  
+!         if (odd) 
+                  while (end_dest&gt;dest) {
+                          // pseudo alpha blending
+--- 536,540 ----
+                 );
+  
+!         if (odd)
+                  while (end_dest&gt;dest) {
+                          // pseudo alpha blending
+***************
+*** 826,830 ****
+                          &quot;r&quot; (&amp;pseudo_transparent)
+                 );
+!  
+          if (odd)
+                  while (end_dest&gt;dest) {
+--- 826,830 ----
+                          &quot;r&quot; (&amp;pseudo_transparent)
+                 );
+! 
+          if (odd)
+                  while (end_dest&gt;dest) {
+***************
+*** 1014,1021 ****
+                                  // channel back to normal...
+                               ConvertPalette((tColor *)tmp_pixmap, (tColor *)tmp_pixmap,
+!                                              dest_Width);    
+!                              ConvertPalette((tColor *)&amp;tmp_pixmap[OSD_STRIDE], 
+                                               (tColor *)&amp;tmp_pixmap[OSD_STRIDE],
+!                                              dest_Width);    
+                          };
+                          ARGB_to_AYUV((uint32_t*)tmp_pixmap,(color *)tmp_pixmap,
+--- 1014,1021 ----
+                                  // channel back to normal...
+                               ConvertPalette((tColor *)tmp_pixmap, (tColor *)tmp_pixmap,
+!                                              dest_Width);
+!                              ConvertPalette((tColor *)&amp;tmp_pixmap[OSD_STRIDE],
+                                               (tColor *)&amp;tmp_pixmap[OSD_STRIDE],
+!                                              dest_Width);
+                          };
+                          ARGB_to_AYUV((uint32_t*)tmp_pixmap,(color *)tmp_pixmap,
+***************
+*** 1294,1298 ****
+                  buf=dest+y*linesize;
+                  (*OutputConvert)(buf,tmp_pixmap+1,dest_Width-2,y&amp;1);
+!                 
+                  if (dest_dirtyLines)
+                          dest_dirtyLines[y]=true;
+--- 1294,1298 ----
+                  buf=dest+y*linesize;
+                  (*OutputConvert)(buf,tmp_pixmap+1,dest_Width-2,y&amp;1);
+! 
+                  if (dest_dirtyLines)
+                          dest_dirtyLines[y]=true;
+***************
+*** 1305,1309 ****
+                          buf=dest+y*linesize;
+                          (*OutputConvert)(buf,((color*)src)+1,dest_Width-2,y&amp;1);
+!                         
+                          if (dest_dirtyLines)
+                                  dest_dirtyLines[y]=true;
+--- 1305,1309 ----
+                          buf=dest+y*linesize;
+                          (*OutputConvert)(buf,((color*)src)+1,dest_Width-2,y&amp;1);
+! 
+                          if (dest_dirtyLines)
+                                  dest_dirtyLines[y]=true;
+***************
+*** 1322,1326 ****
+                  bool *dest_dirtyLines) {
+          OSDDEB(&quot;CopyToBitmap RGB no scale\n&quot;);
+! 	
+          if ( bitmap_Format == PF_AYUV ) {
+                  fprintf(stderr,&quot;cSoftOsd error did not call SetMode()!\n&quot;);
+--- 1322,1326 ----
+                  bool *dest_dirtyLines) {
+          OSDDEB(&quot;CopyToBitmap RGB no scale\n&quot;);
+! 
+          if ( bitmap_Format == PF_AYUV ) {
+                  fprintf(stderr,&quot;cSoftOsd error did not call SetMode()!\n&quot;);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000564.html">[Softdevice-cvs] softdevice video-xv.c,1.71,1.72
+</A></li>
+	<LI>Next message: <A HREF="000566.html">[Softdevice-cvs] softdevice PicBuffer.c,1.20,1.21
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#565">[ date ]</a>
+              <a href="thread.html#565">[ thread ]</a>
+              <a href="subject.html#565">[ subject ]</a>
+              <a href="author.html#565">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,140 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice VideoFilter.c, 1.9, 1.10 CHANGELOG,	1.324, 1.325
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2008q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20VideoFilter.c%2C%201.9%2C%201.10%20CHANGELOG%2C%0A%091.324%2C%201.325&In-Reply-To=%3C20080220080717.17C2611B042%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000596.html">
+   <LINK REL="Next"  HREF="000598.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice VideoFilter.c, 1.9, 1.10 CHANGELOG,	1.324, 1.325</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20VideoFilter.c%2C%201.9%2C%201.10%20CHANGELOG%2C%0A%091.324%2C%201.325&In-Reply-To=%3C20080220080717.17C2611B042%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice VideoFilter.c, 1.9, 1.10 CHANGELOG,	1.324, 1.325">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Wed Feb 20 09:07:17 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000596.html">[Softdevice-cvs] Softplay - fast forward / backwar
+</A></li>
+        <LI>Next message: <A HREF="000598.html">[Softdevice-cvs] softdevice configure,1.45,1.46
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#597">[ date ]</a>
+              <a href="thread.html#597">[ thread ]</a>
+              <a href="subject.html#597">[ subject ]</a>
+              <a href="author.html#597">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv25314
+
+Modified Files:
+	VideoFilter.c CHANGELOG 
+Log Message:
+fix some warnings and compile error with ffmpeg &gt;= r11816
+
+Index: VideoFilter.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/VideoFilter.c,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -C2 -d -r1.9 -r1.10
+*** VideoFilter.c	25 Dec 2007 10:32:56 -0000	1.9
+--- VideoFilter.c	20 Feb 2008 08:05:42 -0000	1.10
+***************
+*** 330,335 ****
+  void cBorderDetect::Filter(sPicBuffer *&amp;dest, sPicBuffer *orig) {
+      int black_border=0;
+!     int     lim;
+!     float   new_aspect;
+  
+      dest = orig; // &quot;copy&quot; do not modify
+--- 330,335 ----
+  void cBorderDetect::Filter(sPicBuffer *&amp;dest, sPicBuffer *orig) {
+      int black_border=0;
+!     int     lim = 0;
+!     float   new_aspect = 1.0;
+  
+      dest = orig; // &quot;copy&quot; do not modify
+***************
+*** 415,421 ****
+              else tmp_asp = 4.0 / 3.0;
+              //printf(&quot;Bordersize: %d  Calculated aspect %f\n&quot;,edge_pos, new_aspect);
+!             lim = 3 + (orig-&gt;height / 2) -
+!                      (orig-&gt;aspect_ratio * orig-&gt;height) /
+!                        ((16.0 / 9.0) * 2);
+              lim &amp;= ~3;
+      }
+--- 415,421 ----
+              else tmp_asp = 4.0 / 3.0;
+              //printf(&quot;Bordersize: %d  Calculated aspect %f\n&quot;,edge_pos, new_aspect);
+!             lim = (int) (3 + (orig-&gt;height / 2) -
+!                            (orig-&gt;aspect_ratio * orig-&gt;height) /
+!                          ((16.0 / 9.0) * 2));
+              lim &amp;= ~3;
+      }
+***************
+*** 573,577 ****
+          memcpy(avpic_dest.linesize,dest-&gt;stride,sizeof(avpic_dest.linesize));
+  
+!         pp_postprocess(avpic_src.data,
+                          avpic_src.linesize,
+                          avpic_dest.data,
+--- 573,577 ----
+          memcpy(avpic_dest.linesize,dest-&gt;stride,sizeof(avpic_dest.linesize));
+  
+!         pp_postprocess((const uint8_t **) avpic_src.data,
+                          avpic_src.linesize,
+                          avpic_dest.data,
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.324
+retrieving revision 1.325
+diff -C2 -d -r1.324 -r1.325
+*** CHANGELOG	25 Jan 2008 23:55:44 -0000	1.324
+--- CHANGELOG	20 Feb 2008 08:05:42 -0000	1.325
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2008-02-20:
++    - VideoFilter.c: fix some warnings and compile error with ffmpeg &gt;= r11816
+  2008-01-26:
+     - OSD: missing call to ClearOSD() of output device.
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000596.html">[Softdevice-cvs] Softplay - fast forward / backwar
+</A></li>
+	<LI>Next message: <A HREF="000598.html">[Softdevice-cvs] softdevice configure,1.45,1.46
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#597">[ date ]</a>
+              <a href="thread.html#597">[ thread ]</a>
+              <a href="subject.html#597">[ subject ]</a>
+              <a href="author.html#597">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

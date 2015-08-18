@@ -1,0 +1,180 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice PicBuffer.c, 1.23, 1.24 SoftOsd.c, 1.36,	1.37 softdevice.c, 1.97, 1.98
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2011q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20PicBuffer.c%2C%201.23%2C%201.24%20SoftOsd.c%2C%201.36%2C%0A%091.37%20softdevice.c%2C%201.97%2C%201.98&In-Reply-To=%3C20110417160634.4DFD9481366%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000662.html">
+   <LINK REL="Next"  HREF="000664.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice PicBuffer.c, 1.23, 1.24 SoftOsd.c, 1.36,	1.37 softdevice.c, 1.97, 1.98</H1>
+    <B>lucke at BerliOS</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20PicBuffer.c%2C%201.23%2C%201.24%20SoftOsd.c%2C%201.36%2C%0A%091.37%20softdevice.c%2C%201.97%2C%201.98&In-Reply-To=%3C20110417160634.4DFD9481366%40sheep.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice PicBuffer.c, 1.23, 1.24 SoftOsd.c, 1.36,	1.37 softdevice.c, 1.97, 1.98">lucke at sheep.berlios.de
+       </A><BR>
+    <I>Sun Apr 17 18:06:33 CEST 2011</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000662.html">[Softdevice-cvs] softdevice mpeg2decoder.c, 1.88,	1.89 mpeg2decoder.h, 1.47, 1.48
+</A></li>
+        <LI>Next message: <A HREF="000664.html">[Softdevice-cvs] softdevice SoftOsd.h, 1.20, 1.21 mpeg2decoder.c,	1.89, 1.90 softdevice.c, 1.98, 1.99 softdevice.h, 1.16,	1.17 video.c, 1.79, 1.80 video.h, 1.59, 1.60
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#663">[ date ]</a>
+              <a href="thread.html#663">[ thread ]</a>
+              <a href="subject.html#663">[ subject ]</a>
+              <a href="author.html#663">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv7987
+
+Modified Files:
+	PicBuffer.c SoftOsd.c softdevice.c 
+Log Message:
+Silence compiler warnings.
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.97
+retrieving revision 1.98
+diff -C 2 -d -r1.97 -r1.98
+*** softdevice.c	16 Apr 2011 13:13:58 -0000	1.97
+--- softdevice.c	17 Apr 2011 16:06:31 -0000	1.98
+***************
+*** 336,353 ****
+  
+  #ifdef APIVERSION
+!   asprintf (&amp;subPluginFileName,
+!             &quot;%s/%s%s.so.%s&quot;,
+!             pluginPath,
+!             &quot;libsoftdevice-&quot;,
+!             outMethodName,
+!             APIVERSION);
+  #else
+!   asprintf (&amp;subPluginFileName,
+!             &quot;%s/%s%s.so.%s&quot;,
+!             pluginPath,
+!             &quot;libsoftdevice-&quot;,
+!             outMethodName,
+!             VDRVERSION);
+  #endif
+  
+    void *handle = dlopen (subPluginFileName, RTLD_NOW);
+--- 336,359 ----
+  
+  #ifdef APIVERSION
+!   if (asprintf (&amp;subPluginFileName,
+!                 &quot;%s/%s%s.so.%s&quot;,
+!                 pluginPath,
+!                 &quot;libsoftdevice-&quot;,
+!                 outMethodName,
+!                 APIVERSION) &lt; 0)
+  #else
+!   if (asprintf (&amp;subPluginFileName,
+!                 &quot;%s/%s%s.so.%s&quot;,
+!                 pluginPath,
+!                 &quot;libsoftdevice-&quot;,
+!                 outMethodName,
+!                 VDRVERSION) &lt; 0)
+  #endif
++   {
++     esyslog(&quot;[softdevice] could not generate filename &quot;
++               &quot;for path(%s) method(%s)\n&quot;,
++             pluginPath, outMethodName);
++     exit (1);
++   }
+  
+    void *handle = dlopen (subPluginFileName, RTLD_NOW);
+
+Index: PicBuffer.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/PicBuffer.c,v
+retrieving revision 1.23
+retrieving revision 1.24
+diff -C 2 -d -r1.23 -r1.24
+*** PicBuffer.c	27 Jul 2008 17:34:42 -0000	1.23
+--- PicBuffer.c	17 Apr 2011 16:06:31 -0000	1.24
+***************
+*** 823,827 ****
+                  // we have to do format conversions
+                  do_convert=true;
+!                 dst_stride0 = 4*(dst_width+15 &amp; ~15);
+                  convert_buf=(uint8_t*)malloc(4*dst_stride0);
+                  dst_ptr0=convert_buf;
+--- 823,827 ----
+                  // we have to do format conversions
+                  do_convert=true;
+!                 dst_stride0 = 4*((dst_width+15) &amp; ~15);
+                  convert_buf=(uint8_t*)malloc(4*dst_stride0);
+                  dst_ptr0=convert_buf;
+***************
+*** 972,976 ****
+                  // we have to do format conversions
+                  do_convert=true;
+!                 dst_stride0 = 4*(dst_width+15 &amp; ~15);
+                  convert_buf=(uint8_t*)malloc(4*dst_stride0);
+                  dst_ptr0=convert_buf;
+--- 972,976 ----
+                  // we have to do format conversions
+                  do_convert=true;
+!                 dst_stride0 = 4*((dst_width+15) &amp; ~15);
+                  convert_buf=(uint8_t*)malloc(4*dst_stride0);
+                  dst_ptr0=convert_buf;
+
+Index: SoftOsd.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.c,v
+retrieving revision 1.36
+retrieving revision 1.37
+diff -C 2 -d -r1.36 -r1.37
+*** SoftOsd.c	16 Apr 2011 13:21:27 -0000	1.36
+--- SoftOsd.c	17 Apr 2011 16:06:31 -0000	1.37
+***************
+*** 1008,1012 ****
+                  return;
+  
+!         if (dest_Height &amp; 0x1 !=0) {
+                  //printf(&quot;warning dest_Height not even!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n&quot;);
+                  dest_Height &amp;= ~0x1;
+--- 1008,1012 ----
+                  return;
+  
+!         if ((dest_Height &amp; 0x1) !=0) {
+                  //printf(&quot;warning dest_Height not even!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n&quot;);
+                  dest_Height &amp;= ~0x1;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000662.html">[Softdevice-cvs] softdevice mpeg2decoder.c, 1.88,	1.89 mpeg2decoder.h, 1.47, 1.48
+</A></li>
+	<LI>Next message: <A HREF="000664.html">[Softdevice-cvs] softdevice SoftOsd.h, 1.20, 1.21 mpeg2decoder.c,	1.89, 1.90 softdevice.c, 1.98, 1.99 softdevice.h, 1.16,	1.17 video.c, 1.79, 1.80 video.h, 1.59, 1.60
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#663">[ date ]</a>
+              <a href="thread.html#663">[ thread ]</a>
+              <a href="subject.html#663">[ subject ]</a>
+              <a href="author.html#663">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

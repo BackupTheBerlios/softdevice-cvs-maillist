@@ -1,0 +1,172 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice softdevice.c, 1.96, 1.97 softdevice.h,	1.15, 1.16
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2011q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20softdevice.c%2C%201.96%2C%201.97%20softdevice.h%2C%0A%091.15%2C%201.16&In-Reply-To=%3C20110416131401.AA240481378%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000659.html">
+   <LINK REL="Next"  HREF="000661.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice softdevice.c, 1.96, 1.97 softdevice.h,	1.15, 1.16</H1>
+    <B>lucke at BerliOS</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20softdevice.c%2C%201.96%2C%201.97%20softdevice.h%2C%0A%091.15%2C%201.16&In-Reply-To=%3C20110416131401.AA240481378%40sheep.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice softdevice.c, 1.96, 1.97 softdevice.h,	1.15, 1.16">lucke at sheep.berlios.de
+       </A><BR>
+    <I>Sat Apr 16 15:14:01 CEST 2011</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000659.html">[Softdevice-cvs] softdevice audio-ac3pt.c, 1.5, 1.6 CHANGELOG, 1.348,	1.349
+</A></li>
+        <LI>Next message: <A HREF="000661.html">[Softdevice-cvs] softdevice SoftOsd.c,1.35,1.36
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#660">[ date ]</a>
+              <a href="thread.html#660">[ thread ]</a>
+              <a href="subject.html#660">[ subject ]</a>
+              <a href="author.html#660">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv17150
+
+Modified Files:
+	softdevice.c softdevice.h 
+Log Message:
+Support some new vdr-1.7x functions
+
+Index: softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.h,v
+retrieving revision 1.15
+retrieving revision 1.16
+diff -C 2 -d -r1.15 -r1.16
+*** softdevice.h	14 Jun 2009 17:25:35 -0000	1.15
+--- softdevice.h	16 Apr 2011 13:13:58 -0000	1.16
+***************
+*** 94,99 ****
+--- 94,104 ----
+  
+    virtual bool HasDecoder(void) const;
++ 
++ protected:
+    virtual bool CanReplay(void) const;
+    virtual bool SetPlayMode(ePlayMode PlayMode);
++   virtual int PlayVideo(const uchar *Data, int Length);
++ 
++ public:
+    virtual void TrickSpeed(int Speed);
+    virtual void Clear(void);
+***************
+*** 106,110 ****
+    virtual bool Flush(int TimeoutMs = 0);
+    virtual int64_t GetSTC(void);
+!   virtual int PlayVideo(const uchar *Data, int Length);
+  #if VDRVERSNUM &lt; 10318
+    virtual void PlayAudio(const uchar *Data, int Length);
+--- 111,124 ----
+    virtual bool Flush(int TimeoutMs = 0);
+    virtual int64_t GetSTC(void);
+! 
+! #if VDRVERSNUM &gt;= 10701
+! protected:
+!   virtual int PlayTsVideo(const uchar *Data, int Length);
+!   virtual int PlayTsAudio(const uchar *Data, int Length);
+! public:
+!   virtual int PlayTs(const uchar *Data, int Length, bool VideoOnly = false);
+! #endif
+! 
+! protected:
+  #if VDRVERSNUM &lt; 10318
+    virtual void PlayAudio(const uchar *Data, int Length);
+***************
+*** 116,123 ****
+--- 130,139 ----
+  
+  #if VDRVERSNUM &gt;= 10338
++ public:
+    virtual uchar *GrabImage(int &amp;Size, bool Jpeg, int Quality,
+                    int SizeX, int SizeY);
+  #endif
+  
++ protected:
+  # if VDRVERSNUM &gt;= 10342
+    virtual int  PlayAudio(const uchar *Data, int Length, uchar Id);
+***************
+*** 135,138 ****
+--- 151,155 ----
+    virtual cSpuDecoder *GetSpuDecoder(void);
+  
++ protected:
+    virtual void MakePrimaryDevice(bool On);
+  };
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.96
+retrieving revision 1.97
+diff -C 2 -d -r1.96 -r1.97
+*** softdevice.c	14 Jun 2009 17:25:35 -0000	1.96
+--- softdevice.c	16 Apr 2011 13:13:58 -0000	1.97
+***************
+*** 673,676 ****
+--- 673,697 ----
+  }
+  
++ #if VDRVERSNUM &gt;= 10701
++ /* ----------------------------------------------------------------------------
++  */
++ int cSoftDevice::PlayTsAudio(const uchar *data, int len)
++ {
++   return cDevice::PlayTsAudio(data, len);
++ }
++ 
++ /* ----------------------------------------------------------------------------
++  */
++ int cSoftDevice::PlayTsVideo(const uchar *data, int len)
++ {
++   return cDevice::PlayTsVideo(data, len);
++ }
++ 
++ int cSoftDevice::PlayTs(const uchar *data, int len, bool VideoOnly)
++ {
++   return cDevice::PlayTs(data, len, VideoOnly);
++ }
++ #endif
++ 
+  #if VDRVERSNUM &gt;= 10338
+  uchar *cSoftDevice::GrabImage(int &amp;Size, bool Jpeg, int Quality,
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000659.html">[Softdevice-cvs] softdevice audio-ac3pt.c, 1.5, 1.6 CHANGELOG, 1.348,	1.349
+</A></li>
+	<LI>Next message: <A HREF="000661.html">[Softdevice-cvs] softdevice SoftOsd.c,1.35,1.36
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#660">[ date ]</a>
+              <a href="thread.html#660">[ thread ]</a>
+              <a href="subject.html#660">[ subject ]</a>
+              <a href="author.html#660">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

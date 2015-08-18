@@ -1,0 +1,176 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice VideoFilter.c, 1.10, 1.11 configure,	1.47, 1.48
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2008q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20VideoFilter.c%2C%201.10%2C%201.11%20configure%2C%0A%091.47%2C%201.48&In-Reply-To=%3C20080418151037.9370EFAA26%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000623.html">
+   <LINK REL="Next"  HREF="000625.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice VideoFilter.c, 1.10, 1.11 configure,	1.47, 1.48</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20VideoFilter.c%2C%201.10%2C%201.11%20configure%2C%0A%091.47%2C%201.48&In-Reply-To=%3C20080418151037.9370EFAA26%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice VideoFilter.c, 1.10, 1.11 configure,	1.47, 1.48">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Apr 18 17:10:37 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000623.html">[Softdevice-cvs] softdevice/po softdevice.pot,1.1,NONE
+</A></li>
+        <LI>Next message: <A HREF="000625.html">[Softdevice-cvs] softdevice CHANGELOG, 1.334, 1.335 softdevice.c,	1.92, 1.93
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#624">[ date ]</a>
+              <a href="thread.html#624">[ thread ]</a>
+              <a href="subject.html#624">[ subject ]</a>
+              <a href="author.html#624">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv13432
+
+Modified Files:
+	VideoFilter.c configure 
+Log Message:
+Check configuration for ffmpeg &lt; r11816.
+
+Index: VideoFilter.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/VideoFilter.c,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -C2 -d -r1.10 -r1.11
+*** VideoFilter.c	20 Feb 2008 08:05:42 -0000	1.10
+--- VideoFilter.c	18 Apr 2008 15:10:35 -0000	1.11
+***************
+*** 573,577 ****
+--- 573,581 ----
+          memcpy(avpic_dest.linesize,dest-&gt;stride,sizeof(avpic_dest.linesize));
+  
++ #if PP_WITH_CONST_UINT8
+          pp_postprocess((const uint8_t **) avpic_src.data,
++ #else
++         pp_postprocess(avpic_src.data,
++ #endif
+                          avpic_src.linesize,
+                          avpic_dest.data,
+
+Index: configure
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/configure,v
+retrieving revision 1.47
+retrieving revision 1.48
+diff -C2 -d -r1.47 -r1.48
+*** configure	26 Feb 2008 08:06:18 -0000	1.47
+--- configure	18 Apr 2008 15:10:35 -0000	1.48
+***************
+*** 30,33 ****
+--- 30,34 ----
+  dfb=&quot;yes&quot;
+  libpostproc=&quot;no&quot;
++ libpostproc_const_uint8=&quot;yes&quot;
+  cc=&quot;g++&quot;
+  xv=&quot;yes&quot;
+***************
+*** 349,352 ****
+--- 350,403 ----
+  fi
+  
++ test_pp_const_uint8()
++ {
++   libpostproc_const_uint8=&quot;yes&quot;;
++   if test $1 = &quot;loc&quot; ; then
++ cat &gt; ${TMPC} &lt;&lt; EOF
++ #define __STDC_CONSTANT_MACROS
++ #include &lt;stdlib.h&gt;
++ extern &quot;C&quot; {
++ #include &lt;libpostproc/postprocess.h&gt;
++ }
++ EOF
++   else
++ cat &gt; ${TMPC} &lt;&lt; EOF
++ #define __STDC_CONSTANT_MACROS
++ #include &lt;stdlib.h&gt;
++ extern &quot;C&quot; {
++ #include &lt;postprocess.h&gt;
++ }
++ EOF
++   fi
++ cat &gt;&gt; ${TMPC} &lt;&lt; EOF
++ int main(void) {
++     uint8_t *data[3];
++     int     num = 100;
++     pp_postprocess((const uint8_t **) data, &amp;num, data, &amp;num,
++                    100, 100, NULL, 0, 0, NULL, 0);
++  return 0;
++ }
++ EOF
++   $cc $CFLAGS $ffmpeg_cflags -o $TMPE $TMPC $ffmpeg_libs &gt;&gt; config.log 2&gt;&amp;1 || libpostproc_const_uint8=&quot;no&quot;
++ };
++ 
++ ########################################################
++ # check for cast to (const char **)
++ if test &quot;${libpostproc}&quot; = &quot;yes&quot; ; then
++   echo -n &quot;Checking for pp_postprocess 1st arg ...&quot;
++   echo &quot;Checking for pp_postprocess 1st arg. -----&quot; &gt;&gt; config.log
++ 
++   if test &quot;${ffmpeg_local}&quot; = &quot;yes&quot; ; then
++     test_pp_const_uint8 loc
++   else
++     test_pp_const_uint8 non_loc
++   fi
++   if test &quot;${libpostproc_const_uint8}&quot; = &quot;yes&quot; ; then
++     echo &quot; is: const uint8_t **&quot;
++   else
++     echo &quot; is: uint8_t **&quot;
++   fi
++ fi
++ 
+  ########################################################
+  # check for ALSA
+***************
+*** 851,854 ****
+--- 902,910 ----
+  if test &quot;${libpostproc}&quot; = &quot;yes&quot; ; then
+    echo &quot;#define PP_LIBAVCODEC&quot; &gt;&gt; $TMPH
++   if test &quot;${libpostproc_const_uint8}&quot; = &quot;yes&quot; ; then
++     echo &quot;#define PP_WITH_CONST_UINT8             1&quot; &gt;&gt; $TMPH
++   else
++     echo &quot;#define PP_WITH_CONST_UINT8             0&quot; &gt;&gt; $TMPH
++   fi
+  else
+    echo &quot;#undef PP_LIBAVCODEC&quot; &gt;&gt; $TMPH
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000623.html">[Softdevice-cvs] softdevice/po softdevice.pot,1.1,NONE
+</A></li>
+	<LI>Next message: <A HREF="000625.html">[Softdevice-cvs] softdevice CHANGELOG, 1.334, 1.335 softdevice.c,	1.92, 1.93
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#624">[ date ]</a>
+              <a href="thread.html#624">[ thread ]</a>
+              <a href="subject.html#624">[ subject ]</a>
+              <a href="author.html#624">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

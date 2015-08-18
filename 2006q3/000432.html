@@ -1,0 +1,122 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.239, 1.240 SoftOsd.c, 1.19,	1.20
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.239%2C%201.240%20SoftOsd.c%2C%201.19%2C%0A%091.20&In-Reply-To=%3C20060918094708.6D01879610%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000431.html">
+   <LINK REL="Next"  HREF="000433.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.239, 1.240 SoftOsd.c, 1.19,	1.20</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.239%2C%201.240%20SoftOsd.c%2C%201.19%2C%0A%091.20&In-Reply-To=%3C20060918094708.6D01879610%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.239, 1.240 SoftOsd.c, 1.19,	1.20">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon Sep 18 11:47:08 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000431.html">[Softdevice-cvs] softdevice CHANGELOG, 1.238, 1.239 SoftOsd.c, 1.18,	1.19 SoftOsd.h, 1.7, 1.8
+</A></li>
+        <LI>Next message: <A HREF="000433.html">[Softdevice-cvs] softdevice configure, 1.28, 1.29 Makefile, 1.33,	1.34 CHANGELOG, 1.240, 1.241
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#432">[ date ]</a>
+              <a href="thread.html#432">[ thread ]</a>
+              <a href="subject.html#432">[ subject ]</a>
+              <a href="author.html#432">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv31002
+
+Modified Files:
+	CHANGELOG SoftOsd.c 
+Log Message:
+- fix RefreshAll for NoVScaleCopyToBitmap()
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.239
+retrieving revision 1.240
+diff -C2 -d -r1.239 -r1.240
+*** CHANGELOG	17 Sep 2006 20:49:04 -0000	1.239
+--- CHANGELOG	18 Sep 2006 09:46:38 -0000	1.240
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2006-09-18:
++    - fix RefreshAll for NoVScaleCopyToBitmap()
+  2006-09-17:
+     - replace &quot;pshufw&quot; with MMX commands to make scaling optimazations available
+***************
+*** 10,14 ****
+     - make utils.c compile on non MMX machines, cleanup some #ifdefs
+     - fix compile issue with g++-4.1.1
+!    - add NoVScaleCopyBitmap() for RGB modes
+  2006-09-xx:
+     - added -vo shm: to help option
+--- 12,16 ----
+     - make utils.c compile on non MMX machines, cleanup some #ifdefs
+     - fix compile issue with g++-4.1.1
+!    - add NoVScaleCopyToBitmap() for RGB modes
+  2006-09-xx:
+     - added -vo shm: to help option
+
+Index: SoftOsd.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.c,v
+retrieving revision 1.19
+retrieving revision 1.20
+diff -C2 -d -r1.19 -r1.20
+*** SoftOsd.c	17 Sep 2006 20:49:05 -0000	1.19
+--- SoftOsd.c	18 Sep 2006 09:46:38 -0000	1.20
+***************
+*** 1177,1181 ****
+          for (int y=0; y&lt;OSD_HEIGHT; y++) {
+  
+!                 if (!dirty_lines[y]) 
+                          continue;
+                  
+--- 1177,1181 ----
+          for (int y=0; y&lt;OSD_HEIGHT; y++) {
+  
+!                 if (!RefreshAll &amp;&amp; !dirty_lines[y]) 
+                          continue;
+                  
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000431.html">[Softdevice-cvs] softdevice CHANGELOG, 1.238, 1.239 SoftOsd.c, 1.18,	1.19 SoftOsd.h, 1.7, 1.8
+</A></li>
+	<LI>Next message: <A HREF="000433.html">[Softdevice-cvs] softdevice configure, 1.28, 1.29 Makefile, 1.33,	1.34 CHANGELOG, 1.240, 1.241
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#432">[ date ]</a>
+              <a href="thread.html#432">[ thread ]</a>
+              <a href="subject.html#432">[ subject ]</a>
+              <a href="author.html#432">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

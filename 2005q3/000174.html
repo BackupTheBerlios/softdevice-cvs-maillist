@@ -1,0 +1,290 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.98,1.99 softdevice.c,1.37,1.38
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.98%2C1.99%20softdevice.c%2C1.37%2C1.38&In-Reply-To=%3C200507310821.j6V8LPI07407%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000173.html">
+   <LINK REL="Next"  HREF="000175.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.98,1.99 softdevice.c,1.37,1.38</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.98%2C1.99%20softdevice.c%2C1.37%2C1.38&In-Reply-To=%3C200507310821.j6V8LPI07407%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.98,1.99 softdevice.c,1.37,1.38">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Jul 31 10:21:25 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000173.html">[Softdevice-cvs] softdevice CHANGELOG,1.97,1.98 setup-softdevice.c,1.26,1.27
+</A></li>
+        <LI>Next message: <A HREF="000175.html">[Softdevice-cvs] softdevice mpeg2decoder.c,1.49,1.50 mpeg2decoder.h,1.29,1.30 CHANGELOG,1.99,1.100
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#174">[ date ]</a>
+              <a href="thread.html#174">[ thread ]</a>
+              <a href="subject.html#174">[ subject ]</a>
+              <a href="author.html#174">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv926
+
+Modified Files:
+	CHANGELOG softdevice.c 
+Log Message:
+- introduce SOFTDEB
+- call decoder-&gt;Clear in clear...
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.98
+retrieving revision 1.99
+diff -C2 -d -r1.98 -r1.99
+*** CHANGELOG	31 Jul 2005 07:58:20 -0000	1.98
+--- CHANGELOG	31 Jul 2005 08:21:22 -0000	1.99
+***************
+*** 1,4 ****
+--- 1,6 ----
+  Changelog
+  2005-07-31:
++     - introduce SOFTDEB, more checks agains NULL dereferences
++     - call decoder-&gt;Clear in Clear
+      - return NULL in getPPValue when compiled without postproc lib 
+        (suggested by Antonio)
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.37
+retrieving revision 1.38
+diff -C2 -d -r1.37 -r1.38
+*** softdevice.c	22 Jul 2005 21:18:41 -0000	1.37
+--- softdevice.c	31 Jul 2005 08:21:22 -0000	1.38
+***************
+*** 78,81 ****
+--- 78,87 ----
+  #define AOUT_DUMMY  2
+  
++ //#define SOFTDEB(out...) {printf(&quot;softdeb[%04d]:&quot;,(int)(getTimeMilis() % 10000));printf(out);}
++ 
++ #ifndef SOFTDEB
++ #define SOFTDEB(out...)
++ #endif
++ 
+  #if VDRVERSNUM &gt;= 10307
+  
+***************
+*** 379,383 ****
+  
+  int64_t cSoftDevice::GetSTC(void) {
+!   return decoder-&gt;GetSTC();
+  };
+  
+--- 385,389 ----
+  
+  int64_t cSoftDevice::GetSTC(void) {
+!   return (decoder?decoder-&gt;GetSTC():NULL);
+  };
+  
+***************
+*** 430,433 ****
+--- 436,442 ----
+  bool cSoftDevice::SetPlayMode(ePlayMode PlayMode)
+  {
++     if (!decoder)
++        return false;
++     
+      packetMode=PlayMode &lt; 0;
+      PlayMode=(ePlayMode) abs(PlayMode);
+***************
+*** 463,472 ****
+  void cSoftDevice::TrickSpeed(int Speed)
+  {
+!     //fprintf(stderr,&quot;[softdevice] Trickspeed(%d) ...\n&quot;,Speed);
+!     decoder-&gt;TrickSpeed(Speed);
+  }
+  void cSoftDevice::Clear(void)
+  {
+!     //fprintf(stderr,&quot;[softdevice] Clear ...\n&quot;);
+      if ( ! decoder )
+        return;
+--- 472,482 ----
+  void cSoftDevice::TrickSpeed(int Speed)
+  {
+!     SOFTDEB(&quot;Trickspeed(%d) ...\n&quot;,Speed);
+!     if (decoder)
+!       decoder-&gt;TrickSpeed(Speed);
+  }
+  void cSoftDevice::Clear(void)
+  {
+!     SOFTDEB(&quot;Clear ...\n&quot;);
+      if ( ! decoder )
+        return;
+***************
+*** 474,498 ****
+      if ( !packetMode ) {
+        cDevice::Clear();
+!     }
+!     decoder-&gt;ClearPacketQueue();
+  }
+  void cSoftDevice::Play(void)
+  {
+!     //fprintf(stderr,&quot;[softdevice] Play...\n&quot;);
+      cDevice::Play();
+!     decoder-&gt;TrickSpeed(1);
+!     decoder-&gt;Play();
+  }
+  
+  void cSoftDevice::Freeze(void)
+  {
+!     //fprintf(stderr,&quot;[softdevice] Freeze...\n&quot;);
+      cDevice::Freeze();
+!     decoder-&gt;Freeze();
+  }
+  
+  void cSoftDevice::Mute(void)
+  {
+!     //fprintf(stderr,&quot;[softdevice] Mute not implemented yet...\n&quot;);
+      cDevice::Mute();
+  }
+--- 484,511 ----
+      if ( !packetMode ) {
+        cDevice::Clear();
+!       decoder-&gt;Clear();
+!     } else decoder-&gt;ClearPacketQueue();
+  }
+  void cSoftDevice::Play(void)
+  {
+!     SOFTDEB(&quot;Play...\n&quot;);
+      cDevice::Play();
+!     if (decoder) {
+!       decoder-&gt;TrickSpeed(1);
+!       decoder-&gt;Play();
+!     };
+  }
+  
+  void cSoftDevice::Freeze(void)
+  {
+!     SOFTDEB(&quot;Freeze...\n&quot;);
+      cDevice::Freeze();
+!     if (decoder)
+!       decoder-&gt;Freeze();
+  }
+  
+  void cSoftDevice::Mute(void)
+  {
+!     SOFTDEB(&quot;Mute not implemented yet...\n&quot;);
+      cDevice::Mute();
+  }
+***************
+*** 500,504 ****
+  void cSoftDevice::SetVolumeDevice(int Volume)
+  {
+!   //fprintf (stderr, &quot;[softdevice] should set volume to %d\n&quot;, Volume);
+    audioOut-&gt;SetVolume(Volume);
+  }
+--- 513,517 ----
+  void cSoftDevice::SetVolumeDevice(int Volume)
+  {
+!   SOFTDEB(&quot;should set volume to %d\n&quot;, Volume);
+    audioOut-&gt;SetVolume(Volume);
+  }
+***************
+*** 506,511 ****
+  void cSoftDevice::StillPicture(const uchar *Data, int Length)
+  {
+!     //fprintf(stderr,&quot;[softdevice] StillPicture...\n&quot;);
+!     decoder-&gt;StillPicture((uchar *)Data,Length);
+  }
+  
+--- 519,525 ----
+  void cSoftDevice::StillPicture(const uchar *Data, int Length)
+  {
+!     SOFTDEB(&quot;StillPicture...\n&quot;);
+!     if (decoder)
+!       decoder-&gt;StillPicture((uchar *)Data,Length);
+  }
+  
+***************
+*** 578,582 ****
+  void cSoftDevice::SetAudioTrackDevice(eTrackType Type)
+  {
+!   //fprintf (stderr, &quot;[SetAudioTrackDevice] (%d)\n&quot;,Type);
+  }
+  
+--- 592,596 ----
+  void cSoftDevice::SetAudioTrackDevice(eTrackType Type)
+  {
+!   SOFTDEB(&quot;SetAudioTrackDevice (%d)\n&quot;,Type);
+  }
+  
+***************
+*** 585,589 ****
+  void cSoftDevice::SetDigitalAudioDevice(bool On)
+  {
+!   //fprintf (stderr, &quot;[SetDigitalAudioDevice] (%s)\n&quot;,(On)? &quot;TRUE&quot;:&quot;FALSE&quot;);
+  }
+  
+--- 599,603 ----
+  void cSoftDevice::SetDigitalAudioDevice(bool On)
+  {
+!   SOFTDEB(&quot;SetDigitalAudioDevice (%s)\n&quot;,(On)? &quot;TRUE&quot;:&quot;FALSE&quot;);
+  }
+  
+***************
+*** 704,707 ****
+--- 718,722 ----
+            char *vo_argv = argv[i];
+  
++ 	  printf(&quot;vo_argv: %s \n&quot;,vo_argv);
+          if (!strncmp (vo_argv, &quot;xv:&quot;, 3)) {
+            vo_argv += 3;
+***************
+*** 846,850 ****
+  {
+    // Perform the action when selected from the main VDR menu.
+!   fprintf (stderr, &quot;[MainMenuAction]\n&quot;);
+    return new cMenuSetupSoftdevice(this);
+  //  return NULL;
+--- 861,865 ----
+  {
+    // Perform the action when selected from the main VDR menu.
+!   SOFTDEB(&quot;MainMenuAction\n&quot;);
+    return new cMenuSetupSoftdevice(this);
+  //  return NULL;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000173.html">[Softdevice-cvs] softdevice CHANGELOG,1.97,1.98 setup-softdevice.c,1.26,1.27
+</A></li>
+	<LI>Next message: <A HREF="000175.html">[Softdevice-cvs] softdevice mpeg2decoder.c,1.49,1.50 mpeg2decoder.h,1.29,1.30 CHANGELOG,1.99,1.100
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#174">[ date ]</a>
+              <a href="thread.html#174">[ thread ]</a>
+              <a href="subject.html#174">[ subject ]</a>
+              <a href="author.html#174">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,509 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.186,1.187 video-dfb.c,1.60,1.61 video-dfb.h,1.19,1.20
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.186%2C1.187%20video-dfb.c%2C1.60%2C1.61%20video-dfb.h%2C1.19%2C1.20&In-Reply-To=%3C200605232124.k4NLOET24154%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000360.html">
+   <LINK REL="Next"  HREF="000362.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.186,1.187 video-dfb.c,1.60,1.61 video-dfb.h,1.19,1.20</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.186%2C1.187%20video-dfb.c%2C1.60%2C1.61%20video-dfb.h%2C1.19%2C1.20&In-Reply-To=%3C200605232124.k4NLOET24154%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.186,1.187 video-dfb.c,1.60,1.61 video-dfb.h,1.19,1.20">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue May 23 23:24:14 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000360.html">[Softdevice-cvs] softdevice setup-softdevice.c,1.42,1.43 setup-softdevice.h,1.29,1.30 setup-softdevice-menu.c,1.3,1.4 video.c,1.56,1.57 video.h,1.38,1.39
+</A></li>
+        <LI>Next message: <A HREF="000362.html">[Softdevice-cvs] softdevice setup-softdevice-menu.c,1.4,1.5
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#361">[ date ]</a>
+              <a href="thread.html#361">[ thread ]</a>
+              <a href="subject.html#361">[ subject ]</a>
+              <a href="author.html#361">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv3661
+
+Modified Files:
+	CHANGELOG video-dfb.c video-dfb.h 
+Log Message:
+- fix VIA OSD transparency for newer DirectFB cvs versions
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.186
+retrieving revision 1.187
+diff -C2 -d -r1.186 -r1.187
+*** CHANGELOG	23 May 2006 20:28:48 -0000	1.186
+--- CHANGELOG	23 May 2006 21:28:54 -0000	1.187
+***************
+*** 1,4 ****
+--- 1,8 ----
+  Changelog
+  2006-05-23:
++    - fix VIA OSD transparency for newer DirectFB cvs versions
++    - merged some defines which belong together
++    - added 15:9 screen aspect
++    - fix postprocessing not offered via OSD even detected by configure
+     - reenable software alpha blending for video-shm
+     - move AlphaBlend into utils.c, clean up MMX defines
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.60
+retrieving revision 1.61
+diff -C2 -d -r1.60 -r1.61
+*** video-dfb.c	7 May 2006 20:52:23 -0000	1.60
+--- video-dfb.c	23 May 2006 21:28:54 -0000	1.61
+***************
+*** 193,196 ****
+--- 193,198 ----
+    if (scaps &amp; DSCAPS_STATIC_ALLOC) fprintf(stderr,&quot;static-alloc &quot;);
+    if (scaps &amp; DSCAPS_TRIPLE) fprintf(stderr,&quot;triple-buffered &quot;);
++ 
++   fprintf(stderr, &quot;PixelFormat = 0x%08x &quot;, surf-&gt;GetPixelFormat());
+    fprintf(stderr,&quot;\n&quot;);
+  }
+***************
+*** 231,238 ****
+  /* ---------------------------------------------------------------------------
+   */
+  cDFBVideoOut::cDFBVideoOut(cSetupStore *setupStore)
+                : cVideoOut(setupStore)
+  {
+-     DFBDisplayLayerDescription    desc;
+      tLayerSelectItem              *layerInfo;
+  
+--- 233,267 ----
+  /* ---------------------------------------------------------------------------
+   */
++ static void ReportLayerInfo(IDirectFBDisplayLayer *layer, char *name)
++ {
++       DFBDisplayLayerConfig layerConfiguration;
++ 
++   if (!layer)
++   {
++     fprintf (stderr, &quot;[dfb] no layer info. layer == NULL\n&quot;);
++     return;
++   }
++ 
++   layer-&gt;GetConfiguration(&amp;layerConfiguration);
++   {
++     fprintf(stderr,
++             &quot;[dfb] (%s): flags, options, pixelformat: %08x, %08x %08x\n&quot;,
++             name,
++             layerConfiguration.flags,
++             layerConfiguration.options,
++             layerConfiguration.pixelformat);
++     fprintf(stderr,
++             &quot;[dfb] (%s): width, height:               %d %d\n&quot;,
++             name,
++             layerConfiguration.width,
++             layerConfiguration.height);
++   }
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
+  cDFBVideoOut::cDFBVideoOut(cSetupStore *setupStore)
+                : cVideoOut(setupStore)
+  {
+      tLayerSelectItem              *layerInfo;
+  
+***************
+*** 253,256 ****
+--- 282,286 ----
+    clearBackground = 0;
+    clearBackCount = 2; // by default for double buffering;
++   videoLayerLevel = 1;
+    OSDpresent = false;
+    fieldParity = 0;    // 0 - top field first, 1 - bottom field first
+***************
+*** 284,287 ****
+--- 314,328 ----
+      }
+  
++     if (!setupStore-&gt;useMGAtv)
++     {
++       fprintf(stderr,&quot;[dfb] Configuring CooperativeLevel for OSD\n&quot;);
++       osdLayer-&gt;SetCooperativeLevel(DLSCL_ADMINISTRATIVE);
++     }
++ 
++     osdLayerDescription = osdLayer-&gt;GetDescription();
++ 
++     osdLayer-&gt;GetConfiguration(&amp;osdLayerConfiguration);
++     osdLayerConfiguration.flags = DLCONF_ALL;
++ 
+      videoLayer = NULL;
+      layerInfo = &amp;layerList [ANY_LAYER];
+***************
+*** 305,334 ****
+      }
+  
+-     scrDsc.flags = (DFBSurfaceDescriptionFlags) (DSDESC_CAPS |
+-                                                  DSDESC_PIXELFORMAT);
+-     scrDsc.caps = DSCAPS_NONE;
+-     DFB_ADD_SURFACE_CAPS(scrDsc.caps, DSCAPS_FLIPPING);
+-     DFB_ADD_SURFACE_CAPS(scrDsc.caps, DSCAPS_PRIMARY);
+-     DFB_ADD_SURFACE_CAPS(scrDsc.caps, DSCAPS_VIDEOONLY);
+-     //DFB_ADD_SURFACE_CAPS(scrDsc.caps, DSCAPS_DOUBLE);
+-     scrDsc.pixelformat = DSPF_ARGB;
+- 
+-     if (setupStore-&gt;useMGAtv)
+-     {
+-       EnableFieldParity(osdLayer);
+-       scrSurface = osdLayer-&gt;GetSurface();
+-     }
+-     else
+-     {
+-       if (setupStore-&gt;viaTv)
+-       {
+-         EnableFieldParity(videoLayer);
+-       }
+- 
+-       scrSurface = dfb-&gt;CreateSurface (scrDsc);
+-     }
+- 
+-     reportSurfaceCapabilities (&quot;scrSurface&quot;, scrSurface);
+- 
+      if (!videoLayer)
+      {
+--- 346,349 ----
+***************
+*** 337,350 ****
+      }
+  
+      /* --------------------------------------------------------------------------
+       * check for VIA Unichrome presence
+       */
+!     desc = videoLayer-&gt;GetDescription();
+!     if (!strcmp (desc.name, &quot;VIA Unichrome Video&quot;))
+      {
+        isVIAUnichrome = true;
+        clearAlpha = 0xff;
+      }
+  
+      if (scrSurface)
+      {
+--- 352,391 ----
+      }
+  
++     videoLayerDescription = videoLayer-&gt;GetDescription();
++ 
+      /* --------------------------------------------------------------------------
+       * check for VIA Unichrome presence
+       */
+!     if (!strcmp (videoLayerDescription.name, &quot;VIA Unichrome Video&quot;))
+      {
+        isVIAUnichrome = true;
+        clearAlpha = 0xff;
++ 
++       ReportLayerInfo(osdLayer, &quot;osdLayer&quot;);
++       if (osdLayerDescription.caps &amp; DLCAPS_ALPHACHANNEL)
++       {
++ 
++         fprintf(stderr, &quot;[dfb] osdLayer has alpha channel\n&quot;);
++         osdLayerConfiguration.options = DLOP_ALPHACHANNEL;
++         videoLayerLevel = -1;
++       }
++       else
++       {
++         fprintf(stderr, &quot;[dfb] osdLayer without !! alpha channel\n&quot;);
++       }
+      }
+  
++     osdLayer-&gt;SetCooperativeLevel(DLSCL_EXCLUSIVE);
++     osdLayer-&gt;SetConfiguration(osdLayerConfiguration);
++ 
++     if (setupStore-&gt;useMGAtv)
++       EnableFieldParity(osdLayer);
++     if (setupStore-&gt;viaTv)
++       EnableFieldParity(videoLayer);
++ 
++     scrSurface = osdLayer-&gt;GetSurface();
++ 
++     reportSurfaceCapabilities (&quot;scrSurface&quot;, scrSurface);
++ 
+      if (scrSurface)
+      {
+***************
+*** 413,420 ****
+        osdSurface-&gt;Clear(0,0,0,clearAlpha); //clear and
+  
+-       desc = osdLayer-&gt;GetDescription();
+        fprintf(stderr,
+                &quot;[dfb] Using this layer for OSD: (%s - [%dx%d])\n&quot;,
+!               desc.name, osdSurface-&gt;GetWidth(), osdSurface-&gt;GetHeight());
+  
+        reportSurfaceCapabilities (&quot;osdSurface&quot;, osdSurface);
+--- 454,461 ----
+        osdSurface-&gt;Clear(0,0,0,clearAlpha); //clear and
+  
+        fprintf(stderr,
+                &quot;[dfb] Using this layer for OSD: (%s - [%dx%d])\n&quot;,
+!               osdLayerDescription.name,
+!               osdSurface-&gt;GetWidth(), osdSurface-&gt;GetHeight());
+  
+        reportSurfaceCapabilities (&quot;osdSurface&quot;, osdSurface);
+***************
+*** 452,466 ****
+          if (!setupStore-&gt;viaTv)
+            BESColorkeyState(videoLayer, true);
+- 
+-         fprintf(stderr,&quot;[dfb] Configuring CooperativeLevel for OSD\n&quot;);
+-         osdLayer-&gt;SetCooperativeLevel(DLSCL_ADMINISTRATIVE);
+        }
+  
+!       desc = osdLayer-&gt;GetDescription();
+!       fprintf(stderr,&quot;[dfb] Using this layer for OSD: %s\n&quot;, desc.name);
+! 
+!       desc = videoLayer-&gt;GetDescription();
+!       fprintf(stderr,&quot;[dfb] Using this layer for Video out: %s\n&quot;, desc.name);
+! 
+      }
+  
+--- 493,503 ----
+          if (!setupStore-&gt;viaTv)
+            BESColorkeyState(videoLayer, true);
+        }
+  
+!       fprintf(stderr,
+!               &quot;[dfb] Using this layer for OSD:        %s\n&quot;
+!               &quot;[dfb] Using this layer for Video out:  %s\n&quot;,
+!               osdLayerDescription.name,
+!               videoLayerDescription.name);
+      }
+  
+***************
+*** 620,624 ****
+  {
+      DFBDisplayLayerConfig       dlc;
+-     DFBDisplayLayerDescription  desc;
+      DFBDisplayLayerConfigFlags  failed;
+  
+--- 657,660 ----
+***************
+*** 712,717 ****
+        pixelformat = dlc.pixelformat;
+  
+-       desc = videoLayer-&gt;GetDescription();
+- 
+        if (!useStretchBlit)
+        {
+--- 748,751 ----
+***************
+*** 725,729 ****
+          dlc.options = (DFBDisplayLayerOptions)( DLOP_NONE );
+  #if 0
+!         if (desc.caps &amp; DLCAPS_DEINTERLACING)
+          {
+            /* ------------------------------------------------------------------
+--- 759,763 ----
+          dlc.options = (DFBDisplayLayerOptions)( DLOP_NONE );
+  #if 0
+!         if (videoLayerDescription.caps &amp; DLCAPS_DEINTERLACING)
+          {
+            /* ------------------------------------------------------------------
+***************
+*** 733,737 ****
+          }
+  #endif
+!         if (desc.caps &amp; DLCAPS_ALPHACHANNEL)
+          {
+            /* ------------------------------------------------------------------
+--- 767,784 ----
+          }
+  #endif
+!         if (isVIAUnichrome)
+!         {
+!           try
+!           {
+!             videoLayer-&gt;SetLevel(videoLayerLevel);
+!           }
+!           catch (DFBException *ex)
+!           {
+!             fprintf (stderr,&quot;[dfb] SetParams: action=%s, result=%s Failed: SetLevel()\n&quot;,
+!                      ex-&gt;GetAction(), ex-&gt;GetResult());
+!             delete ex;
+!           }
+!         }
+!         else if (videoLayerDescription.caps &amp; DLCAPS_ALPHACHANNEL)
+          {
+            /* ------------------------------------------------------------------
+***************
+*** 743,747 ****
+          else
+          {
+!           if (desc.caps &amp; DLCAPS_DST_COLORKEY)
+            {
+              /* ----------------------------------------------------------------
+--- 790,794 ----
+          else
+          {
+!           if (videoLayerDescription.caps &amp; DLCAPS_DST_COLORKEY)
+            {
+              /* ----------------------------------------------------------------
+***************
+*** 758,773 ****
+            fprintf(stderr, &quot;[dfb] SetParams: Enabling DLOP_FIELD_PARITY\n&quot;);
+          }
+-         try
+-         {
+-           if (isVIAUnichrome)
+-             videoLayer-&gt;SetLevel(1);
+-         }
+-         catch (DFBException *ex)
+-         {
+-           fprintf (stderr,&quot;[dfb] SetParams: action=%s, result=%s Failed: SetLevel()\n&quot;,
+-                    ex-&gt;GetAction(), ex-&gt;GetResult());
+-           delete ex;
+-         }
+- 
+          /*
+           * --------------------------------------------------------------------
+--- 805,808 ----
+***************
+*** 832,837 ****
+            delete ex;
+          }
+! 
+!         if (desc.caps &amp; DLCAPS_SCREEN_LOCATION)
+          {
+            /* ------------------------------------------------------------------
+--- 867,871 ----
+            delete ex;
+          }
+!         if (videoLayerDescription.caps &amp; DLCAPS_SCREEN_LOCATION)
+          {
+            /* ------------------------------------------------------------------
+***************
+*** 865,869 ****
+          try
+          {
+!           if (desc.caps &amp; DLCAPS_DST_COLORKEY)
+              videoLayer-&gt;SetDstColorKey(COLORKEY);
+  
+--- 899,903 ----
+          try
+          {
+!           if (videoLayerDescription.caps &amp; DLCAPS_DST_COLORKEY)
+              videoLayer-&gt;SetDstColorKey(COLORKEY);
+  
+***************
+*** 899,903 ****
+  	    vidDsc.caps = DFB_ADD_SURFACE_CAPS(vidDsc.caps, DSCAPS_INTERLACED);
+  	  }
+! #endif	  
+  
+            videoSurface=dfb-&gt;CreateSurface(vidDsc);
+--- 933,937 ----
+  	    vidDsc.caps = DFB_ADD_SURFACE_CAPS(vidDsc.caps, DSCAPS_INTERLACED);
+  	  }
+! #endif
+  
+            videoSurface=dfb-&gt;CreateSurface(vidDsc);
+***************
+*** 1230,1234 ****
+        scrSurface-&gt;SetBlittingFlags(DSBLIT_NOFX);
+        scrSurface-&gt;StretchBlit(videoSurface, &amp;src, &amp;dst);
+! #endif      
+        if (OSDpresent)
+        {
+--- 1264,1268 ----
+        scrSurface-&gt;SetBlittingFlags(DSBLIT_NOFX);
+        scrSurface-&gt;StretchBlit(videoSurface, &amp;src, &amp;dst);
+! #endif
+        if (OSDpresent)
+        {
+***************
+*** 1390,1394 ****
+        scrSurface-&gt;SetBlittingFlags(DSBLIT_NOFX);
+        scrSurface-&gt;StretchBlit(videoSurface, &amp;src, &amp;dst);
+! #endif      
+  
+        if (OSDpresent)
+--- 1424,1428 ----
+        scrSurface-&gt;SetBlittingFlags(DSBLIT_NOFX);
+        scrSurface-&gt;StretchBlit(videoSurface, &amp;src, &amp;dst);
+! #endif
+  
+        if (OSDpresent)
+
+Index: video-dfb.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.h,v
+retrieving revision 1.19
+retrieving revision 1.20
+diff -C2 -d -r1.19 -r1.20
+*** video-dfb.h	23 Apr 2006 19:38:29 -0000	1.19
+--- video-dfb.h	23 May 2006 21:28:54 -0000	1.20
+***************
+*** 24,30 ****
+  class cDFBVideoOut : public cVideoOut {
+    private:
+!     IDirectFBDisplayLayer *osdLayer, *videoLayer;
+!     DFBSurfaceDescription scrDsc, osdDsc, vidDsc;
+!     IDirectFBSurface      *osdSurface, *videoSurface, *scrSurface;
+  
+      DFBSurfacePixelFormat pixelformat;
+--- 24,33 ----
+  class cDFBVideoOut : public cVideoOut {
+    private:
+!     IDirectFBDisplayLayer         *osdLayer, *videoLayer;
+!     DFBSurfaceDescription         scrDsc, osdDsc, vidDsc;
+!     DFBDisplayLayerDescription    osdLayerDescription,
+!                                   videoLayerDescription;
+!     DFBDisplayLayerConfig         osdLayerConfiguration;
+!     IDirectFBSurface              *osdSurface, *videoSurface, *scrSurface;
+  
+      DFBSurfacePixelFormat pixelformat;
+***************
+*** 43,46 ****
+--- 46,50 ----
+            fieldParity;
+      int   prevOsdMode;
++     int   videoLayerLevel;
+  
+      void SetParams();
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000360.html">[Softdevice-cvs] softdevice setup-softdevice.c,1.42,1.43 setup-softdevice.h,1.29,1.30 setup-softdevice-menu.c,1.3,1.4 video.c,1.56,1.57 video.h,1.38,1.39
+</A></li>
+	<LI>Next message: <A HREF="000362.html">[Softdevice-cvs] softdevice setup-softdevice-menu.c,1.4,1.5
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#361">[ date ]</a>
+              <a href="thread.html#361">[ thread ]</a>
+              <a href="subject.html#361">[ subject ]</a>
+              <a href="author.html#361">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

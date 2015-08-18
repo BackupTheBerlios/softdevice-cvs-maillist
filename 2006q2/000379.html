@@ -1,0 +1,140 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.197,1.198 mpeg2decoder.c,1.64,1.65 SoftOsd.c,1.14,1.15
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.197%2C1.198%20mpeg2decoder.c%2C1.64%2C1.65%20SoftOsd.c%2C1.14%2C1.15&In-Reply-To=%3C200606152134.k5FLYMb25301%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000378.html">
+   <LINK REL="Next"  HREF="000380.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.197,1.198 mpeg2decoder.c,1.64,1.65 SoftOsd.c,1.14,1.15</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.197%2C1.198%20mpeg2decoder.c%2C1.64%2C1.65%20SoftOsd.c%2C1.14%2C1.15&In-Reply-To=%3C200606152134.k5FLYMb25301%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.197,1.198 mpeg2decoder.c,1.64,1.65 SoftOsd.c,1.14,1.15">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Thu Jun 15 23:34:22 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000378.html">[Softdevice-cvs] softdevice CHANGELOG,1.196,1.197 configure,1.15,1.16
+</A></li>
+        <LI>Next message: <A HREF="000380.html">[Softdevice-cvs] softdevice video-dfb.c,1.63,1.64
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#379">[ date ]</a>
+              <a href="thread.html#379">[ thread ]</a>
+              <a href="subject.html#379">[ subject ]</a>
+              <a href="author.html#379">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv30508
+
+Modified Files:
+	CHANGELOG mpeg2decoder.c SoftOsd.c 
+Log Message:
+- fix delete &lt;-&gt; delete[] mismatch
+
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.197
+retrieving revision 1.198
+diff -C2 -d -r1.197 -r1.198
+*** CHANGELOG	15 Jun 2006 21:27:08 -0000	1.197
+--- CHANGELOG	15 Jun 2006 21:34:20 -0000	1.198
+***************
+*** 3,6 ****
+--- 3,7 ----
+     - make configure a bit more verbose. A complete log is now saved in 
+       config.log.
++    - fix delete &lt;-&gt; delete[] mismatch reported by Prakash Punnoor.
+  2006-06-09:
+     - activate mmx version of yv12_to_yuy2_il_ () for dfb, xv and vidix.
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.64
+retrieving revision 1.65
+diff -C2 -d -r1.64 -r1.65
+*** mpeg2decoder.c	27 May 2006 19:12:41 -0000	1.64
+--- mpeg2decoder.c	15 Jun 2006 21:34:20 -0000	1.65
+***************
+*** 54,58 ****
+  cPacketQueue::~cPacketQueue() {
+    Clear();
+!   delete queue;
+  };
+  
+--- 54,58 ----
+  cPacketQueue::~cPacketQueue() {
+    Clear();
+!   delete[] queue;
+  };
+  
+
+Index: SoftOsd.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.c,v
+retrieving revision 1.14
+retrieving revision 1.15
+diff -C2 -d -r1.14 -r1.15
+*** SoftOsd.c	27 May 2006 08:06:34 -0000	1.14
+--- SoftOsd.c	15 Jun 2006 21:34:20 -0000	1.15
+***************
+*** 45,48 ****
+--- 45,49 ----
+  	videoOut-&gt;OpenOSD();
+  	xOfs=X;yOfs=Y;
++         ScreenOsdWidth=ScreenOsdHeight=0;
+          int Depth; bool HasAlpha; bool AlphaInversed; bool IsYUV; 
+          uint8_t *PixelMask;
+***************
+*** 79,83 ****
+                  videoOut=0;
+          }
+!         delete OSD_Bitmap;
+  }
+  
+--- 80,84 ----
+                  videoOut=0;
+          }
+!         delete[] OSD_Bitmap;
+  }
+  
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000378.html">[Softdevice-cvs] softdevice CHANGELOG,1.196,1.197 configure,1.15,1.16
+</A></li>
+	<LI>Next message: <A HREF="000380.html">[Softdevice-cvs] softdevice video-dfb.c,1.63,1.64
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#379">[ date ]</a>
+              <a href="thread.html#379">[ thread ]</a>
+              <a href="subject.html#379">[ subject ]</a>
+              <a href="author.html#379">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,324 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice ShmClient.c, 1.15, 1.16 shm-common.h,	1.5, 1.6 video-shm.c, 1.9, 1.10 video-shm.h, 1.6,	1.7 video-xv.h, 1.23, 1.24
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20ShmClient.c%2C%201.15%2C%201.16%20shm-common.h%2C%0A%091.5%2C%201.6%20video-shm.c%2C%201.9%2C%201.10%20video-shm.h%2C%201.6%2C%0A%091.7%20video-xv.h%2C%201.23%2C%201.24&In-Reply-To=%3C20060904202541.9C17C75CD2%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000409.html">
+   <LINK REL="Next"  HREF="000411.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice ShmClient.c, 1.15, 1.16 shm-common.h,	1.5, 1.6 video-shm.c, 1.9, 1.10 video-shm.h, 1.6,	1.7 video-xv.h, 1.23, 1.24</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20ShmClient.c%2C%201.15%2C%201.16%20shm-common.h%2C%0A%091.5%2C%201.6%20video-shm.c%2C%201.9%2C%201.10%20video-shm.h%2C%201.6%2C%0A%091.7%20video-xv.h%2C%201.23%2C%201.24&In-Reply-To=%3C20060904202541.9C17C75CD2%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice ShmClient.c, 1.15, 1.16 shm-common.h,	1.5, 1.6 video-shm.c, 1.9, 1.10 video-shm.h, 1.6,	1.7 video-xv.h, 1.23, 1.24">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon Sep  4 22:25:41 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000409.html">[Softdevice-cvs] softdevice CHANGELOG,1.219,1.220
+</A></li>
+        <LI>Next message: <A HREF="000411.html">[Softdevice-cvs] softdevice video-xv.c, 1.59, 1.60 CHANGELOG, 1.220,	1.221 video.c, 1.61, 1.62
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#410">[ date ]</a>
+              <a href="thread.html#410">[ thread ]</a>
+              <a href="subject.html#410">[ subject ]</a>
+              <a href="author.html#410">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv22704
+
+Modified Files:
+	ShmClient.c shm-common.h video-shm.c video-shm.h video-xv.h 
+Log Message:
+- fix wrong colors when using ShmClient
+
+
+Index: ShmClient.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/ShmClient.c,v
+retrieving revision 1.15
+retrieving revision 1.16
+diff -C2 -d -r1.15 -r1.16
+*** ShmClient.c	27 Aug 2006 13:02:50 -0000	1.15
+--- ShmClient.c	4 Sep 2006 20:25:17 -0000	1.16
+***************
+*** 98,102 ****
+                  exit(-1);
+          };
+!         
+          while (!vout-&gt;Reconfigure(SetupStore.pixelFormat) 
+                          &amp;&amp; SetupStore.pixelFormat &lt; 3 )
+--- 98,102 ----
+                  exit(-1);
+          };
+!        
+          while (!vout-&gt;Reconfigure(SetupStore.pixelFormat) 
+                          &amp;&amp; SetupStore.pixelFormat &lt; 3 )
+***************
+*** 107,117 ****
+                  ctl-&gt;max_width=vout-&gt;xv_image-&gt;width;
+                  ctl-&gt;max_height=vout-&gt;xv_image-&gt;height;
+!                 ctl-&gt;stride0=vout-&gt;xv_image-&gt;pitches[0];
+!                 ctl-&gt;stride1=vout-&gt;xv_image-&gt;pitches[1];
+!                 ctl-&gt;stride2=vout-&gt;xv_image-&gt;pitches[2];
+                  picture.pixel[0]=picture.pixel[1]=picture.pixel[2]=NULL;
+!                 picture.stride[0]=ctl-&gt;stride0;
+!                 picture.stride[1]=ctl-&gt;stride1;
+!                 picture.stride[2]=ctl-&gt;stride1;
+                  picture.edge_width=picture.edge_height=0;
+                  picture.max_width=ctl-&gt;max_width;
+--- 107,138 ----
+                  ctl-&gt;max_width=vout-&gt;xv_image-&gt;width;
+                  ctl-&gt;max_height=vout-&gt;xv_image-&gt;height;
+!                 ctl-&gt;format=vout-&gt;privBuf.format;
+!                 switch (vout-&gt;GetFormat()) {
+!                         case FOURCC_I420:
+!                                 ctl-&gt;offset0=vout-&gt;xv_image-&gt;offsets[0];
+!                                 ctl-&gt;offset1=vout-&gt;xv_image-&gt;offsets[1];
+!                                 ctl-&gt;offset2=vout-&gt;xv_image-&gt;offsets[2];
+!                                 ctl-&gt;stride0=vout-&gt;xv_image-&gt;pitches[0];
+!                                 ctl-&gt;stride1=vout-&gt;xv_image-&gt;pitches[1];
+!                                 ctl-&gt;stride2=vout-&gt;xv_image-&gt;pitches[2];
+!                                 break;
+!                         case FOURCC_YV12:
+!                                 ctl-&gt;offset0=vout-&gt;xv_image-&gt;offsets[0];
+!                                 ctl-&gt;offset1=vout-&gt;xv_image-&gt;offsets[2];
+!                                 ctl-&gt;offset2=vout-&gt;xv_image-&gt;offsets[1];
+!                                 ctl-&gt;stride0=vout-&gt;xv_image-&gt;pitches[0];
+!                                 ctl-&gt;stride1=vout-&gt;xv_image-&gt;pitches[2];
+!                                 ctl-&gt;stride2=vout-&gt;xv_image-&gt;pitches[1];
+!                                 break;
+!                         case FOURCC_YUY2:
+!                                 ctl-&gt;offset0=vout-&gt;xv_image-&gt;offsets[0];
+!                                 ctl-&gt;offset1=ctl-&gt;offset2=0;
+!                                 ctl-&gt;stride0=vout-&gt;xv_image-&gt;pitches[0];
+!                                 ctl-&gt;stride1=ctl-&gt;stride2=0;
+!                                 break;
+!                 };
+!                 
+                  picture.pixel[0]=picture.pixel[1]=picture.pixel[2]=NULL;
+!                 picture.stride[0]=picture.stride[1]=picture.stride[2]=0;
+                  picture.edge_width=picture.edge_height=0;
+                  picture.max_width=ctl-&gt;max_width;
+
+Index: shm-common.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/shm-common.h,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -C2 -d -r1.5 -r1.6
+*** shm-common.h	1 Apr 2006 08:26:56 -0000	1.5
+--- shm-common.h	4 Sep 2006 20:25:17 -0000	1.6
+***************
+*** 19,23 ****
+  
+  
+! #define CTL_KEY 5678 
+  
+  union semun {
+--- 19,23 ----
+  
+  
+! #define CTL_KEY 5679 
+  
+  union semun {
+***************
+*** 43,46 ****
+--- 43,47 ----
+          int pict_shmid;
+          
++         PixelFormat format;
+          int max_width;
+          int max_height;        
+***************
+*** 49,52 ****
+--- 50,56 ----
+          int new_afd;
+          double new_asp;
++         int offset0;
++         int offset1;
++         int offset2;
+          int stride0;
+          int stride1;
+
+Index: video-shm.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-shm.c,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -C2 -d -r1.9 -r1.10
+*** video-shm.c	27 Aug 2006 13:02:50 -0000	1.9
+--- video-shm.c	4 Sep 2006 20:25:17 -0000	1.10
+***************
+*** 323,327 ****
+                         }
+                         curr_pict_shmid=ctl-&gt;pict_shmid;
+!                        privBuf.format=PIX_FMT_YUV420P;//ctl-&gt;format;
+                         privBuf.max_width=ctl-&gt;max_width;
+                         privBuf.max_height=ctl-&gt;max_height;
+--- 323,327 ----
+                         }
+                         curr_pict_shmid=ctl-&gt;pict_shmid;
+!                        privBuf.format=ctl-&gt;format;
+                         privBuf.max_width=ctl-&gt;max_width;
+                         privBuf.max_height=ctl-&gt;max_height;
+***************
+*** 329,342 ****
+                          case PIX_FMT_YUV420P:  
+                                  SHMDEB(&quot;new format YUV420P\n&quot;);
+!                                 pixels[0]=privBuf.pixel[0]=curr_pict;
+!                                 pixels[2]=privBuf.pixel[2]=curr_pict+ctl-&gt;max_height*ctl-&gt;stride0;
+!                                 pixels[1]=privBuf.pixel[1]=privBuf.pixel[2]+ctl-&gt;max_height/2*ctl-&gt;stride1;
+                                  privBuf.stride[0]=ctl-&gt;stride0;
+!                                 privBuf.stride[1]=privBuf.stride[2]=ctl-&gt;stride1;
+                                  break;
+                          case PIX_FMT_YUV422:
+                                  SHMDEB(&quot;new format YUV422\n&quot;);
+!                                 privBuf.pixel[0]=curr_pict;
+                                  privBuf.stride[0]=ctl-&gt;stride0;
+                                  break;
+                          default:
+--- 329,345 ----
+                          case PIX_FMT_YUV420P:  
+                                  SHMDEB(&quot;new format YUV420P\n&quot;);
+!                                 privBuf.pixel[0]=curr_pict+ctl-&gt;offset0;
+!                                 privBuf.pixel[1]=curr_pict+ctl-&gt;offset1;
+!                                 privBuf.pixel[2]=curr_pict+ctl-&gt;offset2;
+                                  privBuf.stride[0]=ctl-&gt;stride0;
+!                                 privBuf.stride[1]=ctl-&gt;stride1;
+!                                 privBuf.stride[2]=ctl-&gt;stride2;
+                                  break;
+                          case PIX_FMT_YUV422:
+                                  SHMDEB(&quot;new format YUV422\n&quot;);
+!                                 privBuf.pixel[0]=curr_pict+ctl-&gt;offset0;
+!                                 privBuf.pixel[1]=privBuf.pixel[1]=NULL;
+                                  privBuf.stride[0]=ctl-&gt;stride0;
++                                 privBuf.stride[1]=privBuf.stride[2]=0;
+                                  break;
+                          default:
+***************
+*** 346,350 ****
+                  };
+          };
+- 
+          
+          if (!ctl-&gt;pict_shmid || !curr_pict) {
+--- 349,352 ----
+***************
+*** 367,404 ****
+                                  OsdPy,OsdPu,OsdPv,OsdPAlphaY,OsdPAlphaUV, OSD_FULL_WIDTH,
+                                  0,0,0,0);                
+! /*                for (int i = 0; i &lt; height; i++)
+!                         AlphaBlend(pixels [0] + i * ctl-&gt;stride0,
+!                                        OsdPy+i*OSD_FULL_WIDTH,
+!                                        Py + i * Ystride,
+!                                        OsdPAlphaY+i*OSD_FULL_WIDTH,
+!                                        width );
+!                 for (int i = 0; i &lt; height / 2; i++)
+!                         AlphaBlend(pixels [2] + i * ctl-&gt;stride1,
+!                                         OsdPu+i*OSD_FULL_WIDTH/2,
+!                                         Pu + i * UVstride ,
+!                                         OsdPAlphaUV+i*OSD_FULL_WIDTH/2,
+!                                         width/2);
+!                 for (int i = 0; i &lt; height / 2 ; i++)
+!                         AlphaBlend(pixels [1] + i * ctl-&gt;stride2 ,
+!                                         OsdPv+i*OSD_FULL_WIDTH/2,
+!                                         Pv + i * UVstride,
+!                                         OsdPAlphaUV+i*OSD_FULL_WIDTH/2,
+!                                         width / 2);
+!   */      } else {
+                  CopyPicBuf(&amp;privBuf,buf,0,0,0,0);
+-                /* 
+-                 for (int i = 0; i &lt; height; i++)
+-                         fast_memcpy(pixels [0] + i * ctl-&gt;stride0,
+-                                         Py + i * Ystride,
+-                                         width );
+-                 for (int i = 0; i &lt; height / 2; i++)
+-                         fast_memcpy (pixels [2] + i * ctl-&gt;stride1,
+-                                         Pu + i * UVstride,
+-                                         width / 2);
+-                 for (int i = 0; i &lt; height / 2 ; i++)
+-                         fast_memcpy (pixels [1] + i * ctl-&gt;stride2 ,
+-                                         Pv + i * UVstride,
+-                                         width / 2);
+- */
+          };
+          ctl-&gt;new_pict++;
+--- 369,374 ----
+                                  OsdPy,OsdPu,OsdPv,OsdPAlphaY,OsdPAlphaUV, OSD_FULL_WIDTH,
+                                  0,0,0,0);                
+!      } else {
+                  CopyPicBuf(&amp;privBuf,buf,0,0,0,0);
+          };
+          ctl-&gt;new_pict++;
+
+Index: video-shm.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-shm.h,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -C2 -d -r1.6 -r1.7
+*** video-shm.h	27 Aug 2006 13:02:50 -0000	1.6
+--- video-shm.h	4 Sep 2006 20:25:17 -0000	1.7
+***************
+*** 35,39 ****
+          int curr_pict_shmid;
+          uint8_t *curr_pict;
+-         uint8_t *pixels[4];
+          sPicBuffer privBuf;
+  
+--- 35,38 ----
+
+Index: video-xv.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.h,v
+retrieving revision 1.23
+retrieving revision 1.24
+diff -C2 -d -r1.23 -r1.24
+*** video-xv.h	27 Aug 2006 13:02:50 -0000	1.23
+--- video-xv.h	4 Sep 2006 20:25:17 -0000	1.24
+***************
+*** 196,199 ****
+--- 196,201 ----
+    virtual bool Reconfigure (int format = 0, 
+                    int width = XV_SRC_WIDTH, int height = XV_SRC_HEIGHT);
++   int GetFormat() const
++   {return format;};
+    void DeInitXv();
+    void CreateXvImage(Display *dpy,XvPortID port,XvImage *&amp;xv_image,
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000409.html">[Softdevice-cvs] softdevice CHANGELOG,1.219,1.220
+</A></li>
+	<LI>Next message: <A HREF="000411.html">[Softdevice-cvs] softdevice video-xv.c, 1.59, 1.60 CHANGELOG, 1.220,	1.221 video.c, 1.61, 1.62
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#410">[ date ]</a>
+              <a href="thread.html#410">[ thread ]</a>
+              <a href="subject.html#410">[ subject ]</a>
+              <a href="author.html#410">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

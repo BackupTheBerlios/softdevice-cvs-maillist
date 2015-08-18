@@ -1,0 +1,472 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.123,1.124 setup-softdevice.c,1.31,1.32 setup-softdevice.h,1.20,1.21
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.123%2C1.124%20setup-softdevice.c%2C1.31%2C1.32%20setup-softdevice.h%2C1.20%2C1.21&In-Reply-To=%3C200511020330.jA23U8w10298%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000236.html">
+   <LINK REL="Next"  HREF="000238.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.123,1.124 setup-softdevice.c,1.31,1.32 setup-softdevice.h,1.20,1.21</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.123%2C1.124%20setup-softdevice.c%2C1.31%2C1.32%20setup-softdevice.h%2C1.20%2C1.21&In-Reply-To=%3C200511020330.jA23U8w10298%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.123,1.124 setup-softdevice.c,1.31,1.32 setup-softdevice.h,1.20,1.21">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Wed Nov  2 04:30:08 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000236.html">[Softdevice-cvs] softdevice CHANGELOG,1.122,1.123 setup-softdevice.c,1.30,1.31 setup-softdevice.h,1.19,1.20 softdevice.c,1.45,1.46
+</A></li>
+        <LI>Next message: <A HREF="000238.html">[Softdevice-cvs] softdevice i18n.c,1.10,1.11
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#237">[ date ]</a>
+              <a href="thread.html#237">[ thread ]</a>
+              <a href="subject.html#237">[ subject ]</a>
+              <a href="author.html#237">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv4598
+
+Modified Files:
+	CHANGELOG setup-softdevice.c setup-softdevice.h 
+Log Message:
+restructured OSD setup
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.123
+retrieving revision 1.124
+diff -C2 -d -r1.123 -r1.124
+*** CHANGELOG	1 Nov 2005 20:50:24 -0000	1.123
+--- CHANGELOG	2 Nov 2005 03:30:05 -0000	1.124
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2005-11-02:
++     - restructured OSD setup
+  2005-11-01:
+      - some some german translations (with help from Andre Neumann)
+
+Index: setup-softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.c,v
+retrieving revision 1.31
+retrieving revision 1.32
+diff -C2 -d -r1.31 -r1.32
+*** setup-softdevice.c	1 Nov 2005 20:50:24 -0000	1.31
+--- setup-softdevice.c	2 Nov 2005 03:30:05 -0000	1.32
+***************
+*** 397,426 ****
+  }
+  
+! /* --------------------------------------------------------------------------- */
+! cMenuSetupSoftdevice::cMenuSetupSoftdevice(cPlugin *plugin)
+  {
+-   if (plugin)
+-     SetPlugin(plugin);
+- 
+    copyData = setupStore;
+    data = &setupStore;
+  
+-   if (data-&gt;outputMethod == VOUT_XV)
+-   {
+-     xv_startup_aspect[0] = tr(&quot;16:9 wide&quot;);
+-     xv_startup_aspect[1] = tr(&quot;4:3 normal&quot;);
+-     Add(new cMenuEditStraItem(tr(&quot;Xv startup aspect&quot;),
+-                              &amp;data-&gt;xvAspect,
+-                              (SETUP_XVSTARTUPASPECT-1),
+-                              xv_startup_aspect));
+- 
+-     /* ------------------------------------------------------------------------
+-      * don't offer that menu option as there is no immediate check
+-      * if we have a still a operational system
+-      */
+-     //Add(new cMenuEditBoolItem(tr(&quot;Xv MaxArea&quot;),
+-     //                         &amp;data-&gt;xvMaxArea, tr(&quot;no&quot;), tr(&quot;yes&quot;)));
+-   }
+- 
+    crop_str[0] = tr(&quot;none&quot;);
+    Add(new cMenuEditStraItem(tr(&quot;CropMode&quot;),
+--- 397,407 ----
+  }
+  
+! /* ---------------------------------------------------------------------------
+!  */
+! cMenuSetupCropping::cMenuSetupCropping(const char *name) : cOsdMenu(name, 33)
+  {
+    copyData = setupStore;
+    data = &setupStore;
+  
+    crop_str[0] = tr(&quot;none&quot;);
+    Add(new cMenuEditStraItem(tr(&quot;CropMode&quot;),
+***************
+*** 459,462 ****
+--- 440,479 ----
+                               MAX_CROP_COLS));
+    }
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ eOSState cMenuSetupCropping::ProcessKey(eKeys Key)
++ {
++     eOSState state = cOsdMenu::ProcessKey(Key);
++ 
++   switch (state)
++   {
++     case osUnknown:
++       switch (Key)
++       {
++         case kOk:
++           state = osBack;
++           break;
++         default:
++           break;
++       }
++       break;
++     case osBack:
++       setupStore = copyData;
++       fprintf (stderr, &quot;[setup-cropping] restoring setup state\n&quot;);
++       break;
++     default:
++       break;
++   }
++   return state;
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ cMenuSetupPostproc::cMenuSetupPostproc(const char *name) : cOsdMenu(name, 33)
++ {
++   copyData = setupStore;
++   data = &setupStore;
+  
+    deint_str[0] = tr(&quot;none&quot;);
+***************
+*** 483,487 ****
+                                deint_str));
+    }
+!   
+  #ifdef PP_LIBAVCODEC
+    pp_str[0] = tr(&quot;none&quot;);
+--- 500,504 ----
+                                deint_str));
+    }
+! 
+  #ifdef PP_LIBAVCODEC
+    pp_str[0] = tr(&quot;none&quot;);
+***************
+*** 494,523 ****
+  #endif
+  
+!   bufferModes[0] = tr(&quot;save&quot;);
+!   bufferModes[1] = tr(&quot;good seeking&quot;);
+!   bufferModes[2] = tr(&quot;HDTV&quot;);
+!   Add(new cMenuEditStraItem(tr(&quot;Buffer Mode&quot;),
+!                               &amp;data-&gt;bufferMode,(SETUP_BUFFERMODES-1),bufferModes));
+!   
+!   if (data-&gt;outputMethod == VOUT_DFB || data-&gt;outputMethod == VOUT_VIDIX)
+!   {
+!     Add(new cMenuEditStraItem(tr(&quot;Pixel Format&quot;),
+!                               &amp;data-&gt;pixelFormat,
+!                               (SETUP_PIXFMT-1),
+!                               pix_fmt));
+!   }
+  
+!   if (data-&gt;outputMethod == VOUT_DFB)
+    {
+!     Add(new cMenuEditBoolItem(tr(&quot;Use StretchBlit&quot;),
+!                               &amp;data-&gt;useStretchBlit, tr(&quot;off&quot;), tr(&quot;on&quot;)));
+    }
+  
+!   Add(new cMenuEditBoolItem(tr(&quot;Picture mirroring&quot;),
+!                             &amp;data-&gt;mirror, tr(&quot;off&quot;), tr(&quot;on&quot;)));
+  
+!   Add(new cMenuEditIntItem(tr(&quot;A/V Delay&quot;),
+!                            &amp;data-&gt;avOffset,
+!                            MINAVOFFSET, MAXAVOFFSET));
+  
+    videoAspectNames[0] = tr(&quot;default&quot;);
+--- 511,570 ----
+  #endif
+  
+!   Add(new cMenuEditBoolItem(tr(&quot;Picture mirroring&quot;),
+!                             &amp;data-&gt;mirror, tr(&quot;off&quot;), tr(&quot;on&quot;)));
+  
+! }
+! 
+! /* ---------------------------------------------------------------------------
+!  */
+! eOSState cMenuSetupPostproc::ProcessKey(eKeys Key)
+! {
+!     eOSState state = cOsdMenu::ProcessKey(Key);
+! 
+!   switch (state)
+    {
+!     case osUnknown:
+!       switch (Key)
+!       {
+!         case kOk:
+!           state = osBack;
+!           break;
+!         default:
+!           break;
+!       }
+!       break;
+!     case osBack:
+!       setupStore = copyData;
+!       fprintf (stderr, &quot;[setup-postproc] restoring setup state\n&quot;);
+!       break;
+!     default:
+!       break;
+    }
++   return state;
++ }
+  
+! /* ---------------------------------------------------------------------------
+!  */
+! cMenuSetupSoftdevice::cMenuSetupSoftdevice(cPlugin *plugin)
+! {
+!   if (plugin)
+!     SetPlugin(plugin);
+  
+!   copyData = setupStore;
+!   data = &setupStore;
+! 
+!   Add(new cOsdItem(tr(&quot;Cropping&quot;)));
+!   Add(new cOsdItem(tr(&quot;Post processing&quot;)));
+!   Add(new cOsdItem(tr(&quot; &quot;), osUnknown, false));
+! 
+!   if (data-&gt;outputMethod == VOUT_XV)
+!   {
+!     xv_startup_aspect[0] = tr(&quot;16:9 wide&quot;);
+!     xv_startup_aspect[1] = tr(&quot;4:3 normal&quot;);
+!     Add(new cMenuEditStraItem(tr(&quot;Xv startup aspect&quot;),
+!                              &amp;data-&gt;xvAspect,
+!                              (SETUP_XVSTARTUPASPECT-1),
+!                              xv_startup_aspect));
+!   }
+  
+    videoAspectNames[0] = tr(&quot;default&quot;);
+***************
+*** 527,530 ****
+--- 574,592 ----
+                              videoAspectNames));
+  
++   osdModeNames[0] = tr(&quot;pseudo&quot;);
++   osdModeNames[1] = tr(&quot;software&quot;);
++   Add(new cMenuEditStraItem(tr(&quot;OSD alpha blending&quot;),
++                             &amp;data-&gt;osdMode,
++                             (SETUP_OSDMODES-1),
++                             osdModeNames));
++ 
++   Add(new cOsdItem(tr(&quot; &quot;), osUnknown, false));
++ 
++   bufferModes[0] = tr(&quot;save&quot;);
++   bufferModes[1] = tr(&quot;good seeking&quot;);
++   bufferModes[2] = tr(&quot;HDTV&quot;);
++   Add(new cMenuEditStraItem(tr(&quot;Buffer Mode&quot;),
++                               &amp;data-&gt;bufferMode,(SETUP_BUFFERMODES-1),bufferModes));
++ 
+    suspendVideo[0] = tr(&quot;playing&quot;);
+    suspendVideo[1] = tr(&quot;suspended&quot;);
+***************
+*** 534,543 ****
+                              suspendVideo));
+  
+!   osdModeNames[0] = tr(&quot;pseudo&quot;);
+!   osdModeNames[1] = tr(&quot;software&quot;);
+!   Add(new cMenuEditStraItem(tr(&quot;OSD alpha blending&quot;),
+!                             &amp;data-&gt;osdMode,
+!                             (SETUP_OSDMODES-1),
+!                             osdModeNames));
+  
+    Add(new cMenuEditStraItem(tr(&quot;AC3 Mode&quot;),
+--- 596,604 ----
+                              suspendVideo));
+  
+!   Add(new cOsdItem(tr(&quot; &quot;), osUnknown, false));
+! 
+!   Add(new cMenuEditIntItem(tr(&quot;A/V Delay&quot;),
+!                            &amp;data-&gt;avOffset,
+!                            MINAVOFFSET, MAXAVOFFSET));
+  
+    Add(new cMenuEditStraItem(tr(&quot;AC3 Mode&quot;),
+***************
+*** 546,549 ****
+--- 607,626 ----
+                              ac3ModeNames));
+  
++   Add(new cOsdItem(tr(&quot; &quot;), osUnknown, false));
++ 
++   if (data-&gt;outputMethod == VOUT_DFB || data-&gt;outputMethod == VOUT_VIDIX)
++   {
++     Add(new cMenuEditStraItem(tr(&quot;Pixel Format&quot;),
++                               &amp;data-&gt;pixelFormat,
++                               (SETUP_PIXFMT-1),
++                               pix_fmt));
++   }
++ 
++   if (data-&gt;outputMethod == VOUT_DFB)
++   {
++     Add(new cMenuEditBoolItem(tr(&quot;Use StretchBlit&quot;),
++                               &amp;data-&gt;useStretchBlit, tr(&quot;off&quot;), tr(&quot;on&quot;)));
++   }
++ 
+    Add(new cMenuEditBoolItem(tr(&quot;Main menu entry&quot;),
+                              &amp;data-&gt;mainMenu, tr(&quot;off&quot;), tr(&quot;on&quot;)));
+***************
+*** 556,560 ****
+      eOSState state = cOsdMenu::ProcessKey(Key);
+  
+- #if 0
+    switch (state)
+    {
+--- 633,636 ----
+***************
+*** 563,576 ****
+        {
+          case kOk:
+-           fprintf(stderr, &quot;--&gt; (%s) &lt;--\n&quot;,Get(Current())-&gt;Text());
+            if (!strcmp(Get(Current())-&gt;Text(),tr(&quot;Cropping&quot;)))
+            {
+!             fprintf(stderr, &quot;## -&gt; (%s) &lt;- ##\n&quot;,Get(Current())-&gt;Text());
+            }
+!           else
+            {
+!             Store();
+!             state = osBack;
+            }
+            break;
+          default:
+--- 639,652 ----
+        {
+          case kOk:
+            if (!strcmp(Get(Current())-&gt;Text(),tr(&quot;Cropping&quot;)))
+            {
+!             return AddSubMenu (new cMenuSetupCropping(tr(&quot;Cropping&quot;)));
+            }
+!           else if (!strcmp(Get(Current())-&gt;Text(),tr(&quot;Post processing&quot;)))
+            {
+!             return AddSubMenu (new cMenuSetupPostproc(tr(&quot;Post processing&quot;)));
+            }
++           Store();
++           state = osBack;
+            break;
+          default:
+***************
+*** 585,607 ****
+        break;
+    }
+- #else
+-   if (state == osUnknown)
+-   {
+-     switch (Key)
+-     {
+-       case kOk:
+-         Store();
+-         state = osBack;
+-         break;
+-       default:
+-         break;
+-     }
+-   }
+-   else if (state == osBack)
+-   {
+-     setupStore = copyData;
+-     fprintf (stderr, &quot;[setup-softdevice] restoring setup state\n&quot;);
+-   }
+- #endif
+    return state;
+  }
+--- 661,664 ----
+
+Index: setup-softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.h,v
+retrieving revision 1.20
+retrieving revision 1.21
+diff -C2 -d -r1.20 -r1.21
+*** setup-softdevice.h	1 Nov 2005 20:50:24 -0000	1.20
+--- setup-softdevice.h	2 Nov 2005 03:30:05 -0000	1.21
+***************
+*** 67,76 ****
+--- 67,106 ----
+  /* ---------------------------------------------------------------------------
+   */
++ class cMenuSetupCropping : public cOsdMenu
++ {
++   private:
++     cSetupStore *data, copyData;
++ 
++   protected:
++     virtual eOSState ProcessKey(eKeys Key);
++ 
++   public:
++     cMenuSetupCropping(const char *name);
++ };
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ class cMenuSetupPostproc : public cOsdMenu
++ {
++   private:
++     cSetupStore *data, copyData;
++ 
++   protected:
++     virtual eOSState ProcessKey(eKeys Key);
++ 
++   public:
++     cMenuSetupPostproc(const char *name);
++ };
++ 
++ /* ---------------------------------------------------------------------------
++  */
+  class cMenuSetupSoftdevice : public cMenuSetupPage {
+    private:
+      cSetupStore *data, copyData;
++ 
+    protected:
+      virtual eOSState ProcessKey(eKeys Key);
+      virtual void Store(void);
++ 
+    public:
+      cMenuSetupSoftdevice(cPlugin *plugin = NULL);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000236.html">[Softdevice-cvs] softdevice CHANGELOG,1.122,1.123 setup-softdevice.c,1.30,1.31 setup-softdevice.h,1.19,1.20 softdevice.c,1.45,1.46
+</A></li>
+	<LI>Next message: <A HREF="000238.html">[Softdevice-cvs] softdevice i18n.c,1.10,1.11
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#237">[ date ]</a>
+              <a href="thread.html#237">[ thread ]</a>
+              <a href="subject.html#237">[ subject ]</a>
+              <a href="author.html#237">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

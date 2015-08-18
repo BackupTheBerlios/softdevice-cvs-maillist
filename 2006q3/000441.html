@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice video-shm.c,1.11,1.12
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-shm.c%2C1.11%2C1.12&In-Reply-To=%3C20060929191253.374EE81D55%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000440.html">
+   <LINK REL="Next"  HREF="000442.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice video-shm.c,1.11,1.12</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-shm.c%2C1.11%2C1.12&In-Reply-To=%3C20060929191253.374EE81D55%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice video-shm.c,1.11,1.12">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Sep 29 21:12:53 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000440.html">[Softdevice-cvs] softdevice CHANGELOG, 1.246, 1.247 video.c, 1.65,	1.66 video.h, 1.42, 1.43
+</A></li>
+        <LI>Next message: <A HREF="000442.html">[Softdevice-cvs] softdevice video-xv.c,1.62,1.63
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#441">[ date ]</a>
+              <a href="thread.html#441">[ thread ]</a>
+              <a href="subject.html#441">[ subject ]</a>
+              <a href="author.html#441">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv5507
+
+Modified Files:
+	video-shm.c 
+Log Message:
+silence warnings
+
+Index: video-shm.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-shm.c,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -C2 -d -r1.11 -r1.12
+*** video-shm.c	18 Sep 2006 10:50:33 -0000	1.11
+--- video-shm.c	29 Sep 2006 19:12:19 -0000	1.12
+***************
+*** 318,321 ****
+--- 318,322 ----
+  
+  void cShmVideoOut::YUV(sPicBuffer *buf) {
++ #if 0	
+          uint8_t *Py=buf-&gt;pixel[0]+(buf-&gt;edge_height)*buf-&gt;stride[0]
+                  +buf-&gt;edge_width;
+***************
+*** 328,331 ****
+--- 329,333 ----
+          int Width=buf-&gt;width;
+          int Height=buf-&gt;height;
++ #endif	
+    
+          if (!ctl-&gt;attached) {
+***************
+*** 347,352 ****
+--- 349,356 ----
+          };
+        
++ #if 0	
+          int width= ctl-&gt;max_width &lt; Width ? ctl-&gt;max_width : Width;
+          int height= ctl-&gt;max_height &lt; Height ? ctl-&gt;max_height : Height;    
++ #endif	
+          
+          ctl-&gt;width=fwidth;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000440.html">[Softdevice-cvs] softdevice CHANGELOG, 1.246, 1.247 video.c, 1.65,	1.66 video.h, 1.42, 1.43
+</A></li>
+	<LI>Next message: <A HREF="000442.html">[Softdevice-cvs] softdevice video-xv.c,1.62,1.63
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#441">[ date ]</a>
+              <a href="thread.html#441">[ thread ]</a>
+              <a href="subject.html#441">[ subject ]</a>
+              <a href="author.html#441">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,190 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.176,1.177 video-dfb.c,1.56,1.57 video.c,1.50,1.51 video.h,1.35,1.36
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.176%2C1.177%20video-dfb.c%2C1.56%2C1.57%20video.c%2C1.50%2C1.51%20video.h%2C1.35%2C1.36&In-Reply-To=%3C200604242259.k3OMwxt09521%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000337.html">
+   <LINK REL="Next"  HREF="000339.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.176,1.177 video-dfb.c,1.56,1.57 video.c,1.50,1.51 video.h,1.35,1.36</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.176%2C1.177%20video-dfb.c%2C1.56%2C1.57%20video.c%2C1.50%2C1.51%20video.h%2C1.35%2C1.36&In-Reply-To=%3C200604242259.k3OMwxt09521%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.176,1.177 video-dfb.c,1.56,1.57 video.c,1.50,1.51 video.h,1.35,1.36">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue Apr 25 00:59:00 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000337.html">[Softdevice-cvs] softdevice video-xv.c,1.53,1.54
+</A></li>
+        <LI>Next message: <A HREF="000339.html">[Softdevice-cvs] softdevice CHANGELOG,1.177,1.178 video.c,1.51,1.52 ShmClient.c,1.10,1.11
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#338">[ date ]</a>
+              <a href="thread.html#338">[ thread ]</a>
+              <a href="subject.html#338">[ subject ]</a>
+              <a href="author.html#338">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv19382
+
+Modified Files:
+	CHANGELOG video-dfb.c video.c video.h 
+Log Message:
+dfb: OSD responsivness in paused mode
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.176
+retrieving revision 1.177
+diff -C2 -d -r1.176 -r1.177
+*** CHANGELOG	23 Apr 2006 20:32:45 -0000	1.176
+--- CHANGELOG	24 Apr 2006 22:59:23 -0000	1.177
+***************
+*** 1,3 ****
+--- 1,8 ----
+  Changelog
++ 2006-04-24:
++    - xv + dfb: removed some unused code.
++    - vidix + fb: adjusted to use videoInitialized.
++    - call Initialize() after all video constructors.
++    - dfb: OSD responsivness in paused mode.
+  2006-04-23:
+     - added volume changing with changing the  mixer control ( to use it add
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.56
+retrieving revision 1.57
+diff -C2 -d -r1.56 -r1.57
+*** video-dfb.c	24 Apr 2006 18:52:53 -0000	1.56
+--- video-dfb.c	24 Apr 2006 22:59:23 -0000	1.57
+***************
+*** 606,609 ****
+--- 606,614 ----
+      }
+    }
++ 
++   if (OsdRefreshCounter &gt; 2) {
++     ShowOSD();
++     OsdRefreshCounter = 0;
++   }
+  }
+  
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.50
+retrieving revision 1.51
+diff -C2 -d -r1.50 -r1.51
+*** video.c	23 Apr 2006 19:38:29 -0000	1.50
+--- video.c	24 Apr 2006 22:59:23 -0000	1.51
+***************
+*** 101,105 ****
+      OsdRefreshCounter++;
+      usleep(20000);
+!     ProcessEvents();
+      if (
+          OsdRefreshCounter &gt; 120 || // blanks the screen after inactivity (4s)
+--- 101,108 ----
+      OsdRefreshCounter++;
+      usleep(20000);
+! 
+!     if (OsdRefreshCounter &gt; 2)
+!       ProcessEvents();
+! 
+      if (
+          OsdRefreshCounter &gt; 120 || // blanks the screen after inactivity (4s)
+***************
+*** 490,494 ****
+     */
+    areaMutex. Unlock();
+!   ProcessEvents();  
+  }
+  
+--- 493,497 ----
+     */
+    areaMutex. Unlock();
+!   ProcessEvents();
+  }
+  
+***************
+*** 506,510 ****
+    YUV (pY, pU, pV, w, h, yPitch, uvPitch);
+    areaMutex. Unlock();
+!   ProcessEvents();  
+  }
+  
+--- 509,513 ----
+    YUV (pY, pU, pV, w, h, yPitch, uvPitch);
+    areaMutex. Unlock();
+!   ProcessEvents();
+  }
+  
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.35
+retrieving revision 1.36
+diff -C2 -d -r1.35 -r1.36
+*** video.h	24 Apr 2006 19:23:09 -0000	1.35
+--- video.h	24 Apr 2006 22:59:23 -0000	1.36
+***************
+*** 146,149 ****
+--- 146,152 ----
+  
+      bool active;
++     uint16_t OsdRefreshCounter;
++     // should be setted to null everytime OSD is shown
++     // (software alpha blending mode).
+  
+      virtual void RecalculateAspect(void);
+***************
+*** 201,207 ****
+      int     Osd_changed;
+  
+-     uint16_t OsdRefreshCounter;
+-     // should be setted to null everytime OSD is shown
+-     // (software alpha blending mode).
+  public:
+      virtual void ClearOSD();
+--- 204,207 ----
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000337.html">[Softdevice-cvs] softdevice video-xv.c,1.53,1.54
+</A></li>
+	<LI>Next message: <A HREF="000339.html">[Softdevice-cvs] softdevice CHANGELOG,1.177,1.178 video.c,1.51,1.52 ShmClient.c,1.10,1.11
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#338">[ date ]</a>
+              <a href="thread.html#338">[ thread ]</a>
+              <a href="subject.html#338">[ subject ]</a>
+              <a href="author.html#338">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

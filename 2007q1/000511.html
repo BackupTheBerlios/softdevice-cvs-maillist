@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice setup-softlog.c,1.4,1.5
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20setup-softlog.c%2C1.4%2C1.5&In-Reply-To=%3C20070226210250.4639161C55%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000510.html">
+   <LINK REL="Next"  HREF="000512.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice setup-softlog.c,1.4,1.5</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20setup-softlog.c%2C1.4%2C1.5&In-Reply-To=%3C20070226210250.4639161C55%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice setup-softlog.c,1.4,1.5">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon Feb 26 22:02:50 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000510.html">[Softdevice-cvs] softdevice CHANGELOG, 1.295, 1.296 Makefile, 1.36,	1.37 setup-softlog.c, 1.3, 1.4 setup-softlog.h, 1.2,	1.3 video-vidix.c, 1.24, 1.25
+</A></li>
+        <LI>Next message: <A HREF="000512.html">[Softdevice-cvs] softdevice video-dfb.c, 1.77, 1.78 video-dfb.h,	1.24, 1.25
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#511">[ date ]</a>
+              <a href="thread.html#511">[ thread ]</a>
+              <a href="subject.html#511">[ subject ]</a>
+              <a href="author.html#511">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv24795
+
+Modified Files:
+	setup-softlog.c 
+Log Message:
+sanitycheck for zero length filenames and fix use filename member
+when changeing append mode
+
+
+Index: setup-softlog.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softlog.c,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -C2 -d -r1.4 -r1.5
+*** setup-softlog.c	24 Feb 2007 14:04:14 -0000	1.4
+--- setup-softlog.c	26 Feb 2007 21:01:14 -0000	1.5
+***************
+*** 132,137 ****
+  
+    if (newMode != appendPID) {
+      appendPID = newMode;
+!     SetLogFile(logFileName);
+    }
+  
+--- 132,140 ----
+  
+    if (newMode != appendPID) {
++       char *oldName = strdup (logFileName);
++ 
+      appendPID = newMode;
+!     SetLogFile(oldName);
+!     free (oldName);
+    }
+  
+***************
+*** 151,154 ****
+--- 154,165 ----
+  {
+    /* -------------------------------------------------------------------------
++    * Ignore zero length file names
++    */
++   if (!strlen (fileName)) {
++     Log (SOFT_LOG_ERROR, 0, &quot;[softlog] ignoring zero length fileName\n&quot;);
++     return 0;
++   }
++ 
++   /* -------------------------------------------------------------------------
+     * Don't close stderr. Handle fileName &quot;stderr&quot; special so that it is
+     * possible to switch back from file logging to stderr.
+***************
+*** 168,179 ****
+  
+      if (!(logFile = fopen (realName, &quot;w+&quot;))) {
+-       syslog(LOG_ERR,
+-              &quot;[softlog] could not open logfile (%s), using stderr&quot;,
+-              realName);
+-       fprintf(stderr,
+-               &quot;[softlog] could not open logfile (%s), using stderr&quot;,
+-               realName);
+        logFile = stderr;
+        logFileName = strdup(&quot;stderr&quot;);
+        return 0;
+      }
+--- 179,188 ----
+  
+      if (!(logFile = fopen (realName, &quot;w+&quot;))) {
+        logFile = stderr;
+        logFileName = strdup(&quot;stderr&quot;);
++ 
++       Log (SOFT_LOG_ERROR, 0,
++               &quot;[softlog] X could not open logfile (%s) len %d %s, using stderr\n&quot;,
++               realName, strlen (fileName), fileName);
+        return 0;
+      }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000510.html">[Softdevice-cvs] softdevice CHANGELOG, 1.295, 1.296 Makefile, 1.36,	1.37 setup-softlog.c, 1.3, 1.4 setup-softlog.h, 1.2,	1.3 video-vidix.c, 1.24, 1.25
+</A></li>
+	<LI>Next message: <A HREF="000512.html">[Softdevice-cvs] softdevice video-dfb.c, 1.77, 1.78 video-dfb.h,	1.24, 1.25
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#511">[ date ]</a>
+              <a href="thread.html#511">[ thread ]</a>
+              <a href="subject.html#511">[ subject ]</a>
+              <a href="author.html#511">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

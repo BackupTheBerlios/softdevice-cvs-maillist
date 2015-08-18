@@ -1,0 +1,480 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice PicBuffer.c,1.19,1.20
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20PicBuffer.c%2C1.19%2C1.20&In-Reply-To=%3C20070711180833.BFEBCF42DF%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000562.html">
+   <LINK REL="Next"  HREF="000564.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice PicBuffer.c,1.19,1.20</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20PicBuffer.c%2C1.19%2C1.20&In-Reply-To=%3C20070711180833.BFEBCF42DF%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice PicBuffer.c,1.19,1.20">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Wed Jul 11 20:08:33 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000562.html">[Softdevice-cvs] softdevice configure, 1.43, 1.44 VideoFilter.h, 1.4,	1.5
+</A></li>
+        <LI>Next message: <A HREF="000564.html">[Softdevice-cvs] softdevice video-xv.c,1.71,1.72
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#563">[ date ]</a>
+              <a href="thread.html#563">[ thread ]</a>
+              <a href="subject.html#563">[ subject ]</a>
+              <a href="author.html#563">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv6470
+
+Modified Files:
+	PicBuffer.c 
+Log Message:
+whitespace cleanup
+
+Index: PicBuffer.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/PicBuffer.c,v
+retrieving revision 1.19
+retrieving revision 1.20
+diff -C2 -d -r1.19 -r1.20
+*** PicBuffer.c	12 Mar 2007 20:43:26 -0000	1.19
+--- PicBuffer.c	11 Jul 2007 18:08:24 -0000	1.20
+***************
+*** 44,48 ****
+          PICDEB(&quot;FillPicBuffer Pic %p pixel[0] %p max_height %d stride[0] %d\n&quot;,
+                          Pic, Pic-&gt;pixel[0], Pic-&gt;max_height, Pic-&gt;stride[0]);
+!         int pixel_size=GetFormatBPP(Pic-&gt;format); 
+  
+          switch (Pic-&gt;format) {
+--- 44,48 ----
+          PICDEB(&quot;FillPicBuffer Pic %p pixel[0] %p max_height %d stride[0] %d\n&quot;,
+                          Pic, Pic-&gt;pixel[0], Pic-&gt;max_height, Pic-&gt;stride[0]);
+!         int pixel_size=GetFormatBPP(Pic-&gt;format);
+  
+          switch (Pic-&gt;format) {
+***************
+*** 63,67 ****
+                                  break;
+                          };
+!                         break;                        
+                  case PIX_FMT_RGB555 :
+                          {
+--- 63,67 ----
+                                  break;
+                          };
+!                         break;
+                  case PIX_FMT_RGB555 :
+                          {
+***************
+*** 106,110 ****
+          PICDEB(&quot;ClearPicBuffer Pic %p pixel[0] %p max_height %d stride[0] %d\n&quot;,
+                          Pic, Pic-&gt;pixel[0], Pic-&gt;max_height, Pic-&gt;stride[0]);
+!         int pixel_size=GetFormatBPP(Pic-&gt;format); 
+  
+          switch (Pic-&gt;format) {
+--- 106,110 ----
+          PICDEB(&quot;ClearPicBuffer Pic %p pixel[0] %p max_height %d stride[0] %d\n&quot;,
+                          Pic, Pic-&gt;pixel[0], Pic-&gt;max_height, Pic-&gt;stride[0]);
+!         int pixel_size=GetFormatBPP(Pic-&gt;format);
+  
+          switch (Pic-&gt;format) {
+***************
+*** 318,322 ****
+                  buf-&gt;stride[0]=ALIGN(pixel_size*w,16);
+                  buf-&gt;pixel[0]=(uint8_t*)malloc((buf-&gt;stride[0]*h)+16);
+!                 
+                  if (buf-&gt;pixel[0]==NULL) {
+                      printf(&quot;could not allocate memory for picture buffer!\n&quot;) ;
+--- 318,322 ----
+                  buf-&gt;stride[0]=ALIGN(pixel_size*w,16);
+                  buf-&gt;pixel[0]=(uint8_t*)malloc((buf-&gt;stride[0]*h)+16);
+! 
+                  if (buf-&gt;pixel[0]==NULL) {
+                      printf(&quot;could not allocate memory for picture buffer!\n&quot;) ;
+***************
+*** 326,330 ****
+                  return true;
+          };
+!                 
+          // planar pixel formats
+          GetChromaSubSample(pix_fmt, h_chroma_shift, v_chroma_shift);
+--- 326,330 ----
+                  return true;
+          };
+! 
+          // planar pixel formats
+          GetChromaSubSample(pix_fmt, h_chroma_shift, v_chroma_shift);
+***************
+*** 417,422 ****
+              return;
+      };
+!             
+!             
+      int buf_num=0;
+      PicBufMutex.Lock();
+--- 417,422 ----
+              return;
+      };
+! 
+! 
+      int buf_num=0;
+      PicBufMutex.Lock();
+***************
+*** 444,448 ****
+          PICDEB(&quot;CopyPicBuf_Convert width %d height %d\n&quot;,
+                          dst-&gt;width,dst-&gt;height);
+!         
+          yuv420_convert_fct yuv_convert=GetYuv420ConvertFct(dst-&gt;format);
+  
+--- 444,448 ----
+          PICDEB(&quot;CopyPicBuf_Convert width %d height %d\n&quot;,
+                          dst-&gt;width,dst-&gt;height);
+! 
+          yuv420_convert_fct yuv_convert=GetYuv420ConvertFct(dst-&gt;format);
+  
+***************
+*** 614,619 ****
+                  tmp|=((int)src[src_pixel])&lt;&lt;24;
+                  pos+=pixel_width;
+!                 src_pixel=pos&gt;&gt;8;   
+!                 
+                  tmp_dst[dst_pixel]=tmp;
+                  dst_pixel++;
+--- 614,619 ----
+                  tmp|=((int)src[src_pixel])&lt;&lt;24;
+                  pos+=pixel_width;
+!                 src_pixel=pos&gt;&gt;8;
+! 
+                  tmp_dst[dst_pixel]=tmp;
+                  dst_pixel++;
+***************
+*** 628,632 ****
+  #endif
+  };
+!                       
+  void CopyScalePicBuf(sPicBuffer *dst, sPicBuffer *src,
+                  int sxoff, int syoff, int src_width, int src_height,
+--- 628,632 ----
+  #endif
+  };
+! 
+  void CopyScalePicBuf(sPicBuffer *dst, sPicBuffer *src,
+                  int sxoff, int syoff, int src_width, int src_height,
+***************
+*** 636,653 ****
+          PICDEB(&quot;CopyScalePicBuf_YUV420P width %d height %d\n&quot;,
+                          dst-&gt;max_width,dst-&gt;max_height);
+!         
+          if ( dst_height == 0 || dst_width == 0)
+                  return;
+!         
+          if (src_width+sxoff &gt; src-&gt;max_width)
+                  src_width=src-&gt;max_width-sxoff;
+          if (src_height+syoff &gt; src-&gt;max_height)
+                  src_width=src-&gt;max_width-syoff;
+!  
+          if (dst_width+dxoff &gt; dst-&gt;max_width)
+                  dst_width=dst-&gt;max_width-dxoff;
+          if (dst_height+dyoff &gt; dst-&gt;max_height)
+                  dst_width=dst-&gt;max_width-dyoff;
+!         
+          dst-&gt;width = dst_width;// - 2 * (cutLeft + cutRight);
+          dst-&gt;height = dst_height;// - 2 *  (cutBottom + cutTop) ;
+--- 636,653 ----
+          PICDEB(&quot;CopyScalePicBuf_YUV420P width %d height %d\n&quot;,
+                          dst-&gt;max_width,dst-&gt;max_height);
+! 
+          if ( dst_height == 0 || dst_width == 0)
+                  return;
+! 
+          if (src_width+sxoff &gt; src-&gt;max_width)
+                  src_width=src-&gt;max_width-sxoff;
+          if (src_height+syoff &gt; src-&gt;max_height)
+                  src_width=src-&gt;max_width-syoff;
+! 
+          if (dst_width+dxoff &gt; dst-&gt;max_width)
+                  dst_width=dst-&gt;max_width-dxoff;
+          if (dst_height+dyoff &gt; dst-&gt;max_height)
+                  dst_width=dst-&gt;max_width-dyoff;
+! 
+          dst-&gt;width = dst_width;// - 2 * (cutLeft + cutRight);
+          dst-&gt;height = dst_height;// - 2 *  (cutBottom + cutTop) ;
+***************
+*** 699,706 ****
+                          +dxoff*GetFormatBPP(dst-&gt;format);
+                  convert_dst_stride=dst-&gt;stride[0];
+!                 
+                  yuv_convert=GetYuv420ConvertFct(dst-&gt;format);
+          };
+!         
+          int last_srcline=-1;
+          int last_uvsrcline=-1;
+--- 699,706 ----
+                          +dxoff*GetFormatBPP(dst-&gt;format);
+                  convert_dst_stride=dst-&gt;stride[0];
+! 
+                  yuv_convert=GetYuv420ConvertFct(dst-&gt;format);
+          };
+! 
+          int last_srcline=-1;
+          int last_uvsrcline=-1;
+***************
+*** 709,715 ****
+          int pixel_height=(src_height&lt;&lt;8)/dst_height;
+          src_height=((pixel_height*dst_height)&gt;&gt;8) &amp; ~2;
+!         while ( srcline &lt; src_height ) {  
+                  // first luma line
+!                 if (last_srcline==srcline &amp;&amp; !do_convert) { 
+                          memcpy(dst_ptr0,dst_ptr0-dst-&gt;stride[0],dst_width);
+                  } else {
+--- 709,715 ----
+          int pixel_height=(src_height&lt;&lt;8)/dst_height;
+          src_height=((pixel_height*dst_height)&gt;&gt;8) &amp; ~2;
+!         while ( srcline &lt; src_height ) {
+                  // first luma line
+!                 if (last_srcline==srcline &amp;&amp; !do_convert) {
+                          memcpy(dst_ptr0,dst_ptr0-dst-&gt;stride[0],dst_width);
+                  } else {
+***************
+*** 718,723 ****
+                  };
+  
+!                 // chroma lines 
+!                 if (last_uvsrcline==srcline/2) { 
+                          if (!do_convert) {
+                                  memcpy(dst_ptr1,dst_ptr1-dst-&gt;stride[1],dst_width/2);
+--- 718,723 ----
+                  };
+  
+!                 // chroma lines
+!                 if (last_uvsrcline==srcline/2) {
+                          if (!do_convert) {
+                                  memcpy(dst_ptr1,dst_ptr1-dst-&gt;stride[1],dst_width/2);
+***************
+*** 735,741 ****
+                  pos+=pixel_height;
+                  srcline=pos&gt;&gt;8;
+!                 
+                  // second luma line
+!                 if (last_srcline==srcline &amp;&amp; !do_convert) 
+                          memcpy(dst_ptr0,dst_ptr0-dst-&gt;stride[0],dst_width);
+                  else {
+--- 735,741 ----
+                  pos+=pixel_height;
+                  srcline=pos&gt;&gt;8;
+! 
+                  // second luma line
+!                 if (last_srcline==srcline &amp;&amp; !do_convert)
+                          memcpy(dst_ptr0,dst_ptr0-dst-&gt;stride[0],dst_width);
+                  else {
+***************
+*** 743,751 ****
+                          ScaleLine(dst_ptr0+dst_stride0,dst_width,src_ptr,src_width);
+                  };
+!                 
+                  last_srcline=srcline;
+                  pos+=pixel_height;
+                  srcline=pos&gt;&gt;8;
+!               
+                  if (do_convert) {
+                          // convert yuv to destination format
+--- 743,751 ----
+                          ScaleLine(dst_ptr0+dst_stride0,dst_width,src_ptr,src_width);
+                  };
+! 
+                  last_srcline=srcline;
+                  pos+=pixel_height;
+                  srcline=pos&gt;&gt;8;
+! 
+                  if (do_convert) {
+                          // convert yuv to destination format
+***************
+*** 782,791 ****
+          if (src_height+syoff &gt; src-&gt;max_height)
+                  src_width=src-&gt;max_width-syoff;
+!  
+          if (dst_width+dxoff &gt; dst-&gt;max_width)
+                  dst_width=dst-&gt;max_width-dxoff;
+          if (dst_height+dyoff &gt; dst-&gt;max_height)
+                  dst_width=dst-&gt;max_width-dyoff;
+!         
+          dst-&gt;width = dst_width;// - 2 * (cutLeft + cutRight);
+          dst-&gt;height = dst_height;// - 2 *  (cutBottom + cutTop) ;
+--- 782,791 ----
+          if (src_height+syoff &gt; src-&gt;max_height)
+                  src_width=src-&gt;max_width-syoff;
+! 
+          if (dst_width+dxoff &gt; dst-&gt;max_width)
+                  dst_width=dst-&gt;max_width-dxoff;
+          if (dst_height+dyoff &gt; dst-&gt;max_height)
+                  dst_width=dst-&gt;max_width-dyoff;
+! 
+          dst-&gt;width = dst_width;// - 2 * (cutLeft + cutRight);
+          dst-&gt;height = dst_height;// - 2 *  (cutBottom + cutTop) ;
+***************
+*** 824,828 ****
+          uint8_t *alpha_py=OsdPAlphaY+(2*cutTop+syoff)*osd_stride+2*cutLeft+sxoff;
+          uint8_t *alpha_puv=OsdPAlphaUV+(cutTop+syoff/2)*osd_stride/2+cutLeft+sxoff/2;
+!         
+          if ( dst-&gt;format == PIX_FMT_YUV420P ) {
+                  dst_ptr0=dst-&gt;pixel[0]
+--- 824,828 ----
+          uint8_t *alpha_py=OsdPAlphaY+(2*cutTop+syoff)*osd_stride+2*cutLeft+sxoff;
+          uint8_t *alpha_puv=OsdPAlphaUV+(cutTop+syoff/2)*osd_stride/2+cutLeft+sxoff/2;
+! 
+          if ( dst-&gt;format == PIX_FMT_YUV420P ) {
+                  dst_ptr0=dst-&gt;pixel[0]
+***************
+*** 851,855 ****
+                  yuv_convert=GetYuv420ConvertFct(dst-&gt;format);
+          };
+!         
+          int last_srcline=-1;
+          int last_uvsrcline=-1;
+--- 851,855 ----
+                  yuv_convert=GetYuv420ConvertFct(dst-&gt;format);
+          };
+! 
+          int last_srcline=-1;
+          int last_uvsrcline=-1;
+***************
+*** 858,866 ****
+          int pixel_height=(src_height&lt;&lt;8)/dst_height;
+          src_height=((pixel_height*dst_height)&gt;&gt;8) &amp; ~2;
+!         while ( srcline &lt; src_height ) {  
+                  // first luma line
+                  if (last_srcline==srcline) {
+                          memcpy(dst_ptr0,dst_ptr0+dst_stride0,dst_width);
+!                 } else { 
+                          src_ptr=start_src_ptr0+srcline*src-&gt;stride[0];
+                          int offset=srcline*osd_stride;
+--- 858,866 ----
+          int pixel_height=(src_height&lt;&lt;8)/dst_height;
+          src_height=((pixel_height*dst_height)&gt;&gt;8) &amp; ~2;
+!         while ( srcline &lt; src_height ) {
+                  // first luma line
+                  if (last_srcline==srcline) {
+                          memcpy(dst_ptr0,dst_ptr0+dst_stride0,dst_width);
+!                 } else {
+                          src_ptr=start_src_ptr0+srcline*src-&gt;stride[0];
+                          int offset=srcline*osd_stride;
+***************
+*** 872,877 ****
+                  };
+  
+!                 // chroma lines 
+!                 if (last_uvsrcline!=srcline/2) { 
+                          src_ptr=start_src_ptr1+srcline/2*src-&gt;stride[1];
+                          int offset=srcline/2*osd_stride/2;
+--- 872,877 ----
+                  };
+  
+!                 // chroma lines
+!                 if (last_uvsrcline!=srcline/2) {
+                          src_ptr=start_src_ptr1+srcline/2*src-&gt;stride[1];
+                          int offset=srcline/2*osd_stride/2;
+***************
+*** 880,884 ****
+                                          src_ptr,
+                                          alpha_puv+offset,src_width);
+!                         
+                          src_ptr=start_src_ptr2+srcline/2*src-&gt;stride[2];
+                          AlphaBlend(tmp_v,
+--- 880,884 ----
+                                          src_ptr,
+                                          alpha_puv+offset,src_width);
+! 
+                          src_ptr=start_src_ptr2+srcline/2*src-&gt;stride[2];
+                          AlphaBlend(tmp_v,
+***************
+*** 886,890 ****
+                                          src_ptr,
+                                          alpha_puv+offset,src_width);
+!                         
+                          ScaleLine(dst_ptr1,dst_width/2,tmp_u,src_width/2);
+                          ScaleLine(dst_ptr2,dst_width/2,tmp_v,src_width/2);
+--- 886,890 ----
+                                          src_ptr,
+                                          alpha_puv+offset,src_width);
+! 
+                          ScaleLine(dst_ptr1,dst_width/2,tmp_u,src_width/2);
+                          ScaleLine(dst_ptr2,dst_width/2,tmp_v,src_width/2);
+***************
+*** 895,903 ****
+                  pos+=pixel_height;
+                  srcline=pos&gt;&gt;8;
+!                 
+                  // second luma line
+                  if (last_srcline==srcline) {
+                          memcpy(dst_ptr0+dst_stride0,dst_ptr0,dst_width);
+!                 } else { 
+                          src_ptr=start_src_ptr0+srcline*src-&gt;stride[0];
+                          int offset=srcline*osd_stride;
+--- 895,903 ----
+                  pos+=pixel_height;
+                  srcline=pos&gt;&gt;8;
+! 
+                  // second luma line
+                  if (last_srcline==srcline) {
+                          memcpy(dst_ptr0+dst_stride0,dst_ptr0,dst_width);
+!                 } else {
+                          src_ptr=start_src_ptr0+srcline*src-&gt;stride[0];
+                          int offset=srcline*osd_stride;
+***************
+*** 909,917 ****
+                                          tmp_y+src_stride0,src_width);
+                   };
+!                 
+                  last_srcline=srcline;
+                  pos+=pixel_height;
+                  srcline=pos&gt;&gt;8;
+!               
+                  if (do_convert) {
+                          // convert yuv to destination format
+--- 909,917 ----
+                                          tmp_y+src_stride0,src_width);
+                   };
+! 
+                  last_srcline=srcline;
+                  pos+=pixel_height;
+                  srcline=pos&gt;&gt;8;
+! 
+                  if (do_convert) {
+                          // convert yuv to destination format
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000562.html">[Softdevice-cvs] softdevice configure, 1.43, 1.44 VideoFilter.h, 1.4,	1.5
+</A></li>
+	<LI>Next message: <A HREF="000564.html">[Softdevice-cvs] softdevice video-xv.c,1.71,1.72
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#563">[ date ]</a>
+              <a href="thread.html#563">[ thread ]</a>
+              <a href="subject.html#563">[ subject ]</a>
+              <a href="author.html#563">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

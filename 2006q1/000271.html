@@ -1,0 +1,139 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.138,1.139 video-dfb.c,1.44,1.45
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.138%2C1.139%20video-dfb.c%2C1.44%2C1.45&In-Reply-To=%3C200601101940.k0AJeTH08811%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000270.html">
+   <LINK REL="Next"  HREF="000272.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.138,1.139 video-dfb.c,1.44,1.45</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.138%2C1.139%20video-dfb.c%2C1.44%2C1.45&In-Reply-To=%3C200601101940.k0AJeTH08811%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.138,1.139 video-dfb.c,1.44,1.45">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue Jan 10 20:40:29 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000270.html">[Softdevice-cvs] softdevice CHANGELOG,1.137,1.138 SoftOsd.c,1.2,1.3 SoftOsd.h,1.1,1.2
+</A></li>
+        <LI>Next message: <A HREF="000272.html">[Softdevice-cvs] softdevice CHANGELOG,1.139,1.140 video-fb.c,1.10,1.11 audio-ac3pt.c,1.1,1.2 SoftOsd.c,1.3,1.4 Makefile,1.20,1.21 video-xv.c,1.36,1.37
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#271">[ date ]</a>
+              <a href="thread.html#271">[ thread ]</a>
+              <a href="subject.html#271">[ subject ]</a>
+              <a href="author.html#271">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv6045
+
+Modified Files:
+	CHANGELOG video-dfb.c 
+Log Message:
+- fix error message from DirectFB about wrong blitting area when useing the 
+  new OSD
+
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.138
+retrieving revision 1.139
+diff -C2 -d -r1.138 -r1.139
+*** CHANGELOG	9 Jan 2006 20:26:02 -0000	1.138
+--- CHANGELOG	10 Jan 2006 19:40:25 -0000	1.139
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2006-01-10:
++    - fix error message from DirectFB about wrong blitting area with new OSD
+  2006-01-09:
+      - add missing sanity check in cSoftOsd::DrawConvertBitmap()
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.44
+retrieving revision 1.45
+diff -C2 -d -r1.44 -r1.45
+*** video-dfb.c	8 Jan 2006 09:43:32 -0000	1.44
+--- video-dfb.c	10 Jan 2006 19:40:25 -0000	1.45
+***************
+*** 1060,1070 ****
+        int maxy=0;
+        do {
+!               while (!dirtyLines[miny] &amp;&amp; miny &lt;= Yres)
+                        miny++;
+  
+                maxy=miny;
+!               while (dirtyLines[maxy] &amp;&amp; maxy&lt;=Yres)
+                        maxy++;
+!     
+                osdsrc.x = 0;
+                osdsrc.y = miny;
+--- 1060,1073 ----
+        int maxy=0;
+        do {
+!               while (!dirtyLines[miny] &amp;&amp; miny &lt; Yres)
+                        miny++;
+  
++ 	      if (miny &gt;= Yres)
++ 		      break;
++ 
+                maxy=miny;
+!               while (dirtyLines[maxy] &amp;&amp; maxy &lt; Yres)
+                        maxy++;
+! 	      
+                osdsrc.x = 0;
+                osdsrc.y = miny;
+***************
+*** 1075,1079 ****
+                miny=maxy;
+               
+!       } while ( miny&lt;=Yres);
+        
+      }
+--- 1078,1082 ----
+                miny=maxy;
+               
+!       } while ( miny&lt;Yres);
+        
+      }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000270.html">[Softdevice-cvs] softdevice CHANGELOG,1.137,1.138 SoftOsd.c,1.2,1.3 SoftOsd.h,1.1,1.2
+</A></li>
+	<LI>Next message: <A HREF="000272.html">[Softdevice-cvs] softdevice CHANGELOG,1.139,1.140 video-fb.c,1.10,1.11 audio-ac3pt.c,1.1,1.2 SoftOsd.c,1.3,1.4 Makefile,1.20,1.21 video-xv.c,1.36,1.37
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#271">[ date ]</a>
+              <a href="thread.html#271">[ thread ]</a>
+              <a href="subject.html#271">[ subject ]</a>
+              <a href="author.html#271">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

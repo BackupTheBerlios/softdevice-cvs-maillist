@@ -1,0 +1,279 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.333, 1.334 README, 1.27,	1.28 mpeg2decoder.c, 1.81, 1.82 setup-softdevice.c, 1.54,	1.55 setup-softdevice.h, 1.43, 1.44 softdevice.c, 1.91,	1.92 softdevice.h, 1.13, 1.14
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2008q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.333%2C%201.334%20README%2C%201.27%2C%0A%091.28%20mpeg2decoder.c%2C%201.81%2C%201.82%20setup-softdevice.c%2C%201.54%2C%0A%091.55%20setup-softdevice.h%2C%201.43%2C%201.44%20softdevice.c%2C%201.91%2C%0A%091.92%20softdevice.h%2C%201.13%2C%201.14&In-Reply-To=%3C20080416104427.F0EC950A56%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000617.html">
+   <LINK REL="Next"  HREF="000619.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.333, 1.334 README, 1.27,	1.28 mpeg2decoder.c, 1.81, 1.82 setup-softdevice.c, 1.54,	1.55 setup-softdevice.h, 1.43, 1.44 softdevice.c, 1.91,	1.92 softdevice.h, 1.13, 1.14</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.333%2C%201.334%20README%2C%201.27%2C%0A%091.28%20mpeg2decoder.c%2C%201.81%2C%201.82%20setup-softdevice.c%2C%201.54%2C%0A%091.55%20setup-softdevice.h%2C%201.43%2C%201.44%20softdevice.c%2C%201.91%2C%0A%091.92%20softdevice.h%2C%201.13%2C%201.14&In-Reply-To=%3C20080416104427.F0EC950A56%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.333, 1.334 README, 1.27,	1.28 mpeg2decoder.c, 1.81, 1.82 setup-softdevice.c, 1.54,	1.55 setup-softdevice.h, 1.43, 1.44 softdevice.c, 1.91,	1.92 softdevice.h, 1.13, 1.14">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Wed Apr 16 12:44:27 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000617.html">[Softdevice-cvs] softdevice softdevice.c,1.90,1.91
+</A></li>
+        <LI>Next message: <A HREF="000619.html">[Softdevice-cvs] softdevice/po .cvsignore,1.1,1.2
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#618">[ date ]</a>
+              <a href="thread.html#618">[ thread ]</a>
+              <a href="subject.html#618">[ subject ]</a>
+              <a href="author.html#618">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv2689
+
+Modified Files:
+	CHANGELOG README mpeg2decoder.c setup-softdevice.c 
+	setup-softdevice.h softdevice.c softdevice.h 
+Log Message:
+Suspend output on user inactivity (see README): patch by Marko M&#195;&#164;kel&#195;&#164;
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.333
+retrieving revision 1.334
+diff -C2 -d -r1.333 -r1.334
+*** CHANGELOG	16 Apr 2008 09:06:31 -0000	1.333
+--- CHANGELOG	16 Apr 2008 10:41:39 -0000	1.334
+***************
+*** 2,5 ****
+--- 2,7 ----
+  2008-04-16:
+     - Silence some warnings.
++    - softdevice.c: Fix spelling &amp; version check for trNOOP().
++    - Suspend output on user inactivity (see README): patch by Marko M&#228;kel&#228;
+  2008-04-15:
+     - Fixed (changed) som italian chars.
+
+Index: README
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/README,v
+retrieving revision 1.27
+retrieving revision 1.28
+diff -C2 -d -r1.27 -r1.28
+*** README	25 Dec 2007 09:31:04 -0000	1.27
+--- README	16 Apr 2008 10:41:39 -0000	1.28
+***************
+*** 209,212 ****
+--- 209,220 ----
+  are not available.
+  
++ Suspend output on user inactivity:
++ ----------------------------------
++ To demonstrate this feature, initiate a recording and press the Power button.
++ You should see a message &quot;VDR will shut down later&quot;, just like without this
++ patch.  After a few seconds, the output should suspend.  When you press
++ any button (such as pop up the Recordings or EPG menu), the output should
++ resume.
++ 
+  OSD setup options:
+  ------------------
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.81
+retrieving revision 1.82
+diff -C2 -d -r1.81 -r1.82
+*** mpeg2decoder.c	16 Apr 2008 09:06:31 -0000	1.81
+--- mpeg2decoder.c	16 Apr 2008 10:41:40 -0000	1.82
+***************
+*** 1672,1681 ****
+  {
+    BUFDEB(&quot;Decode %p, Length %d\n&quot;,Data,Length);
+  
+!   if (running &amp;&amp; !IsSuspended &amp;&amp; setupStore-&gt;shouldSuspend)
+       // still running and should suspend
+       Suspend();
+  
+!   if (!running &amp;&amp; IsSuspended &amp;&amp; !setupStore-&gt;shouldSuspend)
+       // not running and should resume
+       Resume();
+--- 1672,1686 ----
+  {
+    BUFDEB(&quot;Decode %p, Length %d\n&quot;,Data,Length);
++ #if VDRVERSNUM &gt;= 10501
++   bool shouldSuspend = setupStore-&gt;doSuspend;
++ #else
++   int shouldSuspend = setupStore-&gt;shouldSuspend;
++ #endif
+  
+!   if (running &amp;&amp; !IsSuspended &amp;&amp; shouldSuspend)
+       // still running and should suspend
+       Suspend();
+  
+!   if (!running &amp;&amp; IsSuspended &amp;&amp; !shouldSuspend)
+       // not running and should resume
+       Resume();
+
+Index: setup-softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.c,v
+retrieving revision 1.54
+retrieving revision 1.55
+diff -C2 -d -r1.54 -r1.55
+*** setup-softdevice.c	10 May 2007 19:54:44 -0000	1.54
+--- setup-softdevice.c	16 Apr 2008 10:41:40 -0000	1.55
+***************
+*** 100,103 ****
+--- 100,106 ----
+    syncOnFrames  = 0;
+    avOffset      = 0;
++ #if VDRVERSNUM &gt;= 10501
++   doSuspend = false;
++ #endif
+    shouldSuspend = 0;
+    ac3Mode       = 0;
+
+Index: setup-softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.h,v
+retrieving revision 1.43
+retrieving revision 1.44
+diff -C2 -d -r1.43 -r1.44
+*** setup-softdevice.h	13 Oct 2007 11:17:48 -0000	1.43
+--- setup-softdevice.h	16 Apr 2008 10:41:40 -0000	1.44
+***************
+*** 159,162 ****
+--- 159,165 ----
+      int   useStretchBlit;
+      bool  stretchBlitLocked;
++ #if VDRVERSNUM &gt;= 10501
++     bool  doSuspend;
++ #endif
+      int   shouldSuspend;
+      int   osdMode;
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.91
+retrieving revision 1.92
+diff -C2 -d -r1.91 -r1.92
+*** softdevice.c	16 Apr 2008 10:27:28 -0000	1.91
+--- softdevice.c	16 Apr 2008 10:41:40 -0000	1.92
+***************
+*** 15,18 ****
+--- 15,21 ----
+  #include &lt;vdr/osd.h&gt;
+  #include &lt;vdr/dvbspu.h&gt;
++ #if VDRVERSNUM &gt;= 10501
++ # include &lt;vdr/shutdown.h&gt;
++ #endif
+  
+  #include &lt;sys/mman.h&gt;
+***************
+*** 559,562 ****
+--- 562,571 ----
+  };
+  
++ #if VDRVERSNUM &gt;= 10501
++ # define SHOULD_SUSPEND setupStore-&gt;doSuspend
++ #else
++ # define SHOULD_SUSPEND setupStore-&gt;shouldSuspend
++ #endif
++ 
+  #if VDRVERSNUM &lt; 10318
+  /* ----------------------------------------------------------------------------
+***************
+*** 579,583 ****
+    SOFTDEB(&quot;PlayAudio... %p length %d\n&quot;,Data,Length);
+  #if VDRVERSNUM &gt;= 10342
+!   if (setupStore-&gt;shouldSuspend &amp;&amp; !Transferring()) {
+      usleep(10000); // avoid burning CPU
+      return 0;
+--- 588,592 ----
+    SOFTDEB(&quot;PlayAudio... %p length %d\n&quot;,Data,Length);
+  #if VDRVERSNUM &gt;= 10342
+!   if (SHOULD_SUSPEND &amp;&amp; !Transferring()) {
+      usleep(10000); // avoid burning CPU
+      return 0;
+***************
+*** 640,644 ****
+    SOFTDEB(&quot;PlayVideo %x length %d\n&quot;,Data,Length);
+  #if VDRVERSNUM &gt;= 10342
+!   if (setupStore-&gt;shouldSuspend &amp;&amp; !Transferring()) {
+      usleep(10000); // avoid burning CPU
+      return 0;
+--- 649,653 ----
+    SOFTDEB(&quot;PlayVideo %x length %d\n&quot;,Data,Length);
+  #if VDRVERSNUM &gt;= 10342
+!   if (SHOULD_SUSPEND &amp;&amp; !Transferring()) {
+      usleep(10000); // avoid burning CPU
+      return 0;
+***************
+*** 1178,1181 ****
+--- 1187,1198 ----
+    return ret;
+  }
++ 
++ #if VDRVERSNUM &gt;= 10501
++ void cPluginSoftDevice::MainThreadHook(void)
++ {
++   setupStore-&gt;doSuspend =
++     setupStore-&gt;shouldSuspend || ShutdownHandler.IsUserInactive();
++ }
++ #endif
+  
+  #if VDRVERSNUM &gt;= 10330
+
+Index: softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.h,v
+retrieving revision 1.13
+retrieving revision 1.14
+diff -C2 -d -r1.13 -r1.14
+*** softdevice.h	11 Nov 2006 08:45:17 -0000	1.13
+--- softdevice.h	16 Apr 2008 10:41:40 -0000	1.14
+***************
+*** 59,62 ****
+--- 59,65 ----
+    virtual cMenuSetupPage *SetupMenu(void);
+    virtual bool SetupParse(const char *Name, const char *Value);
++ #if VDRVERSNUM &gt;= 10501
++   virtual void MainThreadHook(void);
++ #endif
+  #if VDRVERSNUM &gt;= 10330
+    virtual bool Service(const char *Id, void *Data = NULL);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000617.html">[Softdevice-cvs] softdevice softdevice.c,1.90,1.91
+</A></li>
+	<LI>Next message: <A HREF="000619.html">[Softdevice-cvs] softdevice/po .cvsignore,1.1,1.2
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#618">[ date ]</a>
+              <a href="thread.html#618">[ thread ]</a>
+              <a href="subject.html#618">[ subject ]</a>
+              <a href="author.html#618">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

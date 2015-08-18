@@ -1,0 +1,141 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.177,1.178 video.c,1.51,1.52 ShmClient.c,1.10,1.11
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.177%2C1.178%20video.c%2C1.51%2C1.52%20ShmClient.c%2C1.10%2C1.11&In-Reply-To=%3C200604251949.k3PJn3t31108%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000338.html">
+   <LINK REL="Next"  HREF="000340.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.177,1.178 video.c,1.51,1.52 ShmClient.c,1.10,1.11</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.177%2C1.178%20video.c%2C1.51%2C1.52%20ShmClient.c%2C1.10%2C1.11&In-Reply-To=%3C200604251949.k3PJn3t31108%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.177,1.178 video.c,1.51,1.52 ShmClient.c,1.10,1.11">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue Apr 25 21:49:03 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000338.html">[Softdevice-cvs] softdevice CHANGELOG,1.176,1.177 video-dfb.c,1.56,1.57 video.c,1.50,1.51 video.h,1.35,1.36
+</A></li>
+        <LI>Next message: <A HREF="000340.html">[Softdevice-cvs] softdevice video.c,1.52,1.53 video.h,1.36,1.37 ShmClient.c,1.11,1.12 VdrReplacements.h,1.1,1.2 CHANGELOG,1.178,1.179
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#339">[ date ]</a>
+              <a href="thread.html#339">[ thread ]</a>
+              <a href="subject.html#339">[ subject ]</a>
+              <a href="author.html#339">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv17252
+
+Modified Files:
+	CHANGELOG video.c ShmClient.c 
+Log Message:
+- fix ShmClient blank screen every 4s 
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.177
+retrieving revision 1.178
+diff -C2 -d -r1.177 -r1.178
+*** CHANGELOG	24 Apr 2006 22:59:23 -0000	1.177
+--- CHANGELOG	25 Apr 2006 19:49:20 -0000	1.178
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2006-04-25:
++    - fix ShmClient blank screen every 4s 
+  2006-04-24:
+     - xv + dfb: removed some unused code.
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.51
+retrieving revision 1.52
+diff -C2 -d -r1.51 -r1.52
+*** video.c	24 Apr 2006 22:59:23 -0000	1.51
+--- video.c	25 Apr 2006 19:49:20 -0000	1.52
+***************
+*** 504,509 ****
+    OsdRefreshCounter=0;
+    Osd_changed=0;
+-   RecalculateAspect();
+    CheckArea(w, h);
+    // display picture
+    YUV (pY, pU, pV, w, h, yPitch, uvPitch);
+--- 504,509 ----
+    OsdRefreshCounter=0;
+    Osd_changed=0;
+    CheckArea(w, h);
++   CheckAspect(current_afd, aspect_F);
+    // display picture
+    YUV (pY, pU, pV, w, h, yPitch, uvPitch);
+
+Index: ShmClient.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/ShmClient.c,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -C2 -d -r1.10 -r1.11
+*** ShmClient.c	23 Apr 2006 19:55:53 -0000	1.10
+--- ShmClient.c	25 Apr 2006 19:49:20 -0000	1.11
+***************
+*** 183,191 ****
+                          vout-&gt;CheckAspect(ctl-&gt;new_afd,ctl-&gt;new_asp);
+                          if ( vout-&gt;useShm ) {
+!                                 vout-&gt;YUV(NULL,NULL,NULL,
+                                                  width,height,
+                                                  ctl-&gt;stride0,ctl-&gt;stride1);
+                          } else {    
+!                                 vout-&gt;YUV(pixel[0],pixel[2],pixel[1],
+                                          width,height,
+                                          ctl-&gt;stride0,ctl-&gt;stride1);
+--- 183,191 ----
+                          vout-&gt;CheckAspect(ctl-&gt;new_afd,ctl-&gt;new_asp);
+                          if ( vout-&gt;useShm ) {
+!                                 vout-&gt;DrawStill_420pl(NULL,NULL,NULL,
+                                                  width,height,
+                                                  ctl-&gt;stride0,ctl-&gt;stride1);
+                          } else {    
+!                                 vout-&gt;DrawStill_420pl(pixel[0],pixel[2],pixel[1],
+                                          width,height,
+                                          ctl-&gt;stride0,ctl-&gt;stride1);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000338.html">[Softdevice-cvs] softdevice CHANGELOG,1.176,1.177 video-dfb.c,1.56,1.57 video.c,1.50,1.51 video.h,1.35,1.36
+</A></li>
+	<LI>Next message: <A HREF="000340.html">[Softdevice-cvs] softdevice video.c,1.52,1.53 video.h,1.36,1.37 ShmClient.c,1.11,1.12 VdrReplacements.h,1.1,1.2 CHANGELOG,1.178,1.179
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#339">[ date ]</a>
+              <a href="thread.html#339">[ thread ]</a>
+              <a href="subject.html#339">[ subject ]</a>
+              <a href="author.html#339">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

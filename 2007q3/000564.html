@@ -1,0 +1,168 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice video-xv.c,1.71,1.72
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-xv.c%2C1.71%2C1.72&In-Reply-To=%3C20070711193050.93883F336E%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000563.html">
+   <LINK REL="Next"  HREF="000565.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice video-xv.c,1.71,1.72</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-xv.c%2C1.71%2C1.72&In-Reply-To=%3C20070711193050.93883F336E%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice video-xv.c,1.71,1.72">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Wed Jul 11 21:30:50 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000563.html">[Softdevice-cvs] softdevice PicBuffer.c,1.19,1.20
+</A></li>
+        <LI>Next message: <A HREF="000565.html">[Softdevice-cvs] softdevice SoftOsd.c,1.28,1.29
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#564">[ date ]</a>
+              <a href="thread.html#564">[ thread ]</a>
+              <a href="subject.html#564">[ subject ]</a>
+              <a href="author.html#564">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv12231
+
+Modified Files:
+	video-xv.c 
+Log Message:
+whitespace cleanup
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.71
+retrieving revision 1.72
+diff -C2 -d -r1.71 -r1.72
+*** video-xv.c	10 May 2007 21:57:26 -0000	1.71
+--- video-xv.c	11 Jul 2007 19:30:42 -0000	1.72
+***************
+*** 1020,1027 ****
+            if (osd_image) {
+                    dsyslog(&quot;[XvVideoOut]: Initialize XGetImage Successful (%p)&quot;, osd_image);
+! 		              osd_buffer = (unsigned char *) osd_image-&gt;data;
+            } else {
+                    dsyslog(&quot;[XvVideoOut]: Initialize ERROR: XGetImage FAILED !&quot;);
+! 		              osd_buffer = NULL;
+            }
+    };
+--- 1020,1027 ----
+            if (osd_image) {
+                    dsyslog(&quot;[XvVideoOut]: Initialize XGetImage Successful (%p)&quot;, osd_image);
+!                               osd_buffer = (unsigned char *) osd_image-&gt;data;
+            } else {
+                    dsyslog(&quot;[XvVideoOut]: Initialize ERROR: XGetImage FAILED !&quot;);
+!                               osd_buffer = NULL;
+            }
+    };
+***************
+*** 1038,1042 ****
+                    case 24 : osdBuf.format=PIX_FMT_RGB24;
+                              break;
+!                   case 16 : 
+                    default:
+                             osdBuf.format=PIX_FMT_RGB555;
+--- 1038,1042 ----
+                    case 24 : osdBuf.format=PIX_FMT_RGB24;
+                              break;
+!                   case 16 :
+                    default:
+                             osdBuf.format=PIX_FMT_RGB555;
+***************
+*** 1250,1254 ****
+                    ARGB_TO_RGB(RGB16,&amp;colorkey,COLOR_KEY);
+                    break;
+!   };               
+    dsyslog(&quot;[XvVideoOut]: using color key 0x%0x&quot;,colorkey);
+    FillPicBuffer(&amp;osdBuf,colorkey);
+--- 1250,1254 ----
+                    ARGB_TO_RGB(RGB16,&amp;colorkey,COLOR_KEY);
+                    break;
+!   };
+    dsyslog(&quot;[XvVideoOut]: using color key 0x%0x&quot;,colorkey);
+    FillPicBuffer(&amp;osdBuf,colorkey);
+***************
+*** 1745,1749 ****
+      return;
+  
+!   if (!xv_initialized) { 
+            // no xv, use software scaler and yuv-&gt;rgb conversion
+            pthread_mutex_lock(&amp;xv_mutex);
+--- 1745,1749 ----
+      return;
+  
+!   if (!xv_initialized) {
+            // no xv, use software scaler and yuv-&gt;rgb conversion
+            pthread_mutex_lock(&amp;xv_mutex);
+***************
+*** 1772,1779 ****
+                                    cutTop,cutBottom,cutLeft,cutRight);
+            } else {
+!                   CopyScalePicBuf(&amp;osdBuf, buf,                   
+                                    sxoff, syoff,
+                                    swidth, sheight,
+!                                   0,  0,    
+                                    lwidth, lheight,
+                                    0,0,0,0);
+--- 1772,1779 ----
+                                    cutTop,cutBottom,cutLeft,cutRight);
+            } else {
+!                   CopyScalePicBuf(&amp;osdBuf, buf,
+                                    sxoff, syoff,
+                                    swidth, sheight,
+!                                   0,  0,
+                                    lwidth, lheight,
+                                    0,0,0,0);
+***************
+*** 1784,1788 ****
+            return;
+    };
+!   
+    pthread_mutex_lock(&amp;xv_mutex);
+    if (aspect_changed ||
+--- 1784,1788 ----
+            return;
+    };
+! 
+    pthread_mutex_lock(&amp;xv_mutex);
+    if (aspect_changed ||
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000563.html">[Softdevice-cvs] softdevice PicBuffer.c,1.19,1.20
+</A></li>
+	<LI>Next message: <A HREF="000565.html">[Softdevice-cvs] softdevice SoftOsd.c,1.28,1.29
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#564">[ date ]</a>
+              <a href="thread.html#564">[ thread ]</a>
+              <a href="subject.html#564">[ subject ]</a>
+              <a href="author.html#564">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

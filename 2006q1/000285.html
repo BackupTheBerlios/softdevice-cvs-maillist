@@ -1,0 +1,152 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice video-dfb.c,1.46,1.47
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-dfb.c%2C1.46%2C1.47&In-Reply-To=%3C200602061944.k16JiAE12386%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000284.html">
+   <LINK REL="Next"  HREF="000286.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice video-dfb.c,1.46,1.47</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-dfb.c%2C1.46%2C1.47&In-Reply-To=%3C200602061944.k16JiAE12386%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice video-dfb.c,1.46,1.47">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon Feb  6 20:44:10 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000284.html">[Softdevice-cvs] softdevice softdevice.c,1.52,1.53 video.c,1.42,1.43
+</A></li>
+        <LI>Next message: <A HREF="000286.html">[Softdevice-cvs] softdevice CHANGELOG,1.149,1.150 ShmClient.c,1.4,1.5 Makefile,1.23,1.24
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#285">[ date ]</a>
+              <a href="thread.html#285">[ thread ]</a>
+              <a href="subject.html#285">[ subject ]</a>
+              <a href="author.html#285">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv29676
+
+Modified Files:
+	video-dfb.c 
+Log Message:
+disable trace messages
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.46
+retrieving revision 1.47
+diff -C2 -d -r1.46 -r1.47
+*** video-dfb.c	3 Feb 2006 22:34:54 -0000	1.46
+--- video-dfb.c	6 Feb 2006 19:44:06 -0000	1.47
+***************
+*** 1031,1035 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cDFBVideoOut::GetLockOsdSurface(uint8_t *&amp;osd, int &amp;stride, 
+                                       bool *&amp;DirtyLines) {
+    int               pitch;
+--- 1031,1035 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void cDFBVideoOut::GetLockOsdSurface(uint8_t *&amp;osd, int &amp;stride,
+                                       bool *&amp;DirtyLines) {
+    int               pitch;
+***************
+*** 1051,1061 ****
+      delete ex;
+    }
+! };
+  
+  void cDFBVideoOut::CommitUnlockOsdSurface() {
+    if (!tmpOsdSurface)
+      return;
+  
+!   printf(&quot;CommitUnlockOsdSurface %p\n&quot;,tmpOsdSurface);fflush(stdout);
+    try 
+    {
+--- 1051,1063 ----
+      delete ex;
+    }
+! }
+  
++ /* ---------------------------------------------------------------------------
++  */
+  void cDFBVideoOut::CommitUnlockOsdSurface() {
+    if (!tmpOsdSurface)
+      return;
+  
+!   //printf(&quot;CommitUnlockOsdSurface %p\n&quot;,tmpOsdSurface);fflush(stdout);
+    try 
+    {
+***************
+*** 1084,1088 ****
+        tmpOsdSurface-&gt;Blit(tmpOsdSurface,&amp;osdsrc,0,miny);
+  
+!   printf(&quot;CommitUnlockOsdSurface3 %p\n&quot;,tmpOsdSurface);fflush(stdout);
+        miny=maxy;
+  
+--- 1086,1090 ----
+        tmpOsdSurface-&gt;Blit(tmpOsdSurface,&amp;osdsrc,0,miny);
+  
+!       //printf(&quot;CommitUnlockOsdSurface3 %p\n&quot;,tmpOsdSurface);fflush(stdout);
+        miny=maxy;
+  
+***************
+*** 1096,1100 ****
+      delete ex;
+    }
+!   printf(&quot;CommitUnlockOsdSurface %p 4\n&quot;,tmpOsdSurface);fflush(stdout);
+    free(dirtyLines);
+    dirtyLines=NULL;
+--- 1098,1102 ----
+      delete ex;
+    }
+!   //printf(&quot;CommitUnlockOsdSurface %p 4\n&quot;,tmpOsdSurface);fflush(stdout);
+    free(dirtyLines);
+    dirtyLines=NULL;
+***************
+*** 1102,1105 ****
+--- 1104,1108 ----
+    cVideoOut::CommitUnlockOsdSurface();
+  }
++ 
+  /*
+  void cDFBVideoOut::RefreshOSD(cSoftOsd *Osd, bool RefreshAll) 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000284.html">[Softdevice-cvs] softdevice softdevice.c,1.52,1.53 video.c,1.42,1.43
+</A></li>
+	<LI>Next message: <A HREF="000286.html">[Softdevice-cvs] softdevice CHANGELOG,1.149,1.150 ShmClient.c,1.4,1.5 Makefile,1.23,1.24
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#285">[ date ]</a>
+              <a href="thread.html#285">[ thread ]</a>
+              <a href="subject.html#285">[ subject ]</a>
+              <a href="author.html#285">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

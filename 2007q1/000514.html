@@ -1,0 +1,89 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.296,1.297
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.296%2C1.297&In-Reply-To=%3C20070226230331.C79906389E%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000513.html">
+   <LINK REL="Next"  HREF="000515.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.296,1.297</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.296%2C1.297&In-Reply-To=%3C20070226230331.C79906389E%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.296,1.297">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue Feb 27 00:03:31 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000513.html">[Softdevice-cvs] softdevice mpeg2decoder.c, 1.71,	1.72 mpeg2decoder.h, 1.38, 1.39 video.c, 1.72, 1.73 video.h,	1.50, 1.51
+</A></li>
+        <LI>Next message: <A HREF="000515.html">[Softdevice-cvs] softdevice CHANGELOG, 1.297, 1.298 configure, 1.33,	1.34 setup-softdevice-menu.c, 1.9, 1.10 setup-softdevice.c,	1.49, 1.50 setup-softdevice.h, 1.37, 1.38 video-dfb.c, 1.78,	1.79 video-dfb.h, 1.25, 1.26
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#514">[ date ]</a>
+              <a href="thread.html#514">[ thread ]</a>
+              <a href="subject.html#514">[ subject ]</a>
+              <a href="author.html#514">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv2275
+
+Modified Files:
+	CHANGELOG 
+Log Message:
+document recent changes.
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.296
+retrieving revision 1.297
+diff -C2 -d -r1.296 -r1.297
+*** CHANGELOG	24 Feb 2007 14:04:14 -0000	1.296
+--- CHANGELOG	26 Feb 2007 23:01:56 -0000	1.297
+***************
+*** 1,3 ****
+--- 1,8 ----
+  Changelog
++ 2007-02-26:
++    - softlog: sanitycheck for zero length filenames and fix use filename member
++               when changeing append mode.
++    - video-dfb: shifted most prints via softlog.
++    - video sync: preparation for new changeable sync parameters.
+  2007-02-24:
+     - Makefile: add --remove-destination , so that &quot;make plugins&quot; does not
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000513.html">[Softdevice-cvs] softdevice mpeg2decoder.c, 1.71,	1.72 mpeg2decoder.h, 1.38, 1.39 video.c, 1.72, 1.73 video.h,	1.50, 1.51
+</A></li>
+	<LI>Next message: <A HREF="000515.html">[Softdevice-cvs] softdevice CHANGELOG, 1.297, 1.298 configure, 1.33,	1.34 setup-softdevice-menu.c, 1.9, 1.10 setup-softdevice.c,	1.49, 1.50 setup-softdevice.h, 1.37, 1.38 video-dfb.c, 1.78,	1.79 video-dfb.h, 1.25, 1.26
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#514">[ date ]</a>
+              <a href="thread.html#514">[ thread ]</a>
+              <a href="subject.html#514">[ subject ]</a>
+              <a href="author.html#514">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

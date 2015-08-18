@@ -1,0 +1,245 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.139,1.140 video-fb.c,1.10,1.11 audio-ac3pt.c,1.1,1.2 SoftOsd.c,1.3,1.4 Makefile,1.20,1.21 video-xv.c,1.36,1.37
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.139%2C1.140%20video-fb.c%2C1.10%2C1.11%20audio-ac3pt.c%2C1.1%2C1.2%20SoftOsd.c%2C1.3%2C1.4%20Makefile%2C1.20%2C1.21%20video-xv.c%2C1.36%2C1.37&In-Reply-To=%3C200601152041.k0FKfJx00372%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000271.html">
+   <LINK REL="Next"  HREF="000273.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.139,1.140 video-fb.c,1.10,1.11 audio-ac3pt.c,1.1,1.2 SoftOsd.c,1.3,1.4 Makefile,1.20,1.21 video-xv.c,1.36,1.37</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.139%2C1.140%20video-fb.c%2C1.10%2C1.11%20audio-ac3pt.c%2C1.1%2C1.2%20SoftOsd.c%2C1.3%2C1.4%20Makefile%2C1.20%2C1.21%20video-xv.c%2C1.36%2C1.37&In-Reply-To=%3C200601152041.k0FKfJx00372%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.139,1.140 video-fb.c,1.10,1.11 audio-ac3pt.c,1.1,1.2 SoftOsd.c,1.3,1.4 Makefile,1.20,1.21 video-xv.c,1.36,1.37">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Jan 15 21:41:19 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000271.html">[Softdevice-cvs] softdevice CHANGELOG,1.138,1.139 video-dfb.c,1.44,1.45
+</A></li>
+        <LI>Next message: <A HREF="000273.html">[Softdevice-cvs] softdevice video.c,1.38,1.39 video.h,1.24,1.25 CHANGELOG,1.140,1.141
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#272">[ date ]</a>
+              <a href="thread.html#272">[ thread ]</a>
+              <a href="subject.html#272">[ subject ]</a>
+              <a href="author.html#272">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv8238
+
+Modified Files:
+	CHANGELOG video-fb.c audio-ac3pt.c SoftOsd.c Makefile 
+	video-xv.c 
+Log Message:
+- fix AMD64 builds (patch by Janne Huttunen)
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.139
+retrieving revision 1.140
+diff -C2 -d -r1.139 -r1.140
+*** CHANGELOG	10 Jan 2006 19:40:25 -0000	1.139
+--- CHANGELOG	15 Jan 2006 20:41:14 -0000	1.140
+***************
+*** 1,9 ****
+--- 1,13 ----
+  Changelog
++ 2006-01-15:
++    - fix for AMD64 builds (patch by Janne Huttunen, many thanks to him)
+  2006-01-10:
+     - fix error message from DirectFB about wrong blitting area with new OSD
+  2006-01-09:
+      - add missing sanity check in cSoftOsd::DrawConvertBitmap()
++       (many thanks to Andre Neumann for reporting the problem)
+  2006-01-08:
+      - fix segfault in cSoftOsd for lines longer than 1024
++       (thanks to Andre Neumann for reporting the problem)
+      - updated video-dfb for the new OSD. Double buffered displays should
+  work now as well and the OSD mode is set properly
+
+Index: video-fb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-fb.c,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -C2 -d -r1.10 -r1.11
+*** video-fb.c	7 Jan 2006 14:28:39 -0000	1.10
+--- video-fb.c	15 Jan 2006 20:41:14 -0000	1.11
+***************
+*** 136,140 ****
+      OSDpresent=false;
+  
+!     printf(&quot;[video-fb] init %d x %d (Size: %d Bytes LineLen %d) Bpp: %d\n&quot;,fb_vinfo.xres, fb_vinfo.yres, size, line_len, fb_vinfo.bits_per_pixel);
+      // clear screens
+      printf(&quot;[video-fb] Clearing the FB\n&quot;);
+--- 136,140 ----
+      OSDpresent=false;
+  
+!     printf(&quot;[video-fb] init %d x %d (Size: %zu Bytes LineLen %d) Bpp: %d\n&quot;,fb_vinfo.xres, fb_vinfo.yres, size, line_len, fb_vinfo.bits_per_pixel);
+      // clear screens
+      printf(&quot;[video-fb] Clearing the FB\n&quot;);
+
+Index: audio-ac3pt.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio-ac3pt.c,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1 -r1.2
+*** audio-ac3pt.c	6 Oct 2005 21:16:47 -0000	1.1
+--- audio-ac3pt.c	15 Jan 2006 20:41:15 -0000	1.2
+***************
+*** 19,23 ****
+  #include &quot;audio-ac3pt.h&quot;
+  
+! enum {SPDIF_CON, SPDIF_PRO} spdif_t;
+  
+  
+--- 19,23 ----
+  #include &quot;audio-ac3pt.h&quot;
+  
+! typedef enum {SPDIF_CON, SPDIF_PRO} spdif_t;
+  
+  
+
+Index: SoftOsd.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.c,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** SoftOsd.c	9 Jan 2006 20:26:02 -0000	1.3
+--- SoftOsd.c	15 Jan 2006 20:41:15 -0000	1.4
+***************
+*** 324,328 ****
+  #endif
+          while (end_dest&gt;dest) {
+!                 if ( IS_BACKGROUND(pixmap-&gt;a) &amp;&amp; (((int)dest) &amp; 0x4) ) {
+                          dest[0] = 0; dest[1] = 0; dest[2] = 0; dest[3] = 0x00;
+                          // color key!
+--- 324,328 ----
+  #endif
+          while (end_dest&gt;dest) {
+!                 if ( IS_BACKGROUND(pixmap-&gt;a) &amp;&amp; (((intptr_t)dest) &amp; 0x4) ) {
+                          dest[0] = 0; dest[1] = 0; dest[2] = 0; dest[3] = 0x00;
+                          // color key!
+***************
+*** 473,477 ****
+  #endif
+          while (end_dest&gt;dest) {
+!                 if ( IS_BACKGROUND(pixmap-&gt;a) &amp;&amp; (((int)dest) &amp; 0x2) ) {
+                          dest[0] = 0x0; dest[1] = 0x0; // color key!
+                  } else {
+--- 473,477 ----
+  #endif
+          while (end_dest&gt;dest) {
+!                 if ( IS_BACKGROUND(pixmap-&gt;a) &amp;&amp; (((intptr_t)dest) &amp; 0x2) ) {
+                          dest[0] = 0x0; dest[1] = 0x0; // color key!
+                  } else {
+***************
+*** 491,495 ****
+  	int PixelCount=0;
+          while (end_dest&gt;dest) {
+!                 if ( IS_BACKGROUND(pixmap-&gt;a) &amp;&amp; (((int)pixmap) &amp; 0x4)
+  				|| IS_TRANSPARENT(pixmap-&gt;a) ) {
+                          // transparent, don't draw anything !
+--- 491,495 ----
+  	int PixelCount=0;
+          while (end_dest&gt;dest) {
+!                 if ( IS_BACKGROUND(pixmap-&gt;a) &amp;&amp; (((intptr_t)pixmap) &amp; 0x4)
+  				|| IS_TRANSPARENT(pixmap-&gt;a) ) {
+                          // transparent, don't draw anything !
+***************
+*** 510,514 ****
+  	int CurrPixel=0;
+          while (CurrPixel&lt;Pixel) {
+!                 if ( (IS_BACKGROUND(pixmap-&gt;a) &amp;&amp; !(((int)pixmap) &amp; 0x4)  )
+                                  || IS_OPAQUE(pixmap-&gt;a) ) 
+                          dest[CurrPixel/8]|=(1&lt;&lt;CurrPixel%8);
+--- 510,514 ----
+  	int CurrPixel=0;
+          while (CurrPixel&lt;Pixel) {
+!                 if ( (IS_BACKGROUND(pixmap-&gt;a) &amp;&amp; !(((intptr_t)pixmap) &amp; 0x4)  )
+                                  || IS_OPAQUE(pixmap-&gt;a) ) 
+                          dest[CurrPixel/8]|=(1&lt;&lt;CurrPixel%8);
+
+Index: Makefile
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/Makefile,v
+retrieving revision 1.20
+retrieving revision 1.21
+diff -C2 -d -r1.20 -r1.21
+*** Makefile	7 Jan 2006 14:28:39 -0000	1.20
+--- Makefile	15 Jan 2006 20:41:15 -0000	1.21
+***************
+*** 185,189 ****
+  
+  CXX      ?= g++
+! CXXFLAGS ?= -O2 -g -Wall -Woverloaded-virtual
+  
+  ### The directory environment:
+--- 185,189 ----
+  
+  CXX      ?= g++
+! CXXFLAGS ?= -O2 -g -Wall -fPIC -Woverloaded-virtual
+  
+  ### The directory environment:
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.36
+retrieving revision 1.37
+diff -C2 -d -r1.36 -r1.37
+*** video-xv.c	7 Jan 2006 14:28:39 -0000	1.36
+--- video-xv.c	15 Jan 2006 20:41:15 -0000	1.37
+***************
+*** 1026,1030 ****
+              if (!strcmp(encodingInfo[n].name, &quot;XV_IMAGE&quot;))
+              {
+!               fprintf(stderr, &quot;[XvVideoOut]: max area size %d x %d\n&quot;,
+                        encodingInfo[n].width, encodingInfo[n].height);
+                dsyslog(&quot;[XvVideoOut]: max area size %lu x %lu&quot;,
+--- 1026,1030 ----
+              if (!strcmp(encodingInfo[n].name, &quot;XV_IMAGE&quot;))
+              {
+!               fprintf(stderr, &quot;[XvVideoOut]: max area size %lu x %lu\n&quot;,
+                        encodingInfo[n].width, encodingInfo[n].height);
+                dsyslog(&quot;[XvVideoOut]: max area size %lu x %lu&quot;,
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000271.html">[Softdevice-cvs] softdevice CHANGELOG,1.138,1.139 video-dfb.c,1.44,1.45
+</A></li>
+	<LI>Next message: <A HREF="000273.html">[Softdevice-cvs] softdevice video.c,1.38,1.39 video.h,1.24,1.25 CHANGELOG,1.140,1.141
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#272">[ date ]</a>
+              <a href="thread.html#272">[ thread ]</a>
+              <a href="subject.html#272">[ subject ]</a>
+              <a href="author.html#272">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,337 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.245, 1.246 video.c, 1.64,	1.65 video.h, 1.41, 1.42
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.245%2C%201.246%20video.c%2C%201.64%2C%0A%091.65%20video.h%2C%201.41%2C%201.42&In-Reply-To=%3C20060922042030.2A08281755%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000438.html">
+   <LINK REL="Next"  HREF="000440.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.245, 1.246 video.c, 1.64,	1.65 video.h, 1.41, 1.42</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.245%2C%201.246%20video.c%2C%201.64%2C%0A%091.65%20video.h%2C%201.41%2C%201.42&In-Reply-To=%3C20060922042030.2A08281755%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.245, 1.246 video.c, 1.64,	1.65 video.h, 1.41, 1.42">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Sep 22 06:20:30 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000438.html">[Softdevice-cvs] softdevice CHANGELOG, 1.244, 1.245 SoftOsd.c, 1.20,	1.21 SoftOsd.h, 1.8, 1.9
+</A></li>
+        <LI>Next message: <A HREF="000440.html">[Softdevice-cvs] softdevice CHANGELOG, 1.246, 1.247 video.c, 1.65,	1.66 video.h, 1.42, 1.43
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#439">[ date ]</a>
+              <a href="thread.html#439">[ thread ]</a>
+              <a href="subject.html#439">[ subject ]</a>
+              <a href="author.html#439">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv28479
+
+Modified Files:
+	CHANGELOG video.c video.h 
+Log Message:
+protect locking for old picture by a separate mutex
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.245
+retrieving revision 1.246
+diff -C2 -d -r1.245 -r1.246
+*** CHANGELOG	21 Sep 2006 10:35:51 -0000	1.245
+--- CHANGELOG	22 Sep 2006 04:19:58 -0000	1.246
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2006-09-22:
++    - protect locking for old picture by a separate mutex
+  2006-09-21:
+     - introduce a mutex to protect calls to videoOut from SoftOsd
+***************
+*** 19,28 ****
+     - add linux framebuffer detection to configure
+     - disable libcle266mpegdec if no DirectFB is found
+!    - add altivec optimizations to some AlphaBlend() and 
+       yv12_to_yuy2_il_mmx2_line()
+     - make utils.c compile on non MMX machines, cleanup some #ifdefs
+     - fix compile issue with g++-4.1.1
+     - add NoVScaleCopyToBitmap() for RGB modes
+! 2006-09-xx:
+     - added -vo shm: to help option
+     - added support new fields from libcle266mpegdec-0.4
+--- 21,30 ----
+     - add linux framebuffer detection to configure
+     - disable libcle266mpegdec if no DirectFB is found
+!    - add altivec optimizations to some AlphaBlend() and
+       yv12_to_yuy2_il_mmx2_line()
+     - make utils.c compile on non MMX machines, cleanup some #ifdefs
+     - fix compile issue with g++-4.1.1
+     - add NoVScaleCopyToBitmap() for RGB modes
+! 2006-09-16:
+     - added -vo shm: to help option
+     - added support new fields from libcle266mpegdec-0.4
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.64
+retrieving revision 1.65
+diff -C2 -d -r1.64 -r1.65
+*** video.c	19 Sep 2006 13:23:51 -0000	1.64
+--- video.c	22 Sep 2006 04:19:58 -0000	1.65
+***************
+*** 50,54 ****
+    freezeMode=false;
+    videoInitialized = false;
+!   old_picture = NULL;
+  
+    for (int i = 0; i &lt; SETUP_VIDEOASPECTNAMES_COUNT; ++i)
+--- 50,54 ----
+    freezeMode=false;
+    videoInitialized = false;
+!   oldPicture = NULL;
+  
+    for (int i = 0; i &lt; SETUP_VIDEOASPECTNAMES_COUNT; ++i)
+***************
+*** 109,117 ****
+           OsdRefreshCounter&gt;5 &amp;&amp; Osd_changed))
+      {
+!       osdMutex.Lock();
+!       if (old_picture)
+        {
+!         OSDDEB(&quot;redrawing old_picture osd_changed %d\n&quot;,Osd_changed);
+!         DrawStill_420pl(old_picture);
+        }
+        else
+--- 109,117 ----
+           OsdRefreshCounter&gt;5 &amp;&amp; Osd_changed))
+      {
+!       oldPictureMutex.Lock();
+!       if (oldPicture)
+        {
+!         OSDDEB(&quot;redrawing oldPicture osd_changed %d\n&quot;,Osd_changed);
+!         DrawStill_420pl(oldPicture);
+        }
+        else
+***************
+*** 133,137 ****
+          DrawStill_420pl(&amp;tmpBuf);
+        }
+!       osdMutex.Unlock();
+      }
+    }
+--- 133,137 ----
+          DrawStill_420pl(&amp;tmpBuf);
+        }
+!       oldPictureMutex.Unlock();
+      }
+    }
+***************
+*** 143,156 ****
+  void cVideoOut::SetOldPicture(sPicBuffer *picture)
+  {
+!   //osdMutex.Lock(); //protected by areaMutex osdMutex will cause deadlocks!
+!   //PICDEB(&quot;SetOldPicture pic-&gt;buf_num %d\n&quot;,picture-&gt;buf_num);
+!   if (old_picture)
+!           UnlockBuffer(old_picture);
+    if (picture &amp;&amp; picture-&gt;owner==this) {
+!      LockBuffer(picture);
+!      old_picture=picture;
+!   } else old_picture = NULL;
+  
+!   //osdMutex.Unlock();
+  }
+  
+--- 143,157 ----
+  void cVideoOut::SetOldPicture(sPicBuffer *picture)
+  {
+!   oldPictureMutex.Lock();
+! 
+!   if (oldPicture)
+!     UnlockBuffer(oldPicture);
+    if (picture &amp;&amp; picture-&gt;owner==this) {
+!     LockBuffer(picture);
+!     oldPicture=picture;
+!   } else
+!     oldPicture = NULL;
+  
+!   oldPictureMutex.Unlock();
+  }
+  
+***************
+*** 451,457 ****
+    // display picture
+    YUV(pic);
+-   SetOldPicture(pic);
+- 
+    areaMutex. Unlock();
+    ProcessEvents();
+  }
+--- 452,458 ----
+    // display picture
+    YUV(pic);
+    areaMutex. Unlock();
++ 
++   SetOldPicture(pic);
+    ProcessEvents();
+  }
+***************
+*** 469,472 ****
+--- 470,474 ----
+    YUV (buf);
+    areaMutex. Unlock();
++ 
+    ProcessEvents();
+  }
+***************
+*** 477,496 ****
+  {
+    OSDDEB(&quot;ClearOSD\n&quot;);
+    OSDpresent=false; // will automaticly be set to true on redraw ;-)
+!   //if (current_osdMode==OSDMODE_SOFTWARE)
+!   {
+!     if (OsdPy)
+!        memset(OsdPy,0,OSD_FULL_WIDTH*OSD_FULL_HEIGHT);
+!     if (OsdPu)
+!        memset(OsdPu,127,OSD_FULL_WIDTH*OSD_FULL_HEIGHT/4);
+!     if (OsdPv)
+!        memset(OsdPv,127,OSD_FULL_WIDTH*OSD_FULL_HEIGHT/4);
+!     if (OsdPAlphaY)
+!        memset(OsdPAlphaY,0,OSD_FULL_WIDTH*OSD_FULL_HEIGHT);
+!     if (OsdPAlphaUV)
+!        memset(OsdPAlphaUV,0,OSD_FULL_WIDTH*OSD_FULL_HEIGHT/4);
+!    };
+    Osd_changed=1;
+! };
+  
+  #if VDRVERSNUM &gt;= 10307
+--- 479,499 ----
+  {
+    OSDDEB(&quot;ClearOSD\n&quot;);
++   osdMutex.Lock();
++ 
+    OSDpresent=false; // will automaticly be set to true on redraw ;-)
+!   if (OsdPy)
+!     memset(OsdPy,0,OSD_FULL_WIDTH*OSD_FULL_HEIGHT);
+!   if (OsdPu)
+!     memset(OsdPu,127,OSD_FULL_WIDTH*OSD_FULL_HEIGHT/4);
+!   if (OsdPv)
+!     memset(OsdPv,127,OSD_FULL_WIDTH*OSD_FULL_HEIGHT/4);
+!   if (OsdPAlphaY)
+!     memset(OsdPAlphaY,0,OSD_FULL_WIDTH*OSD_FULL_HEIGHT);
+!   if (OsdPAlphaUV)
+!     memset(OsdPAlphaUV,0,OSD_FULL_WIDTH*OSD_FULL_HEIGHT/4);
+    Osd_changed=1;
+! 
+!  osdMutex.Unlock();
+! }
+  
+  #if VDRVERSNUM &gt;= 10307
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.41
+retrieving revision 1.42
+diff -C2 -d -r1.41 -r1.42
+*** video.h	27 Aug 2006 13:02:50 -0000	1.41
+--- video.h	22 Sep 2006 04:19:58 -0000	1.42
+***************
+*** 76,79 ****
+--- 76,89 ----
+              AdjustToDisplayGeometry(double afd_aspect);
+  
++     // -----------------------------------------------------------------------
++     // oldPicture is a reference to a previous decoded frame. It is used
++     // when there is osd drawing activity in case of no video currently
++     // available. Access to this pointer must be protected by corresponding
++     // mutex: oldPictureMutex .
++     //
++     sPicBuffer  *oldPicture;
++     cMutex      oldPictureMutex;
++     void        SetOldPicture(sPicBuffer *pic);
++ 
+  protected:
+      inline double GetAspect_F()
+***************
+*** 81,84 ****
+--- 91,100 ----
+  
+  protected:
++     // -----------------------------------------------------------------------
++     // State changes of OSD like on / off transitions, must be proteced by
++     // osdMutex. This are changes of variable OSDpresent, as the output method
++     // may need to take some longer actions e.g clearing background for one or
++     // mutiple output buffers (double, triple buffering).
++     //
+      cMutex  osdMutex,
+              areaMutex;
+***************
+*** 114,118 ****
+      double  parValues[SETUP_VIDEOASPECTNAMES_COUNT];
+  
+-     sPicBuffer *old_picture;
+      bool    videoInitialized;
+  
+--- 130,133 ----
+***************
+*** 120,125 ****
+  
+      bool active;
+!     uint16_t OsdRefreshCounter;
+!     // should be setted to null everytime OSD is shown
+      // (software alpha blending mode).
+  
+--- 135,140 ----
+  
+      bool active;
+!     volatile uint16_t OsdRefreshCounter;
+!     // should be set to 0 everytime OSD is shown
+      // (software alpha blending mode).
+  
+***************
+*** 161,166 ****
+      // activates fallback mode if the osd was not updated for a too long
+      // time
+- 
+-     virtual void SetOldPicture(sPicBuffer *pic);
+  
+      uint8_t *PixelMask;
+--- 176,179 ----
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000438.html">[Softdevice-cvs] softdevice CHANGELOG, 1.244, 1.245 SoftOsd.c, 1.20,	1.21 SoftOsd.h, 1.8, 1.9
+</A></li>
+	<LI>Next message: <A HREF="000440.html">[Softdevice-cvs] softdevice CHANGELOG, 1.246, 1.247 video.c, 1.65,	1.66 video.h, 1.42, 1.43
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#439">[ date ]</a>
+              <a href="thread.html#439">[ thread ]</a>
+              <a href="subject.html#439">[ subject ]</a>
+              <a href="author.html#439">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

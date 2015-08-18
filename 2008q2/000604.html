@@ -1,0 +1,110 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.327, 1.328 SoftOsd.h, 1.17,	1.18
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2008q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.327%2C%201.328%20SoftOsd.h%2C%201.17%2C%0A%091.18&In-Reply-To=%3C20080410065052.15510135EB5%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000605.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.327, 1.328 SoftOsd.h, 1.17,	1.18</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.327%2C%201.328%20SoftOsd.h%2C%201.17%2C%0A%091.18&In-Reply-To=%3C20080410065052.15510135EB5%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.327, 1.328 SoftOsd.h, 1.17,	1.18">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Thu Apr 10 08:50:52 CEST 2008</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000605.html">[Softdevice-cvs] softdevice CHANGELOG, 1.328, 1.329 mpeg2decoder.c,	1.78, 1.79
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#604">[ date ]</a>
+              <a href="thread.html#604">[ thread ]</a>
+              <a href="subject.html#604">[ subject ]</a>
+              <a href="author.html#604">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv3869
+
+Modified Files:
+	CHANGELOG SoftOsd.h 
+Log Message:
+Adjust constructor definition to implementation.
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.327
+retrieving revision 1.328
+diff -C2 -d -r1.327 -r1.328
+*** CHANGELOG	26 Feb 2008 10:53:22 -0000	1.327
+--- CHANGELOG	10 Apr 2008 06:48:57 -0000	1.328
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2008-04-10:
++    - SoftOsd: Adjust constructor definition to implementation.
+  2008-02-26:
+     - fix for ffmpeg &gt;= r12194.
+
+Index: SoftOsd.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.h,v
+retrieving revision 1.17
+retrieving revision 1.18
+diff -C2 -d -r1.17 -r1.18
+*** SoftOsd.h	19 Jan 2008 18:58:47 -0000	1.17
+--- SoftOsd.h	10 Apr 2008 06:48:57 -0000	1.18
+***************
+*** 94,100 ****
+  public:
+  #if VDRVERSNUM &gt;= 10509
+!     cSoftOsd(cVideoOut *VideoOut, int XOfs, int XOfs, uint level);
+  #else
+!     cSoftOsd(cVideoOut *VideoOut, int XOfs, int XOfs);
+  #endif
+      virtual ~cSoftOsd();
+--- 94,100 ----
+  public:
+  #if VDRVERSNUM &gt;= 10509
+!     cSoftOsd(cVideoOut *VideoOut, int X, int Y, uint level);
+  #else
+!     cSoftOsd(cVideoOut *VideoOut, int X, int Y);
+  #endif
+      virtual ~cSoftOsd();
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000605.html">[Softdevice-cvs] softdevice CHANGELOG, 1.328, 1.329 mpeg2decoder.c,	1.78, 1.79
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#604">[ date ]</a>
+              <a href="thread.html#604">[ thread ]</a>
+              <a href="subject.html#604">[ subject ]</a>
+              <a href="author.html#604">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

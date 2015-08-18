@@ -1,0 +1,1069 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softplay PlayList.c,1.1,1.2 PlayList.h,1.1,1.2 SoftPlayer.c,1.3,1.4 SoftPlayer.h,1.3,1.4 softplay.c,1.3,1.4
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softplay%20PlayList.c%2C1.1%2C1.2%20PlayList.h%2C1.1%2C1.2%20SoftPlayer.c%2C1.3%2C1.4%20SoftPlayer.h%2C1.3%2C1.4%20softplay.c%2C1.3%2C1.4&In-Reply-To=%3C200505092140.j49Le8m05568%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000108.html">
+   <LINK REL="Next"  HREF="000110.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softplay PlayList.c,1.1,1.2 PlayList.h,1.1,1.2 SoftPlayer.c,1.3,1.4 SoftPlayer.h,1.3,1.4 softplay.c,1.3,1.4</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softplay%20PlayList.c%2C1.1%2C1.2%20PlayList.h%2C1.1%2C1.2%20SoftPlayer.c%2C1.3%2C1.4%20SoftPlayer.h%2C1.3%2C1.4%20softplay.c%2C1.3%2C1.4&In-Reply-To=%3C200505092140.j49Le8m05568%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softplay PlayList.c,1.1,1.2 PlayList.h,1.1,1.2 SoftPlayer.c,1.3,1.4 SoftPlayer.h,1.3,1.4 softplay.c,1.3,1.4">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon May  9 23:40:08 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000108.html">[Softdevice-cvs] softdevice CHANGELOG,1.62,1.63 mpeg2decoder.c,1.32,1.33
+</A></li>
+        <LI>Next message: <A HREF="000110.html">[Softdevice-cvs] softdevice CHANGELOG,1.63,1.64 setup-softdevice.c,1.16,1.17
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#109">[ date ]</a>
+              <a href="thread.html#109">[ thread ]</a>
+              <a href="subject.html#109">[ subject ]</a>
+              <a href="author.html#109">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softplay
+In directory sheep:/tmp/cvs-serv24908
+
+Modified Files:
+	PlayList.c PlayList.h SoftPlayer.c SoftPlayer.h softplay.c 
+Log Message:
+- add playlist support a la mp3blaster. Still a bit unstable
+
+
+
+Index: PlayList.c
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/PlayList.c,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1 -r1.2
+*** PlayList.c	7 May 2005 20:05:42 -0000	1.1
+--- PlayList.c	9 May 2005 21:40:05 -0000	1.2
+***************
+*** 23,48 ****
+  #endif
+  
+  // ----cEditList------------------------------------------------------------
+! cPlayList::cEditList::cEditList(cPlayList * List):cOsdMenu(List-&gt;ListName) {
+          playList=List;
+!         for (int i=0; i&lt;playList-&gt;nItems;i++)
+! 
+!                 Add(new cOsdItem(
+!                    playList-&gt;GetItem(i)-&gt;Title,
+                     osUnknown),false);
+!         SetHelp(&quot;Hide&quot;);
+          lastActivity=time(NULL);
+-         SetCurrent(Get(playList-&gt;currItem));
+  };
+  
+! cPlayList::cEditList::~cEditList() {
+  };
+  
+! void cPlayList::cEditList::UpdateStatus() {
+          int current;
+          int total;
+          char Status[60];
+          
+!         if (!cControl::Control() || !cControl::Control()-&gt;GetIndex(current,total))
+                  return;
+          
+--- 23,167 ----
+  #endif
+  
++ // ---cPlayListItem--------------------------------------------------------
++ cPlayListItem::cPlayListItem(char *Filename, char *Name) {
++         if (Name) {
++                 strncpy(name,Name,SHORT_STR);
++                 name[SHORT_STR-1]=0;
++         } else name[0]=0;
++ 
++         if (Filename) {
++                 strncpy(filename,Filename,STR_LENGTH);
++                 filename[STR_LENGTH-1]=0;
++         } else filename[0]=0;
++         next=previous=NULL;
++ };
++ 
++ cPlayListItem::~cPlayListItem() {
++         RemoveSelfFromList();
++ };
++ 
++ void cPlayListItem::InsertSelfIntoList(cPlayListItem *Next,
++                 cPlayListItem *Previous) {
++         next=Next;
++         if (next) 
++                 next-&gt;previous=this;
++         previous=Previous;
++         if (previous)
++                 previous-&gt;next=this;
++ };
++ 
++ void cPlayListItem::RemoveSelfFromList() {
++         LISTDEB(&quot;RemoveSelfFromList next %p previous %p \n&quot;,next,previous);
++         if (next) 
++                 next-&gt;previous=previous;
++         if (previous) 
++                 previous-&gt;next=next;
++         next=NULL;
++         previous=NULL;
++ };
++ 
++ int cPlayListItem::BuildIdx(int startIdx) {
++         idx=startIdx;
++         return startIdx+1;
++ };
++ 
+  // ----cEditList------------------------------------------------------------
+! cEditList::cEditList(cPlayList * List) : cOsdMenu(List-&gt;ListName) {
+          playList=List;
+!         cPlayListItem * Item=playList-&gt;first;
+!         while (Item) {
+!                 LISTDEB(&quot;EditList add %s: %p\n&quot;,Item-&gt;GetName(),Item);
+!                 Add(new cOsdItem(Item-&gt;GetName(),
+                     osUnknown),false);
+!                 Item=Item-&gt;GetNext();
+!         };
+!         SetHelp(&quot;Replay&quot;,&quot;Add Files&quot;,&quot;Delete&quot;,&quot;Stop&quot;);
+          lastActivity=time(NULL);
+  };
+  
+! cEditList::~cEditList() {
+  };
+  
+! eOSState cEditList::ProcessKey(eKeys Key) {
+!         eOSState state = cOsdMenu::ProcessKey(Key);
+!         if (state != osUnknown ) 
+!                 return state;
+! 
+!         switch (state) {
+!                 cPlayList *Item;
+!                 default: switch (Key) {
+!                                  case kOk:
+!                                          LISTDEB(&quot;Current %d GetItem %p\n&quot;,Current(),playList-&gt;GetItem(Current()));
+!                                          Item=dynamic_cast&lt;cPlayList*&gt;
+!                                                  (playList-&gt;GetItem(Current()));
+!                                          LISTDEB(&quot;Item %p\n&quot;,Item);
+!                                          
+!                                          if (Item) {
+!                                                  cEditList *Menu=new cEditList(Item);
+!                                                  return AddSubMenu(Menu);
+!                                          };
+!                                          state = osContinue;
+!                                          break;
+!                                  case kRed:
+!                                          state= osBack;
+!                                          break;
+!                                  case kBack:
+!                                          state= osBack;
+!                                          break;
+! 				 case kYellow:
+! 				 	 LISTDEB(&quot;Del current\n&quot;);
+! 					 Del(Current());
+! 					 playList-&gt;RemoveItemFromList(
+! 					 	playList-&gt;GetItem(Current()));
+! 					 Display();
+! 					 state=osContinue;
+! 					 break;
+! 
+!                                  default:    
+!                                          break;
+!                          }
+!         }
+!         return state;
+! }
+! 
+! // ----cReplayList------------------------------------------------------------
+! cReplayList::cReplayList(cPlayList * List) : cOsdMenu(List-&gt;ListName) {
+!         playList=List;
+!         SetHelp(&quot;Edit&quot;,&quot;Save&quot;,&quot;???&quot;,&quot;Stop&quot;);
+!         SetCurrent(Get(playList-&gt;currShuffleIdx));
+!         RebuildList();
+!         lastActivity=time(NULL);
+! };
+! 
+! cReplayList::~cReplayList() {
+! };
+! 
+! void cReplayList::RebuildList() {
+!         LISTDEB(&quot;RebuildList\n&quot;);
+! 
+!         cPlayListItem * Item;
+!         for (int i = 0 ; i&lt;playList-&gt;GetNoItemsRecursive(); i++) {
+! 		Item=playList-&gt;GetShuffledItemByIndex(i);
+!                 if (!Item) {
+!                         printf(&quot;Error getting all files for list index %d shuffleIdx %d\n&quot;,
+!                                         i,playList-&gt;shuffleIdx[i]);
+!                         continue;
+!                 };
+!                 
+! 		LISTDEB(&quot;Add item %d shuffleIdx %d: %s\n&quot;,
+!                                 i,playList-&gt;shuffleIdx[i],Item-&gt;GetName());
+!                 Add(new cOsdItem(Item-&gt;GetName(),
+!                    osUnknown),false);
+!         };
+!         lastListItemCount = playList-&gt;GetNoItemsRecursive();
+! };
+! 
+! void cReplayList::UpdateStatus() {
+          int current;
+          int total;
+          char Status[60];
+          
+!         if (!cControl::Control() || 
+!                         !cControl::Control()-&gt;GetIndex(current,total))
+                  return;
+          
+***************
+*** 50,68 ****
+                          current/3600,current/60%60,current%60,
+                          total/3600,total/60%60,total%60,
+!                         playList-&gt;currItem+1,playList-&gt;nItems);
+          SetStatus(Status);
+  };
+  
+! eOSState cPlayList::cEditList::ProcessKey(eKeys Key) {
+          eOSState state = cOsdMenu::ProcessKey(Key);
+- 
+- 
+          if (Key!=kNone) 
+                  lastActivity=time(NULL);
+  
+!         if (Current() != playList-&gt;currItem &amp;&amp; 
+                          time(NULL) - lastActivity &gt; 120 ) {
+!                 LISTDEB(&quot;SetCurrent current title %d \n&quot;,playList-&gt;currItem);
+!                 SetCurrent(Get(playList-&gt;currItem));
+                  Display();
+          };
+--- 169,207 ----
+                          current/3600,current/60%60,current%60,
+                          total/3600,total/60%60,total%60,
+!                         playList-&gt;currShuffleIdx+1,playList-&gt;nItems);
+          SetStatus(Status);
++ 
++         if (displayedCurrIdx != playList-&gt;currShuffleIdx){
++                 cPlayListItem *Item=playList-&gt;GetShuffledItemByIndex(
++                                 playList-&gt;currShuffleIdx);
++                 if (Item) {
++                         snprintf(Status,60,&quot;%s: %30s&quot;,playList-&gt;ListName,
++                                                 Item-&gt;GetName());
++                         SetTitle(Status);
++                         Display();
++                         displayedCurrIdx=playList-&gt;currShuffleIdx;
++                 } else printf(&quot;Didn't get currShuffleIdx %d!\n&quot;,playList-&gt;currShuffleIdx);
++         };
+  };
+  
+! eOSState cReplayList::ProcessKey(eKeys Key) {
+          eOSState state = cOsdMenu::ProcessKey(Key);
+          if (Key!=kNone) 
+                  lastActivity=time(NULL);
++         
++         if (state != osUnknown ) 
++                 return state;
+  
+!         if ( lastListItemCount != playList-&gt;GetNoItemsRecursive() ) {
+!                 playList-&gt;CleanShuffleIdx();
+!                 Clear();
+!                 RebuildList();
+!         };
+!         
+!         if (Current() != playList-&gt;currShuffleIdx &amp;&amp; 
+                          time(NULL) - lastActivity &gt; 120 ) {
+!                 LISTDEB(&quot;SetCurrent current title %d  time %d lastActivity %d\n&quot;,
+!                                 playList-&gt;currShuffleIdx,time(NULL),lastActivity);
+!                 SetCurrent(Get(playList-&gt;currShuffleIdx));
+                  Display();
+          };
+***************
+*** 72,81 ****
+                                   case kOk:
+                                           // skip to current track
+!                                          playList-&gt;currItem = Current()-1;
+                                           state = osUser3;
+                                           break;
+                                   case kRed:
+                                   case kBack:
+!                                          state= osEnd;
+                                           break;
+  
+--- 211,224 ----
+                                   case kOk:
+                                           // skip to current track
+!                                          playList-&gt;currShuffleIdx = Current()-1;
+                                           state = osUser3;
++                                          // want to have automatic track change
++                                          lastActivity=time(NULL)-300;
+                                           break;
+                                   case kRed:
++                                          state= AddSubMenu(new cEditList(playList));
++                                          break;
+                                   case kBack:
+!                                          state= osBack;
+                                           break;
+  
+***************
+*** 84,98 ****
+                           }
+          }
+!         UpdateStatus();
+          return state;
+  }
+  
+  // -----cPlayList------------------------------------------------------------
+! cPlayList::cPlayList() {
+!         nItems=0;
+!         currItem=-1;
+          strncpy(ListName,&quot;Playlist 1&quot;,STR_LENGTH);
+          ListName[STR_LENGTH-1]=0;
+!         memset(shuffleIdx,0,sizeof(shuffleIdx));
+  };
+  
+--- 227,249 ----
+                           }
+          }
+!         if (!HasSubMenu())
+!                 UpdateStatus();
+          return state;
+  }
+  
++ 
+  // -----cPlayList------------------------------------------------------------
+! cPlayList::cPlayList(char *Filename, char *Name) 
+!                       : cPlayListItem(Filename,Name) {
+!         currItemIdx=-1;
+!         currShuffleIdx=-1;
+!         minIdx=0;
+!         maxIdx=0;
+!         first=NULL;
+!         last=NULL;
+!         
+          strncpy(ListName,&quot;Playlist 1&quot;,STR_LENGTH);
+          ListName[STR_LENGTH-1]=0;
+! 	shuffleIdx=NULL;
+  };
+  
+***************
+*** 100,124 ****
+  };
+  
+  bool cPlayList::AddFile(char * filename, char *title) {
+          LISTDEB(&quot;AddFile %s\n&quot;,filename);
+!         if ( nItems &gt;= MAX_ITEMS ) 
+!                 return false;
+!         strncpy(Items[nItems].Filename,filename,STR_LENGTH);
+!         Items[nItems].Filename[STR_LENGTH-1]=0;
+!         if (title) {
+!                 strncpy(Items[nItems].Title,title,STR_LENGTH);
+!                 Items[nItems].Title[STR_LENGTH-1]=0;
+!         };
+!         shuffleIdx[nItems]=nItems;
+!         nItems++;
+          return true;
+  };
+  
+! bool cPlayList::AddDir(char * dirname, bool recursive) {
+          struct dirent **namelist;
+          int n;
+          char Name[STR_LENGTH];
+  
+!         LISTDEB(&quot;AddDir %s recursive %d\n&quot;,dirname,recursive);
+          
+          n = scandir(dirname, &amp;namelist, 0, alphasort);
+--- 251,355 ----
+  };
+  
++ void cPlayList::RemoveItemFromList(cPlayListItem *Item) {
++         LISTDEB(&quot;RemoveItemFromList %p, first %p last %p\n&quot;,Item,first,last);
++         if (first &amp;&amp; Item == first)
++                 first = first-&gt;next;
++         if (last &amp;&amp; Item == last)
++                 last = last-&gt;previous;
++         Item-&gt;RemoveSelfFromList();
++         delete Item;
++ };
++ 
++ void cPlayList::AddItemAtEnd(cPlayListItem *Item) {
++         if (!last) {
++                 Item-&gt;InsertSelfIntoList(NULL,NULL);
++                 first = last = Item;
++         } else {
++                 last-&gt;next = Item;
++                 Item-&gt;previous = last;
++                 Item-&gt;next = NULL;
++                 last = Item;
++         };
++ };                    
++ 
++ int cPlayList::BuildIdx(int startIdx) {
++ 	cPlayListItem *currItem=NULL;
++ 	if (currItemIdx!=-1) {
++ 		// while playback rember current item, if this has been
++ 		// deleted find the next not deleted item
++ 		while ( ! (currItem=GetItemByIndex(shuffleIdx[currShuffleIdx]) ) &amp;&amp; 
++ 				currShuffleIdx&lt;nItems)
++ 			currShuffleIdx++;
++ 	};
++ 			
++         cPlayListItem *Item=first;
++         minIdx=startIdx;
++         LISTDEB(&quot;BuildIdx startIdx %d\n&quot;,startIdx);
++ 
++         while (Item) {
++                 LISTDEB(&quot;Item %p Item-&gt;GetNext() %p \n&quot;,Item,Item-&gt;GetNext());
++                 startIdx=Item-&gt;BuildIdx(startIdx);
++                 Item=Item-&gt;GetNext();
++         };
++         nItems=startIdx-minIdx;
++         LISTDEB(&quot;BuildIdx maxIdx %d nItems %d\n&quot;,startIdx,nItems);
++ 	
++ 	if (currItem) {
++ 		// FIXME if currItem has been deleted do I have to subtract one?
++ 		currItemIdx=Item-&gt;GetIdx();
++ 		for (int i=0; i&lt;nItems; i++) 
++ 			if ( currItemIdx==shuffleIdx[i] ) {
++ 				currShuffleIdx=i;
++ 				break;
++ 			};
++ 	};
++         return maxIdx=startIdx;
++ };
++ 
++ cPlayListItem *cPlayList::GetItemByIndex(int Index) {
++         if ( minIdx &gt; Index)
++                 return NULL;
++         if ( Index &gt; maxIdx)
++                 return NULL;
++         
++         cPlayListItem *Item=first;
++         cPlayListItem *found;
++         while (Item) {
++                 if ( (found=Item-&gt;GetItemByIndex(Index)) )
++                         return found;
++                 Item=Item-&gt;GetNext();
++         };
++         return NULL;
++ };
++ 
+  bool cPlayList::AddFile(char * filename, char *title) {
+          LISTDEB(&quot;AddFile %s\n&quot;,filename);
+!         cPlayListItem *Item= new cPlayListRegular(filename,title);
+!         LISTDEB(&quot;Item created %p\n&quot;,Item);
+!         AddItemAtEnd(Item);
+!         maxIdx=Item-&gt;BuildIdx(maxIdx);
+!         nItems=maxIdx-minIdx;
+!         LISTDEB(&quot;Item added first %p last %p\n&quot;,first,last);
+!         
+          return true;
+  };
+  
+! bool cPlayList::AddDir(char * dirname, char * title, bool recursive) {
+!         LISTDEB(&quot;AddDir %s\n&quot;,filename);
+!         cPlayList *Item= new cPlayList(filename,title);
+!         Item-&gt;ScanDir(dirname,recursive);
+!         AddItemAtEnd(Item);
+!         maxIdx=Item-&gt;BuildIdx(maxIdx); 
+!         nItems=maxIdx-minIdx;
+! 
+!         return true;
+! };
+! 
+! bool cPlayList::ScanDir(char * dirname, bool recursive) {
+          struct dirent **namelist;
+          int n;
+          char Name[STR_LENGTH];
+  
+!         LISTDEB(&quot;ScanDir %s recursive %d\n&quot;,dirname,recursive);
+          
+          n = scandir(dirname, &amp;namelist, 0, alphasort);
+***************
+*** 152,156 ****
+  
+                  if (namelist[i]-&gt;d_type == DT_DIR &amp;&amp; recursive )  
+!                         ret=AddDir(Name,recursive);
+                  else  ret=AddFile(Name,namelist[i]-&gt;d_name);
+  
+--- 383,387 ----
+  
+                  if (namelist[i]-&gt;d_type == DT_DIR &amp;&amp; recursive )  
+!                         ret=AddDir(Name,namelist[i]-&gt;d_name,recursive);
+                  else  ret=AddFile(Name,namelist[i]-&gt;d_name);
+  
+***************
+*** 162,204 ****
+  
+  char * cPlayList::NextFile() {
+!         currItem++;
+!         if ( currItem &gt;= nItems ) {
+!                 return NULL;
+!                 //if (repeat )
+!                 //        currItem=0;
+          };
+!        
+!         return Items[shuffleIdx[currItem]].Filename;
+  };
+!        
+! void cPlayList::Shuffle() {
+!         LISTDEB(&quot;Shuffle playlist\n&quot;);
+!         for (int i=0; i&lt;nItems ; i++) {
+!                 Items[i].Played=0;
+          };
+  
+!         int index=0;
+!         for (int i=0; i&lt;nItems ; i++) {
+!                 int add=(int)( random()*(float)(nItems-i)/RAND_MAX)+1;
+!                 // skip add unplayed songs...
+!                 LISTDEB(&quot;shuffleIdx %d add %d\n&quot;,i,add);
+!                 while (add) {
+!                         do {
+!                                index=(index+1)%nItems;
+!                         } while (Items[index].Played) ;
+!                         add--;
+!                 };
+!                 shuffleIdx[i]=index;
+!                 LISTDEB(&quot;shuffleidx %d index %d\n&quot;,i,index);
+!                 Items[index].Played=1;
+!                 
+          };
+  };
+  
+! cPlayList::ListItem * cPlayList::GetItem(int index) {
+!         printf(&quot;GetItem %d shuffle %d\n&quot;,index,shuffleIdx[index]);fflush(stdout);
+!        // if (shuffleIdx[index]&lt;nItems)
+!                 return &amp;Items[shuffleIdx[index]];
+!         //else return &amp;Items[0];
+  };
+  
+--- 393,490 ----
+  
+  char * cPlayList::NextFile() {
+!         LISTDEB(&quot;NextFile currItemIdx: %d nItems %d currShuffleIdx %d\n&quot;,
+!                         currItemIdx,nItems,currShuffleIdx);
+!     	cPlayListItem *Item=NULL;
+!         do {
+! 		currItemIdx=shuffleIdx[++currShuffleIdx];
+!         } while ( !(Item=GetItemByIndex(currItemIdx))  &amp;&amp; currShuffleIdx&lt;nItems );
+! 	
+!         LISTDEB(&quot;NextFile currItemIdx: %d currShuffleIdx %d\n&quot;,currItemIdx,currShuffleIdx);
+! 
+! 	if (Item)
+! 		return Item-&gt;GetFilename();
+! 	return NULL;
+! };
+! 
+! cPlayListItem *cPlayList::GetItem(int No) {
+!         int count=0;
+!         cPlayListItem *Item=first;
+!         while ( Item &amp;&amp; count!=No ) {
+!                 count++;
+!                 Item=Item-&gt;GetNext();
+          };
+!         return Item;
+  };
+! 
+! int cPlayList::GetNoItems() {
+!         int count=0;
+!         cPlayListItem *Item=first;
+!         while ( Item ) {
+!                 count++;
+!                 Item=Item-&gt;GetNext();
+          };
++         return count;
++ };
+  
+! int cPlayList::GetNoItemsRecursive() {
+!         int count=0;
+!         cPlayListItem *Item=first;
+!         cPlayList *List;
+!         while ( Item ) {
+!                 // count items of lists instead of list
+!                 if ( (List=dynamic_cast &lt;cPlayList*&gt;(Item)) )
+!                         count+=List-&gt;GetNoItemsRecursive();
+!                 else count++;
+!                 Item=Item-&gt;GetNext();
+          };
++         return count;
+  };
++   
++ void cPlayList::PrepareForPlayback() {
++ 	LISTDEB(&quot;PrepareForPlayback\n&quot;);
++         currItemIdx=-1;
++ 	currShuffleIdx=-1;
+  
+!         BuildIdx();
+! 	if (!shuffleIdx)
+! 		shuffleIdx= new int[MAX_ITEMS];
+!         for (int i=0; i&lt;MAX_ITEMS ; i++) {
+!                 shuffleIdx[i]=i;
+!         };
+!         Shuffle();
+  };
+  
++ void cPlayList::Shuffle() {
++         LISTDEB(&quot;Shuffle playlist nItems %d currShuffleIdx %d\n&quot;,nItems,currShuffleIdx);
++ 
++         int index=0;
++         for (int i=0; i&lt;2*nItems ; i++) {
++ 		//FIXME - I guess the ranges are not completly correct
++                 long int xchange1=( random()*(nItems-currShuffleIdx)/RAND_MAX)
++ 			+currShuffleIdx;
++                 long int xchange2=( random()*(nItems-currShuffleIdx)/RAND_MAX)
++ 			+currShuffleIdx;
++ 		LISTDEB(&quot;Shuffle %d - %d \n&quot;,xchange1,xchange2);
++                 index=shuffleIdx[xchange1];
++                 shuffleIdx[xchange1]=shuffleIdx[xchange2];
++                 shuffleIdx[xchange2]=index;
++         };
++ 
++ 	for (int i=0; i&lt;nItems ; i++) 
++ 		LISTDEB(&quot;shuffleIdx[%d]: %d\n&quot;,i,shuffleIdx[i]);       
++ };
++ 
++ void cPlayList::CleanShuffleIdx() {
++         // remove deleted files from shuffleIdx
++         int fillIndex=0;
++         int newNItems=GetNoItemsRecursive();
++         
++         for (int i=0; i&lt;nItems; i++) 
++                 if ( GetItemByIndex(shuffleIdx[i]) )
++                         shuffleIdx[fillIndex++]=shuffleIdx[i];
++         
++         // for future adds
++         for (int i=newNItems; i&lt;MAX_ITEMS; i++)
++                 shuffleIdx[i]=maxIdx+i-newNItems;
++         nItems=newNItems;
++ };
+
+Index: PlayList.h
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/PlayList.h,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1 -r1.2
+*** PlayList.h	7 May 2005 20:05:42 -0000	1.1
+--- PlayList.h	9 May 2005 21:40:05 -0000	1.2
+***************
+*** 17,63 ****
+  //#define STR_LENGTH  120
+  #define STR_LENGTH  200
+! #define MAX_ITEMS   500
+  
+  
+! class cPlayList {
+! 	class cEditList: public cOsdMenu {
+! 		time_t lastActivity;
+! 		cPlayList *playList;
+! 	public:
+! 		cEditList(cPlayList * List);
+! 		~cEditList();
+! 		eOSState ProcessKey(eKeys Key);
+! 		void UpdateStatus();
+! 	};
+  	friend class cEditList;
+  	
+  	char ListName[STR_LENGTH];
+- public:
+- 	struct ListItem {
+-                 char Filename[STR_LENGTH];
+-                 int Played;
+-                 char Title[STR_LENGTH];
+-                 char Album[STR_LENGTH];
+-                 char Author[STR_LENGTH];
+-         };
+  private:
+! 	ListItem Items[MAX_ITEMS];
+          int nItems;
+!         int currItem;
+! 	int shuffleIdx[MAX_ITEMS];
+          
+    public:
+!         cPlayList();
+!         ~cPlayList();
+  
+          bool AddFile(char * Filename,char *Title = NULL);
+  
+!         bool AddDir(char * dirname, bool recursive = true);
+  
+! 	inline cOsdMenu *EditList() {return new cEditList(this);};
+  	void Shuffle();
+          char *NextFile();
+- 
+- 	ListItem *GetItem(int index);
+  };
+          
+--- 17,142 ----
+  //#define STR_LENGTH  120
+  #define STR_LENGTH  200
+! #define SHORT_STR   60
+! #define MAX_ITEMS   2000
+  
++ class cPlayList;
+  
+! class cPlayListItem {
+!         friend class cPlayList;
+!         protected:
+!                 char name[SHORT_STR];
+!                 char filename[STR_LENGTH];
+!                 int idx;
+!                 cPlayListItem *next;
+!                 cPlayListItem *previous;
+!         public:
+!                 cPlayListItem(char *Filename=NULL,  char *Name=NULL);
+!                 virtual ~cPlayListItem();
+! 
+!                 void InsertSelfIntoList(cPlayListItem *Next,
+!                                 cPlayListItem *previous);
+!                 void RemoveSelfFromList();
+! 
+!                 inline char * GetName()
+!                 { return name; };
+!  
+!                 inline char * GetFilename()
+!                 { return filename; };
+! 
+!                 virtual int BuildIdx(int startIdx=0);
+!                         
+!                 inline int GetIdx()
+!                 { return idx; };
+! 
+!                 virtual cPlayListItem *GetItemByIndex(int Index)
+!                 {if (Index==idx) return this; else return NULL;};
+! 
+!                 virtual int GetNoItems()
+!                 {return 1; };
+! 
+!                 inline cPlayListItem *GetNext()
+!                 {return next;};
+! 
+!                 inline cPlayListItem *GetPrev()
+!                 {return previous;};
+! };
+! 
+! class cPlayListRegular: public cPlayListItem {
+!         private:
+!                 char title[STR_LENGTH];
+!                 char album[STR_LENGTH];
+!                 char author[STR_LENGTH];
+!         public:
+!                 cPlayListRegular(char *Filename,  char *Name) :
+!                         cPlayListItem(Filename,Name) {};
+!                 virtual ~cPlayListRegular() {};
+! }; 
+! 
+! class cEditList: public cOsdMenu {
+!         time_t lastActivity;
+!         int displayedCurrIdx;
+!         cPlayList *playList;
+!         public:
+!         cEditList(cPlayList * List);
+!         ~cEditList();
+!         eOSState ProcessKey(eKeys Key);
+! };
+! 
+! class cReplayList: public cOsdMenu {
+!         time_t lastActivity;
+!         int displayedCurrIdx;
+!         cPlayList *playList;
+! 	int lastListItemCount;
+!         public:
+!         cReplayList(cPlayList * List);
+!         ~cReplayList();
+! 	void RebuildList();
+!         eOSState ProcessKey(eKeys Key);
+!         void UpdateStatus();
+! };
+! 
+! class cPlayList : public cPlayListItem {
+  	friend class cEditList;
++ 	friend class cReplayList;
+  	
+  	char ListName[STR_LENGTH];
+  private:
+!         cPlayListItem *first;
+!         cPlayListItem *last;
+!         int currShuffleIdx;
+!         int currItemIdx;
+!         int minIdx;
+!         int maxIdx;
+          int nItems;
+! 	int *shuffleIdx;
+          
+    public:
+!         cPlayList(char *Filename=NULL, char *Name=NULL);
+!         virtual ~cPlayList();
+! 
+!         virtual int BuildIdx(int startIdx=0);
+  
++         void PrepareForPlayback();
++         
++         virtual cPlayListItem *GetItemByIndex(int Index);
++         inline cPlayListItem *GetShuffledItemByIndex(int Index)
++         { return GetItemByIndex(shuffleIdx[Index]); };
++ 
++         void RemoveItemFromList(cPlayListItem *Item);
++         void AddItemAtEnd(cPlayListItem *Item);
++         
+          bool AddFile(char * Filename,char *Title = NULL);
+  
+!         cPlayListItem *GetItem(int No);
+! 	int GetNoItems();
+! 	int GetNoItemsRecursive();
+  
+!         bool ScanDir(char * dirname, bool recursive = true);
+!         bool AddDir(char * dirname,char *Title = NULL, bool recursive = true);
+! 
+! 	inline cOsdMenu *ReplayList() {return new cReplayList(this);};
+  	void Shuffle();
++ 	void CleanShuffleIdx();
+          char *NextFile();
+  };
+          
+
+Index: SoftPlayer.c
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/SoftPlayer.c,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** SoftPlayer.c	7 May 2005 20:05:42 -0000	1.3
+--- SoftPlayer.c	9 May 2005 21:40:05 -0000	1.4
+***************
+*** 285,291 ****
+    shouldStop=false;
+    playList=PlayList;
+!   playList-&gt;Shuffle();
+    SoftPlayer = dynamic_cast&lt;cSoftPlayer*&gt; (player);
+!   SoftPlayer-&gt;OpenFile(PlayList-&gt;NextFile());
+  };
+  
+--- 285,293 ----
+    shouldStop=false;
+    playList=PlayList;
+!   playList-&gt;PrepareForPlayback();
+    SoftPlayer = dynamic_cast&lt;cSoftPlayer*&gt; (player);
+!   char *nextfile=PlayList-&gt;NextFile();
+!   if (nextfile)
+! 	  SoftPlayer-&gt;OpenFile(nextfile);
+  };
+  
+***************
+*** 374,378 ****
+                          SoftPlayer-&gt;Activate(true);
+                  };
+!                 if (state == osEnd) {
+                          PLDBG(&quot;private menu osEnd\n&quot;);
+                          delete privateMenu;
+--- 376,380 ----
+                          SoftPlayer-&gt;Activate(true);
+                  };
+!                 if (state == osEnd || state == osBack) {
+                          PLDBG(&quot;private menu osEnd\n&quot;);
+                          delete privateMenu;
+***************
+*** 395,399 ****
+                                          Hide();
+                                          OsdActive=OsdPrivMenu;
+!                                         privateMenu=Softplay-&gt;currList-&gt;EditList();
+                                          privateMenu-&gt;Display();
+                                          return osContinue;
+--- 397,401 ----
+                                          Hide();
+                                          OsdActive=OsdPrivMenu;
+!                                         privateMenu=Softplay-&gt;currList-&gt;ReplayList();
+                                          privateMenu-&gt;Display();
+                                          return osContinue;
+***************
+*** 409,417 ****
+                                  return osEnd;
+                                  break;
+  			case kUp:
+  			case kPlay:
+  			              SoftPlayer-&gt;Play();  break;
+  			case kDown:
+- 			case kPause:
+  			              SoftPlayer-&gt;Pause();  break;
+  			case kOk: if (OsdActive==OsdProgress)
+--- 411,419 ----
+                                  return osEnd;
+                                  break;
++ 			case kPause: SoftPlayer-&gt;TogglePause(); break;
+  			case kUp:
+  			case kPlay:
+  			              SoftPlayer-&gt;Play();  break;
+  			case kDown:
+  			              SoftPlayer-&gt;Pause();  break;
+  			case kOk: if (OsdActive==OsdProgress)
+
+Index: SoftPlayer.h
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/SoftPlayer.h,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** SoftPlayer.h	7 May 2005 20:05:42 -0000	1.3
+--- SoftPlayer.h	9 May 2005 21:40:05 -0000	1.4
+***************
+*** 58,61 ****
+--- 58,63 ----
+         void Stop();
+  
++        inline void TogglePause()
++        { pause=!pause; };
+         inline void Pause()
+         { pause=true; };
+
+Index: softplay.c
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/softplay.c,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** softplay.c	7 May 2005 20:14:01 -0000	1.3
+--- softplay.c	9 May 2005 21:40:05 -0000	1.4
+***************
+*** 14,18 ****
+  #include &lt;dirent.h&gt;
+  
+! #define NAME_LENGTH 120
+  
+  static const char *VERSION        = &quot;0.0.1&quot;;
+--- 14,18 ----
+  #include &lt;dirent.h&gt;
+  
+! #define NAME_LENGTH 200
+  
+  static const char *VERSION        = &quot;0.0.1&quot;;
+***************
+*** 32,35 ****
+--- 32,36 ----
+    } * Entries;
+    int nEntries;
++   int keySelNo;
+        
+  public:
+***************
+*** 44,47 ****
+--- 45,49 ----
+    Entries=NULL;
+    nEntries=0;
++   keySelNo=0;
+    SetHelp(NULL,&quot;Play&quot;,&quot;Add To List&quot;,&quot;Play List&quot;);
+  };
+***************
+*** 58,61 ****
+--- 60,65 ----
+    int n;
+    char Name[60];
++   char Title[60];
++ 
+  
+    if (Entries) {
+***************
+*** 67,70 ****
+--- 71,78 ----
+    start_path[NAME_LENGTH]=0;
+  
++   //FIXME find a clever way to cut down the directory name
++   snprintf(Title,60,&quot;Files: %s&quot;,start_path);
++   SetTitle(Title);
++ 
+    n = scandir(path, &amp;namelist, 0, alphasort);
+    if (n&lt;0) {
+***************
+*** 116,119 ****
+--- 124,139 ----
+  
+  	switch (Key) {
++                 case k0 ... k9:
++                         {
++                                 keySelNo*=10;keySelNo+=(Key - k0);
++                                 int pos=1000;
++                                 while (keySelNo&gt;nEntries) {
++                                         keySelNo%=pos;pos/=10;
++                                 };
++                                 SetCurrent(Get(keySelNo-1));
++                                 Display();
++                                 printf(&quot;key %d keySelNo %d\n&quot;,(Key-k0),keySelNo);
++                                 break;
++                         }
+  		case kOk: 
+  			sscanf(Get(Current())-&gt;Text(),&quot;%d &quot;,&amp;No);
+***************
+*** 141,145 ****
+  				printf(&quot;create playlist %s\n&quot;,Entries[No].name);
+  				cPlayList *Playlist=new cPlayList;
+! 				Playlist-&gt;AddDir(Entries[No].name,true);
+                                  Softplay-&gt;SetTmpCurrList(Playlist);
+  				cControl::Launch(
+--- 161,166 ----
+  				printf(&quot;create playlist %s\n&quot;,Entries[No].name);
+  				cPlayList *Playlist=new cPlayList;
+! 				Playlist-&gt;AddDir(Entries[No].name,
+! 					Entries[No].title,true);
+                                  Softplay-&gt;SetTmpCurrList(Playlist);
+  				cControl::Launch(
+***************
+*** 160,164 ****
+                                  };
+                                  if (Entries[No].type == DT_DIR)
+!                                         PlayList-&gt;AddDir(Entries[No].name,true);
+                                  else if (Entries[No].type == DT_REG)
+                                          PlayList-&gt;AddFile(Entries[No].name,
+--- 181,186 ----
+                                  };
+                                  if (Entries[No].type == DT_DIR)
+!                                         PlayList-&gt;AddDir(Entries[No].name,
+! 						Entries[No].title,true);
+                                  else if (Entries[No].type == DT_REG)
+                                          PlayList-&gt;AddFile(Entries[No].name,
+***************
+*** 221,225 ****
+              break;
+  
+!     case osUser2: return AddSubMenu((*currList)-&gt;EditList());
+              break;
+      case osUser3: cControl::Launch(
+--- 243,247 ----
+              break;
+  
+!     case osUser2: return AddSubMenu((*currList)-&gt;ReplayList());
+              break;
+      case osUser3: cControl::Launch(
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000108.html">[Softdevice-cvs] softdevice CHANGELOG,1.62,1.63 mpeg2decoder.c,1.32,1.33
+</A></li>
+	<LI>Next message: <A HREF="000110.html">[Softdevice-cvs] softdevice CHANGELOG,1.63,1.64 setup-softdevice.c,1.16,1.17
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#109">[ date ]</a>
+              <a href="thread.html#109">[ thread ]</a>
+              <a href="subject.html#109">[ subject ]</a>
+              <a href="author.html#109">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

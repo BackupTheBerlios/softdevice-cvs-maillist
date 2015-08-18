@@ -1,0 +1,112 @@
+From nobody at sheep.berlios.de  Sat Oct 25 12:23:51 2008
+From: nobody at sheep.berlios.de (lucke)
+Date: Sat, 25 Oct 2008 12:23:51 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice CHANGELOG, 1.343, 1.344 README, 1.29,
+	1.30 mpeg2decoder.c, 1.84, 1.85 mpeg2decoder.h, 1.44, 1.45
+Message-ID: <20081025102351.DAD9E131EB3@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv12417
+
+Modified Files:
+	CHANGELOG README mpeg2decoder.c mpeg2decoder.h 
+Log Message:
+Fix compiling with newer ffmpeg versions (by Jason Harvey).
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.343
+retrieving revision 1.344
+diff -C2 -d -r1.343 -r1.344
+*** CHANGELOG	26 Sep 2008 20:34:08 -0000	1.343
+--- CHANGELOG	25 Oct 2008 10:23:49 -0000	1.344
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2008-10-25:
++    - build: Fix compiling with newer ffmpeg versions (by Jason Harvey).
+  2008-09-26:
+     - Updated italian translations by Diego Pierotto.
+
+Index: README
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/README,v
+retrieving revision 1.29
+retrieving revision 1.30
+diff -C2 -d -r1.29 -r1.30
+*** README	26 Sep 2008 20:34:08 -0000	1.29
+--- README	25 Oct 2008 10:23:49 -0000	1.30
+***************
+*** 356,359 ****
+--- 356,360 ----
+  - Herbert Attenberger
+  - Holger Waechtler
++ - Jason Harvey
+  - Konrad Naumann
+  - Laurence Abbott
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.84
+retrieving revision 1.85
+diff -C2 -d -r1.84 -r1.85
+*** mpeg2decoder.c	21 Sep 2008 12:55:57 -0000	1.84
+--- mpeg2decoder.c	25 Oct 2008 10:23:49 -0000	1.85
+***************
+*** 1017,1023 ****
+  
+  #if LIBAVFORMAT_BUILD >4625
+! static offset_t seek_RingBuffer(void *opaque, offset_t offset, int whence)
+  #else
+! static int seek_RingBuffer(void *opaque, offset_t offset, int whence)
+  #endif
+  {
+--- 1017,1023 ----
+  
+  #if LIBAVFORMAT_BUILD >4625
+! static int64_t seek_RingBuffer(void *opaque, int64_t offset, int whence)
+  #else
+! static int seek_RingBuffer(void *opaque, int64_t offset, int whence)
+  #endif
+  {
+***************
+*** 1136,1140 ****
+  };
+  
+! int cMpeg2Decoder::seek(offset_t offset, int whence) {
+     printf("unimplemented: seek offset %lld whence %d\n", (long long int)offset, whence);
+     return -EINVAL;
+--- 1136,1140 ----
+  };
+  
+! int cMpeg2Decoder::seek(int64_t offset, int whence) {
+     printf("unimplemented: seek offset %lld whence %d\n", (long long int)offset, whence);
+     return -EINVAL;
+
+Index: mpeg2decoder.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.h,v
+retrieving revision 1.44
+retrieving revision 1.45
+diff -C2 -d -r1.44 -r1.45
+*** mpeg2decoder.h	26 Feb 2008 08:06:18 -0000	1.44
+--- mpeg2decoder.h	25 Oct 2008 10:23:49 -0000	1.45
+***************
+*** 313,317 ****
+  public:
+      int read_packet(uint8_t *buf, int buf_size);
+!     int seek(offset_t offset, int whence);
+  
+  public:
+--- 313,317 ----
+  public:
+      int read_packet(uint8_t *buf, int buf_size);
+!     int seek(int64_t offset, int whence);
+  
+  public:
+
+
+

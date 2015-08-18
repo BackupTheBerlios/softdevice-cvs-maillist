@@ -1,0 +1,1496 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice Makefile,1.22,1.23 CHANGELOG,1.143,1.144 ShmClient.c,1.1,1.2 SoftOsd.c,1.4,1.5 SoftOsd.h,1.2,1.3 shm-common.h,1.1,1.2 video-dfb.c,1.45,1.46 video-dfb.h,1.14,1.15 video-fb.c,1.11,1.12 video-fb.h,1.5,1.6 video-shm.c,1.1,1.2 video-shm.h,1.1,1.2 video-vidix.c,1.13,1.14 video-vidix.h,1.6,1.7 video-xv.c,1.38,1.39 video-xv.h,1.11,1.12 video.c,1.41,1.42 video.h,1.26,1.27
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20Makefile%2C1.22%2C1.23%20CHANGELOG%2C1.143%2C1.144%20ShmClient.c%2C1.1%2C1.2%20SoftOsd.c%2C1.4%2C1.5%20SoftOsd.h%2C1.2%2C1.3%20shm-common.h%2C1.1%2C1.2%20video-dfb.c%2C1.45%2C1.46%20video-dfb.h%2C1.14%2C1.15%20video-fb.c%2C1.11%2C1.12%20video-fb.h%2C1.5%2C1.6%20video-shm.c%2C1.1%2C1.2%20video-shm.h%2C1.1%2C1.2%20video-vidix.c%2C1.13%2C1.14%20video-vidix.h%2C1.6%2C1.7%20video-xv.c%2C1.38%2C1.39%20video-xv.h%2C1.11%2C1.12%20video.c%2C1.41%2C1.42%20video.h%2C1.26%2C1.27&In-Reply-To=%3C200602032234.k13MYvx17007%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000276.html">
+   <LINK REL="Next"  HREF="000278.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice Makefile,1.22,1.23 CHANGELOG,1.143,1.144 ShmClient.c,1.1,1.2 SoftOsd.c,1.4,1.5 SoftOsd.h,1.2,1.3 shm-common.h,1.1,1.2 video-dfb.c,1.45,1.46 video-dfb.h,1.14,1.15 video-fb.c,1.11,1.12 video-fb.h,1.5,1.6 video-shm.c,1.1,1.2 video-shm.h,1.1,1.2 video-vidix.c,1.13,1.14 video-vidix.h,1.6,1.7 video-xv.c,1.38,1.39 video-xv.h,1.11,1.12 video.c,1.41,1.42 video.h,1.26,1.27</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20Makefile%2C1.22%2C1.23%20CHANGELOG%2C1.143%2C1.144%20ShmClient.c%2C1.1%2C1.2%20SoftOsd.c%2C1.4%2C1.5%20SoftOsd.h%2C1.2%2C1.3%20shm-common.h%2C1.1%2C1.2%20video-dfb.c%2C1.45%2C1.46%20video-dfb.h%2C1.14%2C1.15%20video-fb.c%2C1.11%2C1.12%20video-fb.h%2C1.5%2C1.6%20video-shm.c%2C1.1%2C1.2%20video-shm.h%2C1.1%2C1.2%20video-vidix.c%2C1.13%2C1.14%20video-vidix.h%2C1.6%2C1.7%20video-xv.c%2C1.38%2C1.39%20video-xv.h%2C1.11%2C1.12%20video.c%2C1.41%2C1.42%20video.h%2C1.26%2C1.27&In-Reply-To=%3C200602032234.k13MYvx17007%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice Makefile,1.22,1.23 CHANGELOG,1.143,1.144 ShmClient.c,1.1,1.2 SoftOsd.c,1.4,1.5 SoftOsd.h,1.2,1.3 shm-common.h,1.1,1.2 video-dfb.c,1.45,1.46 video-dfb.h,1.14,1.15 video-fb.c,1.11,1.12 video-fb.h,1.5,1.6 video-shm.c,1.1,1.2 video-shm.h,1.1,1.2 video-vidix.c,1.13,1.14 video-vidix.h,1.6,1.7 video-xv.c,1.38,1.39 video-xv.h,1.11,1.12 video.c,1.41,1.42 video.h,1.26,1.27">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Feb  3 23:34:57 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000276.html">[Softdevice-cvs] softdevice video-xv.c,1.37,1.38
+</A></li>
+        <LI>Next message: <A HREF="000278.html">[Softdevice-cvs] softdevice CHANGELOG,1.144,1.145 SoftOsd.c,1.5,1.6 SoftOsd.h,1.3,1.4
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#277">[ date ]</a>
+              <a href="thread.html#277">[ thread ]</a>
+              <a href="subject.html#277">[ subject ]</a>
+              <a href="author.html#277">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv949
+
+Modified Files:
+	Makefile CHANGELOG ShmClient.c SoftOsd.c SoftOsd.h 
+	shm-common.h video-dfb.c video-dfb.h video-fb.c video-fb.h 
+	video-shm.c video-shm.h video-vidix.c video-vidix.h video-xv.c 
+	video-xv.h video.c video.h 
+Log Message:
+- remove cSoftOsd and cOsd dependency from cVideoOut. Size and
+  Mode changes are now handled by a thread from cSoftOsd.
+- introduce separate OSD layer in ShmClient/video-shm
+	   
+
+
+Index: Makefile
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/Makefile,v
+retrieving revision 1.22
+retrieving revision 1.23
+diff -C2 -d -r1.22 -r1.23
+*** Makefile	17 Jan 2006 20:45:46 -0000	1.22
+--- Makefile	3 Feb 2006 22:34:54 -0000	1.23
+***************
+*** 221,225 ****
+  ifdef DFB_SUPPORT
+    ifdef USE_SUBPLUGINS
+!     DFB_OBJS  = utils.o video.o video-dfb.o SoftOsd.o
+      ALL_OBJS += $(DFB_OBJS)
+      TARGETS  += libsubvdr-$(PLUGIN)-dfb.so
+--- 221,225 ----
+  ifdef DFB_SUPPORT
+    ifdef USE_SUBPLUGINS
+!     DFB_OBJS  = utils.o video.o video-dfb.o 
+      ALL_OBJS += $(DFB_OBJS)
+      TARGETS  += libsubvdr-$(PLUGIN)-dfb.so
+***************
+*** 234,238 ****
+    ifdef USE_SUBPLUGINS
+      FB_LIBS   =
+!     FB_OBJS   = utils.o video.o video-fb.o SoftOsd.o
+      ALL_OBJS  += $(FB_OBJS)
+      TARGETS   += libsubvdr-$(PLUGIN)-fb.so
+--- 234,238 ----
+    ifdef USE_SUBPLUGINS
+      FB_LIBS   =
+!     FB_OBJS   = utils.o video.o video-fb.o 
+      ALL_OBJS  += $(FB_OBJS)
+      TARGETS   += libsubvdr-$(PLUGIN)-fb.so
+***************
+*** 244,248 ****
+  ifdef XV_SUPPORT
+    ifdef USE_SUBPLUGINS
+!     XV_OBJS   = utils.o video.o video-xv.o xscreensaver.o SoftOsd.o
+      ALL_OBJS  += $(XV_OBJS)
+      TARGETS   += libsubvdr-$(PLUGIN)-xv.so
+--- 244,248 ----
+  ifdef XV_SUPPORT
+    ifdef USE_SUBPLUGINS
+!     XV_OBJS   = utils.o video.o video-xv.o xscreensaver.o 
+      ALL_OBJS  += $(XV_OBJS)
+      TARGETS   += libsubvdr-$(PLUGIN)-xv.so
+***************
+*** 255,259 ****
+  ifdef VIDIX_SUPPORT
+    ifdef USE_SUBPLUGINS
+!     VIDIX_OBJS  = utils.o video.o video-vidix.o SoftOsd.o
+      ALL_OBJS    += $(VIDIX_OBJS)
+      TARGETS     += libsubvdr-$(PLUGIN)-vidix.so
+--- 255,259 ----
+  ifdef VIDIX_SUPPORT
+    ifdef USE_SUBPLUGINS
+!     VIDIX_OBJS  = utils.o video.o video-vidix.o 
+      ALL_OBJS    += $(VIDIX_OBJS)
+      TARGETS     += libsubvdr-$(PLUGIN)-vidix.so
+***************
+*** 267,271 ****
+  ifdef SHM_SUPPORT
+    ifdef USE_SUBPLUGINS
+!     SHM_OBJS  = utils.o video.o video-shm.o SoftOsd.o
+      ALL_OBJS    += $(SHM_OBJS)
+      TARGETS     += libsubvdr-$(PLUGIN)-shm.so
+--- 267,271 ----
+  ifdef SHM_SUPPORT
+    ifdef USE_SUBPLUGINS
+!     SHM_OBJS  = utils.o video.o video-shm.o 
+      ALL_OBJS    += $(SHM_OBJS)
+      TARGETS     += libsubvdr-$(PLUGIN)-shm.so
+***************
+*** 337,346 ****
+  	@-rm -f $(OBJS) $(DEPFILE) *.so *.o *.tgz core* *~
+  
+! VDR_SHM_CLIENT_OBJS = ../../../osd.o ../../../tools.o ../../../thread.o \
+  		      ../../../remote.o ../../../i18n.o ../../../keys.o \
+! 		      ../../../font.o ../../../config.o ../../../plugin.o\
+  		      ../../../sources.o
+  SHM_CLIENT_OBJS  = video.o video-xv.o setup-softdevice.o xscreensaver.o \
+! 		   utils.o SoftOsd.o
+  
+  ShmClient: ShmClient.o $(SHM_CLIENT_OBJS)
+--- 337,346 ----
+  	@-rm -f $(OBJS) $(DEPFILE) *.so *.o *.tgz core* *~
+  
+! VDR_SHM_CLIENT_OBJS = ../../../tools.o ../../../thread.o \
+  		      ../../../remote.o ../../../i18n.o ../../../keys.o \
+! 		      ../../../config.o ../../../plugin.o\
+  		      ../../../sources.o
+  SHM_CLIENT_OBJS  = video.o video-xv.o setup-softdevice.o xscreensaver.o \
+! 		   utils.o 
+  
+  ShmClient: ShmClient.o $(SHM_CLIENT_OBJS)
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.143
+retrieving revision 1.144
+diff -C2 -d -r1.143 -r1.144
+*** CHANGELOG	19 Jan 2006 19:20:02 -0000	1.143
+--- CHANGELOG	3 Feb 2006 22:34:54 -0000	1.144
+***************
+*** 1,3 ****
+--- 1,7 ----
+  Changelog
++ 2006-02-03:
++    - remove cSoftOsd and cOsd dependency from cVideoOut. Size and
++      Mode changes are now handled by a thread from cSoftOsd.
++    - introduce separate OSD layer in ShmClient/video-shm
+  2006-01-19:
+     - now correct fix for CheckArea() not updateing the aspect ratio
+
+Index: ShmClient.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/ShmClient.c,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1 -r1.2
+*** ShmClient.c	17 Jan 2006 20:45:46 -0000	1.1
+--- ShmClient.c	3 Feb 2006 22:34:54 -0000	1.2
+***************
+*** 122,127 ****
+          };
+          xvRemote-&gt;XvRemoteStart();
+          
+-                 
+          ctl-&gt;key=NO_KEY;
+          // wakeup remote thread to unsuspend video/audio
+--- 122,132 ----
+          };
+          xvRemote-&gt;XvRemoteStart();
++ 
++         ctl-&gt;osd_shmid= vout-&gt;osd_shminfo.shmid;
++         ctl-&gt;osd_stride=vout-&gt;osd_image-&gt;bytes_per_line;
++         ctl-&gt;osd_depth=vout-&gt;osd_image-&gt;bits_per_pixel;
++         vout-&gt;GetOSDDimension(ctl-&gt;osd_width,ctl-&gt;osd_height);
++         printf(&quot;osd_shmid %d stride %d\n&quot;,ctl-&gt;osd_shmid,ctl-&gt;osd_stride);
+          
+          ctl-&gt;key=NO_KEY;
+          // wakeup remote thread to unsuspend video/audio
+***************
+*** 134,149 ****
+                  sem_wait_lock(ctl-&gt;semid,PICT_MUT,SEM_UNDO);
+                  //SHMDEB(&quot;got lock\n&quot;);
+!                 
+!                 int width=ctl-&gt;width&gt;ctl-&gt;max_width?ctl-&gt;max_width:ctl-&gt;width;
+!                 int height=ctl-&gt;height&gt;ctl-&gt;max_height?
+!                         ctl-&gt;max_height:ctl-&gt;height;
+  
+!                 vout-&gt;CheckArea(width,height);
+!                 vout-&gt;CheckAspect(ctl-&gt;new_afd,ctl-&gt;new_asp);
+!                 vout-&gt;YUV(pixel[0],pixel[1],pixel[2],
+!                                 width,height,
+!                                 ctl-&gt;stride0,ctl-&gt;stride1);
+!                 ctl-&gt;new_pict=0;
+                  
+                  // consumed all pictures - set semaphore to 0
+                  sem_zero(ctl-&gt;semid,PICT_SIG);
+--- 139,162 ----
+                  sem_wait_lock(ctl-&gt;semid,PICT_MUT,SEM_UNDO);
+                  //SHMDEB(&quot;got lock\n&quot;);
+!                
+!                 if (ctl-&gt;new_pict) {
+!                         int width=ctl-&gt;width&gt;ctl-&gt;max_width?
+!                                 ctl-&gt;max_width:ctl-&gt;width;
+!                         int height=ctl-&gt;height&gt;ctl-&gt;max_height?
+!                                 ctl-&gt;max_height:ctl-&gt;height;
+  
+!                         vout-&gt;CheckArea(width,height);
+!                         vout-&gt;CheckAspect(ctl-&gt;new_afd,ctl-&gt;new_asp);
+!                         vout-&gt;YUV(pixel[0],pixel[1],pixel[2],
+!                                         width,height,
+!                                         ctl-&gt;stride0,ctl-&gt;stride1);
+!                         ctl-&gt;new_pict=0;
+!                 };
+!                 if (ctl-&gt;new_osd) {
+!                         vout-&gt;CommitUnlockOsdSurface();
+!                         ctl-&gt;new_osd=0;
+!                 };
+                  
++                 vout-&gt;GetOSDDimension(ctl-&gt;osd_width,ctl-&gt;osd_height);
+                  // consumed all pictures - set semaphore to 0
+                  sem_zero(ctl-&gt;semid,PICT_SIG);
+
+Index: SoftOsd.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.c,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -C2 -d -r1.4 -r1.5
+*** SoftOsd.c	15 Jan 2006 20:41:15 -0000	1.4
+--- SoftOsd.c	3 Feb 2006 22:34:54 -0000	1.5
+***************
+*** 33,37 ****
+  
+  cSoftOsd::cSoftOsd(cVideoOut *VideoOut, int X, int Y) 
+! 	: cOsd(X, Y) {
+          OSDDEB(&quot;cSoftOsd constructor\n&quot;);
+          OutputConvert=&amp;cSoftOsd::ARGB_to_ARGB32;
+--- 33,37 ----
+  
+  cSoftOsd::cSoftOsd(cVideoOut *VideoOut, int X, int Y) 
+! 	: cOsd(X, Y),active(false) {
+          OSDDEB(&quot;cSoftOsd constructor\n&quot;);
+          OutputConvert=&amp;cSoftOsd::ARGB_to_ARGB32;
+***************
+*** 41,46 ****
+          
+          videoOut = VideoOut;
+! 	videoOut-&gt;OpenOSD(X, Y, this);
+  	xOfs=X;yOfs=Y;
+  };
+  
+--- 41,52 ----
+          
+          videoOut = VideoOut;
+! 	videoOut-&gt;OpenOSD();
+  	xOfs=X;yOfs=Y;
++         int Depth; bool HasAlpha; bool AlphaInversed; bool IsYUV; 
++         uint8_t *PixelMask;
++         videoOut-&gt;GetOSDMode(Depth,HasAlpha,AlphaInversed,
++                         IsYUV,PixelMask);
++         SetMode(Depth,HasAlpha,AlphaInversed,
++                         IsYUV,PixelMask);
+  };
+  
+***************
+*** 62,78 ****
+  /* --------------------------------------------------------------------------*/
+  cSoftOsd::~cSoftOsd() {
+!   OSDDEB(&quot;cSoftOsd destructor\n&quot;);
+!   if (videoOut) {
+!     videoOut-&gt;CloseOSD();
+!     videoOut=0;
+!   }
+!   delete OSD_Bitmap;
+  }
+  
+  /* --------------------------------------------------------------------------*/
+  bool cSoftOsd::SetMode(int Depth, bool HasAlpha, bool AlphaInversed, 
+                  bool IsYUV,uint8_t *PixelMask) {
+!         OSDDEB(&quot;SetMode Depth %d HasAlpha %d IsYUV %d AlphaInversed %d PixelMask %p\n&quot;,
+!                         Depth,HasAlpha,IsYUV,AlphaInversed,PixelMask);
+          
+          if (IsYUV) {
+--- 68,167 ----
+  /* --------------------------------------------------------------------------*/
+  cSoftOsd::~cSoftOsd() {
+!         OSDDEB(&quot;cSoftOsd destructor\n&quot;);
+!         active=false;
+!         Cancel(3);
+!         if (videoOut) {
+!                 videoOut-&gt;CloseOSD();
+!                 videoOut=0;
+!         }
+!         delete OSD_Bitmap;
+! }
+! 
+! /* -------------------------------------------------------------------------*/
+! void cSoftOsd::Action() {
+!         OSDDEB(&quot;OSD thread started\n&quot;);
+!         active=true;
+!         while(active &amp;&amp; videoOut) {
+!                 int newOsdWidth;
+!                 int newOsdHeight;
+! 
+!                 videoOut-&gt;GetOSDDimension(newOsdWidth,newOsdHeight);
+!                 if ( newOsdWidth==-1 || newOsdHeight==-1 )
+!                 {
+!                         newOsdWidth=OSD_FULL_WIDTH;
+!                         newOsdHeight=OSD_FULL_HEIGHT;
+!                 }
+!                 
+!                 int Depth; bool HasAlpha; bool AlphaInversed; bool IsYUV; 
+!                 uint8_t *PixelMask;
+!                 videoOut-&gt;GetOSDMode(Depth,HasAlpha,AlphaInversed,
+!                                 IsYUV,PixelMask);
+!                 bool modeChanged=SetMode(Depth,HasAlpha,AlphaInversed,
+!                                 IsYUV,PixelMask);
+! 
+!                 if ( ScreenOsdWidth!=newOsdWidth  || 
+!                                 ScreenOsdHeight!=newOsdHeight  || 
+!                                 modeChanged ) {
+!                         OSDDEB(&quot;Resolution or mode changed!\n&quot;);
+!                         if (modeChanged)
+!                                 videoOut-&gt;ClearOSD();
+!                         OsdCommit();
+!                 }
+!                 usleep(17000);
+!         }
+!         OSDDEB(&quot;OSD thread ended\n&quot;);
+  }
+  
++ /*--------------------------------------------------------------------------*/
++ void cSoftOsd::OsdCommit() {
++         int newX;
++         int newY;
++         bool RefreshAll=false;
++         videoOut-&gt;GetOSDDimension(newX,newY);
++         if ( newX==-1 || newY==-1 ) {
++                 newX=OSD_FULL_WIDTH;
++                 newY=OSD_FULL_HEIGHT;
++         }
++         if (newX!=ScreenOsdWidth || newY!=ScreenOsdHeight) {
++                 ScreenOsdWidth=newX;
++                 ScreenOsdHeight=newY;
++                 RefreshAll=true;
++         };
++ 
++         int Depth; bool HasAlpha; bool AlphaInversed; bool IsYUV; 
++         uint8_t *PixelMask;
++         videoOut-&gt;GetOSDMode(Depth,HasAlpha,AlphaInversed,IsYUV,PixelMask);
++         bool modeChanged=SetMode(Depth,HasAlpha,AlphaInversed,IsYUV,PixelMask);
++         if (modeChanged)
++                 videoOut-&gt;ClearOSD();
++ 
++         if (IsYUV) { 
++                 uint8_t *osdPy; uint8_t *osdPu; uint8_t *osdPv;
++                 uint8_t *osdPAlphaY; uint8_t *osdPAlphaUV;
++                 int strideY; int strideUV;
++                 videoOut-&gt;GetLockSoftOsdSurface(osdPy,osdPu,osdPv,
++                                 osdPAlphaY,osdPAlphaUV,strideY,strideUV);
++                 if (osdPy)
++                         CopyToBitmap(osdPy,osdPv,osdPu,
++                                         osdPAlphaY,osdPAlphaUV,
++                                         strideY,strideUV,
++                                         ScreenOsdWidth,ScreenOsdHeight,
++                                         RefreshAll);
++                 videoOut-&gt;CommitUnlockSoftOsdSurface();
++         } else {
++                 uint8_t *osd; int stride; bool *dirtyLines;
++                 videoOut-&gt;GetLockOsdSurface(osd,stride,dirtyLines);
++                 if (osd)
++                         CopyToBitmap(osd,stride,ScreenOsdWidth,ScreenOsdHeight,
++                                         RefreshAll,dirtyLines);
++                 videoOut-&gt;CommitUnlockOsdSurface();
++         }
++ };
++ 
+  /* --------------------------------------------------------------------------*/
+  bool cSoftOsd::SetMode(int Depth, bool HasAlpha, bool AlphaInversed, 
+                  bool IsYUV,uint8_t *PixelMask) {
+!         //OSDDEB(&quot;SetMode Depth %d HasAlpha %d IsYUV %d AlphaInversed %d PixelMask %p\n&quot;,
+!         //                Depth,HasAlpha,IsYUV,AlphaInversed,PixelMask);
+          
+          if (IsYUV) {
+***************
+*** 82,87 ****
+                          Clear();
+                          FlushBitmaps(false);
+                  };
+!                 return true;
+          };
+  
+--- 171,177 ----
+                          Clear();
+                          FlushBitmaps(false);
++                         return true;
+                  };
+!                 return false;
+          };
+  
+***************
+*** 119,125 ****
+                  Clear();
+  		FlushBitmaps(false);
+          };
+          
+!         return true;
+  };
+  
+--- 209,216 ----
+                  Clear();
+  		FlushBitmaps(false);
++                 return true;
+          };
+          
+!         return false;
+  };
+  
+***************
+*** 131,138 ****
+  	
+  	if (OSD_changed)
+! 		videoOut-&gt;OSDFlush(this);
+  
+  	// give priority to the other threads
+  	pthread_yield();
+  }
+  
+--- 222,231 ----
+  	
+  	if (OSD_changed)
+! 		OsdCommit();
+  
+  	// give priority to the other threads
+  	pthread_yield();
++         if (!active)
++                 Start();
+  }
+  
+
+Index: SoftOsd.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.h,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** SoftOsd.h	9 Jan 2006 20:26:02 -0000	1.2
+--- SoftOsd.h	3 Feb 2006 22:34:54 -0000	1.3
+***************
+*** 52,56 ****
+  /* ---------------------------------------------------------------------------
+   */
+! class cSoftOsd : public cOsd {
+  private:
+      cVideoOut *videoOut;
+--- 52,56 ----
+  /* ---------------------------------------------------------------------------
+   */
+! class cSoftOsd : public cOsd,cThread {
+  private:
+      cVideoOut *videoOut;
+***************
+*** 74,78 ****
+      void ConvertPalette(tColor *dest_palette, const tColor *orig_palette, 
+  		    int maxColors);
+!     
+  public:
+      cSoftOsd(cVideoOut *VideoOut, int XOfs, int XOfs);
+--- 74,81 ----
+      void ConvertPalette(tColor *dest_palette, const tColor *orig_palette, 
+  		    int maxColors);
+!    
+!     bool active;
+!     int ScreenOsdWidth;
+!     int ScreenOsdHeight;
+  public:
+      cSoftOsd(cVideoOut *VideoOut, int XOfs, int XOfs);
+***************
+*** 85,90 ****
+--- 88,95 ----
+      bool DrawConvertBitmap(cBitmap *Bitmap, bool OnlyDirty);
+      virtual void Flush(void);
++     void OsdCommit();
+      
+      void Clear();
++     virtual void Action();
+      
+      static void ARGB_to_AYUV(uint8_t * dest, color * pixmap, int Pixel);
+
+Index: shm-common.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/shm-common.h,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1 -r1.2
+*** shm-common.h	17 Jan 2006 20:45:46 -0000	1.1
+--- shm-common.h	3 Feb 2006 22:34:54 -0000	1.2
+***************
+*** 54,57 ****
+--- 54,65 ----
+          int stride2;
+          int new_pict;
++ 
++         /* osd layer */
++         int osd_shmid;
++         int osd_width;
++         int osd_height;
++         int osd_depth;
++         int osd_stride;
++         int new_osd;
+          
+          /* is a client attached */
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.45
+retrieving revision 1.46
+diff -C2 -d -r1.45 -r1.46
+*** video-dfb.c	10 Jan 2006 19:40:25 -0000	1.45
+--- video-dfb.c	3 Feb 2006 22:34:54 -0000	1.46
+***************
+*** 15,19 ****
+  #include &quot;setup-softdevice.h&quot;
+  
+- #include &quot;SoftOsd.h&quot;
+  
+  #ifdef HAVE_CONFIG
+--- 15,18 ----
+***************
+*** 991,999 ****
+  /* ----------------------------------------------------------------------------
+   */
+! void cDFBVideoOut::OpenOSD (int x, int y, cSoftOsd *osd)
+  {
+      IDirectFBSurface  *tmpSurface;
+  
+!   cVideoOut::OpenOSD(x, y,osd);
+    try
+    {
+--- 990,998 ----
+  /* ----------------------------------------------------------------------------
+   */
+! void cDFBVideoOut::OpenOSD ()
+  {
+      IDirectFBSurface  *tmpSurface;
+  
+!   cVideoOut::OpenOSD();
+    try
+    {
+***************
+*** 1032,1040 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cDFBVideoOut::OSDCommit()
+! {
+!   OSDpresent = true;
+! }
+  
+  void cDFBVideoOut::RefreshOSD(cSoftOsd *Osd, bool RefreshAll) 
+  {
+--- 1031,1106 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void cDFBVideoOut::GetLockOsdSurface(uint8_t *&amp;osd, int &amp;stride, 
+!                                      bool *&amp;DirtyLines) {
+!   int               pitch;
+!   uint8_t           *dst;
+! 
+!   try
+!   {
+!     dirtyLines=DirtyLines=new bool[Yres];
+!     memset(dirtyLines,false,sizeof(dirtyLines));
+! 
+!     tmpOsdSurface = (useStretchBlit) ? osdSurface : scrSurface;
+!     tmpOsdSurface-&gt;Lock(DSLF_WRITE, (void **)&amp;dst, &amp;pitch) ;
+!     osd=dst;stride=pitch;
+!   }
+!   catch (DFBException *ex)
+!   {
+!     fprintf (stderr,&quot;[dfb] Refresh: action=%s, result=%s\n&quot;,
+!         ex-&gt;GetAction(), ex-&gt;GetResult());
+!     delete ex;
+!   }
+! };
+! 
+! void cDFBVideoOut::CommitUnlockOsdSurface() {
+!   if (!tmpOsdSurface)
+!     return;
+! 
+!   printf(&quot;CommitUnlockOsdSurface %p\n&quot;,tmpOsdSurface);fflush(stdout);
+!   try 
+!   {
+!     DFBRectangle      osdsrc;
+!     
+!     tmpOsdSurface-&gt;Unlock();
+!     tmpOsdSurface-&gt;Flip();
+  
++     int miny=0;
++     int maxy=0;
++     do {
++       while (!dirtyLines[miny] &amp;&amp; miny &lt; Yres)
++         miny++;
++ 
++       if (miny &gt;= Yres)
++         break;
++ 
++       maxy=miny;
++       while (dirtyLines[maxy] &amp;&amp; maxy &lt; Yres)
++         maxy++;
++ 
++       osdsrc.x = 0;
++       osdsrc.y = miny;
++       osdsrc.w = Xres;
++       osdsrc.h = maxy-miny + 1;
++       tmpOsdSurface-&gt;Blit(tmpOsdSurface,&amp;osdsrc,0,miny);
++ 
++   printf(&quot;CommitUnlockOsdSurface3 %p\n&quot;,tmpOsdSurface);fflush(stdout);
++       miny=maxy;
++ 
++     } while ( miny&lt;Yres);
++ 
++   }
++   catch (DFBException *ex)
++   {
++     fprintf (stderr,&quot;[dfb] Refresh: action=%s, result=%s\n&quot;,
++         ex-&gt;GetAction(), ex-&gt;GetResult());
++     delete ex;
++   }
++   printf(&quot;CommitUnlockOsdSurface %p 4\n&quot;,tmpOsdSurface);fflush(stdout);
++   free(dirtyLines);
++   dirtyLines=NULL;
++   tmpOsdSurface=NULL;
++   cVideoOut::CommitUnlockOsdSurface();
++ }
++ /*
+  void cDFBVideoOut::RefreshOSD(cSoftOsd *Osd, bool RefreshAll) 
+  {
+***************
+*** 1089,1093 ****
+  
+  }
+! 	
+  /* ---------------------------------------------------------------------------
+   */
+--- 1155,1159 ----
+  
+  }
+! 	*/
+  /* ---------------------------------------------------------------------------
+   */
+
+Index: video-dfb.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.h,v
+retrieving revision 1.14
+retrieving revision 1.15
+diff -C2 -d -r1.14 -r1.15
+*** video-dfb.h	8 Jan 2006 09:43:32 -0000	1.14
+--- video-dfb.h	3 Feb 2006 22:34:54 -0000	1.15
+***************
+*** 56,68 ****
+  
+  #if VDRVERSNUM &gt;= 10307
+!     virtual void OpenOSD(int x, int y, cSoftOsd *Osd);
+! //    virtual void Refresh(cBitmap *Bitmap);
+!     virtual void RefreshOSD(cSoftOsd *Osd, bool RefreshAll=false);
+      virtual void GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+                    bool &amp;IsYUV, uint8_t *&amp;PixelMask) 
+      { Depth=Bpp; HasAlpha=!OSDpseudo_alpha; AlphaInversed=isVIAUnichrome;
+!             IsYUV=false;PixelMask=NULL;}
+      virtual void OSDStart();
+!     virtual void OSDCommit();
+  #else
+      virtual void Refresh();
+--- 56,72 ----
+  
+  #if VDRVERSNUM &gt;= 10307
+!     bool *dirtyLines;
+!     IDirectFBSurface  *tmpOsdSurface;
+!     virtual void OpenOSD();
+      virtual void GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+                    bool &amp;IsYUV, uint8_t *&amp;PixelMask) 
+      { Depth=Bpp; HasAlpha=!OSDpseudo_alpha; AlphaInversed=isVIAUnichrome;
+!             IsYUV=false;PixelMask=NULL;};
+!     virtual void GetOSDDimension( int &amp;Width, int &amp;Height)
+!     { Width=Xres; Height=Yres;};		    
+      virtual void OSDStart();
+!     virtual void GetLockOsdSurface(uint8_t *&amp;osd, int &amp;stride, 
+!                     bool *&amp;dirtyLines);
+!     virtual void CommitUnlockOsdSurface();
+  #else
+      virtual void Refresh();
+
+Index: video-fb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-fb.c,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -C2 -d -r1.11 -r1.12
+*** video-fb.c	15 Jan 2006 20:41:14 -0000	1.11
+--- video-fb.c	3 Feb 2006 22:34:54 -0000	1.12
+***************
+*** 18,22 ****
+  #include &quot;utils.h&quot;
+  #include &quot;setup-softdevice.h&quot;
+- #include &quot;SoftOsd.h&quot;
+  
+  static  pthread_mutex_t fb_mutex = PTHREAD_MUTEX_INITIALIZER;
+--- 18,21 ----
+***************
+*** 155,161 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cFBVideoOut::OpenOSD(int X, int Y, cSoftOsd *osd)
+  {
+!   cVideoOut::OpenOSD(X,Y,osd);
+    //OSDxOfs = X &amp; ~7;
+    //OSDyOfs = Y &amp; ~1;
+--- 154,160 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void cFBVideoOut::OpenOSD()
+  {
+!   cVideoOut::OpenOSD();
+    //OSDxOfs = X &amp; ~7;
+    //OSDyOfs = Y &amp; ~1;
+***************
+*** 182,193 ****
+  }
+  
+! void cFBVideoOut::RefreshOSD(cSoftOsd *Osd,bool RefreshAll)
+! {
+    pthread_mutex_lock(&amp;fb_mutex);
+!   OSDpresent=true;
+!   Osd-&gt;CopyToBitmap(fb,line_len,OsdWidth,OsdHeight,RefreshAll);
+!   //Draw(Bitmap,fb,line_len);
+    pthread_mutex_unlock(&amp;fb_mutex);
+! }
+  
+  #else
+--- 181,196 ----
+  }
+  
+! void cFBVideoOut::GetLockOsdSurface(uint8_t *&amp;osd, int &amp;stride, 
+!                   bool *&amp;dirtyLines) {
+    pthread_mutex_lock(&amp;fb_mutex);
+!   osd=fb; 
+!   stride=line_len;
+!   dirtyLines=NULL;
+! };
+! 
+! void cFBVideoOut::CommitUnlockOsdSurface() {      
+    pthread_mutex_unlock(&amp;fb_mutex);
+!   cVideoOut::CommitUnlockOsdSurface();
+! };
+  
+  #else
+
+Index: video-fb.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-fb.h,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -C2 -d -r1.5 -r1.6
+*** video-fb.h	7 Jan 2006 14:28:39 -0000	1.5
+--- video-fb.h	3 Feb 2006 22:34:54 -0000	1.6
+***************
+*** 30,39 ****
+    virtual ~cFBVideoOut();
+  #if VDRVERSNUM &gt;= 10307
+!   virtual void OpenOSD(int X, int Y, cSoftOsd *osd);
+    virtual void ClearOSD();
+    virtual void GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed, 
+  		  bool &amp;IsYUV, uint8_t *&amp;pixelmask)
+    { Depth=16;HasAlpha=false;IsYUV=false;pixelmask=PixelMask; };
+!   virtual void RefreshOSD(cSoftOsd *Osd, bool RefreshAll=false);
+    virtual void GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight);
+  #else
+--- 30,41 ----
+    virtual ~cFBVideoOut();
+  #if VDRVERSNUM &gt;= 10307
+!   virtual void OpenOSD();
+    virtual void ClearOSD();
+    virtual void GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed, 
+  		  bool &amp;IsYUV, uint8_t *&amp;pixelmask)
+    { Depth=16;HasAlpha=false;IsYUV=false;pixelmask=PixelMask; };
+!   virtual void GetLockOsdSurface(uint8_t *&amp;osd, int &amp;stride, 
+!                   bool *&amp;dirtyLines);
+!   virtual void CommitUnlockOsdSurface();
+    virtual void GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight);
+  #else
+
+Index: video-shm.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-shm.c,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1 -r1.2
+*** video-shm.c	17 Jan 2006 20:45:46 -0000	1.1
+--- video-shm.c	3 Feb 2006 22:34:54 -0000	1.2
+***************
+*** 12,16 ****
+  #include &quot;video-shm.h&quot;
+  #include &quot;utils.h&quot;
+- #include &quot;SoftOsd.h&quot;
+  
+  #define SHMDEB(out...) {printf(&quot;SHMSERV[%04d]:&quot;,(int)(getTimeMilis() % 10000));printf(out);}
+--- 12,15 ----
+***************
+*** 118,124 ****
+          };
+     
+!         curr_pict_shmid=0;
+          //ctl-&gt;pict_shmid=-1;
+          curr_pict=NULL;
+          ctl-&gt;key=kNone;
+          remote = new cShmRemote(&quot;softdevice-xv&quot;,this);
+--- 117,125 ----
+          };
+     
+!         curr_pict_shmid=-1;
+!         curr_osd_shmid=-1;
+          //ctl-&gt;pict_shmid=-1;
+          curr_pict=NULL;
++         osd_surface=NULL;
+          ctl-&gt;key=kNone;
+          remote = new cShmRemote(&quot;softdevice-xv&quot;,this);
+***************
+*** 146,160 ****
+  };
+  
+! void cShmVideoOut::RefreshOSD(cSoftOsd *Osd,bool RefreshAll)
+  {
+!     if (current_osdMode==OSDMODE_SOFTWARE)
+! 	    Osd-&gt;CopyToBitmap(OsdPy,OsdPv,OsdPu,OsdPAlphaY,OsdPAlphaUV,
+!                             OSD_FULL_WIDTH,OSD_FULL_WIDTH/2,
+! 			    OsdWidth,OsdHeight,RefreshAll);
+  };
+  
+  void cShmVideoOut::YUV(uint8_t *Py, uint8_t *Pu, uint8_t *Pv,
+                       int Width, int Height, int Ystride, int UVstride) {
+-         OsdRefreshCounter=0; 
+  
+          if (!ctl-&gt;attached) {
+--- 147,241 ----
+  };
+  
+! void cShmVideoOut::GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight) {
+!    switch (setupStore-&gt;osdMode) {
+!    //switch (current_osdMode) {
+!       case OSDMODE_PSEUDO :
+!                 OsdWidth=ctl-&gt;osd_width;
+!                 OsdHeight=ctl-&gt;osd_height;
+!              break;
+!       case OSDMODE_SOFTWARE:
+!                 OsdWidth=swidth;
+!                 OsdHeight=sheight;
+!              break;
+!     };
+! };
+! 
+! void cShmVideoOut::GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+!                 bool &amp;IsYUV, uint8_t *&amp;PixelMask) {
+!         if (setupStore-&gt;osdMode==OSDMODE_SOFTWARE) {
+!                 IsYUV=true;
+!                 PixelMask=NULL;
+!                 return;
+!         };
+! 
+!         IsYUV=false; 
+!         Depth=ctl-&gt;osd_depth;
+!         HasAlpha=false;
+!         PixelMask=NULL;
+! };       
+! 
+! void cShmVideoOut::GetLockOsdSurface(uint8_t *&amp;osd, int &amp;stride,
+!                   bool *&amp;dirtyLines) {
+!         if ( ctl-&gt;osd_shmid != curr_osd_shmid ) {
+!                 if (osd_surface) {
+!                         shmdt(osd_surface);
+!                         osd_surface=NULL;
+!                         osd=NULL;
+!                 };
+!                 
+!                 if ( ctl-&gt;osd_shmid != -1 ) {
+!                        if ( (osd_surface = (uint8_t *)shmat(ctl-&gt;osd_shmid,NULL,0)) 
+!                                        == (uint8_t*) -1 ) {
+!                                fprintf(stderr,&quot;error attatching osd pict(%d)! Assuming no client connected\n&quot;,
+!                                                ctl-&gt;osd_shmid);
+!                                ctl-&gt;osd_shmid = -1;
+!                                ctl-&gt;attached = 0;
+!                                osd_surface=NULL;
+!                                osd=NULL;
+!                                return;
+!                        } 
+!                 };
+!         };
+! 
+!         
+!         osd=osd_surface;
+!         stride=ctl-&gt;osd_stride;
+!         dirtyLines=NULL;
+! };
+! 
+! void cShmVideoOut::ClearOSD()
+  {
+!   cVideoOut::ClearOSD();
+!   if ( ctl-&gt;osd_shmid != curr_osd_shmid ) {
+!           if (osd_surface) {
+!                   shmdt(osd_surface);
+!                   osd_surface=NULL;
+!           };
+! 
+!           if ( ctl-&gt;osd_shmid != -1 ) {
+!                   if ( (osd_surface = (uint8_t *)shmat(ctl-&gt;osd_shmid,NULL,0)) 
+!                                   == (uint8_t*) -1 ) {
+!                           fprintf(stderr,&quot;error attatching osd pict(%d)! Assuming no client connected\n&quot;,
+!                                           ctl-&gt;osd_shmid);
+!                           ctl-&gt;osd_shmid = -1;
+!                           ctl-&gt;attached = 0;
+!                           osd_surface=NULL;
+!                           return;
+!                   } 
+!           };
+!   };
+!   if (osd_surface)
+!           memset (osd_surface, 0, ctl-&gt;osd_stride *ctl-&gt;osd_height);
+!   ctl-&gt;new_osd++;
+!         sem_sig_unlock(ctl-&gt;semid,PICT_SIG);
+! };
+! 
+! void cShmVideoOut::CommitUnlockOsdSurface() {
+!         ctl-&gt;new_osd++;        
+!         sem_sig_unlock(ctl-&gt;semid,PICT_SIG);
+  };
+  
+  void cShmVideoOut::YUV(uint8_t *Py, uint8_t *Pu, uint8_t *Pv,
+                       int Width, int Height, int Ystride, int UVstride) {
+  
+          if (!ctl-&gt;attached) {
+***************
+*** 250,260 ****
+          //SHMDEB(&quot;send signal\n&quot;);
+          
+- };
+- 
+- void cShmVideoOut::GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight) {
+-    if (current_osdMode==OSDMODE_SOFTWARE) {
+-                 OsdWidth=swidth;
+-                 OsdHeight=sheight;
+-     };
+  };
+  
+--- 331,334 ----
+
+Index: video-shm.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-shm.h,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1 -r1.2
+*** video-shm.h	17 Jan 2006 20:45:46 -0000	1.1
+--- video-shm.h	3 Feb 2006 22:34:54 -0000	1.2
+***************
+*** 35,52 ****
+          uint8_t *pixels[4];
+  
+          public:
+          cShmVideoOut(cSetupStore *setupStore);
+          ~cShmVideoOut();
+-         void cShmVideoOut::RefreshOSD(cSoftOsd*, bool RefreshAll);
+          
+          virtual void GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight);
+          
+          virtual void GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+!                     bool &amp;IsYUV, uint8_t *&amp;PixelMask)
+!         { IsYUV=true; PixelMask=NULL;};
+  
+          virtual void YUV(uint8_t *Py, uint8_t *Pu, uint8_t *Pv,
+                       int Width, int Height, int Ystride, int UVstride);
+! 
+  };
+  
+--- 35,56 ----
+          uint8_t *pixels[4];
+  
++         int curr_osd_shmid;
++         uint8_t *osd_surface;
++ 
+          public:
+          cShmVideoOut(cSetupStore *setupStore);
+          ~cShmVideoOut();
+          
+          virtual void GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight);
+          
+          virtual void GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+!                     bool &amp;IsYUV, uint8_t *&amp;PixelMask);
+  
+          virtual void YUV(uint8_t *Py, uint8_t *Pu, uint8_t *Pv,
+                       int Width, int Height, int Ystride, int UVstride);
+!         virtual void GetLockOsdSurface(uint8_t *&amp;osd, int &amp;stride,
+!                         bool *&amp;dirtyLines);
+!         virtual void CommitUnlockOsdSurface();
+!         virtual void ClearOSD();
+  };
+  
+
+Index: video-vidix.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-vidix.c,v
+retrieving revision 1.13
+retrieving revision 1.14
+diff -C2 -d -r1.13 -r1.14
+*** video-vidix.c	7 Jan 2006 14:28:39 -0000	1.13
+--- video-vidix.c	3 Feb 2006 22:34:54 -0000	1.14
+***************
+*** 14,18 ****
+  #include &quot;utils.h&quot;
+  #include &quot;setup-softdevice.h&quot;
+- #include &quot;SoftOsd.h&quot;
+  
+  //#define TIMINGS
+--- 14,17 ----
+***************
+*** 585,601 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cVidixVideoOut::Refresh(cSoftOsd *Osd,bool RefreshAll)
+! {
+!     switch (current_osdMode) {
+!       case OSDMODE_PSEUDO :
+!               Osd-&gt;CopyToBitmap(fb,fb_line_len,OsdWidth,OsdHeight,RefreshAll);
+!             break;
+!       case OSDMODE_SOFTWARE:
+!               Osd-&gt;CopyToBitmap(OsdPy,OsdPu,OsdPv,OsdPAlphaY,OsdPAlphaUV,
+! 			      OSD_FULL_WIDTH,OSD_FULL_WIDTH/2,
+! 			      OsdWidth,OsdHeight,RefreshAll);
+!             break;
+!     }
+! }
+  
+  #else
+--- 584,593 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void cVidixVideoOut::GetLockOsdSurface(uint8_t *&amp;osd, int &amp;stride, 
+!                 bool *&amp;dirtyLines) {
+!         osd=fb;
+!         stride=fb_line_len;
+!         dirtyLines=NULL;
+! };
+  
+  #else
+
+Index: video-vidix.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-vidix.h,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -C2 -d -r1.6 -r1.7
+*** video-vidix.h	7 Jan 2006 14:28:39 -0000	1.6
+--- video-vidix.h	3 Feb 2006 22:34:54 -0000	1.7
+***************
+*** 53,57 ****
+  	  IsYUV=(current_osdMode == OSDMODE_SOFTWARE);
+  	  PixelMask=NULL;};
+!   virtual void Refresh(cSoftOsd *Osd,bool RefreshAll=false);
+  #else
+    virtual void Refresh();
+--- 53,58 ----
+  	  IsYUV=(current_osdMode == OSDMODE_SOFTWARE);
+  	  PixelMask=NULL;};
+!   virtual void GetLockOsdSurface(uint8_t *&amp;osd, int &amp;stride, 
+!                   bool *&amp;dirtyLines);
+  #else
+    virtual void Refresh();
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.38
+retrieving revision 1.39
+diff -C2 -d -r1.38 -r1.39
+*** video-xv.c	23 Jan 2006 19:59:17 -0000	1.38
+--- video-xv.c	3 Feb 2006 22:34:54 -0000	1.39
+***************
+*** 860,863 ****
+--- 860,864 ----
+                            //osd_image-&gt;bytes_per_line*height,
+                            IPC_CREAT | 0777);
++           printf(&quot;osd_image allocated: %d\n&quot;,osd_shminfo.shmid);
+            if (osd_shminfo.shmid == -1) {
+                    dsyslog(&quot;[XvVideoOut]: Initialize ERROR: shmget FAILED !&quot;);
+***************
+*** 1228,1233 ****
+      pthread_mutex_lock(&amp;xv_mutex);
+      memset (osd_buffer, 0, osd_image-&gt;bytes_per_line * osd_max_height);
+!     //XClearArea (dpy, win, 0, 0, 0, 0, True);// still needs locking!
+!     //XSync(dpy, False);
+      pthread_mutex_unlock(&amp;xv_mutex);
+    };
+--- 1229,1233 ----
+      pthread_mutex_lock(&amp;xv_mutex);
+      memset (osd_buffer, 0, osd_image-&gt;bytes_per_line * osd_max_height);
+!     ShowOSD(0,true);
+      pthread_mutex_unlock(&amp;xv_mutex);
+    };
+***************
+*** 1252,1256 ****
+  void cXvVideoOut::GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed, 
+                    bool &amp;IsYUV, uint8_t *&amp;PixelMask) {
+!         if (current_osdMode==OSDMODE_SOFTWARE) {
+                  IsYUV=true;
+                  PixelMask=NULL;
+--- 1252,1256 ----
+  void cXvVideoOut::GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed, 
+                    bool &amp;IsYUV, uint8_t *&amp;PixelMask) {
+!         if (setupStore-&gt;osdMode==OSDMODE_SOFTWARE) {
+                  IsYUV=true;
+                  PixelMask=NULL;
+***************
+*** 1264,1267 ****
+--- 1264,1282 ----
+  };       
+  
++ void cXvVideoOut::GetLockOsdSurface(uint8_t *&amp;osd, int &amp;stride,
++                   bool *&amp;dirtyLines) {
++         osd=osd_buffer;
++         stride=osd_image-&gt;bytes_per_line;
++         dirtyLines=NULL;
++ };
++ 
++ void cXvVideoOut::CommitUnlockOsdSurface() {
++         cVideoOut::CommitUnlockOsdSurface();
++         pthread_mutex_lock(&amp;xv_mutex);
++         ++osd_refresh_counter;
++         ShowOSD(0,true);
++         pthread_mutex_unlock(&amp;xv_mutex);
++ };
++ /*
+  void cXvVideoOut::RefreshOSD(cSoftOsd *Osd,bool RefreshAll)
+  {
+***************
+*** 1291,1295 ****
+    };
+  };
+! 
+  #else
+  /* ---------------------------------------------------------------------------
+--- 1306,1310 ----
+    };
+  };
+! */
+  #else
+  /* ---------------------------------------------------------------------------
+
+Index: video-xv.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.h,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -C2 -d -r1.11 -r1.12
+*** video-xv.h	7 Jan 2006 14:28:39 -0000	1.11
+--- video-xv.h	3 Feb 2006 22:34:54 -0000	1.12
+***************
+*** 19,23 ****
+  #define VIDEO_XV_H
+  #include &quot;video.h&quot;
+- #include &quot;SoftOsd.h&quot;
+  
+  #include &lt;pthread.h&gt;
+--- 19,22 ----
+***************
+*** 130,137 ****
+    XEvent            event;
+    XvPortID          port;
+    XShmSegmentInfo   shminfo, osd_shminfo;
+    XvImage           *xv_image;
+-   bool              useShm;
+    XImage            *osd_image;
+    int               osd_max_width,osd_max_height;
+    unsigned char     *outbuffer,
+--- 129,138 ----
+    XEvent            event;
+    XvPortID          port;
++   bool              useShm;
++ public:
+    XShmSegmentInfo   shminfo, osd_shminfo;
+    XvImage           *xv_image;
+    XImage            *osd_image;
++ private:
+    int               osd_max_width,osd_max_height;
+    unsigned char     *outbuffer,
+***************
+*** 161,165 ****
+    virtual void GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed, 
+                    bool &amp;IsYUV, uint8_t *&amp;PixelMask);
+!  virtual void RefreshOSD(cSoftOsd *Osd, bool RefreshAll=false);
+  #else
+    virtual void Refresh();
+--- 162,168 ----
+    virtual void GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed, 
+                    bool &amp;IsYUV, uint8_t *&amp;PixelMask);
+!   virtual void GetLockOsdSurface(uint8_t *&amp;osd, int &amp;stride,
+!                   bool *&amp;dirtyLines);
+!   virtual void CommitUnlockOsdSurface();
+  #else
+    virtual void Refresh();
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.41
+retrieving revision 1.42
+diff -C2 -d -r1.41 -r1.42
+*** video.c	19 Jan 2006 19:20:02 -0000	1.41
+--- video.c	3 Feb 2006 22:34:54 -0000	1.42
+***************
+*** 28,32 ****
+    OsdWidth=OSD_FULL_WIDTH;
+    OsdHeight=OSD_FULL_HEIGHT;
+-   osd=NULL;
+  #endif
+    // set some reasonable defaults
+--- 28,31 ----
+***************
+*** 92,109 ****
+    while(active)
+    {
+-     int newOsdWidth;
+-     int newOsdHeight;
+-     bool changeMode=false;
+-     int newOsdMode=0;
+- 
+      OsdRefreshCounter++;
+- #if 0
+-     if (freezeMode &amp;&amp; OsdRefreshCounter &gt; 10 )
+-       OsdRefreshCounter=3;
+- #endif
+-     changeMode=(current_osdMode != setupStore-&gt;osdMode);
+-     newOsdMode=setupStore-&gt;osdMode;
+-     // if software osd has not been shown for some time or
+-     // no signal
+      if (OsdRefreshCounter &gt; 80 ||
+          (setupStore-&gt;osdMode == OSDMODE_SOFTWARE &amp;&amp;
+--- 91,95 ----
+***************
+*** 127,159 ****
+        Osd_changed=0;
+        osdMutex.Unlock();
+-       
+-     }
+- #if 0
+-     // freeze mode and osd changed, change osd mode
+-     if ( Osd_changed &amp;&amp; freezeMode &amp;&amp; OsdRefreshCounter &gt;  2 ) {
+-         changeMode= (current_osdMode != OSDMODE_PSEUDO);
+-         newOsdMode=OSDMODE_PSEUDO;
+-     }
+- #endif
+-     GetOSDDimension(newOsdWidth,newOsdHeight);
+-     if ( newOsdWidth==-1 || newOsdHeight==-1 )
+-     {
+-       newOsdWidth=OSD_FULL_WIDTH;
+-       newOsdHeight=OSD_FULL_HEIGHT;
+-     }
+-    
+-     osdMutex.Lock();
+-     if (OSDpresent &amp;&amp; osd 
+-        &amp;&amp; ( OsdWidth!=newOsdWidth  || OsdHeight!=newOsdHeight  || 
+-            changeMode )
+-         )
+-     {
+-       OSDDEB(&quot;change size: OsdWidth %d newOsdWidth %d\n&quot;,OsdWidth,newOsdWidth);
+-       current_osdMode=newOsdMode;
+-       // redraw the complete osd
+-       OSDFlush_nolock(osd,true);
+-       OSDDEB(&quot;change size end\n&quot;);
+      }
+-     osdMutex.Unlock();
+      usleep(50000);
+    }
+--- 113,117 ----
+***************
+*** 458,504 ****
+  }
+  
+- #if VDRVERSNUM &gt;= 10307
+- void cVideoOut::OSDFlush_nolock(cSoftOsd *Osd,bool RefreshAll)
+- {
+-   OSDDEB(&quot;OSDFlush RefreshAll: %d \n&quot;,
+-                   RefreshAll);
+- 
+-   if (current_osdMode==OSDMODE_SOFTWARE)
+-   	init_OsdBuffers();
+- 
+-   int newX,newY;
+-   GetOSDDimension(newX,newY);
+-   if ( newX==-1 || newY==-1 )
+-   {
+-     newX=OSD_FULL_WIDTH;
+-     newY=OSD_FULL_HEIGHT;
+-   }
+-   if (newX!=OsdWidth || newY!=OsdHeight)
+-   {
+-     OSDDEB(&quot;new osd dimensions: %d,%d\n&quot;,newX,newY);
+-     OsdWidth=newX;
+-     OsdHeight=newY;
+-     RefreshAll=true;
+-   };
+-   
+- 
+-   if (RefreshAll)
+-     ClearOSD();
+-  
+-   cSoftOsd *SoftOsd=dynamic_cast&lt;cSoftOsd*&gt;(Osd);
+-   if (SoftOsd) {
+-           int Depth; bool HasAlpha; bool AlphaInversed; bool IsYUV; 
+-           uint8_t *PixelMask;
+-           GetOSDMode(Depth,HasAlpha,AlphaInversed,IsYUV,PixelMask);
+-           SoftOsd-&gt;SetMode(Depth,HasAlpha,AlphaInversed,IsYUV,PixelMask);
+- 	  RefreshOSD(SoftOsd,RefreshAll);
+-   } else printf(&quot;SoftOsd=NULL!!!!!!!\n&quot;);
+-   
+-   OSDpresent=true;
+-   Osd_changed = 1;
+-   OSDDEB(&quot;End OSDFlush\n&quot;);
+- }
+- #endif
+- 
+  /* ---------------------------------------------------------------------------
+   */
+--- 416,419 ----
+***************
+*** 523,537 ****
+  #if VDRVERSNUM &gt;= 10307
+  
+! void cVideoOut::OpenOSD(int X, int Y, cSoftOsd * Osd)
+  {
+    OSDDEB(&quot;OpenOSD\n&quot;);
+-   osd=Osd;
+-   //cSoftOsd *SoftOsd=dynamic_cast&lt;cSoftOsd*&gt;(osd);
+-   //if (SoftOsd) {
+-           int Depth; bool HasAlpha; bool AlphaInversed; bool IsYUV;
+-           uint8_t *PixelMask;
+-           GetOSDMode(Depth,HasAlpha,AlphaInversed,IsYUV,PixelMask);
+-           osd-&gt;SetMode(Depth,HasAlpha,AlphaInversed,IsYUV,PixelMask);
+-   //} else printf(&quot;SoftOSD NULL!\n&quot;);
+  }
+  
+--- 438,444 ----
+  #if VDRVERSNUM &gt;= 10307
+  
+! void cVideoOut::OpenOSD()
+  {
+    OSDDEB(&quot;OpenOSD\n&quot;);
+  }
+  
+***************
+*** 540,544 ****
+    osdMutex.Lock();
+    ClearOSD();
+-   osd=NULL;
+    OSDpresent=false;
+    Osd_changed=1;
+--- 447,450 ----
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.26
+retrieving revision 1.27
+diff -C2 -d -r1.26 -r1.27
+*** video.h	17 Jan 2006 20:45:46 -0000	1.26
+--- video.h	3 Feb 2006 22:34:54 -0000	1.27
+***************
+*** 19,25 ****
+  #include &quot;sync-timer.h&quot;
+  
+- #if VDRVERSNUM &gt;= 10307
+- #include &lt;vdr/osd.h&gt;
+- #endif
+  #include &lt;avcodec.h&gt;
+  
+--- 19,22 ----
+***************
+*** 126,130 ****
+      cVideoOut(cSetupStore *setupStore);
+      virtual ~cVideoOut();
+-     virtual void CloseOSD();
+      
+      virtual void Sync(cSyncTimer *syncTimer, int *delay);
+--- 123,126 ----
+***************
+*** 179,189 ****
+  
+  #if VDRVERSNUM &gt;= 10307
+!     cSoftOsd *osd;
+!     void OSDFlush_nolock(cSoftOsd *Osd,bool RefreshAll=false);
+!     inline void OSDFlush(cSoftOsd *Osd,bool RefreshAll=false)
+!     {osdMutex.Lock();OSDFlush_nolock(Osd,RefreshAll); osdMutex.Unlock();};
+!     
+!     virtual void OpenOSD(int X, int Y, cSoftOsd *Osd);
+!     
+      virtual void GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight)
+      // called whenever OSD is to be displayed
+--- 175,181 ----
+  
+  #if VDRVERSNUM &gt;= 10307
+!     virtual void OpenOSD();
+!     virtual void CloseOSD();
+! 
+      virtual void GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight)
+      // called whenever OSD is to be displayed
+***************
+*** 198,203 ****
+      // should be implemented by all video out method to set the OSD pixel mode
+  
+!     virtual void RefreshOSD(cSoftOsd *SoftOsd, bool RefreshAll=false) 
+!     { return; };
+        
+     void AlphaBlend(uint8_t *dest,uint8_t *P1,uint8_t *P2,
+--- 190,211 ----
+      // should be implemented by all video out method to set the OSD pixel mode
+  
+!     // RGB modes
+!     virtual void GetLockOsdSurface(uint8_t *&amp;osd, int &amp;stride, 
+!                     bool *&amp;dirtyLines)
+!     { osd=NULL; stride=0; dirtyLines=NULL;};
+!     virtual void CommitUnlockOsdSurface()
+!     { current_osdMode=OSDMODE_PSEUDO;OSDpresent=true; };
+! 
+!     // Software YUV mode
+!     virtual void GetLockSoftOsdSurface(
+!                         uint8_t *&amp;osdPy, uint8_t *&amp;osdPu, uint8_t *&amp;osdPv,
+!                         uint8_t *&amp;osdPAlphaY, uint8_t *&amp;osdPAlphaUV,
+!                         int &amp;strideY, int &amp;strideUV)
+!     { osdPy=OsdPy; osdPu=OsdPu; osdPv=OsdPv; 
+!             osdPAlphaY=OsdPAlphaY; osdPAlphaUV=OsdPAlphaUV;
+!             strideY=OSD_FULL_WIDTH; strideUV=OSD_FULL_WIDTH/2;};
+! 
+!     virtual void CommitUnlockSoftOsdSurface()
+!     { current_osdMode=OSDMODE_SOFTWARE; OSDpresent=true; };
+        
+     void AlphaBlend(uint8_t *dest,uint8_t *P1,uint8_t *P2,
+***************
+*** 217,220 ****
+--- 225,229 ----
+      virtual void CloseWindow(cWindow *Window);
+      virtual void Refresh() {return;};
++     virtual void CloseOSD();
+  #endif
+  
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000276.html">[Softdevice-cvs] softdevice video-xv.c,1.37,1.38
+</A></li>
+	<LI>Next message: <A HREF="000278.html">[Softdevice-cvs] softdevice CHANGELOG,1.144,1.145 SoftOsd.c,1.5,1.6 SoftOsd.h,1.3,1.4
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#277">[ date ]</a>
+              <a href="thread.html#277">[ thread ]</a>
+              <a href="subject.html#277">[ subject ]</a>
+              <a href="author.html#277">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

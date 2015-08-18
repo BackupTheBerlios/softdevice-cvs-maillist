@@ -1,0 +1,115 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice utils.c, 1.19, 1.20 CHANGELOG, 1.237,	1.238
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20utils.c%2C%201.19%2C%201.20%20CHANGELOG%2C%201.237%2C%0A%091.238&In-Reply-To=%3C20060917184156.204547D87B%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000429.html">
+   <LINK REL="Next"  HREF="000431.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice utils.c, 1.19, 1.20 CHANGELOG, 1.237,	1.238</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20utils.c%2C%201.19%2C%201.20%20CHANGELOG%2C%201.237%2C%0A%091.238&In-Reply-To=%3C20060917184156.204547D87B%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice utils.c, 1.19, 1.20 CHANGELOG, 1.237,	1.238">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Sep 17 20:41:56 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000429.html">[Softdevice-cvs] softdevice utils.c,1.18,1.19
+</A></li>
+        <LI>Next message: <A HREF="000431.html">[Softdevice-cvs] softdevice CHANGELOG, 1.238, 1.239 SoftOsd.c, 1.18,	1.19 SoftOsd.h, 1.7, 1.8
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#430">[ date ]</a>
+              <a href="thread.html#430">[ thread ]</a>
+              <a href="subject.html#430">[ subject ]</a>
+              <a href="author.html#430">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv32585
+
+Modified Files:
+	utils.c CHANGELOG 
+Log Message:
+- fix compile issue with g++-4.1.1
+
+
+Index: utils.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/utils.c,v
+retrieving revision 1.19
+retrieving revision 1.20
+diff -C2 -d -r1.19 -r1.20
+*** utils.c	17 Sep 2006 16:49:12 -0000	1.19
+--- utils.c	17 Sep 2006 18:41:27 -0000	1.20
+***************
+*** 175,181 ****
+  #endif
+     for ( ; i&gt;=1; i-=1 ) {
+!       *((uint32_t *)dest1)++ = (yc1[0] &lt;&lt; 24)+ (uc[0] &lt;&lt; 16) + (yc1[1] &lt;&lt; 8) + (vc[0] &lt;&lt; 0);
+!       *((uint32_t *)dest2)++ = (yc2[0] &lt;&lt; 24)+ (uc[0] &lt;&lt; 16) + (yc2[1] &lt;&lt; 8) + (vc[0] &lt;&lt; 0);
+        //*idst++ = (yc[0] &lt;&lt; 0)+ (uc[0] &lt;&lt; 8) + (yc[1] &lt;&lt; 16) + (vc[0] &lt;&lt; 24);
+        yc1 += 2;
+        yc2 += 2;
+--- 175,183 ----
+  #endif
+     for ( ; i&gt;=1; i-=1 ) {
+!       *((uint32_t *)dest1) = (yc1[0] &lt;&lt; 24)+ (uc[0] &lt;&lt; 16) + (yc1[1] &lt;&lt; 8) + (vc[0] &lt;&lt; 0);
+!       *((uint32_t *)dest2) = (yc2[0] &lt;&lt; 24)+ (uc[0] &lt;&lt; 16) + (yc2[1] &lt;&lt; 8) + (vc[0] &lt;&lt; 0);
+        //*idst++ = (yc[0] &lt;&lt; 0)+ (uc[0] &lt;&lt; 8) + (yc[1] &lt;&lt; 16) + (vc[0] &lt;&lt; 24);
++       dest1+=4;
++       dest2+=4;
+        yc1 += 2;
+        yc2 += 2;
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.237
+retrieving revision 1.238
+diff -C2 -d -r1.237 -r1.238
+*** CHANGELOG	17 Sep 2006 16:39:34 -0000	1.237
+--- CHANGELOG	17 Sep 2006 18:41:27 -0000	1.238
+***************
+*** 9,12 ****
+--- 9,13 ----
+       yv12_to_yuy2_il_mmx2_line()
+     - make utils.c compile on non MMX machines, cleanup some #ifdefs
++    - fix compile issue with g++-4.1.1
+  2006-09-xx:
+     - added -vo shm: to help option
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000429.html">[Softdevice-cvs] softdevice utils.c,1.18,1.19
+</A></li>
+	<LI>Next message: <A HREF="000431.html">[Softdevice-cvs] softdevice CHANGELOG, 1.238, 1.239 SoftOsd.c, 1.18,	1.19 SoftOsd.h, 1.7, 1.8
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#430">[ date ]</a>
+              <a href="thread.html#430">[ thread ]</a>
+              <a href="subject.html#430">[ subject ]</a>
+              <a href="author.html#430">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

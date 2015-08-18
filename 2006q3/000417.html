@@ -1,0 +1,472 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.226, 1.227 video-vidix.c,	1.21, 1.22 video-vidix.h, 1.10, 1.11 setup-softdevice-menu.c,	1.7, 1.8 setup-softdevice.h, 1.33, 1.34
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.226%2C%201.227%20video-vidix.c%2C%0A%091.21%2C%201.22%20video-vidix.h%2C%201.10%2C%201.11%20setup-softdevice-menu.c%2C%0A%091.7%2C%201.8%20setup-softdevice.h%2C%201.33%2C%201.34&In-Reply-To=%3C20060909103604.CFD6871482%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000416.html">
+   <LINK REL="Next"  HREF="000418.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.226, 1.227 video-vidix.c,	1.21, 1.22 video-vidix.h, 1.10, 1.11 setup-softdevice-menu.c,	1.7, 1.8 setup-softdevice.h, 1.33, 1.34</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.226%2C%201.227%20video-vidix.c%2C%0A%091.21%2C%201.22%20video-vidix.h%2C%201.10%2C%201.11%20setup-softdevice-menu.c%2C%0A%091.7%2C%201.8%20setup-softdevice.h%2C%201.33%2C%201.34&In-Reply-To=%3C20060909103604.CFD6871482%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.226, 1.227 video-vidix.c,	1.21, 1.22 video-vidix.h, 1.10, 1.11 setup-softdevice-menu.c,	1.7, 1.8 setup-softdevice.h, 1.33, 1.34">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Sep  9 12:36:04 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000416.html">[Softdevice-cvs] softdevice CHANGELOG, 1.225, 1.226 video-xv.c, 1.60,	1.61
+</A></li>
+        <LI>Next message: <A HREF="000418.html">[Softdevice-cvs] softdevice video-vidix.c,1.22,1.23
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#417">[ date ]</a>
+              <a href="thread.html#417">[ thread ]</a>
+              <a href="subject.html#417">[ subject ]</a>
+              <a href="author.html#417">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv8038
+
+Modified Files:
+	CHANGELOG video-vidix.c video-vidix.h setup-softdevice-menu.c 
+	setup-softdevice.h 
+Log Message:
+video-vidix: offer equalizer settings via OSD (brightness, hue,
+             saturation and contrast)
+             offer HW-deinetrlace via OSD when available
+             (by Roland Praml)
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.226
+retrieving revision 1.227
+diff -C2 -d -r1.226 -r1.227
+*** CHANGELOG	9 Sep 2006 09:55:25 -0000	1.226
+--- CHANGELOG	9 Sep 2006 10:35:37 -0000	1.227
+***************
+*** 2,5 ****
+--- 2,9 ----
+  2006-09-09:
+     - video-xv.c: silence some warnings
++    - video-vidix: offer equalizer settings via OSD (brightness, hue,
++                   saturation and contrast)
++                   offer HW-deinetrlace via OSD when available
++                   (by Roland Praml)
+  2006-09-08:
+     - limit destination video offsets to even values
+
+Index: video-vidix.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-vidix.c,v
+retrieving revision 1.21
+retrieving revision 1.22
+diff -C2 -d -r1.21 -r1.22
+*** video-vidix.c	17 Jun 2006 20:42:58 -0000	1.21
+--- video-vidix.c	9 Sep 2006 10:35:37 -0000	1.22
+***************
+*** 114,118 ****
+      fwidth = lwidth = dwidth = Xres;
+      fheight = lheight = dheight = Yres;
+! 
+      swidth = 720;
+      sheight = 576;
+--- 114,118 ----
+      fwidth = lwidth = dwidth = Xres;
+      fheight = lheight = dheight = Yres;
+!     useVidixAlpha = false;
+      swidth = 720;
+      sheight = 576;
+***************
+*** 134,138 ****
+      memset(fb,  0, fb_line_len * Yres );
+  
+- 
+      vidix_version = vdlGetVersion();
+  
+--- 134,137 ----
+***************
+*** 196,199 ****
+--- 195,249 ----
+      printf(&quot;cVidixVideoOut: fourcc.flags:  0x%0x\n&quot;,vidix_fourcc.flags);
+      AllocLayer();
++ 
++     /* -----------------------------------------------------------------------
++      * check presence of equalizer capability
++      */
++     vidix_video_eq_t tmpeq;
++     printf(&quot;cVidixVideoOut: capabilities  &quot;, vidix_curr_eq.cap);
++ 
++     if(!vdlPlaybackGetEq(vidix_handler, &amp;tmpeq)) {
++         vidix_curr_eq=tmpeq;
++         printf(&quot;EQ cap: %x: &quot;, vidix_curr_eq.cap);
++         if (vidix_curr_eq.cap &amp; VEQ_CAP_BRIGHTNESS) {
++             printf(&quot;brightness (%d) &quot;, vidix_curr_eq.brightness);
++             setupStore-&gt;vidCaps |= CAP_BRIGHTNESS;
++         }
++         if (vidix_curr_eq.cap &amp; VEQ_CAP_CONTRAST) {
++             printf(&quot;contrast (%d) &quot;, vidix_curr_eq.contrast);
++             setupStore-&gt;vidCaps |= CAP_CONTRAST;
++         }
++         if (vidix_curr_eq.cap &amp; VEQ_CAP_SATURATION) {
++             printf(&quot;saturation (%d) &quot;, vidix_curr_eq.saturation);
++             setupStore-&gt;vidCaps |= CAP_SATURATION;
++         }
++         if (vidix_curr_eq.cap &amp; VEQ_CAP_HUE) {
++             printf(&quot;hue (%d) &quot;, vidix_curr_eq.hue);
++             setupStore-&gt;vidCaps |= CAP_HUE;
++         }
++         if (vidix_curr_eq.cap &amp; VEQ_CAP_RGB_INTENSITY) {
++             printf(&quot;RGB-intensity (%d, %d, %d) &quot;,
++                    vidix_curr_eq.red_intensity,
++                    vidix_curr_eq.green_intensity,
++                    vidix_curr_eq.blue_intensity );
++         }
++     } else {
++        isyslog(&quot;[cVidixVideoOut] Couldn't get EQ capability\n&quot;);
++     }
++ 
++     /* -----------------------------------------------------------------------
++      * check presence of hw deinterlace capability
++      */
++     vidix_deinterlace_t vidix_deint;
++ 
++     if (!vdlPlaybackGetDeint(vidix_handler, &amp;vidix_deint) &amp;&amp;
++         !vdlPlaybackSetDeint(vidix_handler, &amp;vidix_deint)) {
++         printf(&quot;HW-deinterlace (%x,%x)&quot;,
++                vidix_deint.flags,
++                vidix_deint.deinterlace_pattern);
++ 
++         setupStore-&gt;vidCaps |= CAP_HWDEINTERLACE;
++     }
++ 
++     printf(&quot;\n&quot;);
+  }
+  
+***************
+*** 223,226 ****
+--- 273,279 ----
+  void cVidixVideoOut::SetParams(int Ystride, int UVstride)
+  {
++     vidix_video_eq_t  vidix_video_eq;
++     int               err;
++ 
+    if (aspect_changed || currentPixelFormat != setupStore-&gt;pixelFormat ||
+        cutTop != setupStore-&gt;cropTopLines ||
+***************
+*** 302,305 ****
+--- 355,428 ----
+  #endif
+    }
++ 
++   vidix_video_eq=vidix_curr_eq;
++ 
++   vidix_video_eq.brightness = (setupStore-&gt;vidBrightness - 50)*20;
++   vidix_video_eq.contrast = (setupStore-&gt;vidContrast - 50)*20;
++   vidix_video_eq.saturation = (setupStore-&gt;vidSaturation - 50)*20;
++   vidix_video_eq.hue = (setupStore-&gt;vidHue - 50)*20;
++ 
++   if (vidix_curr_eq.brightness != vidix_video_eq.brightness ||
++       vidix_curr_eq.contrast != vidix_video_eq.contrast ||
++       vidix_curr_eq.saturation != vidix_video_eq.saturation ||
++       vidix_curr_eq.hue != vidix_video_eq.hue ) {
++ 
++       printf(&quot;cVidixVideoOut : set eq values\n&quot;);
++       vidix_curr_eq = vidix_video_eq;
++       if( (err = vdlPlaybackSetEq(vidix_handler, &amp;vidix_curr_eq)) != 0) {
++           isyslog(&quot;[cVidixVideoOut] Couldn't set EQ capability: %s\n&quot;,
++                   strerror(err) );
++           printf(&quot;FAILED!!!\n&quot;);
++       }
++   }
++ 
++   if (setupStore-&gt;vidDeinterlace &gt; 10)
++       setupStore-&gt;vidDeinterlace = 10;
++ 
++   if (setupStore-&gt;vidDeinterlace != vidix_curr_deinterlace) {
++ 
++       vidix_deinterlace_t vidix_deint;
++ 
++       vidix_curr_deinterlace = setupStore-&gt;vidDeinterlace;
++       switch (vidix_curr_deinterlace)
++       {
++           case 0: // CFG_NON_INTERLACED
++               vidix_deint.flags = CFG_NON_INTERLACED;
++               break;
++           case 1: // CFG_INTERLACED
++           case 2: // CFG_EVEN_ODD_INTERLACING
++           case 3:
++               vidix_deint. flags = CFG_EVEN_ODD_INTERLACING;
++               break;
++           case 4: // CFG_ODD_EVEN_INTERLACING
++           case 5:
++           case 6:
++           case 7:
++               vidix_deint. flags = CFG_ODD_EVEN_INTERLACING;
++               break;
++           case 8: // CFG_UNIQUE_INTERLACING
++                   // xorg METHOD_BOB
++               vidix_deint. flags = CFG_UNIQUE_INTERLACING;
++               vidix_deint. deinterlace_pattern = 0xAAAAA;
++               break;
++           case 9: // CFG_UNIQUE_INTERLACING
++                   // xorg METHOD_SINGLE
++               vidix_deint. flags = CFG_UNIQUE_INTERLACING;
++               vidix_deint. deinterlace_pattern = 0xEEEEE | (9&lt;&lt;28);
++               break;
++           case 10: // xorg METHOD_WEAVE
++               vidix_deint. flags = CFG_UNIQUE_INTERLACING;
++               vidix_deint. deinterlace_pattern = 0;
++               break;
++           default:
++               vidix_deint.flags = CFG_NON_INTERLACED;
++               break;
++       }
++       vdlPlaybackSetDeint(vidix_handler, &amp;vidix_deint);
++       vdlPlaybackGetDeint(vidix_handler, &amp;vidix_deint);
++       printf(&quot;Deinterlacer: %x %x\n&quot;,
++              vidix_deint.flags,
++              vidix_deint.deinterlace_pattern);
++   }
+  }
+  
+***************
+*** 338,350 ****
+    if (vidix_fourcc.flags &amp; VID_CAP_COLORKEY)
+    {
+!     printf(&quot;cVidixVideoOut: set colorkey\n&quot;);
+      vdlGetGrKeys(vidix_handler, &amp;gr_key);
+  
+      gr_key.key_op = KEYS_PUT;
+! 
+      gr_key.ckey.op = CKEY_TRUE;
+      gr_key.ckey.red = gr_key.ckey.green = gr_key.ckey.blue = 0;
+  
+!     vdlSetGrKeys(vidix_handler, &amp;gr_key);
+    }
+  
+--- 461,491 ----
+    if (vidix_fourcc.flags &amp; VID_CAP_COLORKEY)
+    {
+!     int res = 0;
+! 
+!     printf(&quot;cVidixVideoOut: set colorkey &quot;);
+      vdlGetGrKeys(vidix_handler, &amp;gr_key);
+  
+      gr_key.key_op = KEYS_PUT;
+! #ifdef CKEY_ALPHA
+!     if (vidix_fourcc.flags &amp; VID_CAP_BLEND) {
+!       useVidixAlpha = true;
+!       gr_key.ckey.op = CKEY_ALPHA;
+!     } else {
+!       gr_key.ckey.op = CKEY_TRUE;
+!     }
+! #else
+      gr_key.ckey.op = CKEY_TRUE;
++ #endif
+      gr_key.ckey.red = gr_key.ckey.green = gr_key.ckey.blue = 0;
++     res = vdlSetGrKeys(vidix_handler, &amp;gr_key);
++     printf (&quot;vdlSetGrKeys() = %d, &quot;, res);
+  
+!     if (res) {
+!       gr_key.ckey.op = CKEY_TRUE;
+!       res = vdlSetGrKeys(vidix_handler, &amp;gr_key);
+!       printf (&quot; - %d&quot;, res);
+!       useVidixAlpha = false;
+!     }
+!     printf (&quot;\n&quot;);
+    }
+  
+***************
+*** 596,599 ****
+--- 737,752 ----
+  {
+    current_osdMode = setupStore-&gt;osdMode;
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ void cVidixVideoOut::GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
++                               bool &amp;IsYUV, uint8_t *&amp;PixelMask)
++ {
++   Depth         = Bpp;
++   HasAlpha      = useVidixAlpha;
++   AlphaInversed = false;
++   IsYUV         = (current_osdMode == OSDMODE_SOFTWARE);
++   PixelMask     = NULL;
+  }
+  
+
+Index: video-vidix.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-vidix.h,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -C2 -d -r1.10 -r1.11
+*** video-vidix.h	27 May 2006 19:12:41 -0000	1.10
+--- video-vidix.h	9 Sep 2006 10:35:37 -0000	1.11
+***************
+*** 15,19 ****
+  #include &quot;fourcc.h&quot;
+  
+- 
+  class cVidixVideoOut : public cVideoOut {
+  private:
+--- 15,18 ----
+***************
+*** 38,42 ****
+      vidix_grkey_t      gr_key;
+      uint8_t            next_frame;
+! 
+      void SetParams(int Ystride, int UVstride);
+  
+--- 37,43 ----
+      vidix_grkey_t      gr_key;
+      uint8_t            next_frame;
+!     bool               useVidixAlpha;
+!     vidix_video_eq_t   vidix_curr_eq;
+!     int                vidix_curr_deinterlace;
+      void SetParams(int Ystride, int UVstride);
+  
+***************
+*** 47,60 ****
+  #if VDRVERSNUM &gt;= 10307
+    virtual void ClearOSD();
+!   virtual void AdjustOSDMode();  
+    virtual void GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight,
+                                 int &amp;xPan, int &amp;yPan);
+!   virtual void GetOSDMode(int &amp;Depth,bool &amp;HasAlpha, bool &amp;AlphaInversed,
+! 		  bool &amp;IsYUV,uint8_t *&amp;PixelMask)
+!   { Depth=Bpp; HasAlpha=false;AlphaInversed=false; 
+! 	  IsYUV=(current_osdMode == OSDMODE_SOFTWARE);
+! 	  PixelMask=NULL;};
+!   virtual void GetLockOsdSurface(uint8_t *&amp;osd, int &amp;stride, 
+!                   bool *&amp;dirtyLines);
+  #else
+    virtual void Refresh();
+--- 48,62 ----
+  #if VDRVERSNUM &gt;= 10307
+    virtual void ClearOSD();
+!   virtual void AdjustOSDMode();
+    virtual void GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight,
+                                 int &amp;xPan, int &amp;yPan);
+!   virtual void GetOSDMode(int &amp;Depth,
+!                           bool &amp;HasAlpha,
+!                           bool &amp;AlphaInversed,
+! 		                      bool &amp;IsYUV,
+! 		                      uint8_t *&amp;PixelMask);
+!   virtual void GetLockOsdSurface(uint8_t *&amp;osd,
+!                                  int &amp;stride,
+!                                  bool *&amp;dirtyLines);
+  #else
+    virtual void Refresh();
+***************
+*** 62,66 ****
+  
+    virtual void CloseOSD();
+! //  virtual void OpenOSD();  
+    virtual void YUV(sPicBuffer *buf);
+    virtual void Pause(void);
+--- 64,68 ----
+  
+    virtual void CloseOSD();
+! //  virtual void OpenOSD();
+    virtual void YUV(sPicBuffer *buf);
+    virtual void Pause(void);
+
+Index: setup-softdevice-menu.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice-menu.c,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -C2 -d -r1.7 -r1.8
+*** setup-softdevice-menu.c	27 Aug 2006 13:02:50 -0000	1.7
+--- setup-softdevice-menu.c	9 Sep 2006 10:35:37 -0000	1.8
+***************
+*** 45,48 ****
+--- 45,55 ----
+                               VID_MAX_PARM_VALUE));
+    }
++   if (data-&gt;vidCaps &amp; CAP_HWDEINTERLACE)
++   {
++     Add(new cMenuEditIntItem(tr(&quot;HW-Deinterlace&quot;),
++                              &amp;data-&gt;vidDeinterlace,
++                              0,
++                              10));
++   }
+  }
+  
+
+Index: setup-softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.h,v
+retrieving revision 1.33
+retrieving revision 1.34
+diff -C2 -d -r1.33 -r1.34
+*** setup-softdevice.h	25 Jul 2006 19:58:12 -0000	1.33
+--- setup-softdevice.h	9 Sep 2006 10:35:37 -0000	1.34
+***************
+*** 32,39 ****
+  #define ALSA_DEVICE_NAME_LENGTH  64
+  
+! #define CAP_BRIGHTNESS  1
+! #define CAP_CONTRAST    2
+! #define CAP_HUE         4
+! #define CAP_SATURATION  8
+  
+  #define VID_MAX_PARM_VALUE  100
+--- 32,40 ----
+  #define ALSA_DEVICE_NAME_LENGTH  64
+  
+! #define CAP_BRIGHTNESS       1
+! #define CAP_CONTRAST         2
+! #define CAP_HUE              4
+! #define CAP_SATURATION       8
+! #define CAP_HWDEINTERLACE   16
+  
+  #define VID_MAX_PARM_VALUE  100
+***************
+*** 165,168 ****
+--- 166,170 ----
+            vidHue,
+            vidSaturation,
++           vidDeinterlace,
+            vidCaps;
+      char  alsaDevice [ALSA_DEVICE_NAME_LENGTH];
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000416.html">[Softdevice-cvs] softdevice CHANGELOG, 1.225, 1.226 video-xv.c, 1.60,	1.61
+</A></li>
+	<LI>Next message: <A HREF="000418.html">[Softdevice-cvs] softdevice video-vidix.c,1.22,1.23
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#417">[ date ]</a>
+              <a href="thread.html#417">[ thread ]</a>
+              <a href="subject.html#417">[ subject ]</a>
+              <a href="author.html#417">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

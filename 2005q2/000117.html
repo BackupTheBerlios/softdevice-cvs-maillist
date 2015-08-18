@@ -1,0 +1,219 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice mpeg2decoder.c,1.34,1.35 mpeg2decoder.h,1.22,1.23 video.c,1.17,1.18 video.h,1.11,1.12 CHANGELOG,1.65,1.66
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20mpeg2decoder.c%2C1.34%2C1.35%20mpeg2decoder.h%2C1.22%2C1.23%20video.c%2C1.17%2C1.18%20video.h%2C1.11%2C1.12%20CHANGELOG%2C1.65%2C1.66&In-Reply-To=%3C200505171958.j4HJw8m21515%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000116.html">
+   <LINK REL="Next"  HREF="000118.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice mpeg2decoder.c,1.34,1.35 mpeg2decoder.h,1.22,1.23 video.c,1.17,1.18 video.h,1.11,1.12 CHANGELOG,1.65,1.66</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20mpeg2decoder.c%2C1.34%2C1.35%20mpeg2decoder.h%2C1.22%2C1.23%20video.c%2C1.17%2C1.18%20video.h%2C1.11%2C1.12%20CHANGELOG%2C1.65%2C1.66&In-Reply-To=%3C200505171958.j4HJw8m21515%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice mpeg2decoder.c,1.34,1.35 mpeg2decoder.h,1.22,1.23 video.c,1.17,1.18 video.h,1.11,1.12 CHANGELOG,1.65,1.66">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue May 17 21:58:08 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000116.html">[Softdevice-cvs] softplay SoftPlayer.c,1.6,1.7
+</A></li>
+        <LI>Next message: <A HREF="000118.html">[Softdevice-cvs] softdevice CHANGELOG,1.66,1.67 README,1.4,1.5 video.c,1.18,1.19
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#117">[ date ]</a>
+              <a href="thread.html#117">[ thread ]</a>
+              <a href="subject.html#117">[ subject ]</a>
+              <a href="author.html#117">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv16886
+
+Modified Files:
+	mpeg2decoder.c mpeg2decoder.h video.c video.h CHANGELOG 
+Log Message:
+- bugfix: don't blank screen in pause mode
+
+
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.34
+retrieving revision 1.35
+diff -C2 -d -r1.34 -r1.35
+*** mpeg2decoder.c	16 May 2005 15:54:48 -0000	1.34
+--- mpeg2decoder.c	17 May 2005 19:58:06 -0000	1.35
+***************
+*** 411,414 ****
+--- 411,426 ----
+  }
+  
++ void cVideoStreamDecoder::Play(void)
++ {
++   cStreamDecoder::Play();
++   videoOut-&gt;FreezeMode(freezeMode);
++ };
++ 
++ void cVideoStreamDecoder::Freeze(void)
++ {
++   cStreamDecoder::Freeze();
++   videoOut-&gt;FreezeMode(freezeMode);
++ };
++ 
+  void cVideoStreamDecoder::Stop(void)
+  {
+
+Index: mpeg2decoder.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.h,v
+retrieving revision 1.22
+retrieving revision 1.23
+diff -C2 -d -r1.22 -r1.23
+*** mpeg2decoder.h	16 May 2005 15:54:48 -0000	1.22
+--- mpeg2decoder.h	17 May 2005 19:58:06 -0000	1.23
+***************
+*** 99,106 ****
+  class cStreamDecoder : public cThread {
+  private:
+-     bool freezeMode;
+      cPacketQueue PacketQueue;
+  
+  protected:
+      int64_t           pts;
+      int               frame;
+--- 99,106 ----
+  class cStreamDecoder : public cThread {
+  private:
+      cPacketQueue PacketQueue;
+  
+  protected:
++     bool freezeMode;
+      int64_t           pts;
+      int               frame;
+***************
+*** 210,213 ****
+--- 210,215 ----
+      ~cVideoStreamDecoder();
+  
++     virtual void      Freeze(void);
++     virtual void      Play(void);
+      virtual void Stop();
+      virtual int DecodePacket(AVPacket *pkt);
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.17
+retrieving revision 1.18
+diff -C2 -d -r1.17 -r1.18
+*** video.c	16 May 2005 15:53:12 -0000	1.17
+--- video.c	17 May 2005 19:58:06 -0000	1.18
+***************
+*** 25,28 ****
+--- 25,29 ----
+    PixelMask=NULL;
+    this-&gt;setupStore=setupStore;
++   freezeMode=false;
+    //start osd thread
+    active=true;
+***************
+*** 71,76 ****
+      bool changeMode=false;
+      int newOsdMode=0;
+!     
+      OsdRefreshCounter++;
+      
+      changeMode=(current_osdMode != setupStore-&gt;osdMode);
+--- 72,79 ----
+      bool changeMode=false;
+      int newOsdMode=0;
+!    
+      OsdRefreshCounter++;
++     if (freezeMode &amp;&amp; OsdRefreshCounter &gt; 10 )
++     	OsdRefreshCounter=3;
+      
+      changeMode=(current_osdMode != setupStore-&gt;osdMode);
+***************
+*** 86,89 ****
+--- 89,98 ----
+  	    Osd_changed=0;
+  	    osdMutex.Unlock();
++     }
++ 
++     // freeze mode and osd changed, change osd mode
++     if ( Osd_changed &amp;&amp; freezeMode &amp;&amp; OsdRefreshCounter &gt;  2 ) {
++         changeMode= (current_osdMode != OSDMODE_PSEUDO);
++         newOsdMode=OSDMODE_PSEUDO;
+      }
+      
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -C2 -d -r1.11 -r1.12
+*** video.h	16 May 2005 15:53:13 -0000	1.11
+--- video.h	17 May 2005 19:58:06 -0000	1.12
+***************
+*** 118,121 ****
+--- 118,124 ----
+      virtual void Suspend(void) { return;};
+      virtual bool Resume(void) { return true;};
++     inline void FreezeMode(bool freeze)
++     {freezeMode=freeze;};
++     bool freezeMode;
+  
+      virtual void Action(void);
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.65
+retrieving revision 1.66
+diff -C2 -d -r1.65 -r1.66
+*** CHANGELOG	16 May 2005 19:43:58 -0000	1.65
+--- CHANGELOG	17 May 2005 19:58:06 -0000	1.66
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2005-05-17:
++     - bugfix: don't blank screen in pause mode
+  2005-05-16:
+      - blank screen after some time with no signal
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000116.html">[Softdevice-cvs] softplay SoftPlayer.c,1.6,1.7
+</A></li>
+	<LI>Next message: <A HREF="000118.html">[Softdevice-cvs] softdevice CHANGELOG,1.66,1.67 README,1.4,1.5 video.c,1.18,1.19
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#117">[ date ]</a>
+              <a href="thread.html#117">[ thread ]</a>
+              <a href="subject.html#117">[ subject ]</a>
+              <a href="author.html#117">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,220 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.124,1.125 mpeg2decoder.c,1.57,1.58 setup-softdevice.c,1.32,1.33 setup-softdevice.h,1.21,1.22
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.124%2C1.125%20mpeg2decoder.c%2C1.57%2C1.58%20setup-softdevice.c%2C1.32%2C1.33%20setup-softdevice.h%2C1.21%2C1.22&In-Reply-To=%3C200511041908.jA4J8JN19107%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000238.html">
+   <LINK REL="Next"  HREF="000240.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.124,1.125 mpeg2decoder.c,1.57,1.58 setup-softdevice.c,1.32,1.33 setup-softdevice.h,1.21,1.22</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.124%2C1.125%20mpeg2decoder.c%2C1.57%2C1.58%20setup-softdevice.c%2C1.32%2C1.33%20setup-softdevice.h%2C1.21%2C1.22&In-Reply-To=%3C200511041908.jA4J8JN19107%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.124,1.125 mpeg2decoder.c,1.57,1.58 setup-softdevice.c,1.32,1.33 setup-softdevice.h,1.21,1.22">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Nov  4 20:08:19 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000238.html">[Softdevice-cvs] softdevice i18n.c,1.10,1.11
+</A></li>
+        <LI>Next message: <A HREF="000240.html">[Softdevice-cvs] softdevice CHANGELOG,1.125,1.126 setup-softdevice.c,1.33,1.34
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#239">[ date ]</a>
+              <a href="thread.html#239">[ thread ]</a>
+              <a href="subject.html#239">[ subject ]</a>
+              <a href="author.html#239">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv1582
+
+Modified Files:
+	CHANGELOG mpeg2decoder.c setup-softdevice.c setup-softdevice.h 
+Log Message:
+sync timer mode selectable via OSD
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.124
+retrieving revision 1.125
+diff -C2 -d -r1.124 -r1.125
+*** CHANGELOG	2 Nov 2005 03:30:05 -0000	1.124
+--- CHANGELOG	4 Nov 2005 19:08:16 -0000	1.125
+***************
+*** 1,3 ****
+--- 1,6 ----
+  Changelog
++ 2005-11-04:
++     - some more finish translations (by Rolf Ahrenberg)
++     - sync timer mode selectable via OSD
+  2005-11-02:
+      - restructured OSD setup
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.57
+retrieving revision 1.58
+diff -C2 -d -r1.57 -r1.58
+*** mpeg2decoder.c	29 Oct 2005 23:06:48 -0000	1.57
+--- mpeg2decoder.c	4 Nov 2005 19:08:16 -0000	1.58
+***************
+*** 498,502 ****
+    delay=0;
+    hurry_up=0;
+!   syncTimer = new cSyncTimer (emRtcTimer);
+    syncTimer-&gt;Reset();
+  
+--- 498,502 ----
+    delay=0;
+    hurry_up=0;
+!   syncTimer = new cSyncTimer ((eSyncMode) setupStore.syncTimerMode);
+    syncTimer-&gt;Reset();
+  
+
+Index: setup-softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.c,v
+retrieving revision 1.32
+retrieving revision 1.33
+diff -C2 -d -r1.32 -r1.33
+*** setup-softdevice.c	2 Nov 2005 03:30:05 -0000	1.32
+--- setup-softdevice.c	4 Nov 2005 19:08:16 -0000	1.33
+***************
+*** 89,92 ****
+--- 89,95 ----
+  const char *userKeyUsage[SETUP_USERKEYS];
+  
++ #define SETUP_SYNC_TIMER_NAMES  4
++ const char *syncTimerNames[SETUP_SYNC_TIMER_NAMES];
++ 
+  /* ----------------------------------------------------------------------------
+   */
+***************
+*** 126,129 ****
+--- 129,133 ----
+    bufferMode    = 0;
+    mainMenu  = 1;
++   syncTimerMode = 1;
+  
+    /* --------------------------------------------------------------------------
+***************
+*** 196,199 ****
+--- 200,208 ----
+    ac3ModeNames[3] = &quot;5.1 Analog (6CH)&quot;; // no need to translate?
+    ac3ModeNames[4] = NULL;
++ 
++   syncTimerNames[0] = &quot;usleep&quot;;
++   syncTimerNames[1] = &quot;rtc&quot;;
++   syncTimerNames[2] = &quot;sig&quot;;
++   syncTimerNames[3] = NULL;
+  }
+  
+***************
+*** 339,342 ****
+--- 348,356 ----
+      mainMenu = clamp (0, mainMenu, 1);
+      fprintf(stderr, &quot;[setup-softdevice] mainMenu: %d\n&quot;, mainMenu);
++   } else if (!strcasecmp(Name, &quot;syncTimerMode&quot;)) {
++     syncTimerMode = atoi (Value);
++     syncTimerMode = clamp (0, syncTimerMode, 2);
++     fprintf(stderr, &quot;[setup-softdevice] syncTimerMode: %d\n&quot;,
++             syncTimerNames[syncTimerMode]);
+    }  else
+      return false;
+***************
+*** 418,421 ****
+--- 432,437 ----
+    if (data-&gt;outputMethod != VOUT_FB)
+    {
++     Add(new cOsdItem(tr(&quot; &quot;), osUnknown, false));
++ 
+      Add(new cMenuEditIntItem(tr(&quot;Crop lines from top&quot;),
+                               &amp;data-&gt;cropTopLines,
+***************
+*** 607,610 ****
+--- 623,631 ----
+                              ac3ModeNames));
+  
++   Add(new cMenuEditStraItem(tr(&quot;Sync Mode&quot;),
++                             &amp;data-&gt;syncTimerMode,
++                             (SETUP_SYNC_TIMER_NAMES-1),
++                             syncTimerNames));
++ 
+    Add(new cOsdItem(tr(&quot; &quot;), osUnknown, false));
+  
+***************
+*** 623,628 ****
+    }
+  
+!   Add(new cMenuEditBoolItem(tr(&quot;Main menu entry&quot;),
+!                             &amp;data-&gt;mainMenu, tr(&quot;off&quot;), tr(&quot;on&quot;)));
+  }
+  
+--- 644,649 ----
+    }
+  
+!   Add(new cMenuEditBoolItem(tr(&quot;Hide main menu entry&quot;),
+!                             &amp;data-&gt;mainMenu, tr(&quot;yes&quot;), tr(&quot;no&quot;)));
+  }
+  
+***************
+*** 703,705 ****
+--- 724,727 ----
+    SetupStore (&quot;bufferMode&quot;,           setupStore.bufferMode);
+    SetupStore (&quot;mainMenu&quot;,             setupStore.mainMenu);
++   SetupStore (&quot;syncTimerMode&quot;,        setupStore.syncTimerMode);
+  }
+
+Index: setup-softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.h,v
+retrieving revision 1.21
+retrieving revision 1.22
+diff -C2 -d -r1.21 -r1.22
+*** setup-softdevice.h	2 Nov 2005 03:30:05 -0000	1.21
+--- setup-softdevice.h	4 Nov 2005 19:08:16 -0000	1.22
+***************
+*** 56,59 ****
+--- 56,60 ----
+      int   bufferMode;
+      int   mainMenu;
++     int   syncTimerMode;
+      char  alsaDevice [ALSA_DEVICE_NAME_LENGTH];
+      char  alsaAC3Device [ALSA_DEVICE_NAME_LENGTH];
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000238.html">[Softdevice-cvs] softdevice i18n.c,1.10,1.11
+</A></li>
+	<LI>Next message: <A HREF="000240.html">[Softdevice-cvs] softdevice CHANGELOG,1.125,1.126 setup-softdevice.c,1.33,1.34
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#239">[ date ]</a>
+              <a href="thread.html#239">[ thread ]</a>
+              <a href="subject.html#239">[ subject ]</a>
+              <a href="author.html#239">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

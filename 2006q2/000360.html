@@ -1,0 +1,241 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice setup-softdevice.c,1.42,1.43 setup-softdevice.h,1.29,1.30 setup-softdevice-menu.c,1.3,1.4 video.c,1.56,1.57 video.h,1.38,1.39
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20setup-softdevice.c%2C1.42%2C1.43%20setup-softdevice.h%2C1.29%2C1.30%20setup-softdevice-menu.c%2C1.3%2C1.4%20video.c%2C1.56%2C1.57%20video.h%2C1.38%2C1.39&In-Reply-To=%3C200605232106.k4NL6uT23599%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000359.html">
+   <LINK REL="Next"  HREF="000361.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice setup-softdevice.c,1.42,1.43 setup-softdevice.h,1.29,1.30 setup-softdevice-menu.c,1.3,1.4 video.c,1.56,1.57 video.h,1.38,1.39</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20setup-softdevice.c%2C1.42%2C1.43%20setup-softdevice.h%2C1.29%2C1.30%20setup-softdevice-menu.c%2C1.3%2C1.4%20video.c%2C1.56%2C1.57%20video.h%2C1.38%2C1.39&In-Reply-To=%3C200605232106.k4NL6uT23599%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice setup-softdevice.c,1.42,1.43 setup-softdevice.h,1.29,1.30 setup-softdevice-menu.c,1.3,1.4 video.c,1.56,1.57 video.h,1.38,1.39">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue May 23 23:06:56 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000359.html">[Softdevice-cvs] softdevice CHANGELOG,1.185,1.186
+</A></li>
+        <LI>Next message: <A HREF="000361.html">[Softdevice-cvs] softdevice CHANGELOG,1.186,1.187 video-dfb.c,1.60,1.61 video-dfb.h,1.19,1.20
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#360">[ date ]</a>
+              <a href="thread.html#360">[ thread ]</a>
+              <a href="subject.html#360">[ subject ]</a>
+              <a href="author.html#360">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv1381
+
+Modified Files:
+	setup-softdevice.c setup-softdevice.h setup-softdevice-menu.c 
+	video.c video.h 
+Log Message:
+- merged some defines which belong together
+- added 15:9 screen aspect
+- fix postprocessing not offered via OSD even detected by configure
+
+
+
+Index: setup-softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.c,v
+retrieving revision 1.42
+retrieving revision 1.43
+diff -C2 -d -r1.42 -r1.43
+*** setup-softdevice.c	23 Apr 2006 20:21:27 -0000	1.42
+--- setup-softdevice.c	23 May 2006 21:11:37 -0000	1.43
+***************
+*** 176,180 ****
+    videoAspectNames[3] = &quot;16:9&quot;;  // no need to translate
+    videoAspectNames[4] = &quot;16:10&quot;; // no need to translate
+!   videoAspectNames[5] = NULL;
+  
+    suspendVideo[0] = tr(&quot;playing&quot;);
+--- 176,181 ----
+    videoAspectNames[3] = &quot;16:9&quot;;  // no need to translate
+    videoAspectNames[4] = &quot;16:10&quot;; // no need to translate
+!   videoAspectNames[5] = &quot;15:9&quot;;  // no need to translate
+!   videoAspectNames[6] = NULL;
+  
+    suspendVideo[0] = tr(&quot;playing&quot;);
+***************
+*** 326,330 ****
+    } else if (!strcasecmp(Name, &quot;PixelAspect&quot;)) {
+      screenPixelAspect = atoi (Value);
+!     screenPixelAspect = clamp (0, screenPixelAspect, 4);
+    } else if (!strcasecmp(Name, &quot;OSDalphablend&quot;)) {
+      osdMode = atoi (Value);
+--- 327,331 ----
+    } else if (!strcasecmp(Name, &quot;PixelAspect&quot;)) {
+      screenPixelAspect = atoi (Value);
+!     screenPixelAspect = clamp (0, screenPixelAspect, SETUP_VIDEOASPECTNAMES_LAST);
+    } else if (!strcasecmp(Name, &quot;OSDalphablend&quot;)) {
+      osdMode = atoi (Value);
+
+Index: setup-softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.h,v
+retrieving revision 1.29
+retrieving revision 1.30
+diff -C2 -d -r1.29 -r1.30
+*** setup-softdevice.h	4 May 2006 21:40:12 -0000	1.29
+--- setup-softdevice.h	23 May 2006 21:11:37 -0000	1.30
+***************
+*** 19,22 ****
+--- 19,26 ----
+  #endif
+  
++ #ifdef HAVE_CONFIG
++ # include &quot;config.h&quot;
++ #endif
++ 
+  #define VOUT_XV       1
+  #define VOUT_FB       2
+***************
+*** 75,79 ****
+  /*-----------------------------------------------------------------------------
+   */
+! #define SETUP_VIDEOASPECTNAMES 6
+  extern const char *videoAspectNames[SETUP_VIDEOASPECTNAMES];
+  
+--- 79,85 ----
+  /*-----------------------------------------------------------------------------
+   */
+! #define SETUP_VIDEOASPECTNAMES        7
+! #define SETUP_VIDEOASPECTNAMES_COUNT  (SETUP_VIDEOASPECTNAMES-1)
+! #define SETUP_VIDEOASPECTNAMES_LAST   (SETUP_VIDEOASPECTNAMES_COUNT-1)
+  extern const char *videoAspectNames[SETUP_VIDEOASPECTNAMES];
+  
+
+Index: setup-softdevice-menu.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice-menu.c,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** setup-softdevice-menu.c	23 Apr 2006 19:55:53 -0000	1.3
+--- setup-softdevice-menu.c	23 May 2006 21:11:37 -0000	1.4
+***************
+*** 298,302 ****
+    Add(new cMenuEditStraItem(tr(&quot;Screen Aspect&quot;),
+                              &amp;data-&gt;screenPixelAspect,
+!                             (SETUP_VIDEOASPECTNAMES-1),
+                              videoAspectNames));
+  
+--- 298,302 ----
+    Add(new cMenuEditStraItem(tr(&quot;Screen Aspect&quot;),
+                              &amp;data-&gt;screenPixelAspect,
+!                             SETUP_VIDEOASPECTNAMES_COUNT,
+                              videoAspectNames));
+  
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.56
+retrieving revision 1.57
+diff -C2 -d -r1.56 -r1.57
+*** video.c	23 May 2006 19:30:42 -0000	1.56
+--- video.c	23 May 2006 21:11:37 -0000	1.57
+***************
+*** 53,57 ****
+    old_picture = NULL;
+  
+!   for (int i = 0; i &lt; MAX_PAR; ++i)
+      parValues [i] = 1.0;
+  
+--- 53,57 ----
+    old_picture = NULL;
+  
+!   for (int i = 0; i &lt; SETUP_VIDEOASPECTNAMES_COUNT; ++i)
+      parValues [i] = 1.0;
+  
+***************
+*** 164,167 ****
+--- 164,168 ----
+    parValues [3] = (16.0 /  9.0) / displayRatio;
+    parValues [4] = (16.0 / 10.0) / displayRatio;
++   parValues [5] = (15.0 /  9.0) / displayRatio;
+  }
+  
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.38
+retrieving revision 1.39
+diff -C2 -d -r1.38 -r1.39
+*** video.h	23 May 2006 19:30:42 -0000	1.38
+--- video.h	23 May 2006 21:11:37 -0000	1.39
+***************
+*** 34,39 ****
+  #define OSD_FULL_HEIGHT   576
+  
+- #define MAX_PAR 5
+- 
+  #if VDRVERSNUM &lt; 10307
+  
+--- 34,37 ----
+***************
+*** 113,117 ****
+              interlaceMode,
+              displayTimeUS;
+!     double  parValues[MAX_PAR];
+  
+      bool    videoInitialized;
+--- 111,115 ----
+              interlaceMode,
+              displayTimeUS;
+!     double  parValues[SETUP_VIDEOASPECTNAMES_COUNT];
+  
+      bool    videoInitialized;
+***************
+*** 149,153 ****
+      virtual void DrawStill_420pl (uint8_t *pY, uint8_t *pU, uint8_t *pV,
+                                    int w, int h, int yPitch, int uvPitch,
+!                                   int new_afd=-1, 
+                                    double new_asp=0.0);
+      virtual bool Initialize(void) {videoInitialized = true; return 1;};
+--- 147,151 ----
+      virtual void DrawStill_420pl (uint8_t *pY, uint8_t *pU, uint8_t *pV,
+                                    int w, int h, int yPitch, int uvPitch,
+!                                   int new_afd=-1,
+                                    double new_asp=0.0);
+      virtual bool Initialize(void) {videoInitialized = true; return 1;};
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000359.html">[Softdevice-cvs] softdevice CHANGELOG,1.185,1.186
+</A></li>
+	<LI>Next message: <A HREF="000361.html">[Softdevice-cvs] softdevice CHANGELOG,1.186,1.187 video-dfb.c,1.60,1.61 video-dfb.h,1.19,1.20
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#360">[ date ]</a>
+              <a href="thread.html#360">[ thread ]</a>
+              <a href="subject.html#360">[ subject ]</a>
+              <a href="author.html#360">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

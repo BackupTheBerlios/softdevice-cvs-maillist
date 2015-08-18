@@ -1,0 +1,110 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice video-dfb.c,1.63,1.64
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-dfb.c%2C1.63%2C1.64&In-Reply-To=%3C200606161846.k5GIkEb26681%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000379.html">
+   <LINK REL="Next"  HREF="000381.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice video-dfb.c,1.63,1.64</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-dfb.c%2C1.63%2C1.64&In-Reply-To=%3C200606161846.k5GIkEb26681%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice video-dfb.c,1.63,1.64">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Jun 16 20:46:14 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000379.html">[Softdevice-cvs] softdevice CHANGELOG,1.197,1.198 mpeg2decoder.c,1.64,1.65 SoftOsd.c,1.14,1.15
+</A></li>
+        <LI>Next message: <A HREF="000381.html">[Softdevice-cvs] softdevice CHANGELOG,1.198,1.199
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#380">[ date ]</a>
+              <a href="thread.html#380">[ thread ]</a>
+              <a href="subject.html#380">[ subject ]</a>
+              <a href="author.html#380">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv14075
+
+Modified Files:
+	video-dfb.c 
+Log Message:
+fix via aspect ratio handling
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.63
+retrieving revision 1.64
+diff -C2 -d -r1.63 -r1.64
+*** video-dfb.c	9 Jun 2006 16:24:34 -0000	1.63
+--- video-dfb.c	16 Jun 2006 18:46:11 -0000	1.64
+***************
+*** 470,473 ****
+--- 470,482 ----
+  
+  
++       if (!setupStore-&gt;useMGAtv)
++       {
++         fprintf(stderr,&quot;[dfb] Configuring CooperativeLevel for Overlay\n&quot;);
++         videoLayer-&gt;SetCooperativeLevel(DLSCL_ADMINISTRATIVE);
++ 
++         if (!setupStore-&gt;viaTv)
++           BESColorkeyState(videoLayer, true);
++       }
++ 
+        if (useStretchBlit)
+        {
+***************
+*** 485,497 ****
+  
+        reportSurfaceCapabilities (&quot;videoSurface&quot;, videoSurface);
+- 
+-       if (!setupStore-&gt;useMGAtv)
+-       {
+-         fprintf(stderr,&quot;[dfb] Configuring CooperativeLevel for Overlay\n&quot;);
+-         videoLayer-&gt;SetCooperativeLevel(DLSCL_ADMINISTRATIVE);
+- 
+-         if (!setupStore-&gt;viaTv)
+-           BESColorkeyState(videoLayer, true);
+-       }
+  
+        fprintf(stderr,
+--- 494,497 ----
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000379.html">[Softdevice-cvs] softdevice CHANGELOG,1.197,1.198 mpeg2decoder.c,1.64,1.65 SoftOsd.c,1.14,1.15
+</A></li>
+	<LI>Next message: <A HREF="000381.html">[Softdevice-cvs] softdevice CHANGELOG,1.198,1.199
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#380">[ date ]</a>
+              <a href="thread.html#380">[ thread ]</a>
+              <a href="subject.html#380">[ subject ]</a>
+              <a href="author.html#380">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

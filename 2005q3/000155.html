@@ -1,0 +1,1013 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.82,1.83 Makefile,1.13,1.14 README,1.7,1.8 mpeg2decoder.c,1.43,1.44 setup-softdevice.c,1.20,1.21 setup-softdevice.h,1.14,1.15 utils.c,1.5,1.6 utils.h,1.4,1.5 video-dfb.c,1.31,1.32 video-vidix.c,1.9,1.10 video.c,1.24,1.25 video.h,1.15,1.16
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.82%2C1.83%20Makefile%2C1.13%2C1.14%20README%2C1.7%2C1.8%20mpeg2decoder.c%2C1.43%2C1.44%20setup-softdevice.c%2C1.20%2C1.21%20setup-softdevice.h%2C1.14%2C1.15%20utils.c%2C1.5%2C1.6%20utils.h%2C1.4%2C1.5%20video-dfb.c%2C1.31%2C1.32%20video-vidix.c%2C1.9%2C1.10%20video.c%2C1.24%2C1.25%20video.h%2C1.15%2C1.16&In-Reply-To=%3C200507152042.j6FKgII20654%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000154.html">
+   <LINK REL="Next"  HREF="000156.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.82,1.83 Makefile,1.13,1.14 README,1.7,1.8 mpeg2decoder.c,1.43,1.44 setup-softdevice.c,1.20,1.21 setup-softdevice.h,1.14,1.15 utils.c,1.5,1.6 utils.h,1.4,1.5 video-dfb.c,1.31,1.32 video-vidix.c,1.9,1.10 video.c,1.24,1.25 video.h,1.15,1.16</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.82%2C1.83%20Makefile%2C1.13%2C1.14%20README%2C1.7%2C1.8%20mpeg2decoder.c%2C1.43%2C1.44%20setup-softdevice.c%2C1.20%2C1.21%20setup-softdevice.h%2C1.14%2C1.15%20utils.c%2C1.5%2C1.6%20utils.h%2C1.4%2C1.5%20video-dfb.c%2C1.31%2C1.32%20video-vidix.c%2C1.9%2C1.10%20video.c%2C1.24%2C1.25%20video.h%2C1.15%2C1.16&In-Reply-To=%3C200507152042.j6FKgII20654%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.82,1.83 Makefile,1.13,1.14 README,1.7,1.8 mpeg2decoder.c,1.43,1.44 setup-softdevice.c,1.20,1.21 setup-softdevice.h,1.14,1.15 utils.c,1.5,1.6 utils.h,1.4,1.5 video-dfb.c,1.31,1.32 video-vidix.c,1.9,1.10 video.c,1.24,1.25 video.h,1.15,1.16">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Jul 15 22:42:18 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000154.html">[Softdevice-cvs] softdevice CHANGELOG,1.81,1.82 video-xv.c,1.27,1.28
+</A></li>
+        <LI>Next message: <A HREF="000156.html">[Softdevice-cvs] softdevice CHANGELOG,1.83,1.84 video-dfb.c,1.32,1.33
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#155">[ date ]</a>
+              <a href="thread.html#155">[ thread ]</a>
+              <a href="subject.html#155">[ subject ]</a>
+              <a href="author.html#155">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv12979
+
+Modified Files:
+	CHANGELOG Makefile README mpeg2decoder.c setup-softdevice.c 
+	setup-softdevice.h utils.c utils.h video-dfb.c video-vidix.c 
+	video.c video.h 
+Log Message:
+commit patches by Vadim &amp; Malcolm:
+    - by Vadim Catana:
+      - fixed a couple of compiler warnings for gcc4 on x86-64
+      - the video-vidix.c and video-dfb.c both contain code
+        that converts pictures from YV12 format to YUY2. I moved
+        this common code to a function in utils.c .
+      - Some channels display white dots at the top and bottom of
+        the screen due to WSS data encoded in the picture.
+        This problem has been mentioned on vdr, linux-dvb and
+        dxr3 mailinglists a few times. I added two new items in
+        the softdevice menu that allow to cut off a number of lines
+        from top and bottom of the picture. It is implemented now
+        only for -vo vidix and dfb with i420/YV12 format and hardware
+        alpha blending.
+    - by Malcolm Caldwell: fix for vdr segfaulting
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.82
+retrieving revision 1.83
+diff -C2 -d -r1.82 -r1.83
+*** CHANGELOG	3 Jul 2005 15:59:50 -0000	1.82
+--- CHANGELOG	15 Jul 2005 20:42:16 -0000	1.83
+***************
+*** 1,3 ****
+--- 1,18 ----
+  Changelog
++ 2005-07-15:
++     - by Vadim Catana:
++       - fixed a couple of compiler warnings for gcc4 on x86-64
++       - the video-vidix.c and video-dfb.c both contain code
++         that converts pictures from YV12 format to YUY2. I moved
++         this common code to a function in utils.c .
++       - Some channels display white dots at the top and bottom of
++         the screen due to WSS data encoded in the picture.
++         This problem has been mentioned on vdr, linux-dvb and
++         dxr3 mailinglists a few times. I added two new items in
++         the softdevice menu that allow to cut off a number of lines
++         from top and bottom of the picture. It is implemented now
++         only for -vo vidix and dfb with i420/YV12 format and hardware
++         alpha blending.
++     - by Malcolm Caldwell: fix for vdr segfaulting
+  2005-07-03:
+      - fix fullscreen mode for 64-bit architectures
+
+Index: Makefile
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/Makefile,v
+retrieving revision 1.13
+retrieving revision 1.14
+diff -C2 -d -r1.13 -r1.14
+*** Makefile	5 Jun 2005 20:58:12 -0000	1.13
+--- Makefile	15 Jul 2005 20:42:16 -0000	1.14
+***************
+*** 162,166 ****
+    ifdef USE_SUBPLUGINS
+      DFB_LIBS  = -L/usr/local/lib -ldfb++
+!     DFB_OBJS  = video.o video-dfb.o
+      ALL_OBJS += $(DFB_OBJS)
+      TARGETS  += libvdr-$(PLUGIN)-dfb.so
+--- 162,166 ----
+    ifdef USE_SUBPLUGINS
+      DFB_LIBS  = -L/usr/local/lib -ldfb++
+!     DFB_OBJS  = utils.o video.o video-dfb.o
+      ALL_OBJS += $(DFB_OBJS)
+      TARGETS  += libvdr-$(PLUGIN)-dfb.so
+
+Index: README
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/README,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -C2 -d -r1.7 -r1.8
+*** README	6 Jun 2005 06:26:01 -0000	1.7
+--- README	15 Jul 2005 20:42:16 -0000	1.8
+***************
+*** 102,105 ****
+--- 102,106 ----
+  - Luca Olivetti
+  - Lucian Muresan
++ - Malcolm Caldwell
+  - Marko M&#228;kel&#228;
+  - Martin Wache
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.43
+retrieving revision 1.44
+diff -C2 -d -r1.43 -r1.44
+*** mpeg2decoder.c	3 Jul 2005 15:58:30 -0000	1.43
+--- mpeg2decoder.c	15 Jul 2005 20:42:16 -0000	1.44
+***************
+*** 1058,1062 ****
+  
+  int cMpeg2Decoder::seek(offset_t offset, int whence) {
+!    printf(&quot;unimplemented: seek offset %lld whence %d\n&quot;,offset,whence);
+     return -EINVAL;
+  };
+--- 1058,1062 ----
+  
+  int cMpeg2Decoder::seek(offset_t offset, int whence) {
+!    printf(&quot;unimplemented: seek offset %lld whence %d\n&quot;, (long long int)offset, whence);
+     return -EINVAL;
+  };
+
+Index: setup-softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.c,v
+retrieving revision 1.20
+retrieving revision 1.21
+diff -C2 -d -r1.20 -r1.21
+*** setup-softdevice.c	1 Jul 2005 19:22:36 -0000	1.20
+--- setup-softdevice.c	15 Jul 2005 20:42:16 -0000	1.21
+***************
+*** 60,64 ****
+          &quot;I420&quot;,
+          &quot;YV12&quot;,
+!         &quot;YUV2&quot;,
+          NULL
+       };
+--- 60,64 ----
+          &quot;I420&quot;,
+          &quot;YV12&quot;,
+!         &quot;YUY2&quot;,
+          NULL
+       };
+***************
+*** 155,158 ****
+--- 155,160 ----
+    cropMode      = 0;
+    cropModeToggleKey = 0;
++   cropTopLines      = 0;
++   cropBottomLines   = 0;
+    deintMethod   = 0;
+    ppMethod   = 0;
+***************
+*** 225,228 ****
+--- 227,240 ----
+               cropModeToggleKey,
+               userKeyUsage [cropModeToggleKey]);
++   } else if(!strcasecmp(Name,&quot;CropTopLines&quot;)) {
++     cropTopLines = atoi(Value);
++     cropTopLines = clamp (0, cropTopLines, 100);
++     fprintf(stderr,&quot;[setup-softdevice] Cropping %d lines from top\n&quot;,
++             cropTopLines);
++   } else if(!strcasecmp(Name,&quot;CropBottomLines&quot;)) {
++     cropBottomLines = atoi(Value);
++     cropBottomLines = clamp (0, cropBottomLines, 100);
++     fprintf(stderr,&quot;[setup-softdevice] Cropping %d lines from bottom\n&quot;,
++             cropBottomLines);
+    } else if (!strcasecmp(Name,&quot;PixelFormat&quot;)) {
+      pixelFormat = atoi(Value);
+***************
+*** 371,374 ****
+--- 383,396 ----
+                              userKeyUsage));
+  
++   Add(new cMenuEditIntItem(tr(&quot;Crop lines from top&quot;),
++                             &amp;data-&gt;cropTopLines,
++                             0,
++                             100));
++ 
++   Add(new cMenuEditIntItem(tr(&quot;Crop lines from bottom&quot;),
++                             &amp;data-&gt;cropBottomLines,
++                             0,
++                             100));
++ 
+    if (data-&gt;outputMethod == VOUT_FB)
+    {
+***************
+*** 484,487 ****
+--- 506,511 ----
+    SetupStore (&quot;CropMode&quot;,           setupStore.cropMode);
+    SetupStore (&quot;CropModeToggleKey&quot;,     setupStore.cropModeToggleKey);
++   SetupStore (&quot;CropTopLines&quot;,        setupStore.cropTopLines);
++   SetupStore (&quot;CropBottomLines&quot;,     setupStore.cropBottomLines);  
+    SetupStore (&quot;Deinterlace Method&quot;, setupStore.deintMethod);
+    SetupStore (&quot;Postprocess Method&quot;, setupStore.ppMethod);
+
+Index: setup-softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.h,v
+retrieving revision 1.14
+retrieving revision 1.15
+diff -C2 -d -r1.14 -r1.15
+*** setup-softdevice.h	12 Jun 2005 20:45:20 -0000	1.14
+--- setup-softdevice.h	15 Jul 2005 20:42:16 -0000	1.15
+***************
+*** 22,25 ****
+--- 22,26 ----
+    public:
+                    cSetupStore ();
++     virtual       ~cSetupStore () {};
+      bool          SetupParse(const char *Name, const char *Value);
+      char          *getPPdeintValue(void);
+***************
+*** 36,39 ****
+--- 37,42 ----
+      int   cropMode;
+      int   cropModeToggleKey;
++     int   cropTopLines;
++     int   cropBottomLines;
+      int   deintMethod;
+      int   ppMethod;
+
+Index: utils.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/utils.c,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -C2 -d -r1.5 -r1.6
+*** utils.c	26 Jun 2005 20:12:40 -0000	1.5
+--- utils.c	15 Jul 2005 20:42:16 -0000	1.6
+***************
+*** 16,24 ****
+   *
+   * Author: Olie Lho &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">ollie at sis.com.tw</A>&gt;
+! */    
+  
+  #include &quot;utils.h&quot;
+  #include &quot;setup-softdevice.h&quot;
+  
+  #define VERT_SCALING
+  void (*mmx_unpack)(uint8_t * image, int lines, int stride);
+--- 16,98 ----
+   *
+   * Author: Olie Lho &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">ollie at sis.com.tw</A>&gt;
+! */
+  
+  #include &quot;utils.h&quot;
+  #include &quot;setup-softdevice.h&quot;
+  
++ void yv12_to_yuy2(const uint8_t *ysrc, const uint8_t *usrc, const uint8_t *vsrc,
++                   uint8_t *dst, int width, int height,
++                   int lumStride, int chromStride, int dstStride)
++ {
++ #ifndef USE_MMX
++     const unsigned chromWidth = width &gt;&gt; 1;
++ 
++   for(int y=0; y&lt;height; y++)
++   {
++       uint32_t *idst = (uint32_t *) dst;
++       const uint8_t *yc = ysrc, *uc = usrc, *vc = vsrc;
++ 
++     for(unsigned i = 0; i &lt; chromWidth; i++)
++     {
++       *idst++ = (yc[0] &lt;&lt; 0)+ (uc[0] &lt;&lt; 8) + (yc[1] &lt;&lt; 16) + (vc[0] &lt;&lt; 24);
++       yc += 2;
++       uc++;
++       vc++;
++     }
++ 
++     if( (y&amp;1) == 1)
++     {
++       usrc += chromStride;
++       vsrc += chromStride;
++     }
++ 
++     ysrc += lumStride;
++     dst  += dstStride;
++   }
++ #else
++   for (int i=0; i&lt;height; i++)
++   {
++       const uint8_t *pu, *pv, *py;
++       uint8_t  *srfc;
++ 
++     pu = usrc;
++     pv = vsrc;
++     py = ysrc;
++ 
++     srfc = dst;
++ 
++     for (int j =0; j &lt; width/8; j++)
++     {
++       movd_m2r(*pu, mm1);       // mm1 = 00 00 00 00 U3 U2 U1 U0
++       movd_m2r(*pv, mm2);       // mm2 = 00 00 00 00 V3 V2 V1 V0
++       movq_m2r(*py, mm0);       // mm0 = Y7 Y6 Y5 Y4 Y3 Y2 Y1 Y0
++       punpcklbw_r2r(mm2, mm1);  // mm1 = V3 U3 V2 U2 V1 U1 V0 U0
++       movq_r2r(mm0,mm3);        // mm3 = Y7 Y6 Y5 Y4 Y3 Y2 Y1 Y0
++       movq_r2r(mm1,mm4);        // mm4 = V3 U3 V2 U2 V1 U1 V0 U0
++       punpcklbw_r2r(mm1, mm0);  // mm0 = V1 Y3 U1 Y2 V0 Y1 U0 Y0
++       punpckhbw_r2r(mm4, mm3);  // mm3 = V3 Y7 U3 Y6 V2 Y5 U2 Y4
++ 
++       movntq(mm0,*srfc);        // Am Meisten brauchen die Speicherzugriffe
++       srfc+=8;
++       py+=8;
++       pu+=4;
++       pv+=4;
++       movntq(mm3,*srfc);      // wenn movntq nicht geht, dann movq verwenden
++       srfc+=8;
++     }
++ 
++     ysrc += lumStride;;
++ 
++     if (i % 2 == 1)
++     {
++       usrc += chromStride;
++       vsrc += chromStride;
++     }
++ 
++     dst += dstStride;
++   }
++ #endif
++ }
++ 
+  #define VERT_SCALING
+  void (*mmx_unpack)(uint8_t * image, int lines, int stride);
+***************
+*** 325,329 ****
+  #define MMREG_SIZE 64
+  #define BLOCK_SIZE 4096
+! #define REG_a &quot;eax&quot;
+  #define CONFUSION_FACTOR 0
+  
+--- 399,409 ----
+  #define MMREG_SIZE 64
+  #define BLOCK_SIZE 4096
+! 
+! #ifdef __x86_64__
+! # define  REG_a &quot;rax&quot;
+! #else
+! # define  REG_a &quot;eax&quot;
+! #endif
+! 
+  #define CONFUSION_FACTOR 0
+  
+***************
+*** 342,346 ****
+  }
+  
+!  void * fast_memcpy(void * to, const void * from, size_t len)
+  {
+  	void *retval;
+--- 422,426 ----
+  }
+  
+! void * fast_memcpy(void * to, const void * from, size_t len)
+  {
+  	void *retval;
+***************
+*** 381,385 ****
+  
+  	// Align destination at BLOCK_SIZE boundary
+! 	for(; ((int)to &amp; (BLOCK_SIZE-1)) &amp;&amp; i&gt;0; i--)
+  	{
+  		__asm__ __volatile__ (
+--- 461,465 ----
+  
+  	// Align destination at BLOCK_SIZE boundary
+! 	for(; ((long)to &amp; (BLOCK_SIZE-1)) &amp;&amp; i&gt;0; i--)
+  	{
+  		__asm__ __volatile__ (
+***************
+*** 513,516 ****
+  	return retval;
+  }
+- 
+- 
+--- 593,594 ----
+
+Index: utils.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/utils.h,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -C2 -d -r1.4 -r1.5
+*** utils.h	12 Jun 2005 20:45:20 -0000	1.4
+--- utils.h	15 Jul 2005 20:42:16 -0000	1.5
+***************
+*** 20,27 ****
+  #endif
+  
+! /*    else			\
+! 	movq_r2m (src, dest);	\
+! } while (0)
+! */
+  void yuv_to_rgb (uint8_t * image, uint8_t * py,
+                   uint8_t * pu, uint8_t * pv,
+--- 20,34 ----
+  #endif
+  
+! void yv12_to_yuy2( const uint8_t *ysrc,
+!                    const uint8_t *usrc,
+!                    const uint8_t *vsrc,
+!                    uint8_t *dst,
+!                    int width,
+!                    int height,
+!                    int lumStride,
+!                    int chromStride,
+!                    int dstStride
+!                  );
+! 
+  void yuv_to_rgb (uint8_t * image, uint8_t * py,
+                   uint8_t * pu, uint8_t * pv,
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.31
+retrieving revision 1.32
+diff -C2 -d -r1.31 -r1.32
+*** video-dfb.c	30 Jun 2005 21:46:16 -0000	1.31
+--- video-dfb.c	15 Jul 2005 20:42:16 -0000	1.32
+***************
+*** 582,590 ****
+    if (videoLayer || useStretchBlit)
+    {
+!     if (!videoSurface ||
+!         aspect_changed ||
+!         currentPixelFormat != setupStore-&gt;pixelFormat)
+      {
+  
+        fprintf(stderr,
+                &quot;[dfb] (re)configuring Videolayer to %d x %d (%dx%d)\n&quot;,
+--- 582,594 ----
+    if (videoLayer || useStretchBlit)
+    {
+!     if ( ! videoSurface || aspect_changed ||
+!         currentPixelFormat != setupStore-&gt;pixelFormat ||
+!         cutTop != setupStore-&gt;cropTopLines ||
+!         cutBottom != setupStore-&gt;cropBottomLines )
+      {
+  
++       cutTop    = setupStore-&gt;cropTopLines;
++       cutBottom = setupStore-&gt;cropBottomLines;
++ 
+        fprintf(stderr,
+                &quot;[dfb] (re)configuring Videolayer to %d x %d (%dx%d)\n&quot;,
+***************
+*** 795,799 ****
+          }
+  
+-         videoSurface=NULL;
+          videoSurface=dfb-&gt;CreateSurface(vidDsc);
+        }
+--- 799,802 ----
+***************
+*** 1010,1019 ****
+    {
+  #if HAVE_SetSourceLocation
+!     for(hi=0; hi &lt; Height; hi++){
+        memcpy(dst, Py, Width);
+        Py  += Ystride;
+        dst += pitch;
+      }
+!     for(hi=0; hi &lt; Height/2; hi++) {
+        memcpy(dst, Pu, Width/2);
+        Pu  += UVstride;
+--- 1013,1031 ----
+    {
+  #if HAVE_SetSourceLocation
+!     Py += Ystride  * cutTop * 2;
+!     Pv += UVstride * cutTop;
+!     Pu += UVstride * cutTop;
+! 
+!     dst += pitch * cutTop * 2;
+! 
+!     for(hi=cutTop*2; hi &lt; Height-cutBottom*2; hi++){
+        memcpy(dst, Py, Width);
+        Py  += Ystride;
+        dst += pitch;
+      }
+! 
+!     dst += pitch * cutBottom * 2 + pitch * cutTop / 2;
+! 
+!     for(hi=cutTop; hi &lt; Height/2-cutBottom; hi++) {
+        memcpy(dst, Pu, Width/2);
+        Pu  += UVstride;
+***************
+*** 1021,1025 ****
+      }
+  
+!     for(hi=0; hi &lt; Height/2; hi++) {
+        memcpy(dst, Pv, Width/2);
+        Pv  += UVstride;
+--- 1033,1039 ----
+      }
+  
+!     dst += pitch * cutBottom / 2 + pitch * cutTop / 2;
+! 
+!     for(hi=cutTop; hi &lt; Height/2-cutBottom; hi++) {
+        memcpy(dst, Pv, Width/2);
+        Pv  += UVstride;
+***************
+*** 1027,1041 ****
+      }
+  #else
+  
+!     Py += (Ystride * syoff);
+!     Pv += (UVstride * syoff/2);
+!     Pu += (UVstride * syoff/2);
+  
+!     for(hi=0; hi &lt; sheight; hi++){
+        memcpy(dst, Py+sxoff, swidth);
+        Py  += Ystride;
+        dst += pitch;
+      }
+!     for(hi=0; hi &lt; sheight/2; hi++) {
+        memcpy(dst, Pu+sxoff/2, swidth/2);
+        Pu  += UVstride;
+--- 1041,1059 ----
+      }
+  #else
++     Py += (Ystride  * syoff)   + Ystride  * cutTop * 2;
++     Pv += (UVstride * syoff/2) + UVstride * cutTop;
++     Pu += (UVstride * syoff/2) + UVstride * cutTop;
+  
+!     dst += pitch * cutTop * 2;
+  
+!     for(hi=cutTop*2; hi &lt; sheight-cutBottom*2; hi++){
+        memcpy(dst, Py+sxoff, swidth);
+        Py  += Ystride;
+        dst += pitch;
+      }
+! 
+!     dst += pitch * cutBottom * 2 + pitch * cutTop / 2;
+! 
+!     for(hi=cutTop; hi &lt; sheight/2-cutBottom; hi++) {
+        memcpy(dst, Pu+sxoff/2, swidth/2);
+        Pu  += UVstride;
+***************
+*** 1043,1047 ****
+      }
+  
+!     for(hi=0; hi &lt; sheight/2; hi++) {
+        memcpy(dst, Pv+sxoff/2, swidth/2);
+        Pv  += UVstride;
+--- 1061,1067 ----
+      }
+  
+!     dst += pitch * cutBottom / 2 + pitch * cutTop / 2;
+! 
+!     for(hi=cutTop; hi &lt; sheight/2-cutBottom; hi++) {
+        memcpy(dst, Pv+sxoff/2, swidth/2);
+        Pv  += UVstride;
+***************
+*** 1051,1107 ****
+    } else if (pixelformat == DSPF_YUY2) {
+  
+! #ifndef USE_MMX
+! //#if 1
+!     /* reference implementation */
+!       int p = pitch - Width*2;
+!     for (int i=0; i&lt;Height; i++) {
+!       for (int j =0; j &lt; Width/2; j++) {
+!         *dst = *(Py + (j*2) + i * Ystride);
+!         dst +=1;
+!         *dst = *(Pu + j + (i/2) * UVstride);
+!         dst +=1;
+!         *dst = *(Py + (j*2)+1 + i * Ystride);
+!         dst +=1;
+!         *dst = *(Pv + j + (i/2) * UVstride);
+!         dst +=1;
+!       }
+!       dst +=p;
+!     }
+! #else
+!     /* deltas */
+!     for (int i=0; i&lt;Height; i++) {
+!         uint8_t *pu, *pv, *py, *srfc;
+! 
+!       pu = Pu;
+!       pv = Pv;
+!       py = Py;
+!       srfc = dst;
+!       for (int j =0; j &lt; Width/8; j++) {
+!         movd_m2r(*pu, mm1);       // mm1 = 00 00 00 00 U3 U2 U1 U0
+!         movd_m2r(*pv, mm2);       // mm2 = 00 00 00 00 V3 V2 V1 V0
+!         movq_m2r(*py, mm0);       // mm0 = Y7 Y6 Y5 Y4 Y3 Y2 Y1 Y0
+!         punpcklbw_r2r(mm2, mm1);  // mm1 = V3 U3 V2 U2 V1 U1 V0 U0
+!         movq_r2r(mm0,mm3);        // mm3 = Y7 Y6 Y5 Y4 Y3 Y2 Y1 Y0
+!         movq_r2r(mm1,mm4);        // mm4 = V3 U3 V2 U2 V1 U1 V0 U0
+!         punpcklbw_r2r(mm1, mm0);  // mm0 = V1 Y3 U1 Y2 V0 Y1 U0 Y0
+!         punpckhbw_r2r(mm4, mm3);  // mm3 = V3 Y7 U3 Y6 V2 Y5 U2 Y4
+! 
+!         movntq(mm0,*srfc);        // Am Meisten brauchen die Speicherzugriffe
+!         srfc+=8;
+!         py+=8;
+!         pu+=4;
+!         pv+=4;
+!         movntq(mm3,*srfc);      // wenn movntq nicht geht, dann movq verwenden
+!         srfc+=8;
+!       }
+!       Py += Ystride;;
+!       if (i % 2 == 1) {
+!         Pu += UVstride;
+!         Pv += UVstride;
+!       }
+!       dst += pitch;
+!     }
+! #endif
+    }
+    videoSurface-&gt;Unlock();
+  
+--- 1071,1082 ----
+    } else if (pixelformat == DSPF_YUY2) {
+  
+!     yv12_to_yuy2(Py + Ystride  * cutTop * 2,
+!                  Pu + UVstride * cutTop,
+!                  Pv + UVstride * cutTop,
+!                  dst + pitch * cutTop * 2,
+!                  Width, Height - 2 * (cutTop + cutBottom),
+!                  Ystride, UVstride, pitch);
+    }
++ 
+    videoSurface-&gt;Unlock();
+  
+
+Index: video-vidix.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-vidix.c,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -C2 -d -r1.9 -r1.10
+*** video-vidix.c	5 Jun 2005 20:58:12 -0000	1.9
+--- video-vidix.c	15 Jul 2005 20:42:16 -0000	1.10
+***************
+*** 134,138 ****
+      printf(&quot;cVidixVideoOut: vidix version: %i\n&quot;, vidix_version);
+  
+!     vidix_handler = vdlOpen(VIDIX_DIR, NULL, TYPE_OUTPUT, 1);
+  
+      if( !vidix_handler )
+--- 134,138 ----
+      printf(&quot;cVidixVideoOut: vidix version: %i\n&quot;, vidix_version);
+  
+!     vidix_handler = vdlOpen(VIDIX_DIR, NULL, TYPE_OUTPUT, 0);
+  
+      if( !vidix_handler )
+***************
+*** 162,166 ****
+      screenPixelAspect = -1;
+  
+-     vdlQueryFourcc(vidix_handler, &amp;vidix_fourcc);
+      if (vdlQueryFourcc(vidix_handler, &amp;vidix_fourcc))
+      {
+--- 162,165 ----
+***************
+*** 313,320 ****
+      uint8_t *dst;
+      int hi, wi;
+      START;
+      TIMINGS(&quot;start...\n&quot;);
+!     if (aspect_changed || currentPixelFormat != setupStore-&gt;pixelFormat)
+      {
+         printf(&quot;cVidixVideoOut: Video changed format to %dx%d\n&quot;, Width, Height);
+  
+--- 312,324 ----
+      uint8_t *dst;
+      int hi, wi;
++     
+      START;
+      TIMINGS(&quot;start...\n&quot;);
+!     if (aspect_changed || currentPixelFormat != setupStore-&gt;pixelFormat ||
+!         cutTop != setupStore-&gt;cropTopLines || cutBottom != setupStore-&gt;cropBottomLines )
+      {
++        cutTop    = setupStore-&gt;cropTopLines;
++        cutBottom = setupStore-&gt;cropBottomLines;
++     
+         printf(&quot;cVidixVideoOut: Video changed format to %dx%d\n&quot;, Width, Height);
+  
+***************
+*** 401,418 ****
+      {
+  #if VDRVERSNUM &gt;= 10307
+!       if (OSDpresent &amp;&amp; current_osdMode==OSDMODE_SOFTWARE) {
+          for(hi=0; hi &lt; sheight; hi++){
+!           AlphaBlend(dst,OsdPy+hi*OSD_FULL_WIDTH,
+!               Py + sxoff,
+!               OsdPAlphaY+hi*OSD_FULL_WIDTH,swidth);
+            Py  += Ystride;
+            dst += dstrides.y;
+  
+          }
+-         EMMS;
+        } else
+  #endif
+  
+!         for(hi=0; hi &lt; sheight; hi++){
+            memcpy(dst, Py+sxoff, swidth);
+            Py  += Ystride;
+--- 405,446 ----
+      {
+  #if VDRVERSNUM &gt;= 10307
+! 	if (OSDpresent &amp;&amp; current_osdMode==OSDMODE_SOFTWARE)
+! 	{
+          for(hi=0; hi &lt; sheight; hi++){
+! 		AlphaBlend(dst, OsdPy+hi*OSD_FULL_WIDTH, Py + sxoff, OsdPAlphaY+hi*OSD_FULL_WIDTH, swidth);
+            Py  += Ystride;
+            dst += dstrides.y;
++ 	    }
++ 	    
++ 	    // Plane U
++ 	    dst = (uint8_t *)vidix_play.dga_addr + vidix_play.offsets[next_frame] + vidix_play.offset.u;
++ 	    for(hi=0; hi &lt; sheight/2; hi++){
++ 		    AlphaBlend(dst,OsdPu+hi*OSD_FULL_WIDTH/2, Pu + sxoff/2, OsdPAlphaUV+hi*OSD_FULL_WIDTH/2,swidth/2);
++ 		    Pu  += UVstride;
++ 		    dst += dstrides.y / 2;
++ 	    }
+  
++ 	    // Plane V
++ 	    dst = (uint8_t *)vidix_play.dga_addr + vidix_play.offsets[next_frame] + vidix_play.offset.v;
++ 	    for(hi=0; hi &lt; sheight/2; hi++) {
++ 		    AlphaBlend(dst, OsdPv+hi*OSD_FULL_WIDTH/2, Pv + sxoff/2, OsdPAlphaUV+hi*OSD_FULL_WIDTH/2, swidth/2);
++ 		    Pv  += UVstride;
++ 		    dst += dstrides.v / 2;
+          }
+        } else
+  #endif
++ 	{	
++ 	    int chromaWidth  = swidth &gt;&gt; 1;
++ 	    int chromaOffset = sxoff &gt;&gt; 1;
+  
+! 	    Py += Ystride  * cutTop * 2;
+! 	    Pv += UVstride * cutTop;
+! 	    Pu += UVstride * cutTop;
+! 
+! 	    dst += dstrides.y * cutTop * 2;
+! 
+! 
+! 	    for(hi=cutTop*2; hi &lt; sheight-cutBottom*2; hi++)
+! 	    {
+            memcpy(dst, Py+sxoff, swidth);
+            Py  += Ystride;
+***************
+*** 424,537 ****
+        if (vidix_play.flags &amp; VID_PLAY_INTERLEAVED_UV)
+        {
+!         dst = (uint8_t *)vidix_play.dga_addr + vidix_play.offsets[next_frame] + vidix_play.offset.v;
+  
+!         for(hi = 0; hi &lt; sheight/2; hi++) {
+!           for(wi = 0; wi &lt; swidth/2; wi++) {
+!             dst[2*wi+0] = Pu[wi+sxoff/2];
+!             dst[2*wi+1] = Pv[wi+sxoff/2];
+            }
+  
+!           dst += dstrides.y;
+            Pu += UVstride;
+            Pv += UVstride;
+          }
+        } else {
+  
+          // Plane U
+!         dst = (uint8_t *)vidix_play.dga_addr + vidix_play.offsets[next_frame] + vidix_play.offset.u;
+  
+! #if VDRVERSNUM &gt;= 10307
+!         if (OSDpresent &amp;&amp; current_osdMode==OSDMODE_SOFTWARE) {
+!           for(hi=0; hi &lt; sheight/2; hi++){
+!             AlphaBlend(dst,OsdPu+hi*OSD_FULL_WIDTH/2,
+!                Pu + sxoff/2,
+!                OsdPAlphaUV+hi*OSD_FULL_WIDTH/2,swidth/2);
+              Pu  += UVstride;
+!             dst += dstrides.y / 2;
+            }
+  
+            // Plane V
+!           dst = (uint8_t *)vidix_play.dga_addr + vidix_play.offsets[next_frame] + vidix_play.offset.v;
+!           for(hi=0; hi &lt; sheight/2; hi++) {
+!             AlphaBlend(dst, OsdPv+hi*OSD_FULL_WIDTH/2,
+!                    Pv + sxoff/2,
+!                    OsdPAlphaUV+hi*OSD_FULL_WIDTH/2, swidth/2);
+!             Pv  += UVstride;
+!             dst += dstrides.v / 2;
+!           }
+  
+!           EMMS;
+!         } else
+! #endif
+          {
+!           for(hi=0; hi &lt; sheight/2; hi++) {
+!             memcpy(dst, Pu+sxoff/2, swidth/2);
+!             Pu   += UVstride;
+!             dst += dstrides.u / 2;
+!           }
+! 
+!           // Plane V
+!           dst = (uint8_t *)vidix_play.dga_addr + vidix_play.offsets[next_frame] + vidix_play.offset.v;
+!           for(hi=0; hi &lt; sheight/2; hi++) {
+!             memcpy(dst, Pv+sxoff/2, swidth/2);
+              Pv   += UVstride;
+!             dst += dstrides.v / 2;
+            }
+-         }
+-       }
+-     } else if (currentPixelFormat == 2) {
+- 
+- #ifndef USE_MMX
+  
+-       /* reference implementation */
+-       //int p = vidix_play.src.pitch.y - Width*2;
+-       for (int i=0; i&lt;Height; i++) {
+-         for (int j =0; j &lt; Width/2; j++) {
+-           *dst = *(Py + (j*2) + i * Ystride);
+-           dst +=1;
+-           *dst = *(Pu + j + (i/2) * UVstride);
+-           dst +=1;
+-           *dst = *(Py + (j*2)+1 + i * Ystride);
+-           dst +=1;
+-           *dst = *(Pv + j + (i/2) * UVstride);
+-           dst +=1;
+          }
+-         //dst +=p;
+        }
+! #else
+!       /* deltas */
+!       for (int i=0; i&lt;Height; i++) {
+!           uint8_t *pu, *pv, *py, *srfc;
+! 
+!         pu = Pu;
+!         pv = Pv;
+!         py = Py;
+!         srfc = dst;
+!         for (int j =0; j &lt; Width/8; j++) {
+!           movd_m2r(*pu, mm1);       // mm1 = 00 00 00 00 U3 U2 U1 U0
+!           movd_m2r(*pv, mm2);       // mm2 = 00 00 00 00 V3 V2 V1 V0
+!           movq_m2r(*py, mm0);       // mm0 = Y7 Y6 Y5 Y4 Y3 Y2 Y1 Y0
+!           punpcklbw_r2r(mm2, mm1);  // mm1 = V3 U3 V2 U2 V1 U1 V0 U0
+!           movq_r2r(mm0,mm3);        // mm3 = Y7 Y6 Y5 Y4 Y3 Y2 Y1 Y0
+!           movq_r2r(mm1,mm4);        // mm4 = V3 U3 V2 U2 V1 U1 V0 U0
+!           punpcklbw_r2r(mm1, mm0);  // mm0 = V1 Y3 U1 Y2 V0 Y1 U0 Y0
+!           punpckhbw_r2r(mm4, mm3);  // mm3 = V3 Y7 U3 Y6 V2 Y5 U2 Y4
+  
+!           movntq(mm0,*srfc);        // Am Meisten brauchen die Speicherzugriffe
+!           srfc+=8;
+!           py+=8;
+!           pu+=4;
+!           pv+=4;
+!           movntq(mm3,*srfc);      // wenn movntq nicht geht, dann movq verwenden
+!           srfc+=8;
+!         }
+!         Py += Ystride;;
+!         if (i % 2 == 1) {
+!           Pu += UVstride;
+!           Pv += UVstride;
+!         }
+!         dst += Width*2;
+!       }
+! #endif
+      }
+  
+--- 452,506 ----
+        if (vidix_play.flags &amp; VID_PLAY_INTERLEAVED_UV)
+        {
+! 		int dstStride = dstrides.v &lt;&lt; 1;
+! 		dst = (uint8_t *)vidix_play.dga_addr + vidix_play.offsets[next_frame] + vidix_play.offset.v + dstStride * cutTop;
+  
+! 		for(hi = cutTop; hi &lt; sheight/2; hi++)
+! 		{
+! 		    uint16_t *idst = (uint16_t *) dst;
+! 		    uint8_t  *usrc = Pu + chromaOffset, *vsrc = Pv + chromaOffset;
+! 
+! 		    for(wi = 0; wi &lt; chromaWidth; wi++)
+! 		    {
+! 			*idst++ = ( usrc[0] &lt;&lt; 8 ) + vsrc[0];
+! 			usrc++;
+! 			vsrc++;
+            }
+  
+! 		    dst += dstStride;
+            Pu += UVstride;
+            Pv += UVstride;
+          }
++ 
+        } else {
+  
++ 		int dstStride;
++ 		
+          // Plane U
+! 		dstStride = dstrides.u &gt;&gt; 1;		
+! 		dst = (uint8_t *)vidix_play.dga_addr + vidix_play.offsets[next_frame] + vidix_play.offset.u + dstStride * cutTop;
+  
+! 		for(hi=cutTop; hi &lt; sheight/2 - cutBottom; hi++)
+! 		{
+!     		    memcpy(dst, Pu+chromaOffset, chromaWidth);
+              Pu  += UVstride;
+! 		    dst += dstStride;
+            }
+  
+            // Plane V
+! 		dstStride = dstrides.v &gt;&gt; 1;
+! 		dst = (uint8_t *)vidix_play.dga_addr + vidix_play.offsets[next_frame] + vidix_play.offset.v + dstStride * cutTop;
+  
+! 		for(hi=cutTop; hi &lt; sheight/2 - cutBottom; hi++)
+          {
+!     		    memcpy(dst, Pv+chromaOffset, chromaWidth);
+              Pv   += UVstride;
+! 		    dst += dstStride;
+            }
+  
+          }
+        }
+!     } else if (currentPixelFormat == 2) {
+  
+! 	yv12_to_yuy2(Py, Pu, Pv, dst, Width, Height, Ystride, UVstride, dstrides.y*2);
+      }
+  
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.24
+retrieving revision 1.25
+diff -C2 -d -r1.24 -r1.25
+*** video.c	30 Jun 2005 21:46:16 -0000	1.24
+--- video.c	15 Jul 2005 20:42:16 -0000	1.25
+***************
+*** 23,26 ****
+--- 23,28 ----
+  #endif
+    sxoff = syoff = lxoff = lyoff = 0;
++   cutTop = cutBottom = 0;
++   OsdPy = OsdPu = OsdPv = OsdPAlphaY = OsdPAlphaUV = NULL;
+    PixelMask=NULL;
+    OsdRefreshCounter=0;
+***************
+*** 758,761 ****
+--- 760,764 ----
+                  dest+=8;
+         }
++        EMMS;
+  #endif //USE_MMX
+  
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.15
+retrieving revision 1.16
+diff -C2 -d -r1.15 -r1.16
+*** video.h	30 Jun 2005 21:20:55 -0000	1.15
+--- video.h	15 Jul 2005 20:42:16 -0000	1.16
+***************
+*** 92,95 ****
+--- 92,96 ----
+              current_aspect,
+              currentPixelFormat,
++             cutTop, cutBottom,
+              aspect_changed,
+              current_afd,
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000154.html">[Softdevice-cvs] softdevice CHANGELOG,1.81,1.82 video-xv.c,1.27,1.28
+</A></li>
+	<LI>Next message: <A HREF="000156.html">[Softdevice-cvs] softdevice CHANGELOG,1.83,1.84 video-dfb.c,1.32,1.33
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#155">[ date ]</a>
+              <a href="thread.html#155">[ thread ]</a>
+              <a href="subject.html#155">[ subject ]</a>
+              <a href="author.html#155">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

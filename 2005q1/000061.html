@@ -1,0 +1,219 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice Makefile,1.7,1.8 utils.c,1.2,1.3 utils.h,1.2,1.3 video-fb.c,1.5,1.6
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20Makefile%2C1.7%2C1.8%20utils.c%2C1.2%2C1.3%20utils.h%2C1.2%2C1.3%20video-fb.c%2C1.5%2C1.6&In-Reply-To=%3C200503031816.j23IGSN27520%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000060.html">
+   <LINK REL="Next"  HREF="000062.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice Makefile,1.7,1.8 utils.c,1.2,1.3 utils.h,1.2,1.3 video-fb.c,1.5,1.6</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20Makefile%2C1.7%2C1.8%20utils.c%2C1.2%2C1.3%20utils.h%2C1.2%2C1.3%20video-fb.c%2C1.5%2C1.6&In-Reply-To=%3C200503031816.j23IGSN27520%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice Makefile,1.7,1.8 utils.c,1.2,1.3 utils.h,1.2,1.3 video-fb.c,1.5,1.6">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Thu Mar  3 19:16:28 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000060.html">[Softdevice-cvs] softdevice video.c,1.10,1.11 CHANGELOG,1.36,1.37
+</A></li>
+        <LI>Next message: <A HREF="000062.html">[Softdevice-cvs] softdevice video.c,1.11,1.12
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#61">[ date ]</a>
+              <a href="thread.html#61">[ thread ]</a>
+              <a href="subject.html#61">[ subject ]</a>
+              <a href="author.html#61">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv17807
+
+Modified Files:
+	Makefile utils.c utils.h video-fb.c 
+Log Message:
+fix for build option USE_SUBPLUGINS
+
+
+Index: Makefile
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/Makefile,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -C2 -d -r1.7 -r1.8
+*** Makefile	27 Feb 2005 08:52:33 -0000	1.7
+--- Makefile	3 Mar 2005 18:16:26 -0000	1.8
+***************
+*** 176,180 ****
+    ifdef USE_SUBPLUGINS
+      FB_LIBS   =
+!     FB_OBJS   = video.o video-fb.o
+      ALL_OBJS  += $(FB_OBJS)
+      TARGETS   += libvdr-$(PLUGIN)-fb.so
+--- 176,180 ----
+    ifdef USE_SUBPLUGINS
+      FB_LIBS   =
+!     FB_OBJS   = utils.o video.o video-fb.o
+      ALL_OBJS  += $(FB_OBJS)
+      TARGETS   += libvdr-$(PLUGIN)-fb.so
+
+Index: utils.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/utils.c,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** utils.c	18 Feb 2005 13:31:27 -0000	1.2
+--- utils.c	3 Mar 2005 18:16:26 -0000	1.3
+***************
+*** 207,211 ****
+                   int width, int height,
+                   int rgb_stride, int y_stride, int uv_stride,
+!                  int dstW, int dstH, int depth, unsigned char * mask)
+  {
+  /*
+--- 207,212 ----
+                   int width, int height,
+                   int rgb_stride, int y_stride, int uv_stride,
+!                  int dstW, int dstH,
+!                  int depth, unsigned char * mask, int deintMethod)
+  {
+  /*
+***************
+*** 258,262 ****
+          int srcpix = x * width / dstW;
+  
+!       if (setupStore.deintMethod == 2) {
+          // deinterlace with FB-intern method
+          scaleY[x] = (Y[srcpix] / 2) + (Y1[srcpix] /4) + (Y2[srcpix] / 4);
+--- 259,263 ----
+          int srcpix = x * width / dstW;
+  
+!       if (deintMethod == 2) {
+          // deinterlace with FB-intern method
+          scaleY[x] = (Y[srcpix] / 2) + (Y1[srcpix] /4) + (Y2[srcpix] / 4);
+
+Index: utils.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/utils.h,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** utils.h	18 Feb 2005 13:31:27 -0000	1.2
+--- utils.h	3 Mar 2005 18:16:26 -0000	1.3
+***************
+*** 25,32 ****
+  */
+  void yuv_to_rgb (uint8_t * image, uint8_t * py,
+! 				  uint8_t * pu, uint8_t * pv,
+! 				  int width, int height,
+! 				  int rgb_stride, int y_stride, int uv_stride,
+! 				  int dstW, int dstH, int depth, unsigned char * mask);
+  uint64_t getTimeMilis(void);
+  
+--- 25,33 ----
+  */
+  void yuv_to_rgb (uint8_t * image, uint8_t * py,
+!                  uint8_t * pu, uint8_t * pv,
+!                  int width, int height,
+!                  int rgb_stride, int y_stride, int uv_stride,
+!                  int dstW, int dstH,
+!                  int depth, unsigned char * mask, int deintMethod);
+  uint64_t getTimeMilis(void);
+  
+
+Index: video-fb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-fb.c,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -C2 -d -r1.5 -r1.6
+*** video-fb.c	24 Feb 2005 22:35:51 -0000	1.5
+--- video-fb.c	3 Mar 2005 18:16:26 -0000	1.6
+***************
+*** 21,25 ****
+  static  pthread_mutex_t fb_mutex = PTHREAD_MUTEX_INITIALIZER;
+  // --- cFrameBuffer --------------------------------------------------------
+! cFBVideoOut::cFBVideoOut(cSetupStore *etupStore)
+                : cVideoOut(setupStore)
+  {
+--- 21,25 ----
+  static  pthread_mutex_t fb_mutex = PTHREAD_MUTEX_INITIALIZER;
+  // --- cFrameBuffer --------------------------------------------------------
+! cFBVideoOut::cFBVideoOut(cSetupStore *setupStore)
+                : cVideoOut(setupStore)
+  {
+***************
+*** 167,172 ****
+                  OsdHeight=Yres;
+               break;
+!     };
+! };
+  
+  void cFBVideoOut::Refresh(cBitmap *Bitmap)
+--- 167,172 ----
+                  OsdHeight=Yres;
+               break;
+!     }
+! }
+  
+  void cFBVideoOut::Refresh(cBitmap *Bitmap)
+***************
+*** 204,210 ****
+    pthread_mutex_lock(&amp;fb_mutex);
+    if (OSDpresent) {
+!     yuv_to_rgb (fb, Py, Pu, Pv, Width, Height, line_len,Ystride,UVstride,Xres,Yres,Bpp, PixelMask);
+    } else {
+!     yuv_to_rgb (fb, Py, Pu, Pv, Width, Height, line_len,Ystride,UVstride,Xres,Yres,Bpp, NULL);
+    }
+    pthread_mutex_unlock(&amp;fb_mutex);
+--- 204,218 ----
+    pthread_mutex_lock(&amp;fb_mutex);
+    if (OSDpresent) {
+!     yuv_to_rgb (fb, Py, Pu, Pv,
+!                 Width, Height, line_len,
+!                 Ystride,UVstride,
+!                 Xres,Yres,
+!                 Bpp, PixelMask, setupStore-&gt;deintMethod);
+    } else {
+!     yuv_to_rgb (fb, Py, Pu, Pv,
+!                 Width, Height, line_len,
+!                 Ystride,UVstride,
+!                 Xres,Yres,
+!                 Bpp, NULL, setupStore-&gt;deintMethod);
+    }
+    pthread_mutex_unlock(&amp;fb_mutex);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000060.html">[Softdevice-cvs] softdevice video.c,1.10,1.11 CHANGELOG,1.36,1.37
+</A></li>
+	<LI>Next message: <A HREF="000062.html">[Softdevice-cvs] softdevice video.c,1.11,1.12
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#61">[ date ]</a>
+              <a href="thread.html#61">[ thread ]</a>
+              <a href="subject.html#61">[ subject ]</a>
+              <a href="author.html#61">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

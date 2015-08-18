@@ -1,0 +1,173 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.201,1.202 Makefile,1.31,1.32 configure,1.18,1.19
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.201%2C1.202%20Makefile%2C1.31%2C1.32%20configure%2C1.18%2C1.19&In-Reply-To=%3C200606180716.k5I7GAb25525%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000385.html">
+   <LINK REL="Next"  HREF="000387.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.201,1.202 Makefile,1.31,1.32 configure,1.18,1.19</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.201%2C1.202%20Makefile%2C1.31%2C1.32%20configure%2C1.18%2C1.19&In-Reply-To=%3C200606180716.k5I7GAb25525%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.201,1.202 Makefile,1.31,1.32 configure,1.18,1.19">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Jun 18 09:16:10 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000385.html">[Softdevice-cvs] softdevice .cvsignore,1.2,1.3
+</A></li>
+        <LI>Next message: <A HREF="000387.html">[Softdevice-cvs] softdevice CHANGELOG,1.202,1.203 video-dfb.c,1.66,1.67
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#386">[ date ]</a>
+              <a href="thread.html#386">[ thread ]</a>
+              <a href="subject.html#386">[ subject ]</a>
+              <a href="author.html#386">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv2050
+
+Modified Files:
+	CHANGELOG Makefile configure 
+Log Message:
+removed hardcoded FBDEV name in Makefile and configure
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.201
+retrieving revision 1.202
+diff -C2 -d -r1.201 -r1.202
+*** CHANGELOG	17 Jun 2006 20:42:58 -0000	1.201
+--- CHANGELOG	18 Jun 2006 07:16:06 -0000	1.202
+***************
+*** 1,3 ****
+--- 1,6 ----
+  Changelog
++ 2006-06-18:
++    - ignore config.log on commit checks
++    - removed hardcoded FBDEV name in Makefile and configure
+  2006-06-17:
+     - cle266, video-dfb: added HW-decoder support
+
+Index: Makefile
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/Makefile,v
+retrieving revision 1.31
+retrieving revision 1.32
+diff -C2 -d -r1.31 -r1.32
+*** Makefile	17 Jun 2006 16:27:34 -0000	1.31
+--- Makefile	18 Jun 2006 07:16:06 -0000	1.32
+***************
+*** 37,49 ****
+  ifndef WITH_CONFIGURE
+  
+- 
+- # -----------------------------------------------------------------------------
+- # framebuffer device name
+- #
+- #FBDEV = /dev/fb/0
+- #FBDEV = /dev/fb0
+- 
+- FBDEV = /dev/fb0
+- 
+  # uncomment ONE of these lines if you want to enable the support
+  
+--- 37,40 ----
+***************
+*** 164,168 ****
+  
+  ifdef FB_SUPPORT
+!   DEFINES += -DFB_SUPPORT -DFBDEV=\&quot;$(FBDEV)\&quot;
+  endif
+  
+--- 155,159 ----
+  
+  ifdef FB_SUPPORT
+!   DEFINES += -DFB_SUPPORT
+  endif
+  
+***************
+*** 180,184 ****
+    VIDIX_LIBS  = -L$(VIDIX_DIR)/lib -lvidix
+    VIDIX_CFLAGS = -I$(VIDIX_DIR)/include/vidix
+!   DEFINES     += -DVIDIX_SUPPORT -DVIDIX_DIR=\&quot;$(VIDIX_DIR)/lib/vidix/\&quot; -DFBDEV=\&quot;$(FBDEV)\&quot;
+  endif
+  
+--- 171,175 ----
+    VIDIX_LIBS  = -L$(VIDIX_DIR)/lib -lvidix
+    VIDIX_CFLAGS = -I$(VIDIX_DIR)/include/vidix
+!   DEFINES     += -DVIDIX_SUPPORT -DVIDIX_DIR=\&quot;$(VIDIX_DIR)/lib/vidix/\&quot;
+  endif
+  
+
+Index: configure
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/configure,v
+retrieving revision 1.18
+retrieving revision 1.19
+diff -C2 -d -r1.18 -r1.19
+*** configure	17 Jun 2006 19:19:38 -0000	1.18
+--- configure	18 Jun 2006 07:16:06 -0000	1.19
+***************
+*** 32,36 ****
+  ffmpeg_path=&quot;/usr/local/include/ffmpeg&quot;
+  with_fb=&quot;yes&quot;
+- fb_dev_name=&quot;/dev/fb0&quot;
+  with_subplugins=&quot;yes&quot;
+  with_mmx=&quot;yes&quot;
+--- 32,35 ----
+***************
+*** 465,469 ****
+    echo &quot;#define VIDIX_SUPPORT 1&quot; &gt;&gt; $TMPH
+    echo &quot;#define VIDIX_DIR     \&quot;${vidix_path}/lib/vidix/\&quot;&quot; &gt;&gt; $TMPH
+-   echo &quot;#define FBDEV         \&quot;${fb_dev_name}\&quot;&quot; &gt;&gt; $TMPH
+  fi
+  
+--- 464,467 ----
+***************
+*** 493,499 ****
+    echo &quot;FB_SUPPORT = 1&quot; &gt;&gt; $TMPM
+    echo &quot;#define FB_SUPPORT  1&quot; &gt;&gt; $TMPH
+-   echo &quot;#ifndef FBDEV&quot; &gt;&gt; $TMPH
+-   echo &quot;# define FBDEV      \&quot;${fb_dev_name}\&quot;&quot; &gt;&gt; $TMPH
+-   echo &quot;#endif&quot; &gt;&gt; $TMPH
+  fi
+  
+--- 491,494 ----
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000385.html">[Softdevice-cvs] softdevice .cvsignore,1.2,1.3
+</A></li>
+	<LI>Next message: <A HREF="000387.html">[Softdevice-cvs] softdevice CHANGELOG,1.202,1.203 video-dfb.c,1.66,1.67
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#386">[ date ]</a>
+              <a href="thread.html#386">[ thread ]</a>
+              <a href="subject.html#386">[ subject ]</a>
+              <a href="author.html#386">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

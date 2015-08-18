@@ -1,0 +1,136 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice utils.h, 1.12, 1.13 CHANGELOG, 1.268,	1.269
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20utils.h%2C%201.12%2C%201.13%20CHANGELOG%2C%201.268%2C%0A%091.269&In-Reply-To=%3C20061126185259.D7D60AEC0A%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000475.html">
+   <LINK REL="Next"  HREF="000477.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice utils.h, 1.12, 1.13 CHANGELOG, 1.268,	1.269</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20utils.h%2C%201.12%2C%201.13%20CHANGELOG%2C%201.268%2C%0A%091.269&In-Reply-To=%3C20061126185259.D7D60AEC0A%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice utils.h, 1.12, 1.13 CHANGELOG, 1.268,	1.269">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Nov 26 19:52:59 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000475.html">[Softdevice-cvs] softdevice CHANGELOG, 1.267, 1.268 ShmClient.c,	1.18, 1.19
+</A></li>
+        <LI>Next message: <A HREF="000477.html">[Softdevice-cvs] softdevice PicBuffer.c, 1.14, 1.15 PicBuffer.h, 1.5,	1.6 CHANGELOG, 1.269, 1.270
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#476">[ date ]</a>
+              <a href="thread.html#476">[ thread ]</a>
+              <a href="subject.html#476">[ subject ]</a>
+              <a href="author.html#476">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv1446
+
+Modified Files:
+	utils.h CHANGELOG 
+Log Message:
+- use brackets in WRITE_RGB16 macro, introduce WRITE_RGB15 (untested)
+  and ARGB_TO_RGB.
+
+
+Index: utils.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/utils.h,v
+retrieving revision 1.12
+retrieving revision 1.13
+diff -C2 -d -r1.12 -r1.13
+*** utils.h	7 Nov 2006 18:13:19 -0000	1.12
+--- utils.h	26 Nov 2006 18:52:02 -0000	1.13
+***************
+*** 167,179 ****
+  #define SIZE_BGR24  3
+  
+- 
+  #define WRITE_RGB16(dst,r,g,b) \
+          do { \
+!             ((uint8_t *)dst)[0]=((b &gt;&gt; 3)&amp; 0x1F) | ((g &amp; 0x1C) &lt;&lt; 3); \
+!             ((uint8_t *)dst)[1]=(r &amp; 0xF8) | (g &gt;&gt; 5); \
+          } while (0)
+  #define SIZE_RGB16  2
+  
+  
+! #endif
+  
+--- 167,188 ----
+  #define SIZE_BGR24  3
+  
+  #define WRITE_RGB16(dst,r,g,b) \
+          do { \
+!             ((uint8_t *)dst)[0]=(((b) &gt;&gt; 3)&amp; 0x1F) | (((g) &amp; 0x1C) &lt;&lt; 3); \
+!             ((uint8_t *)dst)[1]=((r) &amp; 0xF8) | ((g) &gt;&gt; 5); \
+          } while (0)
+  #define SIZE_RGB16  2
+  
++ #define WRITE_RGB15(dst,r,g,b) \
++         do { \
++             ((uint8_t *)dst)[0]=(((b) &gt;&gt; 3)&amp; 0x1F) | (((g) &amp; 0x1F) &lt;&lt; 3); \
++             ((uint8_t *)dst)[1]=(((r) &amp; 0xF8)&gt;&gt;1) | ((g) &gt;&gt; 6); \
++         } while (0)
++ #define SIZE_RGB15  2
+  
+! #define ARGB_TO_RGB(rgb,dst,src) \
+!         WRITE_##rgb(dst,((src) &gt;&gt; 16) &amp; 0xff,\
+!                         ((src) &gt;&gt;  8) &amp; 0xff,\
+!                         ((src)      ) &amp; 0xff )
+  
++ #endif
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.268
+retrieving revision 1.269
+diff -C2 -d -r1.268 -r1.269
+*** CHANGELOG	22 Nov 2006 22:35:54 -0000	1.268
+--- CHANGELOG	26 Nov 2006 18:52:02 -0000	1.269
+***************
+*** 1,3 ****
+--- 1,6 ----
+  Changelog
++ 2006-11-26:
++    - use brackets in WRITE_RGB16 macro, introduce WRITE_RGB15 (untested)
++      and ARGB_TO_RGB.
+  2006-11-22:
+     - remove cShmVideo::Process() method, and instead signal PICT_SIG
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000475.html">[Softdevice-cvs] softdevice CHANGELOG, 1.267, 1.268 ShmClient.c,	1.18, 1.19
+</A></li>
+	<LI>Next message: <A HREF="000477.html">[Softdevice-cvs] softdevice PicBuffer.c, 1.14, 1.15 PicBuffer.h, 1.5,	1.6 CHANGELOG, 1.269, 1.270
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#476">[ date ]</a>
+              <a href="thread.html#476">[ thread ]</a>
+              <a href="subject.html#476">[ subject ]</a>
+              <a href="author.html#476">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

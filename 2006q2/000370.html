@@ -1,0 +1,194 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.190,1.191 Makefile,1.28,1.29
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.190%2C1.191%20Makefile%2C1.28%2C1.29&In-Reply-To=%3C200605271910.k4RJAMT25709%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000371.html">
+   <LINK REL="Next"  HREF="000372.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.190,1.191 Makefile,1.28,1.29</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.190%2C1.191%20Makefile%2C1.28%2C1.29&In-Reply-To=%3C200605271910.k4RJAMT25709%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.190,1.191 Makefile,1.28,1.29">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat May 27 21:10:22 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000371.html">[Softdevice-cvs] softdevice VideoFilter.c,NONE,1.1 VideoFilter.h,NONE,1.1 PicBuffer.c,NONE,1.1 PicBuffer.h,NONE,1.1 video.c,1.57,1.58 video.h,1.39,1.40 ShmClient.c,1.13,1.14 mpeg2decoder.c,1.63,1.64 mpeg2decoder.h,1.36,1.37 video-dfb.c,1.61,1.62 video-dfb.h,1.20,1.21 video-dummy.c,1.2,1.3 video-dummy.h,1.2,1.3 video-fb.c,1.14,1.15 video-fb.h,1.7,1.8 video-shm.c,1.7,1.8 video-shm.h,1.4,1.5 video-vidix.c,1.18,1.19 video-vidix.h,1.9,1.10 video-xv.c,1.54,1.55 video-xv.h,1.20,1.21
+</A></li>
+        <LI>Next message: <A HREF="000372.html">[Softdevice-cvs] softdevice CHANGELOG,1.191,1.192 PicBuffer.c,1.1,1.2 VideoFilter.c,1.1,1.2
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#370">[ date ]</a>
+              <a href="thread.html#370">[ thread ]</a>
+              <a href="subject.html#370">[ subject ]</a>
+              <a href="author.html#370">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv3622
+
+Modified Files:
+	CHANGELOG Makefile 
+Log Message:
+- move postproc stuff into VideoFilter.[ch]
+- apply patch to use direct rendering
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.190
+retrieving revision 1.191
+diff -C2 -d -r1.190 -r1.191
+*** CHANGELOG	27 May 2006 13:00:07 -0000	1.190
+--- CHANGELOG	27 May 2006 19:15:31 -0000	1.191
+***************
+*** 1,4 ****
+--- 1,6 ----
+  Changelog
+  2006-05-27:
++    - move postproc stuff into VideoFilter.[ch]
++    - apply patch to use direct rendering
+     - add tests for older ffmpeg versions to configure
+     - add &quot;--disable-mmx&quot; and &quot;--disable-mmx2&quot; to configure
+
+Index: Makefile
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/Makefile,v
+retrieving revision 1.28
+retrieving revision 1.29
+diff -C2 -d -r1.28 -r1.29
+*** Makefile	29 Apr 2006 06:20:28 -0000	1.28
+--- Makefile	27 May 2006 19:15:31 -0000	1.29
+***************
+*** 164,167 ****
+--- 164,168 ----
+    DEFINES     += -DPP_LIBAVCODEC
+    FFMPEGLIBS  += -lpostproc
++   INCLUDES    += -Ipostproc/
+  endif
+  
+***************
+*** 226,235 ****
+  TARGETS = libvdr-$(PLUGIN).so
+  LIBS = $(FFMPEGLIBS) -lasound
+! OBJS = $(PLUGIN).o utils.o i18n.o video.o mpeg2decoder.o audio.o audio-ac3pt.o video-dummy.o setup-softdevice.o setup-softdevice-menu.o sync-timer.o SoftOsd.o
+  ALL_OBJS = $(OBJS)
+  
+  ifdef DFB_SUPPORT
+    ifdef USE_SUBPLUGINS
+!     DFB_OBJS  = utils.o video.o video-dfb.o
+      ALL_OBJS += $(DFB_OBJS)
+      TARGETS  += libsubvdr-$(PLUGIN)-dfb.so
+--- 227,236 ----
+  TARGETS = libvdr-$(PLUGIN).so
+  LIBS = $(FFMPEGLIBS) -lasound
+! OBJS = $(PLUGIN).o utils.o i18n.o video.o mpeg2decoder.o audio.o audio-ac3pt.o video-dummy.o setup-softdevice.o setup-softdevice-menu.o sync-timer.o SoftOsd.o PicBuffer.o VideoFilter.o
+  ALL_OBJS = $(OBJS)
+  
+  ifdef DFB_SUPPORT
+    ifdef USE_SUBPLUGINS
+!     DFB_OBJS  = utils.o video.o video-dfb.o PicBuffer.o
+      ALL_OBJS += $(DFB_OBJS)
+      TARGETS  += libsubvdr-$(PLUGIN)-dfb.so
+***************
+*** 244,248 ****
+    ifdef USE_SUBPLUGINS
+      FB_LIBS   =
+!     FB_OBJS   = utils.o video.o video-fb.o
+      ALL_OBJS  += $(FB_OBJS)
+      TARGETS   += libsubvdr-$(PLUGIN)-fb.so
+--- 245,249 ----
+    ifdef USE_SUBPLUGINS
+      FB_LIBS   =
+!     FB_OBJS   = utils.o video.o video-fb.o PicBuffer.o
+      ALL_OBJS  += $(FB_OBJS)
+      TARGETS   += libsubvdr-$(PLUGIN)-fb.so
+***************
+*** 254,258 ****
+  ifdef XV_SUPPORT
+    ifdef USE_SUBPLUGINS
+!     XV_OBJS   = utils.o video.o video-xv.o xscreensaver.o
+      ALL_OBJS  += $(XV_OBJS)
+      TARGETS   += libsubvdr-$(PLUGIN)-xv.so
+--- 255,259 ----
+  ifdef XV_SUPPORT
+    ifdef USE_SUBPLUGINS
+!     XV_OBJS   = utils.o video.o video-xv.o xscreensaver.o PicBuffer.o
+      ALL_OBJS  += $(XV_OBJS)
+      TARGETS   += libsubvdr-$(PLUGIN)-xv.so
+***************
+*** 265,269 ****
+  ifdef VIDIX_SUPPORT
+    ifdef USE_SUBPLUGINS
+!     VIDIX_OBJS  = utils.o video.o video-vidix.o
+      ALL_OBJS    += $(VIDIX_OBJS)
+      TARGETS     += libsubvdr-$(PLUGIN)-vidix.so
+--- 266,270 ----
+  ifdef VIDIX_SUPPORT
+    ifdef USE_SUBPLUGINS
+!     VIDIX_OBJS  = utils.o video.o video-vidix.o PicBuffer.o
+      ALL_OBJS    += $(VIDIX_OBJS)
+      TARGETS     += libsubvdr-$(PLUGIN)-vidix.so
+***************
+*** 277,281 ****
+  ifdef SHM_SUPPORT
+    ifdef USE_SUBPLUGINS
+!     SHM_OBJS  = utils.o video.o video-shm.o
+      ALL_OBJS    += $(SHM_OBJS)
+      TARGETS     += libsubvdr-$(PLUGIN)-shm.so
+--- 278,282 ----
+  ifdef SHM_SUPPORT
+    ifdef USE_SUBPLUGINS
+!     SHM_OBJS  = utils.o video.o video-shm.o PicBuffer.o
+      ALL_OBJS    += $(SHM_OBJS)
+      TARGETS     += libsubvdr-$(PLUGIN)-shm.so
+***************
+*** 354,358 ****
+  SHM_CLIENT_OBJS  = video_shm.o video-xv_shm.o setup-softdevice_shm.o\
+  		   xscreensaver_shm.o utils_shm.o VdrReplacements_shm.o\
+! 		   ShmClient_shm.o
+  
+  %_shm.o: %.c
+--- 355,359 ----
+  SHM_CLIENT_OBJS  = video_shm.o video-xv_shm.o setup-softdevice_shm.o\
+  		   xscreensaver_shm.o utils_shm.o VdrReplacements_shm.o\
+! 		   ShmClient_shm.o PicBuffer_shm.o 
+  
+  %_shm.o: %.c
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000371.html">[Softdevice-cvs] softdevice VideoFilter.c,NONE,1.1 VideoFilter.h,NONE,1.1 PicBuffer.c,NONE,1.1 PicBuffer.h,NONE,1.1 video.c,1.57,1.58 video.h,1.39,1.40 ShmClient.c,1.13,1.14 mpeg2decoder.c,1.63,1.64 mpeg2decoder.h,1.36,1.37 video-dfb.c,1.61,1.62 video-dfb.h,1.20,1.21 video-dummy.c,1.2,1.3 video-dummy.h,1.2,1.3 video-fb.c,1.14,1.15 video-fb.h,1.7,1.8 video-shm.c,1.7,1.8 video-shm.h,1.4,1.5 video-vidix.c,1.18,1.19 video-vidix.h,1.9,1.10 video-xv.c,1.54,1.55 video-xv.h,1.20,1.21
+</A></li>
+	<LI>Next message: <A HREF="000372.html">[Softdevice-cvs] softdevice CHANGELOG,1.191,1.192 PicBuffer.c,1.1,1.2 VideoFilter.c,1.1,1.2
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#370">[ date ]</a>
+              <a href="thread.html#370">[ thread ]</a>
+              <a href="subject.html#370">[ subject ]</a>
+              <a href="author.html#370">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

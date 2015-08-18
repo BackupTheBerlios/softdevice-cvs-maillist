@@ -1,0 +1,1072 @@
+From nobody at sheep.berlios.de  Wed Feb 18 20:40:49 2009
+From: nobody at sheep.berlios.de (lucke)
+Date: Wed, 18 Feb 2009 20:40:49 +0100 (CET)
+Subject: [Softdevice-cvs] softdevice CHANGELOG, 1.344, 1.345 mpeg2decoder.c,
+	1.85, 1.86
+Message-ID: <20090218194049.5824D1E9C6@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv9399
+
+Modified Files:
+	CHANGELOG mpeg2decoder.c 
+Log Message:
+Fix compiling with newer ffmpeg versions (r15634,r15799) (bug #14990).
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.344
+retrieving revision 1.345
+diff -C2 -d -r1.344 -r1.345
+*** CHANGELOG	25 Oct 2008 10:23:49 -0000	1.344
+--- CHANGELOG	18 Feb 2009 19:40:46 -0000	1.345
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2009-02-18:
++    - build: Fix compiling with newer ffmpeg versions (r15634,r15799) (bug #14990).
+  2008-10-25:
+     - build: Fix compiling with newer ffmpeg versions (by Jason Harvey).
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.85
+retrieving revision 1.86
+diff -C2 -d -r1.85 -r1.86
+*** mpeg2decoder.c	25 Oct 2008 10:23:49 -0000	1.85
+--- mpeg2decoder.c	18 Feb 2009 19:40:46 -0000	1.86
+***************
+*** 1118,1122 ****
+  
+  #if LIBAVFORMAT_BUILD >= ((52<<16)+(0<<8)+0)
+!        ic->pb->buffer=u;
+  #else
+         ic->pb.buffer=u;
+--- 1118,1122 ----
+  
+  #if LIBAVFORMAT_BUILD >= ((52<<16)+(0<<8)+0)
+!        memcpy (buf, u, size);
+  #else
+         ic->pb.buffer=u;
+***************
+*** 1156,1162 ****
+     }
+  
+!    init_put_byte(ic->pb, NULL,dvb_buf_size[setupStore->bufferMode]/2, 0, this,
+!        read_packet_RingBuffer,NULL,seek_RingBuffer);
+!    ic->pb->buf_end=NULL;
+     ic->pb->is_streamed=true;
+  #else
+--- 1156,1164 ----
+     }
+  
+!    unsigned char *buffer = (unsigned char *)
+!                            av_malloc (dvb_buf_size[setupStore->bufferMode]/2);
+!    init_put_byte(ic->pb,
+!                  buffer, dvb_buf_size[setupStore->bufferMode]/2, 0, this,
+!                  read_packet_RingBuffer,NULL,seek_RingBuffer);
+     ic->pb->is_streamed=true;
+  #else
+***************
+*** 1533,1536 ****
+--- 1535,1539 ----
+      av_close_input_stream(ic);
+      if (pb) {
++       av_free(pb->buffer);
+        av_free(pb);
+      }
+
+
+
+From nobody at sheep.berlios.de  Thu Feb 19 21:28:00 2009
+From: nobody at sheep.berlios.de (lucke)
+Date: Thu, 19 Feb 2009 21:28:00 +0100 (CET)
+Subject: [Softdevice-cvs] softdevice CHANGELOG, 1.345, 1.346 mpeg2decoder.c,
+	1.86, 1.87 mpeg2decoder.h, 1.45, 1.46 setup-softdevice-menu.c,
+	1.15, 1.16 setup-softdevice.c, 1.56, 1.57 setup-softdevice.h,
+	1.46, 1.47 softdevice.c, 1.93, 1.94 video.c, 1.77,
+	1.78 video.h, 1.56, 1.57
+Message-ID: <20090219202800.DA79D135BBB@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv20858
+
+Modified Files:
+	CHANGELOG mpeg2decoder.c mpeg2decoder.h 
+	setup-softdevice-menu.c setup-softdevice.c setup-softdevice.h 
+	softdevice.c video.c video.h 
+Log Message:
+- decoding: Enable selection between av_read_packet() and av_read_frame() via
+            OSD. To take effect, vdr has to be restarted.
+- still picture: Dependant on frame type (interlaced vs. progressive) show only
+                 one half frame. This avoids still picture judder.
+                 For demo an optional marker could be drawn when active.
+
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.345
+retrieving revision 1.346
+diff -C2 -d -r1.345 -r1.346
+*** CHANGELOG	18 Feb 2009 19:40:46 -0000	1.345
+--- CHANGELOG	19 Feb 2009 20:27:58 -0000	1.346
+***************
+*** 1,3 ****
+--- 1,9 ----
+  Changelog
++ 2009-02-19:
++    - decoding: Enable selection between av_read_packet() and av_read_frame() via
++                OSD. To take effect, vdr has to be restarted.
++    - still picture: Dependant on frame type (interlaced vs. progressive) show only
++                     one half frame. This avoids still picture judder.
++                     For demo an optional marker could be drawn when active.
+  2009-02-18:
+     - build: Fix compiling with newer ffmpeg versions (r15634,r15799) (bug #14990).
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.86
+retrieving revision 1.87
+diff -C2 -d -r1.86 -r1.87
+*** mpeg2decoder.c	18 Feb 2009 19:40:46 -0000	1.86
+--- mpeg2decoder.c	19 Feb 2009 20:27:58 -0000	1.87
+***************
+*** 1063,1066 ****
+--- 1063,1068 ----
+    Speed=1;
+    pb = NULL;
++ 
++   useAVReadFrame = setupStore->useAVReadFrame;
+  }
+  
+***************
+*** 1194,1206 ****
+  
+          BUFDEB("av_read_frame start\n");
+!         ret = av_read_frame(ic, &pkt);
+!         //ret = av_read_packet(ic, &pkt);
+          if (ret < 0) {
+              BUFDEB("cMpeg2Decoder Stream Error!\n");
+              if (ThreadActive)
+! 		    usleep(10000);
+              continue;
+          }
+!         av_dup_packet(&pkt);
+          PacketCount++;
+          BUFDEB("got packet from av_read_frame!\n");
+--- 1196,1214 ----
+  
+          BUFDEB("av_read_frame start\n");
+! 
+!         if (useAVReadFrame)
+!             ret = av_read_frame(ic, &pkt);
+!         else
+!             ret = av_read_packet(ic, &pkt);
+! 
+          if (ret < 0) {
+              BUFDEB("cMpeg2Decoder Stream Error!\n");
+              if (ThreadActive)
+!                    usleep(10000);
+              continue;
+          }
+!         if (useAVReadFrame)
+!             av_dup_packet(&pkt);
+! 
+          PacketCount++;
+          BUFDEB("got packet from av_read_frame!\n");
+***************
+*** 1431,1434 ****
+--- 1439,1443 ----
+    CMDDEB("Play\n");
+    freezeMode=false;
++   videoOut->SetStillPictureMode (Speed != 1);
+    if (running)
+    {
+***************
+*** 1451,1454 ****
+--- 1460,1464 ----
+    curPlayMode=playMode;
+    this->packetMode=packetMode;
++   videoOut->SetStillPictureMode (false);
+    switch (curPlayMode) {
+      case PmAudioVideo:
+***************
+*** 1474,1477 ****
+--- 1484,1490 ----
+    if (Stream & SOFTDEVICE_BOTH_STREAMS == SOFTDEVICE_BOTH_STREAMS )
+      freezeMode=freeze;
++   if (freeze)
++     videoOut->SetStillPictureMode (true);
++ 
+    // sleep a short while before putting the
+    // audio and video stream decoders to sleep
+***************
+*** 1556,1563 ****
+  /* ----------------------------------------------------------------------------
+   */
+- 
+  static uint8_t pes_packet_header[] = {
+       0x00,0x00,0x01, 0xe0,           0x00,0x00,   0x84, 0x00, 0x00,0x00};
+       // startcode,  video-stream 0, packet length,      no pts
+  int cMpeg2Decoder::StillPicture(uchar *Data, int Length)
+  {
+--- 1569,1578 ----
+  /* ----------------------------------------------------------------------------
+   */
+  static uint8_t pes_packet_header[] = {
+       0x00,0x00,0x01, 0xe0,           0x00,0x00,   0x84, 0x00, 0x00,0x00};
+       // startcode,  video-stream 0, packet length,      no pts
++ 
++ /* ----------------------------------------------------------------------------
++  */
+  int cMpeg2Decoder::StillPicture(uchar *Data, int Length)
+  {
+***************
+*** 1582,1585 ****
+--- 1597,1601 ----
+    };
+  
++   videoOut->SetStillPictureMode (true);
+    for (int i=0; 4>i;i++) {
+      if (!has_pesheader) {
+
+Index: mpeg2decoder.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.h,v
+retrieving revision 1.45
+retrieving revision 1.46
+diff -C2 -d -r1.45 -r1.46
+*** mpeg2decoder.h	25 Oct 2008 10:23:49 -0000	1.45
+--- mpeg2decoder.h	19 Feb 2009 20:27:58 -0000	1.46
+***************
+*** 285,288 ****
+--- 285,289 ----
+      AVFormatContext *ic;
+      ByteIOContext   *pb;
++     bool            useAVReadFrame;
+      int LastSize;
+      cMutex  mutex;
+
+Index: setup-softdevice-menu.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice-menu.c,v
+retrieving revision 1.15
+retrieving revision 1.16
+diff -C2 -d -r1.15 -r1.16
+*** setup-softdevice-menu.c	20 Jul 2008 16:41:01 -0000	1.15
+--- setup-softdevice-menu.c	19 Feb 2009 20:27:58 -0000	1.16
+***************
+*** 371,374 ****
+--- 371,386 ----
+                              fieldOrderNames));
+  
++   Add(new cMenuEditStraItem(tr("Still Picture Field"),
++                             (int *) &data->prefField,
++                             (SETUP_PREF_FIELD_NAMES-1),
++                             prefFieldNames));
++ 
++   Add(new cMenuEditBoolItem(tr("Still Picture Field Marker"),
++                             (int *) &data->prefFieldMarker, tr("no"), tr("yes")));
++ 
++   Add(new cMenuEditBoolItem(tr("Use av_read_frame()"),
++                             (int *) &data->useAVReadFrame, tr("no"), tr("yes")));
++ 
++ 
+  #if VDRVERSNUM >= 10334
+    Add(new cOsdItem(" ", osUnknown, false));
+***************
+*** 490,493 ****
+--- 502,508 ----
+    SetupStore ("syncTimerMode",        setupStore->syncTimerMode);
+    SetupStore ("fieldOrderMode",       setupStore->fieldOrderMode);
++   SetupStore ("preferredField",       setupStore->prefField);
++   SetupStore ("preferredFieldMarker", setupStore->prefFieldMarker);
++   SetupStore ("useAVReadFrame",       setupStore->useAVReadFrame);
+    SetupStore ("vidBrightness",        setupStore->vidBrightness);
+    SetupStore ("vidContrast",          setupStore->vidContrast);
+
+Index: setup-softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.c,v
+retrieving revision 1.56
+retrieving revision 1.57
+diff -C2 -d -r1.56 -r1.57
+*** setup-softdevice.c	20 Jul 2008 16:41:01 -0000	1.56
+--- setup-softdevice.c	19 Feb 2009 20:27:58 -0000	1.57
+***************
+*** 75,78 ****
+--- 75,80 ----
+  const char *fieldOrderNames[SETUP_FIELD_ORDER_NAMES];
+  
++ const char *prefFieldNames[SETUP_PREF_FIELD_NAMES];
++ 
+  /* ----------------------------------------------------------------------------
+   */
+***************
+*** 117,120 ****
+--- 119,125 ----
+    stretchBlitLocked = false;
+    fieldOrderMode    = 2;
++   prefField         = bothFields;
++   prefFieldMarker   = 0;
++   useAVReadFrame    = true;
+    bufferMode      = 0;
+    mainMenu  = 1;
+***************
+*** 210,213 ****
+--- 215,223 ----
+    fieldOrderNames[2] = "Auto";
+    fieldOrderNames[3] = NULL;
++ 
++   prefFieldNames[0] = tr("Both Fields");
++   prefFieldNames[1] = tr("First Field");
++   prefFieldNames[2] = tr("Later Field");
++   prefFieldNames[3] = NULL;
+  }
+  
+***************
+*** 382,385 ****
+--- 392,408 ----
+      fprintf(stderr, "[setup-softdevice] fieldOrderMode: %s\n",
+              fieldOrderNames[fieldOrderMode]);
++   } else if (!strcasecmp(Name, "preferredField")) {
++     prefField = (tPrefField) atoi (Value);
++     prefField = (tPrefField) clamp (bothFields, prefField, laterField);
++     fprintf(stderr, "[setup-softdevice] preferredField: %s\n",
++             prefFieldNames[prefField]);
++   } else if (!strcasecmp(Name, "preferredFieldMarker")) {
++     prefFieldMarker = atoi (Value);
++     prefFieldMarker = clamp (0, prefFieldMarker, 1);
++     fprintf(stderr, "[setup-softdevice] preferredFieldMarker: %s\n",
++             (prefFieldMarker) ? "On" : "Off");
++   } else if (!strcasecmp(Name, "useAVReadFrame")) {
++     useAVReadFrame = (bool) atoi (Value);
++     fprintf(stderr, "[setup-softdevice] useAVReadFrame: %s\n", (useAVReadFrame) ? "yes": "no");
+    } else if (!strcasecmp(Name, "vidBrightness")) {
+      vidBrightness = atoi (Value);
+
+Index: setup-softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.h,v
+retrieving revision 1.46
+retrieving revision 1.47
+diff -C2 -d -r1.46 -r1.47
+*** setup-softdevice.h	10 Sep 2008 17:15:38 -0000	1.46
+--- setup-softdevice.h	19 Feb 2009 20:27:58 -0000	1.47
+***************
+*** 106,109 ****
+--- 106,112 ----
+  extern const char *fieldOrderNames[SETUP_FIELD_ORDER_NAMES];
+  
++ #define SETUP_PREF_FIELD_NAMES  4
++ extern const char *prefFieldNames[SETUP_PREF_FIELD_NAMES];
++ 
+  /* ----------------------------------------------------------------------------
+   * allow changing of output pixfmt
+***************
+*** 117,120 ****
+--- 120,131 ----
+  extern const char *suspendVideo[SETUP_SUSPENDVIDEO];
+  
++ /*-----------------------------------------------------------------------------
++  */
++ typedef enum prefField {
++         bothFields,
++         earlierField,
++         laterField
++ } tPrefField;
++ 
+  /* ---------------------------------------------------------------------------
+   */
+***************
+*** 150,153 ****
+--- 161,165 ----
+      int   mirror;
+      int   syncOnFrames;
++     bool  useAVReadFrame;
+      int   avOffset;
+      int   screenPixelAspect;
+***************
+*** 183,186 ****
+--- 195,201 ----
+  
+      int   setupStoreShmid;
++ 
++     tPrefField   prefField;
++     int          prefFieldMarker;
+  };
+  
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.93
+retrieving revision 1.94
+diff -C2 -d -r1.93 -r1.94
+*** softdevice.c	18 Apr 2008 15:15:41 -0000	1.93
+--- softdevice.c	19 Feb 2009 20:27:58 -0000	1.94
+***************
+*** 498,504 ****
+  {
+      SOFTDEB("Freeze...\n");
+-     cDevice::Freeze();
+      if (decoder)
+        decoder->Freeze();
+      SOFTDEB("Freeze finished.\n");
+  }
+--- 498,504 ----
+  {
+      SOFTDEB("Freeze...\n");
+      if (decoder)
+        decoder->Freeze();
++     cDevice::Freeze();
+      SOFTDEB("Freeze finished.\n");
+  }
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.77
+retrieving revision 1.78
+diff -C2 -d -r1.77 -r1.78
+*** video.c	20 Jul 2008 16:41:01 -0000	1.77
+--- video.c	19 Feb 2009 20:27:58 -0000	1.78
+***************
+*** 462,465 ****
+--- 462,533 ----
+  /* ---------------------------------------------------------------------------
+   */
++ void cVideoOut::SetStillPictureMode(bool on)
++ {
++     stillPictureMode = on;
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ void cVideoOut::SelectField (sPicBuffer *pic)
++ {
++         unsigned char   *dest,
++                         *src;
++         int             i;
++ 
++     if (!pic->interlaced_frame)
++         return;
++     if (setupStore->prefField == bothFields)
++         return;
++ 
++     dest = src  = pic->pixel[0]
++                   + (pic->edge_height) * pic->stride[0]
++                   + pic->edge_width;
++ 
++     if (setupStore->prefField == earlierField) {
++ 
++         if (pic->top_field_first)
++             dest += pic->stride[0];
++         else
++             src  += pic->stride[0];
++ 
++     } else {
++ 
++         if (pic->top_field_first)
++             src  += pic->stride[0];
++         else
++             dest += pic->stride[0];
++     }
++ 
++     if (setupStore->prefFieldMarker) {
++             int     offset;
++ 
++         offset = pic->stride[0] / 4
++                  + pic->stride[0] / 4 * pic->stride[0];
++         for (i = 0; i < pic->height / 32; i += 2) {
++ #if 0
++             // invert Y
++             for (int j = 0; j < pic->stride[0] / 32; j++) {
++               dest [offset + j] = 255 - dest [offset + j];
++               src  [offset + j] = 255 - src  [offset + j];
++             }
++ #else
++             // set frame to very dark
++             memset (dest + offset, 0, pic->stride[0] / 32);
++             memset (src + offset, 0, pic->stride[0] / 32);
++ #endif
++             offset += 2 * pic->stride[0];
++         }
++     }
++ 
++     for (i = 0; i < pic->height; i += 2) {
++         // copy part
++         memcpy (dest, src, pic->stride[0]);
++         dest += 2 * pic->stride[0];
++         src  += 2 * pic->stride[0];
++     }
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
+  void cVideoOut::DrawVideo_420pl(cSyncTimer *syncTimer,
+                                  sPicBuffer *pic)
+***************
+*** 473,476 ****
+--- 541,548 ----
+    }
+  
++   if (stillPictureMode) {
++     SelectField (pic);
++   }
++ 
+    sPicBuffer *scale_pic=NULL;
+    if (scaleVid != 0) {
+***************
+*** 555,559 ****
+  
+    softlog->Log(SOFT_LOG_TRACE, 0,
+!                   "[VideoOut] A/V (%d - %d) off = %d avoff = %d\n",
+                    aPTS, pts, offset, offsetAverage);
+  
+--- 627,631 ----
+  
+    softlog->Log(SOFT_LOG_TRACE, 0,
+!                   "[VideoOut] A/V (%lld - %lld) off = %d avoff = %d\n",
+                    aPTS, pts, offset, offsetAverage);
+  
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.56
+retrieving revision 1.57
+diff -C2 -d -r1.56 -r1.57
+*** video.h	20 Jul 2008 16:41:01 -0000	1.56
+--- video.h	19 Feb 2009 20:27:58 -0000	1.57
+***************
+*** 67,70 ****
+--- 67,71 ----
+      sPicBuffer  *oldPicture;
+      cMutex      oldPictureMutex;
++     bool        stillPictureMode;
+      void        SetOldPicture(sPicBuffer *pic);
+  
+***************
+*** 193,196 ****
+--- 194,199 ----
+      };
+  
++     virtual void SetStillPictureMode (bool on);
++     virtual void SelectField (sPicBuffer *pic);
+  
+      virtual void Action(void);
+
+
+
+From nobody at sheep.berlios.de  Fri Feb 27 17:50:58 2009
+From: nobody at sheep.berlios.de (lucke)
+Date: Fri, 27 Feb 2009 17:50:58 +0100 (CET)
+Subject: [Softdevice-cvs] softdevice utils.c,1.27,1.28 utils.h,1.18,1.19
+Message-ID: <20090227165058.69D5A172631@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv15848
+
+Modified Files:
+	utils.c utils.h 
+Log Message:
+whitespace cleanup
+
+Index: utils.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/utils.c,v
+retrieving revision 1.27
+retrieving revision 1.28
+diff -C2 -d -r1.27 -r1.28
+*** utils.c	10 May 2007 21:57:26 -0000	1.27
+--- utils.c	27 Feb 2009 16:50:55 -0000	1.28
+***************
+*** 825,834 ****
+  
+  void yuv420_to_rgb15(uint8_t *dst1, uint8_t *dst2,
+!                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
+                   int pixel)
+  {
+    pixel/=2;
+    while (pixel) {
+!     YUV420P_TO_RGB(RGB15);  
+      pixel--;
+    };
+--- 825,834 ----
+  
+  void yuv420_to_rgb15(uint8_t *dst1, uint8_t *dst2,
+!                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv,
+                   int pixel)
+  {
+    pixel/=2;
+    while (pixel) {
+!     YUV420P_TO_RGB(RGB15);
+      pixel--;
+    };
+
+Index: utils.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/utils.h,v
+retrieving revision 1.18
+retrieving revision 1.19
+diff -C2 -d -r1.18 -r1.19
+*** utils.h	10 May 2007 21:57:26 -0000	1.18
+--- utils.h	27 Feb 2009 16:50:55 -0000	1.19
+***************
+*** 53,59 ****
+  //#warning Not using MMX extensions
+  #define PREFETCH(x)
+! #define MOVNTQ   
+  #define SFENCE
+! #define EMMS     
+  #endif
+  
+--- 53,59 ----
+  //#warning Not using MMX extensions
+  #define PREFETCH(x)
+! #define MOVNTQ
+  #define SFENCE
+! #define EMMS
+  #endif
+  
+***************
+*** 102,127 ****
+                   );
+  
+! typedef void (*yuv420_convert_fct)(uint8_t *dst1, uint8_t *dst2, 
+                  uint8_t *py1, uint8_t *py2,uint8_t *pu, uint8_t *pv,
+                  int pixel);
+  
+! void yuv420_to_yuy2(uint8_t *dst1, uint8_t *dst2, 
+                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv,
+                  int pixel);
+  void yuv420_to_rgb32(uint8_t *dst1, uint8_t *dst2,
+!                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
+                   int pixel);
+  void yuv420_to_rgb24(uint8_t *dst1, uint8_t *dst2,
+!                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
+                   int pixel);
+  void yuv420_to_bgr24(uint8_t *dst1, uint8_t *dst2,
+!                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
+                   int pixel);
+  void yuv420_to_rgb16(uint8_t *dst1, uint8_t *dst2,
+!                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
+                   int pixel);
+  
+  void yuv420_to_rgb15(uint8_t *dst1, uint8_t *dst2,
+!                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
+                   int pixel);
+  
+--- 102,127 ----
+                   );
+  
+! typedef void (*yuv420_convert_fct)(uint8_t *dst1, uint8_t *dst2,
+                  uint8_t *py1, uint8_t *py2,uint8_t *pu, uint8_t *pv,
+                  int pixel);
+  
+! void yuv420_to_yuy2(uint8_t *dst1, uint8_t *dst2,
+                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv,
+                  int pixel);
+  void yuv420_to_rgb32(uint8_t *dst1, uint8_t *dst2,
+!                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv,
+                   int pixel);
+  void yuv420_to_rgb24(uint8_t *dst1, uint8_t *dst2,
+!                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv,
+                   int pixel);
+  void yuv420_to_bgr24(uint8_t *dst1, uint8_t *dst2,
+!                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv,
+                   int pixel);
+  void yuv420_to_rgb16(uint8_t *dst1, uint8_t *dst2,
+!                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv,
+                   int pixel);
+  
+  void yuv420_to_rgb15(uint8_t *dst1, uint8_t *dst2,
+!                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv,
+                   int pixel);
+  
+***************
+*** 132,136 ****
+  uint64_t  getTimeMilis(void);
+  char      *getFBName(void);
+! bool  CatchRemoteKey(const char *remoteName, uint64_t key, 
+                  const int ToggleKey);
+  
+--- 132,136 ----
+  uint64_t  getTimeMilis(void);
+  char      *getFBName(void);
+! bool  CatchRemoteKey(const char *remoteName, uint64_t key,
+                  const int ToggleKey);
+  
+***************
+*** 146,150 ****
+              ((uint8_t *)dst)[3]=0; \
+          } while (0)
+! #define SIZE_RGB32 4 
+  
+  #define WRITE_RGB24(dst,r,g,b) \
+--- 146,150 ----
+              ((uint8_t *)dst)[3]=0; \
+          } while (0)
+! #define SIZE_RGB32 4
+  
+  #define WRITE_RGB24(dst,r,g,b) \
+
+
+
+From nobody at sheep.berlios.de  Fri Feb 27 18:02:37 2009
+From: nobody at sheep.berlios.de (lucke)
+Date: Fri, 27 Feb 2009 18:02:37 +0100 (CET)
+Subject: [Softdevice-cvs] softdevice mpeg2decoder.c, 1.87,
+	1.88 mpeg2decoder.h, 1.46, 1.47 PicBuffer.h, 1.10,
+	1.11 utils.c, 1.28, 1.29 utils.h, 1.19, 1.20 video.c, 1.78,
+	1.79 video.h, 1.57, 1.58 video-vidix.c, 1.27, 1.28
+Message-ID: <20090227170237.9D727D6F1@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv16774
+
+Modified Files:
+	mpeg2decoder.c mpeg2decoder.h PicBuffer.h utils.c utils.h 
+	video.c video.h video-vidix.c 
+Log Message:
+uint64_t -> int64_t for all PTS vars
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.87
+retrieving revision 1.88
+diff -C2 -d -r1.87 -r1.88
+*** mpeg2decoder.c	19 Feb 2009 20:27:58 -0000	1.87
+--- mpeg2decoder.c	27 Feb 2009 17:02:35 -0000	1.88
+***************
+*** 340,347 ****
+  /* ---------------------------------------------------------------------------
+   */
+! uint64_t cAudioStreamDecoder::GetPTS()
+  {
+    MPGDEB("pts %lld aDelay: %d ",pts,audioOut->GetDelay());
+!   uint64_t PTS= pts - audioOut->GetDelay() + setupStore->avOffset*10;
+   return PTS;
+  };
+--- 340,347 ----
+  /* ---------------------------------------------------------------------------
+   */
+! int64_t cAudioStreamDecoder::GetPTS()
+  {
+    MPGDEB("pts %lld aDelay: %d ",pts,audioOut->GetDelay());
+!   int64_t PTS= pts - audioOut->GetDelay() + setupStore->avOffset*10;
+   return PTS;
+  };
+***************
+*** 396,400 ****
+        {
+            int       delta_pts;
+!           uint64_t  PTS;
+  
+          // feed data for AC3 pass through to device
+--- 396,400 ----
+        {
+            int       delta_pts;
+!           int64_t   PTS;
+  
+          // feed data for AC3 pass through to device
+***************
+*** 521,525 ****
+        pkt->pts=AV_NOPTS_VALUE;
+      }
+!     uint64_t PTS= pts - audioOut->GetDelay() + setupStore->avOffset*10;
+  
+      MPGDEB("audio pts offset %lld\n",cClock::GetTime()-PTS);
+--- 521,525 ----
+        pkt->pts=AV_NOPTS_VALUE;
+      }
+!     int64_t PTS= pts - audioOut->GetDelay() + setupStore->avOffset*10;
+  
+      MPGDEB("audio pts offset %lld\n",cClock::GetTime()-PTS);
+***************
+*** 672,676 ****
+  };
+  
+! uint64_t cVideoStreamDecoder::GetPTS() {
+    return pts;
+  // Was pts of next frame reduced by time to display next frame.
+--- 672,676 ----
+  };
+  
+! int64_t cVideoStreamDecoder::GetPTS() {
+    return pts;
+  // Was pts of next frame reduced by time to display next frame.
+***************
+*** 941,945 ****
+    // measure the A-V offset
+    // the A-V syncing code is partly based on MPlayer...
+!   uint64_t aPTS = clock->GetPTS();
+    // update video pts
+    cClock::AdjustVideoPTS(pts);
+--- 941,945 ----
+    // measure the A-V offset
+    // the A-V syncing code is partly based on MPlayer...
+!   int64_t aPTS = clock->GetPTS();
+    // update video pts
+    cClock::AdjustVideoPTS(pts);
+
+Index: mpeg2decoder.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.h,v
+retrieving revision 1.46
+retrieving revision 1.47
+diff -C2 -d -r1.46 -r1.47
+*** mpeg2decoder.h	19 Feb 2009 20:27:58 -0000	1.46
+--- mpeg2decoder.h	27 Feb 2009 17:02:35 -0000	1.47
+***************
+*** 183,187 ****
+      bool              initCodec(void);
+      void              resetCodec(void);
+!     virtual uint64_t  GetPTS()  {return pts;};
+  
+      cStreamDecoder(AVCodecContext * Context, bool packetMode);
+--- 183,187 ----
+      bool              initCodec(void);
+      void              resetCodec(void);
+!     virtual int64_t  GetPTS()  {return pts;};
+  
+      cStreamDecoder(AVCodecContext * Context, bool packetMode);
+***************
+*** 215,219 ****
+      inline void SetAudioMode(int AudioMode)
+        { audioMode=AudioMode; };
+!     virtual uint64_t GetPTS();
+  };
+  
+--- 215,219 ----
+      inline void SetAudioMode(int AudioMode)
+        { audioMode=AudioMode; };
+!     virtual int64_t GetPTS();
+  };
+  
+***************
+*** 266,270 ****
+      virtual int DecodePacket(AVPacket *pkt);
+      virtual void TrickSpeed(int Speed);
+!     virtual uint64_t GetPTS();
+  };
+  
+--- 266,270 ----
+      virtual int DecodePacket(AVPacket *pkt);
+      virtual void TrickSpeed(int Speed);
+!     virtual int64_t GetPTS();
+  };
+  
+
+Index: PicBuffer.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/PicBuffer.h,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -C2 -d -r1.10 -r1.11
+*** PicBuffer.h	20 Jul 2008 16:41:01 -0000	1.10
+--- PicBuffer.h	27 Feb 2009 17:02:35 -0000	1.11
+***************
+*** 50,54 ****
+      int dtg_active_format;
+      float aspect_ratio;
+!     uint64_t pts;
+      bool interlaced_frame;
+      int  top_field_first;
+--- 50,54 ----
+      int dtg_active_format;
+      float aspect_ratio;
+!     int64_t pts;
+      bool interlaced_frame;
+      int  top_field_first;
+
+Index: utils.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/utils.c,v
+retrieving revision 1.28
+retrieving revision 1.29
+diff -C2 -d -r1.28 -r1.29
+*** utils.c	27 Feb 2009 16:50:55 -0000	1.28
+--- utils.c	27 Feb 2009 17:02:35 -0000	1.29
+***************
+*** 958,962 ****
+  }
+  
+! uint64_t getTimeMilis(void) {
+      struct timeval tv;
+      gettimeofday(&tv,NULL);
+--- 958,962 ----
+  }
+  
+! int64_t getTimeMilis(void) {
+      struct timeval tv;
+      gettimeofday(&tv,NULL);
+
+Index: utils.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/utils.h,v
+retrieving revision 1.19
+retrieving revision 1.20
+diff -C2 -d -r1.19 -r1.20
+*** utils.h	27 Feb 2009 16:50:55 -0000	1.19
+--- utils.h	27 Feb 2009 17:02:35 -0000	1.20
+***************
+*** 130,134 ****
+     // performes alpha blending in software
+  
+! uint64_t  getTimeMilis(void);
+  char      *getFBName(void);
+  bool  CatchRemoteKey(const char *remoteName, uint64_t key,
+--- 130,134 ----
+     // performes alpha blending in software
+  
+! int64_t   getTimeMilis(void);
+  char      *getFBName(void);
+  bool  CatchRemoteKey(const char *remoteName, uint64_t key,
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.78
+retrieving revision 1.79
+diff -C2 -d -r1.78 -r1.79
+*** video.c	19 Feb 2009 20:27:58 -0000	1.78
+--- video.c	27 Feb 2009 17:02:35 -0000	1.79
+***************
+*** 602,606 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cVideoOut::EvaluateDelay(uint64_t aPTS, uint64_t pts, int frametime)
+  {
+      int   offset,
+--- 602,606 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void cVideoOut::EvaluateDelay(int64_t aPTS, int64_t pts, int frametime)
+  {
+      int   offset,
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.57
+retrieving revision 1.58
+diff -C2 -d -r1.57 -r1.58
+*** video.h	19 Feb 2009 20:27:58 -0000	1.57
+--- video.h	27 Feb 2009 17:02:35 -0000	1.58
+***************
+*** 169,173 ****
+                                   sPicBuffer *pic);
+      virtual void DrawStill_420pl(sPicBuffer *buf);
+!     virtual void EvaluateDelay(uint64_t aPTS, uint64_t pts, int frametime);
+      virtual void ResetDelay(void);
+      virtual bool Initialize(void) {videoInitialized = true; return 1;};
+--- 169,173 ----
+                                   sPicBuffer *pic);
+      virtual void DrawStill_420pl(sPicBuffer *buf);
+!     virtual void EvaluateDelay(int64_t aPTS, int64_t pts, int frametime);
+      virtual void ResetDelay(void);
+      virtual bool Initialize(void) {videoInitialized = true; return 1;};
+
+Index: video-vidix.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-vidix.c,v
+retrieving revision 1.27
+retrieving revision 1.28
+diff -C2 -d -r1.27 -r1.28
+*** video-vidix.c	10 May 2007 21:57:26 -0000	1.27
+--- video-vidix.c	27 Feb 2009 17:02:35 -0000	1.28
+***************
+*** 18,22 ****
+  
+  #ifdef TIMINGS
+! uint64_t startTime;
+  #define START startTime=getTimeMilis()
+  #define TIMINGS(out...)  {printf("time %d: ",getTimeMilis()-startTime);printf(out);}
+--- 18,22 ----
+  
+  #ifdef TIMINGS
+! int64_t startTime;
+  #define START startTime=getTimeMilis()
+  #define TIMINGS(out...)  {printf("time %d: ",getTimeMilis()-startTime);printf(out);}
+
+
+
+From nobody at sheep.berlios.de  Sun Mar 22 13:55:36 2009
+From: nobody at sheep.berlios.de (lucke)
+Date: Sun, 22 Mar 2009 13:55:36 +0100 (CET)
+Subject: [Softdevice-cvs] softdevice CHANGELOG, 1.346, 1.347 README, 1.30,
+	1.31 softdevice.c, 1.94, 1.95
+Message-ID: <20090322125536.B2960D6F0@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv30570
+
+Modified Files:
+	CHANGELOG README softdevice.c 
+Log Message:
+Patch by Pridvorov Andrey to make softdevice work with mplayer-plugin.
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.346
+retrieving revision 1.347
+diff -C2 -d -r1.346 -r1.347
+*** CHANGELOG	19 Feb 2009 20:27:58 -0000	1.346
+--- CHANGELOG	22 Mar 2009 12:55:33 -0000	1.347
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2009-03-22:
++    - Patch by Pridvorov Andrey to make softdevice work with mplayer-plugin.
+  2009-02-19:
+     - decoding: Enable selection between av_read_packet() and av_read_frame() via
+
+Index: README
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/README,v
+retrieving revision 1.30
+retrieving revision 1.31
+diff -C2 -d -r1.30 -r1.31
+*** README	25 Oct 2008 10:23:49 -0000	1.30
+--- README	22 Mar 2009 12:55:33 -0000	1.31
+***************
+*** 368,371 ****
+--- 368,372 ----
+  - Petri Hintukainen
+  - Prakash Punnoor
++ - Pridvorov Andrey
+  - Roland Praml
+  - Rolf Ahrenberg
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.94
+retrieving revision 1.95
+diff -C2 -d -r1.94 -r1.95
+*** softdevice.c	19 Feb 2009 20:27:58 -0000	1.94
+--- softdevice.c	22 Mar 2009 12:55:33 -0000	1.95
+***************
+*** 460,463 ****
+--- 460,466 ----
+            decoder->Stop();
+            break;
++       case pmExtern_THIS_SHOULD_BE_AVOIDED:
++ 	  decoder->Suspend();
++ 	  break;
+        default:
+            printf("playmode not implemented... %d\n",PlayMode);
+
+
+

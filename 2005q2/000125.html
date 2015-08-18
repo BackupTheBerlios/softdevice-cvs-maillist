@@ -1,0 +1,806 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softplay PlayList.c,1.3,1.4 PlayList.h,1.3,1.4 SoftPlayer.c,1.7,1.8 HISTORY,1.1.1.1,1.2 README,1.1.1.1,1.2
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softplay%20PlayList.c%2C1.3%2C1.4%20PlayList.h%2C1.3%2C1.4%20SoftPlayer.c%2C1.7%2C1.8%20HISTORY%2C1.1.1.1%2C1.2%20README%2C1.1.1.1%2C1.2&In-Reply-To=%3C200505211119.j4LBJKm17268%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000124.html">
+   <LINK REL="Next"  HREF="000126.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softplay PlayList.c,1.3,1.4 PlayList.h,1.3,1.4 SoftPlayer.c,1.7,1.8 HISTORY,1.1.1.1,1.2 README,1.1.1.1,1.2</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softplay%20PlayList.c%2C1.3%2C1.4%20PlayList.h%2C1.3%2C1.4%20SoftPlayer.c%2C1.7%2C1.8%20HISTORY%2C1.1.1.1%2C1.2%20README%2C1.1.1.1%2C1.2&In-Reply-To=%3C200505211119.j4LBJKm17268%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softplay PlayList.c,1.3,1.4 PlayList.h,1.3,1.4 SoftPlayer.c,1.7,1.8 HISTORY,1.1.1.1,1.2 README,1.1.1.1,1.2">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat May 21 13:19:20 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000124.html">[Softdevice-cvs] softdevice mpeg2decoder.c,1.36,1.37
+</A></li>
+        <LI>Next message: <A HREF="000126.html">[Softdevice-cvs] softdevice video.c,1.19,1.20 video.h,1.12,1.13
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#125">[ date ]</a>
+              <a href="thread.html#125">[ thread ]</a>
+              <a href="subject.html#125">[ subject ]</a>
+              <a href="author.html#125">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softplay
+In directory sheep:/tmp/cvs-serv1097
+
+Modified Files:
+	PlayList.c PlayList.h SoftPlayer.c HISTORY README 
+Log Message:
+- playlist options now available through menu
+- fix time handling with recent ffmpeg cvs versions
+- ....
+
+
+
+Index: PlayList.c
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/PlayList.c,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** PlayList.c	16 May 2005 19:07:54 -0000	1.3
+--- PlayList.c	21 May 2005 11:19:16 -0000	1.4
+***************
+*** 24,27 ****
+--- 24,72 ----
+  #endif
+  
++ // ---cPlOptionsMenu-------------------------------------------------------
++ 
++ 
++ cPlOptionsMenu::cPlOptionsMenu(cPlayList *PlayList)
++         : cOsdMenu(&quot;Options&quot;,33) {
++         playList=PlayList;
++         playList-&gt;GetOptions(playListOptions);
++         Add(new cMenuEditBoolItem(&quot;Shuffle Mode&quot;,
++                                &amp;playListOptions.shuffle, tr(&quot;no&quot;), tr(&quot;yes&quot;)));
++         Add(new cMenuEditBoolItem(&quot;Auto Repeat&quot;,
++                                &amp;playListOptions.autoRepeat, tr(&quot;no&quot;), tr(&quot;yes&quot;)));
++ };                                   
++ 
++ cPlOptionsMenu::cPlOptionsMenu(sPlayListOptions *Options)
++         : cOsdMenu(&quot;Options&quot;,33) {
++         playList=NULL;
++         playListOptions=*Options;
++         options=Options;
++         Add(new cMenuEditBoolItem(&quot;Shuffle Mode&quot;,
++                                &amp;playListOptions.shuffle, tr(&quot;no&quot;), tr(&quot;yes&quot;)));
++         Add(new cMenuEditBoolItem(&quot;Auto Repeat&quot;,
++                                &amp;playListOptions.autoRepeat, tr(&quot;no&quot;), tr(&quot;yes&quot;)));
++ };          
++ 
++ cPlOptionsMenu::~cPlOptionsMenu() {
++ };
++ 
++ eOSState cPlOptionsMenu::ProcessKey(eKeys Key)
++ {
++   eOSState state = cOsdMenu::ProcessKey(Key);
++                                                                                 
++   if (state == osUnknown) {
++      switch (Key) {
++        case kOk: if (playList)
++                          playList-&gt;SetOptions(playListOptions);
++                  else *options=playListOptions;
++                  state = osBack;
++                  break;
++        default: break;
++        }
++      }
++   return state;
++ }
++                                                                                 
++ 
+  // ---cPlayListItem--------------------------------------------------------
+  cPlayListItem::cPlayListItem(char *Filename, char *Name) {
+***************
+*** 66,70 ****
+                  Item=Item-&gt;GetNext();
+          };
+!         SetHelp(NULL,&quot;(Add Files)&quot;,&quot;Delete&quot;,&quot;Stop&quot;);
+          lastActivity=time(NULL);
+  };
+--- 111,115 ----
+                  Item=Item-&gt;GetNext();
+          };
+!         SetHelp(&quot;Options&quot;,&quot;(Add Files)&quot;,&quot;Delete&quot;,&quot;Stop&quot;);
+          lastActivity=time(NULL);
+  };
+***************
+*** 100,107 ****
+                          state= osBack;
+                          break;
+!                  case kBlue:
+                          state= osEnd;
+                          break;
+!                  case kYellow:
+                          LISTDEB(&quot;Del current %d (idx: %d): %s\n&quot;,
+                                          Current(),playList-&gt;GetItem(Current())-&gt;GetIdx(),
+--- 145,155 ----
+                          state= osBack;
+                          break;
+!                 case kBlue:
+                          state= osEnd;
+                          break;
+!                 case kRed:
+!                         return AddSubMenu(new cPlOptionsMenu(playList));
+!                         break;
+!                 case kYellow:
+                          LISTDEB(&quot;Del current %d (idx: %d): %s\n&quot;,
+                                          Current(),playList-&gt;GetItem(Current())-&gt;GetIdx(),
+***************
+*** 124,128 ****
+  cReplayList::cReplayList(cPlayList * List) : cOsdMenu(List-&gt;ListName) {
+          playList=List;
+!         SetHelp(NULL,&quot;(Add)&quot;,&quot;Delete&quot;,&quot;Stop&quot;);
+          RebuildList();
+          SetCurrent(Get(playList-&gt;shuffleIdx-&gt;currShuffleIdx));
+--- 172,176 ----
+  cReplayList::cReplayList(cPlayList * List) : cOsdMenu(List-&gt;ListName) {
+          playList=List;
+!         SetHelp(&quot;Options&quot;,&quot;(Add)&quot;,&quot;Delete&quot;,&quot;Stop&quot;);
+          RebuildList();
+          SetCurrent(Get(playList-&gt;shuffleIdx-&gt;currShuffleIdx));
+***************
+*** 223,226 ****
+--- 271,277 ----
+                          state= osEnd;
+                          break;
++                 case kRed:
++                         return AddSubMenu(new cPlOptionsMenu(playList));
++                         break;
+                  case kYellow:
+                          Item=playList-&gt;GetShuffledItemByIndex(Current());
+***************
+*** 254,257 ****
+--- 305,310 ----
+          first=NULL;
+          last=NULL;
++         options.shuffle=false;
++         options.autoRepeat=false;
+          
+          strncpy(ListName,&quot;Playlist 1&quot;,STR_LENGTH);
+***************
+*** 521,524 ****
+--- 574,583 ----
+          do {
+  		++shuffleIdx-&gt;currShuffleIdx;
++                 if ( options.autoRepeat &amp;&amp; 
++                      shuffleIdx-&gt;currShuffleIdx &gt;= shuffleIdx-&gt;nIdx ) {
++                         if (options.shuffle)
++                                 Shuffle();
++                         shuffleIdx-&gt;currShuffleIdx=0;
++                 };
+          } while ( shuffleIdx-&gt;currShuffleIdx&lt;shuffleIdx-&gt;nIdx 
+                          &amp;&amp; !shuffleIdx-&gt;Idx[shuffleIdx-&gt;currShuffleIdx].Item );
+***************
+*** 539,542 ****
+--- 598,604 ----
+          do {
+  		--shuffleIdx-&gt;currShuffleIdx;
++                 if (options.autoRepeat &amp;&amp; shuffleIdx-&gt;currShuffleIdx&lt;0)
++                         shuffleIdx-&gt;currShuffleIdx=shuffleIdx-&gt;nIdx-1;
++ 
+          } while ( shuffleIdx-&gt;currShuffleIdx &gt; 0
+                          &amp;&amp;!shuffleIdx-&gt;Idx[shuffleIdx-&gt;currShuffleIdx].Item );
+***************
+*** 558,561 ****
+--- 620,629 ----
+          do {
+  		++shuffleIdx-&gt;currShuffleIdx;
++                 if ( options.autoRepeat &amp;&amp; 
++                      shuffleIdx-&gt;currShuffleIdx &gt;= shuffleIdx-&gt;nIdx ) {
++                         if (options.shuffle)
++                                 Shuffle();
++                         shuffleIdx-&gt;currShuffleIdx=0;
++                 };
+          } while ( shuffleIdx-&gt;currShuffleIdx&lt;shuffleIdx-&gt;nIdx 
+                          &amp;&amp; ( !shuffleIdx-&gt;Idx[shuffleIdx-&gt;currShuffleIdx].Item 
+***************
+*** 580,583 ****
+--- 648,653 ----
+          do {
+  	        --shuffleIdx-&gt;currShuffleIdx;
++                 if (options.autoRepeat &amp;&amp; shuffleIdx-&gt;currShuffleIdx&lt;0)
++                         shuffleIdx-&gt;currShuffleIdx=shuffleIdx-&gt;nIdx-1;
+          } while ( shuffleIdx-&gt;currShuffleIdx &gt; 0  
+                    &amp;&amp; ( !shuffleIdx-&gt;Idx[shuffleIdx-&gt;currShuffleIdx].Item 
+***************
+*** 647,651 ****
+  
+          BuildIdx();
+!         //Shuffle();
+  };
+  
+--- 717,722 ----
+  
+          BuildIdx();
+!         if (options.shuffle)
+!                 Shuffle();
+  };
+  
+***************
+*** 677,693 ****
+  */
+  };
+! /*
+! void cPlayList::CleanShuffleIdx() {
+!         // remove deleted files from shuffleIdx
+!         int fillIndex=0;
+!         int newNItems=GetNoItemsRecursive();
+!         
+!         for (int i=0; i&lt;nItems; i++) 
+!                 if ( GetItemByIndex(shuffleIdx[i]) )
+!                         shuffleIdx[fillIndex++]=shuffleIdx[i];
+!         
+!         // for future adds
+!         for (int i=newNItems; i&lt;MAX_ITEMS; i++)
+!                 shuffleIdx[i]=maxIdx+i-newNItems;
+!         nItems=newNItems;
+! };*/
+--- 748,759 ----
+  */
+  };
+! 
+! void cPlayList::SetOptions( sPlayListOptions &amp;Options) {
+! 
+!         if (Options.shuffle != options.shuffle 
+!                         &amp;&amp; Options.shuffle)
+!                 Shuffle();
+! 
+!         options=Options;
+! };
+! 
+
+Index: PlayList.h
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/PlayList.h,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** PlayList.h	16 May 2005 19:07:54 -0000	1.3
+--- PlayList.h	21 May 2005 11:19:16 -0000	1.4
+***************
+*** 108,111 ****
+--- 108,116 ----
+  };
+  
++ struct sPlayListOptions {
++ 	int shuffle;
++ 	int autoRepeat;
++ };
++ 
+  class cPlayList : public cPlayListItem {
+  	friend class cEditList;
+***************
+*** 118,126 ****
+          bool shuffleIdxOwner;
+          sItemIdx *shuffleIdx;
+!         //int minIdx;
+!         //int maxIdx;
+!         //int nItems;
+! 	//int *shuffleIdx;
+!         
+    public:
+          cPlayList(char *Filename=NULL, char *Name=NULL,
+--- 123,128 ----
+          bool shuffleIdxOwner;
+          sItemIdx *shuffleIdx;
+!        
+!         sPlayListOptions options;
+    public:
+          cPlayList(char *Filename=NULL, char *Name=NULL,
+***************
+*** 133,136 ****
+--- 135,141 ----
+  
+          void PrepareForPlayback();
++ 	void SetOptions(sPlayListOptions &amp;Options);
++ 	void GetOptions(sPlayListOptions &amp;Options)
++ 	{ Options=options; };
+          
+          virtual cPlayListItem *GetItemByIndex(int Index);
+***************
+*** 160,164 ****
+  
+  	void Shuffle();
+! 	//void CleanShuffleIdx();
+          char *CurrFile();
+          char *NextFile();
+--- 165,169 ----
+  
+  	void Shuffle();
+! 
+          char *CurrFile();
+          char *NextFile();
+***************
+*** 167,170 ****
+--- 172,187 ----
+  	char *PrevAlbumFile();
+  	
++ };
++ 
++ class cPlOptionsMenu : public cOsdMenu {
++         protected:
++                 sPlayListOptions playListOptions;
++                 sPlayListOptions *options;
++                 cPlayList *playList;
++         public:
++                 cPlOptionsMenu(cPlayList *PlayList);
++                 cPlOptionsMenu(sPlayListOptions *Options);
++                 ~cPlOptionsMenu();
++                 eOSState ProcessKey(eKeys Key);
+  };
+          
+
+Index: SoftPlayer.c
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/SoftPlayer.c,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -C2 -d -r1.7 -r1.8
+*** SoftPlayer.c	16 May 2005 22:24:16 -0000	1.7
+--- SoftPlayer.c	21 May 2005 11:19:16 -0000	1.8
+***************
+*** 73,78 ****
+          AudioIdx=-1;
+          VideoIdx=-1;
+! 
+! 	if (!ic) {
+  	   printf(&quot;ic is null!!\n&quot;);
+  	   running= false;
+--- 73,78 ----
+          AudioIdx=-1;
+          VideoIdx=-1;
+! 	
+!         if (!ic) {
+  	   printf(&quot;ic is null!!\n&quot;);
+  	   running= false;
+***************
+*** 134,142 ****
+                        //  if (new_speed!=-1) 
+                          //        av_seek_frame(ic,-1,SoftDevice-&gt;GetSTC()/9*100);
+!                         /*
+!                         if (new_speed != -1)
+!                                 cPlayer::DeviceTrickSpeed(2);
+!                         else cPlayer::DeviceTrickSpeed(1);
+! */
+                          fast_STC=SoftDevice-&gt;GetSTC()/9*100;
+                          forward = new_forward;
+--- 134,142 ----
+                        //  if (new_speed!=-1) 
+                          //        av_seek_frame(ic,-1,SoftDevice-&gt;GetSTC()/9*100);
+!                         
+! //                        if (new_speed != -1)
+! //                                cPlayer::DeviceTrickSpeed(2);
+! //                        else cPlayer::DeviceTrickSpeed(1);
+! 
+                          fast_STC=SoftDevice-&gt;GetSTC()/9*100;
+                          forward = new_forward;
+***************
+*** 180,197 ****
+                  // skip packets which do not belong to the current streams
+                  if ( pkt.stream_index != VideoIdx &amp;&amp;
+!                      pkt.stream_index != AudioIdx )
+!                         continue;
+! 
+!                 if ( pkt.pts!=AV_NOPTS_VALUE &amp;&amp; PTS==pkt.pts )
+                          continue;
+  		lastPTS=PTS;
+                  PTS=pkt.pts;
+  		if ( pkt.pts != (int64_t) AV_NOPTS_VALUE )
+  			pkt.pts/=100;
+  		//pkt.pts*=1000/AV_TIME_BASE;
+  
+  		if (pause) {
+  			DeviceFreeze();
+! 			while (pause)
+  		   		usleep(10000);
+  			DevicePlay();
+--- 180,208 ----
+                  // skip packets which do not belong to the current streams
+                  if ( pkt.stream_index != VideoIdx &amp;&amp;
+!                      pkt.stream_index != AudioIdx ) {
+! 			printf(&quot;Drop Packet PTS: %lld\n&quot;,pkt.pts);
+                          continue;
++ 		};
++ 			
+  		lastPTS=PTS;
+                  PTS=pkt.pts;
++ #if LIBAVFORMAT_BUILD &gt; 4623
++ 		AVRational time_base;
++                 time_base=ic-&gt;streams[pkt.stream_index]-&gt;time_base;
++ 		if ( pkt.pts != (int64_t) AV_NOPTS_VALUE ) {
++ 			pkt.pts=av_rescale(pkt.pts, AV_TIME_BASE* (int64_t)time_base.num, time_base.den)/100 ;
++                 };
++ 
++                 //printf(&quot;PTS: %lld new %lld num %d den %d\n&quot;,PTS,pkt.pts,
++                 //                time_base.num,time_base.den);
++ #else
+  		if ( pkt.pts != (int64_t) AV_NOPTS_VALUE )
+  			pkt.pts/=100;
++ #endif
+  		//pkt.pts*=1000/AV_TIME_BASE;
+  
+  		if (pause) {
+  			DeviceFreeze();
+! 			while (pause &amp;&amp; running)
+  		   		usleep(10000);
+  			DevicePlay();
+***************
+*** 282,286 ****
+  bool cSoftPlayer::GetIndex(int &amp;Current, int &amp;Total, bool SnapToIFrame ) {
+  	if (ic) {
+! 		Current=(int) SoftDevice-&gt;GetSTC()/(9*10000);
+  		Total=ic-&gt;duration/AV_TIME_BASE;
+                  return true;
+--- 293,297 ----
+  bool cSoftPlayer::GetIndex(int &amp;Current, int &amp;Total, bool SnapToIFrame ) {
+  	if (ic) {
+! 		Current=(int) SoftDevice-&gt;GetSTC()/(9*10000)-ic-&gt;start_time/AV_TIME_BASE;
+  		Total=ic-&gt;duration/AV_TIME_BASE;
+                  return true;
+***************
+*** 301,305 ****
+  int cSoftPlayer::GetCurrPos() { 
+          if (SoftDevice) 
+!                 return SoftDevice-&gt;GetSTC()/(9*10000); 
+          else return 0;
+  };
+--- 312,316 ----
+  int cSoftPlayer::GetCurrPos() { 
+          if (SoftDevice) 
+!                 return SoftDevice-&gt;GetSTC()/(9*10000)-ic-&gt;start_time/AV_TIME_BASE; 
+          else return 0;
+  };
+***************
+*** 446,536 ****
+  
+  
+! 	if(state==osUnknown) {
+! 		state = osContinue;
+  
+! 		switch (Key) {
+! 			// Positioning:
+! 			case k8:   
+!                                 if (Softplay-&gt;currList) {
+!                                         Hide();
+!                                         OsdActive=OsdPrivMenu;
+!                                         privateMenu=new cReplayList(Softplay-&gt;currList);
+!                                         privateMenu-&gt;Display();
+!                                         return osContinue;
+!                                 };
+!                                 break;
+! 			case k5:   
+!                                 if (Softplay-&gt;currList) {
+!                                         Hide();
+!                                         OsdActive=OsdPrivMenu;
+!                                         privateMenu=new cEditList(Softplay-&gt;currList);
+!                                         privateMenu-&gt;Display();
+!                                         return osContinue;
+!                                 };
+!                                 break;
+! 			case kGreen|k_Repeat:
+!                         case kGreen:   
+!                                 if ( SoftPlayer-&gt;GetDuration() &gt; 300 )
+!                                         SoftPlayer-&gt;SkipSeconds(-60); 
+!                                 else SoftPlayer-&gt;SkipSeconds(-15);
+!                                 break;
+! 			case kYellow|k_Repeat:
+! 			case kYellow: 
+!                                 if ( SoftPlayer-&gt;GetDuration() &gt; 300 )
+!                                         SoftPlayer-&gt;SkipSeconds( 60);
+!                                 else SoftPlayer-&gt;SkipSeconds( 15);
+!                                 break;
+! 			case kBlue:    
+!                                 SoftPlayer-&gt;Stop(); 
+! 			        shouldStop=true;  
+!                                 return osEnd;
+!                                 break;
+! 			case kPause: SoftPlayer-&gt;TogglePause(); break;
+! 			case kUp:
+! 			case kPlay:
+! 			              SoftPlayer-&gt;Play();  break;
+! 			case kDown:
+! 			              SoftPlayer-&gt;Pause();  break;
+!                         case kRight:
+! 			              //SoftPlayer-&gt;FastForward();  
+!                                       break;
+!                         case kLeft:
+! 			              //SoftPlayer-&gt;FastBackward();  
+!                                       break;
+! 			case kOk: if (OsdActive==OsdProgress)
+! 					Hide();
+! 				  else ShowProgress(); 
+! 				  break;
+!                         case k9: if (playList) {
+!                                          char * nextFile=playList-&gt;NextFile();
+!                                          if (nextFile)
+!                                                SoftPlayer-&gt;PlayFile(nextFile);
+!                                  };
+!                                  break;
+!                         case k7: if (playList) {
+!                                          char * prevFile=playList-&gt;PrevFile();
+!                                          printf(&quot;play PrevFile %p\n&quot;,prevFile);
+!                                          if (prevFile)
+!                                                SoftPlayer-&gt;PlayFile(prevFile);
+!                                  };
+!                                  break;
+!                         case k6: if (playList) {
+!                                          char * nextFile=playList-&gt;NextAlbumFile();
+!                                          if (nextFile)
+!                                                SoftPlayer-&gt;PlayFile(nextFile);
+!                                  };
+!                                  break;
+!                         case k4: if (playList) {
+!                                          char * prevFile=playList-&gt;PrevAlbumFile();
+!                                          if (prevFile)
+!                                                SoftPlayer-&gt;PlayFile(prevFile);
+!                                  };
+!                                  break;
+!                                   
+! 			default:
+! 			   break;
+! 		};
+  	};
+! 	return osContinue;
+  };
+  
+--- 457,547 ----
+  
+  
+! 	if(state!=osUnknown) 
+! 		return state;
+  
+! 	state = osContinue;
+! 	switch (Key) {
+! 		// Positioning:
+! 		case k8:   
+! 			if (Softplay-&gt;currList) {
+! 				Hide();
+! 				OsdActive=OsdPrivMenu;
+! 				privateMenu=new cReplayList(Softplay-&gt;currList);
+! 				privateMenu-&gt;Display();
+! 				return osContinue;
+! 			};
+! 			break;
+! 		case k5:   
+! 			if (Softplay-&gt;currList) {
+! 				Hide();
+! 				OsdActive=OsdPrivMenu;
+! 				privateMenu=new cEditList(Softplay-&gt;currList);
+! 				privateMenu-&gt;Display();
+! 				return osContinue;
+! 			};
+! 			break;
+! 		case kGreen|k_Repeat:
+! 		case kGreen:   
+! 			if ( SoftPlayer-&gt;GetDuration() &gt; 300 )
+! 				SoftPlayer-&gt;SkipSeconds(-60); 
+! 			else SoftPlayer-&gt;SkipSeconds(-15);
+! 			break;
+! 		case kYellow|k_Repeat:
+! 		case kYellow: 
+! 			if ( SoftPlayer-&gt;GetDuration() &gt; 300 )
+! 				SoftPlayer-&gt;SkipSeconds( 60);
+! 			else SoftPlayer-&gt;SkipSeconds( 15);
+! 			break;
+! 		case kBlue:    
+! 			SoftPlayer-&gt;Stop(); 
+! 			shouldStop=true;  
+! 			return osEnd;
+! 			break;
+! 		case kPause: SoftPlayer-&gt;TogglePause(); break;
+! 		case kUp:
+! 		case kPlay:
+! 			     SoftPlayer-&gt;Play();  break;
+! 		case kDown:
+! 			     SoftPlayer-&gt;Pause();  break;
+! 		case kRight:
+! 			     //SoftPlayer-&gt;FastForward();  
+! 			     break;
+! 		case kLeft:
+! 			     //SoftPlayer-&gt;FastBackward();  
+! 			     break;
+! 		case kOk: if (OsdActive==OsdProgress)
+! 				  Hide();
+! 			else ShowProgress(); 
+! 			break;
+! 		case k9: if (playList) {
+! 				 char * nextFile=playList-&gt;NextFile();
+! 				 if (nextFile)
+! 					 SoftPlayer-&gt;PlayFile(nextFile);
+! 			 };
+! 			 break;
+! 		case k7: if (playList) {
+! 				 char * prevFile=playList-&gt;PrevFile();
+! 				 printf(&quot;play PrevFile %p\n&quot;,prevFile);
+! 				 if (prevFile)
+! 					 SoftPlayer-&gt;PlayFile(prevFile);
+! 			 };
+! 			 break;
+! 		case k6: if (playList) {
+! 				 char * nextFile=playList-&gt;NextAlbumFile();
+! 				 if (nextFile)
+! 					 SoftPlayer-&gt;PlayFile(nextFile);
+! 			 };
+! 			 break;
+! 		case k4: if (playList) {
+! 				 char * prevFile=playList-&gt;PrevAlbumFile();
+! 				 if (prevFile)
+! 					 SoftPlayer-&gt;PlayFile(prevFile);
+! 			 };
+! 			 break;
+! 
+! 		default:
+! 			 break;
+  	};
+! 	return state;
+  };
+  
+
+Index: HISTORY
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/HISTORY,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1.1.1 -r1.2
+*** HISTORY	11 Apr 2005 16:03:32 -0000	1.1.1.1
+--- HISTORY	21 May 2005 11:19:16 -0000	1.2
+***************
+*** 2,7 ****
+  -------------------------------------
+  
+  2005-04-02: Version 0.0.1
+  
+! - Initial revision.
+  
+--- 2,12 ----
+  -------------------------------------
+  
++ 2005-05-21: Version 0.0.2
++  - add playlist support
++  - adaptions to ffmpeg cvs
++  - fix playback of file with more than one audio track
++ 
+  2005-04-02: Version 0.0.1
+  
+!  - Initial revision.
+  
+
+Index: README
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/README,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1.1.1 -r1.2
+*** README	11 Apr 2005 16:03:32 -0000	1.1.1.1
+--- README	21 May 2005 11:19:16 -0000	1.2
+***************
+*** 1,6 ****
+  This is a &quot;plugin&quot; for the Video Disk Recorder (VDR) with Softdevice.
+  
+! Written by:                  The Softdevice Team
+!                              Stefan Lucke, Torgeir Vemo and Martin Wache
+  
+  Project's homepage:          <A HREF="http://softdevice.berlios.de">http://softdevice.berlios.de</A>
+--- 1,5 ----
+  This is a &quot;plugin&quot; for the Video Disk Recorder (VDR) with Softdevice.
+  
+! Written by:                  Martin Wache
+  
+  Project's homepage:          <A HREF="http://softdevice.berlios.de">http://softdevice.berlios.de</A>
+***************
+*** 22,28 ****
+  
+  Please note that this is a very early release, for me it works without any
+! troubles for .avi and for .mp3 files. Other file formats may or may not work.
+  
+  Start with :
+  ./vdr -Psoftdevice -P&quot;softplay --media-path /path/to/media/files&quot;
+  
+--- 21,85 ----
+  
+  Please note that this is a very early release, for me it works without any
+! troubles for almost all Video and Audio file formats (depending on your ffmpeg
+! vestion *.avi,*.mov,*.mpg, *.mp3, *.wav, *.ogg and many more).
+  
+  Start with :
+  ./vdr -Psoftdevice -P&quot;softplay --media-path /path/to/media/files&quot;
+  
++ where /path/to/media/files is the path to the top level directory of
++ the files you'd like to playback. I recommend to use symlinks to compose
++ this directory from different file systems.
++ 
++  MANUAL
++ =======
++ 
++ There are two playback modes: single file playback and playlist mode.
++ 
++ During single file playback you can use the keys almost like you are used to
++ from vdr recording playback. Green/Yellow skip forward/backward in the stream,
++ the blue button stops the replay. Up/down start/pause the playback and right/left will toggle fast forward/backward (doesn't work yet :-( ) .
++ 
++ In playlist mode you can additionally use the following keys to change
++ titles/albums (they are similar to vdr cutting and dvd-plugin navigation
++ keys):
++ 
++         (4)       (5)        (6)
++        Prev.    Playlist     Next
++        Album   Album View    Album
++ 
++        (7)        (8)        (9)
++        Prev.   Playlist      Next
++        Title   Title View    Title
++ 
++ 
++ The Files Menu
++ ==============
++ 
++ In the file selection menu you select files for single file playback, compose
++ playlist or play whole directories. To skip to a certain file you can enter the
++ corresponding number using the remote, to play a file/directory press the green
++ button.
++ If you select a directoy to be played a new playlist containing all files
++ (including the subdirectories) will be created and the playback of this list
++ will start.
++ To add/remove a file or directory to the current playlist use the yellow
++ button, files included in the current playlist will be marked with 'P'. To
++ start the playback of the current playlist press the blue button.
++ 
++ 
++ TODO
++ ----
++ - fix all the remaining bugs ;-)
++ - fast forward / backward
++ - selection of audio tracks for videos
++ - playlist saving
++ - .m3u support
++ - read ID 3 tags for playlists
++ - get playtime of playlists
++ 
++ 
++ Many Thanks to
++ --------------
++ - Nicolas Huillard and Stefan Lucke for the suggestions and the discussion
++   about the user interface
++ - all who contributed to ffmpeg, a really great video/library library
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000124.html">[Softdevice-cvs] softdevice mpeg2decoder.c,1.36,1.37
+</A></li>
+	<LI>Next message: <A HREF="000126.html">[Softdevice-cvs] softdevice video.c,1.19,1.20 video.h,1.12,1.13
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#125">[ date ]</a>
+              <a href="thread.html#125">[ thread ]</a>
+              <a href="subject.html#125">[ subject ]</a>
+              <a href="author.html#125">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

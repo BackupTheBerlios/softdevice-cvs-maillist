@@ -1,0 +1,109 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice PicBuffer.c,1.20,1.21
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20PicBuffer.c%2C1.20%2C1.21&In-Reply-To=%3C20070711200430.D28D2F3630%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000565.html">
+   <LINK REL="Next"  HREF="000567.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice PicBuffer.c,1.20,1.21</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20PicBuffer.c%2C1.20%2C1.21&In-Reply-To=%3C20070711200430.D28D2F3630%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice PicBuffer.c,1.20,1.21">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Wed Jul 11 22:04:30 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000565.html">[Softdevice-cvs] softdevice SoftOsd.c,1.28,1.29
+</A></li>
+        <LI>Next message: <A HREF="000567.html">[Softdevice-cvs] softdevice SoftOsd.c, 1.29, 1.30 video.h, 1.54,	1.55 video-xv.c, 1.72, 1.73 video-xv.h, 1.28, 1.29
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#566">[ date ]</a>
+              <a href="thread.html#566">[ thread ]</a>
+              <a href="subject.html#566">[ subject ]</a>
+              <a href="author.html#566">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv14656
+
+Modified Files:
+	PicBuffer.c 
+Log Message:
+applied patch from Artur Skawina for memory alignment error
+
+Index: PicBuffer.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/PicBuffer.c,v
+retrieving revision 1.20
+retrieving revision 1.21
+diff -C2 -d -r1.20 -r1.21
+*** PicBuffer.c	11 Jul 2007 18:08:24 -0000	1.20
+--- PicBuffer.c	11 Jul 2007 20:04:22 -0000	1.21
+***************
+*** 317,323 ****
+          if ( !isPlanar(pix_fmt) ) {
+                  buf-&gt;stride[0]=ALIGN(pixel_size*w,16);
+-                 buf-&gt;pixel[0]=(uint8_t*)malloc((buf-&gt;stride[0]*h)+16);
+  
+!                 if (buf-&gt;pixel[0]==NULL) {
+                      printf(&quot;could not allocate memory for picture buffer!\n&quot;) ;
+                      exit(-1);
+--- 317,322 ----
+          if ( !isPlanar(pix_fmt) ) {
+                  buf-&gt;stride[0]=ALIGN(pixel_size*w,16);
+  
+!                 if (posix_memalign((void **) &amp;buf-&gt;pixel[0], 16, buf-&gt;stride[0]*h+16)) {
+                      printf(&quot;could not allocate memory for picture buffer!\n&quot;) ;
+                      exit(-1);
+***************
+*** 338,344 ****
+                              STRIDE_ALIGN&lt;&lt;(h_chroma_shift-h_shift));
+  
+!             buf-&gt;pixel[i]= (uint8_t*)malloc((buf-&gt;stride[i]*h&gt;&gt;v_shift)+16); //FIXME 16
+! 
+!             if(buf-&gt;pixel[i]==NULL) {
+                      printf(&quot;could not allocate memory for picture buffer!\n&quot;) ;
+                      exit(-1);
+--- 337,341 ----
+                              STRIDE_ALIGN&lt;&lt;(h_chroma_shift-h_shift));
+  
+!             if(posix_memalign((void **) &amp;buf-&gt;pixel[i], 16, (buf-&gt;stride[i]*h&gt;&gt;v_shift)+16)) { //FIXME 16
+                      printf(&quot;could not allocate memory for picture buffer!\n&quot;) ;
+                      exit(-1);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000565.html">[Softdevice-cvs] softdevice SoftOsd.c,1.28,1.29
+</A></li>
+	<LI>Next message: <A HREF="000567.html">[Softdevice-cvs] softdevice SoftOsd.c, 1.29, 1.30 video.h, 1.54,	1.55 video-xv.c, 1.72, 1.73 video-xv.h, 1.28, 1.29
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#566">[ date ]</a>
+              <a href="thread.html#566">[ thread ]</a>
+              <a href="subject.html#566">[ subject ]</a>
+              <a href="author.html#566">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,339 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice configure,NONE,1.1
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20configure%2CNONE%2C1.1&In-Reply-To=%3C200509101954.j8AJsH119564%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000201.html">
+   <LINK REL="Next"  HREF="000203.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice configure,NONE,1.1</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20configure%2CNONE%2C1.1&In-Reply-To=%3C200509101954.j8AJsH119564%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice configure,NONE,1.1">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Sep 10 21:54:17 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000201.html">[Softdevice-cvs] softdevice Makefile,1.14,1.15
+</A></li>
+        <LI>Next message: <A HREF="000203.html">[Softdevice-cvs] softdevice configure,1.1,1.2
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#202">[ date ]</a>
+              <a href="thread.html#202">[ thread ]</a>
+              <a href="subject.html#202">[ subject ]</a>
+              <a href="author.html#202">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv11206
+
+Added Files:
+	configure 
+Log Message:
+1st try of configure
+
+--- NEW FILE: configure ---
+#!/bin/bash
+#
+# simple configure script for softdevice
+#
+# $Id: configure,v 1.1 2005/09/10 19:54:15 lucke Exp $
+#
+
+TMPDIR1=&quot;/tmp&quot;
+TMPC=&quot;${TMPDIR1}/softdevice-conf-${RANDOM}-$$-${RANDOM}.c&quot;
+TMPE=&quot;${TMPDIR1}/softdevice-conf-${RANDOM}-$$-${RANDOM}&quot;
+TMPH=&quot;${TMPDIR1}/softdevice-conf-${RANDOM}-$$-${RANDOM}.h&quot;
+TMPM=&quot;${TMPDIR1}/softdevice-conf-${RANDOM}-$$-${RANDOM}.mak&quot;
+
+PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig/
+
+dfb=&quot;yes&quot;
+libpostproc=&quot;no&quot;
+cc=&quot;g++&quot;
+xv=&quot;yes&quot;
+vidix=&quot;yes&quot;
+vidix_path=&quot;/usr/local&quot;
+subplugins=&quot;yes&quot;
+with_fb=&quot;yes&quot;
+fb_dev_name=&quot;/dev/fb0&quot;
+with_subplugins=&quot;yes&quot;
+with_mmx=&quot;yes&quot;
+with_mmx2=&quot;yes&quot;
+
+#########################################################
+# start ffmpeg test
+#
+ffmpeg_l1=&quot;libavcodec libavformat&quot;
+
+# pkg-config --libs libavutil 2&gt;/dev/null &amp;&amp; ffmpeg_l1=&quot;$ffmpeg_l1 libavutil&quot;
+pkg-config --libs libpostproc &gt;/dev/null 2&gt;&amp;1 &amp;&amp; { ffmpeg_l1=&quot;$ffmpeg_l1 libpostproc&quot;;libpostproc=&quot;yes&quot;; }
+
+ffmpeg_libs=`pkg-config --libs $ffmpeg_l1`
+ffmpeg_cflags=`pkg-config --cflags $ffmpeg_l1`
+
+#########################################################
+# start of DirectFB specific tests
+#
+if test &quot;${dfb}&quot; = &quot;yes&quot; ; then
+
+dfb_cflags=`pkg-config --cflags directfb dfb++` || dfb=&quot;no&quot;
+
+if test &quot;${dfb}&quot; = &quot;yes&quot; ; then
+
+dfb_libs=`pkg-config --libs directfb dfb++`
+dfb_opts=&quot;${dfb_cflags} ${dfb_libs}&quot;
+dfb_device_desc=&quot;yes&quot;
+dfb_sourcelocation=&quot;yes&quot;
+dfb_dscaps_double=&quot;yes&quot;
+
+cat &gt; ${TMPC} &lt;&lt; EOF
+#include &lt;directfb.h&gt;
+int main(void) {
+    DFBGraphicsDeviceDescription caps;
+  return 0;
+}
+EOF
+$cc $CFLAGS $dfb_opts -o $TMPE $TMPC &gt; /dev/null 2&gt;&amp;1 || dfb_device_desc=&quot;no&quot;
+
+cat &gt; ${TMPC} &lt;&lt; EOF
+#include &lt;stdio.h&gt;
+#include &lt;dfb++.h&gt;
+#include &lt;directfb.h&gt;
+int main(void) {
+    IDirectFBDisplayLayer *videoLayer;
+  videoLayer-&gt;SetSourceRectangle (0, 0, 128, 128);
+  return 0;
+}
+EOF
+$cc $CFLAGS $dfb_opts -o $TMPE $TMPC &gt; /dev/null 2&gt;&amp;1 || dfb_sourcelocation=&quot;no&quot;
+
+cat &gt; ${TMPC} &lt;&lt; EOF
+#include &lt;stdio.h&gt;
+#include &lt;dfb++.h&gt;
+#include &lt;directfb.h&gt;
+int main(void) {
+
+    DFBDisplayLayerConfig       dlc;
+
+  dlc.flags = (DFBDisplayLayerConfigFlags)
+                  ((int) dlc.flags | DLCONF_SURFACE_CAPS);
+  dlc.surface_caps  = DSCAPS_DOUBLE;
+
+  return 0;
+}
+EOF
+$cc $CFLAGS $dfb_opts -o $TMPE $TMPC &gt; /dev/null 2&gt;&amp;1 || dfb_dscaps_double=&quot;no&quot;
+
+  fi
+fi
+# end of DirectFB specific tests
+
+## echo ${dfb_opts}
+## echo dfb_device_desc = ${dfb_device_desc}
+
+###########
+broken_gcc_cpp=&quot;no&quot;
+cat &gt; ${TMPC} &lt;&lt; EOF
+
+#include &lt;stdio.h&gt;
+#define BLOCK_SIZE 4096
+
+#ifdef __x86_64__
+# define  REG_a &quot;rax&quot;
+#else
+# define  REG_a &quot;eax&quot;
+#endif
+
+#define CONFUSION_FACTOR 0
+
+int main(void) {
+    void    *to, *from;
+    size_t  i;
+
+  asm volatile(
+    &quot;xor %%&quot;REG_a&quot;, %%&quot;REG_a&quot;	\n\t&quot;
+    &quot;xor %%&quot;REG_a&quot;, %%&quot;REG_a&quot;	\n\t&quot;
+    &quot;add %3, %0		\n\t&quot;
+    &quot;add %3, %1		\n\t&quot;
+    &quot;sub %4, %2		\n\t&quot;
+    &quot;cmp %4, %2		\n\t&quot;
+      : &quot;+r&quot; (from),
+        &quot;+r&quot; (to),
+        &quot;+r&quot; (i)
+      : &quot;r&quot; ((long)BLOCK_SIZE),
+        &quot;i&quot; (BLOCK_SIZE/64),
+        &quot;i&quot; ((long)CONFUSION_FACTOR)
+      : &quot;%&quot;REG_a,
+        &quot;%ebx&quot;
+    );
+  return 0;
+}
+EOF
+$cc $CFLAGS -o $TMPE $TMPC &gt; /dev/null 2&gt;&amp;1 || broken_gcc_cpp=&quot;yes&quot;
+###########
+
+echo &quot;Creating temporay config.h and config.mak&quot;
+echo &quot;/* Generated by configure - do not modify */&quot; &gt; $TMPH
+echo &quot;# Generated by configure - do not modify&quot; &gt; $TMPM
+echo &quot;WITH_CONFIGURE = 1&quot; &gt;&gt; $TMPM
+
+
+###############################################################################
+# generating some global defines
+#
+if test &quot;${with_subplugins}&quot; = &quot;yes&quot; ; then
+  echo &quot;USE_SUBPLUGINS = 1&quot; &gt;&gt; $TMPM
+  echo &quot;#define USE_SUBPLUGINS 1&quot; &gt;&gt; $TMPH
+fi
+
+if test &quot;${with_mmx}&quot; = &quot;yes&quot; ; then
+  echo &quot;#define USE_MMX 1&quot; &gt;&gt; $TMPH
+fi
+
+if test &quot;${with_mmx2}&quot; = &quot;yes&quot; ; then
+  echo &quot;#define USE_MMX2 1&quot; &gt;&gt; $TMPH
+fi
+
+
+
+###############################################################################
+# generating DirectFB specific defines
+#
+if test &quot;${dfb}&quot; = &quot;yes&quot; ; then
+  echo &quot;DFB_SUPPORT=1&quot; &gt;&gt; $TMPM
+  echo &quot;#define DFB_SUPPORT                       1&quot; &gt;&gt; $TMPH
+  echo &quot;DFB_LIBS = ${dfb_libs}&quot; &gt;&gt; $TMPM
+  echo &quot;DFB_CFLAGS = ${dfb_cflags}&quot; &gt;&gt; $TMPM
+
+  if test &quot;${dfb_sourcelocation}&quot; = &quot;yes&quot; ; then
+    echo &quot;#define HAVE_SetSourceLocation          1&quot; &gt;&gt; $TMPH
+  else
+    echo &quot;#define HAVE_SetSourceLocation          0&quot; &gt;&gt; $TMPH
+  fi
+
+  if test &quot;${dfb_device_desc}&quot; = &quot;yes&quot; ; then
+    echo &quot;#define HAVE_GraphicsDeviceDescription  1&quot; &gt;&gt; $TMPH
+  else
+    echo &quot;#define HAVE_GraphicsDeviceDescription  0&quot; &gt;&gt; $TMPH
+  fi
+
+  if test &quot;${dfb_dscaps_double}&quot; = &quot;yes&quot; ; then
+    echo &quot;#define HAVE_DSCAPS_DOUBLE              1&quot; &gt;&gt; $TMPH
+  else
+    echo &quot;#define HAVE_DSCAPS_DOUBLE              0&quot; &gt;&gt; $TMPH
+  fi
+fi
+
+###############################################################################
+# generating vidix specific defines
+#
+if test &quot;${vidix}&quot; = &quot;yes&quot; ; then
+  echo &quot;VIDIX_SUPPORT = 1&quot; &gt;&gt; $TMPM
+  echo &quot;VIDIX_DIR     = ${vidix_path}&quot; &gt;&gt; $TMPM
+  echo &quot;VIDIX_LIBS    = -L${vidix_path}/lib -lvidix&quot; &gt;&gt; $TMPM
+  echo &quot;VIDIX_CFLAGS  = -I${vidix_path}/include/vidix&quot; &gt;&gt; $TMPM
+  echo &quot;#define VIDIX_SUPPORT 1&quot; &gt;&gt; $TMPH
+  echo &quot;#define VIDIX_DIR     \&quot;${vidix_path}/lib/vidix\&quot;&quot; &gt;&gt; $TMPH
+  echo &quot;#define FBDEV         \&quot;${fb_dev_name}\&quot;&quot; &gt;&gt; $TMPH
+fi
+
+###############################################################################
+# generating X11 specific defines
+#
+if test &quot;${xv}&quot; = &quot;yes&quot; ; then
+  echo &quot;XV_SUPPORT       = 1&quot; &gt;&gt; $TMPM
+  echo &quot;LIBXDPMS_SUPPORT = 1&quot; &gt;&gt; $TMPM
+  echo &quot;XV_LIBS          = -L/usr/X11R6/lib -lXi -lXext -lX11 -lm -lXv&quot;  &gt;&gt; $TMPM
+  echo &quot;#define XV_SUPPORT       1&quot; &gt;&gt; $TMPH
+  echo &quot;#define LIBXDPMS_SUPPORT 1&quot; &gt;&gt; $TMPH
+fi
+
+###############################################################################
+# generating framebuffer specific defines
+#
+if test &quot;${with_fb}&quot; = &quot;yes&quot; ; then
+  echo &quot;FB_SUPPORT = 1&quot; &gt;&gt; $TMPM
+  echo &quot;#define FB_SUPPORT  1&quot; &gt;&gt; $TMPH
+  echo &quot;#ifndef FBDEV&quot; &gt;&gt; $TMPH
+  echo &quot;# define FBDEV      \&quot;${fb_dev_name}\&quot;&quot; &gt;&gt; $TMPH
+  echo &quot;#endif&quot; &gt;&gt; $TMPH
+fi
+
+###############################################################################
+# generating utils.c specific specific defines
+#
+if test &quot;${broken_gcc_cpp}&quot; = &quot;yes&quot; ; then
+  echo &quot;#define HAVE_BROKEN_GCC_CPP  1&quot; &gt;&gt; $TMPH
+else
+  echo &quot;#define HAVE_BROKEN_GCC_CPP  0&quot; &gt;&gt; $TMPH
+fi
+
+###############################################################################
+# generating ffmpeg specific defines
+#
+if test &quot;${libpostproc}&quot; = &quot;yes&quot; ; then
+  echo &quot;#define PP_LIBAVCODEC&quot; &gt;&gt; $TMPH
+else
+  echo &quot;#undef PP_LIBAVCODEC&quot; &gt;&gt; $TMPH
+fi
+
+echo &quot;FFMPEGLIBS = ${ffmpeg_libs}&quot; &gt;&gt; $TMPM
+echo &quot;FFMPEGCFLAGS = ${ffmpeg_cflags}&quot; &gt;&gt; $TMPM
+
+###############################################################################
+# checking for differences to previous results
+#
+diff $TMPH config.h &gt;/dev/null 2&gt;&amp;1
+if test $? -ne 0 ; then
+  mv -f $TMPH config.h
+  echo &quot;updated config.h&quot;
+else
+  echo &quot;config.h is unchanged&quot;
+fi
+
+diff $TMPM config.mak &gt;/dev/null 2&gt;&amp;1
+if test $? -ne 0 ; then
+  mv -f $TMPM config.mak
+  echo &quot;updated config.mak&quot;
+else
+  echo &quot;config.mak is unchanged&quot;
+fi
+
+rm -f $TMPC $TMPE $TMPH $TMPM
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000201.html">[Softdevice-cvs] softdevice Makefile,1.14,1.15
+</A></li>
+	<LI>Next message: <A HREF="000203.html">[Softdevice-cvs] softdevice configure,1.1,1.2
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#202">[ date ]</a>
+              <a href="thread.html#202">[ thread ]</a>
+              <a href="subject.html#202">[ subject ]</a>
+              <a href="author.html#202">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

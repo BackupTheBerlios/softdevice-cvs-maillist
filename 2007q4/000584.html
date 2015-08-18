@@ -1,0 +1,115 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.319,	1.320 setup-softdevice-menu.c, 1.13, 1.14
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.319%2C%0A%091.320%20setup-softdevice-menu.c%2C%201.13%2C%201.14&In-Reply-To=%3C20071013133929.91BF710E45A%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000583.html">
+   <LINK REL="Next"  HREF="000585.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.319,	1.320 setup-softdevice-menu.c, 1.13, 1.14</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.319%2C%0A%091.320%20setup-softdevice-menu.c%2C%201.13%2C%201.14&In-Reply-To=%3C20071013133929.91BF710E45A%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.319,	1.320 setup-softdevice-menu.c, 1.13, 1.14">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Oct 13 15:39:29 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000583.html">[Softdevice-cvs] softdevice CHANGELOG, 1.318,	1.319 setup-softdevice.h, 1.42, 1.43 softdevice.c, 1.87,	1.88 video-shm.c, 1.19, 1.20
+</A></li>
+        <LI>Next message: <A HREF="000585.html">[Softdevice-cvs] softdevice CHANGELOG, 1.320, 1.321 mpeg2decoder.c,	1.77, 1.78 mpeg2decoder.h, 1.42, 1.43
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#584">[ date ]</a>
+              <a href="thread.html#584">[ thread ]</a>
+              <a href="subject.html#584">[ subject ]</a>
+              <a href="author.html#584">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv146
+
+Modified Files:
+	CHANGELOG setup-softdevice-menu.c 
+Log Message:
+allow xv startup aspect selection for shm out too.
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.319
+retrieving revision 1.320
+diff -C2 -d -r1.319 -r1.320
+*** CHANGELOG	13 Oct 2007 11:17:48 -0000	1.319
+--- CHANGELOG	13 Oct 2007 13:38:45 -0000	1.320
+***************
+*** 2,6 ****
+  2007-10-13:
+     - shm-out: applied patch from Matthias Schwarzott to make ShmClient work
+!               at 1st start of softdevice with &quot;-vo shm:&quot;
+  2007-09-27:
+     - audio: added open for number of channels device names CH1, CH2, CH3, .. .
+--- 2,7 ----
+  2007-10-13:
+     - shm-out: applied patch from Matthias Schwarzott to make ShmClient work
+!               at 1st start of softdevice with &quot;-vo shm:&quot;.
+!               allow xv startup aspect selection for shm out too.
+  2007-09-27:
+     - audio: added open for number of channels device names CH1, CH2, CH3, .. .
+
+Index: setup-softdevice-menu.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice-menu.c,v
+retrieving revision 1.13
+retrieving revision 1.14
+diff -C2 -d -r1.13 -r1.14
+*** setup-softdevice-menu.c	10 May 2007 19:49:51 -0000	1.13
+--- setup-softdevice-menu.c	13 Oct 2007 13:38:45 -0000	1.14
+***************
+*** 299,303 ****
+  #endif
+  
+!   if (data-&gt;outputMethod == VOUT_XV)
+    {
+      xv_startup_aspect[0] = tr(&quot;16:9 wide&quot;);
+--- 299,304 ----
+  #endif
+  
+!   if (data-&gt;outputMethod == VOUT_XV ||
+!       data-&gt;outputMethod == VOUT_SHM)
+    {
+      xv_startup_aspect[0] = tr(&quot;16:9 wide&quot;);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000583.html">[Softdevice-cvs] softdevice CHANGELOG, 1.318,	1.319 setup-softdevice.h, 1.42, 1.43 softdevice.c, 1.87,	1.88 video-shm.c, 1.19, 1.20
+</A></li>
+	<LI>Next message: <A HREF="000585.html">[Softdevice-cvs] softdevice CHANGELOG, 1.320, 1.321 mpeg2decoder.c,	1.77, 1.78 mpeg2decoder.h, 1.42, 1.43
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#584">[ date ]</a>
+              <a href="thread.html#584">[ thread ]</a>
+              <a href="subject.html#584">[ subject ]</a>
+              <a href="author.html#584">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

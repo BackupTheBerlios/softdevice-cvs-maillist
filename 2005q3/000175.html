@@ -1,0 +1,223 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice mpeg2decoder.c,1.49,1.50 mpeg2decoder.h,1.29,1.30 CHANGELOG,1.99,1.100
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20mpeg2decoder.c%2C1.49%2C1.50%20mpeg2decoder.h%2C1.29%2C1.30%20CHANGELOG%2C1.99%2C1.100&In-Reply-To=%3C200507310838.j6V8chI07721%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000174.html">
+   <LINK REL="Next"  HREF="000176.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice mpeg2decoder.c,1.49,1.50 mpeg2decoder.h,1.29,1.30 CHANGELOG,1.99,1.100</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20mpeg2decoder.c%2C1.49%2C1.50%20mpeg2decoder.h%2C1.29%2C1.30%20CHANGELOG%2C1.99%2C1.100&In-Reply-To=%3C200507310838.j6V8chI07721%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice mpeg2decoder.c,1.49,1.50 mpeg2decoder.h,1.29,1.30 CHANGELOG,1.99,1.100">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Jul 31 10:38:43 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000174.html">[Softdevice-cvs] softdevice CHANGELOG,1.98,1.99 softdevice.c,1.37,1.38
+</A></li>
+        <LI>Next message: <A HREF="000176.html">[Softdevice-cvs] softplay SoftPlayer.c,1.9,1.10
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#175">[ date ]</a>
+              <a href="thread.html#175">[ thread ]</a>
+              <a href="subject.html#175">[ subject ]</a>
+              <a href="author.html#175">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv4083
+
+Modified Files:
+	mpeg2decoder.c mpeg2decoder.h CHANGELOG 
+Log Message:
+-free ppmode &amp;&amp; ppcontext
+-remove Deactivate(), instead fix Stop() and Clear
+
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.49
+retrieving revision 1.50
+diff -C2 -d -r1.49 -r1.50
+*** mpeg2decoder.c	27 Jul 2005 20:57:00 -0000	1.49
+--- mpeg2decoder.c	31 Jul 2005 08:38:41 -0000	1.50
+***************
+*** 227,230 ****
+--- 227,231 ----
+  void cStreamDecoder::Stop(void)
+  {
++   active=false;
+    if (syncTimer)
+      syncTimer-&gt;Signal();
+***************
+*** 233,237 ****
+    mutex.Unlock();
+    PacketQueue.EnablePutSignal();
+-   active=false;
+    Cancel(3);
+  }
+--- 234,237 ----
+***************
+*** 240,243 ****
+--- 240,248 ----
+  {
+    CMDDEB(&quot;cStreamDecoder clear type: %d\n&quot;,context-&gt;codec_type);
++ 
++   // stop playback bevore clear
++   bool oldfreezeMode=freezeMode;
++   Freeze();
++   
+    mutex.Lock();
+    if (codec &amp;&amp; context)
+***************
+*** 245,248 ****
+--- 250,257 ----
+    PacketQueue.Clear();
+    mutex.Unlock();
++ 
++   // restore old freezeMode
++   freezeMode=oldfreezeMode;
++   
+    CMDDEB(&quot;cStreamDecoder clear finished type: %d\n&quot;,context-&gt;codec_type);
+  }
+***************
+*** 357,362 ****
+      }
+    }
+!   while ( size &gt; 0 ) {
+!     BUFDEB(&quot;start decode audio\n&quot;);
+      len=avcodec_decode_audio(context, (short *)audiosamples,
+                   &amp;audio_size, data, size);
+--- 366,371 ----
+      }
+    }
+!   while ( size &gt; 0 &amp;&amp; active ) {
+!     BUFDEB(&quot;start decode audio. pkt size: %d \n&quot;,size);
+      len=avcodec_decode_audio(context, (short *)audiosamples,
+                   &amp;audio_size, data, size);
+***************
+*** 985,988 ****
+--- 994,1008 ----
+       pic_buf_mirror = freePicBuf(pic_buf_mirror);
+  
++ #ifdef PP_LIBAVCODEC
++   if (ppcontext) {
++      pp_free_context(ppcontext);
++      ppcontext = NULL;
++   }
++ 
++   if (ppmode)  {
++       pp_free_mode (ppmode);
++       ppmode = NULL;
++   }
++ #endif  
+  }
+  
+***************
+*** 1380,1391 ****
+    {
+      running=false;
+-     
+      ThreadActive=false;
+!     // prepare aout and vout for a stop
+!     if (vout)
+!        vout-&gt;Deactivate();
+!     if (aout)
+!        aout-&gt;Deactivate();
+!     
+      StreamBuffer-&gt;Clear();
+      EnableGetSignal.Signal();
+--- 1400,1405 ----
+    {
+      running=false;
+      ThreadActive=false;
+! 
+      StreamBuffer-&gt;Clear();
+      EnableGetSignal.Signal();
+
+Index: mpeg2decoder.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.h,v
+retrieving revision 1.29
+retrieving revision 1.30
+diff -C2 -d -r1.29 -r1.30
+*** mpeg2decoder.h	17 Jul 2005 11:26:08 -0000	1.29
+--- mpeg2decoder.h	31 Jul 2005 08:38:41 -0000	1.30
+***************
+*** 144,148 ****
+  
+      cMutex            mutex;
+!     bool              active, running;
+      
+      virtual void      Action(void);
+--- 144,149 ----
+  
+      cMutex            mutex;
+!     volatile bool     active;
+!     bool              running;
+      
+      virtual void      Action(void);
+***************
+*** 157,162 ****
+      virtual void      Play(void);
+      virtual void      Stop();
+-     virtual void      Deactivate()
+-     { active = false; };
+      virtual void      TrickSpeed(int Speed) {return;};
+      virtual int       BufferFill(void);
+--- 158,161 ----
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.99
+retrieving revision 1.100
+diff -C2 -d -r1.99 -r1.100
+*** CHANGELOG	31 Jul 2005 08:21:22 -0000	1.99
+--- CHANGELOG	31 Jul 2005 08:38:41 -0000	1.100
+***************
+*** 1,4 ****
+--- 1,6 ----
+  Changelog
+  2005-07-31:
++     - remove Deactivate(), instead deactive at start of Stop()
++     - stop playback in Clear() while clearing the packet buffer
+      - introduce SOFTDEB, more checks agains NULL dereferences
+      - call decoder-&gt;Clear in Clear
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000174.html">[Softdevice-cvs] softdevice CHANGELOG,1.98,1.99 softdevice.c,1.37,1.38
+</A></li>
+	<LI>Next message: <A HREF="000176.html">[Softdevice-cvs] softplay SoftPlayer.c,1.9,1.10
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#175">[ date ]</a>
+              <a href="thread.html#175">[ thread ]</a>
+              <a href="subject.html#175">[ subject ]</a>
+              <a href="author.html#175">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

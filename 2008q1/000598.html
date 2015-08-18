@@ -1,0 +1,231 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice configure,1.45,1.46
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2008q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20configure%2C1.45%2C1.46&In-Reply-To=%3C20080226065935.0F984122138%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000597.html">
+   <LINK REL="Next"  HREF="000599.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice configure,1.45,1.46</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20configure%2C1.45%2C1.46&In-Reply-To=%3C20080226065935.0F984122138%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice configure,1.45,1.46">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue Feb 26 07:59:35 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000597.html">[Softdevice-cvs] softdevice VideoFilter.c, 1.9, 1.10 CHANGELOG,	1.324, 1.325
+</A></li>
+        <LI>Next message: <A HREF="000599.html">[Softdevice-cvs] softdevice PicBuffer.h,1.7,1.8
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#598">[ date ]</a>
+              <a href="thread.html#598">[ thread ]</a>
+              <a href="subject.html#598">[ subject ]</a>
+              <a href="author.html#598">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv23761
+
+Modified Files:
+	configure 
+Log Message:
+remove some unused code and some cosmetic changes
+
+Index: configure
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/configure,v
+retrieving revision 1.45
+retrieving revision 1.46
+diff -C2 -d -r1.45 -r1.46
+*** configure	23 Sep 2007 08:33:40 -0000	1.45
+--- configure	26 Feb 2008 06:57:57 -0000	1.46
+***************
+*** 180,189 ****
+  }
+  int main(void) {
+- /*  if ( avcodec_build() != LIBAVCODEC_BUILD ) {
+-      fprintf(stderr,&quot;Fatal Error! Libavcodec library build(%d) doesn't match avcodec.h build(%d)!!!\n&quot;,avcodec_build(),LIBAVCODEC_BUILD);
+-      fprintf(stderr,&quot;Check your ffmpeg installation / the pathes in the Makefile!!!\n&quot;);
+-      exit(-1);
+-   };
+- */
+    avcodec_init();
+    avcodec_register_all();
+--- 180,183 ----
+***************
+*** 258,267 ****
+  }
+  int main(void) {
+- /*  if ( avcodec_build() != LIBAVCODEC_BUILD ) {
+-      fprintf(stderr,&quot;Fatal Error! Libavcodec library build(%d) doesn't match avcodec.h build(%d)!!!\n&quot;,avcodec_build(),LIBAVCODEC_BUILD);
+-      fprintf(stderr,&quot;Check your ffmpeg installation / the pathes in the Makefile!!!\n&quot;);
+-      exit(-1);
+-   };
+- */
+    avcodec_init();
+    avcodec_register_all();
+--- 252,255 ----
+***************
+*** 642,675 ****
+  if test &quot;${with_subplugins}&quot; = &quot;yes&quot; ; then
+    echo &quot;USE_SUBPLUGINS = 1&quot; &gt;&gt; $TMPM
+!   echo &quot;#define USE_SUBPLUGINS 1&quot; &gt;&gt; $TMPH
+  fi
+  
+  if test &quot;${with_mmx}&quot; = &quot;yes&quot; ; then
+!   echo &quot;#define USE_MMX 1&quot; &gt;&gt; $TMPH
+  
+    if test &quot;${with_mmx2}&quot; = &quot;yes&quot; ; then
+!     echo &quot;#define USE_MMX2 1&quot; &gt;&gt; $TMPH
+    fi
+  fi
+  
+  if test &quot;${with_altivec}&quot; = &quot;yes&quot; ; then
+!   echo &quot;#define USE_ALTIVEC 1&quot; &gt;&gt; $TMPH
+    echo &quot;ADD_CXXFLAGS += -faltivec&quot; &gt;&gt; $TMPM
+  fi
+  
+  if test &quot;${suspendkey}&quot; = &quot;yes&quot; ; then
+!   echo &quot;#define SUSPEND_BY_KEY 1&quot; &gt;&gt; $TMPH
+  fi
+  
+  if test &quot;${cpu_bigendian}&quot; = &quot;yes&quot; ; then
+!   echo &quot;#define CPU_BIGENDIAN 1&quot; &gt;&gt; $TMPH
+  fi
+  
+  if test &quot;${yaepg}&quot; = &quot;yes&quot; ; then
+!   echo &quot;#define HAVE_YAEPGPATCH 1&quot; &gt;&gt; $TMPH
+  fi
+  
+  if test &quot;${system}&quot; = &quot;Linux&quot;; then
+!   echo &quot;#define LINUX_RTC 1&quot; &gt;&gt; $TMPH
+  fi
+  
+--- 630,663 ----
+  if test &quot;${with_subplugins}&quot; = &quot;yes&quot; ; then
+    echo &quot;USE_SUBPLUGINS = 1&quot; &gt;&gt; $TMPM
+!   echo &quot;#define USE_SUBPLUGINS                  1&quot; &gt;&gt; $TMPH
+  fi
+  
+  if test &quot;${with_mmx}&quot; = &quot;yes&quot; ; then
+!   echo &quot;#define USE_MMX                         1&quot; &gt;&gt; $TMPH
+  
+    if test &quot;${with_mmx2}&quot; = &quot;yes&quot; ; then
+!     echo &quot;#define USE_MMX2                        1&quot; &gt;&gt; $TMPH
+    fi
+  fi
+  
+  if test &quot;${with_altivec}&quot; = &quot;yes&quot; ; then
+!   echo &quot;#define USE_ALTIVEC                     1&quot; &gt;&gt; $TMPH
+    echo &quot;ADD_CXXFLAGS += -faltivec&quot; &gt;&gt; $TMPM
+  fi
+  
+  if test &quot;${suspendkey}&quot; = &quot;yes&quot; ; then
+!   echo &quot;#define SUSPEND_BY_KEY                  1&quot; &gt;&gt; $TMPH
+  fi
+  
+  if test &quot;${cpu_bigendian}&quot; = &quot;yes&quot; ; then
+!   echo &quot;#define CPU_BIGENDIAN                   1&quot; &gt;&gt; $TMPH
+  fi
+  
+  if test &quot;${yaepg}&quot; = &quot;yes&quot; ; then
+!   echo &quot;#define HAVE_YAEPGPATCH                 1&quot; &gt;&gt; $TMPH
+  fi
+  
+  if test &quot;${system}&quot; = &quot;Linux&quot;; then
+!   echo &quot;#define LINUX_RTC                       1&quot; &gt;&gt; $TMPH
+  fi
+  
+***************
+*** 680,686 ****
+    echo &quot;SHARED_FLAG = -dynamiclib -Wl,-single_module,-undefined,dynamic_lookup &quot; &gt;&gt; $TMPM
+    echo &quot;QUARTZ_SUPPORT = 1&quot; &gt;&gt; $TMPM
+!   echo &quot;#define QUARTZ_SUPPORT 1 &quot;&gt;&gt; $TMPH
+    echo &quot;MACOSAO_SUPPORT = 1&quot; &gt;&gt; $TMPM
+!   echo &quot;#define MACOSAO_SUPPORT 1 &quot;&gt;&gt; $TMPH
+    echo &quot;MACVDRCLIENT_SUPPORT = 1&quot; &gt;&gt; $TMPM
+  fi
+--- 668,674 ----
+    echo &quot;SHARED_FLAG = -dynamiclib -Wl,-single_module,-undefined,dynamic_lookup &quot; &gt;&gt; $TMPM
+    echo &quot;QUARTZ_SUPPORT = 1&quot; &gt;&gt; $TMPM
+!   echo &quot;#define QUARTZ_SUPPORT                  1&quot; &gt;&gt; $TMPH
+    echo &quot;MACOSAO_SUPPORT = 1&quot; &gt;&gt; $TMPM
+!   echo &quot;#define MACOSAO_SUPPORT                 1&quot; &gt;&gt; $TMPH
+    echo &quot;MACVDRCLIENT_SUPPORT = 1&quot; &gt;&gt; $TMPM
+  fi
+***************
+*** 691,695 ****
+  if test &quot;${alsa}&quot; = &quot;yes&quot; ; then
+    echo &quot;ALSA_SUPPORT = 1&quot; &gt;&gt; $TMPM
+!   echo &quot;#define ALSA_SUPPORT 1&quot; &gt;&gt; $TMPH
+  fi
+  
+--- 679,683 ----
+  if test &quot;${alsa}&quot; = &quot;yes&quot; ; then
+    echo &quot;ALSA_SUPPORT = 1&quot; &gt;&gt; $TMPM
+!   echo &quot;#define ALSA_SUPPORT                    1&quot; &gt;&gt; $TMPH
+  fi
+  
+***************
+*** 699,703 ****
+  if test &quot;${oss}&quot; = &quot;yes&quot; ; then
+    echo &quot;OSS_SUPPORT = 1&quot; &gt;&gt; $TMPM
+!   echo &quot;#define OSS_SUPPORT 1&quot; &gt;&gt; $TMPH
+  fi
+  
+--- 687,691 ----
+  if test &quot;${oss}&quot; = &quot;yes&quot; ; then
+    echo &quot;OSS_SUPPORT = 1&quot; &gt;&gt; $TMPM
+!   echo &quot;#define OSS_SUPPORT                     1&quot; &gt;&gt; $TMPH
+  fi
+  
+***************
+*** 707,711 ****
+  if test &quot;${dfb}&quot; = &quot;yes&quot; ; then
+    echo &quot;DFB_SUPPORT=1&quot; &gt;&gt; $TMPM
+!   echo &quot;#define DFB_SUPPORT                       1&quot; &gt;&gt; $TMPH
+    echo &quot;DFB_LIBS = ${dfb_libs}&quot; &gt;&gt; $TMPM
+    echo &quot;DFB_CFLAGS = ${dfb_cflags}&quot; &gt;&gt; $TMPM
+--- 695,699 ----
+  if test &quot;${dfb}&quot; = &quot;yes&quot; ; then
+    echo &quot;DFB_SUPPORT=1&quot; &gt;&gt; $TMPM
+!   echo &quot;#define DFB_SUPPORT                     1&quot; &gt;&gt; $TMPH
+    echo &quot;DFB_LIBS = ${dfb_libs}&quot; &gt;&gt; $TMPM
+    echo &quot;DFB_CFLAGS = ${dfb_cflags}&quot; &gt;&gt; $TMPM
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000597.html">[Softdevice-cvs] softdevice VideoFilter.c, 1.9, 1.10 CHANGELOG,	1.324, 1.325
+</A></li>
+	<LI>Next message: <A HREF="000599.html">[Softdevice-cvs] softdevice PicBuffer.h,1.7,1.8
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#598">[ date ]</a>
+              <a href="thread.html#598">[ thread ]</a>
+              <a href="subject.html#598">[ subject ]</a>
+              <a href="author.html#598">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

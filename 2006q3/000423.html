@@ -1,0 +1,158 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.231, 1.232 configure, 1.25,	1.26 mpeg2decoder.c, 1.67, 1.68
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.231%2C%201.232%20configure%2C%201.25%2C%0A%091.26%20mpeg2decoder.c%2C%201.67%2C%201.68&In-Reply-To=%3C20060916202653.706B779DC0%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000422.html">
+   <LINK REL="Next"  HREF="000424.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.231, 1.232 configure, 1.25,	1.26 mpeg2decoder.c, 1.67, 1.68</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.231%2C%201.232%20configure%2C%201.25%2C%0A%091.26%20mpeg2decoder.c%2C%201.67%2C%201.68&In-Reply-To=%3C20060916202653.706B779DC0%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.231, 1.232 configure, 1.25,	1.26 mpeg2decoder.c, 1.67, 1.68">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Sep 16 22:26:53 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000422.html">[Softdevice-cvs] softdevice CHANGELOG, 1.230, 1.231 configure, 1.24,	1.25 mpeg2decoder.c, 1.66, 1.67 video-dfb.c, 1.70,	1.71 softdevice.c, 1.70, 1.71
+</A></li>
+        <LI>Next message: <A HREF="000424.html">[Softdevice-cvs] softdevice CHANGELOG, 1.232, 1.233 SoftOsd.c, 1.17,	1.18
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#423">[ date ]</a>
+              <a href="thread.html#423">[ thread ]</a>
+              <a href="subject.html#423">[ subject ]</a>
+              <a href="author.html#423">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv23919
+
+Modified Files:
+	CHANGELOG configure mpeg2decoder.c 
+Log Message:
+cle266: fix one aspect ratio info and configure (by Rolf Ahrenberg)
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.231
+retrieving revision 1.232
+diff -C2 -d -r1.231 -r1.232
+*** CHANGELOG	16 Sep 2006 09:30:19 -0000	1.231
+--- CHANGELOG	16 Sep 2006 20:26:24 -0000	1.232
+***************
+*** 6,9 ****
+--- 6,10 ----
+                  has buildin support for this now.
+     - disable cle266 support if DirectFB is not patched for this
++    - cle266: fix one aspect ratio info and configure (by Rolf Ahrenberg)
+  2006-09-12:
+     - don't continue on argument errors
+
+Index: configure
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/configure,v
+retrieving revision 1.25
+retrieving revision 1.26
+diff -C2 -d -r1.25 -r1.26
+*** configure	16 Sep 2006 09:30:19 -0000	1.25
+--- configure	16 Sep 2006 20:26:24 -0000	1.26
+***************
+*** 328,348 ****
+  
+  #########################################################
+! # cle266mpegdec: check if present
+  #
+  if test &quot;${dfb}&quot; = &quot;yes&quot; ; then
+    echo -n &quot;Checking for libcle266mpegdec ... &quot;
+!   cle266_cflags=`PKG_CONFIG_PATH=$PKG_CONFIG_PATH pkg-config --cflags libcle266mpegdec 2&gt;&gt;config.log` || cle266=&quot;no&quot;
+    if test &quot;${cle266}&quot; = &quot;yes&quot; ; then
+      cle266_libs=`PKG_CONFIG_PATH=$PKG_CONFIG_PATH pkg-config --libs libcle266mpegdec`
+      cle266_opts=&quot;${cle266_cflags} ${cle266_libs}&quot;
+-   fi
+- 
+-   if test &quot;${cle266}&quot; = &quot;yes&quot; ; then
+      echo &quot;Enabled cle266 hardware decoding.&quot;
+    else
+      echo &quot;Not found, not supported by DirectFB or disabled by argument.&quot;
+    fi
+- else
+-   cle266=&quot;no&quot;
+  fi
+  
+--- 328,344 ----
+  
+  #########################################################
+! # libcle266mpegdec: check if required version is present
+  #
+  if test &quot;${dfb}&quot; = &quot;yes&quot; ; then
+    echo -n &quot;Checking for libcle266mpegdec ... &quot;
+!   pkg-config --atleast-version=0.2 libcle266mpegdec 2&gt;&gt;config.log || cle266=&quot;no&quot;
+    if test &quot;${cle266}&quot; = &quot;yes&quot; ; then
++     cle266_cflags=`PKG_CONFIG_PATH=$PKG_CONFIG_PATH pkg-config --cflags libcle266mpegdec`
+      cle266_libs=`PKG_CONFIG_PATH=$PKG_CONFIG_PATH pkg-config --libs libcle266mpegdec`
+      cle266_opts=&quot;${cle266_cflags} ${cle266_libs}&quot;
+      echo &quot;Enabled cle266 hardware decoding.&quot;
+    else
+      echo &quot;Not found, not supported by DirectFB or disabled by argument.&quot;
+    fi
+  fi
+  
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.67
+retrieving revision 1.68
+diff -C2 -d -r1.67 -r1.68
+*** mpeg2decoder.c	16 Sep 2006 09:30:19 -0000	1.67
+--- mpeg2decoder.c	16 Sep 2006 20:26:24 -0000	1.68
+***************
+*** 758,762 ****
+  
+  #ifdef HAVE_CLE266_MPEG_DECODER
+! float aspect_ratio_values[5]={1.0, 1.0, 4.0/3.0, 16.0/9.0, 221.0/110 };
+  
+  int cVideoStreamDecoder::DecodePicture_cle266(sPicBuffer *&amp;pic,
+--- 758,762 ----
+  
+  #ifdef HAVE_CLE266_MPEG_DECODER
+! float aspect_ratio_values[5]={1.0, 1.0, 4.0/3.0, 16.0/9.0, 2.21 };
+  
+  int cVideoStreamDecoder::DecodePicture_cle266(sPicBuffer *&amp;pic,
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000422.html">[Softdevice-cvs] softdevice CHANGELOG, 1.230, 1.231 configure, 1.24,	1.25 mpeg2decoder.c, 1.66, 1.67 video-dfb.c, 1.70,	1.71 softdevice.c, 1.70, 1.71
+</A></li>
+	<LI>Next message: <A HREF="000424.html">[Softdevice-cvs] softdevice CHANGELOG, 1.232, 1.233 SoftOsd.c, 1.17,	1.18
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#423">[ date ]</a>
+              <a href="thread.html#423">[ thread ]</a>
+              <a href="subject.html#423">[ subject ]</a>
+              <a href="author.html#423">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

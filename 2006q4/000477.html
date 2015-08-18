@@ -1,0 +1,194 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice PicBuffer.c, 1.14, 1.15 PicBuffer.h, 1.5,	1.6 CHANGELOG, 1.269, 1.270
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20PicBuffer.c%2C%201.14%2C%201.15%20PicBuffer.h%2C%201.5%2C%0A%091.6%20CHANGELOG%2C%201.269%2C%201.270&In-Reply-To=%3C20061126185439.1014AB19BB%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000476.html">
+   <LINK REL="Next"  HREF="000478.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice PicBuffer.c, 1.14, 1.15 PicBuffer.h, 1.5,	1.6 CHANGELOG, 1.269, 1.270</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20PicBuffer.c%2C%201.14%2C%201.15%20PicBuffer.h%2C%201.5%2C%0A%091.6%20CHANGELOG%2C%201.269%2C%201.270&In-Reply-To=%3C20061126185439.1014AB19BB%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice PicBuffer.c, 1.14, 1.15 PicBuffer.h, 1.5,	1.6 CHANGELOG, 1.269, 1.270">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Nov 26 19:54:39 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000476.html">[Softdevice-cvs] softdevice utils.h, 1.12, 1.13 CHANGELOG, 1.268,	1.269
+</A></li>
+        <LI>Next message: <A HREF="000478.html">[Softdevice-cvs] softdevice CHANGELOG, 1.270, 1.271 shm-common.h,	1.6, 1.7 ShmClient.c, 1.19, 1.20 video-shm.c, 1.14,	1.15 video-shm.h, 1.8, 1.9 video-xv.c, 1.66, 1.67 video-xv.h,	1.25, 1.26
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#477">[ date ]</a>
+              <a href="thread.html#477">[ thread ]</a>
+              <a href="subject.html#477">[ subject ]</a>
+              <a href="author.html#477">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv1600
+
+Modified Files:
+	PicBuffer.c PicBuffer.h CHANGELOG 
+Log Message:
+- introduce FillPicBuffer()
+
+
+Index: PicBuffer.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/PicBuffer.c,v
+retrieving revision 1.14
+retrieving revision 1.15
+diff -C2 -d -r1.14 -r1.15
+*** PicBuffer.c	8 Nov 2006 21:24:14 -0000	1.14
+--- PicBuffer.c	26 Nov 2006 18:53:41 -0000	1.15
+***************
+*** 39,46 ****
+  };
+  
+  void ClearPicBuffer(sPicBuffer *Pic) {
+          if (!Pic || !Pic-&gt;pixel[0])
+                  return;
+!          PICDEB(&quot;ClearPicBuffer Pic %p pixel[0] %p max_height %d stride[0] %d\n&quot;,
+                          Pic, Pic-&gt;pixel[0], Pic-&gt;max_height, Pic-&gt;stride[0]);
+          int pixel_size=GetFormatBPP(Pic-&gt;format); 
+--- 39,108 ----
+  };
+  
++ void FillPicBuffer(sPicBuffer *Pic, int color) {
++         if (!Pic || !Pic-&gt;pixel[0])
++                 return;
++         PICDEB(&quot;FillPicBuffer Pic %p pixel[0] %p max_height %d stride[0] %d\n&quot;,
++                         Pic, Pic-&gt;pixel[0], Pic-&gt;max_height, Pic-&gt;stride[0]);
++         int pixel_size=GetFormatBPP(Pic-&gt;format); 
++ 
++         switch (Pic-&gt;format) {
++                 case PIX_FMT_RGB24 :
++                 case PIX_FMT_BGR24 :
++                         {
++                                 uint8_t *tmp=(uint8_t *)Pic-&gt;pixel[0];
++                                 int i=Pic-&gt;max_height*
++                                       Pic-&gt;max_width*pixel_size;
++                                 while (--i&gt;0) {
++                                         *tmp=(color &amp; 0xFF);
++                                         tmp++;
++                                         *tmp=((color&gt;&gt;8) &amp; 0xFF);
++                                         tmp++;
++                                         *tmp=((color&gt;&gt;16) &amp; 0xFF);
++                                         tmp++;
++                                 };
++                                 break;
++                         };
++                         break;                        
++                 case PIX_FMT_RGB555 :
++                         {
++                                 uint16_t *tmp=(uint16_t *)Pic-&gt;pixel[0];
++                                 int i=Pic-&gt;max_height*
++                                       Pic-&gt;max_width*pixel_size/2;
++                                 while (--i&gt;0) {
++                                         *tmp=color;
++                                         tmp++;
++                                 };
++                                 break;
++                         };
++                         break;
++                 case PIX_FMT_YUV420P :
++                         memset(Pic-&gt;pixel[0],(color&gt;&gt;16)&amp;0xFF,
++                                         Pic-&gt;max_height*Pic-&gt;stride[0]);
++                         memset(Pic-&gt;pixel[1],(color&gt;&gt;8)&amp;0xFF,
++                                         (Pic-&gt;max_height&gt;&gt;1)*Pic-&gt;stride[1]);
++                         memset(Pic-&gt;pixel[2],(color&amp;0xFF),
++                                         (Pic-&gt;max_height&gt;&gt;1)*Pic-&gt;stride[2]);
++                         break;
++                 case PIX_FMT_RGBA32 :
++                 case PIX_FMT_YUV422 :
++                         {
++                                 uint32_t *tmp=(uint32_t *)Pic-&gt;pixel[0];
++                                 int i=Pic-&gt;max_height*
++                                       Pic-&gt;max_width*pixel_size/4;
++                                 while (--i&gt;0) {
++                                         *tmp=color;
++                                         tmp++;
++                                 };
++                                 break;
++                         };
++                 default:
++                         fprintf(stderr,&quot;Warning, unsupported format in FillPicBuffer!\n&quot;);
++         };
++ };
++ 
+  void ClearPicBuffer(sPicBuffer *Pic) {
+          if (!Pic || !Pic-&gt;pixel[0])
+                  return;
+!         PICDEB(&quot;ClearPicBuffer Pic %p pixel[0] %p max_height %d stride[0] %d\n&quot;,
+                          Pic, Pic-&gt;pixel[0], Pic-&gt;max_height, Pic-&gt;stride[0]);
+          int pixel_size=GetFormatBPP(Pic-&gt;format); 
+
+Index: PicBuffer.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/PicBuffer.h,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -C2 -d -r1.5 -r1.6
+*** PicBuffer.h	7 Nov 2006 19:01:37 -0000	1.5
+--- PicBuffer.h	26 Nov 2006 18:53:41 -0000	1.6
+***************
+*** 50,53 ****
+--- 50,54 ----
+  
+  void InitPicBuffer(sPicBuffer *Pic);
++ void FillPicBuffer(sPicBuffer *Pic, int color);
+  void ClearPicBuffer(sPicBuffer *Pic);
+  void CopyPicBufferContext(sPicBuffer *dest,sPicBuffer *orig);
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.269
+retrieving revision 1.270
+diff -C2 -d -r1.269 -r1.270
+*** CHANGELOG	26 Nov 2006 18:52:02 -0000	1.269
+--- CHANGELOG	26 Nov 2006 18:53:41 -0000	1.270
+***************
+*** 3,6 ****
+--- 3,7 ----
+     - use brackets in WRITE_RGB16 macro, introduce WRITE_RGB15 (untested)
+       and ARGB_TO_RGB.
++    - introduce FillPicBuffer()
+  2006-11-22:
+     - remove cShmVideo::Process() method, and instead signal PICT_SIG
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000476.html">[Softdevice-cvs] softdevice utils.h, 1.12, 1.13 CHANGELOG, 1.268,	1.269
+</A></li>
+	<LI>Next message: <A HREF="000478.html">[Softdevice-cvs] softdevice CHANGELOG, 1.270, 1.271 shm-common.h,	1.6, 1.7 ShmClient.c, 1.19, 1.20 video-shm.c, 1.14,	1.15 video-shm.h, 1.8, 1.9 video-xv.c, 1.66, 1.67 video-xv.h,	1.25, 1.26
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#477">[ date ]</a>
+              <a href="thread.html#477">[ thread ]</a>
+              <a href="subject.html#477">[ subject ]</a>
+              <a href="author.html#477">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

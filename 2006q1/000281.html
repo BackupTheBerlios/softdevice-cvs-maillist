@@ -1,0 +1,491 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.147,1.148 video.h,1.27,1.28 video-xv.c,1.39,1.40 video-xv.h,1.12,1.13
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.147%2C1.148%20video.h%2C1.27%2C1.28%20video-xv.c%2C1.39%2C1.40%20video-xv.h%2C1.12%2C1.13&In-Reply-To=%3C200602041733.k14HXYx24271%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000280.html">
+   <LINK REL="Next"  HREF="000282.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.147,1.148 video.h,1.27,1.28 video-xv.c,1.39,1.40 video-xv.h,1.12,1.13</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.147%2C1.148%20video.h%2C1.27%2C1.28%20video-xv.c%2C1.39%2C1.40%20video-xv.h%2C1.12%2C1.13&In-Reply-To=%3C200602041733.k14HXYx24271%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.147,1.148 video.h,1.27,1.28 video-xv.c,1.39,1.40 video-xv.h,1.12,1.13">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Feb  4 18:33:34 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000280.html">[Softdevice-cvs] softdevice CHANGELOG,1.146,1.147 ShmClient.c,1.3,1.4 video-shm.c,1.3,1.4 README,1.12,1.13
+</A></li>
+        <LI>Next message: <A HREF="000282.html">[Softdevice-cvs] softdevice video-xv.c,1.40,1.41
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#281">[ date ]</a>
+              <a href="thread.html#281">[ thread ]</a>
+              <a href="subject.html#281">[ subject ]</a>
+              <a href="author.html#281">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv15842
+
+Modified Files:
+	CHANGELOG video.h video-xv.c video-xv.h 
+Log Message:
+- remove unused code, variables and parameters from video-xv
+
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.147
+retrieving revision 1.148
+diff -C2 -d -r1.147 -r1.148
+*** CHANGELOG	4 Feb 2006 14:40:04 -0000	1.147
+--- CHANGELOG	4 Feb 2006 17:33:31 -0000	1.148
+***************
+*** 1,4 ****
+--- 1,5 ----
+  Changelog
+  2006-03-03:
++    - remove unused code, variables and parameters from video-xv
+     - add more documentation to the readme
+     - fix ShmClient pixel[] array initialisation
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.27
+retrieving revision 1.28
+diff -C2 -d -r1.27 -r1.28
+*** video.h	3 Feb 2006 22:34:54 -0000	1.27
+--- video.h	4 Feb 2006 17:33:31 -0000	1.28
+***************
+*** 137,141 ****
+      virtual bool Initialize(void) {return 1;};
+      virtual bool Reconfigure (int format) {return 1;};
+-     virtual bool GetInfo(int *fmt, unsigned char **dest,int *w, int *h) {return false;};
+  
+      virtual void Suspend(void) { return;};
+--- 137,140 ----
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.39
+retrieving revision 1.40
+diff -C2 -d -r1.39 -r1.40
+*** video-xv.c	3 Feb 2006 22:34:54 -0000	1.39
+--- video-xv.c	4 Feb 2006 17:33:31 -0000	1.40
+***************
+*** 299,311 ****
+  /* ---------------------------------------------------------------------------
+   */
+- Bool chk_event (Display *d, XEvent *e, char *a)
+- {
+-   if (e-&gt;type == KeyPress)
+-     return True;
+-   return False;
+- }
+- 
+- /* ---------------------------------------------------------------------------
+-  */
+  cXvRemote::cXvRemote(const char *Name, cXvVideoOut *vout) : cRemote(Name)
+  {
+--- 299,302 ----
+***************
+*** 340,344 ****
+      if (events_not_done &gt; 2) {
+        video_out-&gt;ProcessEvents ();
+-       video_out-&gt;ShowOSD (0, True);
+        events_not_done = 0;
+      } else {
+--- 331,334 ----
+***************
+*** 471,479 ****
+  
+      char            buffer [80];
+!     int             len,
+!                     map_count = 0;
+      XComposeStatus  compose;
+      KeySym          keysym;
+      struct timeval  current_time;
+  
+    while (XCheckMaskEvent (dpy, /* win, */
+--- 461,469 ----
+  
+      char            buffer [80];
+!     int             map_count = 0;
+      XComposeStatus  compose;
+      KeySym          keysym;
+      struct timeval  current_time;
++     XEvent            event;
+  
+    while (XCheckMaskEvent (dpy, /* win, */
+***************
+*** 530,534 ****
+          button_time = current_time.tv_sec;
+  
+!         len = XLookupString (&amp;event. xkey, buffer, 80, &amp;keysym, &amp;compose);
+          switch (keysym)
+          {
+--- 520,524 ----
+          button_time = current_time.tv_sec;
+  
+!         XLookupString (&amp;event.xkey, buffer, 80, &amp;keysym, &amp;compose);
+          switch (keysym)
+          {
+***************
+*** 645,649 ****
+      if (map_count) {
+        XClearArea (dpy, win, 0, 0, 0, 0, False);
+!       ShowOSD(0,false);
+        XvShmPutImage(dpy, port,
+                      win, gc,
+--- 635,639 ----
+      if (map_count) {
+        XClearArea (dpy, win, 0, 0, 0, 0, False);
+!       ShowOSD();
+        XvShmPutImage(dpy, port,
+                      win, gc,
+***************
+*** 683,687 ****
+     */
+    display_aspect = current_aspect = setupStore-&gt;xvAspect;
+-   scale_size = 0;
+    screenPixelAspect = -1;
+    xvWidth  = width  = XV_SRC_WIDTH;
+--- 673,676 ----
+***************
+*** 690,694 ****
+    format = FOURCC_YV12;
+    use_xv_port = 0;
+-   len = width * height * 4;
+    outbuffer = NULL;
+    w_name = &quot;vdr&quot;;
+--- 679,682 ----
+***************
+*** 769,778 ****
+            displayAspect, displayRatio, parValues[0]);
+  
+-   if (scale_size) {
+-     lwidth  = (int)(((double)lwidth  * (double)scale_size)/100.0);
+-     lheight = (int)(((double)lheight * (double)scale_size)/100.0);
+-     dwidth  = (int)(((double)dwidth  * (double)scale_size)/100.0);
+-     dheight = (int)(((double)dheight * (double)scale_size)/100.0);
+-   }
+    if (flags &amp; XV_FORMAT_MASK) {
+      hints.flags |= PAspect;
+--- 757,760 ----
+***************
+*** 802,806 ****
+  
+    XMapRaised(dpy, win);
+!   XNextEvent(dpy, &amp;event);
+  
+    gc = XCreateGC(dpy, win, 0, &amp;values);
+--- 784,788 ----
+  
+    XMapRaised(dpy, win);
+!   //XNextEvent(dpy, &amp;event);
+  
+    gc = XCreateGC(dpy, win, 0, &amp;values);
+***************
+*** 941,944 ****
+--- 923,927 ----
+      XvAdaptorInfo       *ad_info;
+      XvImageFormatValues *fmt_info;
++     int                 len=0;
+  
+    pthread_mutex_lock(&amp;xv_mutex);
+***************
+*** 1182,1196 ****
+  /* ---------------------------------------------------------------------------
+   */
+- bool cXvVideoOut::GetInfo(int *fmt, unsigned char **dest, int *w, int *h)
+- {
+-   *fmt = format;
+-   *dest = (unsigned char *) xv_image-&gt;data;
+-   *w = width;
+-   *h = height;
+-   return true;
+- }
+- 
+- /* ---------------------------------------------------------------------------
+-  */
+  void cXvVideoOut::CloseOSD()
+  {
+--- 1165,1168 ----
+***************
+*** 1211,1217 ****
+      memset (osd_buffer, 0, osd_image-&gt;bytes_per_line * osd_max_height);
+      pthread_mutex_lock(&amp;xv_mutex);
+-     osd_refresh_counter = osd_skip_counter = 0;
+      XClearArea (dpy, win, 0, 0, 0, 0, False);
+!     ShowOSD(0,false);
+      XSync(dpy, False);
+      pthread_mutex_unlock(&amp;xv_mutex);
+--- 1183,1188 ----
+      memset (osd_buffer, 0, osd_image-&gt;bytes_per_line * osd_max_height);
+      pthread_mutex_lock(&amp;xv_mutex);
+      XClearArea (dpy, win, 0, 0, 0, 0, False);
+!     ShowOSD();
+      XSync(dpy, False);
+      pthread_mutex_unlock(&amp;xv_mutex);
+***************
+*** 1229,1233 ****
+      pthread_mutex_lock(&amp;xv_mutex);
+      memset (osd_buffer, 0, osd_image-&gt;bytes_per_line * osd_max_height);
+!     ShowOSD(0,true);
+      pthread_mutex_unlock(&amp;xv_mutex);
+    };
+--- 1200,1205 ----
+      pthread_mutex_lock(&amp;xv_mutex);
+      memset (osd_buffer, 0, osd_image-&gt;bytes_per_line * osd_max_height);
+!     ShowOSD();
+!     XSync(dpy, False);
+      pthread_mutex_unlock(&amp;xv_mutex);
+    };
+***************
+*** 1274,1279 ****
+          cVideoOut::CommitUnlockOsdSurface();
+          pthread_mutex_lock(&amp;xv_mutex);
+!         ++osd_refresh_counter;
+!         ShowOSD(0,true);
+          pthread_mutex_unlock(&amp;xv_mutex);
+  };
+--- 1246,1251 ----
+          cVideoOut::CommitUnlockOsdSurface();
+          pthread_mutex_lock(&amp;xv_mutex);
+!         ShowOSD();
+!         XSync(dpy, False);
+          pthread_mutex_unlock(&amp;xv_mutex);
+  };
+***************
+*** 1300,1304 ****
+      }
+      pthread_mutex_lock(&amp;xv_mutex);
+-     ++osd_refresh_counter;
+      ShowOSD(0,1);
+      //OSDpresent=true;
+--- 1272,1275 ----
+***************
+*** 1356,1365 ****
+      {
+        pthread_mutex_lock(&amp;xv_mutex);
+!       ++osd_refresh_counter;
+!       osd_x = x0;
+!       osd_y = y0;
+!       osd_w = w;
+!       osd_h = h;
+!       ShowOSD(0,1);
+        pthread_mutex_unlock(&amp;xv_mutex);
+  
+--- 1327,1332 ----
+      {
+        pthread_mutex_lock(&amp;xv_mutex);
+!       ShowOSD();
+!       XSync(dpy, False);
+        pthread_mutex_unlock(&amp;xv_mutex);
+  
+***************
+*** 1371,1408 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cXvVideoOut::ShowOSD (int skip, int do_sync)
+  {
+!   //if (OSDpresent) 
+!   {
+!     //if (osd_refresh_counter) {
+!       if (current_osdMode==OSDMODE_PSEUDO ){//&amp;&amp; osd_skip_counter &gt; skip) {
+!      
+  #if VDRVERSNUM &gt;= 10307
+!         int x= lwidth &gt; osd_max_width ?(lwidth - osd_max_width)/2+lxoff:lxoff;
+!         int y= lheight &gt; osd_max_height ? (lheight - osd_max_height) / 2+lyoff:lyoff;
+  #else
+!         int x=lwidth &gt; OSD_WIDTH ?(lwidth - OSD_WIDTH)/2+lxoff:lxoff;
+! 	int y=lheight &gt; OSD_HEIGHT?(lheight - OSD_HEIGHT) / 2+lyoff:lyoff;
+  #endif
+! 	if (useShm) 
+! 		XShmPutImage (dpy, win, gc, osd_image,
+! 				1,1,
+! 				x,y,
+! 				lwidth-1,lheight-1,
+! 				False);
+! 	else
+! 		XPutImage (dpy, win, gc, osd_image,
+! 				1,
+! 				1,
+! 				x,y,
+! 				lwidth-1,lheight-1);
+!         if (do_sync)
+!           XSync(dpy, False);
+!         osd_skip_counter = 0;
+!         //osd_refresh_counter--;
+!       } else {
+!         osd_skip_counter++;
+!       }
+!     //}
+    }
+  }
+--- 1338,1363 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void cXvVideoOut::ShowOSD ()
+  {
+!   if (current_osdMode==OSDMODE_PSEUDO ) {
+  #if VDRVERSNUM &gt;= 10307
+!     int x= lwidth &gt; osd_max_width ?(lwidth - osd_max_width)/2+lxoff:lxoff;
+!     int y= lheight &gt; osd_max_height ? (lheight - osd_max_height) / 2+lyoff:lyoff;
+  #else
+!     int x=lwidth &gt; OSD_WIDTH ?(lwidth - OSD_WIDTH)/2+lxoff:lxoff;
+!     int y=lheight &gt; OSD_HEIGHT?(lheight - OSD_HEIGHT) / 2+lyoff:lyoff;
+  #endif
+!     if (useShm) 
+!       XShmPutImage (dpy, win, gc, osd_image,
+!           1,1,
+!           x,y,
+!           lwidth-1,lheight-1,
+!           False);
+!     else
+!       XPutImage (dpy, win, gc, osd_image,
+!           1,
+!           1,
+!           x,y,
+!           lwidth-1,lheight-1);
+    }
+  }
+***************
+*** 1425,1429 ****
+    {
+      XClearArea (dpy, win, 0, 0, 0, 0, False);
+!     ShowOSD(0,false);
+      aspect_changed = 0;
+      cutTop = setupStore-&gt;cropTopLines;
+--- 1380,1384 ----
+    {
+      XClearArea (dpy, win, 0, 0, 0, 0, False);
+!     ShowOSD();
+      aspect_changed = 0;
+      cutTop = setupStore-&gt;cropTopLines;
+***************
+*** 1510,1514 ****
+                  lwidth, lheight,   /* dw, dh */
+                  False);
+-           //ShowOSD (1, False);
+    }
+    ProcessEvents ();
+--- 1465,1468 ----
+
+Index: video-xv.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.h,v
+retrieving revision 1.12
+retrieving revision 1.13
+diff -C2 -d -r1.12 -r1.13
+*** video-xv.h	3 Feb 2006 22:34:54 -0000	1.12
+--- video-xv.h	4 Feb 2006 17:33:31 -0000	1.13
+***************
+*** 111,119 ****
+                      toggleInProgress,
+                      xv_initialized,
+-                     osd_refresh_counter,
+-                     osd_skip_counter,
+-                     osd_x, osd_y,
+-                     osd_w, osd_h,
+- 
+                      /* -------------------------------------------------------
+                       * could be specified via argv or parameters
+--- 111,114 ----
+***************
+*** 121,131 ****
+                      xvWidth, xvHeight,
+                      width, height,
+-                     attr,
+-                     len,
+-                     scale_size,
+                      format;
+  
+!   GC                gc, osd_gc;
+!   XEvent            event;
+    XvPortID          port;
+    bool              useShm;
+--- 116,122 ----
+                      xvWidth, xvHeight,
+                      width, height,
+                      format;
+  
+!   GC                gc;
+    XvPortID          port;
+    bool              useShm;
+***************
+*** 134,139 ****
+    XvImage           *xv_image;
+    XImage            *osd_image;
+- private:
+    int               osd_max_width,osd_max_height;
+    unsigned char     *outbuffer,
+                      *osd_buffer,
+--- 125,130 ----
+    XvImage           *xv_image;
+    XImage            *osd_image;
+    int               osd_max_width,osd_max_height;
++ private:
+    unsigned char     *outbuffer,
+                      *osd_buffer,
+***************
+*** 155,159 ****
+    virtual ~cXvVideoOut();
+    void ProcessEvents ();
+!   void ShowOSD (int skip, int do_sync);
+  
+  #if VDRVERSNUM &gt;= 10307
+--- 146,150 ----
+    virtual ~cXvVideoOut();
+    void ProcessEvents ();
+!   void ShowOSD ();
+  
+  #if VDRVERSNUM &gt;= 10307
+***************
+*** 174,178 ****
+    virtual void YUV(uint8_t *Py, uint8_t *Pu, uint8_t *Pv, int Width, int Height, int Ystride, int UVstride);
+    virtual void Pause(void);
+-   virtual bool GetInfo(int *fmt, unsigned char **dest,int *w, int *h);
+  
+    virtual void Suspend();
+--- 165,168 ----
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000280.html">[Softdevice-cvs] softdevice CHANGELOG,1.146,1.147 ShmClient.c,1.3,1.4 video-shm.c,1.3,1.4 README,1.12,1.13
+</A></li>
+	<LI>Next message: <A HREF="000282.html">[Softdevice-cvs] softdevice video-xv.c,1.40,1.41
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#281">[ date ]</a>
+              <a href="thread.html#281">[ thread ]</a>
+              <a href="subject.html#281">[ subject ]</a>
+              <a href="author.html#281">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

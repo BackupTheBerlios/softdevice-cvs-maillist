@@ -1,0 +1,112 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice audio.c,1.26,1.27 audio.h,1.13,1.14
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20audio.c%2C1.26%2C1.27%20audio.h%2C1.13%2C1.14&In-Reply-To=%3C20070312202844.5D8C1DCB6D%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000519.html">
+   <LINK REL="Next"  HREF="000521.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice audio.c,1.26,1.27 audio.h,1.13,1.14</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20audio.c%2C1.26%2C1.27%20audio.h%2C1.13%2C1.14&In-Reply-To=%3C20070312202844.5D8C1DCB6D%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice audio.c,1.26,1.27 audio.h,1.13,1.14">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon Mar 12 21:28:44 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000519.html">[Softdevice-cvs] softdevice audio.h,1.12,1.13
+</A></li>
+        <LI>Next message: <A HREF="000521.html">[Softdevice-cvs] softdevice PicBuffer.c, 1.18, 1.19 CHANGELOG, 1.298,	1.299
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#520">[ date ]</a>
+              <a href="thread.html#520">[ thread ]</a>
+              <a href="subject.html#520">[ subject ]</a>
+              <a href="author.html#520">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv32439
+
+Modified Files:
+	audio.c audio.h 
+Log Message:
+- don't scale audio if the max. volume is selected
+
+
+Index: audio.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio.c,v
+retrieving revision 1.26
+retrieving revision 1.27
+diff -C2 -d -r1.26 -r1.27
+*** audio.c	10 Jul 2006 19:40:25 -0000	1.26
+--- audio.c	12 Mar 2007 20:27:03 -0000	1.27
+***************
+*** 29,32 ****
+--- 29,35 ----
+  void Scale(int16_t *Data, int size,int scale_Factor) 
+  {
++   if (scale_Factor == 0x7FFF) // max. volume, don't change anything
++           return;
++ 
+    while (size&gt;0) {
+      register int32_t tmp=(int32_t)(*Data) * scale_Factor;
+
+Index: audio.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio.h,v
+retrieving revision 1.13
+retrieving revision 1.14
+diff -C2 -d -r1.13 -r1.14
+*** audio.h	12 Mar 2007 20:12:48 -0000	1.13
+--- audio.h	12 Mar 2007 20:27:03 -0000	1.14
+***************
+*** 28,32 ****
+  static inline int CalcScaleFactor(int vol) 
+  { return (vol &lt;= 0 ? 0 
+!           : (int) (pow(10.0, -2.5+2.5*vol/256.0)*0x7FFF)); };
+  
+  /* ---------------------------------------------------------------------------
+--- 28,33 ----
+  static inline int CalcScaleFactor(int vol) 
+  { return (vol &lt;= 0 ? 0 
+!           : ( vol &gt;=255 ? 0x7FFF : 
+! 	                 (int) (pow(10.0, -2.5+2.5*vol/256.0)*0x7FFF))); };
+  
+  /* ---------------------------------------------------------------------------
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000519.html">[Softdevice-cvs] softdevice audio.h,1.12,1.13
+</A></li>
+	<LI>Next message: <A HREF="000521.html">[Softdevice-cvs] softdevice PicBuffer.c, 1.18, 1.19 CHANGELOG, 1.298,	1.299
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#520">[ date ]</a>
+              <a href="thread.html#520">[ thread ]</a>
+              <a href="subject.html#520">[ subject ]</a>
+              <a href="author.html#520">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

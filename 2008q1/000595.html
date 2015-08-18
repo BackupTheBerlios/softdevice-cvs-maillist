@@ -1,0 +1,116 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.323, 1.324 SoftOsd.c, 1.32,	1.33
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2008q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.323%2C%201.324%20SoftOsd.c%2C%201.32%2C%0A%091.33&In-Reply-To=%3C20080125235711.456C81263BF%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000594.html">
+   <LINK REL="Next"  HREF="000596.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.323, 1.324 SoftOsd.c, 1.32,	1.33</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.323%2C%201.324%20SoftOsd.c%2C%201.32%2C%0A%091.33&In-Reply-To=%3C20080125235711.456C81263BF%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.323, 1.324 SoftOsd.c, 1.32,	1.33">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Jan 26 00:57:11 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000594.html">[Softdevice-cvs] softdevice SoftOsd.c, 1.31, 1.32 SoftOsd.h, 1.16,	1.17 CHANGELOG, 1.322, 1.323
+</A></li>
+        <LI>Next message: <A HREF="000596.html">[Softdevice-cvs] Softplay - fast forward / backwar
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#595">[ date ]</a>
+              <a href="thread.html#595">[ thread ]</a>
+              <a href="subject.html#595">[ subject ]</a>
+              <a href="author.html#595">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv25489
+
+Modified Files:
+	CHANGELOG SoftOsd.c 
+Log Message:
+OSD: missing call to ClearOSD() of output device.
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.323
+retrieving revision 1.324
+diff -C2 -d -r1.323 -r1.324
+*** CHANGELOG	19 Jan 2008 18:58:47 -0000	1.323
+--- CHANGELOG	25 Jan 2008 23:55:44 -0000	1.324
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2008-01-26:
++    - OSD: missing call to ClearOSD() of output device.
+  2008-01-19:
+     - OSD: fix drawing (missing method SetAreas()).
+
+Index: SoftOsd.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.c,v
+retrieving revision 1.32
+retrieving revision 1.33
+diff -C2 -d -r1.32 -r1.33
+*** SoftOsd.c	19 Jan 2008 18:58:47 -0000	1.32
+--- SoftOsd.c	25 Jan 2008 23:55:44 -0000	1.33
+***************
+*** 52,56 ****
+  cSoftOsd::cSoftOsd(cVideoOut *VideoOut, int X, int Y)
+          : cOsd(X, Y),active(false),close(false) {
+! #endif	
+          OSDDEB(&quot;cSoftOsd constructor\n&quot;);
+          OutputConvert=&amp;cSoftOsd::ARGB_to_ARGB32;
+--- 52,56 ----
+  cSoftOsd::cSoftOsd(cVideoOut *VideoOut, int X, int Y)
+          : cOsd(X, Y),active(false),close(false) {
+! #endif
+          OSDDEB(&quot;cSoftOsd constructor\n&quot;);
+          OutputConvert=&amp;cSoftOsd::ARGB_to_ARGB32;
+***************
+*** 115,118 ****
+--- 115,119 ----
+          if (shown) {
+                  Clear();
++                 videoOut-&gt;ClearOSD();
+                  shown = false;
+          }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000594.html">[Softdevice-cvs] softdevice SoftOsd.c, 1.31, 1.32 SoftOsd.h, 1.16,	1.17 CHANGELOG, 1.322, 1.323
+</A></li>
+	<LI>Next message: <A HREF="000596.html">[Softdevice-cvs] Softplay - fast forward / backwar
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#595">[ date ]</a>
+              <a href="thread.html#595">[ thread ]</a>
+              <a href="subject.html#595">[ subject ]</a>
+              <a href="author.html#595">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

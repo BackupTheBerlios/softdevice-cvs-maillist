@@ -1,0 +1,178 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.32,1.33 mpeg2decoder.c,1.14,1.15 mpeg2decoder.h,1.11,1.12
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.32%2C1.33%20mpeg2decoder.c%2C1.14%2C1.15%20mpeg2decoder.h%2C1.11%2C1.12&In-Reply-To=%3C200502131812.j1DICYN01078%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000053.html">
+   <LINK REL="Next"  HREF="000055.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.32,1.33 mpeg2decoder.c,1.14,1.15 mpeg2decoder.h,1.11,1.12</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.32%2C1.33%20mpeg2decoder.c%2C1.14%2C1.15%20mpeg2decoder.h%2C1.11%2C1.12&In-Reply-To=%3C200502131812.j1DICYN01078%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.32,1.33 mpeg2decoder.c,1.14,1.15 mpeg2decoder.h,1.11,1.12">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Feb 13 19:12:34 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000053.html">[Softdevice-cvs] softdevice CHANGELOG,1.31,1.32 video-dfb.c,1.15,1.16 video-xv.c,1.13,1.14
+</A></li>
+        <LI>Next message: <A HREF="000055.html">[Softdevice-cvs] softdevice CHANGELOG,1.33,1.34 setup-softdevice.c,1.8,1.9 setup-softdevice.h,1.5,1.6 softdevice.c,1.12,1.13 utils.c,1.1.1.1,1.2 utils.h,1.1.1.1,1.2 video-dfb.c,1.16,1.17 video-fb.c,1.2,1.3 video-vidix.c,1.4,1.5 video-vidix.h,1.1.1.1,1.2 video-xv.c,1.14,1.15 video-xv.h,1.4,1.5 video.c,1.7,1.8 video.h,1.7,1.8
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#54">[ date ]</a>
+              <a href="thread.html#54">[ thread ]</a>
+              <a href="subject.html#54">[ subject ]</a>
+              <a href="author.html#54">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv22343
+
+Modified Files:
+	CHANGELOG mpeg2decoder.c mpeg2decoder.h 
+Log Message:
+a/v sync: auto adjusting back index instead of using fixed value 4
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.32
+retrieving revision 1.33
+diff -C2 -d -r1.32 -r1.33
+*** CHANGELOG	8 Feb 2005 21:31:17 -0000	1.32
+--- CHANGELOG	13 Feb 2005 18:12:31 -0000	1.33
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++  2005-02-13:
++     - a/v sync: auto adjusting back index instead of using fixed value 4
+   2005-02-08:
+      - dfb-out: fix for field parity in tv-out mode
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.14
+retrieving revision 1.15
+diff -C2 -d -r1.14 -r1.15
+*** mpeg2decoder.c	23 Jan 2005 14:54:22 -0000	1.14
+--- mpeg2decoder.c	13 Feb 2005 18:12:31 -0000	1.15
+***************
+*** 355,358 ****
+--- 355,365 ----
+  {
+    width = height = -1;
++   workBackIndex = currentBackIndex = 4;
++   newBackIndex = 0;
++   backIndexTab[0] = 0;
++   backIndexTab[1] = 1;
++   backIndexTab[2] = 2;
++   backIndexTab[3] = 2;
++   backIndexTab[4] = 4;
+    pic_buf_lavc = pic_buf_mirror = pic_buf_pp = NULL;
+    currentMirrorMode  = setupStore.mirror;
+***************
+*** 557,560 ****
+--- 564,576 ----
+  #endif
+  
++   if (context-&gt;coded_frame-&gt;pict_type == FF_I_TYPE)
++   {
++     newBackIndex = 1;
++   }
++   else
++   {
++     newBackIndex++;
++   }
++ 
+  #if 1 // new method for setting the video PTS
+    if (picture-&gt;coded_picture_number)
+***************
+*** 562,571 ****
+      if (picture-&gt;pict_type == FF_I_TYPE)
+      {
+  #if 0
+        fprintf (stderr, &quot; changing PTS from %lld to %lld. delta %lld\n&quot;,
+                 pts, historyPTS[(historyPTSIndex+PTS_COUNT-4)%PTS_COUNT],
+!                historyPTS[(historyPTSIndex+PTS_COUNT-4)%PTS_COUNT]-pts);
+  #endif
+!       pts = historyPTS[(historyPTSIndex+PTS_COUNT-4)%PTS_COUNT];
+        //fprintf (stderr, &quot;* using PTS value (%lld)\n&quot;, pts);
+      }
+--- 578,599 ----
+      if (picture-&gt;pict_type == FF_I_TYPE)
+      {
++       if (newBackIndex &gt; 0 &amp;&amp; newBackIndex &lt;=4)
++       {
++         if (newBackIndex != currentBackIndex)
++         {
++           dsyslog(&quot;[mpeg2decoder]: back index change (%d -&gt; %d(%d))\n&quot;,
++                   currentBackIndex,
++                   newBackIndex,
++                   backIndexTab[newBackIndex]);
++         }
++         currentBackIndex = newBackIndex;
++         workBackIndex = backIndexTab [currentBackIndex];
++       }
+  #if 0
+        fprintf (stderr, &quot; changing PTS from %lld to %lld. delta %lld\n&quot;,
+                 pts, historyPTS[(historyPTSIndex+PTS_COUNT-4)%PTS_COUNT],
+!                historyPTS[(historyPTSIndex+PTS_COUNT-workBackIndex)%PTS_COUNT]-pts);
+  #endif
+!       pts = historyPTS[(historyPTSIndex+PTS_COUNT-workBackIndex)%PTS_COUNT];
+        //fprintf (stderr, &quot;* using PTS value (%lld)\n&quot;, pts);
+      }
+
+Index: mpeg2decoder.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.h,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -C2 -d -r1.11 -r1.12
+*** mpeg2decoder.h	23 Jan 2005 14:54:22 -0000	1.11
+--- mpeg2decoder.h	13 Feb 2005 18:12:31 -0000	1.12
+***************
+*** 144,147 ****
+--- 144,149 ----
+      int                rtc_fd; 
+      int                frametime;
++     int                 newBackIndex, currentBackIndex,
++                         workBackIndex, backIndexTab [5];
+      int32_t GetRelTime();
+     
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000053.html">[Softdevice-cvs] softdevice CHANGELOG,1.31,1.32 video-dfb.c,1.15,1.16 video-xv.c,1.13,1.14
+</A></li>
+	<LI>Next message: <A HREF="000055.html">[Softdevice-cvs] softdevice CHANGELOG,1.33,1.34 setup-softdevice.c,1.8,1.9 setup-softdevice.h,1.5,1.6 softdevice.c,1.12,1.13 utils.c,1.1.1.1,1.2 utils.h,1.1.1.1,1.2 video-dfb.c,1.16,1.17 video-fb.c,1.2,1.3 video-vidix.c,1.4,1.5 video-vidix.h,1.1.1.1,1.2 video-xv.c,1.14,1.15 video-xv.h,1.4,1.5 video.c,1.7,1.8 video.h,1.7,1.8
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#54">[ date ]</a>
+              <a href="thread.html#54">[ thread ]</a>
+              <a href="subject.html#54">[ subject ]</a>
+              <a href="author.html#54">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

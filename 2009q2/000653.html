@@ -1,0 +1,128 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice setup-softdevice.c, 1.57,	1.58 setup-softdevice.h, 1.47, 1.48
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2009q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20setup-softdevice.c%2C%201.57%2C%0A%091.58%20setup-softdevice.h%2C%201.47%2C%201.48&In-Reply-To=%3C20090614172513.DF1E5E549E%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000652.html">
+   <LINK REL="Next"  HREF="000654.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice setup-softdevice.c, 1.57,	1.58 setup-softdevice.h, 1.47, 1.48</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20setup-softdevice.c%2C%201.57%2C%0A%091.58%20setup-softdevice.h%2C%201.47%2C%201.48&In-Reply-To=%3C20090614172513.DF1E5E549E%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice setup-softdevice.c, 1.57,	1.58 setup-softdevice.h, 1.47, 1.48">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Jun 14 19:25:13 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000652.html">[Softdevice-cvs] softdevice PicBuffer.h,1.11,1.12
+</A></li>
+        <LI>Next message: <A HREF="000654.html">[Softdevice-cvs] softdevice softdevice.c, 1.95, 1.96 softdevice.h,	1.14, 1.15
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#653">[ date ]</a>
+              <a href="thread.html#653">[ thread ]</a>
+              <a href="subject.html#653">[ subject ]</a>
+              <a href="author.html#653">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv17168
+
+Modified Files:
+	setup-softdevice.c setup-softdevice.h 
+Log Message:
+Fix compiler warnings
+
+Index: setup-softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.c,v
+retrieving revision 1.57
+retrieving revision 1.58
+diff -C2 -d -r1.57 -r1.58
+*** setup-softdevice.c	19 Feb 2009 20:27:58 -0000	1.57
+--- setup-softdevice.c	14 Jun 2009 17:25:10 -0000	1.58
+***************
+*** 429,433 ****
+  /* ---------------------------------------------------------------------------
+   */
+! char *cSetupStore::getPPdeintValue(void)
+  {
+    if (strcmp(deint_str[deintMethod], &quot;linblend&quot;) == 0) return &quot;lb&quot;;
+--- 429,433 ----
+  /* ---------------------------------------------------------------------------
+   */
+! const char *cSetupStore::getPPdeintValue(void)
+  {
+    if (strcmp(deint_str[deintMethod], &quot;linblend&quot;) == 0) return &quot;lb&quot;;
+***************
+*** 441,445 ****
+  /* ---------------------------------------------------------------------------
+   */
+! char *cSetupStore::getPPValue(void)
+  {
+  #ifdef PP_LIBAVCODEC
+--- 441,445 ----
+  /* ---------------------------------------------------------------------------
+   */
+! const char *cSetupStore::getPPValue(void)
+  {
+  #ifdef PP_LIBAVCODEC
+
+Index: setup-softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.h,v
+retrieving revision 1.47
+retrieving revision 1.48
+diff -C2 -d -r1.47 -r1.48
+*** setup-softdevice.h	19 Feb 2009 20:27:58 -0000	1.47
+--- setup-softdevice.h	14 Jun 2009 17:25:10 -0000	1.48
+***************
+*** 134,139 ****
+      void InitSetupStore();
+      bool          SetupParse(const char *Name, const char *Value);
+!     char          *getPPdeintValue(void);
+!     char          *getPPValue(void);
+      inline void CropModeNext(void) {
+         cropMode = (cropMode == (SETUP_CROPMODES-1)) ? 0 : cropMode + 1;
+--- 134,139 ----
+      void InitSetupStore();
+      bool          SetupParse(const char *Name, const char *Value);
+!     const char    *getPPdeintValue(void),
+!                   *getPPValue(void);
+      inline void CropModeNext(void) {
+         cropMode = (cropMode == (SETUP_CROPMODES-1)) ? 0 : cropMode + 1;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000652.html">[Softdevice-cvs] softdevice PicBuffer.h,1.11,1.12
+</A></li>
+	<LI>Next message: <A HREF="000654.html">[Softdevice-cvs] softdevice softdevice.c, 1.95, 1.96 softdevice.h,	1.14, 1.15
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#653">[ date ]</a>
+              <a href="thread.html#653">[ thread ]</a>
+              <a href="subject.html#653">[ subject ]</a>
+              <a href="author.html#653">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

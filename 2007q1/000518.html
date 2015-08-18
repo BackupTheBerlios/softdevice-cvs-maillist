@@ -1,0 +1,205 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice audio-oss.c, 1.2, 1.3 audio-oss.h, 1.1,	1.2 softdevice.c, 1.78, 1.79
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20audio-oss.c%2C%201.2%2C%201.3%20audio-oss.h%2C%201.1%2C%0A%091.2%20softdevice.c%2C%201.78%2C%201.79&In-Reply-To=%3C20070312201235.B3B93DB1A2%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000517.html">
+   <LINK REL="Next"  HREF="000519.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice audio-oss.c, 1.2, 1.3 audio-oss.h, 1.1,	1.2 softdevice.c, 1.78, 1.79</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20audio-oss.c%2C%201.2%2C%201.3%20audio-oss.h%2C%201.1%2C%0A%091.2%20softdevice.c%2C%201.78%2C%201.79&In-Reply-To=%3C20070312201235.B3B93DB1A2%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice audio-oss.c, 1.2, 1.3 audio-oss.h, 1.1,	1.2 softdevice.c, 1.78, 1.79">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon Mar 12 21:12:35 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000517.html">[Softdevice-cvs] softdevice PicBuffer.h, 1.6, 1.7 mpeg2decoder.h,	1.39, 1.40
+</A></li>
+        <LI>Next message: <A HREF="000519.html">[Softdevice-cvs] softdevice audio.h,1.12,1.13
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#518">[ date ]</a>
+              <a href="thread.html#518">[ thread ]</a>
+              <a href="subject.html#518">[ subject ]</a>
+              <a href="author.html#518">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv31082
+
+Modified Files:
+	audio-oss.c audio-oss.h softdevice.c 
+Log Message:
+- enable and use as default the software mixer. The old behaviour (use the
+  system's mixer) can be selected via -vo oss:mixer.
+
+
+Index: audio-oss.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio-oss.c,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** audio-oss.c	14 Dec 2006 23:09:53 -0000	1.2
+--- audio-oss.c	12 Mar 2007 20:10:54 -0000	1.3
+***************
+*** 18,24 ****
+  #define MIXER_DEVICE &quot;/dev/mixer&quot;
+  
+! cOSSAudioOut::cOSSAudioOut(cSetupStore *setupStore)
+  {
+      struct stat file_info;
+  
+      if (-1 == stat(DSP_DEVICE, &amp;file_info))
+--- 18,25 ----
+  #define MIXER_DEVICE &quot;/dev/mixer&quot;
+  
+! cOSSAudioOut::cOSSAudioOut(cSetupStore *SetupStore)
+  {
+      struct stat file_info;
++     setupStore=SetupStore;
+  
+      if (-1 == stat(DSP_DEVICE, &amp;file_info))
+***************
+*** 42,48 ****
+      paused=false;
+      isyslog(&quot;[softdevice-audio-oss] Device open!&quot;);
+- #ifdef NO_MIXER    
+      scale_Factor = 0x7FFF;
+- #endif
+  }
+  
+--- 43,47 ----
+***************
+*** 61,67 ****
+      ssize_t wsize;
+  
+! #ifdef NO_MIXER
+!     Scale((int16_t*)Data, Length / 2, scale_Factor);
+! #endif
+      
+      while (Length &gt; done)
+--- 60,65 ----
+      ssize_t wsize;
+  
+!     if (!setupStore-&gt;useMixer) 
+!             Scale((int16_t*)Data, Length / 2, scale_Factor);
+      
+      while (Length &gt; done)
+***************
+*** 188,194 ****
+  void cOSSAudioOut::SetVolume (int vol)
+  {
+! #ifdef NO_MIXER
+!     scale_Factor = CalcScaleFactor(vol);
+! #else
+      struct stat file_info;
+  
+--- 186,194 ----
+  void cOSSAudioOut::SetVolume (int vol)
+  {
+!     if (!setupStore-&gt;useMixer) {
+!             scale_Factor = CalcScaleFactor(vol);
+!             return;
+!     };
+! 
+      struct stat file_info;
+  
+***************
+*** 234,238 ****
+  
+      close (fdMixer);
+- #endif
+      return;
+  }
+--- 234,237 ----
+
+Index: audio-oss.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio-oss.h,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1 -r1.2
+*** audio-oss.h	3 Dec 2006 20:38:18 -0000	1.1
+--- audio-oss.h	12 Mar 2007 20:10:54 -0000	1.2
+***************
+*** 19,25 ****
+      int fdDSP;
+      int fdMixer;
+- #ifdef NO_MIXER
+      int scale_Factor;
+! #endif
+  public:
+      cOSSAudioOut(cSetupStore *setupStore);
+--- 19,24 ----
+      int fdDSP;
+      int fdMixer;
+      int scale_Factor;
+!     cSetupStore *setupStore;
+  public:
+      cOSSAudioOut(cSetupStore *setupStore);
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.78
+retrieving revision 1.79
+diff -C2 -d -r1.78 -r1.79
+*** softdevice.c	9 Feb 2007 23:55:22 -0000	1.78
+--- softdevice.c	12 Mar 2007 20:10:54 -0000	1.79
+***************
+*** 844,848 ****
+            char *vo_argv = argv[i];
+  
+- 	  printf(&quot;vo_argv: %s \n&quot;,vo_argv);
+          if (!strncmp (vo_argv, &quot;xv:&quot;, 3)) {
+            vo_argv += 3;
+--- 844,847 ----
+***************
+*** 1035,1038 ****
+--- 1034,1042 ----
+            setupStore.aoArgs = ao_argv;
+            aoutMethod = AOUT_OSS;
++           if (!strncmp(ao_argv, &quot;mixer&quot;, 5)) {
++                 printf(&quot;mixer argv: '%s' \n&quot;,ao_argv);
++               ao_argv += 5;
++               setupStore.useMixer = 1;
++           }
+          } else if (!strncmp(ao_argv, &quot;dummy:&quot;, 6)) {
+            ao_argv += 6;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000517.html">[Softdevice-cvs] softdevice PicBuffer.h, 1.6, 1.7 mpeg2decoder.h,	1.39, 1.40
+</A></li>
+	<LI>Next message: <A HREF="000519.html">[Softdevice-cvs] softdevice audio.h,1.12,1.13
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#518">[ date ]</a>
+              <a href="thread.html#518">[ thread ]</a>
+              <a href="subject.html#518">[ subject ]</a>
+              <a href="author.html#518">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

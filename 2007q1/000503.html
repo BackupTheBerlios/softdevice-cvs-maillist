@@ -1,0 +1,234 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice softdevice.c, 1.76, 1.77 CHANGELOG,	1.291, 1.292
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20softdevice.c%2C%201.76%2C%201.77%20CHANGELOG%2C%0A%091.291%2C%201.292&In-Reply-To=%3C20070128193929.EF3B1CE95D%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000502.html">
+   <LINK REL="Next"  HREF="000504.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice softdevice.c, 1.76, 1.77 CHANGELOG,	1.291, 1.292</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20softdevice.c%2C%201.76%2C%201.77%20CHANGELOG%2C%0A%091.291%2C%201.292&In-Reply-To=%3C20070128193929.EF3B1CE95D%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice softdevice.c, 1.76, 1.77 CHANGELOG,	1.291, 1.292">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Jan 28 20:39:29 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000502.html">[Softdevice-cvs] softdevice CHANGELOG, 1.290, 1.291 SoftOsd.c, 1.25,	1.26 SoftOsd.h, 1.11, 1.12
+</A></li>
+        <LI>Next message: <A HREF="000504.html">[Softdevice-cvs] softdevice setup-softlog-menu.c, NONE,	1.1 setup-softlog-menu.h, NONE, 1.1 setup-softlog.c, NONE,	1.1 setup-softlog.h, NONE, 1.1
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#503">[ date ]</a>
+              <a href="thread.html#503">[ thread ]</a>
+              <a href="subject.html#503">[ subject ]</a>
+              <a href="author.html#503">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv8057
+
+Modified Files:
+	softdevice.c CHANGELOG 
+Log Message:
+- add OSD with alpha blending to grabbed images.
+
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.76
+retrieving revision 1.77
+diff -C2 -d -r1.76 -r1.77
+*** softdevice.c	3 Dec 2006 20:38:18 -0000	1.76
+--- softdevice.c	28 Jan 2007 19:38:06 -0000	1.77
+***************
+*** 103,112 ****
+  private:
+      cVideoOut *videoOut;
+!     cOsd *osd;
+  public:
+      cSoftOsdProvider(cVideoOut *VideoOut);
+      virtual cOsd *CreateOsd(int Left, int Top);
+  };
+  
+  cSoftOsdProvider::cSoftOsdProvider(cVideoOut *VideoOut) : cOsdProvider()
+  {
+--- 103,115 ----
+  private:
+      cVideoOut *videoOut;
+!     static cOsd *osd;
+  public:
+      cSoftOsdProvider(cVideoOut *VideoOut);
+      virtual cOsd *CreateOsd(int Left, int Top);
++     static cOsd *GetOsd();
+  };
+  
++ cOsd *cSoftOsdProvider::osd=NULL;
++ 
+  cSoftOsdProvider::cSoftOsdProvider(cVideoOut *VideoOut) : cOsdProvider()
+  {
+***************
+*** 120,123 ****
+--- 123,133 ----
+  }
+  
++ cOsd * cSoftOsdProvider::GetOsd()
++ {
++     if (cOsd::IsOpen())
++ 	return osd;
++     return NULL;
++ };
++ 
+  /* ----------------------------------------------------------------------------
+   */
+***************
+*** 591,594 ****
+--- 601,605 ----
+                  int SizeX, int SizeY)
+  {
++   bool self_allocated_pic=false;
+    Size=0;
+    if (!videoOut)
+***************
+*** 597,602 ****
+    sPicBuffer *orig_pic;
+    videoOut-&gt;GetLockLastPic(orig_pic);
+!   if (!orig_pic)
+!     return NULL;
+  
+    if ( SizeX&lt;0 || SizeY&lt;0 ) {
+--- 608,622 ----
+    sPicBuffer *orig_pic;
+    videoOut-&gt;GetLockLastPic(orig_pic);
+! 
+!   if (!orig_pic) {
+!     // got no video picture, but maybe there is OSD, so allocate a 
+!     // black picture as a background.
+!     orig_pic=(sPicBuffer*) malloc(sizeof(sPicBuffer));
+!     AllocatePicBuffer(orig_pic,PIX_FMT_YUV420P,SRC_HEIGHT,SRC_WIDTH);
+!     orig_pic-&gt;width=SRC_WIDTH;
+!     orig_pic-&gt;height=SRC_HEIGHT;
+!     ClearPicBuffer(orig_pic);
+!     self_allocated_pic=true;
+!   };
+  
+    if ( SizeX&lt;0 || SizeY&lt;0 ) {
+***************
+*** 607,621 ****
+    if (Quality&lt;0)
+      Quality=100;
+! 
+    sPicBuffer dst;
+    AllocatePicBuffer(&amp;dst,PIX_FMT_BGR24,SizeX,SizeY);
+  
+!   CopyScalePicBuf(&amp;dst,orig_pic,
+!       0,0,orig_pic-&gt;width,orig_pic-&gt;height,
+!       0,0,SizeX,SizeY,
+!       0,0,0,0);
+    SizeX=dst.width;
+    SizeY=dst.height;
+!   videoOut-&gt;UnlockBuffer(orig_pic);
+    orig_pic=NULL;
+  
+--- 627,674 ----
+    if (Quality&lt;0)
+      Quality=100;
+!  
+    sPicBuffer dst;
+    AllocatePicBuffer(&amp;dst,PIX_FMT_BGR24,SizeX,SizeY);
+  
+!   cSoftOsd *Osd=dynamic_cast&lt;cSoftOsd*&gt;(cSoftOsdProvider::GetOsd());
+!   if (!Osd &amp;&amp; self_allocated_pic) {
+!     // no osd and no picture... return null to avoid 
+!     // &quot;Empty JPEG image (DNL not supported)&quot; error message from libjpeg
+!     DeallocatePicBuffer(orig_pic);
+!     free(orig_pic);
+!     return NULL;
+!   };
+! 
+!   if (Osd) {
+!      uint8_t *OsdPy=(uint8_t*)malloc(OSD_HEIGHT*OSD_STRIDE+16);
+!      uint8_t *OsdPu=(uint8_t*)malloc(OSD_HEIGHT*OSD_STRIDE/4+8);
+!      uint8_t *OsdPv=(uint8_t*)malloc(OSD_HEIGHT*OSD_STRIDE/4+8);
+!      uint8_t *OsdPAlphaY=(uint8_t*)malloc(OSD_HEIGHT*OSD_STRIDE+16);
+!      uint8_t *OsdPAlphaUV=(uint8_t*)malloc(OSD_HEIGHT*OSD_STRIDE/4+8); 
+!      Osd-&gt;StealToBitmap(OsdPy,OsdPu,OsdPv,OsdPAlphaY,OsdPAlphaUV,
+!                     OSD_STRIDE, OSD_STRIDE/2,
+!                     SizeX, SizeY);
+!      CopyScalePicBufAlphaBlend(&amp;dst,orig_pic,
+! 	   0,0,orig_pic-&gt;width,orig_pic-&gt;height,
+! 	   0,0,SizeX,SizeY,
+! 	   OsdPy,OsdPv,OsdPu,OsdPAlphaY,OsdPAlphaUV,
+!            OSD_STRIDE, 
+! 	   0,0,0,0);
+!      free(OsdPy); free(OsdPu); free(OsdPv); 
+!      free(OsdPAlphaY); free(OsdPAlphaUV);
+!   } else {
+!      CopyScalePicBuf(&amp;dst,orig_pic,
+! 	   0,0,orig_pic-&gt;width,orig_pic-&gt;height,
+! 	   0,0,SizeX,SizeY,
+! 	   0,0,0,0);
+!   };
+    SizeX=dst.width;
+    SizeY=dst.height;
+!   if (!self_allocated_pic) 
+!     videoOut-&gt;UnlockBuffer(orig_pic);
+!   else {
+!     DeallocatePicBuffer(orig_pic);
+!     free(orig_pic);
+!   };
+    orig_pic=NULL;
+  
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.291
+retrieving revision 1.292
+diff -C2 -d -r1.291 -r1.292
+*** CHANGELOG	28 Jan 2007 19:36:50 -0000	1.291
+--- CHANGELOG	28 Jan 2007 19:38:06 -0000	1.292
+***************
+*** 7,10 ****
+--- 7,11 ----
+       architectures.
+     - add StealToBitmap() for OSD in grabbed image.
++    - add OSD with alpha blending to grabbed images.
+  2007-01-27:
+     - video-dfb: - Limit VIA-unichrome name compare to 19 chars.
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000502.html">[Softdevice-cvs] softdevice CHANGELOG, 1.290, 1.291 SoftOsd.c, 1.25,	1.26 SoftOsd.h, 1.11, 1.12
+</A></li>
+	<LI>Next message: <A HREF="000504.html">[Softdevice-cvs] softdevice setup-softlog-menu.c, NONE,	1.1 setup-softlog-menu.h, NONE, 1.1 setup-softlog.c, NONE,	1.1 setup-softlog.h, NONE, 1.1
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#503">[ date ]</a>
+              <a href="thread.html#503">[ thread ]</a>
+              <a href="subject.html#503">[ subject ]</a>
+              <a href="author.html#503">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

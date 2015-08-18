@@ -1,0 +1,601 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.153,1.154 SoftOsd.c,1.7,1.8 video-vidix.c,1.14,1.15 video-vidix.h,1.7,1.8 video-xv.c,1.42,1.43 video-xv.h,1.13,1.14 video.c,1.43,1.44 video.h,1.28,1.29
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.153%2C1.154%20SoftOsd.c%2C1.7%2C1.8%20video-vidix.c%2C1.14%2C1.15%20video-vidix.h%2C1.7%2C1.8%20video-xv.c%2C1.42%2C1.43%20video-xv.h%2C1.13%2C1.14%20video.c%2C1.43%2C1.44%20video.h%2C1.28%2C1.29&In-Reply-To=%3C200602172131.k1HLVCE14940%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000293.html">
+   <LINK REL="Next"  HREF="000295.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.153,1.154 SoftOsd.c,1.7,1.8 video-vidix.c,1.14,1.15 video-vidix.h,1.7,1.8 video-xv.c,1.42,1.43 video-xv.h,1.13,1.14 video.c,1.43,1.44 video.h,1.28,1.29</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.153%2C1.154%20SoftOsd.c%2C1.7%2C1.8%20video-vidix.c%2C1.14%2C1.15%20video-vidix.h%2C1.7%2C1.8%20video-xv.c%2C1.42%2C1.43%20video-xv.h%2C1.13%2C1.14%20video.c%2C1.43%2C1.44%20video.h%2C1.28%2C1.29&In-Reply-To=%3C200602172131.k1HLVCE14940%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.153,1.154 SoftOsd.c,1.7,1.8 video-vidix.c,1.14,1.15 video-vidix.h,1.7,1.8 video-xv.c,1.42,1.43 video-xv.h,1.13,1.14 video.c,1.43,1.44 video.h,1.28,1.29">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Feb 17 22:31:12 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000293.html">[Softdevice-cvs] softdevice CHANGELOG,1.152,1.153 softdevice.c,1.53,1.54
+</A></li>
+        <LI>Next message: <A HREF="000295.html">[Softdevice-cvs] softdevice CHANGELOG,1.154,1.155 SoftOsd.c,1.8,1.9 SoftOsd.h,1.4,1.5 video-dfb.c,1.49,1.50 video-dfb.h,1.16,1.17 video-fb.c,1.12,1.13 video-fb.h,1.6,1.7 video-vidix.c,1.15,1.16 video-vidix.h,1.8,1.9 video-xv.c,1.43,1.44 video-xv.h,1.14,1.15 video.c,1.44,1.45 video.h,1.29,1.30
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#294">[ date ]</a>
+              <a href="thread.html#294">[ thread ]</a>
+              <a href="subject.html#294">[ subject ]</a>
+              <a href="author.html#294">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv27963
+
+Modified Files:
+	CHANGELOG SoftOsd.c video-vidix.c video-vidix.h video-xv.c 
+	video-xv.h video.c video.h 
+Log Message:
+   - fix bug #6409 (OSD not refreshed fast enough in software OSD blending mode
+     when video is paused)
+   - fix crash / deadlocks at startup in 16:9 mode in software OSD blending mode
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.153
+retrieving revision 1.154
+diff -C2 -d -r1.153 -r1.154
+*** CHANGELOG	12 Feb 2006 17:59:12 -0000	1.153
+--- CHANGELOG	17 Feb 2006 21:31:09 -0000	1.154
+***************
+*** 1,3 ****
+--- 1,7 ----
+  Changelog
++ 2006-02-17:
++    - fix bug #6409 (OSD not refreshed fast enough in software OSD blending mode
++      when video is paused)
++    - fix crash / deadlocks at startup in 16:9 mode in software OSD blending mode
+  2006-02-12: softdevice-0.2.2
+  2006-02-11:
+
+Index: SoftOsd.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.c,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -C2 -d -r1.7 -r1.8
+*** SoftOsd.c	11 Feb 2006 18:28:39 -0000	1.7
+--- SoftOsd.c	17 Feb 2006 21:31:09 -0000	1.8
+***************
+*** 39,43 ****
+  	bitmap_Format=PF_None; // forces a clear after first SetMode
+          OSD_Bitmap=new uint32_t[OSD_STRIDE*(OSD_HEIGHT+2)];
+!         
+          videoOut = VideoOut;
+  	videoOut-&gt;OpenOSD();
+--- 39,43 ----
+  	bitmap_Format=PF_None; // forces a clear after first SetMode
+          OSD_Bitmap=new uint32_t[OSD_STRIDE*(OSD_HEIGHT+2)];
+! 
+          videoOut = VideoOut;
+  	videoOut-&gt;OpenOSD();
+***************
+*** 45,48 ****
+--- 45,49 ----
+          int Depth; bool HasAlpha; bool AlphaInversed; bool IsYUV; 
+          uint8_t *PixelMask;
++         videoOut-&gt;AdjustOSDMode();
+          videoOut-&gt;GetOSDMode(Depth,HasAlpha,AlphaInversed,
+                          IsYUV,PixelMask);
+***************
+*** 87,90 ****
+--- 88,92 ----
+                  int newOsdHeight;
+  
++                 videoOut-&gt;AdjustOSDMode();
+                  videoOut-&gt;GetOSDDimension(newOsdWidth,newOsdHeight);
+                  if ( newOsdWidth==-1 || newOsdHeight==-1 )
+***************
+*** 120,123 ****
+--- 122,127 ----
+          int newY;
+          bool RefreshAll=false;
++ 
++         videoOut-&gt;AdjustOSDMode();
+          videoOut-&gt;GetOSDDimension(newX,newY);
+          if ( newX==-1 || newY==-1 ) {
+***************
+*** 223,228 ****
+  	bool OSD_changed=FlushBitmaps(true);
+  	
+! 	if (OSD_changed)
+! 		OsdCommit();
+  
+  	// give priority to the other threads
+--- 227,234 ----
+  	bool OSD_changed=FlushBitmaps(true);
+  	
+!         if (OSD_changed) {
+!                 OsdCommit();
+!                 videoOut-&gt;Osd_changed = true;
+!         }
+  
+  	// give priority to the other threads
+
+Index: video-vidix.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-vidix.c,v
+retrieving revision 1.14
+retrieving revision 1.15
+diff -C2 -d -r1.14 -r1.15
+*** video-vidix.c	3 Feb 2006 22:34:54 -0000	1.14
+--- video-vidix.c	17 Feb 2006 21:31:09 -0000	1.15
+***************
+*** 568,571 ****
+--- 568,578 ----
+  /* ---------------------------------------------------------------------------
+   */
++ void cVidixVideoOut::AdjustOSDMode()
++ {
++   current_osdMode = setupStore-&gt;osdMode;
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
+  void cVidixVideoOut::GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight) {
+     switch (current_osdMode) {
+
+Index: video-vidix.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-vidix.h,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -C2 -d -r1.7 -r1.8
+*** video-vidix.h	3 Feb 2006 22:34:54 -0000	1.7
+--- video-vidix.h	17 Feb 2006 21:31:10 -0000	1.8
+***************
+*** 1,70 ****
+! /*
+!  * video-vidix.h: A plugin for the Video Disk Recorder
+!  *
+!  * See the README file for copyright information and how to reach the author.
+!  *
+!  * $Id$
+!  */
+! 
+! #ifndef VIDEO_VIDIX_H
+! #define VIDEO_VIDIX_H
+! 
+! #include &quot;video.h&quot;
+! #include &lt;linux/fb.h&gt;
+! #include &quot;vidixlib.h&quot;
+! #include &quot;fourcc.h&quot;
+! 
+! 
+! class cVidixVideoOut : public cVideoOut {
+! private:
+!     uint8_t * fb;
+! 
+!     int fbdev;
+!     int fb_line_len;
+! 
+!     struct fb_fix_screeninfo fb_finfo;
+!     struct fb_var_screeninfo fb_vinfo;
+! 
+!     int orig_cmaplen;
+!     __u16 * orig_cmap;
+! 
+!     char               * vidix_name;
+!     int                vidix_version;
+!     VDL_HANDLE         vidix_handler;
+!     vidix_capability_t vidix_cap;
+!     vidix_playback_t   vidix_play;
+!     vidix_fourcc_t     vidix_fourcc;
+!     vidix_yuv_t        dstrides;
+!     vidix_grkey_t      gr_key;
+!     uint8_t            next_frame;
+! 
+!     void SetParams(int Ystride, int UVstride);
+! 
+! public:
+!   cVidixVideoOut(cSetupStore *setupStore);
+!   virtual ~cVidixVideoOut();
+! 
+! #if VDRVERSNUM &gt;= 10307
+!   virtual void ClearOSD();
+!   virtual void GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight); 
+!   virtual void GetOSDMode(int &amp;Depth,bool &amp;HasAlpha, bool &amp;AlphaInversed,
+! 		  bool &amp;IsYUV,uint8_t *&amp;PixelMask)
+!   { Depth=Bpp; HasAlpha=false;AlphaInversed=false; 
+! 	  IsYUV=(current_osdMode == OSDMODE_SOFTWARE);
+! 	  PixelMask=NULL;};
+!   virtual void GetLockOsdSurface(uint8_t *&amp;osd, int &amp;stride, 
+!                   bool *&amp;dirtyLines);
+! #else
+!   virtual void Refresh();
+! #endif
+! 
+!   virtual void CloseOSD();
+! //  virtual void OpenOSD();  
+!   virtual void YUV(uint8_t *Py, uint8_t *Pu, uint8_t *Pv, int Width, int Height, int Ystride, int UVstride);
+!   virtual void Pause(void);
+! 
+!   bool MatchPixelFormat(void);
+!   void AllocLayer(void);
+! };
+! 
+! #endif // VIDEO_VIDIX_H
+--- 1,71 ----
+! /*
+!  * video-vidix.h: A plugin for the Video Disk Recorder
+!  *
+!  * See the README file for copyright information and how to reach the author.
+!  *
+!  * $Id$
+!  */
+! 
+! #ifndef VIDEO_VIDIX_H
+! #define VIDEO_VIDIX_H
+! 
+! #include &quot;video.h&quot;
+! #include &lt;linux/fb.h&gt;
+! #include &quot;vidixlib.h&quot;
+! #include &quot;fourcc.h&quot;
+! 
+! 
+! class cVidixVideoOut : public cVideoOut {
+! private:
+!     uint8_t * fb;
+! 
+!     int fbdev;
+!     int fb_line_len;
+! 
+!     struct fb_fix_screeninfo fb_finfo;
+!     struct fb_var_screeninfo fb_vinfo;
+! 
+!     int orig_cmaplen;
+!     __u16 * orig_cmap;
+! 
+!     char               * vidix_name;
+!     int                vidix_version;
+!     VDL_HANDLE         vidix_handler;
+!     vidix_capability_t vidix_cap;
+!     vidix_playback_t   vidix_play;
+!     vidix_fourcc_t     vidix_fourcc;
+!     vidix_yuv_t        dstrides;
+!     vidix_grkey_t      gr_key;
+!     uint8_t            next_frame;
+! 
+!     void SetParams(int Ystride, int UVstride);
+! 
+! public:
+!   cVidixVideoOut(cSetupStore *setupStore);
+!   virtual ~cVidixVideoOut();
+! 
+! #if VDRVERSNUM &gt;= 10307
+!   virtual void ClearOSD();
+!   virtual void AdjustOSDMode();  
+!   virtual void GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight); 
+!   virtual void GetOSDMode(int &amp;Depth,bool &amp;HasAlpha, bool &amp;AlphaInversed,
+! 		  bool &amp;IsYUV,uint8_t *&amp;PixelMask)
+!   { Depth=Bpp; HasAlpha=false;AlphaInversed=false; 
+! 	  IsYUV=(current_osdMode == OSDMODE_SOFTWARE);
+! 	  PixelMask=NULL;};
+!   virtual void GetLockOsdSurface(uint8_t *&amp;osd, int &amp;stride, 
+!                   bool *&amp;dirtyLines);
+! #else
+!   virtual void Refresh();
+! #endif
+! 
+!   virtual void CloseOSD();
+! //  virtual void OpenOSD();  
+!   virtual void YUV(uint8_t *Py, uint8_t *Pu, uint8_t *Pv, int Width, int Height, int Ystride, int UVstride);
+!   virtual void Pause(void);
+! 
+!   bool MatchPixelFormat(void);
+!   void AllocLayer(void);
+! };
+! 
+! #endif // VIDEO_VIDIX_H
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.42
+retrieving revision 1.43
+diff -C2 -d -r1.42 -r1.43
+*** video-xv.c	12 Feb 2006 17:24:28 -0000	1.42
+--- video-xv.c	17 Feb 2006 21:31:10 -0000	1.43
+***************
+*** 892,895 ****
+--- 892,896 ----
+    }
+  
++   pthread_mutex_lock(&amp;xv_mutex);
+    /* -------------------------------------------------------------------------
+     * get up our remote running
+***************
+*** 908,913 ****
+      toggleFullScreen();
+      setupStore-&gt;xvFullscreen=0;
+!   };
+  
+    initialized=true;
+    return true;
+--- 909,915 ----
+      toggleFullScreen();
+      setupStore-&gt;xvFullscreen=0;
+!   }
+  
++   pthread_mutex_unlock(&amp;xv_mutex);
+    initialized=true;
+    return true;
+***************
+*** 1209,1213 ****
+--- 1211,1221 ----
+  /* ---------------------------------------------------------------------------
+   */
++ void cXvVideoOut::AdjustOSDMode()
++ {
++   current_osdMode = setupStore-&gt;osdMode;
++ }
+  
++ /* ---------------------------------------------------------------------------
++  */
+  void cXvVideoOut::GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight) {
+     switch (current_osdMode) {
+***************
+*** 1223,1229 ****
+  };
+  
+! void cXvVideoOut::GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed, 
+                    bool &amp;IsYUV, uint8_t *&amp;PixelMask) {
+!         if (setupStore-&gt;osdMode==OSDMODE_SOFTWARE) {
+                  IsYUV=true;
+                  PixelMask=NULL;
+--- 1231,1239 ----
+  };
+  
+! /* ---------------------------------------------------------------------------
+!  */
+! void cXvVideoOut::GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+                    bool &amp;IsYUV, uint8_t *&amp;PixelMask) {
+!         if (current_osdMode==OSDMODE_SOFTWARE) {
+                  IsYUV=true;
+                  PixelMask=NULL;
+***************
+*** 1231,1235 ****
+          };
+  
+!         IsYUV=false; 
+          Depth=osd_image-&gt;bits_per_pixel;
+          HasAlpha=false;
+--- 1241,1245 ----
+          };
+  
+!         IsYUV=false;
+          Depth=osd_image-&gt;bits_per_pixel;
+          HasAlpha=false;
+***************
+*** 1237,1240 ****
+--- 1247,1252 ----
+  };       
+  
++ /* ---------------------------------------------------------------------------
++  */
+  void cXvVideoOut::GetLockOsdSurface(uint8_t *&amp;osd, int &amp;stride,
+                    bool *&amp;dirtyLines) {
+***************
+*** 1244,1247 ****
+--- 1256,1261 ----
+  };
+  
++ /* ---------------------------------------------------------------------------
++  */
+  void cXvVideoOut::CommitUnlockOsdSurface() {
+          cVideoOut::CommitUnlockOsdSurface();
+***************
+*** 1349,1353 ****
+      int y=lheight &gt; OSD_FULL_HEIGHT?(lheight - OSD_FULL_HEIGHT) / 2+lyoff:lyoff;
+  #endif
+!     if (useShm) 
+        XShmPutImage (dpy, win, gc, osd_image,
+            1,1,
+--- 1363,1367 ----
+      int y=lheight &gt; OSD_FULL_HEIGHT?(lheight - OSD_FULL_HEIGHT) / 2+lyoff:lyoff;
+  #endif
+!     if (useShm)
+        XShmPutImage (dpy, win, gc, osd_image,
+            1,1,
+***************
+*** 1394,1398 ****
+  #if VDRVERSNUM &gt;= 10307
+    OsdRefreshCounter=0;
+!   
+    /* -------------------------------------------------------------------------
+     * don't know where those funny stride values (752,376) come from.
+--- 1408,1412 ----
+  #if VDRVERSNUM &gt;= 10307
+    OsdRefreshCounter=0;
+! 
+    /* -------------------------------------------------------------------------
+     * don't know where those funny stride values (752,376) come from.
+***************
+*** 1441,1445 ****
+  
+    }
+!   else 
+  #endif
+   {
+--- 1455,1459 ----
+  
+    }
+!   else
+  #endif
+   {
+
+Index: video-xv.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.h,v
+retrieving revision 1.13
+retrieving revision 1.14
+diff -C2 -d -r1.13 -r1.14
+*** video-xv.h	4 Feb 2006 17:33:31 -0000	1.13
+--- video-xv.h	17 Feb 2006 21:31:10 -0000	1.14
+***************
+*** 150,153 ****
+--- 150,154 ----
+  #if VDRVERSNUM &gt;= 10307
+    virtual void ClearOSD();
++   virtual void AdjustOSDMode();
+    virtual void GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight);
+    virtual void GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed, 
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.43
+retrieving revision 1.44
+diff -C2 -d -r1.43 -r1.44
+*** video.c	6 Feb 2006 19:38:56 -0000	1.43
+--- video.c	17 Feb 2006 21:31:10 -0000	1.44
+***************
+*** 49,52 ****
+--- 49,54 ----
+      parValues [i] = 1.0;
+  
++   init_OsdBuffers();
++ 
+    //start osd thread
+    active=true;
+***************
+*** 86,90 ****
+  void cVideoOut::Action()
+  {
+-   init_OsdBuffers();
+    ClearOSD();
+  #if VDRVERSNUM &gt;= 10307
+--- 88,91 ----
+***************
+*** 92,98 ****
+    {
+      OsdRefreshCounter++;
+!     if (OsdRefreshCounter &gt; 80 ||
+          (setupStore-&gt;osdMode == OSDMODE_SOFTWARE &amp;&amp;
+!          OsdRefreshCounter&gt;10 &amp;&amp; Osd_changed))
+      {
+        osdMutex.Lock();
+--- 93,104 ----
+    {
+      OsdRefreshCounter++;
+!     if (
+!         //
+!         // Don't do an unconditional redraw. TV-out cannot handle higher
+!         // diplay rates than 25Hz.
+!         //
+!         //OsdRefreshCounter &gt; 80 ||
+          (setupStore-&gt;osdMode == OSDMODE_SOFTWARE &amp;&amp;
+!          OsdRefreshCounter&gt;1 &amp;&amp; Osd_changed))
+      {
+        osdMutex.Lock();
+***************
+*** 451,454 ****
+--- 457,467 ----
+    osdMutex.Unlock();
+    OSDDEB(&quot;CloseOSD\n&quot;);
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ void cVideoOut::AdjustOSDMode()
++ {
++   current_osdMode = OSDMODE_PSEUDO;
+  }
+  
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.28
+retrieving revision 1.29
+diff -C2 -d -r1.28 -r1.29
+*** video.h	4 Feb 2006 17:33:31 -0000	1.28
+--- video.h	17 Feb 2006 21:31:10 -0000	1.29
+***************
+*** 177,180 ****
+--- 177,182 ----
+      virtual void CloseOSD();
+  
++     virtual void AdjustOSDMode();
++ 
+      virtual void GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight)
+      // called whenever OSD is to be displayed
+***************
+*** 194,198 ****
+      { osd=NULL; stride=0; dirtyLines=NULL;};
+      virtual void CommitUnlockOsdSurface()
+!     { current_osdMode=OSDMODE_PSEUDO;OSDpresent=true; };
+  
+      // Software YUV mode
+--- 196,200 ----
+      { osd=NULL; stride=0; dirtyLines=NULL;};
+      virtual void CommitUnlockOsdSurface()
+!     { OSDpresent=true; };
+  
+      // Software YUV mode
+***************
+*** 201,210 ****
+                          uint8_t *&amp;osdPAlphaY, uint8_t *&amp;osdPAlphaUV,
+                          int &amp;strideY, int &amp;strideUV)
+!     { osdPy=OsdPy; osdPu=OsdPu; osdPv=OsdPv; 
+              osdPAlphaY=OsdPAlphaY; osdPAlphaUV=OsdPAlphaUV;
+              strideY=OSD_FULL_WIDTH; strideUV=OSD_FULL_WIDTH/2;};
+  
+      virtual void CommitUnlockSoftOsdSurface()
+!     { current_osdMode=OSDMODE_SOFTWARE; OSDpresent=true; };
+        
+     void AlphaBlend(uint8_t *dest,uint8_t *P1,uint8_t *P2,
+--- 203,212 ----
+                          uint8_t *&amp;osdPAlphaY, uint8_t *&amp;osdPAlphaUV,
+                          int &amp;strideY, int &amp;strideUV)
+!     { osdPy=OsdPy; osdPu=OsdPu; osdPv=OsdPv;
+              osdPAlphaY=OsdPAlphaY; osdPAlphaUV=OsdPAlphaUV;
+              strideY=OSD_FULL_WIDTH; strideUV=OSD_FULL_WIDTH/2;};
+  
+      virtual void CommitUnlockSoftOsdSurface()
+!     { OSDpresent=true; };
+        
+     void AlphaBlend(uint8_t *dest,uint8_t *P1,uint8_t *P2,
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000293.html">[Softdevice-cvs] softdevice CHANGELOG,1.152,1.153 softdevice.c,1.53,1.54
+</A></li>
+	<LI>Next message: <A HREF="000295.html">[Softdevice-cvs] softdevice CHANGELOG,1.154,1.155 SoftOsd.c,1.8,1.9 SoftOsd.h,1.4,1.5 video-dfb.c,1.49,1.50 video-dfb.h,1.16,1.17 video-fb.c,1.12,1.13 video-fb.h,1.6,1.7 video-vidix.c,1.15,1.16 video-vidix.h,1.8,1.9 video-xv.c,1.43,1.44 video-xv.h,1.14,1.15 video.c,1.44,1.45 video.h,1.29,1.30
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#294">[ date ]</a>
+              <a href="thread.html#294">[ thread ]</a>
+              <a href="subject.html#294">[ subject ]</a>
+              <a href="author.html#294">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

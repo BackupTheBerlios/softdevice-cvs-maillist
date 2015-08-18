@@ -1,0 +1,517 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softieee1394 HISTORY,1.4,1.5 avc-handler.c,1.3,1.4 avc-handler.h,1.2,1.3
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softieee1394%20HISTORY%2C1.4%2C1.5%20avc-handler.c%2C1.3%2C1.4%20avc-handler.h%2C1.2%2C1.3&In-Reply-To=%3C200605261954.k4QJsJT02162%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000364.html">
+   <LINK REL="Next"  HREF="000366.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softieee1394 HISTORY,1.4,1.5 avc-handler.c,1.3,1.4 avc-handler.h,1.2,1.3</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softieee1394%20HISTORY%2C1.4%2C1.5%20avc-handler.c%2C1.3%2C1.4%20avc-handler.h%2C1.2%2C1.3&In-Reply-To=%3C200605261954.k4QJsJT02162%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softieee1394 HISTORY,1.4,1.5 avc-handler.c,1.3,1.4 avc-handler.h,1.2,1.3">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri May 26 21:54:19 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000364.html">[Softdevice-cvs] softieee1394 HISTORY,1.3,1.4 Makefile,1.2,1.3 README,1.2,1.3 avc-handler.c,1.2,1.3
+</A></li>
+        <LI>Next message: <A HREF="000366.html">[Softdevice-cvs] softieee1394/patches libavc1394-0.5.3-read-mic-00.diff,1.1,1.2
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#365">[ date ]</a>
+              <a href="thread.html#365">[ thread ]</a>
+              <a href="subject.html#365">[ subject ]</a>
+              <a href="author.html#365">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softieee1394
+In directory sheep:/tmp/cvs-serv13823
+
+Modified Files:
+	HISTORY avc-handler.c avc-handler.h 
+Log Message:
+- moved MIC interpretation code from libavc-0.5.3 patch to avc-handler.c
+
+Index: HISTORY
+===================================================================
+RCS file: /cvsroot/softdevice/softieee1394/HISTORY,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -C2 -d -r1.4 -r1.5
+*** HISTORY	25 May 2006 17:48:19 -0000	1.4
+--- HISTORY	26 May 2006 19:59:21 -0000	1.5
+***************
+*** 1,4 ****
+--- 1,6 ----
+  VDR Plugin 'softieee1394' Revision History
+  ------------------------------------------
++ 2006-05-26:
++   - moved MIC interpretation code from libavc-0.5.3 patch to avc-handler.c
+  2006-05-25:
+    - new patch for current libavc-0.5.3
+
+Index: avc-handler.c
+===================================================================
+RCS file: /cvsroot/softdevice/softieee1394/avc-handler.c,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** avc-handler.c	25 May 2006 17:48:19 -0000	1.3
+--- avc-handler.c	26 May 2006 19:59:21 -0000	1.4
+***************
+*** 19,22 ****
+--- 19,277 ----
+  
+  /* ---------------------------------------------------------------------------
++  * MIC helper functions. should be in libavc1394, but for easier development,
++  *
++  */
++ /* ---------------------------------------------------------------------------
++  */
++ static int
++ avc1394_mic_atn(unsigned char *p)
++ {
++     int atn = 0;
++ 
++   if (*(p + 4) &gt;&gt; 3 == 0x1f) {
++     atn = (*(p+1) | *(p+2) &lt;&lt; 8 | *(p+3) &lt;&lt; 16) &gt;&gt; 1;
++   } else if (*(p + 4) &gt;&gt; 3 == 0x1f) {
++     atn = (*(p+3) &lt;&lt; 1 | *(p+2) &lt;&lt; 9 | (*(p+1) &amp; 0x3f) &lt;&lt; 17);
++   }
++ 
++   return atn;
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ static void
++ avc1394_atn2str(int atn, char *strP, char *strN)
++ {
++   sprintf (strP,
++            &quot;%02d:%02d:%02d.%02d&quot;,
++            (atn / (12 * 25 * 60 * 60)) % 24,
++            (atn / (12 * 25 * 60)) % 60,
++            (atn / (12 * 25)) % 60,
++            (atn / 12) % 25);
++   sprintf (strN,
++            &quot;%02d:%02d:%02d.%02d&quot;,
++            (atn / (10 * 30 * 60 * 60)) % 24,
++            (atn / (10 * 30 * 60)) % 60 ,
++            (atn / (10 * 30) % 60),
++            (atn / 10) % 30);
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ static void
++ avc1394_mic_atn2str(unsigned char *p, char *strP, char *strN)
++ {
++     int atn = 0;
++ 
++   if (*(p + 4) &gt;&gt; 3 == 0x1f) {
++     atn = (*(p+1) | *(p+2) &lt;&lt; 8 | *(p+3) &lt;&lt; 16) &gt;&gt; 1;
++   } else if (*(p + 4) &gt;&gt; 3 == 0x1f) {
++     atn = (*(p+3) &lt;&lt; 1 | *(p+2) &lt;&lt; 9 | (*(p+1) &amp; 0x3f) &lt;&lt; 17);
++   }
++   sprintf (strP,
++            &quot;%02d:%02d:%02d.%02d&quot;,
++            (atn / (12 * 25 * 60 * 60)) % 24,
++            (atn / (12 * 25 * 60)) % 60,
++            (atn / (12 * 25)) % 60,
++            (atn / 12) % 25);
++   sprintf (strN,
++            &quot;%02d:%02d:%02d.%02d&quot;,
++            (atn / (10 * 30 * 60 * 60)) % 24,
++            (atn / (10 * 30 * 60)) % 60 ,
++            (atn / (10 * 30) % 60),
++            (atn / 10) % 30);
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ static void
++ avc1394_mic_datetime(t_mic_jump_mark *p_mark, unsigned char *p)
++ {
++   p_mark-&gt;year   = (*(p+3) &amp; 0xE0) &gt;&gt; 1 | (*(p+4) &amp; 0xF0) &gt;&gt; 4;
++   p_mark-&gt;month  = *(p+4) &amp; 0x0f;
++   p_mark-&gt;day    = *(p+3) &amp; 0x1f;
++   p_mark-&gt;hour   = *(p+2) &amp; 0x1F;
++   p_mark-&gt;minute = *(p+1) &amp; 0x3F;
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ static void
++ avc1394_mic_datetime2str(unsigned char *p, char *d, char *t)
++ {
++   sprintf (d,
++            &quot;%02d-%02d-%02d&quot;,
++            (*(p+3) &amp; 0xE0) &gt;&gt; 1 | (*(p+4) &amp; 0xF0) &gt;&gt; 4,
++            *(p+4) &amp; 0x0f,
++            *(p+3) &amp; 0x1f);
++   sprintf (t,
++            &quot;%02d:%02d&quot;,
++            *(p+2) &amp; 0x1F,
++            *(p+1) &amp; 0x3F);
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ static void
++ avc1394_dump_micdirectoy(t_mic_directory *mic_dir)
++ {
++     int   i;
++     char  bufPAL[16],
++           bufNTSC[16];
++ 
++   if (!mic_dir)
++     return;
++ 
++   fprintf (stderr, &quot;-- tape name:          (%s)\n&quot;, mic_dir-&gt;tape_name);
++   if (mic_dir-&gt;eom_atn) {
++     avc1394_atn2str(mic_dir-&gt;eom_atn, bufPAL, bufNTSC);
++     fprintf (stderr, &quot;-- tape end position:  %s\n&quot;, bufPAL);
++   }
++   fprintf (stderr, &quot;-- tape has # markers: %d\n&quot;, mic_dir-&gt;num_marks);
++   for (i = 0; i &lt; mic_dir-&gt;num_marks; ++i) {
++     fprintf (stderr, &quot;-- (%2d) &quot;, i);
++     avc1394_atn2str(mic_dir-&gt;jump_mark[i]. atn, bufPAL, bufNTSC);
++     fprintf (stderr, &quot;%s &quot;, bufPAL);
++     fprintf (stderr,
++              &quot;%02d-%02d-%02d %02d:%02d&quot;,
++              mic_dir-&gt;jump_mark[i]. year,
++              mic_dir-&gt;jump_mark[i]. month,
++              mic_dir-&gt;jump_mark[i]. day,
++              mic_dir-&gt;jump_mark[i]. hour,
++              mic_dir-&gt;jump_mark[i]. minute);
++     fprintf (stderr, &quot;\n&quot;);
++   }
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ static int
++ avc1394_micinfo2micdirectory (t_mic_directory **mic_dir,
++                               unsigned char *mic_data, int len)
++ {
++     unsigned char   *p;
++     int             l,
++                     marker;
++     t_mic_directory *tmp_dir = NULL;
++ 
++   if (!mic_dir || !mic_data || !len)
++     return 0;
++ 
++   if (*mic_dir) {
++     free (*mic_dir);
++     *mic_dir = NULL;
++   }
++ 
++   if (!(tmp_dir = (t_mic_directory *) calloc (1, sizeof (t_mic_directory))))
++     return 0;
++ 
++   p = mic_data;
++   l = len;
++   /* check header */
++ 
++   p += 11;
++   l -= 11;
++   /* get tape end ATN */
++   if (l &lt; len &amp;&amp; *p == MIC_TAG_TAPEEOM) {
++     if ((len - l) &gt; 5)
++       tmp_dir-&gt;eom_atn = avc1394_mic_atn(p);
++ 
++     p += 5; l -= 5;
++   }
++ 
++   p += 5; l -= 5;
++   marker = 0;
++   while (l &lt; len &amp;&amp; *p == MIC_TAG_ATN) {
++     if ((len-l) &gt; 10) {
++       tmp_dir-&gt;jump_mark[marker].atn = avc1394_mic_atn(p);
++ 
++       p += 5; l -= 5;
++       if (*p == MIC_TAG_DATETIME)
++         avc1394_mic_datetime(&amp;tmp_dir-&gt;jump_mark[marker], p);
++ 
++       marker++;
++       tmp_dir-&gt;num_marks = marker;
++       p += 5; l -= 5;
++       continue;
++     }
++     p++; l--;
++   }
++   if (l &lt; len &amp;&amp; *p == MIC_TAG_TAPENAME)
++     memcpy(tmp_dir-&gt;tape_name, p+4, *(p+1));
++ 
++   *mic_dir = tmp_dir;
++   return 1;
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ static int
++ avc1394_vcr_parse_mic_info (unsigned char *mic_data, int len, int prt)
++ {
++     unsigned char *p;
++     int           l,
++                   marker;
++     char          buf1 [16],
++                   buf2 [16];
++ 
++   if (prt)
++     fprintf(stderr, &quot;[AVCHandler] MIC info start\n&quot;);
++   p = mic_data;
++   l = len;
++   /* check header */
++ 
++   p += 11;
++   l -= 11;
++   /* get tape end ATN */
++   if (l &lt; len &amp;&amp; *p == 0x1F) {
++     if ((len - l) &gt; 5) {
++       if (prt) {
++         avc1394_mic_atn2str (p, buf1, buf2);
++         fprintf (stderr, &quot;  tape end : %s\n&quot;, buf1);
++       }
++     }
++     p += 5; l -= 5;
++   }
++ 
++   p += 5; l -= 5;
++ 
++   marker = 1;
++   while (l &lt; len &amp;&amp; *p == 0x0b) {
++     if ((len-l) &gt; 10) {
++       if (prt) {
++         avc1394_mic_atn2str (p, buf1, buf2);
++         fprintf (stderr, &quot;  %2d.      : %s &quot;, marker, buf1);
++       }
++       p += 5; l -= 5;
++       if (*p == 0x42) {
++         if (prt) {
++           avc1394_mic_datetime2str(p, buf1, buf2);
++           fprintf (stderr, &quot;%s %s\n&quot;, buf1, buf2);
++         }
++       } else {
++         if (prt) {
++           fprintf(stderr,&quot;\n&quot;);
++         }
++       }
++       marker++;
++       p += 5; l -= 5;
++       continue;
++     }
++     p++; l--;
++   }
++   if (l &lt; len &amp;&amp; *p == 0x18) {
++     if (prt) {
++       fprintf (stderr,&quot;  tape name: %*.*s\n&quot;, *(p+1),*(p+1), p+4);
++     }
++   }
++   if (prt)
++     fprintf(stderr, &quot;[AVCHandler] MIC info done!\n&quot;);
++   return 0;
++ }
++ /* ---------------------------------------------------------------------------
++  * MIC helper END
++  */
++ 
++ /* ---------------------------------------------------------------------------
+   */
+  cAVCHandler::cAVCHandler()
+***************
+*** 35,49 ****
+  #endif
+    numDevices = 0;
+!   for (int i = 0; i &lt; MAX_IEEE1394_DEVICES; ++i)
+!   {
+      deviceId[i] = 0;
+      micSize[i] = 0;
+      micData[i] = NULL;
+    }
+  
+!   if (!handle)
+!   {
+!     if (!errno)
+!     {
+        esyslog(&quot;[AVCHandler]: Incompatible IEEE1394 subsystem!\n&quot;);
+      } else {
+--- 290,302 ----
+  #endif
+    numDevices = 0;
+!   for (int i = 0; i &lt; MAX_IEEE1394_DEVICES; ++i) {
+      deviceId[i] = 0;
+      micSize[i] = 0;
+      micData[i] = NULL;
++     micDirectories[i] = NULL;
+    }
+  
+!   if (!handle) {
+!     if (!errno) {
+        esyslog(&quot;[AVCHandler]: Incompatible IEEE1394 subsystem!\n&quot;);
+      } else {
+***************
+*** 66,69 ****
+--- 319,326 ----
+    active=false;
+    Cancel(3);
++   for (int i = 0; i &lt; MAX_IEEE1394_DEVICES; ++i) {
++     free(micData[i]);
++     free(micDirectories[i]);
++   }
+    raw1394_destroy_handle(handle);
+    dsyslog(&quot;[AVCHandler]: Good bye&quot;);
+***************
+*** 101,108 ****
+         */
+        if (j &gt;= numDevices) {
+  #if 0
+  // disabled since it may cause segfaults Skins.Message()
+            char msg[100];
+-           //static int once = 1;
+  
+          snprintf (msg, 100, &quot;%s: %s&quot;,
+--- 358,366 ----
+         */
+        if (j &gt;= numDevices) {
++           unsigned char *tmpMicData = NULL;
++           int           tmpMicSize = 0;
+  #if 0
+  // disabled since it may cause segfaults Skins.Message()
+            char msg[100];
+  
+          snprintf (msg, 100, &quot;%s: %s&quot;,
+***************
+*** 110,115 ****
+          Skins.Message(mtInfo,msg);
+  #endif
+!         avc1394_vcr_get_mic_info (handle, i, &amp;micData[i], &amp;micSize[i]);
+!         avc1394_vcr_parse_mic_info (micData[i], micSize[i], 1);
+        }
+      }
+--- 368,379 ----
+          Skins.Message(mtInfo,msg);
+  #endif
+!         avc1394_vcr_get_mic_info (handle, i, &amp;tmpMicData, &amp;tmpMicSize);
+! 
+!         avcMutex.Lock();
+!         micData[i] = tmpMicData;
+!         micSize[i] = tmpMicSize;
+!         avc1394_micinfo2micdirectory(&amp;micDirectories[i], micData[i], micSize[i]);
+!         avc1394_dump_micdirectoy(micDirectories[i]);
+!         avcMutex.Unlock();
+        }
+      }
+
+Index: avc-handler.h
+===================================================================
+RCS file: /cvsroot/softdevice/softieee1394/avc-handler.h,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** avc-handler.h	12 Sep 2005 12:17:07 -0000	1.2
+--- avc-handler.h	26 May 2006 19:59:21 -0000	1.3
+***************
+*** 27,30 ****
+--- 27,69 ----
+  
+  /* ---------------------------------------------------------------------------
++  * MIC helper definitions START
++  */
++ #define MAX_MIC_SIZE      (64*1024)
++ #define MIC_HEADER_SIZE   16
++ #define MIC_ADDINFO_SIZE  10
++ #define MIC_ENTRY_SIZE    10
++ 
++ #define MIC_TAG_ATN       0x0B
++ #define MIC_TAG_TAPENAME  0x18
++ #define MIC_TAG_TAPEEOM   0x1F
++ #define MIC_TAG_DATETIME  0x42
++ 
++ #define MIC_TAG_INFO_DT         0x00
++ #define MIC_TAG_INFO_TAPE_NAME  0x06
++ #define MIC_TAG_INFO_NONE       0x07
++ 
++ typedef struct {
++   int atn;
++   int year,
++       month,
++       day;
++   int hour,
++       minute;
++ } t_mic_jump_mark;
++ 
++ typedef struct {
++   int             uatn;
++   int             eom_atn;
++   int             num_marks;
++   char            tape_name[256];
++   t_mic_jump_mark jump_mark[(MAX_MIC_SIZE-(MIC_HEADER_SIZE+MIC_ADDINFO_SIZE)) /
++                             MIC_ENTRY_SIZE];
++ } t_mic_directory;
++ 
++ /* ---------------------------------------------------------------------------
++  * MIC helper definitions END
++  */
++ 
++ /* ---------------------------------------------------------------------------
+   */
+  class cAVCHandler: public cThread {
+***************
+*** 36,39 ****
+--- 75,79 ----
+      int               micSize[MAX_IEEE1394_DEVICES];
+      unsigned char     *micData[MAX_IEEE1394_DEVICES];
++     t_mic_directory   *micDirectories[MAX_IEEE1394_DEVICES];
+      rom1394_directory romDirs[MAX_IEEE1394_DEVICES];
+      raw1394handle_t   handle;
+***************
+*** 97,101 ****
+  private:
+    cAVCPlayer *player;
+!   
+  public:
+    cAVCControl(octlet_t deviceId);
+--- 137,141 ----
+  private:
+    cAVCPlayer *player;
+! 
+  public:
+    cAVCControl(octlet_t deviceId);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000364.html">[Softdevice-cvs] softieee1394 HISTORY,1.3,1.4 Makefile,1.2,1.3 README,1.2,1.3 avc-handler.c,1.2,1.3
+</A></li>
+	<LI>Next message: <A HREF="000366.html">[Softdevice-cvs] softieee1394/patches libavc1394-0.5.3-read-mic-00.diff,1.1,1.2
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#365">[ date ]</a>
+              <a href="thread.html#365">[ thread ]</a>
+              <a href="subject.html#365">[ subject ]</a>
+              <a href="author.html#365">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

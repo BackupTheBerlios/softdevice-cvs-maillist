@@ -1,0 +1,115 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice softdevice.c,1.62,1.63
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20softdevice.c%2C1.62%2C1.63&In-Reply-To=%3C200607101954.k6AJsaY23623%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000393.html">
+   <LINK REL="Next"  HREF="000395.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice softdevice.c,1.62,1.63</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20softdevice.c%2C1.62%2C1.63&In-Reply-To=%3C200607101954.k6AJsaY23623%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice softdevice.c,1.62,1.63">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon Jul 10 21:54:36 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000393.html">[Softdevice-cvs] softdevice audio-alsa.c,NONE,1.1 audio-alsa.h,NONE,1.1 audio.c,1.25,1.26 audio.h,1.11,1.12 Makefile,1.32,1.33 configure,1.19,1.20 CHANGELOG,1.208,1.209
+</A></li>
+        <LI>Next message: <A HREF="000395.html">[Softdevice-cvs] softdevice CHANGELOG,1.209,1.210 softdevice.c,1.63,1.64
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#394">[ date ]</a>
+              <a href="thread.html#394">[ thread ]</a>
+              <a href="subject.html#394">[ subject ]</a>
+              <a href="author.html#394">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv24863
+
+Modified Files:
+	softdevice.c 
+Log Message:
+- move alsa related stuff into a separate file, enable build without alsa 
+  support
+
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.62
+retrieving revision 1.63
+diff -C2 -d -r1.62 -r1.63
+*** softdevice.c	10 Jul 2006 18:50:45 -0000	1.62
+--- softdevice.c	10 Jul 2006 19:54:34 -0000	1.63
+***************
+*** 73,76 ****
+--- 73,80 ----
+  #endif
+  
++ #ifdef ALSA_SUPPORT
++ #include &quot;audio-alsa.h&quot;
++ #endif
++ 
+  #include &quot;audio.h&quot;
+  #include &quot;mpeg2decoder.h&quot;
+***************
+*** 278,283 ****
+--- 282,291 ----
+      switch (audioMethod) {
+        case AOUT_ALSA:
++ #ifdef ALSA_SUPPORT
+          audioOut=new cAlsaAudioOut(&amp;setupStore);
+          break;
++ #else
++         fprintf(stderr,&quot;[softdevice] No alsa support compiled in. Using dummy-audio\n&quot;);
++ #endif
+        case AOUT_DUMMY:
+          audioOut=new cDummyAudioOut(&amp;setupStore);
+***************
+*** 687,692 ****
+--- 695,702 ----
+    // Return a string that describes all known command line options.
+    return
++ #ifdef ALSA_SUPPORT
+    &quot;  -ao alsa:pcm=dev_name#   alsa output device for analog and PCM out\n&quot;
+    &quot;  -ao alsa:ac3=dev_name#   alsa output device for AC3 passthrough\n&quot;
++ #endif
+    &quot;  -ao dummy:               dummy output device\n&quot;
+  #ifdef XV_SUPPORT
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000393.html">[Softdevice-cvs] softdevice audio-alsa.c,NONE,1.1 audio-alsa.h,NONE,1.1 audio.c,1.25,1.26 audio.h,1.11,1.12 Makefile,1.32,1.33 configure,1.19,1.20 CHANGELOG,1.208,1.209
+</A></li>
+	<LI>Next message: <A HREF="000395.html">[Softdevice-cvs] softdevice CHANGELOG,1.209,1.210 softdevice.c,1.63,1.64
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#394">[ date ]</a>
+              <a href="thread.html#394">[ thread ]</a>
+              <a href="subject.html#394">[ subject ]</a>
+              <a href="author.html#394">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

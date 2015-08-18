@@ -1,0 +1,441 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.232, 1.233 SoftOsd.c, 1.17,	1.18
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.232%2C%201.233%20SoftOsd.c%2C%201.17%2C%0A%091.18&In-Reply-To=%3C20060917115501.8012A7449D%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000423.html">
+   <LINK REL="Next"  HREF="000425.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.232, 1.233 SoftOsd.c, 1.17,	1.18</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.232%2C%201.233%20SoftOsd.c%2C%201.17%2C%0A%091.18&In-Reply-To=%3C20060917115501.8012A7449D%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.232, 1.233 SoftOsd.c, 1.17,	1.18">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Sep 17 13:55:01 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000423.html">[Softdevice-cvs] softdevice CHANGELOG, 1.231, 1.232 configure, 1.25,	1.26 mpeg2decoder.c, 1.67, 1.68
+</A></li>
+        <LI>Next message: <A HREF="000425.html">[Softdevice-cvs] softdevice CHANGELOG, 1.233, 1.234 PicBuffer.c, 1.7,	1.8
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#424">[ date ]</a>
+              <a href="thread.html#424">[ thread ]</a>
+              <a href="subject.html#424">[ subject ]</a>
+              <a href="author.html#424">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv11777
+
+Modified Files:
+	CHANGELOG SoftOsd.c 
+Log Message:
+- replace &quot;pshufw&quot; with MMX commands 
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.232
+retrieving revision 1.233
+diff -C2 -d -r1.232 -r1.233
+*** CHANGELOG	16 Sep 2006 20:26:24 -0000	1.232
+--- CHANGELOG	17 Sep 2006 11:54:32 -0000	1.233
+***************
+*** 1,3 ****
+--- 1,6 ----
+  Changelog
++ 2006-09-17:
++    - replace &quot;pshufw&quot; with MMX commands to make scaling optimazations available
++      to processors without MMX2
+  2006-09-xx:
+     - added -vo shm: to help option
+
+Index: SoftOsd.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.c,v
+retrieving revision 1.17
+retrieving revision 1.18
+diff -C2 -d -r1.17 -r1.18
+*** SoftOsd.c	10 Sep 2006 20:33:29 -0000	1.17
+--- SoftOsd.c	17 Sep 2006 11:54:32 -0000	1.18
+***************
+*** 31,34 ****
+--- 31,43 ----
+  //#undef USE_MMX
+  //#undef USE_MMX2
++ 
++ #undef SPLAT_U16
++ #ifdef USE_MMX2
++ #define SPLAT_U16(X)   &quot; pshufw $0b0, &quot; X &quot;, &quot; X &quot; \n&quot;
++ #else
++ #define SPLAT_U16(X)   &quot; punpcklwd &quot; X &quot;, &quot; X &quot; \n&quot;\
++                        &quot; punpckldq &quot; X &quot;, &quot; X &quot; \n&quot;
++ #endif
++ 
+  /* ---------------------------------------------------------------------------
+   */
+***************
+*** 1227,1231 ****
+          //const int ScaleFactor=100;
+          const int ScaleFactor=1&lt;&lt;SHIFT_BITS_NUM;
+! #ifndef USE_MMX2
+          unsigned int a_sum=0;
+          unsigned int b_sum=0;
+--- 1236,1240 ----
+          //const int ScaleFactor=100;
+          const int ScaleFactor=1&lt;&lt;SHIFT_BITS_NUM;
+! #ifndef USE_MMX
+          unsigned int a_sum=0;
+          unsigned int b_sum=0;
+***************
+*** 1242,1250 ****
+  
+          int row;
+! #ifdef USE_MMX2
+          __asm__(
+                          &quot; pxor %%mm0,%%mm0 \n&quot; //mm0: dest pixel
+                          &quot; movd %0,%%mm6  \n&quot;
+!                         &quot; pshufw $0,%%mm6,%%mm6 \n&quot;// mm6: new_pixel_height_rec
+                          &quot; pxor %%mm7,%%mm7 \n&quot; //mm7: 00 00 00 ...
+                          : : &quot;r&quot; (new_pixel_height_rec)  );
+--- 1251,1259 ----
+  
+          int row;
+! #ifdef USE_MMX
+          __asm__(
+                          &quot; pxor %%mm0,%%mm0 \n&quot; //mm0: dest pixel
+                          &quot; movd %0,%%mm6  \n&quot;
+!                         SPLAT_U16( &quot;%%mm6 &quot; )
+                          &quot; pxor %%mm7,%%mm7 \n&quot; //mm7: 00 00 00 ...
+                          : : &quot;r&quot; (new_pixel_height_rec)  );
+***************
+*** 1261,1265 ****
+                  int32_t a_pos=abs(pos);
+                  //int32_t a_pos=-(pos);
+! #ifndef USE_MMX2                       
+                  a_sum=b_sum=g_sum=r_sum=0;
+                  c = pixmap[row][Pixel];
+--- 1270,1274 ----
+                  int32_t a_pos=abs(pos);
+                  //int32_t a_pos=-(pos);
+! #ifndef USE_MMX                       
+                  a_sum=b_sum=g_sum=r_sum=0;
+                  c = pixmap[row][Pixel];
+***************
+*** 1274,1278 ****
+                        &quot; movd %1,%%mm2 \n&quot;
+                        &quot; punpcklbw %%mm7, %%mm1 \n&quot;
+!                       &quot; pshufw $0b0,%%mm2,%%mm2 \n&quot;
+                        &quot; pmullw %%mm2,%%mm1 \n&quot;
+                        &quot; paddw %%mm1,%%mm0 \n&quot;
+--- 1283,1287 ----
+                        &quot; movd %1,%%mm2 \n&quot;
+                        &quot; punpcklbw %%mm7, %%mm1 \n&quot;
+!                       SPLAT_U16( &quot;%%mm2&quot; )
+                        &quot; pmullw %%mm2,%%mm1 \n&quot;
+                        &quot; paddw %%mm1,%%mm0 \n&quot;
+***************
+*** 1287,1291 ****
+                                          pixmap[row][Pixel].r,pixmap[row][Pixel].g,pixmap[row][Pixel].b);
+  
+! #ifndef USE_MMX2               
+                          c=pixmap[row][Pixel];
+                          a_sum+=GET_A(c)*ScaleFactor;
+--- 1296,1300 ----
+                                          pixmap[row][Pixel].r,pixmap[row][Pixel].g,pixmap[row][Pixel].b);
+  
+! #ifndef USE_MMX               
+                          c=pixmap[row][Pixel];
+                          a_sum+=GET_A(c)*ScaleFactor;
+***************
+*** 1308,1312 ****
+                                          a_sum,pixmap[row][Pixel].a,
+                                          pixmap[row][Pixel].r,pixmap[row][Pixel].g,pixmap[row][Pixel].b,pos);
+! #ifndef USE_MMX2                       
+                  c=pixmap[row][Pixel];
+                  a_sum+=GET_A(c)*pos;
+--- 1317,1321 ----
+                                          a_sum,pixmap[row][Pixel].a,
+                                          pixmap[row][Pixel].r,pixmap[row][Pixel].g,pixmap[row][Pixel].b,pos);
+! #ifndef USE_MMX                       
+                  c=pixmap[row][Pixel];
+                  a_sum+=GET_A(c)*pos;
+***************
+*** 1319,1323 ****
+                        &quot; movd %1,%%mm2 \n&quot;
+                        &quot; punpcklbw %%mm7, %%mm1 \n&quot;
+!                       &quot; pshufw $0b0,%%mm2,%%mm2 \n&quot;
+                        &quot; pmullw %%mm2,%%mm1 \n&quot;
+                        &quot; paddw %%mm1,%%mm0 \n&quot;
+--- 1328,1332 ----
+                        &quot; movd %1,%%mm2 \n&quot;
+                        &quot; punpcklbw %%mm7, %%mm1 \n&quot;
+!                       SPLAT_U16( &quot;%%mm2&quot; )
+                        &quot; pmullw %%mm2,%%mm1 \n&quot;
+                        &quot; paddw %%mm1,%%mm0 \n&quot;
+***************
+*** 1329,1333 ****
+                                  a_sum/ScaleFactor*
+                                  new_pixel_height_rec/ScaleFactor);
+! #ifndef USE_MMX2                       
+                  a_sum=a_sum/ScaleFactor*new_pixel_height_rec/ScaleFactor;
+                  b_sum=b_sum/ScaleFactor*new_pixel_height_rec/ScaleFactor;
+--- 1338,1342 ----
+                                  a_sum/ScaleFactor*
+                                  new_pixel_height_rec/ScaleFactor);
+! #ifndef USE_MMX                       
+                  a_sum=a_sum/ScaleFactor*new_pixel_height_rec/ScaleFactor;
+                  b_sum=b_sum/ScaleFactor*new_pixel_height_rec/ScaleFactor;
+***************
+*** 1367,1371 ****
+  #define SHIFT_BITS_NUM 6
+          const int ScaleFactor=1&lt;&lt;SHIFT_BITS_NUM;
+! #ifndef USE_MMX2
+          unsigned int a_sum=0;
+          unsigned int b_sum=0;
+--- 1376,1380 ----
+  #define SHIFT_BITS_NUM 6
+          const int ScaleFactor=1&lt;&lt;SHIFT_BITS_NUM;
+! #ifndef USE_MMX
+          unsigned int a_sum=0;
+          unsigned int b_sum=0;
+***************
+*** 1379,1387 ****
+          int32_t pos=new_pixel_width;
+          
+! #ifdef USE_MMX2
+          __asm__ __volatile__ (
+                   &quot; pxor %%mm0,%%mm0 \n&quot; //mm0: dest pixel
+                   &quot; movd %0,%%mm6  \n&quot;
+!                  &quot; pshufw $0,%%mm6,%%mm6 \n&quot;// mm6: new_pixel_width_rec
+                   &quot; pxor %%mm7,%%mm7 \n&quot; //mm7: 00 00 00 ...
+                   : : &quot;r&quot; (new_pixel_width_rec)  );
+--- 1388,1396 ----
+          int32_t pos=new_pixel_width;
+          
+! #ifdef USE_MMX
+          __asm__ __volatile__ (
+                   &quot; pxor %%mm0,%%mm0 \n&quot; //mm0: dest pixel
+                   &quot; movd %0,%%mm6  \n&quot;
+!                  SPLAT_U16( &quot;%%mm6&quot; )
+                   &quot; pxor %%mm7,%%mm7 \n&quot; //mm7: 00 00 00 ...
+                   : : &quot;r&quot; (new_pixel_width_rec)  );
+***************
+*** 1396,1400 ****
+                                          pixmap-&gt;r,pixmap-&gt;g,pixmap-&gt;b);
+  
+! #ifndef USE_MMX2               
+                          c=*pixmap;
+                          a_sum+=GET_A(c)*ScaleFactor;
+--- 1405,1409 ----
+                                          pixmap-&gt;r,pixmap-&gt;g,pixmap-&gt;b);
+  
+! #ifndef USE_MMX               
+                          c=*pixmap;
+                          a_sum+=GET_A(c)*ScaleFactor;
+***************
+*** 1417,1421 ****
+                                          a_sum,pixmap-&gt;a,
+                                          pixmap-&gt;r,pixmap-&gt;g,pixmap-&gt;b,pos);
+! #ifndef USE_MMX2                       
+                  c=*pixmap;
+                  a_sum+=GET_A(c)*pos;
+--- 1426,1430 ----
+                                          a_sum,pixmap-&gt;a,
+                                          pixmap-&gt;r,pixmap-&gt;g,pixmap-&gt;b,pos);
+! #ifndef USE_MMX                       
+                  c=*pixmap;
+                  a_sum+=GET_A(c)*pos;
+***************
+*** 1428,1432 ****
+                        &quot; movd %1,%%mm2 \n&quot;
+                        &quot; punpcklbw %%mm7, %%mm1 \n&quot;
+!                       &quot; pshufw $0b0,%%mm2,%%mm2 \n&quot;
+                        &quot; pmullw %%mm2,%%mm1 \n&quot;
+                        &quot; paddw %%mm1,%%mm0 \n&quot;
+--- 1437,1441 ----
+                        &quot; movd %1,%%mm2 \n&quot;
+                        &quot; punpcklbw %%mm7, %%mm1 \n&quot;
+!                       SPLAT_U16( &quot;%%mm2&quot; )
+                        &quot; pmullw %%mm2,%%mm1 \n&quot;
+                        &quot; paddw %%mm1,%%mm0 \n&quot;
+***************
+*** 1438,1442 ****
+                                  a_sum/ScaleFactor*
+                                  new_pixel_width_rec/ScaleFactor);
+! #ifndef USE_MMX2                       
+                  a_sum=a_sum/ScaleFactor*new_pixel_width_rec/ScaleFactor;
+                  b_sum=b_sum/ScaleFactor*new_pixel_width_rec/ScaleFactor;
+--- 1447,1451 ----
+                                  a_sum/ScaleFactor*
+                                  new_pixel_width_rec/ScaleFactor);
+! #ifndef USE_MMX                       
+                  a_sum=a_sum/ScaleFactor*new_pixel_width_rec/ScaleFactor;
+                  b_sum=b_sum/ScaleFactor*new_pixel_width_rec/ScaleFactor;
+***************
+*** 1472,1476 ****
+                  //uint32_t apos=-(pos);
+                  uint32_t apos=abs(pos);
+! #ifndef USE_MMX2            
+                  c=*pixmap;
+                  a_sum=GET_A(c)*apos;
+--- 1481,1485 ----
+                  //uint32_t apos=-(pos);
+                  uint32_t apos=abs(pos);
+! #ifndef USE_MMX            
+                  c=*pixmap;
+                  a_sum=GET_A(c)*apos;
+***************
+*** 1483,1487 ****
+                        &quot; movd %1,%%mm2 \n&quot;
+                        &quot; punpcklbw %%mm7, %%mm1 \n&quot;
+!                       &quot; pshufw $0b0,%%mm2,%%mm2 \n&quot;
+                        &quot; pmullw %%mm2,%%mm1 \n&quot;
+                        &quot; paddw %%mm1,%%mm0 \n&quot;
+--- 1492,1496 ----
+                        &quot; movd %1,%%mm2 \n&quot;
+                        &quot; punpcklbw %%mm7, %%mm1 \n&quot;
+!                       SPLAT_U16( &quot;%%mm2&quot; )
+                        &quot; pmullw %%mm2,%%mm1 \n&quot;
+                        &quot; paddw %%mm1,%%mm0 \n&quot;
+***************
+*** 1505,1509 ****
+          //const int ScaleFactor=100;
+          color *end_pixmap=pixmap+Pixel;
+! #ifndef USE_MMX2
+          unsigned int c=*pixmap;
+  	unsigned int a1=GET_A(c);
+--- 1514,1518 ----
+          //const int ScaleFactor=100;
+          color *end_pixmap=pixmap+Pixel;
+! #ifndef USE_MMX
+          unsigned int c=*pixmap;
+  	unsigned int a1=GET_A(c);
+***************
+*** 1540,1544 ****
+                                          pixmap-&gt;r,pixmap-&gt;g,pixmap-&gt;b);
+  
+! #ifndef USE_MMX2                       
+  			// funny that's the same formula we use for
+  			// alpha blending ;-)
+--- 1549,1553 ----
+                                          pixmap-&gt;r,pixmap-&gt;g,pixmap-&gt;b);
+  
+! #ifndef USE_MMX                       
+  			// funny that's the same formula we use for
+  			// alpha blending ;-)
+***************
+*** 1552,1556 ****
+  				&quot; movd %0,%%mm3 \n&quot; //mm3 load pos
+  				&quot; movq %%mm2,%%mm0 \n&quot; // mm0 pixel2-pixel1
+! 				&quot; pshufw $0b0,%%mm3,%%mm3 \n&quot;
+  				&quot; pmullw %%mm3, %%mm0 \n&quot; //mm0 *pos
+  				&quot; psraw $&quot;SHIFT_BITS&quot;,%%mm0 \n&quot;
+--- 1561,1565 ----
+  				&quot; movd %0,%%mm3 \n&quot; //mm3 load pos
+  				&quot; movq %%mm2,%%mm0 \n&quot; // mm0 pixel2-pixel1
+!                                 SPLAT_U16( &quot;%%mm3&quot; )
+  				&quot; pmullw %%mm3, %%mm0 \n&quot; //mm0 *pos
+  				&quot; psraw $&quot;SHIFT_BITS&quot;,%%mm0 \n&quot;
+***************
+*** 1566,1570 ****
+  		pixmap++;
+                  pos -= ScaleFactor;
+! #ifndef USE_MMX2                       
+                  a1=a2;
+  		b1=b2;
+--- 1575,1579 ----
+  		pixmap++;
+                  pos -= ScaleFactor;
+! #ifndef USE_MMX                       
+                  a1=a2;
+  		b1=b2;
+***************
+*** 1601,1605 ****
+          const int ScaleFactor=1&lt;&lt;SHIFT_BITS_NUM;
+          //const int ScaleFactor=100;
+! #ifndef USE_MMX2
+          int a1=0;
+          int b1=0;
+--- 1610,1614 ----
+          const int ScaleFactor=1&lt;&lt;SHIFT_BITS_NUM;
+          //const int ScaleFactor=100;
+! #ifndef USE_MMX
+          int a1=0;
+          int b1=0;
+***************
+*** 1623,1627 ****
+                          OSD_HEIGHT,new_pixel_height);
+          while (currPixel&lt;Pixel) {
+! #ifndef USE_MMX2
+                  c=pixmap[0][currPixel];
+  		a1=GET_A(c);
+--- 1632,1636 ----
+                          OSD_HEIGHT,new_pixel_height);
+          while (currPixel&lt;Pixel) {
+! #ifndef USE_MMX
+                  c=pixmap[0][currPixel];
+  		a1=GET_A(c);
+***************
+*** 1651,1655 ****
+                          //SCALEUPDEBV(&quot;while loop pixel: %d pos: %d, row %d\n&quot;,
+  			//		currPixel,pos,ypos);
+! #ifndef USE_MMX2       
+                          c  = SET_B(b1+(pos*(b2)/ScaleFactor));
+                          c |= SET_G(g1+(pos*(g2)/ScaleFactor));
+--- 1660,1664 ----
+                          //SCALEUPDEBV(&quot;while loop pixel: %d pos: %d, row %d\n&quot;,
+  			//		currPixel,pos,ypos);
+! #ifndef USE_MMX       
+                          c  = SET_B(b1+(pos*(b2)/ScaleFactor));
+                          c |= SET_G(g1+(pos*(g2)/ScaleFactor));
+***************
+*** 1661,1665 ****
+  				&quot; movd %0,%%mm3 \n&quot;
+  				&quot; movq %%mm2,%%mm0 \n&quot;
+! 				&quot; pshufw $0b0,%%mm3,%%mm3 \n&quot;
+  				&quot; pmullw %%mm3, %%mm0 \n&quot;
+  				&quot; psraw $&quot;SHIFT_BITS&quot;,%%mm0 \n&quot;
+--- 1670,1674 ----
+  				&quot; movd %0,%%mm3 \n&quot;
+  				&quot; movq %%mm2,%%mm0 \n&quot;
+!                                 SPLAT_U16( &quot;%%mm2&quot; )
+  				&quot; pmullw %%mm3, %%mm0 \n&quot;
+  				&quot; psraw $&quot;SHIFT_BITS&quot;,%%mm0 \n&quot;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000423.html">[Softdevice-cvs] softdevice CHANGELOG, 1.231, 1.232 configure, 1.25,	1.26 mpeg2decoder.c, 1.67, 1.68
+</A></li>
+	<LI>Next message: <A HREF="000425.html">[Softdevice-cvs] softdevice CHANGELOG, 1.233, 1.234 PicBuffer.c, 1.7,	1.8
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#424">[ date ]</a>
+              <a href="thread.html#424">[ thread ]</a>
+              <a href="subject.html#424">[ subject ]</a>
+              <a href="author.html#424">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

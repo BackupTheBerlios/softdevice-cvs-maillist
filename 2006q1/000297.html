@@ -1,0 +1,166 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.155,1.156 ShmClient.c,1.6,1.7 shm-common.h,1.3,1.4
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.155%2C1.156%20ShmClient.c%2C1.6%2C1.7%20shm-common.h%2C1.3%2C1.4&In-Reply-To=%3C200602191658.k1JGwcE10593%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000296.html">
+   <LINK REL="Next"  HREF="000298.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.155,1.156 ShmClient.c,1.6,1.7 shm-common.h,1.3,1.4</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.155%2C1.156%20ShmClient.c%2C1.6%2C1.7%20shm-common.h%2C1.3%2C1.4&In-Reply-To=%3C200602191658.k1JGwcE10593%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.155,1.156 ShmClient.c,1.6,1.7 shm-common.h,1.3,1.4">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Feb 19 17:58:38 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000296.html">[Softdevice-cvs] softdevice i18n.c,1.16,1.17
+</A></li>
+        <LI>Next message: <A HREF="000298.html">[Softdevice-cvs] softdevice CHANGELOG,1.156,1.157 video-shm.c,1.4,1.5 video-shm.h,1.3,1.4
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#297">[ date ]</a>
+              <a href="thread.html#297">[ thread ]</a>
+              <a href="subject.html#297">[ subject ]</a>
+              <a href="author.html#297">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv14750
+
+Modified Files:
+	CHANGELOG ShmClient.c shm-common.h 
+Log Message:
+fix compilation of shm-client
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.155
+retrieving revision 1.156
+diff -C2 -d -r1.155 -r1.156
+*** CHANGELOG	18 Feb 2006 22:20:29 -0000	1.155
+--- CHANGELOG	19 Feb 2006 16:58:35 -0000	1.156
+***************
+*** 1,540 ****
+! Changelog
+! 2006-02-18:
+!    - fix OSD drawn at wrong location in software OSD blending mode when
+!      cropping is active
+! 2006-02-17:
+!    - fix bug #6409 (OSD not refreshed fast enough in software OSD blending mode
+!      when video is paused)
+!    - fix crash / deadlocks at startup in 16:9 mode in software OSD blending mode
+! 2006-02-12: softdevice-0.2.2
+! 2006-02-11:
+[...1054 lines suppressed...]
+! 
+!   2004-04-16 : xv output patch06
+!     - implemented StillPicture method
+!     - clean up some messages
+!     - AFD tag support
+! 
+!   2004-03-07 : xv output patch05
+!     - fixed rounding error for 16:9 output area (height 575 instead of 576).
+!     - OSD opaque black color translated to a different dark value so that it
+!       is different from the COLORKEY and no longer transparent.
+!     - xv output has now a commandline argument:
+!         -vo xv:aspect=[wide|normal]
+!         examples:
+!         ./vdr -P streamdev -P 'softdevice -vo xv:aspect=wide'
+!         ./vdr -P streamdev -P 'softdevice -vo xv:aspect=normal'
+!     - OSD not shown (for new users) during remote teaching phase
+!       (introduced by patch03).
+!     - changed last paramter of X..ShmPut..() to False and replaced XFlush()
+!       by XSync() (according to vlc this should save CPU time).
+!     - added volume control.
+
+Index: ShmClient.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/ShmClient.c,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -C2 -d -r1.6 -r1.7
+*** ShmClient.c	6 Feb 2006 20:32:00 -0000	1.6
+--- ShmClient.c	19 Feb 2006 16:58:35 -0000	1.7
+***************
+*** 129,133 ****
+          ctl-&gt;osd_max_width=vout-&gt;osd_max_width;
+          ctl-&gt;osd_max_height=vout-&gt;osd_max_height;
+!         vout-&gt;GetOSDDimension(ctl-&gt;osd_width,ctl-&gt;osd_height);
+          printf(&quot;osd_shmid %d stride %d\n&quot;,ctl-&gt;osd_shmid,ctl-&gt;osd_stride);
+          
+--- 129,134 ----
+          ctl-&gt;osd_max_width=vout-&gt;osd_max_width;
+          ctl-&gt;osd_max_height=vout-&gt;osd_max_height;
+!         vout-&gt;GetOSDDimension(ctl-&gt;osd_width,ctl-&gt;osd_height,
+!                               ctl-&gt;osd_xPan,ctl-&gt;osd_yPan);
+          printf(&quot;osd_shmid %d stride %d\n&quot;,ctl-&gt;osd_shmid,ctl-&gt;osd_stride);
+          
+***************
+*** 162,166 ****
+                  };
+                  
+!                 vout-&gt;GetOSDDimension(ctl-&gt;osd_width,ctl-&gt;osd_height);
+                  // consumed all pictures - set semaphore to 0
+                  sem_zero(ctl-&gt;semid,PICT_SIG);
+--- 163,168 ----
+                  };
+                  
+!                 vout-&gt;GetOSDDimension(ctl-&gt;osd_width,ctl-&gt;osd_height,
+!                                       ctl-&gt;osd_xPan,ctl-&gt;osd_yPan);
+                  // consumed all pictures - set semaphore to 0
+                  sem_zero(ctl-&gt;semid,PICT_SIG);
+
+Index: shm-common.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/shm-common.h,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** shm-common.h	4 Feb 2006 10:25:39 -0000	1.3
+--- shm-common.h	19 Feb 2006 16:58:35 -0000	1.4
+***************
+*** 59,62 ****
+--- 59,64 ----
+          int osd_width;
+          int osd_height;
++         int osd_xPan;
++         int osd_yPan;
+          int osd_max_width;
+          int osd_max_height;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000296.html">[Softdevice-cvs] softdevice i18n.c,1.16,1.17
+</A></li>
+	<LI>Next message: <A HREF="000298.html">[Softdevice-cvs] softdevice CHANGELOG,1.156,1.157 video-shm.c,1.4,1.5 video-shm.h,1.3,1.4
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#297">[ date ]</a>
+              <a href="thread.html#297">[ thread ]</a>
+              <a href="subject.html#297">[ subject ]</a>
+              <a href="author.html#297">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

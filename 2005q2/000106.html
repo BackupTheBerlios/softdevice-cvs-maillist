@@ -1,0 +1,462 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softplay softplay.h,NONE,1.1 softplay.c,1.2,1.3
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softplay%20softplay.h%2CNONE%2C1.1%20softplay.c%2C1.2%2C1.3&In-Reply-To=%3C200505072014.j47KE3m19846%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000105.html">
+   <LINK REL="Next"  HREF="000107.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softplay softplay.h,NONE,1.1 softplay.c,1.2,1.3</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softplay%20softplay.h%2CNONE%2C1.1%20softplay.c%2C1.2%2C1.3&In-Reply-To=%3C200505072014.j47KE3m19846%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softplay softplay.h,NONE,1.1 softplay.c,1.2,1.3">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat May  7 22:14:03 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000105.html">[Softdevice-cvs] softplay PlayList.c,NONE,1.1 PlayList.h,NONE,1.1 SoftPlayer.c,1.2,1.3 SoftPlayer.h,1.2,1.3
+</A></li>
+        <LI>Next message: <A HREF="000107.html">[Softdevice-cvs] softplay Makefile,1.1.1.1,1.2
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#106">[ date ]</a>
+              <a href="thread.html#106">[ thread ]</a>
+              <a href="subject.html#106">[ subject ]</a>
+              <a href="author.html#106">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softplay
+In directory sheep:/tmp/cvs-serv18421
+
+Modified Files:
+	softplay.c 
+Added Files:
+	softplay.h 
+Log Message:
+- added basic playlist support
+- fix file type handling (reported by Stefan Lucke)
+
+
+
+--- NEW FILE: softplay.h ---
+/*
+ * softplay.h: A plugin for the Video Disk Recorder
+ *
+ * See the README file for copyright information and how to reach the author.
+ *
+ * $Id: softplay.h,v 1.1 2005/05/07 20:14:01 wachm Exp $
+ */
+#ifndef __SOFTPLAY_H__
+#define __SOFTPLAY_H__
+
+#include &lt;vdr/plugin.h&gt;
+
+#include &quot;PlayList.h&quot;
+
+
+class cSoftPlay : public cPlugin {
+private:
+  // Add any member variables or functions you may need here.
+  char start_path[60];
+
+public:
+  struct sPlayLists {
+  	char Name[STR_LENGTH];
+  	cPlayList *playList;
+	sPlayLists * next;
+  };
+private:
+  sPlayLists *Lists;
+
+public:
+  cPlayList *currList;
+  bool currListIsTmp;
+  char currListName[STR_LENGTH];
+  
+public:
+  cSoftPlay(void);
+  virtual ~cSoftPlay();
+  virtual const char *Version(void);
+  virtual const char *Description(void);
+  virtual const char *CommandLineHelp(void);
+  virtual bool ProcessArgs(int argc, char *argv[]);
+  virtual bool Start(void);
+  virtual void Housekeeping(void);
+  virtual const char *MainMenuEntry(void); 
+  virtual cOsdObject *MainMenuAction(void);
+  virtual cMenuSetupPage *SetupMenu(void);
+  virtual bool SetupParse(const char *Name, const char *Value);
+
+  void SetTmpCurrList(cPlayList *List);
+  inline cPlayList *GetCurrList() 
+  { return currList; };
+  inline char *MediaPath() {return start_path;};
+};
+
+extern cSoftPlay *Softplay;
+
+#endif
+
+Index: softplay.c
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/softplay.c,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** softplay.c	7 May 2005 09:07:57 -0000	1.2
+--- softplay.c	7 May 2005 20:14:01 -0000	1.3
+***************
+*** 7,13 ****
+   */
+  
+- #include &lt;vdr/plugin.h&gt;
+  
+  #include &quot;SoftPlayer.h&quot;
+  
+  #include &lt;dirent.h&gt;
+--- 7,14 ----
+   */
+  
+  
++ #include &quot;softplay.h&quot;
+  #include &quot;SoftPlayer.h&quot;
++ #include &quot;PlayList.h&quot;
+  
+  #include &lt;dirent.h&gt;
+***************
+*** 27,30 ****
+--- 28,32 ----
+    struct DirEntry {
+        char name[NAME_LENGTH];
++       char title[NAME_LENGTH];
+        int type;
+    } * Entries;
+***************
+*** 42,45 ****
+--- 44,48 ----
+    Entries=NULL;
+    nEntries=0;
++   SetHelp(NULL,&quot;Play&quot;,&quot;Add To List&quot;,&quot;Play List&quot;);
+  };
+  
+***************
+*** 77,81 ****
+--- 80,97 ----
+  	            start_path,namelist[i]-&gt;d_name);
+  	  Entries[i].name[NAME_LENGTH-1]=0;
++           strncpy(Entries[i].title,namelist[i]-&gt;d_name,NAME_LENGTH);
++           Entries[i].title[NAME_LENGTH-1]=0;
++ 
+  	  Entries[i].type=namelist[i]-&gt;d_type;
++           // check type (non ext2/3 and symlinks)
++           if ( Entries[i].type == 0 || Entries[i].type == DT_LNK ) {
++                   struct stat stbuf;
++                   if ( !stat(Entries[i].name,&amp;stbuf) ) {
++                           if ( S_ISDIR(stbuf.st_mode) ) 
++                                   Entries[i].type = DT_DIR;
++                           else if ( S_ISREG(stbuf.st_mode) )
++                                   Entries[i].type = DT_REG;
++                   };
++           };
+  	  
+  	  // add to menu using original names (symlinks!!)
+***************
+*** 93,155 ****
+  
+  eOSState cMenuDirectory::ProcessKey(eKeys Key) {
+!   eOSState state = cOsdMenu::ProcessKey(Key);
+!   int No=0;
+  
+!   if (state == osUnknown) {
+!      switch (Key) {
+!        case kOk: 
+!          sscanf(Get(Current())-&gt;Text(),&quot;%d &quot;,&amp;No);
+! 	 No--;
+! 	 if (No&gt;nEntries)
+! 	    break;
+! 	 if ( Entries[No].type == DT_REG ) { 
+! 		 cControl::Launch(new cSoftControl(Entries[No].name));
+! 		 return osEnd;
+! 	} else if ( Entries[No].type == DT_DIR ) { 
+! 		cMenuDirectory *Menu=new cMenuDirectory;
+! 		Menu-&gt;PrepareDirectory(Entries[No].name);
+! 		return AddSubMenu(Menu);
+  	};
+! 	break;
+!        default:
+!          break;
+!      };
+!   }
+!   return state;
+  };
+  
+! // --- cSoftPlay --------------------------------------------------------
+  
+! class cSoftPlay : public cPlugin {
+! private:
+!   // Add any member variables or functions you may need here.
+!   char start_path[60];
+! public:
+!   cSoftPlay(void);
+!   virtual ~cSoftPlay();
+!   virtual const char *Version(void) { return VERSION; }
+!   virtual const char *Description(void) { return DESCRIPTION; }
+!   virtual const char *CommandLineHelp(void);
+!   virtual bool ProcessArgs(int argc, char *argv[]);
+!   virtual bool Start(void);
+!   virtual void Housekeeping(void);
+!   virtual const char *MainMenuEntry(void) { return MAINMENUENTRY; }
+!   virtual cOsdObject *MainMenuAction(void);
+!   virtual cMenuSetupPage *SetupMenu(void);
+!   virtual bool SetupParse(const char *Name, const char *Value);
+  };
+  
+! cSoftPlay::cSoftPlay(void)
+! {
+!   // Initialize any member variables here.
+!   // DON'T DO ANYTHING ELSE THAT MAY HAVE SIDE EFFECTS, REQUIRE GLOBAL
+!   // VDR OBJECTS TO EXIST OR PRODUCE ANY OUTPUT!
+  }
+  
+! cSoftPlay::~cSoftPlay()
+! {
+!   // Clean up after yourself!
+  }
+  
+  const char *cSoftPlay::CommandLineHelp(void)
+  {
+--- 109,270 ----
+  
+  eOSState cMenuDirectory::ProcessKey(eKeys Key) {
+! 	eOSState state = cOsdMenu::ProcessKey(Key);
+! 	int No=0;
+  
+! 	if (state != osUnknown) 
+! 		return state;
+! 
+! 	switch (Key) {
+! 		case kOk: 
+! 			sscanf(Get(Current())-&gt;Text(),&quot;%d &quot;,&amp;No);
+! 			No--;
+! 			if (No&gt;nEntries)
+! 				break;
+! 			if ( Entries[No].type == DT_REG ) { 
+! 				cControl::Launch(new cSoftControl(Entries[No].name));
+! 				return osEnd;
+! 			} else if ( Entries[No].type == DT_DIR ) { 
+! 				cMenuDirectory *Menu=new cMenuDirectory;
+! 				Menu-&gt;PrepareDirectory(Entries[No].name);
+! 				return AddSubMenu(Menu);
+! 			};
+! 			break;
+! 		case kGreen:
+! 			sscanf(Get(Current())-&gt;Text(),&quot;%d &quot;,&amp;No);
+! 			No--;
+! 			if (No&gt;nEntries)
+! 				break;
+! 			if ( Entries[No].type == DT_REG ) { 
+! 				cControl::Launch(new cSoftControl(Entries[No].name));
+! 				return osEnd;
+! 			} else if ( Entries[No].type == DT_DIR ) {
+! 				printf(&quot;create playlist %s\n&quot;,Entries[No].name);
+! 				cPlayList *Playlist=new cPlayList;
+! 				Playlist-&gt;AddDir(Entries[No].name,true);
+!                                 Softplay-&gt;SetTmpCurrList(Playlist);
+! 				cControl::Launch(
+! 				  	new cSoftControl(Playlist));
+! 				return osEnd;
+! 			};
+! 			break;
+!                 case kYellow: 
+!                         sscanf(Get(Current())-&gt;Text(),&quot;%d &quot;,&amp;No);
+!                         No--;
+!                         if (No&gt;nEntries)
+!                                 break;
+!                         {
+!                                 cPlayList *PlayList=Softplay-&gt;GetCurrList();
+!                                 if (!PlayList) {
+!                                         PlayList = new cPlayList;
+!                                         Softplay-&gt;SetTmpCurrList(PlayList);
+!                                 };
+!                                 if (Entries[No].type == DT_DIR)
+!                                         PlayList-&gt;AddDir(Entries[No].name,true);
+!                                 else if (Entries[No].type == DT_REG)
+!                                         PlayList-&gt;AddFile(Entries[No].name,
+!                                                         Entries[No].title);
+!                                 break;
+!                         };
+!                 case kBlue:
+!                         {
+!                                 cPlayList *PlayList=Softplay-&gt;GetCurrList();
+!                                 cControl::Launch(
+! 				  	new cSoftControl(PlayList));
+! 				return osEnd;
+!                                 break;
+!                         };
+! 		default:
+! 			break;
+  	};
+! 	return state;
+  };
+  
+! // ----cMainMenu --------------------------------------------------------
+  
+! class cMainMenu: public cOsdMenu {
+!         private:
+!                 cSoftPlay::sPlayLists **lists;
+!                 cPlayList **currList;
+! 
+!         public:
+!                 cMainMenu(cPlayList **CurrList,
+!                                 cSoftPlay::sPlayLists **Lists);
+!                 virtual ~cMainMenu();
+!                 void PrepareMenu();
+!                 virtual eOSState ProcessKey(eKeys Key);
+  };
+  
+! cMainMenu::cMainMenu(cPlayList **CurrList,cSoftPlay::sPlayLists **Lists)
+!         : cOsdMenu(&quot;SoftPlay&quot;)  {
+!         currList=CurrList;
+!         lists=Lists;
+! };
+!   
+! cMainMenu::~cMainMenu() {
+! };
+! 
+! void cMainMenu::PrepareMenu() {
+!         Add(new cOsdItem(&quot;Play Files&quot;,osUser1),false);
+!         if ( *currList )
+!           Add(new cOsdItem(&quot;current playlist&quot;,osUser2),false);
+  }
+  
+! eOSState cMainMenu::ProcessKey(eKeys Key) {
+!   cOsdMenu *Menu;
+!   eOSState state = cOsdMenu::ProcessKey(Key);
+!   
+!   switch (state) {
+!     case osUser1:  
+!             Menu=new cMenuDirectory;
+!             ((cMenuDirectory*)Menu)-&gt;PrepareDirectory(Softplay-&gt;MediaPath());
+!             return AddSubMenu(Menu);
+!             break;
+! 
+!     case osUser2: return AddSubMenu((*currList)-&gt;EditList());
+!             break;
+!     case osUser3: cControl::Launch(
+! 				  new cSoftControl(*currList));
+!                   return osEnd;
+!                   break;
+! 
+!     default: switch (Key) {
+!                default:      break;
+!                }
+!     }
+!   return state;
+  }
+  
++ 
++ // --- cSoftPlay --------------------------------------------------------
++ 
++ cSoftPlay *Softplay;
++ 
++ cSoftPlay::cSoftPlay(void){
++         // Initialize any member variables here.
++         // DON'T DO ANYTHING ELSE THAT MAY HAVE SIDE EFFECTS, REQUIRE GLOBAL
++         // VDR OBJECTS TO EXIST OR PRODUCE ANY OUTPUT!
++         Softplay=this;
++         Lists=NULL;
++         currList=NULL;
++ }
++ 
++ cSoftPlay::~cSoftPlay() {
++         // Clean up after yourself!
++         if (currList &amp;&amp; currListIsTmp)
++                 delete currList;
++ }
++ 
++ const char *cSoftPlay::Version(void) { 
++         return VERSION; 
++ };      
++ 
++ const char *cSoftPlay::Description(void) { 
++         return DESCRIPTION; 
++ };
++   
++ const char *cSoftPlay::MainMenuEntry(void) { 
++         return MAINMENUENTRY; 
++ };
++ 
+  const char *cSoftPlay::CommandLineHelp(void)
+  {
+***************
+*** 192,199 ****
+  cOsdObject *cSoftPlay::MainMenuAction(void)
+  {
+!   cMenuDirectory *Menu=new cMenuDirectory;
+!   Menu-&gt;PrepareDirectory(start_path);
+!   //cControl::Launch(new cSoftControl);
+!   return Menu;
+  }
+  
+--- 307,319 ----
+  cOsdObject *cSoftPlay::MainMenuAction(void)
+  {
+!         // not playing a list and no playlists available
+!         if ( !currList &amp;&amp; !Lists ) {
+!                 cMenuDirectory *Menu=new cMenuDirectory;
+!                 Menu-&gt;PrepareDirectory(start_path);
+!                 return Menu;
+!         };
+!         cMainMenu *Menu=new cMainMenu(&amp;currList,&amp;Lists);
+!         Menu-&gt;PrepareMenu();
+!         return Menu;
+  }
+  
+***************
+*** 209,212 ****
+--- 329,338 ----
+    return false;
+  }
++ 
++ void cSoftPlay::SetTmpCurrList(cPlayList *List) {
++         if (currList &amp;&amp; currListIsTmp)
++                 delete currList;
++         currList=List;
++ };
+  
+  VDRPLUGINCREATOR(cSoftPlay); // Don't touch this!
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000105.html">[Softdevice-cvs] softplay PlayList.c,NONE,1.1 PlayList.h,NONE,1.1 SoftPlayer.c,1.2,1.3 SoftPlayer.h,1.2,1.3
+</A></li>
+	<LI>Next message: <A HREF="000107.html">[Softdevice-cvs] softplay Makefile,1.1.1.1,1.2
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#106">[ date ]</a>
+              <a href="thread.html#106">[ thread ]</a>
+              <a href="subject.html#106">[ subject ]</a>
+              <a href="author.html#106">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

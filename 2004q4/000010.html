@@ -1,0 +1,101 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice audio.c,1.2,1.3
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2004q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20audio.c%2C1.2%2C1.3&In-Reply-To=%3C200410221507.i9MF7HB21902%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000009.html">
+   <LINK REL="Next"  HREF="000011.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice audio.c,1.2,1.3</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20audio.c%2C1.2%2C1.3&In-Reply-To=%3C200410221507.i9MF7HB21902%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice audio.c,1.2,1.3">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Oct 22 17:07:17 CEST 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000009.html">[Softdevice-cvs] softdevice CHANGELOG,1.6,1.7
+</A></li>
+        <LI>Next message: <A HREF="000011.html">[Softdevice-cvs] softdevice mpeg2decoder.c,1.4,1.5
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#10">[ date ]</a>
+              <a href="thread.html#10">[ thread ]</a>
+              <a href="subject.html#10">[ subject ]</a>
+              <a href="author.html#10">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv10408
+
+Modified Files:
+	audio.c 
+Log Message:
+set alsa sound buffer size
+
+
+Index: audio.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio.c,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** audio.c	1 Aug 2004 16:05:26 -0000	1.2
+--- audio.c	22 Oct 2004 15:07:15 -0000	1.3
+***************
+*** 176,179 ****
+--- 176,194 ----
+      }
+  
++     // set period size
++     periodSize = 4608 / 4;
++     err = snd_pcm_hw_params_set_period_size_near(handle, params, &amp;periodSize, 0);
++     if ( err &lt; 0)  {
++       dsyslog(&quot;[softdevice-audio] Failed to set period size!&quot;);
++       exit(1);
++     }
++     
++     snd_pcm_uframes_t buffersize = 2 * 4608; 
++     err = snd_pcm_hw_params_set_buffer_size_near(handle, params, &amp;buffersize);
++     if ( err &lt; 0 ) {
++       dsyslog(&quot;[softdevice-audio] Failed to set buffer size!&quot;);
++       exit(1);
++     }
++ 
+      err = snd_pcm_hw_params(handle, params);
+      if (err &lt; 0) {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000009.html">[Softdevice-cvs] softdevice CHANGELOG,1.6,1.7
+</A></li>
+	<LI>Next message: <A HREF="000011.html">[Softdevice-cvs] softdevice mpeg2decoder.c,1.4,1.5
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#10">[ date ]</a>
+              <a href="thread.html#10">[ thread ]</a>
+              <a href="subject.html#10">[ subject ]</a>
+              <a href="author.html#10">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

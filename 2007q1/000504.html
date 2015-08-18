@@ -1,0 +1,457 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice setup-softlog-menu.c, NONE,	1.1 setup-softlog-menu.h, NONE, 1.1 setup-softlog.c, NONE,	1.1 setup-softlog.h, NONE, 1.1
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20setup-softlog-menu.c%2C%20NONE%2C%0A%091.1%20setup-softlog-menu.h%2C%20NONE%2C%201.1%20setup-softlog.c%2C%20NONE%2C%0A%091.1%20setup-softlog.h%2C%20NONE%2C%201.1&In-Reply-To=%3C20070209234816.11AC4D986C%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000503.html">
+   <LINK REL="Next"  HREF="000505.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice setup-softlog-menu.c, NONE,	1.1 setup-softlog-menu.h, NONE, 1.1 setup-softlog.c, NONE,	1.1 setup-softlog.h, NONE, 1.1</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20setup-softlog-menu.c%2C%20NONE%2C%0A%091.1%20setup-softlog-menu.h%2C%20NONE%2C%201.1%20setup-softlog.c%2C%20NONE%2C%0A%091.1%20setup-softlog.h%2C%20NONE%2C%201.1&In-Reply-To=%3C20070209234816.11AC4D986C%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice setup-softlog-menu.c, NONE,	1.1 setup-softlog-menu.h, NONE, 1.1 setup-softlog.c, NONE,	1.1 setup-softlog.h, NONE, 1.1">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Feb 10 00:48:16 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000503.html">[Softdevice-cvs] softdevice softdevice.c, 1.76, 1.77 CHANGELOG,	1.291, 1.292
+</A></li>
+        <LI>Next message: <A HREF="000505.html">[Softdevice-cvs] softdevice softdevice.c,1.77,1.78
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#504">[ date ]</a>
+              <a href="thread.html#504">[ thread ]</a>
+              <a href="subject.html#504">[ subject ]</a>
+              <a href="author.html#504">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv1988
+
+Added Files:
+	setup-softlog-menu.c setup-softlog-menu.h setup-softlog.c 
+	setup-softlog.h 
+Log Message:
+add configurable logging
+
+--- NEW FILE: setup-softlog-menu.c ---
+/*
+ * See the README file for copyright information and how to reach the authors.
+ *
+ * $Id: setup-softlog-menu.c,v 1.1 2007/02/09 23:46:47 lucke Exp $
+ */
+
+
+#include &quot;setup-softdevice-menu.h&quot;
+#include &quot;setup-softlog-menu.h&quot;
+
+/* ---------------------------------------------------------------------------
+ */
+cMenuSetupSoftlog::cMenuSetupSoftlog(cPlugin *plugin, const char *name)
+{
+  if (plugin)
+    SetPlugin(plugin);
+
+  newLogFileName = strdup(setupStore.softlog-&gt;GetLogFileName());
+  newLogPriorities = setupStore.softlog-&gt;GetLogPriorities();
+
+#if VDRVERSNUM &gt;= 10334
+  Add(new cOsdItem(&quot; &quot;, osUnknown, false));
+#else
+  Add(new cOsdItem(&quot; &quot;, osUnknown));
+#endif
+
+  Add(new cMenuEditStrItem(tr(&quot;Logfile&quot;), newLogFileName, 64, NULL));
+}
+
+/* ---------------------------------------------------------------------------
+ */
+cMenuSetupSoftlog::~cMenuSetupSoftlog()
+{
+  free(newLogFileName);
+  newLogFileName = NULL;
+}
+
+/* ---------------------------------------------------------------------------
+ */
+eOSState cMenuSetupSoftlog::ProcessKey(eKeys Key)
+{
+    eOSState state = cOsdMenu::ProcessKey(Key);
+
+  switch (state)
+  {
+    case osUnknown:
+      switch (Key)
+      {
+        case kOk:
+          Store();
+          state = osBack;
+          break;
+        default:
+          break;
+      }
+      break;
+    case osBack:
+      break;
+    default:
+      break;
+  }
+  return state;
+}
+
+/* ---------------------------------------------------------------------------
+ */
+void cMenuSetupSoftlog::Store(void)
+{
+  if (strcmp(newLogFileName, setupStore.softlog-&gt;GetLogFileName()))
+    setupStore.softlog-&gt;SetLogFile(newLogFileName);
+  SetupStore (&quot;softlog-file&quot;,       setupStore.softlog-&gt;GetLogFileName());
+
+  if (newLogPriorities != setupStore.softlog-&gt;GetLogPriorities())
+    setupStore.softlog-&gt;SetLogPriorities(newLogPriorities);
+  SetupStore (&quot;softlog-priorities&quot;, setupStore.softlog-&gt;GetLogPriorities());
+
+}
+
+--- NEW FILE: setup-softlog-menu.h ---
+/*
+ * See the README file for copyright information and how to reach the authors.
+ *
+ * $Id: setup-softlog-menu.h,v 1.1 2007/02/09 23:46:47 lucke Exp $
+ */
+
+#ifndef __SETUP_SOFTLOG_MENU_H
+#define __SETUP_SOFTLOG_MENU_H
+
+#ifndef STAND_ALONE
+#include &lt;vdr/menu.h&gt;
+#include &lt;vdr/plugin.h&gt;
+#include &lt;vdr/i18n.h&gt;
+#else
+#include &quot;VdrReplacements.h&quot;
+#endif
+
+#include &quot;setup-softlog.h&quot;
+
+/* ---------------------------------------------------------------------------
+ */
+class cMenuSetupSoftlog : public cMenuSetupPage {
+  private:
+    char  *newLogFileName;
+    int   newLogPriorities;
+
+  protected:
+    virtual eOSState ProcessKey(eKeys Key);
+    virtual void Store(void);
+
+  public:
+    cMenuSetupSoftlog(cPlugin *plugin = NULL, const char *name = NULL);
+    virtual ~cMenuSetupSoftlog();
+};
+#endif
+
+
+--- NEW FILE: setup-softlog.c ---
+/*
+ * Configurable logging and traceing
+ *
+ * See the README file for copyright information and how to reach the author.
+ *
+ * $Id: setup-softlog.c,v 1.1 2007/02/09 23:46:47 lucke Exp $
+ */
+
+#include &quot;setup-softlog.h&quot;
+
+#include &lt;stdarg.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;errno.h&gt;
+#include &lt;sys/types.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;sys/syscall.h&gt;
+#include &lt;sys/time.h&gt;
+
+#define MAXSYSLOGBUF 256
+
+/* ---------------------------------------------------------------------------
+ */
+cSetupSoftlog::cSetupSoftlog()
+{
+  logFile = stderr;
+  logFileName = strdup(&quot;stderr&quot;);
+  appendPID = true;
+  enabledPriorities = SOFT_LOG_ERROR | SOFT_LOG_INFO | SOFT_LOG_DEBUG;
+  traceFlags = 0;
+}
+
+/* ---------------------------------------------------------------------------
+ */
+cSetupSoftlog::~cSetupSoftlog()
+{
+}
+
+/* ---------------------------------------------------------------------------
+ */
+int cSetupSoftlog::IsEnabled(int priority)
+{
+  return priority &amp; enabledPriorities;
+}
+
+/* ---------------------------------------------------------------------------
+ */
+int cSetupSoftlog::LogPriority(int priority)
+{
+  // no syslog loging for trace messages
+  if (priority &amp; SOFT_LOG_TRACE)
+    return NO_LOG;
+
+  if (IsEnabled(priority) &amp; SOFT_LOG_ERROR)
+    return LOG_ERR;
+  if (IsEnabled(priority) &amp; SOFT_LOG_INFO)
+    return LOG_INFO;
+  if (IsEnabled(priority) &amp; SOFT_LOG_DEBUG)
+    return LOG_DEBUG;
+
+  // unknown logtype -&gt; return invalid priority
+  return NO_LOG;
+}
+
+/* ---------------------------------------------------------------------------
+ */
+void cSetupSoftlog::CloseLogFile()
+{
+  if (logFile &amp;&amp; logFile != stderr &amp;&amp; logFile != stdout)
+    fclose(logFile);
+
+  free(logFileName);
+  logFileName = NULL;
+}
+
+/* ---------------------------------------------------------------------------
+ */
+int cSetupSoftlog::SetLogPriorities(int newPriorities)
+{
+    int oldenabledPriorities = enabledPriorities;
+
+  enabledPriorities = newPriorities;
+  return oldenabledPriorities;
+}
+
+/* ---------------------------------------------------------------------------
+ */
+int cSetupSoftlog::GetLogPriorities()
+{
+  return enabledPriorities;
+}
+
+/* ---------------------------------------------------------------------------
+ */
+int cSetupSoftlog::SetTraceFlags(int newFlags)
+{
+    int oldTraceFlags = traceFlags;
+
+  traceFlags = newFlags;
+  return oldTraceFlags;
+}
+
+/* ---------------------------------------------------------------------------
+ */
+int cSetupSoftlog::GetTraceFlags()
+{
+  return traceFlags;
+}
+
+/* ---------------------------------------------------------------------------
+ */
+int cSetupSoftlog::SetLogFile(const char *fileName)
+{
+  /* -------------------------------------------------------------------------
+   * Don't close stderr. Handle fileName &quot;stderr&quot; special so that it is
+   * possible to switch back from file logging to stderr.
+   */
+  CloseLogFile();
+  if (!strcmp (fileName, &quot;stderr&quot;)) {
+    logFile = stderr;
+  } else if (!strcmp (fileName, &quot;stdout&quot;)) {
+    logFile = stdout;
+  } else {
+      char realName [256];
+
+    if (appendPID)
+      snprintf (realName, sizeof(realName), &quot;%s-%d&quot;, fileName, getpid());
+    else
+      snprintf (realName, sizeof(realName), &quot;%s&quot;, fileName);
+
+    if (!(logFile = fopen (realName, &quot;w+&quot;))) {
+      syslog(LOG_ERR,
+             &quot;[softlog] could not open logfile (%s), using stderr&quot;,
+             realName);
+      fprintf(stderr,
+              &quot;[softlog] could not open logfile (%s), using stderr&quot;,
+              realName);
+      logFile = stderr;
+      logFileName = strdup(&quot;stderr&quot;);
+      return 0;
+    }
+  }
+
+  logFileName = strdup(fileName);
+  return 1;
+}
+
+/* ---------------------------------------------------------------------------
+ */
+char *cSetupSoftlog::GetLogFileName()
+{
+  return logFileName;
+}
+
+/* ---------------------------------------------------------------------------
+ */
+void cSetupSoftlog::DisableLog2File()
+{
+  CloseLogFile();
+  logFile = NULL;
+}
+
+_syscall0(pid_t, gettid)
+
+/* ---------------------------------------------------------------------------
+ */
+void cSetupSoftlog::Log(int currPriority, int traceFlags, char *format, ...)
+{
+    va_list argList;
+    int     priority;
+    char    fmt[MAXSYSLOGBUF];
+
+  if (!IsEnabled(currPriority))
+    return;
+
+  va_start(argList, format);
+  priority = LogPriority(currPriority);
+  snprintf(fmt, sizeof(fmt), &quot;[%d] %s&quot;, gettid(), format);
+
+  if (priority != NO_LOG)
+    vsyslog(priority, fmt, argList);
+
+  if (logFile) {
+      struct timeval now;
+      struct tm *tmp;
+
+    gettimeofday(&amp;now, NULL);
+    tmp = localtime(&amp;now.tv_sec);
+    snprintf(fmt, sizeof(fmt), &quot;%02d:%02d:%02d.%04d [%d] %s&quot;,
+             tmp-&gt;tm_hour, tmp-&gt;tm_min, tmp-&gt;tm_sec, (int) now.tv_usec/1000,
+             gettid(), format);
+    vfprintf(logFile, fmt, argList);
+    fflush(logFile);
+  }
+
+  va_end(argList);
+}
+
+/* ---------------------------------------------------------------------------
+ */
+bool cSetupSoftlog::Parse(const char *name, const char *value)
+{
+  if (!strcasecmp(name,&quot;softlog-priorities&quot;))
+    SetLogPriorities(atoi(value));
+  else if (!strcasecmp(name,&quot;softlog-file&quot;))
+    SetLogFile(value);
+  else
+    return false;
+
+  return true;
+}
+
+--- NEW FILE: setup-softlog.h ---
+/*
+ * Configurable logging and traceing
+ *
+ * See the README file for copyright information and how to reach the author.
+ *
+ * $Id: setup-softlog.h,v 1.1 2007/02/09 23:46:47 lucke Exp $
+ */
+
+#ifndef __SETUP_SOFTLOG_H
+#define __SETUP_SOFTLOG_H
+
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &lt;syslog.h&gt;
+
+#ifndef STAND_ALONE
+#include &lt;vdr/plugin.h&gt;
+#else
+#include &quot;VdrReplacements.h&quot;
+#endif
+
+#define SOFT_LOG_ERROR   1
+#define SOFT_LOG_INFO    2
+#define SOFT_LOG_DEBUG   4
+#define SOFT_LOG_TRACE   8
+
+#define NO_LOG          (LOG_EMERG - 1)
+
+class cSetupSoftlog {
+  private:
+    char  *logFileName;
+    int   enabledPriorities,
+          traceFlags;
+    bool  appendPID;
+    FILE  *logFile;
+
+    int   IsEnabled(int priority),
+          LogPriority(int priority);
+    void  CloseLogFile();
+
+  public:
+    cSetupSoftlog();
+    virtual ~cSetupSoftlog();
+
+    virtual void  Log(int currPriorities, int traceFlags, char *format, ...),
+                  DisableLog2File();
+    virtual int   SetLogPriorities(int newPriorities),
+                  GetLogPriorities(),
+                  SetTraceFlags(int newFlags),
+                  GetTraceFlags(),
+                  SetLogFile(const char *fileName);
+    virtual char  *GetLogFileName();
+    virtual bool  Parse(const char *name, const char *value);
+};
+
+#endif
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000503.html">[Softdevice-cvs] softdevice softdevice.c, 1.76, 1.77 CHANGELOG,	1.291, 1.292
+</A></li>
+	<LI>Next message: <A HREF="000505.html">[Softdevice-cvs] softdevice softdevice.c,1.77,1.78
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#504">[ date ]</a>
+              <a href="thread.html#504">[ thread ]</a>
+              <a href="subject.html#504">[ subject ]</a>
+              <a href="author.html#504">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

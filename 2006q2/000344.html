@@ -1,0 +1,323 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice ShmClient.c,1.12,1.13
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20ShmClient.c%2C1.12%2C1.13&In-Reply-To=%3C200604290622.k3T6Mxt28170%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000343.html">
+   <LINK REL="Next"  HREF="000345.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice ShmClient.c,1.12,1.13</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20ShmClient.c%2C1.12%2C1.13&In-Reply-To=%3C200604290622.k3T6Mxt28170%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice ShmClient.c,1.12,1.13">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Apr 29 08:22:59 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000343.html">[Softdevice-cvs] softdevice configure,1.10,1.11 Makefile,1.27,1.28
+</A></li>
+        <LI>Next message: <A HREF="000345.html">[Softdevice-cvs] softdevice setup-softdevice.h,1.27,1.28 video.c,1.53,1.54
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#344">[ date ]</a>
+              <a href="thread.html#344">[ thread ]</a>
+              <a href="subject.html#344">[ subject ]</a>
+              <a href="author.html#344">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv3930
+
+Modified Files:
+	ShmClient.c 
+Log Message:
+reduced warning
+
+Index: ShmClient.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/ShmClient.c,v
+retrieving revision 1.12
+retrieving revision 1.13
+diff -C2 -d -r1.12 -r1.13
+*** ShmClient.c	27 Apr 2006 20:29:30 -0000	1.12
+--- ShmClient.c	29 Apr 2006 06:23:28 -0000	1.13
+***************
+*** 34,57 ****
+  
+  class cShmRemote : public cSoftRemote {
+!         public:  
+                  cShmRemote(const char *Name)
+!                         : cSoftRemote(Name) 
+                          {};
+!                         
+                  ~cShmRemote()
+                  {};
+  
+!                 virtual bool PutKey(uint64 Code, bool Repeat = false, 
+                                  bool Release = false);
+  };
+  
+! bool cShmRemote::PutKey(uint64 Code, bool Repeat, 
+                                  bool Release) {
+!         if (ctl) 
+          {
+                  SHMDEB(&quot;get lock for the key\n&quot;);
+                  sem_wait_lock(ctl-&gt;semid,KEY_MUT);
+                  SHMDEB(&quot;got lock for the key\n&quot;);
+!                 
+                  ctl-&gt;key=Code;
+  
+--- 34,57 ----
+  
+  class cShmRemote : public cSoftRemote {
+!         public:
+                  cShmRemote(const char *Name)
+!                         : cSoftRemote(Name)
+                          {};
+! 
+                  ~cShmRemote()
+                  {};
+  
+!                 virtual bool PutKey(uint64 Code, bool Repeat = false,
+                                  bool Release = false);
+  };
+  
+! bool cShmRemote::PutKey(uint64 Code, bool Repeat,
+                                  bool Release) {
+!         if (ctl)
+          {
+                  SHMDEB(&quot;get lock for the key\n&quot;);
+                  sem_wait_lock(ctl-&gt;semid,KEY_MUT);
+                  SHMDEB(&quot;got lock for the key\n&quot;);
+! 
+                  ctl-&gt;key=Code;
+  
+***************
+*** 70,91 ****
+          cXvVideoOut *vout=new cXvVideoOut(&amp;SetupStore);
+          xvRemote= new cShmRemote(&quot;softdevice-xv&quot;);
+!         
+          signal(SIGINT,sig_handler);
+          signal(SIGQUIT,sig_handler);
+!         
+          int ctl_shmid;
+          key_t ctl_key=CTL_KEY;
+!  
+!         int curr_pict_shmid;
+          uint8_t *curr_pict=0;
+          uint8_t *curr_osd=0;
+          uint8_t *pixel[4];
+!        
+          if ((ctl_shmid = shmget(ctl_key, sizeof( ShmCtlBlock ), 0666)) &lt; 0) {
+                  fprintf(stderr,&quot;ctl_shmid error in shmget!\n&quot;);
+                  exit(1);
+          }
+!         
+!         if ( (ctl = (ShmCtlBlock *)shmat(ctl_shmid,NULL,0)) 
+                          == (ShmCtlBlock *) -1 ) {
+                  fprintf(stderr,&quot;ctl_shmid error attatching shm ctl!\n&quot;);
+--- 70,91 ----
+          cXvVideoOut *vout=new cXvVideoOut(&amp;SetupStore);
+          xvRemote= new cShmRemote(&quot;softdevice-xv&quot;);
+! 
+          signal(SIGINT,sig_handler);
+          signal(SIGQUIT,sig_handler);
+! 
+          int ctl_shmid;
+          key_t ctl_key=CTL_KEY;
+! 
+!         //int curr_pict_shmid;
+          uint8_t *curr_pict=0;
+          uint8_t *curr_osd=0;
+          uint8_t *pixel[4];
+! 
+          if ((ctl_shmid = shmget(ctl_key, sizeof( ShmCtlBlock ), 0666)) &lt; 0) {
+                  fprintf(stderr,&quot;ctl_shmid error in shmget!\n&quot;);
+                  exit(1);
+          }
+! 
+!         if ( (ctl = (ShmCtlBlock *)shmat(ctl_shmid,NULL,0))
+                          == (ShmCtlBlock *) -1 ) {
+                  fprintf(stderr,&quot;ctl_shmid error attatching shm ctl!\n&quot;);
+***************
+*** 97,103 ****
+                  exit(-1);
+          };
+!        
+          if ( vout-&gt;useShm &amp;&amp; vout-&gt;xv_image ) {
+!                 ctl-&gt;pict_shmid= vout-&gt;shminfo.shmid;  
+                  ctl-&gt;max_width=vout-&gt;xv_image-&gt;width;
+                  ctl-&gt;max_height=vout-&gt;xv_image-&gt;height;
+--- 97,103 ----
+                  exit(-1);
+          };
+! 
+          if ( vout-&gt;useShm &amp;&amp; vout-&gt;xv_image ) {
+!                 ctl-&gt;pict_shmid= vout-&gt;shminfo.shmid;
+                  ctl-&gt;max_width=vout-&gt;xv_image-&gt;width;
+                  ctl-&gt;max_height=vout-&gt;xv_image-&gt;height;
+***************
+*** 113,117 ****
+  
+                  if ( (ctl-&gt;pict_shmid = shmget(IPC_PRIVATE,
+!                                   ctl-&gt;max_width*ctl-&gt;max_height*2, 
+                                    IPC_CREAT | 0666)) &lt; 0 ) {
+                          fprintf(stderr,&quot;error creating  pict_shm!\n&quot;);
+--- 113,117 ----
+  
+                  if ( (ctl-&gt;pict_shmid = shmget(IPC_PRIVATE,
+!                                   ctl-&gt;max_width*ctl-&gt;max_height*2,
+                                    IPC_CREAT | 0666)) &lt; 0 ) {
+                          fprintf(stderr,&quot;error creating  pict_shm!\n&quot;);
+***************
+*** 119,123 ****
+                  };
+  
+!                 if ( (curr_pict = (uint8_t*)shmat(ctl-&gt;pict_shmid,NULL,0)) 
+                                  == (uint8_t*) -1 ) {
+                          fprintf(stderr,&quot;error attatching shm ctl!\n&quot;);
+--- 119,123 ----
+                  };
+  
+!                 if ( (curr_pict = (uint8_t*)shmat(ctl-&gt;pict_shmid,NULL,0))
+                                  == (uint8_t*) -1 ) {
+                          fprintf(stderr,&quot;error attatching shm ctl!\n&quot;);
+***************
+*** 143,147 ****
+                  if ( (ctl-&gt;osd_shmid = shmget(IPC_PRIVATE,
+                                   vout-&gt;osd_image-&gt;bytes_per_line*
+!                                  vout-&gt;osd_max_width, 
+                                                  IPC_CREAT | 0666)) &lt; 0 ) {
+                          fprintf(stderr,&quot;error creating  osd_shm!\n&quot;);
+--- 143,147 ----
+                  if ( (ctl-&gt;osd_shmid = shmget(IPC_PRIVATE,
+                                   vout-&gt;osd_image-&gt;bytes_per_line*
+!                                  vout-&gt;osd_max_width,
+                                                  IPC_CREAT | 0666)) &lt; 0 ) {
+                          fprintf(stderr,&quot;error creating  osd_shm!\n&quot;);
+***************
+*** 149,153 ****
+                  };
+  
+!                 if ( (curr_osd = (uint8_t*)shmat(ctl-&gt;osd_shmid,NULL,0)) 
+                                  == (uint8_t*) -1 ) {
+                          fprintf(stderr,&quot;error attatching osd shm!\n&quot;);
+--- 149,153 ----
+                  };
+  
+!                 if ( (curr_osd = (uint8_t*)shmat(ctl-&gt;osd_shmid,NULL,0))
+                                  == (uint8_t*) -1 ) {
+                          fprintf(stderr,&quot;error attatching osd shm!\n&quot;);
+***************
+*** 162,166 ****
+                                ctl-&gt;osd_xPan,ctl-&gt;osd_yPan);
+          //printf(&quot;osd_shmid %d stride %d\n&quot;,ctl-&gt;osd_shmid,ctl-&gt;osd_stride);
+!         
+          ctl-&gt;key=NO_KEY;
+          // wakeup remote thread to unsuspend video/audio
+--- 162,166 ----
+                                ctl-&gt;osd_xPan,ctl-&gt;osd_yPan);
+          //printf(&quot;osd_shmid %d stride %d\n&quot;,ctl-&gt;osd_shmid,ctl-&gt;osd_stride);
+! 
+          ctl-&gt;key=NO_KEY;
+          // wakeup remote thread to unsuspend video/audio
+***************
+*** 173,177 ****
+                  sem_wait_lock(ctl-&gt;semid,PICT_MUT,SEM_UNDO);
+                  //SHMDEB(&quot;got lock\n&quot;);
+!                
+                  if (ctl-&gt;new_pict) {
+                          int width=ctl-&gt;width&gt;ctl-&gt;max_width?
+--- 173,177 ----
+                  sem_wait_lock(ctl-&gt;semid,PICT_MUT,SEM_UNDO);
+                  //SHMDEB(&quot;got lock\n&quot;);
+! 
+                  if (ctl-&gt;new_pict) {
+                          int width=ctl-&gt;width&gt;ctl-&gt;max_width?
+***************
+*** 187,191 ****
+                                                  ctl-&gt;stride0,ctl-&gt;stride1,
+                                                  ctl-&gt;new_afd,ctl-&gt;new_asp);
+!                         } else {    
+                                  vout-&gt;DrawStill_420pl(pixel[0],pixel[2],pixel[1],
+                                          width,height,
+--- 187,191 ----
+                                                  ctl-&gt;stride0,ctl-&gt;stride1,
+                                                  ctl-&gt;new_afd,ctl-&gt;new_asp);
+!                         } else {
+                                  vout-&gt;DrawStill_420pl(pixel[0],pixel[2],pixel[1],
+                                          width,height,
+***************
+*** 197,201 ****
+                  if (ctl-&gt;new_osd) {
+                          SHMDEB(&quot;new osd picture\n&quot;);
+!                         if ( !vout-&gt;useShm ) { 
+                                  uint8_t *dest_osd;
+                                  int osd_stride;
+--- 197,201 ----
+                  if (ctl-&gt;new_osd) {
+                          SHMDEB(&quot;new osd picture\n&quot;);
+!                         if ( !vout-&gt;useShm ) {
+                                  uint8_t *dest_osd;
+                                  int osd_stride;
+***************
+*** 208,212 ****
+                          ctl-&gt;new_osd=0;
+                  };
+!                 
+                  vout-&gt;GetOSDDimension(ctl-&gt;osd_width,ctl-&gt;osd_height,
+                                        ctl-&gt;osd_xPan,ctl-&gt;osd_yPan);
+--- 208,212 ----
+                          ctl-&gt;new_osd=0;
+                  };
+! 
+                  vout-&gt;GetOSDDimension(ctl-&gt;osd_width,ctl-&gt;osd_height,
+                                        ctl-&gt;osd_xPan,ctl-&gt;osd_yPan);
+***************
+*** 217,221 ****
+                  //SHMDEB(&quot;released the lock\n&quot;);
+                  // in case there are no semaphores (no vdr connected)
+!                 usleep(13000); 
+          };
+          ctl-&gt;attached=0;
+--- 217,221 ----
+                  //SHMDEB(&quot;released the lock\n&quot;);
+                  // in case there are no semaphores (no vdr connected)
+!                 usleep(13000);
+          };
+          ctl-&gt;attached=0;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000343.html">[Softdevice-cvs] softdevice configure,1.10,1.11 Makefile,1.27,1.28
+</A></li>
+	<LI>Next message: <A HREF="000345.html">[Softdevice-cvs] softdevice setup-softdevice.h,1.27,1.28 video.c,1.53,1.54
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#344">[ date ]</a>
+              <a href="thread.html#344">[ thread ]</a>
+              <a href="subject.html#344">[ subject ]</a>
+              <a href="author.html#344">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

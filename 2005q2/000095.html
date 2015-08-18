@@ -1,0 +1,415 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice mpeg2decoder.c,1.30,1.31 mpeg2decoder.h,1.19,1.20
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20mpeg2decoder.c%2C1.30%2C1.31%20mpeg2decoder.h%2C1.19%2C1.20&In-Reply-To=%3C200504122158.j3CLwZm30229%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000094.html">
+   <LINK REL="Next"  HREF="000096.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice mpeg2decoder.c,1.30,1.31 mpeg2decoder.h,1.19,1.20</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20mpeg2decoder.c%2C1.30%2C1.31%20mpeg2decoder.h%2C1.19%2C1.20&In-Reply-To=%3C200504122158.j3CLwZm30229%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice mpeg2decoder.c,1.30,1.31 mpeg2decoder.h,1.19,1.20">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue Apr 12 23:58:35 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000094.html">[Softdevice-cvs] softdevice softdevice.c,1.29,1.30
+</A></li>
+        <LI>Next message: <A HREF="000096.html">[Softdevice-cvs] softdevice CHANGELOG,1.56,1.57 README,1.3,1.4 video-dfb.c,1.21,1.22 video-dfb.h,1.7,1.8
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#95">[ date ]</a>
+              <a href="thread.html#95">[ thread ]</a>
+              <a href="subject.html#95">[ subject ]</a>
+              <a href="author.html#95">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv20652
+
+Modified Files:
+	mpeg2decoder.c mpeg2decoder.h 
+Log Message:
+- changed buffer managment
+
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.30
+retrieving revision 1.31
+diff -C2 -d -r1.30 -r1.31
+*** mpeg2decoder.c	9 Apr 2005 16:04:23 -0000	1.30
+--- mpeg2decoder.c	12 Apr 2005 21:58:32 -0000	1.31
+***************
+*** 8,11 ****
+--- 8,12 ----
+  
+  #include &lt;math.h&gt;
++ #include &lt;sched.h&gt;
+  
+  #include &lt;vdr/plugin.h&gt;
+***************
+*** 30,34 ****
+  #endif
+  
+! //#define CMDDEB(out...) {printf(&quot;CMD[%04d]:&quot;,getTimeMilis() % 10000);printf(out);}
+  
+  #ifndef CMDDEB
+--- 31,35 ----
+  #endif
+  
+! #define CMDDEB(out...) {printf(&quot;CMD[%04d]:&quot;,getTimeMilis() % 10000);printf(out);}
+  
+  #ifndef CMDDEB
+***************
+*** 128,133 ****
+  //-----------------------cSleepTimer-----------------------
+   
+! void cSleepTimer::Sleep( int timeoutUS )
+  {
+    if ( timeoutUS &lt; 0 )
+      return;
+--- 129,138 ----
+  //-----------------------cSleepTimer-----------------------
+   
+! void cSigTimer::Sleep( int timeoutUS )
+  {
++   if (got_signal) {
++     got_signal=false;
++     return;
++   };
+    if ( timeoutUS &lt; 0 )
+      return;
+***************
+*** 142,149 ****
+    pthread_mutex_lock(&amp;mutex);
+    int retcode=0;
+!   while ( retcode != ETIMEDOUT ) {
+      retcode = pthread_cond_timedwait(&amp;cond, &amp;mutex, &amp;timeout);
+    }
+!  
+    pthread_mutex_unlock(&amp;mutex);
+  };
+--- 147,163 ----
+    pthread_mutex_lock(&amp;mutex);
+    int retcode=0;
+!   while ( retcode != ETIMEDOUT &amp;&amp; !got_signal ) {
+      retcode = pthread_cond_timedwait(&amp;cond, &amp;mutex, &amp;timeout);
+    }
+! 
+!   got_signal = false;
+!   pthread_mutex_unlock(&amp;mutex);
+! };
+! 
+! void cSigTimer::Signal()
+! {
+!   pthread_mutex_lock(&amp;mutex);
+!   got_signal=true;
+!   pthread_cond_broadcast(&amp;cond);
+    pthread_mutex_unlock(&amp;mutex);
+  };
+***************
+*** 468,471 ****
+--- 482,492 ----
+  }
+  
++ void cVideoStreamDecoder::Stop(void) 
++ {
++   active=false;
++   Timer.Signal(); // abort waiting for frame display
++   Cancel(3);
++ }
++ 
+  uint64_t cVideoStreamDecoder::GetPTS() {
+    return pts - (delay + Timer.TimePassed())/100;
+***************
+*** 1012,1016 ****
+    vout=NULL;
+    
+!   StreamBuffer=new cSoftRingBufferLinear(DVB_BUF_SIZE,16);
+    
+    running=false;
+--- 1033,1037 ----
+    vout=NULL;
+    
+!   StreamBuffer=new cSoftRingBufferLinear(DVB_BUF_SIZE,0);
+    
+    running=false;
+***************
+*** 1033,1038 ****
+  //    printf(&quot;Del %d\n&quot;,LastSize);
+      StreamBuffer-&gt;Del(LastSize);
+  start:
+-     BUFDEB(&quot;read_packet: StreamBuffer: %d\n&quot;,StreamBuffer-&gt;Available());
+      int size=StreamBuffer-&gt;Available(); 
+      int count=0;
+--- 1054,1059 ----
+  //    printf(&quot;Del %d\n&quot;,LastSize);
+      StreamBuffer-&gt;Del(LastSize);
++     EnablePutSignal.Signal();
+  start:
+      int size=StreamBuffer-&gt;Available(); 
+      int count=0;
+***************
+*** 1040,1048 ****
+             &amp;&amp; count &lt;  1  ) {
+        size = StreamBuffer-&gt;Available();
+-       usleep(10000);
+        if (size&gt;188) {
+          count++;
+-         BUFDEB(&quot;read_packet: sleeping while data (%d) in buffer\n&quot;,size);
+        };
+      };
+      
+--- 1061,1069 ----
+             &amp;&amp; count &lt;  1  ) {
+        size = StreamBuffer-&gt;Available();
+        if (size&gt;188) {
++         //try to get more data...
+          count++;
+        };
++      EnableGetSignal.Sleep(50000);
+      };
+      
+***************
+*** 1054,1058 ****
+      uchar *u =StreamBuffer-&gt;Get(size);
+      if (u) {
+!        size-=8;
+         // libavformat wants to be able to read beyond the boundaries
+         if (size&gt;buf_size)
+--- 1075,1079 ----
+      uchar *u =StreamBuffer-&gt;Get(size);
+      if (u) {
+!        //size-=8;
+         // libavformat wants to be able to read beyond the boundaries
+         if (size&gt;buf_size)
+***************
+*** 1137,1145 ****
+            };*/
+          };
+! 
+          if (!(PacketCount % 100)) {
+!           usleep(10000);
+          };
+! 
+  //        if (PacketCount == 200)
+  //          dump_format(ic, 0, &quot;test&quot;, 0);
+--- 1158,1166 ----
+            };*/
+          };
+! /*
+          if (!(PacketCount % 100)) {
+!           sched_yield();
+          };
+! */
+  //        if (PacketCount == 200)
+  //          dump_format(ic, 0, &quot;test&quot;, 0);
+***************
+*** 1196,1200 ****
+    if ( pkt.stream_index == VideoIdx &amp;&amp; vout ) {
+      BUFDEB(&quot;QueuePacket video stream\n&quot;);
+!     while ( vout-&gt;PutPacket(pkt) == -1 ) {
+        //printf(&quot;Video Buffer full\n&quot;);
+        usleep(50000);
+--- 1217,1221 ----
+    if ( pkt.stream_index == VideoIdx &amp;&amp; vout ) {
+      BUFDEB(&quot;QueuePacket video stream\n&quot;);
+!     while ( vout-&gt;PutPacket(pkt) == -1 &amp;&amp; ThreadActive ) {
+        //printf(&quot;Video Buffer full\n&quot;);
+        usleep(50000);
+***************
+*** 1202,1206 ****
+    } else if ( pkt.stream_index == AudioIdx &amp;&amp; aout ) {
+      BUFDEB(&quot;QueuePacket audio stream\n&quot;);
+!     while ( aout-&gt;PutPacket(pkt) == -1 ) {
+        //printf(&quot;Audio Buffer full\n&quot;);
+        usleep(50000);
+--- 1223,1227 ----
+    } else if ( pkt.stream_index == AudioIdx &amp;&amp; aout ) {
+      BUFDEB(&quot;QueuePacket audio stream\n&quot;);
+!     while ( aout-&gt;PutPacket(pkt) == -1 &amp;&amp; ThreadActive ) {
+        //printf(&quot;Audio Buffer full\n&quot;);
+        usleep(50000);
+***************
+*** 1334,1339 ****
+      
+      ThreadActive=false;
+-     Cancel(4);
+      StreamBuffer-&gt;Clear();
+     
+      if (vout) {
+--- 1355,1361 ----
+      
+      ThreadActive=false;
+      StreamBuffer-&gt;Clear();
++     EnableGetSignal.Signal();
++     Cancel(4);
+     
+      if (vout) {
+***************
+*** 1467,1471 ****
+  
+    //MPGDEB(&quot;Decode: StreamBuffer: %d plus %d\n&quot;,StreamBuffer-&gt;Available(),Length);
+! 
+    mutex.Lock();
+    int P;
+--- 1489,1493 ----
+  
+    //MPGDEB(&quot;Decode: StreamBuffer: %d plus %d\n&quot;,StreamBuffer-&gt;Available(),Length);
+!   EnablePutSignal.Sleep(-100);//clear got_signal
+    mutex.Lock();
+    int P;
+***************
+*** 1474,1479 ****
+      Data+=P;
+      Size-=P;
+!     usleep( 50000 );
+    }
+    mutex.Unlock();
+    BUFDEB(&quot;Deocde finished\n&quot;);
+--- 1496,1503 ----
+      Data+=P;
+      Size-=P;
+!     EnableGetSignal.Signal();
+!     EnablePutSignal.Sleep(50000);
+    }
++   EnableGetSignal.Signal();
+    mutex.Unlock();
+    BUFDEB(&quot;Deocde finished\n&quot;);
+
+Index: mpeg2decoder.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.h,v
+retrieving revision 1.19
+retrieving revision 1.20
+diff -C2 -d -r1.19 -r1.20
+*** mpeg2decoder.h	9 Apr 2005 16:04:23 -0000	1.19
+--- mpeg2decoder.h	12 Apr 2005 21:58:32 -0000	1.20
+***************
+*** 21,25 ****
+  #define DEFAULT_FRAMETIME 40   // for PAL
+  #define DVB_BUF_SIZE   (64*1024)  // same value as in dvbplayer.c
+! 
+  #define NO_STREAM    -1
+  #define DONT_PLAY  -100
+--- 21,25 ----
+  #define DEFAULT_FRAMETIME 40   // for PAL
+  #define DVB_BUF_SIZE   (64*1024)  // same value as in dvbplayer.c
+! // 100 packet and 96*1024 works quite well...
+  #define NO_STREAM    -1
+  #define DONT_PLAY  -100
+***************
+*** 113,129 ****
+  };
+  
+! //-------------------------cSleepTimer-----------------------------------
+! class cSleepTimer : public cRelTimer {
+     private:
+       pthread_mutex_t mutex;
+       pthread_cond_t cond;
+   
+     public:
+!       cSleepTimer() : cRelTimer()
+        {
+          pthread_mutex_init(&amp;mutex, NULL);
+          pthread_cond_init(&amp;cond, NULL);
+        };
+!       ~cSleepTimer()
+        {
+          pthread_cond_broadcast(&amp;cond); // wake up any sleepers
+--- 113,130 ----
+  };
+  
+! //-------------------------cSigTimer-----------------------------------
+! class cSigTimer : public cRelTimer {
+     private:
+       pthread_mutex_t mutex;
+       pthread_cond_t cond;
++      bool got_signal;
+   
+     public:
+!       cSigTimer() : cRelTimer()
+        {
+          pthread_mutex_init(&amp;mutex, NULL);
+          pthread_cond_init(&amp;cond, NULL);
+        };
+!       ~cSigTimer()
+        {
+          pthread_cond_broadcast(&amp;cond); // wake up any sleepers
+***************
+*** 133,136 ****
+--- 134,139 ----
+         
+        void Sleep( int timeoutUS );
++ 
++       void Signal(void);
+  };
+        
+***************
+*** 224,228 ****
+      bool               syncOnAudio;
+      int                hurry_up; 
+!     cSleepTimer        Timer;
+      int                offset;
+      int                delay;
+--- 227,231 ----
+      bool               syncOnAudio;
+      int                hurry_up; 
+!     cSigTimer          Timer;
+      int                offset;
+      int                delay;
+***************
+*** 243,246 ****
+--- 246,250 ----
+      ~cVideoStreamDecoder();
+  
++     virtual void Stop();
+      virtual int DecodePacket(AVPacket *pkt);
+      virtual void TrickSpeed(int Speed);
+***************
+*** 264,267 ****
+--- 268,273 ----
+      int LastSize;
+      cMutex  mutex;
++     cSigTimer EnablePutSignal;
++     cSigTimer EnableGetSignal;
+      cSoftRingBufferLinear *StreamBuffer;
+      void initStream();
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000094.html">[Softdevice-cvs] softdevice softdevice.c,1.29,1.30
+</A></li>
+	<LI>Next message: <A HREF="000096.html">[Softdevice-cvs] softdevice CHANGELOG,1.56,1.57 README,1.3,1.4 video-dfb.c,1.21,1.22 video-dfb.h,1.7,1.8
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#95">[ date ]</a>
+              <a href="thread.html#95">[ thread ]</a>
+              <a href="subject.html#95">[ subject ]</a>
+              <a href="author.html#95">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

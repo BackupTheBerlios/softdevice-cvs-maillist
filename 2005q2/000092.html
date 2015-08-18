@@ -1,0 +1,174 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice README,1.2,1.3
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20README%2C1.2%2C1.3&In-Reply-To=%3C200504091855.j39It8m06434%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000091.html">
+   <LINK REL="Next"  HREF="000093.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice README,1.2,1.3</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20README%2C1.2%2C1.3&In-Reply-To=%3C200504091855.j39It8m06434%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice README,1.2,1.3">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Apr  9 20:55:08 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000091.html">[Softdevice-cvs] softdevice mpeg2decoder.c,1.29,1.30 mpeg2decoder.h,1.18,1.19
+</A></li>
+        <LI>Next message: <A HREF="000093.html">[Softdevice-cvs] softdevice CHANGELOG,1.55,1.56
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#92">[ date ]</a>
+              <a href="thread.html#92">[ thread ]</a>
+              <a href="subject.html#92">[ subject ]</a>
+              <a href="author.html#92">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv10438
+
+Modified Files:
+	README 
+Log Message:
+added more names
+
+Index: README
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/README,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** README	9 Apr 2005 13:42:57 -0000	1.2
+--- README	9 Apr 2005 18:55:06 -0000	1.3
+***************
+*** 1,8 ****
+  This is a &quot;plugin&quot; for the Video Disk Recorder (VDR).
+  
+! Written by:                  The Softdevice Team
+!                              Stefan Lucke, Torgeir Vemo, Martin Wache     
+! 			     
+! Project's homepage:	     <A HREF="http://softdevice.berlios.de">http://softdevice.berlios.de</A>
+  
+  
+--- 1,9 ----
+  This is a &quot;plugin&quot; for the Video Disk Recorder (VDR).
+  
+! Initial versions by:         Roland Praml
+! Further development by:      The Softdevice Team
+!                              Stefan Lucke, Torgeir Veimo, Martin Wache
+! 
+! Project's homepage:          <A HREF="http://softdevice.berlios.de">http://softdevice.berlios.de</A>
+  
+  
+***************
+*** 20,24 ****
+  - libavcodec (i took the one shipped with ffmpeg 0.4.8)
+  - libavformat (also included in ffmpeg)
+! - ALSA 
+  And one of the following:
+  - DirectFB compatible VGA-Card
+--- 21,25 ----
+  - libavcodec (i took the one shipped with ffmpeg 0.4.8)
+  - libavformat (also included in ffmpeg)
+! - ALSA
+  And one of the following:
+  - DirectFB compatible VGA-Card
+***************
+*** 34,38 ****
+  
+  Typically a CPU with around 1 GHz gives you smooth playback for
+! all accelerated video out methods (all except frambuffer). 
+  
+  Installation:
+--- 35,39 ----
+  
+  Typically a CPU with around 1 GHz gives you smooth playback for
+! all accelerated video out methods (all except framebuffer).
+  
+  Installation:
+***************
+*** 53,57 ****
+  recommened resolution: 768x576
+  16bit with Framebuffer output
+! 32bit with XV/DFB/Vidix output
+  
+  Start vdr with -P&quot; softdevice -vo [your prefered output method]:&quot;
+--- 54,58 ----
+  recommened resolution: 768x576
+  16bit with Framebuffer output
+! 32bit with DFB/Vidix output
+  
+  Start vdr with -P&quot; softdevice -vo [your prefered output method]:&quot;
+***************
+*** 71,75 ****
+  --------------
+  What does NOT work:
+! - Only 16 bit framebuffer is supported. (in FB-mode)
+  
+  The code in the plugin is based on parts of:
+--- 72,76 ----
+  --------------
+  What does NOT work:
+! - Other depths than 16/15 bit framebuffer are not supported. (in FB-mode)
+  
+  The code in the plugin is based on parts of:
+***************
+*** 78,86 ****
+  - alsa
+  
+! Many thanks to
+! - Roland Praml &lt;praml.roland @ t-online.de&gt; for writing the first versions of
+!   the softdevice
+! - Holger Wachechtler &lt;holger @ convergence.de&gt; for some DFB-examples and useful tips
+! - Stefan Lucke &lt;stefan @ lucke.in-berlin.de&gt; for the Xv-output
+! - Vadim Catana &lt;vcatana @ registru.md&gt; for the Vidix-output
+  
+--- 79,90 ----
+  - alsa
+  
+! Many thanks to:
+! - Colin Paton
+! - Herbert Attenberger
+! - Holger Waechtler
+! - Martin Wache
+! - Roland Praml
+! - Stefan Lucke
+! - Torgeir Veimo
+! - Vadim Catana
+  
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000091.html">[Softdevice-cvs] softdevice mpeg2decoder.c,1.29,1.30 mpeg2decoder.h,1.18,1.19
+</A></li>
+	<LI>Next message: <A HREF="000093.html">[Softdevice-cvs] softdevice CHANGELOG,1.55,1.56
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#92">[ date ]</a>
+              <a href="thread.html#92">[ thread ]</a>
+              <a href="subject.html#92">[ subject ]</a>
+              <a href="author.html#92">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

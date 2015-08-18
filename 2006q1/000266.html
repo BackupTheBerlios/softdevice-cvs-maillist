@@ -1,0 +1,158 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice softdevice.c,1.49,1.50
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20softdevice.c%2C1.49%2C1.50&In-Reply-To=%3C200601071430.k07EUDH19690%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000265.html">
+   <LINK REL="Next"  HREF="000268.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice softdevice.c,1.49,1.50</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20softdevice.c%2C1.49%2C1.50&In-Reply-To=%3C200601071430.k07EUDH19690%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice softdevice.c,1.49,1.50">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Jan  7 15:30:13 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000265.html">[Softdevice-cvs] softdevice SoftOsd.c,NONE,1.1 SoftOsd.h,NONE,1.1
+</A></li>
+        <LI>Next message: <A HREF="000268.html">[Softdevice-cvs] softdevice CHANGELOG,1.135,1.136 video-dfb.c,1.43,1.44 video-dfb.h,1.13,1.14
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#266">[ date ]</a>
+              <a href="thread.html#266">[ thread ]</a>
+              <a href="subject.html#266">[ subject ]</a>
+              <a href="author.html#266">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv21605
+
+Modified Files:
+	softdevice.c 
+Log Message:
+- completely rewritten OSD. Supports up- and down-scaleing in MMX
+
+
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.49
+retrieving revision 1.50
+diff -C2 -d -r1.49 -r1.50
+*** softdevice.c	12 Nov 2005 15:50:41 -0000	1.49
+--- softdevice.c	7 Jan 2006 14:30:11 -0000	1.50
+***************
+*** 90,151 ****
+  #if VDRVERSNUM &gt;= 10307
+  
+! // --- cSoftOsd -----------------------------------------------
+! 
+! /* ---------------------------------------------------------------------------
+!  */
+! class cSoftOsd : public cOsd {
+! private:
+!     cVideoOut *videoOut;
+! protected:
+! public:
+!     cSoftOsd(cVideoOut *VideoOut, int XOfs, int XOfs);
+!     virtual ~cSoftOsd();
+!     virtual eOsdError CanHandleAreas(const tArea *Areas, int NumAreas);
+!     virtual void Flush(void);
+! };
+! 
+! /* ---------------------------------------------------------------------------
+!  */
+! cSoftOsd::cSoftOsd(cVideoOut *VideoOut, int X, int Y) : cOsd(X, Y)
+! {
+!   videoOut = VideoOut;
+!   videoOut-&gt;OpenOSD(X, Y);
+! }
+! 
+! /* ---------------------------------------------------------------------------
+!  */
+! cSoftOsd::~cSoftOsd()
+! {
+!   if (videoOut)
+!   {
+!     videoOut-&gt;CloseOSD();
+!     videoOut=0;
+!   }
+! }
+! 
+! /* ---------------------------------------------------------------------------
+!  */
+! eOsdError cSoftOsd::CanHandleAreas(const tArea *Areas, int NumAreas)
+! {
+!     eOsdError Result = cOsd::CanHandleAreas(Areas, NumAreas);
+! 
+!     return Result;
+! }
+! 
+! /* ---------------------------------------------------------------------------
+!  */
+! void cSoftOsd::Flush(void)
+! {
+!     cBitmap *Bitmap;
+! 
+!   videoOut-&gt;Size(Width(),Height());
+!   videoOut-&gt;OSDStart();
+!   for (int i = 0; (Bitmap = GetBitmap(i)) != NULL; i++)
+!   {
+!     videoOut-&gt;Refresh(Bitmap);
+!   }
+!   videoOut-&gt;OSDCommit();
+! }
+! 
+  // --- cSoftOsdProvider -----------------------------------------------
+  class cSoftOsdProvider : public cOsdProvider {
+--- 90,94 ----
+  #if VDRVERSNUM &gt;= 10307
+  
+! #include &quot;SoftOsd.h&quot;
+  // --- cSoftOsdProvider -----------------------------------------------
+  class cSoftOsdProvider : public cOsdProvider {
+***************
+*** 166,170 ****
+  {
+      osd = new cSoftOsd(videoOut, Left, Top);
+-     videoOut-&gt;SetOsd(osd);
+      return osd;
+  }
+--- 109,112 ----
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000265.html">[Softdevice-cvs] softdevice SoftOsd.c,NONE,1.1 SoftOsd.h,NONE,1.1
+</A></li>
+	<LI>Next message: <A HREF="000268.html">[Softdevice-cvs] softdevice CHANGELOG,1.135,1.136 video-dfb.c,1.43,1.44 video-dfb.h,1.13,1.14
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#266">[ date ]</a>
+              <a href="thread.html#266">[ thread ]</a>
+              <a href="subject.html#266">[ subject ]</a>
+              <a href="author.html#266">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

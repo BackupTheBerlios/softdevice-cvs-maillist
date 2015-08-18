@@ -1,0 +1,4172 @@
+From nobody at sheep.berlios.de  Sun Jun 14 12:50:51 2009
+From: nobody at sheep.berlios.de (lucke)
+Date: Sun, 14 Jun 2009 12:50:51 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice video.h,1.58,1.59
+Message-ID: <20090614105051.218CD21E06@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv28097
+
+Modified Files:
+	video.h 
+Log Message:
+Fix compiling with newer ffmpeg versions.
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.58
+retrieving revision 1.59
+diff -C2 -d -r1.58 -r1.59
+*** video.h	27 Feb 2009 17:02:35 -0000	1.58
+--- video.h	14 Jun 2009 10:50:47 -0000	1.59
+***************
+*** 37,40 ****
+--- 37,46 ----
+  #define AVRG_OFF_CNT        16
+  
++ #if LIBAVUTIL_VERSION_INT >= (50<<16)
++ #  define PIX_FMT_UYVY411 PIX_FMT_UYYVYY411
++ #  define PIX_FMT_RGBA32  PIX_FMT_RGB32
++ #  define PIX_FMT_YUV422  PIX_FMT_YUYV422
++ #endif
++ 
+  #ifndef STAND_ALONE
+  class cSoftRemote : public cRemote {
+
+
+
+From nobody at sheep.berlios.de  Sun Jun 14 13:20:31 2009
+From: nobody at sheep.berlios.de (lucke)
+Date: Sun, 14 Jun 2009 13:20:31 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice CHANGELOG, 1.347, 1.348 audio-ac3pt.c,
+	1.3, 1.4
+Message-ID: <20090614112031.29720184F2F@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv29352
+
+Modified Files:
+	CHANGELOG audio-ac3pt.c 
+Log Message:
+audio-ac3: Use different AC3 device name:
+             iec958:AES0=0x02,AES1=0x82,AES2=0x00,AES3=0x02,CARD=0
+           as default and old one as fallback.
+
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.347
+retrieving revision 1.348
+diff -C2 -d -r1.347 -r1.348
+*** CHANGELOG	22 Mar 2009 12:55:33 -0000	1.347
+--- CHANGELOG	14 Jun 2009 11:20:28 -0000	1.348
+***************
+*** 1,3 ****
+--- 1,8 ----
+  Changelog
++ 2009-06-14:
++    - build: Fix compiling with newer ffmpeg versions.
++    - audio-ac3: Use different AC3 device name:
++                   iec958:AES0=0x02,AES1=0x82,AES2=0x00,AES3=0x02,CARD=0
++                 as default and old one as fallback.
+  2009-03-22:
+     - Patch by Pridvorov Andrey to make softdevice work with mplayer-plugin.
+
+Index: audio-ac3pt.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio-ac3pt.c,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** audio-ac3pt.c	25 Dec 2007 13:21:46 -0000	1.3
+--- audio-ac3pt.c	14 Jun 2009 11:20:28 -0000	1.4
+***************
+*** 501,504 ****
+--- 501,505 ----
+  cAlsaAC3pt::SpdifInitAC3(snd_pcm_t **handle, char *device, bool spdifPro)
+  {
++     char                      pcm_name[256];
+      static snd_aes_iec958_t   spdif;
+      unsigned int              rate = 48000;
+***************
+*** 510,529 ****
+      int                       err;//, c;
+  
+-   if ((err = snd_pcm_open(handle, device, SND_PCM_STREAM_PLAYBACK, 0)) < 0)
+-   {
+-     fprintf(stderr, "ac3play: sound open: %s\n", snd_strerror(err));
+-     return 1;
+-   }
+- 
+    if (ac3Status)
+      snd_pcm_status_free(ac3Status);
+  
+    snd_pcm_info_alloca(&info);
+  
+-   if ((err = snd_pcm_info(*handle, info)) < 0) {
+-     fprintf(stderr, "ac3play: sound info: %s\n", snd_strerror(err));
+-     snd_pcm_close(*handle);
+-     return 1;
+-   }
+    {
+        snd_ctl_elem_value_t  *ctl;
+--- 511,520 ----
+      int                       err;//, c;
+  
+    if (ac3Status)
+      snd_pcm_status_free(ac3Status);
++   ac3Status = NULL;
+  
+    snd_pcm_info_alloca(&info);
+  
+    {
+        snd_ctl_elem_value_t  *ctl;
+***************
+*** 552,555 ****
+--- 543,571 ----
+      }
+  
++ 
++     snprintf(pcm_name, sizeof (pcm_name),
++              "iec958:AES0=0x%.2x,AES1=0x%.2x,AES2=0x%.2x,AES3=0x%.2x,CARD=%1d",
++              spdif. status [0], spdif. status [1],
++              spdif. status [2], spdif. status [3],
++              0);
++ 
++     err = snd_pcm_open (handle, pcm_name, SND_PCM_STREAM_PLAYBACK, 0);
++     if (err >= 0) {
++       fprintf(stderr, "ac3play: Sucessfull opend (%s)\n", pcm_name);
++       goto __diga_end;
++     }
++ 
++     fprintf(stderr, "ac3play: Failed to open (%s) trying old way\n", pcm_name);
++     if ((err = snd_pcm_open(handle, device, SND_PCM_STREAM_PLAYBACK, 0)) < 0) {
++       fprintf(stderr, "ac3play: sound open: %s\n", snd_strerror(err));
++       return 1;
++     }
++ 
++     if ((err = snd_pcm_info(*handle, info)) < 0) {
++       fprintf(stderr, "ac3play: sound info: %s\n", snd_strerror(err));
++       snd_pcm_close(*handle);
++       return 1;
++     }
++ 
+      snd_ctl_elem_value_alloca(&ctl);
+      snd_ctl_elem_value_set_interface(ctl, SND_CTL_ELEM_IFACE_PCM);
+***************
+*** 573,579 ****
+      }
+      snd_ctl_close(ctl_handle);
+-     __diga_end:
+-       ;
+    }
+    {
+        snd_pcm_hw_params_t *params;
+--- 589,595 ----
+      }
+      snd_ctl_close(ctl_handle);
+    }
++   __diga_end:
++     ;
+    {
+        snd_pcm_hw_params_t *params;
+
+
+
+From nobody at sheep.berlios.de  Sun Jun 14 13:45:52 2009
+From: nobody at sheep.berlios.de (lucke)
+Date: Sun, 14 Jun 2009 13:45:52 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice/po ca_ES.po, 1.2, 1.3 cs_CZ.po, 1.2,
+	1.3 da_DK.po, 1.2, 1.3 de_DE.po, 1.2, 1.3 el_GR.po, 1.2,
+	1.3 es_ES.po, 1.2, 1.3 et_EE.po, 1.2, 1.3 fi_FI.po, 1.2,
+	1.3 fr_FR.po, 1.2, 1.3 hr_HR.po, 1.2, 1.3 hu_HU.po, 1.2, 1.3
+Message-ID: <20090614114552.3B9211395F@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice/po
+In directory sheep:/tmp/cvs-serv26672
+
+Modified Files:
+	ca_ES.po cs_CZ.po da_DK.po de_DE.po el_GR.po es_ES.po et_EE.po 
+	fi_FI.po fr_FR.po hr_HR.po hu_HU.po 
+Log Message:
+resync *.po files 1/2
+
+Index: ca_ES.po
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/po/ca_ES.po,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** ca_ES.po	18 Apr 2008 14:27:53 -0000	1.2
+--- ca_ES.po	14 Jun 2009 11:45:49 -0000	1.3
+***************
+*** 15,54 ****
+  "Content-Transfer-Encoding: 8bit\n"
+  
+- msgid "16:9 wide"
+- msgstr ""
+- 
+- msgid "4:3 normal"
+- msgstr ""
+- 
+- msgid "none"
+- msgstr ""
+- 
+- msgid "fast"
+- msgstr ""
+- 
+- msgid "default"
+- msgstr ""
+- 
+- msgid "safe"
+- msgstr ""
+- 
+- msgid "good seeking"
+- msgstr ""
+- 
+- msgid "HDTV"
+- msgstr ""
+- 
+- msgid "playing"
+- msgstr ""
+- 
+- msgid "suspended"
+- msgstr ""
+- 
+- msgid "pseudo"
+- msgstr ""
+- 
+- msgid "software"
+- msgstr ""
+- 
+  msgid "Brightness"
+  msgstr ""
+--- 15,18 ----
+***************
+*** 66,69 ****
+--- 30,36 ----
+  msgstr ""
+  
++ msgid "none"
++ msgstr ""
++ 
+  msgid "CropMode"
+  msgstr ""
+***************
+*** 111,114 ****
+--- 78,87 ----
+  msgstr ""
+  
++ msgid "fast"
++ msgstr ""
++ 
++ msgid "default"
++ msgstr ""
++ 
+  msgid "Postprocessing Method"
+  msgstr ""
+***************
+*** 138,141 ****
+--- 111,120 ----
+  msgstr ""
+  
++ msgid "16:9 wide"
++ msgstr ""
++ 
++ msgid "4:3 normal"
++ msgstr ""
++ 
+  msgid "Xv startup aspect"
+  msgstr ""
+***************
+*** 144,153 ****
+--- 123,153 ----
+  msgstr ""
+  
++ msgid "pseudo"
++ msgstr ""
++ 
++ msgid "software"
++ msgstr ""
++ 
+  msgid "OSD alpha blending"
+  msgstr ""
+  
++ msgid "safe"
++ msgstr ""
++ 
++ msgid "good seeking"
++ msgstr ""
++ 
++ msgid "HDTV"
++ msgstr ""
++ 
+  msgid "Buffer Mode"
+  msgstr ""
+  
++ msgid "playing"
++ msgstr ""
++ 
++ msgid "suspended"
++ msgstr ""
++ 
+  msgid "Playback"
+  msgstr ""
+***************
+*** 162,165 ****
+--- 162,177 ----
+  msgstr ""
+  
++ msgid "Field Order"
++ msgstr ""
++ 
++ msgid "Still Picture Field"
++ msgstr ""
++ 
++ msgid "Still Picture Field Marker"
++ msgstr ""
++ 
++ msgid "Use av_read_frame()"
++ msgstr ""
++ 
+  msgid "Pixel Format"
+  msgstr ""
+***************
+*** 172,175 ****
+--- 184,196 ----
+  
+  msgid "Hide main menu entry"
++ msgstr ""
++ 
++ msgid "Both Fields"
++ msgstr ""
++ 
++ msgid "First Field"
++ msgstr ""
++ 
++ msgid "Later Field"
+  msgstr ""
+  
+
+Index: cs_CZ.po
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/po/cs_CZ.po,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** cs_CZ.po	18 Apr 2008 14:27:53 -0000	1.2
+--- cs_CZ.po	14 Jun 2009 11:45:49 -0000	1.3
+***************
+*** 15,54 ****
+  "Content-Transfer-Encoding: 8bit\n"
+  
+- msgid "16:9 wide"
+- msgstr ""
+- 
+- msgid "4:3 normal"
+- msgstr ""
+- 
+- msgid "none"
+- msgstr ""
+- 
+- msgid "fast"
+- msgstr ""
+- 
+- msgid "default"
+- msgstr ""
+- 
+- msgid "safe"
+- msgstr ""
+- 
+- msgid "good seeking"
+- msgstr ""
+- 
+- msgid "HDTV"
+- msgstr ""
+- 
+- msgid "playing"
+- msgstr ""
+- 
+- msgid "suspended"
+- msgstr ""
+- 
+- msgid "pseudo"
+- msgstr ""
+- 
+- msgid "software"
+- msgstr ""
+- 
+  msgid "Brightness"
+  msgstr ""
+--- 15,18 ----
+***************
+*** 66,69 ****
+--- 30,36 ----
+  msgstr ""
+  
++ msgid "none"
++ msgstr ""
++ 
+  msgid "CropMode"
+  msgstr ""
+***************
+*** 111,114 ****
+--- 78,87 ----
+  msgstr ""
+  
++ msgid "fast"
++ msgstr ""
++ 
++ msgid "default"
++ msgstr ""
++ 
+  msgid "Postprocessing Method"
+  msgstr ""
+***************
+*** 138,141 ****
+--- 111,120 ----
+  msgstr ""
+  
++ msgid "16:9 wide"
++ msgstr ""
++ 
++ msgid "4:3 normal"
++ msgstr ""
++ 
+  msgid "Xv startup aspect"
+  msgstr ""
+***************
+*** 144,153 ****
+--- 123,153 ----
+  msgstr ""
+  
++ msgid "pseudo"
++ msgstr ""
++ 
++ msgid "software"
++ msgstr ""
++ 
+  msgid "OSD alpha blending"
+  msgstr ""
+  
++ msgid "safe"
++ msgstr ""
++ 
++ msgid "good seeking"
++ msgstr ""
++ 
++ msgid "HDTV"
++ msgstr ""
++ 
+  msgid "Buffer Mode"
+  msgstr ""
+  
++ msgid "playing"
++ msgstr ""
++ 
++ msgid "suspended"
++ msgstr ""
++ 
+  msgid "Playback"
+  msgstr ""
+***************
+*** 162,165 ****
+--- 162,177 ----
+  msgstr ""
+  
++ msgid "Field Order"
++ msgstr ""
++ 
++ msgid "Still Picture Field"
++ msgstr ""
++ 
++ msgid "Still Picture Field Marker"
++ msgstr ""
++ 
++ msgid "Use av_read_frame()"
++ msgstr ""
++ 
+  msgid "Pixel Format"
+  msgstr ""
+***************
+*** 172,175 ****
+--- 184,196 ----
+  
+  msgid "Hide main menu entry"
++ msgstr ""
++ 
++ msgid "Both Fields"
++ msgstr ""
++ 
++ msgid "First Field"
++ msgstr ""
++ 
++ msgid "Later Field"
+  msgstr ""
+  
+
+Index: da_DK.po
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/po/da_DK.po,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** da_DK.po	18 Apr 2008 14:27:53 -0000	1.2
+--- da_DK.po	14 Jun 2009 11:45:49 -0000	1.3
+***************
+*** 15,54 ****
+  "Content-Transfer-Encoding: 8bit\n"
+  
+- msgid "16:9 wide"
+- msgstr ""
+- 
+- msgid "4:3 normal"
+- msgstr ""
+- 
+- msgid "none"
+- msgstr ""
+- 
+- msgid "fast"
+- msgstr ""
+- 
+- msgid "default"
+- msgstr ""
+- 
+- msgid "safe"
+- msgstr ""
+- 
+- msgid "good seeking"
+- msgstr ""
+- 
+- msgid "HDTV"
+- msgstr ""
+- 
+- msgid "playing"
+- msgstr ""
+- 
+- msgid "suspended"
+- msgstr ""
+- 
+- msgid "pseudo"
+- msgstr ""
+- 
+- msgid "software"
+- msgstr ""
+- 
+  msgid "Brightness"
+  msgstr ""
+--- 15,18 ----
+***************
+*** 66,69 ****
+--- 30,36 ----
+  msgstr ""
+  
++ msgid "none"
++ msgstr ""
++ 
+  msgid "CropMode"
+  msgstr ""
+***************
+*** 111,114 ****
+--- 78,87 ----
+  msgstr ""
+  
++ msgid "fast"
++ msgstr ""
++ 
++ msgid "default"
++ msgstr ""
++ 
+  msgid "Postprocessing Method"
+  msgstr ""
+***************
+*** 138,141 ****
+--- 111,120 ----
+  msgstr ""
+  
++ msgid "16:9 wide"
++ msgstr ""
++ 
++ msgid "4:3 normal"
++ msgstr ""
++ 
+  msgid "Xv startup aspect"
+  msgstr ""
+***************
+*** 144,153 ****
+--- 123,153 ----
+  msgstr ""
+  
++ msgid "pseudo"
++ msgstr ""
++ 
++ msgid "software"
++ msgstr ""
++ 
+  msgid "OSD alpha blending"
+  msgstr ""
+  
++ msgid "safe"
++ msgstr ""
++ 
++ msgid "good seeking"
++ msgstr ""
++ 
++ msgid "HDTV"
++ msgstr ""
++ 
+  msgid "Buffer Mode"
+  msgstr ""
+  
++ msgid "playing"
++ msgstr ""
++ 
++ msgid "suspended"
++ msgstr ""
++ 
+  msgid "Playback"
+  msgstr ""
+***************
+*** 162,165 ****
+--- 162,177 ----
+  msgstr ""
+  
++ msgid "Field Order"
++ msgstr ""
++ 
++ msgid "Still Picture Field"
++ msgstr ""
++ 
++ msgid "Still Picture Field Marker"
++ msgstr ""
++ 
++ msgid "Use av_read_frame()"
++ msgstr ""
++ 
+  msgid "Pixel Format"
+  msgstr ""
+***************
+*** 172,175 ****
+--- 184,196 ----
+  
+  msgid "Hide main menu entry"
++ msgstr ""
++ 
++ msgid "Both Fields"
++ msgstr ""
++ 
++ msgid "First Field"
++ msgstr ""
++ 
++ msgid "Later Field"
+  msgstr ""
+  
+
+Index: de_DE.po
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/po/de_DE.po,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** de_DE.po	18 Apr 2008 14:27:53 -0000	1.2
+--- de_DE.po	14 Jun 2009 11:45:49 -0000	1.3
+***************
+*** 15,54 ****
+  "Content-Transfer-Encoding: 8bit\n"
+  
+- msgid "16:9 wide"
+- msgstr "16:9 Breitbild"
+- 
+- msgid "4:3 normal"
+- msgstr "4:3 Normalbild"
+- 
+- msgid "none"
+- msgstr "keine"
+- 
+- msgid "fast"
+- msgstr "schnell"
+- 
+- msgid "default"
+- msgstr "standard"
+- 
+- msgid "safe"
+- msgstr "sicher"
+- 
+- msgid "good seeking"
+- msgstr "suchlauf optimiert"
+- 
+- msgid "HDTV"
+- msgstr "HDTV"
+- 
+- msgid "playing"
+- msgstr "aktiviert"
+- 
+- msgid "suspended"
+- msgstr "deaktiviert"
+- 
+- msgid "pseudo"
+- msgstr "pseudo"
+- 
+- msgid "software"
+- msgstr "software"
+- 
+  msgid "Brightness"
+  msgstr "Helligkeit"
+--- 15,18 ----
+***************
+*** 66,69 ****
+--- 30,36 ----
+  msgstr ""
+  
++ msgid "none"
++ msgstr "keine"
++ 
+  msgid "CropMode"
+  msgstr "Bildausschnitt"
+***************
+*** 111,114 ****
+--- 78,87 ----
+  msgstr "Deinterlace-Methode"
+  
++ msgid "fast"
++ msgstr "schnell"
++ 
++ msgid "default"
++ msgstr "standard"
++ 
+  msgid "Postprocessing Method"
+  msgstr "Nachbearbeitungs-Methode"
+***************
+*** 138,141 ****
+--- 111,120 ----
+  msgstr "Protokollierung"
+  
++ msgid "16:9 wide"
++ msgstr "16:9 Breitbild"
++ 
++ msgid "4:3 normal"
++ msgstr "4:3 Normalbild"
++ 
+  msgid "Xv startup aspect"
+  msgstr "Xv Startgr??e"
+***************
+*** 144,153 ****
+--- 123,153 ----
+  msgstr "Bildschirmformat"
+  
++ msgid "pseudo"
++ msgstr "pseudo"
++ 
++ msgid "software"
++ msgstr "software"
++ 
+  msgid "OSD alpha blending"
+  msgstr "OSD Einblendung"
+  
++ msgid "safe"
++ msgstr "sicher"
++ 
++ msgid "good seeking"
++ msgstr "suchlauf optimiert"
++ 
++ msgid "HDTV"
++ msgstr "HDTV"
++ 
+  msgid "Buffer Mode"
+  msgstr "Puffermodus"
+  
++ msgid "playing"
++ msgstr "aktiviert"
++ 
++ msgid "suspended"
++ msgstr "deaktiviert"
++ 
+  msgid "Playback"
+  msgstr "Wiedergabe"
+***************
+*** 162,165 ****
+--- 162,177 ----
+  msgstr "Sync Modus"
+  
++ msgid "Field Order"
++ msgstr ""
++ 
++ msgid "Still Picture Field"
++ msgstr ""
++ 
++ msgid "Still Picture Field Marker"
++ msgstr ""
++ 
++ msgid "Use av_read_frame()"
++ msgstr ""
++ 
+  msgid "Pixel Format"
+  msgstr "Pixelformat"
+***************
+*** 173,176 ****
+--- 185,197 ----
+  msgid "Hide main menu entry"
+  msgstr "Hauptmen?eintrag verstecken"
++ 
++ msgid "Both Fields"
++ msgstr ""
++ 
++ msgid "First Field"
++ msgstr ""
++ 
++ msgid "Later Field"
++ msgstr ""
+  
+  msgid "Info Messages"
+
+Index: el_GR.po
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/po/el_GR.po,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** el_GR.po	18 Apr 2008 14:27:53 -0000	1.2
+--- el_GR.po	14 Jun 2009 11:45:49 -0000	1.3
+***************
+*** 15,54 ****
+  "Content-Transfer-Encoding: 8bit\n"
+  
+- msgid "16:9 wide"
+- msgstr ""
+- 
+- msgid "4:3 normal"
+- msgstr ""
+- 
+- msgid "none"
+- msgstr ""
+- 
+- msgid "fast"
+- msgstr ""
+- 
+- msgid "default"
+- msgstr ""
+- 
+- msgid "safe"
+- msgstr ""
+- 
+- msgid "good seeking"
+- msgstr ""
+- 
+- msgid "HDTV"
+- msgstr ""
+- 
+- msgid "playing"
+- msgstr ""
+- 
+- msgid "suspended"
+- msgstr ""
+- 
+- msgid "pseudo"
+- msgstr ""
+- 
+- msgid "software"
+- msgstr ""
+- 
+  msgid "Brightness"
+  msgstr ""
+--- 15,18 ----
+***************
+*** 66,69 ****
+--- 30,36 ----
+  msgstr ""
+  
++ msgid "none"
++ msgstr ""
++ 
+  msgid "CropMode"
+  msgstr ""
+***************
+*** 111,114 ****
+--- 78,87 ----
+  msgstr ""
+  
++ msgid "fast"
++ msgstr ""
++ 
++ msgid "default"
++ msgstr ""
++ 
+  msgid "Postprocessing Method"
+  msgstr ""
+***************
+*** 138,141 ****
+--- 111,120 ----
+  msgstr ""
+  
++ msgid "16:9 wide"
++ msgstr ""
++ 
++ msgid "4:3 normal"
++ msgstr ""
++ 
+  msgid "Xv startup aspect"
+  msgstr ""
+***************
+*** 144,153 ****
+--- 123,153 ----
+  msgstr ""
+  
++ msgid "pseudo"
++ msgstr ""
++ 
++ msgid "software"
++ msgstr ""
++ 
+  msgid "OSD alpha blending"
+  msgstr ""
+  
++ msgid "safe"
++ msgstr ""
++ 
++ msgid "good seeking"
++ msgstr ""
++ 
++ msgid "HDTV"
++ msgstr ""
++ 
+  msgid "Buffer Mode"
+  msgstr ""
+  
++ msgid "playing"
++ msgstr ""
++ 
++ msgid "suspended"
++ msgstr ""
++ 
+  msgid "Playback"
+  msgstr ""
+***************
+*** 162,165 ****
+--- 162,177 ----
+  msgstr ""
+  
++ msgid "Field Order"
++ msgstr ""
++ 
++ msgid "Still Picture Field"
++ msgstr ""
++ 
++ msgid "Still Picture Field Marker"
++ msgstr ""
++ 
++ msgid "Use av_read_frame()"
++ msgstr ""
++ 
+  msgid "Pixel Format"
+  msgstr ""
+***************
+*** 172,175 ****
+--- 184,196 ----
+  
+  msgid "Hide main menu entry"
++ msgstr ""
++ 
++ msgid "Both Fields"
++ msgstr ""
++ 
++ msgid "First Field"
++ msgstr ""
++ 
++ msgid "Later Field"
+  msgstr ""
+  
+
+Index: es_ES.po
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/po/es_ES.po,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** es_ES.po	18 Apr 2008 14:27:53 -0000	1.2
+--- es_ES.po	14 Jun 2009 11:45:49 -0000	1.3
+***************
+*** 15,54 ****
+  "Content-Transfer-Encoding: 8bit\n"
+  
+- msgid "16:9 wide"
+- msgstr ""
+- 
+- msgid "4:3 normal"
+- msgstr ""
+- 
+- msgid "none"
+- msgstr ""
+- 
+- msgid "fast"
+- msgstr ""
+- 
+- msgid "default"
+- msgstr ""
+- 
+- msgid "safe"
+- msgstr ""
+- 
+- msgid "good seeking"
+- msgstr ""
+- 
+- msgid "HDTV"
+- msgstr ""
+- 
+- msgid "playing"
+- msgstr ""
+- 
+- msgid "suspended"
+- msgstr ""
+- 
+- msgid "pseudo"
+- msgstr ""
+- 
+- msgid "software"
+- msgstr ""
+- 
+  msgid "Brightness"
+  msgstr ""
+--- 15,18 ----
+***************
+*** 66,69 ****
+--- 30,36 ----
+  msgstr ""
+  
++ msgid "none"
++ msgstr ""
++ 
+  msgid "CropMode"
+  msgstr ""
+***************
+*** 111,114 ****
+--- 78,87 ----
+  msgstr ""
+  
++ msgid "fast"
++ msgstr ""
++ 
++ msgid "default"
++ msgstr ""
++ 
+  msgid "Postprocessing Method"
+  msgstr ""
+***************
+*** 138,141 ****
+--- 111,120 ----
+  msgstr ""
+  
++ msgid "16:9 wide"
++ msgstr ""
++ 
++ msgid "4:3 normal"
++ msgstr ""
++ 
+  msgid "Xv startup aspect"
+  msgstr ""
+***************
+*** 144,153 ****
+--- 123,153 ----
+  msgstr ""
+  
++ msgid "pseudo"
++ msgstr ""
++ 
++ msgid "software"
++ msgstr ""
++ 
+  msgid "OSD alpha blending"
+  msgstr ""
+  
++ msgid "safe"
++ msgstr ""
++ 
++ msgid "good seeking"
++ msgstr ""
++ 
++ msgid "HDTV"
++ msgstr ""
++ 
+  msgid "Buffer Mode"
+  msgstr ""
+  
++ msgid "playing"
++ msgstr ""
++ 
++ msgid "suspended"
++ msgstr ""
++ 
+  msgid "Playback"
+  msgstr ""
+***************
+*** 162,165 ****
+--- 162,177 ----
+  msgstr ""
+  
++ msgid "Field Order"
++ msgstr ""
++ 
++ msgid "Still Picture Field"
++ msgstr ""
++ 
++ msgid "Still Picture Field Marker"
++ msgstr ""
++ 
++ msgid "Use av_read_frame()"
++ msgstr ""
++ 
+  msgid "Pixel Format"
+  msgstr ""
+***************
+*** 172,175 ****
+--- 184,196 ----
+  
+  msgid "Hide main menu entry"
++ msgstr ""
++ 
++ msgid "Both Fields"
++ msgstr ""
++ 
++ msgid "First Field"
++ msgstr ""
++ 
++ msgid "Later Field"
+  msgstr ""
+  
+
+Index: et_EE.po
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/po/et_EE.po,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** et_EE.po	18 Apr 2008 14:27:54 -0000	1.2
+--- et_EE.po	14 Jun 2009 11:45:49 -0000	1.3
+***************
+*** 15,54 ****
+  "Content-Transfer-Encoding: 8bit\n"
+  
+- msgid "16:9 wide"
+- msgstr ""
+- 
+- msgid "4:3 normal"
+- msgstr ""
+- 
+- msgid "none"
+- msgstr ""
+- 
+- msgid "fast"
+- msgstr ""
+- 
+- msgid "default"
+- msgstr ""
+- 
+- msgid "safe"
+- msgstr ""
+- 
+- msgid "good seeking"
+- msgstr ""
+- 
+- msgid "HDTV"
+- msgstr ""
+- 
+- msgid "playing"
+- msgstr ""
+- 
+- msgid "suspended"
+- msgstr ""
+- 
+- msgid "pseudo"
+- msgstr ""
+- 
+- msgid "software"
+- msgstr ""
+- 
+  msgid "Brightness"
+  msgstr ""
+--- 15,18 ----
+***************
+*** 66,69 ****
+--- 30,36 ----
+  msgstr ""
+  
++ msgid "none"
++ msgstr ""
++ 
+  msgid "CropMode"
+  msgstr ""
+***************
+*** 111,114 ****
+--- 78,87 ----
+  msgstr ""
+  
++ msgid "fast"
++ msgstr ""
++ 
++ msgid "default"
++ msgstr ""
++ 
+  msgid "Postprocessing Method"
+  msgstr ""
+***************
+*** 138,141 ****
+--- 111,120 ----
+  msgstr ""
+  
++ msgid "16:9 wide"
++ msgstr ""
++ 
++ msgid "4:3 normal"
++ msgstr ""
++ 
+  msgid "Xv startup aspect"
+  msgstr ""
+***************
+*** 144,153 ****
+--- 123,153 ----
+  msgstr ""
+  
++ msgid "pseudo"
++ msgstr ""
++ 
++ msgid "software"
++ msgstr ""
++ 
+  msgid "OSD alpha blending"
+  msgstr ""
+  
++ msgid "safe"
++ msgstr ""
++ 
++ msgid "good seeking"
++ msgstr ""
++ 
++ msgid "HDTV"
++ msgstr ""
++ 
+  msgid "Buffer Mode"
+  msgstr ""
+  
++ msgid "playing"
++ msgstr ""
++ 
++ msgid "suspended"
++ msgstr ""
++ 
+  msgid "Playback"
+  msgstr ""
+***************
+*** 162,165 ****
+--- 162,177 ----
+  msgstr ""
+  
++ msgid "Field Order"
++ msgstr ""
++ 
++ msgid "Still Picture Field"
++ msgstr ""
++ 
++ msgid "Still Picture Field Marker"
++ msgstr ""
++ 
++ msgid "Use av_read_frame()"
++ msgstr ""
++ 
+  msgid "Pixel Format"
+  msgstr ""
+***************
+*** 172,175 ****
+--- 184,196 ----
+  
+  msgid "Hide main menu entry"
++ msgstr ""
++ 
++ msgid "Both Fields"
++ msgstr ""
++ 
++ msgid "First Field"
++ msgstr ""
++ 
++ msgid "Later Field"
+  msgstr ""
+  
+
+Index: fi_FI.po
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/po/fi_FI.po,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** fi_FI.po	18 Apr 2008 14:43:31 -0000	1.2
+--- fi_FI.po	14 Jun 2009 11:45:49 -0000	1.3
+***************
+*** 15,54 ****
+  "Content-Transfer-Encoding: 8bit\n"
+  
+- msgid "16:9 wide"
+- msgstr "16:9 laaja"
+- 
+- msgid "4:3 normal"
+- msgstr "4:3 normaali"
+- 
+- msgid "none"
+- msgstr "ei"
+- 
+- msgid "fast"
+- msgstr "nopea"
+- 
+- msgid "default"
+- msgstr "oletus"
+- 
+- msgid "safe"
+- msgstr "varma"
+- 
+- msgid "good seeking"
+- msgstr "nopea haku"
+- 
+- msgid "HDTV"
+- msgstr "HDTV"
+- 
+- msgid "playing"
+- msgstr "toiminnassa"
+- 
+- msgid "suspended"
+- msgstr "pys?ytetty"
+- 
+- msgid "pseudo"
+- msgstr "n?enn?inen"
+- 
+- msgid "software"
+- msgstr "ohjelmallinen"
+- 
+  msgid "Brightness"
+  msgstr "Kirkkaus"
+--- 15,18 ----
+***************
+*** 66,69 ****
+--- 30,36 ----
+  msgstr ""
+  
++ msgid "none"
++ msgstr "ei"
++ 
+  msgid "CropMode"
+  msgstr "Kuvan rajaustapa"
+***************
+*** 111,114 ****
+--- 78,87 ----
+  msgstr "K?yt? lomituksen poistoa"
+  
++ msgid "fast"
++ msgstr "nopea"
++ 
++ msgid "default"
++ msgstr "oletus"
++ 
+  msgid "Postprocessing Method"
+  msgstr "K?yt? kuvan j?lkik?sittely?"
+***************
+*** 138,141 ****
+--- 111,120 ----
+  msgstr ""
+  
++ msgid "16:9 wide"
++ msgstr "16:9 laaja"
++ 
++ msgid "4:3 normal"
++ msgstr "4:3 normaali"
++ 
+  msgid "Xv startup aspect"
+  msgstr "Xv-kuvasuhde k?ynnistett?ess?"
+***************
+*** 144,153 ****
+--- 123,153 ----
+  msgstr "N?yt?n kuvasuhde"
+  
++ msgid "pseudo"
++ msgstr "n?enn?inen"
++ 
++ msgid "software"
++ msgstr "ohjelmallinen"
++ 
+  msgid "OSD alpha blending"
+  msgstr "Kuvaruutun?yt?n l?pin?kyvyys"
+  
++ msgid "safe"
++ msgstr "varma"
++ 
++ msgid "good seeking"
++ msgstr "nopea haku"
++ 
++ msgid "HDTV"
++ msgstr "HDTV"
++ 
+  msgid "Buffer Mode"
+  msgstr "Puskurointitapa"
+  
++ msgid "playing"
++ msgstr "toiminnassa"
++ 
++ msgid "suspended"
++ msgstr "pys?ytetty"
++ 
+  msgid "Playback"
+  msgstr "N?yt?n ulostulo"
+***************
+*** 162,165 ****
+--- 162,177 ----
+  msgstr "A/V-synkronointitapa"
+  
++ msgid "Field Order"
++ msgstr ""
++ 
++ msgid "Still Picture Field"
++ msgstr ""
++ 
++ msgid "Still Picture Field Marker"
++ msgstr ""
++ 
++ msgid "Use av_read_frame()"
++ msgstr ""
++ 
+  msgid "Pixel Format"
+  msgstr "Pikseliformaatti"
+***************
+*** 173,176 ****
+--- 185,197 ----
+  msgid "Hide main menu entry"
+  msgstr "Piilota valinta p??valikosta"
++ 
++ msgid "Both Fields"
++ msgstr ""
++ 
++ msgid "First Field"
++ msgstr ""
++ 
++ msgid "Later Field"
++ msgstr ""
+  
+  msgid "Info Messages"
+
+Index: fr_FR.po
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/po/fr_FR.po,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** fr_FR.po	18 Apr 2008 14:43:31 -0000	1.2
+--- fr_FR.po	14 Jun 2009 11:45:49 -0000	1.3
+***************
+*** 15,54 ****
+  "Content-Transfer-Encoding: 8bit\n"
+  
+- msgid "16:9 wide"
+- msgstr "16:9 large"
+- 
+- msgid "4:3 normal"
+- msgstr "4:3 normal"
+- 
+- msgid "none"
+- msgstr "aucun"
+- 
+- msgid "fast"
+- msgstr "rapide"
+- 
+- msgid "default"
+- msgstr "d?faut"
+- 
+- msgid "safe"
+- msgstr "limit?e"
+- 
+- msgid "good seeking"
+- msgstr "pr?cision"
+- 
+- msgid "HDTV"
+- msgstr "HDTV"
+- 
+- msgid "playing"
+- msgstr "activ?"
+- 
+- msgid "suspended"
+- msgstr "suspendu"
+- 
+- msgid "pseudo"
+- msgstr "pseudo"
+- 
+- msgid "software"
+- msgstr "logiciel"
+- 
+  msgid "Brightness"
+  msgstr ""
+--- 15,18 ----
+***************
+*** 66,69 ****
+--- 30,36 ----
+  msgstr ""
+  
++ msgid "none"
++ msgstr "aucun"
++ 
+  msgid "CropMode"
+  msgstr "D?coupage de l'image au ratio"
+***************
+*** 111,114 ****
+--- 78,87 ----
+  msgstr "D?sentrelacement"
+  
++ msgid "fast"
++ msgstr "rapide"
++ 
++ msgid "default"
++ msgstr "d?faut"
++ 
+  msgid "Postprocessing Method"
+  msgstr "Post-traitement"
+***************
+*** 138,141 ****
+--- 111,120 ----
+  msgstr ""
+  
++ msgid "16:9 wide"
++ msgstr "16:9 large"
++ 
++ msgid "4:3 normal"
++ msgstr "4:3 normal"
++ 
+  msgid "Xv startup aspect"
+  msgstr "Aspect Xv au d?marrage"
+***************
+*** 144,153 ****
+--- 123,153 ----
+  msgstr "Proportion de l'?cran"
+  
++ msgid "pseudo"
++ msgstr "pseudo"
++ 
++ msgid "software"
++ msgstr "logiciel"
++ 
+  msgid "OSD alpha blending"
+  msgstr "Fusion du menu avec la vid?o"
+  
++ msgid "safe"
++ msgstr "limit?e"
++ 
++ msgid "good seeking"
++ msgstr "pr?cision"
++ 
++ msgid "HDTV"
++ msgstr "HDTV"
++ 
+  msgid "Buffer Mode"
+  msgstr "M?moire tampon"
+  
++ msgid "playing"
++ msgstr "activ?"
++ 
++ msgid "suspended"
++ msgstr "suspendu"
++ 
+  msgid "Playback"
+  msgstr "Affichage"
+***************
+*** 162,165 ****
+--- 162,177 ----
+  msgstr ""
+  
++ msgid "Field Order"
++ msgstr ""
++ 
++ msgid "Still Picture Field"
++ msgstr ""
++ 
++ msgid "Still Picture Field Marker"
++ msgstr ""
++ 
++ msgid "Use av_read_frame()"
++ msgstr ""
++ 
+  msgid "Pixel Format"
+  msgstr "Format de pixel"
+***************
+*** 172,175 ****
+--- 184,196 ----
+  
+  msgid "Hide main menu entry"
++ msgstr ""
++ 
++ msgid "Both Fields"
++ msgstr ""
++ 
++ msgid "First Field"
++ msgstr ""
++ 
++ msgid "Later Field"
+  msgstr ""
+  
+
+Index: hr_HR.po
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/po/hr_HR.po,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** hr_HR.po	18 Apr 2008 14:43:31 -0000	1.2
+--- hr_HR.po	14 Jun 2009 11:45:49 -0000	1.3
+***************
+*** 15,54 ****
+  "Content-Transfer-Encoding: 8bit\n"
+  
+- msgid "16:9 wide"
+- msgstr ""
+- 
+- msgid "4:3 normal"
+- msgstr ""
+- 
+- msgid "none"
+- msgstr ""
+- 
+- msgid "fast"
+- msgstr ""
+- 
+- msgid "default"
+- msgstr ""
+- 
+- msgid "safe"
+- msgstr ""
+- 
+- msgid "good seeking"
+- msgstr ""
+- 
+- msgid "HDTV"
+- msgstr ""
+- 
+- msgid "playing"
+- msgstr ""
+- 
+- msgid "suspended"
+- msgstr ""
+- 
+- msgid "pseudo"
+- msgstr ""
+- 
+- msgid "software"
+- msgstr ""
+- 
+  msgid "Brightness"
+  msgstr ""
+--- 15,18 ----
+***************
+*** 66,69 ****
+--- 30,36 ----
+  msgstr ""
+  
++ msgid "none"
++ msgstr ""
++ 
+  msgid "CropMode"
+  msgstr ""
+***************
+*** 111,114 ****
+--- 78,87 ----
+  msgstr ""
+  
++ msgid "fast"
++ msgstr ""
++ 
++ msgid "default"
++ msgstr ""
++ 
+  msgid "Postprocessing Method"
+  msgstr ""
+***************
+*** 138,141 ****
+--- 111,120 ----
+  msgstr ""
+  
++ msgid "16:9 wide"
++ msgstr ""
++ 
++ msgid "4:3 normal"
++ msgstr ""
++ 
+  msgid "Xv startup aspect"
+  msgstr ""
+***************
+*** 144,153 ****
+--- 123,153 ----
+  msgstr ""
+  
++ msgid "pseudo"
++ msgstr ""
++ 
++ msgid "software"
++ msgstr ""
++ 
+  msgid "OSD alpha blending"
+  msgstr ""
+  
++ msgid "safe"
++ msgstr ""
++ 
++ msgid "good seeking"
++ msgstr ""
++ 
++ msgid "HDTV"
++ msgstr ""
++ 
+  msgid "Buffer Mode"
+  msgstr ""
+  
++ msgid "playing"
++ msgstr ""
++ 
++ msgid "suspended"
++ msgstr ""
++ 
+  msgid "Playback"
+  msgstr ""
+***************
+*** 162,165 ****
+--- 162,177 ----
+  msgstr ""
+  
++ msgid "Field Order"
++ msgstr ""
++ 
++ msgid "Still Picture Field"
++ msgstr ""
++ 
++ msgid "Still Picture Field Marker"
++ msgstr ""
++ 
++ msgid "Use av_read_frame()"
++ msgstr ""
++ 
+  msgid "Pixel Format"
+  msgstr ""
+***************
+*** 172,175 ****
+--- 184,196 ----
+  
+  msgid "Hide main menu entry"
++ msgstr ""
++ 
++ msgid "Both Fields"
++ msgstr ""
++ 
++ msgid "First Field"
++ msgstr ""
++ 
++ msgid "Later Field"
+  msgstr ""
+  
+
+Index: hu_HU.po
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/po/hu_HU.po,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** hu_HU.po	18 Apr 2008 14:43:31 -0000	1.2
+--- hu_HU.po	14 Jun 2009 11:45:49 -0000	1.3
+***************
+*** 15,54 ****
+  "Content-Transfer-Encoding: 8bit\n"
+  
+- msgid "16:9 wide"
+- msgstr ""
+- 
+- msgid "4:3 normal"
+- msgstr ""
+- 
+- msgid "none"
+- msgstr ""
+- 
+- msgid "fast"
+- msgstr ""
+- 
+- msgid "default"
+- msgstr ""
+- 
+- msgid "safe"
+- msgstr ""
+- 
+- msgid "good seeking"
+- msgstr ""
+- 
+- msgid "HDTV"
+- msgstr ""
+- 
+- msgid "playing"
+- msgstr ""
+- 
+- msgid "suspended"
+- msgstr ""
+- 
+- msgid "pseudo"
+- msgstr ""
+- 
+- msgid "software"
+- msgstr ""
+- 
+  msgid "Brightness"
+  msgstr ""
+--- 15,18 ----
+***************
+*** 66,69 ****
+--- 30,36 ----
+  msgstr ""
+  
++ msgid "none"
++ msgstr ""
++ 
+  msgid "CropMode"
+  msgstr ""
+***************
+*** 111,114 ****
+--- 78,87 ----
+  msgstr ""
+  
++ msgid "fast"
++ msgstr ""
++ 
++ msgid "default"
++ msgstr ""
++ 
+  msgid "Postprocessing Method"
+  msgstr ""
+***************
+*** 138,141 ****
+--- 111,120 ----
+  msgstr ""
+  
++ msgid "16:9 wide"
++ msgstr ""
++ 
++ msgid "4:3 normal"
++ msgstr ""
++ 
+  msgid "Xv startup aspect"
+  msgstr ""
+***************
+*** 144,153 ****
+--- 123,153 ----
+  msgstr ""
+  
++ msgid "pseudo"
++ msgstr ""
++ 
++ msgid "software"
++ msgstr ""
++ 
+  msgid "OSD alpha blending"
+  msgstr ""
+  
++ msgid "safe"
++ msgstr ""
++ 
++ msgid "good seeking"
++ msgstr ""
++ 
++ msgid "HDTV"
++ msgstr ""
++ 
+  msgid "Buffer Mode"
+  msgstr ""
+  
++ msgid "playing"
++ msgstr ""
++ 
++ msgid "suspended"
++ msgstr ""
++ 
+  msgid "Playback"
+  msgstr ""
+***************
+*** 162,165 ****
+--- 162,177 ----
+  msgstr ""
+  
++ msgid "Field Order"
++ msgstr ""
++ 
++ msgid "Still Picture Field"
++ msgstr ""
++ 
++ msgid "Still Picture Field Marker"
++ msgstr ""
++ 
++ msgid "Use av_read_frame()"
++ msgstr ""
++ 
+  msgid "Pixel Format"
+  msgstr ""
+***************
+*** 172,175 ****
+--- 184,196 ----
+  
+  msgid "Hide main menu entry"
++ msgstr ""
++ 
++ msgid "Both Fields"
++ msgstr ""
++ 
++ msgid "First Field"
++ msgstr ""
++ 
++ msgid "Later Field"
+  msgstr ""
+  
+
+
+
+From nobody at sheep.berlios.de  Sun Jun 14 13:46:30 2009
+From: nobody at sheep.berlios.de (lucke)
+Date: Sun, 14 Jun 2009 13:46:30 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice/po it_IT.po, 1.3, 1.4 nl_NL.po, 1.2,
+	1.3 nn_NO.po, 1.2, 1.3 pl_PL.po, 1.2, 1.3 pt_PT.po, 1.2,
+	1.3 ro_RO.po, 1.2, 1.3 ru_RU.po, 1.2, 1.3 sl_SI.po, 1.2,
+	1.3 sv_SE.po, 1.2, 1.3 tr_TR.po, 1.2, 1.3
+Message-ID: <20090614114630.B5FFA3C72D@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice/po
+In directory sheep:/tmp/cvs-serv26737
+
+Modified Files:
+	it_IT.po nl_NL.po nn_NO.po pl_PL.po pt_PT.po ro_RO.po ru_RU.po 
+	sl_SI.po sv_SE.po tr_TR.po 
+Log Message:
+resync *.po files 2/2
+
+Index: it_IT.po
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/po/it_IT.po,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** it_IT.po	26 Sep 2008 20:34:09 -0000	1.3
+--- it_IT.po	14 Jun 2009 11:46:28 -0000	1.4
+***************
+*** 15,54 ****
+  "Content-Transfer-Encoding: 8bit\n"
+  
+- msgid "16:9 wide"
+- msgstr "16:9 wide"
+- 
+- msgid "4:3 normal"
+- msgstr "4:3 normale"
+- 
+- msgid "none"
+- msgstr "nessuno"
+- 
+- msgid "fast"
+- msgstr "veloce"
+- 
+- msgid "default"
+- msgstr "predefinito"
+- 
+- msgid "safe"
+- msgstr "sicura"
+- 
+- msgid "good seeking"
+- msgstr "precisa"
+- 
+- msgid "HDTV"
+- msgstr "HDTV"
+- 
+- msgid "playing"
+- msgstr "esecuzione"
+- 
+- msgid "suspended"
+- msgstr "sospeso"
+- 
+- msgid "pseudo"
+- msgstr "pseudo"
+- 
+- msgid "software"
+- msgstr "software"
+- 
+  msgid "Brightness"
+  msgstr "Luminosit?"
+--- 15,18 ----
+***************
+*** 66,69 ****
+--- 30,36 ----
+  msgstr "Deinterlacciamento HW"
+  
++ msgid "none"
++ msgstr "nessuno"
++ 
+  msgid "CropMode"
+  msgstr "Modalit? compatta"
+***************
+*** 111,114 ****
+--- 78,87 ----
+  msgstr "Metodo deinterlacciamento"
+  
++ msgid "fast"
++ msgstr "veloce"
++ 
++ msgid "default"
++ msgstr "predefinito"
++ 
+  msgid "Postprocessing Method"
+  msgstr "Metodo post elaborazione"
+***************
+*** 138,141 ****
+--- 111,120 ----
+  msgstr "Log"
+  
++ msgid "16:9 wide"
++ msgstr "16:9 wide"
++ 
++ msgid "4:3 normal"
++ msgstr "4:3 normale"
++ 
+  msgid "Xv startup aspect"
+  msgstr "Aspetto avvio Xv"
+***************
+*** 144,153 ****
+--- 123,153 ----
+  msgstr "Aspetto schermo"
+  
++ msgid "pseudo"
++ msgstr "pseudo"
++ 
++ msgid "software"
++ msgstr "software"
++ 
+  msgid "OSD alpha blending"
+  msgstr "Trasparenza alpha OSD"
+  
++ msgid "safe"
++ msgstr "sicura"
++ 
++ msgid "good seeking"
++ msgstr "precisa"
++ 
++ msgid "HDTV"
++ msgstr "HDTV"
++ 
+  msgid "Buffer Mode"
+  msgstr "Modalit? buffer"
+  
++ msgid "playing"
++ msgstr "esecuzione"
++ 
++ msgid "suspended"
++ msgstr "sospeso"
++ 
+  msgid "Playback"
+  msgstr "Riproduzione"
+***************
+*** 162,165 ****
+--- 162,177 ----
+  msgstr "Modalit? Sync"
+  
++ msgid "Field Order"
++ msgstr ""
++ 
++ msgid "Still Picture Field"
++ msgstr ""
++ 
++ msgid "Still Picture Field Marker"
++ msgstr ""
++ 
++ msgid "Use av_read_frame()"
++ msgstr ""
++ 
+  msgid "Pixel Format"
+  msgstr "Formato pixel"
+***************
+*** 174,177 ****
+--- 186,198 ----
+  msgstr "Nascondi voce menu principale"
+  
++ msgid "Both Fields"
++ msgstr ""
++ 
++ msgid "First Field"
++ msgstr ""
++ 
++ msgid "Later Field"
++ msgstr ""
++ 
+  msgid "Info Messages"
+  msgstr "Messaggi di informazione"
+***************
+*** 194,196 ****
+  msgid "Softdevice"
+  msgstr "Softdevice"
+- 
+--- 215,216 ----
+
+Index: nl_NL.po
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/po/nl_NL.po,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** nl_NL.po	18 Apr 2008 14:43:31 -0000	1.2
+--- nl_NL.po	14 Jun 2009 11:46:28 -0000	1.3
+***************
+*** 15,54 ****
+  "Content-Transfer-Encoding: 8bit\n"
+  
+- msgid "16:9 wide"
+- msgstr ""
+- 
+- msgid "4:3 normal"
+- msgstr ""
+- 
+- msgid "none"
+- msgstr ""
+- 
+- msgid "fast"
+- msgstr ""
+- 
+- msgid "default"
+- msgstr ""
+- 
+- msgid "safe"
+- msgstr ""
+- 
+- msgid "good seeking"
+- msgstr ""
+- 
+- msgid "HDTV"
+- msgstr ""
+- 
+- msgid "playing"
+- msgstr ""
+- 
+- msgid "suspended"
+- msgstr ""
+- 
+- msgid "pseudo"
+- msgstr ""
+- 
+- msgid "software"
+- msgstr ""
+- 
+  msgid "Brightness"
+  msgstr ""
+--- 15,18 ----
+***************
+*** 66,69 ****
+--- 30,36 ----
+  msgstr ""
+  
++ msgid "none"
++ msgstr ""
++ 
+  msgid "CropMode"
+  msgstr ""
+***************
+*** 111,114 ****
+--- 78,87 ----
+  msgstr ""
+  
++ msgid "fast"
++ msgstr ""
++ 
++ msgid "default"
++ msgstr ""
++ 
+  msgid "Postprocessing Method"
+  msgstr ""
+***************
+*** 138,141 ****
+--- 111,120 ----
+  msgstr ""
+  
++ msgid "16:9 wide"
++ msgstr ""
++ 
++ msgid "4:3 normal"
++ msgstr ""
++ 
+  msgid "Xv startup aspect"
+  msgstr ""
+***************
+*** 144,153 ****
+--- 123,153 ----
+  msgstr ""
+  
++ msgid "pseudo"
++ msgstr ""
++ 
++ msgid "software"
++ msgstr ""
++ 
+  msgid "OSD alpha blending"
+  msgstr ""
+  
++ msgid "safe"
++ msgstr ""
++ 
++ msgid "good seeking"
++ msgstr ""
++ 
++ msgid "HDTV"
++ msgstr ""
++ 
+  msgid "Buffer Mode"
+  msgstr ""
+  
++ msgid "playing"
++ msgstr ""
++ 
++ msgid "suspended"
++ msgstr ""
++ 
+  msgid "Playback"
+  msgstr ""
+***************
+*** 162,165 ****
+--- 162,177 ----
+  msgstr ""
+  
++ msgid "Field Order"
++ msgstr ""
++ 
++ msgid "Still Picture Field"
++ msgstr ""
++ 
++ msgid "Still Picture Field Marker"
++ msgstr ""
++ 
++ msgid "Use av_read_frame()"
++ msgstr ""
++ 
+  msgid "Pixel Format"
+  msgstr ""
+***************
+*** 172,175 ****
+--- 184,196 ----
+  
+  msgid "Hide main menu entry"
++ msgstr ""
++ 
++ msgid "Both Fields"
++ msgstr ""
++ 
++ msgid "First Field"
++ msgstr ""
++ 
++ msgid "Later Field"
+  msgstr ""
+  
+
+Index: nn_NO.po
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/po/nn_NO.po,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** nn_NO.po	18 Apr 2008 14:43:31 -0000	1.2
+--- nn_NO.po	14 Jun 2009 11:46:28 -0000	1.3
+***************
+*** 15,54 ****
+  "Content-Transfer-Encoding: 8bit\n"
+  
+- msgid "16:9 wide"
+- msgstr ""
+- 
+- msgid "4:3 normal"
+- msgstr ""
+- 
+- msgid "none"
+- msgstr ""
+- 
+- msgid "fast"
+- msgstr ""
+- 
+- msgid "default"
+- msgstr ""
+- 
+- msgid "safe"
+- msgstr ""
+- 
+- msgid "good seeking"
+- msgstr ""
+- 
+- msgid "HDTV"
+- msgstr ""
+- 
+- msgid "playing"
+- msgstr ""
+- 
+- msgid "suspended"
+- msgstr ""
+- 
+- msgid "pseudo"
+- msgstr ""
+- 
+- msgid "software"
+- msgstr ""
+- 
+  msgid "Brightness"
+  msgstr ""
+--- 15,18 ----
+***************
+*** 66,69 ****
+--- 30,36 ----
+  msgstr ""
+  
++ msgid "none"
++ msgstr ""
++ 
+  msgid "CropMode"
+  msgstr ""
+***************
+*** 111,114 ****
+--- 78,87 ----
+  msgstr ""
+  
++ msgid "fast"
++ msgstr ""
++ 
++ msgid "default"
++ msgstr ""
++ 
+  msgid "Postprocessing Method"
+  msgstr ""
+***************
+*** 138,141 ****
+--- 111,120 ----
+  msgstr ""
+  
++ msgid "16:9 wide"
++ msgstr ""
++ 
++ msgid "4:3 normal"
++ msgstr ""
++ 
+  msgid "Xv startup aspect"
+  msgstr ""
+***************
+*** 144,153 ****
+--- 123,153 ----
+  msgstr ""
+  
++ msgid "pseudo"
++ msgstr ""
++ 
++ msgid "software"
++ msgstr ""
++ 
+  msgid "OSD alpha blending"
+  msgstr ""
+  
++ msgid "safe"
++ msgstr ""
++ 
++ msgid "good seeking"
++ msgstr ""
++ 
++ msgid "HDTV"
++ msgstr ""
++ 
+  msgid "Buffer Mode"
+  msgstr ""
+  
++ msgid "playing"
++ msgstr ""
++ 
++ msgid "suspended"
++ msgstr ""
++ 
+  msgid "Playback"
+  msgstr ""
+***************
+*** 162,165 ****
+--- 162,177 ----
+  msgstr ""
+  
++ msgid "Field Order"
++ msgstr ""
++ 
++ msgid "Still Picture Field"
++ msgstr ""
++ 
++ msgid "Still Picture Field Marker"
++ msgstr ""
++ 
++ msgid "Use av_read_frame()"
++ msgstr ""
++ 
+  msgid "Pixel Format"
+  msgstr ""
+***************
+*** 172,175 ****
+--- 184,196 ----
+  
+  msgid "Hide main menu entry"
++ msgstr ""
++ 
++ msgid "Both Fields"
++ msgstr ""
++ 
++ msgid "First Field"
++ msgstr ""
++ 
++ msgid "Later Field"
+  msgstr ""
+  
+
+Index: pl_PL.po
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/po/pl_PL.po,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** pl_PL.po	18 Apr 2008 14:51:28 -0000	1.2
+--- pl_PL.po	14 Jun 2009 11:46:28 -0000	1.3
+***************
+*** 15,54 ****
+  "Content-Transfer-Encoding: 8bit\n"
+  
+- msgid "16:9 wide"
+- msgstr ""
+- 
+- msgid "4:3 normal"
+- msgstr ""
+- 
+- msgid "none"
+- msgstr ""
+- 
+- msgid "fast"
+- msgstr ""
+- 
+- msgid "default"
+- msgstr ""
+- 
+- msgid "safe"
+- msgstr ""
+- 
+- msgid "good seeking"
+- msgstr ""
+- 
+- msgid "HDTV"
+- msgstr ""
+- 
+- msgid "playing"
+- msgstr ""
+- 
+- msgid "suspended"
+- msgstr ""
+- 
+- msgid "pseudo"
+- msgstr ""
+- 
+- msgid "software"
+- msgstr ""
+- 
+  msgid "Brightness"
+  msgstr ""
+--- 15,18 ----
+***************
+*** 66,69 ****
+--- 30,36 ----
+  msgstr ""
+  
++ msgid "none"
++ msgstr ""
++ 
+  msgid "CropMode"
+  msgstr ""
+***************
+*** 111,114 ****
+--- 78,87 ----
+  msgstr ""
+  
++ msgid "fast"
++ msgstr ""
++ 
++ msgid "default"
++ msgstr ""
++ 
+  msgid "Postprocessing Method"
+  msgstr ""
+***************
+*** 138,141 ****
+--- 111,120 ----
+  msgstr ""
+  
++ msgid "16:9 wide"
++ msgstr ""
++ 
++ msgid "4:3 normal"
++ msgstr ""
++ 
+  msgid "Xv startup aspect"
+  msgstr ""
+***************
+*** 144,153 ****
+--- 123,153 ----
+  msgstr ""
+  
++ msgid "pseudo"
++ msgstr ""
++ 
++ msgid "software"
++ msgstr ""
++ 
+  msgid "OSD alpha blending"
+  msgstr ""
+  
++ msgid "safe"
++ msgstr ""
++ 
++ msgid "good seeking"
++ msgstr ""
++ 
++ msgid "HDTV"
++ msgstr ""
++ 
+  msgid "Buffer Mode"
+  msgstr ""
+  
++ msgid "playing"
++ msgstr ""
++ 
++ msgid "suspended"
++ msgstr ""
++ 
+  msgid "Playback"
+  msgstr ""
+***************
+*** 162,165 ****
+--- 162,177 ----
+  msgstr ""
+  
++ msgid "Field Order"
++ msgstr ""
++ 
++ msgid "Still Picture Field"
++ msgstr ""
++ 
++ msgid "Still Picture Field Marker"
++ msgstr ""
++ 
++ msgid "Use av_read_frame()"
++ msgstr ""
++ 
+  msgid "Pixel Format"
+  msgstr ""
+***************
+*** 172,175 ****
+--- 184,196 ----
+  
+  msgid "Hide main menu entry"
++ msgstr ""
++ 
++ msgid "Both Fields"
++ msgstr ""
++ 
++ msgid "First Field"
++ msgstr ""
++ 
++ msgid "Later Field"
+  msgstr ""
+  
+
+Index: pt_PT.po
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/po/pt_PT.po,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** pt_PT.po	18 Apr 2008 14:51:28 -0000	1.2
+--- pt_PT.po	14 Jun 2009 11:46:28 -0000	1.3
+***************
+*** 15,54 ****
+  "Content-Transfer-Encoding: 8bit\n"
+  
+- msgid "16:9 wide"
+- msgstr ""
+- 
+- msgid "4:3 normal"
+- msgstr ""
+- 
+- msgid "none"
+- msgstr ""
+- 
+- msgid "fast"
+- msgstr ""
+- 
+- msgid "default"
+- msgstr ""
+- 
+- msgid "safe"
+- msgstr ""
+- 
+- msgid "good seeking"
+- msgstr ""
+- 
+- msgid "HDTV"
+- msgstr ""
+- 
+- msgid "playing"
+- msgstr ""
+- 
+- msgid "suspended"
+- msgstr ""
+- 
+- msgid "pseudo"
+- msgstr ""
+- 
+- msgid "software"
+- msgstr ""
+- 
+  msgid "Brightness"
+  msgstr ""
+--- 15,18 ----
+***************
+*** 66,69 ****
+--- 30,36 ----
+  msgstr ""
+  
++ msgid "none"
++ msgstr ""
++ 
+  msgid "CropMode"
+  msgstr ""
+***************
+*** 111,114 ****
+--- 78,87 ----
+  msgstr ""
+  
++ msgid "fast"
++ msgstr ""
++ 
++ msgid "default"
++ msgstr ""
++ 
+  msgid "Postprocessing Method"
+  msgstr ""
+***************
+*** 138,141 ****
+--- 111,120 ----
+  msgstr ""
+  
++ msgid "16:9 wide"
++ msgstr ""
++ 
++ msgid "4:3 normal"
++ msgstr ""
++ 
+  msgid "Xv startup aspect"
+  msgstr ""
+***************
+*** 144,153 ****
+--- 123,153 ----
+  msgstr ""
+  
++ msgid "pseudo"
++ msgstr ""
++ 
++ msgid "software"
++ msgstr ""
++ 
+  msgid "OSD alpha blending"
+  msgstr ""
+  
++ msgid "safe"
++ msgstr ""
++ 
++ msgid "good seeking"
++ msgstr ""
++ 
++ msgid "HDTV"
++ msgstr ""
++ 
+  msgid "Buffer Mode"
+  msgstr ""
+  
++ msgid "playing"
++ msgstr ""
++ 
++ msgid "suspended"
++ msgstr ""
++ 
+  msgid "Playback"
+  msgstr ""
+***************
+*** 162,165 ****
+--- 162,177 ----
+  msgstr ""
+  
++ msgid "Field Order"
++ msgstr ""
++ 
++ msgid "Still Picture Field"
++ msgstr ""
++ 
++ msgid "Still Picture Field Marker"
++ msgstr ""
++ 
++ msgid "Use av_read_frame()"
++ msgstr ""
++ 
+  msgid "Pixel Format"
+  msgstr ""
+***************
+*** 172,175 ****
+--- 184,196 ----
+  
+  msgid "Hide main menu entry"
++ msgstr ""
++ 
++ msgid "Both Fields"
++ msgstr ""
++ 
++ msgid "First Field"
++ msgstr ""
++ 
++ msgid "Later Field"
+  msgstr ""
+  
+
+Index: ro_RO.po
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/po/ro_RO.po,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** ro_RO.po	18 Apr 2008 14:51:28 -0000	1.2
+--- ro_RO.po	14 Jun 2009 11:46:28 -0000	1.3
+***************
+*** 15,54 ****
+  "Content-Transfer-Encoding: 8bit\n"
+  
+- msgid "16:9 wide"
+- msgstr ""
+- 
+- msgid "4:3 normal"
+- msgstr ""
+- 
+- msgid "none"
+- msgstr ""
+- 
+- msgid "fast"
+- msgstr ""
+- 
+- msgid "default"
+- msgstr ""
+- 
+- msgid "safe"
+- msgstr ""
+- 
+- msgid "good seeking"
+- msgstr ""
+- 
+- msgid "HDTV"
+- msgstr ""
+- 
+- msgid "playing"
+- msgstr ""
+- 
+- msgid "suspended"
+- msgstr ""
+- 
+- msgid "pseudo"
+- msgstr ""
+- 
+- msgid "software"
+- msgstr ""
+- 
+  msgid "Brightness"
+  msgstr ""
+--- 15,18 ----
+***************
+*** 66,69 ****
+--- 30,36 ----
+  msgstr ""
+  
++ msgid "none"
++ msgstr ""
++ 
+  msgid "CropMode"
+  msgstr ""
+***************
+*** 111,114 ****
+--- 78,87 ----
+  msgstr ""
+  
++ msgid "fast"
++ msgstr ""
++ 
++ msgid "default"
++ msgstr ""
++ 
+  msgid "Postprocessing Method"
+  msgstr ""
+***************
+*** 138,141 ****
+--- 111,120 ----
+  msgstr ""
+  
++ msgid "16:9 wide"
++ msgstr ""
++ 
++ msgid "4:3 normal"
++ msgstr ""
++ 
+  msgid "Xv startup aspect"
+  msgstr ""
+***************
+*** 144,153 ****
+--- 123,153 ----
+  msgstr ""
+  
++ msgid "pseudo"
++ msgstr ""
++ 
++ msgid "software"
++ msgstr ""
++ 
+  msgid "OSD alpha blending"
+  msgstr ""
+  
++ msgid "safe"
++ msgstr ""
++ 
++ msgid "good seeking"
++ msgstr ""
++ 
++ msgid "HDTV"
++ msgstr ""
++ 
+  msgid "Buffer Mode"
+  msgstr ""
+  
++ msgid "playing"
++ msgstr ""
++ 
++ msgid "suspended"
++ msgstr ""
++ 
+  msgid "Playback"
+  msgstr ""
+***************
+*** 162,165 ****
+--- 162,177 ----
+  msgstr ""
+  
++ msgid "Field Order"
++ msgstr ""
++ 
++ msgid "Still Picture Field"
++ msgstr ""
++ 
++ msgid "Still Picture Field Marker"
++ msgstr ""
++ 
++ msgid "Use av_read_frame()"
++ msgstr ""
++ 
+  msgid "Pixel Format"
+  msgstr ""
+***************
+*** 172,175 ****
+--- 184,196 ----
+  
+  msgid "Hide main menu entry"
++ msgstr ""
++ 
++ msgid "Both Fields"
++ msgstr ""
++ 
++ msgid "First Field"
++ msgstr ""
++ 
++ msgid "Later Field"
+  msgstr ""
+  
+
+Index: ru_RU.po
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/po/ru_RU.po,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** ru_RU.po	18 Apr 2008 14:51:28 -0000	1.2
+--- ru_RU.po	14 Jun 2009 11:46:28 -0000	1.3
+***************
+*** 15,54 ****
+  "Content-Transfer-Encoding: 8bit\n"
+  
+- msgid "16:9 wide"
+- msgstr "16:9 ??????????????"
+- 
+- msgid "4:3 normal"
+- msgstr "4:3 ??????????"
+- 
+- msgid "none"
+- msgstr "??????"
+- 
+- msgid "fast"
+- msgstr "??????"
+- 
+- msgid "default"
+- msgstr "?? ?????????"
+- 
+- msgid "safe"
+- msgstr "?????????"
+- 
+- msgid "good seeking"
+- msgstr "????? ???????????"
+- 
+- msgid "HDTV"
+- msgstr "HDTV (???)"
+- 
+- msgid "playing"
+- msgstr "?????????????"
+- 
+- msgid "suspended"
+- msgstr "???????????????"
+- 
+- msgid "pseudo"
+- msgstr "??????"
+- 
+- msgid "software"
+- msgstr "??????????"
+- 
+  msgid "Brightness"
+  msgstr "???????"
+--- 15,18 ----
+***************
+*** 66,69 ****
+--- 30,36 ----
+  msgstr ""
+  
++ msgid "none"
++ msgstr "??????"
++ 
+  msgid "CropMode"
+  msgstr "????? ??????? ???????????"
+***************
+*** 111,114 ****
+--- 78,87 ----
+  msgstr "????? ???????????????"
+  
++ msgid "fast"
++ msgstr "??????"
++ 
++ msgid "default"
++ msgstr "?? ?????????"
++ 
+  msgid "Postprocessing Method"
+  msgstr "????? ?????????????"
+***************
+*** 138,141 ****
+--- 111,120 ----
+  msgstr "????????????????"
+  
++ msgid "16:9 wide"
++ msgstr "16:9 ??????????????"
++ 
++ msgid "4:3 normal"
++ msgstr "4:3 ??????????"
++ 
+  msgid "Xv startup aspect"
+  msgstr "?????? ??? ???????  Xv"
+***************
+*** 144,153 ****
+--- 123,153 ----
+  msgstr "?????? ??????"
+  
++ msgid "pseudo"
++ msgstr "??????"
++ 
++ msgid "software"
++ msgstr "??????????"
++ 
+  msgid "OSD alpha blending"
+  msgstr "???????????? OSD"
+  
++ msgid "safe"
++ msgstr "?????????"
++ 
++ msgid "good seeking"
++ msgstr "????? ???????????"
++ 
++ msgid "HDTV"
++ msgstr "HDTV (???)"
++ 
+  msgid "Buffer Mode"
+  msgstr "???????? ?????"
+  
++ msgid "playing"
++ msgstr "?????????????"
++ 
++ msgid "suspended"
++ msgstr "???????????????"
++ 
+  msgid "Playback"
+  msgstr "???????????????"
+***************
+*** 162,165 ****
+--- 162,177 ----
+  msgstr "????? ?????????????"
+  
++ msgid "Field Order"
++ msgstr ""
++ 
++ msgid "Still Picture Field"
++ msgstr ""
++ 
++ msgid "Still Picture Field Marker"
++ msgstr ""
++ 
++ msgid "Use av_read_frame()"
++ msgstr ""
++ 
+  msgid "Pixel Format"
+  msgstr "?????? ???????"
+***************
+*** 173,176 ****
+--- 185,197 ----
+  msgid "Hide main menu entry"
+  msgstr "???????? ????? ? ??????? ????"
++ 
++ msgid "Both Fields"
++ msgstr ""
++ 
++ msgid "First Field"
++ msgstr ""
++ 
++ msgid "Later Field"
++ msgstr ""
+  
+  msgid "Info Messages"
+
+Index: sl_SI.po
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/po/sl_SI.po,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** sl_SI.po	18 Apr 2008 14:51:28 -0000	1.2
+--- sl_SI.po	14 Jun 2009 11:46:28 -0000	1.3
+***************
+*** 15,54 ****
+  "Content-Transfer-Encoding: 8bit\n"
+  
+- msgid "16:9 wide"
+- msgstr ""
+- 
+- msgid "4:3 normal"
+- msgstr ""
+- 
+- msgid "none"
+- msgstr ""
+- 
+- msgid "fast"
+- msgstr ""
+- 
+- msgid "default"
+- msgstr ""
+- 
+- msgid "safe"
+- msgstr ""
+- 
+- msgid "good seeking"
+- msgstr ""
+- 
+- msgid "HDTV"
+- msgstr ""
+- 
+- msgid "playing"
+- msgstr ""
+- 
+- msgid "suspended"
+- msgstr ""
+- 
+- msgid "pseudo"
+- msgstr ""
+- 
+- msgid "software"
+- msgstr ""
+- 
+  msgid "Brightness"
+  msgstr ""
+--- 15,18 ----
+***************
+*** 66,69 ****
+--- 30,36 ----
+  msgstr ""
+  
++ msgid "none"
++ msgstr ""
++ 
+  msgid "CropMode"
+  msgstr ""
+***************
+*** 111,114 ****
+--- 78,87 ----
+  msgstr ""
+  
++ msgid "fast"
++ msgstr ""
++ 
++ msgid "default"
++ msgstr ""
++ 
+  msgid "Postprocessing Method"
+  msgstr ""
+***************
+*** 138,141 ****
+--- 111,120 ----
+  msgstr ""
+  
++ msgid "16:9 wide"
++ msgstr ""
++ 
++ msgid "4:3 normal"
++ msgstr ""
++ 
+  msgid "Xv startup aspect"
+  msgstr ""
+***************
+*** 144,153 ****
+--- 123,153 ----
+  msgstr ""
+  
++ msgid "pseudo"
++ msgstr ""
++ 
++ msgid "software"
++ msgstr ""
++ 
+  msgid "OSD alpha blending"
+  msgstr ""
+  
++ msgid "safe"
++ msgstr ""
++ 
++ msgid "good seeking"
++ msgstr ""
++ 
++ msgid "HDTV"
++ msgstr ""
++ 
+  msgid "Buffer Mode"
+  msgstr ""
+  
++ msgid "playing"
++ msgstr ""
++ 
++ msgid "suspended"
++ msgstr ""
++ 
+  msgid "Playback"
+  msgstr ""
+***************
+*** 162,165 ****
+--- 162,177 ----
+  msgstr ""
+  
++ msgid "Field Order"
++ msgstr ""
++ 
++ msgid "Still Picture Field"
++ msgstr ""
++ 
++ msgid "Still Picture Field Marker"
++ msgstr ""
++ 
++ msgid "Use av_read_frame()"
++ msgstr ""
++ 
+  msgid "Pixel Format"
+  msgstr ""
+***************
+*** 172,175 ****
+--- 184,196 ----
+  
+  msgid "Hide main menu entry"
++ msgstr ""
++ 
++ msgid "Both Fields"
++ msgstr ""
++ 
++ msgid "First Field"
++ msgstr ""
++ 
++ msgid "Later Field"
+  msgstr ""
+  
+
+Index: sv_SE.po
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/po/sv_SE.po,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** sv_SE.po	18 Apr 2008 14:51:28 -0000	1.2
+--- sv_SE.po	14 Jun 2009 11:46:28 -0000	1.3
+***************
+*** 15,54 ****
+  "Content-Transfer-Encoding: 8bit\n"
+  
+- msgid "16:9 wide"
+- msgstr ""
+- 
+- msgid "4:3 normal"
+- msgstr ""
+- 
+- msgid "none"
+- msgstr ""
+- 
+- msgid "fast"
+- msgstr ""
+- 
+- msgid "default"
+- msgstr ""
+- 
+- msgid "safe"
+- msgstr ""
+- 
+- msgid "good seeking"
+- msgstr ""
+- 
+- msgid "HDTV"
+- msgstr ""
+- 
+- msgid "playing"
+- msgstr ""
+- 
+- msgid "suspended"
+- msgstr ""
+- 
+- msgid "pseudo"
+- msgstr ""
+- 
+- msgid "software"
+- msgstr ""
+- 
+  msgid "Brightness"
+  msgstr ""
+--- 15,18 ----
+***************
+*** 66,69 ****
+--- 30,36 ----
+  msgstr ""
+  
++ msgid "none"
++ msgstr ""
++ 
+  msgid "CropMode"
+  msgstr ""
+***************
+*** 111,114 ****
+--- 78,87 ----
+  msgstr ""
+  
++ msgid "fast"
++ msgstr ""
++ 
++ msgid "default"
++ msgstr ""
++ 
+  msgid "Postprocessing Method"
+  msgstr ""
+***************
+*** 138,141 ****
+--- 111,120 ----
+  msgstr ""
+  
++ msgid "16:9 wide"
++ msgstr ""
++ 
++ msgid "4:3 normal"
++ msgstr ""
++ 
+  msgid "Xv startup aspect"
+  msgstr ""
+***************
+*** 144,153 ****
+--- 123,153 ----
+  msgstr ""
+  
++ msgid "pseudo"
++ msgstr ""
++ 
++ msgid "software"
++ msgstr ""
++ 
+  msgid "OSD alpha blending"
+  msgstr ""
+  
++ msgid "safe"
++ msgstr ""
++ 
++ msgid "good seeking"
++ msgstr ""
++ 
++ msgid "HDTV"
++ msgstr ""
++ 
+  msgid "Buffer Mode"
+  msgstr ""
+  
++ msgid "playing"
++ msgstr ""
++ 
++ msgid "suspended"
++ msgstr ""
++ 
+  msgid "Playback"
+  msgstr ""
+***************
+*** 162,165 ****
+--- 162,177 ----
+  msgstr ""
+  
++ msgid "Field Order"
++ msgstr ""
++ 
++ msgid "Still Picture Field"
++ msgstr ""
++ 
++ msgid "Still Picture Field Marker"
++ msgstr ""
++ 
++ msgid "Use av_read_frame()"
++ msgstr ""
++ 
+  msgid "Pixel Format"
+  msgstr ""
+***************
+*** 172,175 ****
+--- 184,196 ----
+  
+  msgid "Hide main menu entry"
++ msgstr ""
++ 
++ msgid "Both Fields"
++ msgstr ""
++ 
++ msgid "First Field"
++ msgstr ""
++ 
++ msgid "Later Field"
+  msgstr ""
+  
+
+Index: tr_TR.po
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/po/tr_TR.po,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** tr_TR.po	18 Apr 2008 14:51:28 -0000	1.2
+--- tr_TR.po	14 Jun 2009 11:46:28 -0000	1.3
+***************
+*** 15,54 ****
+  "Content-Transfer-Encoding: 8bit\n"
+  
+- msgid "16:9 wide"
+- msgstr ""
+- 
+- msgid "4:3 normal"
+- msgstr ""
+- 
+- msgid "none"
+- msgstr ""
+- 
+- msgid "fast"
+- msgstr ""
+- 
+- msgid "default"
+- msgstr ""
+- 
+- msgid "safe"
+- msgstr ""
+- 
+- msgid "good seeking"
+- msgstr ""
+- 
+- msgid "HDTV"
+- msgstr ""
+- 
+- msgid "playing"
+- msgstr ""
+- 
+- msgid "suspended"
+- msgstr ""
+- 
+- msgid "pseudo"
+- msgstr ""
+- 
+- msgid "software"
+- msgstr ""
+- 
+  msgid "Brightness"
+  msgstr ""
+--- 15,18 ----
+***************
+*** 66,69 ****
+--- 30,36 ----
+  msgstr ""
+  
++ msgid "none"
++ msgstr ""
++ 
+  msgid "CropMode"
+  msgstr ""
+***************
+*** 111,114 ****
+--- 78,87 ----
+  msgstr ""
+  
++ msgid "fast"
++ msgstr ""
++ 
++ msgid "default"
++ msgstr ""
++ 
+  msgid "Postprocessing Method"
+  msgstr ""
+***************
+*** 138,141 ****
+--- 111,120 ----
+  msgstr ""
+  
++ msgid "16:9 wide"
++ msgstr ""
++ 
++ msgid "4:3 normal"
++ msgstr ""
++ 
+  msgid "Xv startup aspect"
+  msgstr ""
+***************
+*** 144,153 ****
+--- 123,153 ----
+  msgstr ""
+  
++ msgid "pseudo"
++ msgstr ""
++ 
++ msgid "software"
++ msgstr ""
++ 
+  msgid "OSD alpha blending"
+  msgstr ""
+  
++ msgid "safe"
++ msgstr ""
++ 
++ msgid "good seeking"
++ msgstr ""
++ 
++ msgid "HDTV"
++ msgstr ""
++ 
+  msgid "Buffer Mode"
+  msgstr ""
+  
++ msgid "playing"
++ msgstr ""
++ 
++ msgid "suspended"
++ msgstr ""
++ 
+  msgid "Playback"
+  msgstr ""
+***************
+*** 162,165 ****
+--- 162,177 ----
+  msgstr ""
+  
++ msgid "Field Order"
++ msgstr ""
++ 
++ msgid "Still Picture Field"
++ msgstr ""
++ 
++ msgid "Still Picture Field Marker"
++ msgstr ""
++ 
++ msgid "Use av_read_frame()"
++ msgstr ""
++ 
+  msgid "Pixel Format"
+  msgstr ""
+***************
+*** 172,175 ****
+--- 184,196 ----
+  
+  msgid "Hide main menu entry"
++ msgstr ""
++ 
++ msgid "Both Fields"
++ msgstr ""
++ 
++ msgid "First Field"
++ msgstr ""
++ 
++ msgid "Later Field"
+  msgstr ""
+  
+
+
+
+From nobody at sheep.berlios.de  Sun Jun 14 18:12:28 2009
+From: nobody at sheep.berlios.de (lucke)
+Date: Sun, 14 Jun 2009 18:12:28 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice setup-softlog.c,1.7,1.8
+Message-ID: <20090614161228.DEB231802B2@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv22941
+
+Modified Files:
+	setup-softlog.c 
+Log Message:
+white space cleanup
+
+Index: setup-softlog.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softlog.c,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -C2 -d -r1.7 -r1.8
+*** setup-softlog.c	16 Apr 2008 09:06:31 -0000	1.7
+--- setup-softlog.c	14 Jun 2009 16:12:26 -0000	1.8
+***************
+*** 11,15 ****
+  #ifdef HAVE_CONFIG
+  # include "config.h"
+! #endif 
+  #include <stdarg.h>
+  #include <stdlib.h>
+--- 11,15 ----
+  #ifdef HAVE_CONFIG
+  # include "config.h"
+! #endif
+  #include <stdarg.h>
+  #include <stdlib.h>
+***************
+*** 213,219 ****
+  /* ---------------------------------------------------------------------------
+   */
+! int SoftdeviceGetTid() 
+  {
+! #ifdef __APPLE__ 
+    return getpid();
+  #else
+--- 213,219 ----
+  /* ---------------------------------------------------------------------------
+   */
+! int SoftdeviceGetTid()
+  {
+! #ifdef __APPLE__
+    return getpid();
+  #else
+
+
+
+From nobody at sheep.berlios.de  Sun Jun 14 18:18:55 2009
+From: nobody at sheep.berlios.de (lucke)
+Date: Sun, 14 Jun 2009 18:18:55 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice setup-softlog.c, 1.8,
+	1.9 setup-softlog.h, 1.3, 1.4
+Message-ID: <20090614161855.BE321135E2@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv23727
+
+Modified Files:
+	setup-softlog.c setup-softlog.h 
+Log Message:
+Fix compiler warnings
+
+Index: setup-softlog.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softlog.c,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -C2 -d -r1.8 -r1.9
+*** setup-softlog.c	14 Jun 2009 16:12:26 -0000	1.8
+--- setup-softlog.c	14 Jun 2009 16:18:53 -0000	1.9
+***************
+*** 224,228 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cSetupSoftlog::Log(int currPriority, int traceFlags, char *format, ...)
+  {
+      va_list argList;
+--- 224,230 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void cSetupSoftlog::Log(int currPriority,
+!                         int traceFlags,
+!                         const char *format, ...)
+  {
+      va_list argList;
+
+Index: setup-softlog.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softlog.h,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** setup-softlog.h	24 Feb 2007 14:04:14 -0000	1.3
+--- setup-softlog.h	14 Jun 2009 16:18:53 -0000	1.4
+***************
+*** 44,48 ****
+      virtual ~cSetupSoftlog();
+  
+!     virtual void  Log(int currPriorities, int traceFlags, char *format, ...),
+                    DisableLog2File();
+      virtual int   SetLogPriorities(int newPriorities),
+--- 44,50 ----
+      virtual ~cSetupSoftlog();
+  
+!     virtual void  Log(int currPriorities,
+!                       int traceFlags,
+!                       const char *format, ...),
+                    DisableLog2File();
+      virtual int   SetLogPriorities(int newPriorities),
+
+
+
+From nobody at sheep.berlios.de  Sun Jun 14 18:37:24 2009
+From: nobody at sheep.berlios.de (lucke)
+Date: Sun, 14 Jun 2009 18:37:24 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice PicBuffer.h,1.11,1.12
+Message-ID: <20090614163724.A8008160FB@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv30439
+
+Modified Files:
+	PicBuffer.h 
+Log Message:
+Fix typedef warning.
+
+Index: PicBuffer.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/PicBuffer.h,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -C2 -d -r1.11 -r1.12
+*** PicBuffer.h	27 Feb 2009 17:02:35 -0000	1.11
+--- PicBuffer.h	14 Jun 2009 16:37:22 -0000	1.12
+***************
+*** 33,37 ****
+  class cPicBufferManager;
+  
+! typedef struct sPicBuffer {
+      PixelFormat format;
+      uint8_t *pixel[4];
+--- 33,37 ----
+  class cPicBufferManager;
+  
+! typedef struct {
+      PixelFormat format;
+      uint8_t *pixel[4];
+***************
+*** 58,62 ****
+      int age; // needed by ffmpeg
+      void *priv_data;
+! };
+  
+  void InitPicBuffer(sPicBuffer *Pic);
+--- 58,62 ----
+      int age; // needed by ffmpeg
+      void *priv_data;
+! } sPicBuffer;
+  
+  void InitPicBuffer(sPicBuffer *Pic);
+***************
+*** 75,79 ****
+          int lastPicNum;
+  #define LAST_PICBUF 10
+!         struct sPicBuffer PicBuffer[LAST_PICBUF];
+          cMutex PicBufMutex;
+  
+--- 75,79 ----
+          int lastPicNum;
+  #define LAST_PICBUF 10
+!         sPicBuffer PicBuffer[LAST_PICBUF];
+          cMutex PicBufMutex;
+  
+
+
+
+From nobody at sheep.berlios.de  Sun Jun 14 19:25:13 2009
+From: nobody at sheep.berlios.de (lucke)
+Date: Sun, 14 Jun 2009 19:25:13 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice setup-softdevice.c, 1.57,
+	1.58 setup-softdevice.h, 1.47, 1.48
+Message-ID: <20090614172513.DF1E5E549E@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv17168
+
+Modified Files:
+	setup-softdevice.c setup-softdevice.h 
+Log Message:
+Fix compiler warnings
+
+Index: setup-softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.c,v
+retrieving revision 1.57
+retrieving revision 1.58
+diff -C2 -d -r1.57 -r1.58
+*** setup-softdevice.c	19 Feb 2009 20:27:58 -0000	1.57
+--- setup-softdevice.c	14 Jun 2009 17:25:10 -0000	1.58
+***************
+*** 429,433 ****
+  /* ---------------------------------------------------------------------------
+   */
+! char *cSetupStore::getPPdeintValue(void)
+  {
+    if (strcmp(deint_str[deintMethod], "linblend") == 0) return "lb";
+--- 429,433 ----
+  /* ---------------------------------------------------------------------------
+   */
+! const char *cSetupStore::getPPdeintValue(void)
+  {
+    if (strcmp(deint_str[deintMethod], "linblend") == 0) return "lb";
+***************
+*** 441,445 ****
+  /* ---------------------------------------------------------------------------
+   */
+! char *cSetupStore::getPPValue(void)
+  {
+  #ifdef PP_LIBAVCODEC
+--- 441,445 ----
+  /* ---------------------------------------------------------------------------
+   */
+! const char *cSetupStore::getPPValue(void)
+  {
+  #ifdef PP_LIBAVCODEC
+
+Index: setup-softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.h,v
+retrieving revision 1.47
+retrieving revision 1.48
+diff -C2 -d -r1.47 -r1.48
+*** setup-softdevice.h	19 Feb 2009 20:27:58 -0000	1.47
+--- setup-softdevice.h	14 Jun 2009 17:25:10 -0000	1.48
+***************
+*** 134,139 ****
+      void InitSetupStore();
+      bool          SetupParse(const char *Name, const char *Value);
+!     char          *getPPdeintValue(void);
+!     char          *getPPValue(void);
+      inline void CropModeNext(void) {
+         cropMode = (cropMode == (SETUP_CROPMODES-1)) ? 0 : cropMode + 1;
+--- 134,139 ----
+      void InitSetupStore();
+      bool          SetupParse(const char *Name, const char *Value);
+!     const char    *getPPdeintValue(void),
+!                   *getPPValue(void);
+      inline void CropModeNext(void) {
+         cropMode = (cropMode == (SETUP_CROPMODES-1)) ? 0 : cropMode + 1;
+
+
+
+From nobody at sheep.berlios.de  Sun Jun 14 19:25:37 2009
+From: nobody at sheep.berlios.de (lucke)
+Date: Sun, 14 Jun 2009 19:25:37 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice softdevice.c, 1.95, 1.96 softdevice.h,
+	1.14, 1.15
+Message-ID: <20090614172537.CD5BB3C73D@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv17756
+
+Modified Files:
+	softdevice.c softdevice.h 
+Log Message:
+Fix compiler warnings
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.95
+retrieving revision 1.96
+diff -C2 -d -r1.95 -r1.96
+*** softdevice.c	22 Mar 2009 12:55:33 -0000	1.95
+--- softdevice.c	14 Jun 2009 17:25:35 -0000	1.96
+***************
+*** 174,178 ****
+  /* ----------------------------------------------------------------------------
+   */
+! cSoftDevice::cSoftDevice(int method,int audioMethod, char *pluginPath)
+  {
+      spuDecoder = NULL;
+--- 174,178 ----
+  /* ----------------------------------------------------------------------------
+   */
+! cSoftDevice::cSoftDevice(int method,int audioMethod, const char *pluginPath)
+  {
+      spuDecoder = NULL;
+***************
+*** 330,335 ****
+  /* ----------------------------------------------------------------------------
+   */
+! void cSoftDevice::LoadSubPlugin(char *outMethodName,
+!                                 char *pluginPath)
+  {
+      char  *subPluginFileName = NULL;
+--- 330,335 ----
+  /* ----------------------------------------------------------------------------
+   */
+! void cSoftDevice::LoadSubPlugin(const char *outMethodName,
+!                                 const char *pluginPath)
+  {
+      char  *subPluginFileName = NULL;
+
+Index: softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.h,v
+retrieving revision 1.14
+retrieving revision 1.15
+diff -C2 -d -r1.14 -r1.15
+*** softdevice.h	16 Apr 2008 10:41:40 -0000	1.14
+--- softdevice.h	14 Jun 2009 17:25:35 -0000	1.15
+***************
+*** 40,47 ****
+  class cPluginSoftDevice : public cPlugin {
+  private:
+!   int   voutMethod;
+!   int   aoutMethod;
+!   char  *pluginPath,
+!         *runtimePluginPath;
+  
+  public:
+--- 40,47 ----
+  class cPluginSoftDevice : public cPlugin {
+  private:
+!   int         voutMethod;
+!   int         aoutMethod;
+!   const char  *pluginPath,
+!               *runtimePluginPath;
+  
+  public:
+***************
+*** 79,83 ****
+  
+  public:
+!   cSoftDevice(int method, int audioMethod, char *pluginPath);
+    ~cSoftDevice();
+  
+--- 79,83 ----
+  
+  public:
+!   cSoftDevice(int method, int audioMethod, const char *pluginPath);
+    ~cSoftDevice();
+  
+***************
+*** 91,95 ****
+    { if (decoder) decoder->Freeze(Stream,Value); return 0;};
+  
+!   void LoadSubPlugin(char *outMethodName, char *pluginPath);
+  
+    virtual bool HasDecoder(void) const;
+--- 91,95 ----
+    { if (decoder) decoder->Freeze(Stream,Value); return 0;};
+  
+!   void LoadSubPlugin(const char *outMethodName, const char *pluginPath);
+  
+    virtual bool HasDecoder(void) const;
+
+
+
+From nobody at sheep.berlios.de  Sun Jun 14 20:01:01 2009
+From: nobody at sheep.berlios.de (lucke)
+Date: Sun, 14 Jun 2009 20:01:01 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice video-dfb.c, 1.85, 1.86 video-dfb.h,
+	1.29, 1.30
+Message-ID: <20090614180101.1E20B25CBC@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv10343
+
+Modified Files:
+	video-dfb.c video-dfb.h 
+Log Message:
+Fix compiler warnings
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.85
+retrieving revision 1.86
+diff -C2 -d -r1.85 -r1.86
+*** video-dfb.c	20 Jul 2008 17:17:42 -0000	1.85
+--- video-dfb.c	14 Jun 2009 18:00:58 -0000	1.86
+***************
+*** 514,518 ****
+   */
+  void cDFBVideoOut::ReportSurfaceCapabilities (IDirectFBSurface *surf,
+!                                               char *name)
+  {
+      DFBSurfaceCapabilities        scaps;
+--- 514,518 ----
+   */
+  void cDFBVideoOut::ReportSurfaceCapabilities (IDirectFBSurface *surf,
+!                                               const char *name)
+  {
+      DFBSurfaceCapabilities        scaps;
+***************
+*** 564,568 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cDFBVideoOut::ReportLayerInfo(IDirectFBDisplayLayer *layer, char *name)
+  {
+        DFBDisplayLayerConfig layerConfiguration;
+--- 564,569 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void cDFBVideoOut::ReportLayerInfo(IDirectFBDisplayLayer *layer,
+!                                    const char *name)
+  {
+        DFBDisplayLayerConfig layerConfiguration;
+
+Index: video-dfb.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.h,v
+retrieving revision 1.29
+retrieving revision 1.30
+diff -C2 -d -r1.29 -r1.30
+*** video-dfb.h	20 Jul 2008 16:41:01 -0000	1.29
+--- video-dfb.h	14 Jun 2009 18:00:58 -0000	1.30
+***************
+*** 51,57 ****
+      void  EnableFieldParity(IDirectFBDisplayLayer *layer),
+            SetFieldParity(IDirectFBDisplayLayer *layer, int fieldOrder),
+!           ReportSurfaceCapabilities (IDirectFBSurface *surf,char *name),
+            BESColorkeyState(IDirectFBDisplayLayer *layer, bool state),
+!           ReportLayerInfo(IDirectFBDisplayLayer *layer, char *name);
+  
+  #ifdef HAVE_CLE266_MPEG_DECODER
+--- 51,57 ----
+      void  EnableFieldParity(IDirectFBDisplayLayer *layer),
+            SetFieldParity(IDirectFBDisplayLayer *layer, int fieldOrder),
+!           ReportSurfaceCapabilities(IDirectFBSurface *surf, const char *name),
+            BESColorkeyState(IDirectFBDisplayLayer *layer, bool state),
+!           ReportLayerInfo(IDirectFBDisplayLayer *layer, const char *name);
+  
+  #ifdef HAVE_CLE266_MPEG_DECODER
+
+
+
+From nobody at sheep.berlios.de  Sun Jun 14 20:02:50 2009
+From: nobody at sheep.berlios.de (lucke)
+Date: Sun, 14 Jun 2009 20:02:50 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice audio-ac3pt.c, 1.4, 1.5 audio-alsa.c,
+	1.10, 1.11
+Message-ID: <20090614180250.9893D135DE@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv10551
+
+Modified Files:
+	audio-ac3pt.c audio-alsa.c 
+Log Message:
+Fix compiler warnings
+
+Index: audio-ac3pt.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio-ac3pt.c,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -C2 -d -r1.4 -r1.5
+*** audio-ac3pt.c	14 Jun 2009 11:20:28 -0000	1.4
+--- audio-ac3pt.c	14 Jun 2009 18:02:45 -0000	1.5
+***************
+*** 684,690 ****
+        fprintf(stderr, "ac3play: Minimal period size not available: %s\n", snd_strerror(err));
+  
+-     if ((err =  snd_pcm_sw_params_set_xfer_align(*handle, swparams, SAMPLE_BUF/6)) < 0)
+-       fprintf(stderr, "ac3play: Aligned period size not available: %s\n", snd_strerror(err));
+- 
+      if ((err = snd_pcm_sw_params_set_start_threshold(*handle, swparams, 2*SAMPLE_BUF)) < 0)
+        fprintf(stderr, "ac3play: Start threshold not available: %s\n", snd_strerror(err));
+--- 684,687 ----
+
+Index: audio-alsa.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio-alsa.c,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -C2 -d -r1.10 -r1.11
+*** audio-alsa.c	20 Jul 2008 16:32:44 -0000	1.10
+--- audio-alsa.c	14 Jun 2009 18:02:48 -0000	1.11
+***************
+*** 332,336 ****
+      snd_pcm_hw_params_t *params;
+      snd_pcm_sw_params_t *swparams;
+-     snd_pcm_uframes_t xfer_align;
+      snd_pcm_hw_params_alloca(&params);
+      snd_pcm_sw_params_alloca(&swparams);
+--- 332,335 ----
+***************
+*** 437,446 ****
+  
+      snd_pcm_sw_params_current(handle, swparams);
+-     err = snd_pcm_sw_params_get_xfer_align(swparams, &xfer_align);
+-     if (err < 0) {
+-       esyslog("[softdevice-audio] Unable to obtain xfer align FATAL exiting");
+-       handleMutex.Unlock();
+-       exit(EXIT_FAILURE);
+-     }
+      dsyslog("[softdevice-audio] Hardware initialized");
+      handleMutex.Unlock();
+--- 436,439 ----
+***************
+*** 464,468 ****
+        double                mixerRange,
+                              volPercent;
+!       char                  *mName = "PCM",
+                              *cardName = "default";
+        snd_mixer_t           *mHandle;
+--- 457,461 ----
+        double                mixerRange,
+                              volPercent;
+!       const char            *mName = "PCM",
+                              *cardName = "default";
+        snd_mixer_t           *mHandle;
+
+
+
+From nobody at sheep.berlios.de  Sun Jun 14 20:24:13 2009
+From: nobody at sheep.berlios.de (lucke)
+Date: Sun, 14 Jun 2009 20:24:13 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice video-xv.c, 1.75, 1.76 video-xv.h, 1.29,
+	1.30
+Message-ID: <20090614182413.B8F02136EF@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv12871
+
+Modified Files:
+	video-xv.c video-xv.h 
+Log Message:
+Fix compiler warnings
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.75
+retrieving revision 1.76
+diff -C2 -d -r1.75 -r1.76
+*** video-xv.c	14 Jul 2008 17:00:59 -0000	1.75
+--- video-xv.c	14 Jun 2009 18:24:11 -0000	1.76
+***************
+*** 118,122 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cXvPortAttributeStore::SetValue(char *name, int value)
+  {
+    for (int i = 0; i < portAttributeCount; ++i)
+--- 118,122 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void cXvPortAttributeStore::SetValue(const char *name, int value)
+  {
+    for (int i = 0; i < portAttributeCount; ++i)
+***************
+*** 152,156 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cXvPortAttributeStore::SetValuePercent(char *name, int value)
+  {
+    for (int i = 0; i < portAttributeCount; ++i)
+--- 152,156 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void cXvPortAttributeStore::SetValuePercent(const char *name, int value)
+  {
+    for (int i = 0; i < portAttributeCount; ++i)
+***************
+*** 190,194 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cXvPortAttributeStore::Increment(char *name)
+  {
+    for (int i = 0; i < portAttributeCount; ++i)
+--- 190,194 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void cXvPortAttributeStore::Increment(const char *name)
+  {
+    for (int i = 0; i < portAttributeCount; ++i)
+***************
+*** 208,212 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cXvPortAttributeStore::Decrement(char *name)
+  {
+    for (int i = 0; i < portAttributeCount; ++i)
+--- 208,212 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void cXvPortAttributeStore::Decrement(const char *name)
+  {
+    for (int i = 0; i < portAttributeCount; ++i)
+***************
+*** 779,784 ****
+    format = FOURCC_YV12;
+    use_xv_port = 0;
+!   w_name = "vdr";
+!   i_name = "vdr";
+  
+    Xres=width;
+--- 779,784 ----
+    format = FOURCC_YV12;
+    use_xv_port = 0;
+!   w_name = strdup ("vdr");
+!   i_name = strdup ("vdr");
+  
+    Xres=width;
+
+Index: video-xv.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.h,v
+retrieving revision 1.29
+retrieving revision 1.30
+diff -C2 -d -r1.29 -r1.30
+*** video-xv.h	11 Jul 2007 20:08:35 -0000	1.29
+--- video-xv.h	14 Jun 2009 18:24:11 -0000	1.30
+***************
+*** 90,99 ****
+    ~cXvPortAttributeStore();
+    void SetXInfo(Display *dpy, XvPortID port, cSetupStore *setupStore);
+!   void SetValue(char *name, int value);
+!   void SetValuePercent(char *name, int value);
+    int GetValuePercent(int index);
+    void SetColorkey(int value);
+!   void Increment(char *name);
+!   void Decrement(char *name);
+    void Save();
+    bool HasAttribute(char *name);
+--- 90,99 ----
+    ~cXvPortAttributeStore();
+    void SetXInfo(Display *dpy, XvPortID port, cSetupStore *setupStore);
+!   void SetValue(const char *name, int value);
+!   void SetValuePercent(const char *name, int value);
+    int GetValuePercent(int index);
+    void SetColorkey(int value);
+!   void Increment(const char *name);
+!   void Decrement(const char *name);
+    void Save();
+    bool HasAttribute(char *name);
+
+
+

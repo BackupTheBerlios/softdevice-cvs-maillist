@@ -1,0 +1,145 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.137,1.138 SoftOsd.c,1.2,1.3 SoftOsd.h,1.1,1.2
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.137%2C1.138%20SoftOsd.c%2C1.2%2C1.3%20SoftOsd.h%2C1.1%2C1.2&In-Reply-To=%3C200601092026.k09KQ5H20277%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000269.html">
+   <LINK REL="Next"  HREF="000271.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.137,1.138 SoftOsd.c,1.2,1.3 SoftOsd.h,1.1,1.2</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.137%2C1.138%20SoftOsd.c%2C1.2%2C1.3%20SoftOsd.h%2C1.1%2C1.2&In-Reply-To=%3C200601092026.k09KQ5H20277%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.137,1.138 SoftOsd.c,1.2,1.3 SoftOsd.h,1.1,1.2">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon Jan  9 21:26:05 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000269.html">[Softdevice-cvs] softdevice CHANGELOG,1.136,1.137 SoftOsd.c,1.1,1.2
+</A></li>
+        <LI>Next message: <A HREF="000271.html">[Softdevice-cvs] softdevice CHANGELOG,1.138,1.139 video-dfb.c,1.44,1.45
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#270">[ date ]</a>
+              <a href="thread.html#270">[ thread ]</a>
+              <a href="subject.html#270">[ subject ]</a>
+              <a href="author.html#270">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv16387
+
+Modified Files:
+	CHANGELOG SoftOsd.c SoftOsd.h 
+Log Message:
+- add missing sanity check in cSoftOsd::DrawConvertBitmap()
+
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.137
+retrieving revision 1.138
+diff -C2 -d -r1.137 -r1.138
+*** CHANGELOG	8 Jan 2006 14:22:57 -0000	1.137
+--- CHANGELOG	9 Jan 2006 20:26:02 -0000	1.138
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2006-01-09:
++     - add missing sanity check in cSoftOsd::DrawConvertBitmap()
+  2006-01-08:
+      - fix segfault in cSoftOsd for lines longer than 1024
+
+Index: SoftOsd.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.c,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** SoftOsd.c	8 Jan 2006 14:22:57 -0000	1.2
+--- SoftOsd.c	9 Jan 2006 20:26:02 -0000	1.3
+***************
+*** 212,215 ****
+--- 212,220 ----
+  	y2++;
+  	x2++;
++         y2= yOfs+y2+bitmap-&gt;Y0() &gt; OSD_HEIGHT ? 
++                 OSD_HEIGHT-bitmap-&gt;Y0()-yOfs : y2;
++         x2= xOfs+x2+bitmap-&gt;X0() &gt; OSD_WIDTH ? 
++                 OSD_WIDTH-bitmap-&gt;X0()-xOfs : x2;
++         
+  	int bitmap_yOfs=yOfs+bitmap-&gt;Y0()+Y_OFFSET;
+  	uint32_t *OSD_pointer=&amp;OSD_Bitmap[(bitmap_yOfs+y1)*OSD_STRIDE+
+***************
+*** 217,221 ****
+          int missing_line_length=OSD_STRIDE-(x2-x1);
+          bool *dirty_line=&amp;dirty_lines[bitmap_yOfs+y1];
+! 	for (int y=y1; y&lt;y2; y++) {
+  		for (int x=x1; x&lt;x2; x++) {
+  			*(OSD_pointer++)=palette[*bitmap-&gt;Data(x,y)];
+--- 222,227 ----
+          int missing_line_length=OSD_STRIDE-(x2-x1);
+          bool *dirty_line=&amp;dirty_lines[bitmap_yOfs+y1];
+! 
+!         for (int y=y1; y&lt;y2; y++) {
+  		for (int x=x1; x&lt;x2; x++) {
+  			*(OSD_pointer++)=palette[*bitmap-&gt;Data(x,y)];
+
+Index: SoftOsd.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.h,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1 -r1.2
+*** SoftOsd.h	7 Jan 2006 14:29:35 -0000	1.1
+--- SoftOsd.h	9 Jan 2006 20:26:02 -0000	1.2
+***************
+*** 58,62 ****
+      int xOfs,yOfs;
+      uint32_t *OSD_Bitmap;
+!     bool dirty_lines[OSD_STRIDE];
+      cMutex dirty_Mutex;
+      
+--- 58,62 ----
+      int xOfs,yOfs;
+      uint32_t *OSD_Bitmap;
+!     bool dirty_lines[OSD_HEIGHT+10];
+      cMutex dirty_Mutex;
+      
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000269.html">[Softdevice-cvs] softdevice CHANGELOG,1.136,1.137 SoftOsd.c,1.1,1.2
+</A></li>
+	<LI>Next message: <A HREF="000271.html">[Softdevice-cvs] softdevice CHANGELOG,1.138,1.139 video-dfb.c,1.44,1.45
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#270">[ date ]</a>
+              <a href="thread.html#270">[ thread ]</a>
+              <a href="subject.html#270">[ subject ]</a>
+              <a href="author.html#270">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

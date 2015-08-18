@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.326, 1.327 video-fb.c, 1.20,	1.21
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2008q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.326%2C%201.327%20video-fb.c%2C%201.20%2C%0A%091.21&In-Reply-To=%3C20080226105459.67E89128C88%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000601.html">
+   <LINK REL="Next"  HREF="000603.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.326, 1.327 video-fb.c, 1.20,	1.21</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.326%2C%201.327%20video-fb.c%2C%201.20%2C%0A%091.21&In-Reply-To=%3C20080226105459.67E89128C88%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.326, 1.327 video-fb.c, 1.20,	1.21">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue Feb 26 11:54:59 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000601.html">[Softdevice-cvs] softdevice video-fb.c,1.19,1.20
+</A></li>
+        <LI>Next message: <A HREF="000603.html">[Softdevice-cvs] softplay softplay.c,1.11,1.12
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#602">[ date ]</a>
+              <a href="thread.html#602">[ thread ]</a>
+              <a href="subject.html#602">[ subject ]</a>
+              <a href="author.html#602">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv16077
+
+Modified Files:
+	CHANGELOG video-fb.c 
+Log Message:
+via OSD selected screen aspect was not honored
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.326
+retrieving revision 1.327
+diff -C2 -d -r1.326 -r1.327
+*** CHANGELOG	26 Feb 2008 08:06:18 -0000	1.326
+--- CHANGELOG	26 Feb 2008 10:53:22 -0000	1.327
+***************
+*** 2,5 ****
+--- 2,6 ----
+  2008-02-26:
+     - fix for ffmpeg &gt;= r12194.
++    - video-fb: via OSD selected screen aspect was not honored.
+  2008-02-20:
+     - VideoFilter.c: fix some warnings and compile error with ffmpeg &gt;= r11816
+
+Index: video-fb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-fb.c,v
+retrieving revision 1.20
+retrieving revision 1.21
+diff -C2 -d -r1.20 -r1.21
+*** video-fb.c	26 Feb 2008 10:48:45 -0000	1.20
+--- video-fb.c	26 Feb 2008 10:53:22 -0000	1.21
+***************
+*** 74,77 ****
+--- 74,80 ----
+      privBuf.max_height=dheight=fb_vinfo.yres;
+  
++     SetParValues ((double) fb_vinfo.xres / (double) fb_vinfo.yres,
++                   (double) fb_vinfo.xres / (double) fb_vinfo.yres);
++ 
+      switch (fb_finfo.visual) {
+         case FB_VISUAL_TRUECOLOR:
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000601.html">[Softdevice-cvs] softdevice video-fb.c,1.19,1.20
+</A></li>
+	<LI>Next message: <A HREF="000603.html">[Softdevice-cvs] softplay softplay.c,1.11,1.12
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#602">[ date ]</a>
+              <a href="thread.html#602">[ thread ]</a>
+              <a href="subject.html#602">[ subject ]</a>
+              <a href="author.html#602">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

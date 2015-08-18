@@ -1,0 +1,158 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.163,1.164 video-xv.c,1.47,1.48
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.163%2C1.164%20video-xv.c%2C1.47%2C1.48&In-Reply-To=%3C200603312040.k2VKe7t29321%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000310.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.163,1.164 video-xv.c,1.47,1.48</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.163%2C1.164%20video-xv.c%2C1.47%2C1.48&In-Reply-To=%3C200603312040.k2VKe7t29321%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.163,1.164 video-xv.c,1.47,1.48">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Mar 31 22:40:07 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000310.html">[Softdevice-cvs] softdevice CHANGELOG,1.162,1.163 video-xv.c,1.46,1.47 video-xv.h,1.16,1.17
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#311">[ date ]</a>
+              <a href="thread.html#311">[ thread ]</a>
+              <a href="subject.html#311">[ subject ]</a>
+              <a href="author.html#311">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv32103
+
+Modified Files:
+	CHANGELOG video-xv.c 
+Log Message:
+- reactivate use of source x/y offsets for Xv*PutImage(..) operations.
+- date fix of Changelog
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.163
+retrieving revision 1.164
+diff -C2 -d -r1.163 -r1.164
+*** CHANGELOG	31 Mar 2006 19:21:32 -0000	1.163
+--- CHANGELOG	31 Mar 2006 20:40:31 -0000	1.164
+***************
+*** 2,18 ****
+  2006-03-31:
+     - Xinerama support (detection and build requires to run configure).
+! 2005-03-21:
+     - remove the image copy overhead from the ShmClient
+     - catch errors on osd and xv image creation
+     - support for non-shared memory xv
+! 2005-03-12:
+     - Fix StillPicture handling when no PES header is sent 
+       (for example streamdev-server-plugin)
+     - redraw video layer on OSD close in software mode
+     - use OsdWidth and OsdHeight for drawing osd layer
+! 2005-03-11:
+     - MMX version of AYUV_to_AYUV420P()
+     - shortcut for AYUV no scale OSD modes
+! 2005-03-10:
+     - tune some parameters to avoid unecessary rescaling/redrawing of the OSD
+  2006-02-19:
+--- 2,20 ----
+  2006-03-31:
+     - Xinerama support (detection and build requires to run configure).
+!    - reactivate use of source x/y offsets for Xv*PutImage(..) operations.
+!    - date fix of Changelog
+! 2006-03-21:
+     - remove the image copy overhead from the ShmClient
+     - catch errors on osd and xv image creation
+     - support for non-shared memory xv
+! 2006-03-12:
+     - Fix StillPicture handling when no PES header is sent 
+       (for example streamdev-server-plugin)
+     - redraw video layer on OSD close in software mode
+     - use OsdWidth and OsdHeight for drawing osd layer
+! 2006-03-11:
+     - MMX version of AYUV_to_AYUV420P()
+     - shortcut for AYUV no scale OSD modes
+! 2006-03-10:
+     - tune some parameters to avoid unecessary rescaling/redrawing of the OSD
+  2006-02-19:
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.47
+retrieving revision 1.48
+diff -C2 -d -r1.47 -r1.48
+*** video-xv.c	31 Mar 2006 19:21:32 -0000	1.47
+--- video-xv.c	31 Mar 2006 20:40:31 -0000	1.48
+***************
+*** 1329,1333 ****
+                       win, gc,
+                       xv_image,
+!                      0, 0,              /* sx, sy */
+                       swidth, sheight,   /* sw, sh */
+                       lxoff,  lyoff,     /* dx, dy */
+--- 1329,1333 ----
+                       win, gc,
+                       xv_image,
+!                      sxoff, syoff,      /* sx, sy */
+                       swidth, sheight,   /* sw, sh */
+                       lxoff,  lyoff,     /* dx, dy */
+***************
+*** 1338,1345 ****
+                       win, gc,
+                       xv_image,
+!                      0, 0,              /* sx, sy */
+                       swidth, sheight,   /* sw, sh */
+                       lxoff,  lyoff,     /* dx, dy */
+!                      lwidth, lheight   /* dw, dh */
+                       );
+  };
+--- 1338,1345 ----
+                       win, gc,
+                       xv_image,
+!                      sxoff, syoff,      /* sx, sy */
+                       swidth, sheight,   /* sw, sh */
+                       lxoff,  lyoff,     /* dx, dy */
+!                      lwidth, lheight    /* dw, dh */
+                       );
+  };
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000310.html">[Softdevice-cvs] softdevice CHANGELOG,1.162,1.163 video-xv.c,1.46,1.47 video-xv.h,1.16,1.17
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#311">[ date ]</a>
+              <a href="thread.html#311">[ thread ]</a>
+              <a href="subject.html#311">[ subject ]</a>
+              <a href="author.html#311">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,280 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.3,1.4 video-xv.c,1.1.1.1,1.2 video-xv.h,1.1.1.1,1.2
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2004q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.3%2C1.4%20video-xv.c%2C1.1.1.1%2C1.2%20video-xv.h%2C1.1.1.1%2C1.2&In-Reply-To=%3C200408082056.i78Ku2601788%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000001.html">
+   <LINK REL="Next"  HREF="000003.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.3,1.4 video-xv.c,1.1.1.1,1.2 video-xv.h,1.1.1.1,1.2</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.3%2C1.4%20video-xv.c%2C1.1.1.1%2C1.2%20video-xv.h%2C1.1.1.1%2C1.2&In-Reply-To=%3C200408082056.i78Ku2601788%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.3,1.4 video-xv.c,1.1.1.1,1.2 video-xv.h,1.1.1.1,1.2">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Aug  8 22:56:02 CEST 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000001.html">[Softdevice-cvs] softdevice video-dfb.c,1.1.1.1,1.2
+</A></li>
+        <LI>Next message: <A HREF="000003.html">[Softdevice-cvs] softdevice CHANGELOG,1.4,1.5 video-dfb.c,1.2,1.3 video-vidix.c,1.1.1.1,1.2
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#2">[ date ]</a>
+              <a href="thread.html#2">[ thread ]</a>
+              <a href="subject.html#2">[ subject ]</a>
+              <a href="author.html#2">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv21535
+
+Modified Files:
+	CHANGELOG video-xv.c video-xv.h 
+Log Message:
+added xv-out fullscreen patch
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** CHANGELOG	1 Aug 2004 16:23:30 -0000	1.3
+--- CHANGELOG	8 Aug 2004 20:55:59 -0000	1.4
+***************
+*** 1,3 ****
+--- 1,8 ----
+  Changelog
++   2004-08-08:
++     - DFB: fix calling sequence to avoid sig 6
++     - xv-out: added fullscreen patch (Torgeir Veimo)
++               toggle is done via pressing 'f'
++               (works at the moment _only_ with gnome window manager)
+    2004-08-01:
+      - fix: syncOnFrames not stored (Torgeir Veimo)
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1.1.1 -r1.2
+*** video-xv.c	1 Aug 2004 05:07:05 -0000	1.1.1.1
+--- video-xv.c	8 Aug 2004 20:55:59 -0000	1.2
+***************
+*** 27,31 ****
+  #include &quot;utils.h&quot;
+  
+! #define PATCH_VERSION &quot;007_pre_1&quot;
+  
+  static pthread_mutex_t  xv_mutex = PTHREAD_MUTEX_INITIALIZER;
+--- 27,31 ----
+  #include &quot;utils.h&quot;
+  
+! #define PATCH_VERSION &quot;007_pre_2+&quot;
+  
+  static pthread_mutex_t  xv_mutex = PTHREAD_MUTEX_INITIALIZER;
+***************
+*** 279,282 ****
+--- 279,300 ----
+  /* ---------------------------------------------------------------------------
+   */
++ void cXvVideoOut::toggleFullScreen(void)
++ {
++   fullScreen = !fullScreen;
++   XEvent e;
++ 
++   memset(&amp;e,0,sizeof(e));
++   e.xclient.type = ClientMessage;
++   e.xclient.message_type = _NET_WM_STATE;
++   e.xclient.display = dpy;
++   e.xclient.window = win;
++   e.xclient.format = 32;
++   e.xclient.data.l[0] = fullScreen ? 1 : 0;
++   e.xclient.data.l[1] = _NET_WM_STATE_FULLSCREEN;
++   XSendEvent(dpy, DefaultRootWindow(dpy), False, SubstructureRedirectMask, &amp;e);
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
+  void cXvVideoOut::ProcessEvents ()
+  {
+***************
+*** 287,290 ****
+--- 305,309 ----
+      XComposeStatus  compose;
+      KeySym          keysym;
++     struct timeval  current_time;
+  
+    while (XCheckMaskEvent (dpy, /* win, */
+***************
+*** 301,310 ****
+        case MotionNotify:
+        case ButtonPress:
+          if(cursor_visible == False) {
+            XUndefineCursor(dpy, win);
+            cursor_visible = True;
+          }
+-         gettimeofday(&amp;prev_time, NULL);
+-         cur_time.tv_sec = prev_time.tv_sec;
+          break;
+        case ConfigureNotify:
+--- 320,335 ----
+        case MotionNotify:
+        case ButtonPress:
++         gettimeofday(&amp;current_time, NULL);
++         motion_time = current_time.tv_sec;
++         if(event.xbutton.button==Button1) {
++           if(button_time - current_time.tv_sec == 0) {
++             toggleFullScreen();
++           }
++           button_time = current_time.tv_sec;
++         }
+          if(cursor_visible == False) {
+            XUndefineCursor(dpy, win);
+            cursor_visible = True;
+          }
+          break;
+        case ConfigureNotify:
+***************
+*** 325,330 ****
+            cursor_visible = True;
+          }
+!         gettimeofday(&amp;prev_time, NULL);
+!         cur_time.tv_sec = prev_time.tv_sec;
+  
+          len = XLookupString (&amp;event. xkey, buffer, 80, &amp;keysym, &amp;compose);
+--- 350,355 ----
+            cursor_visible = True;
+          }
+!         gettimeofday(&amp;current_time, NULL);
+!         button_time = current_time.tv_sec;
+  
+          len = XLookupString (&amp;event. xkey, buffer, 80, &amp;keysym, &amp;compose);
+***************
+*** 335,338 ****
+--- 360,366 ----
+            case XK_Meta_R: case XK_Alt_L: case XK_Alt_R:
+              break;
++           case 'f':
++             toggleFullScreen();
++             break;
+            case 'b':
+              attributeStore.Decrement(&quot;XV_BRIGHTNESS&quot;);
+***************
+*** 410,415 ****
+    }
+    if(cursor_visible == True) {
+!     gettimeofday(&amp;prev_time, NULL);
+!     if(prev_time.tv_sec - cur_time.tv_sec &gt;= 2) {
+        XDefineCursor(dpy, win, hidden_cursor);
+        cursor_visible = False;
+--- 438,443 ----
+    }
+    if(cursor_visible == True) {
+!     gettimeofday(&amp;current_time, NULL);
+!     if(current_time.tv_sec - motion_time &gt;= 2) {
+        XDefineCursor(dpy, win, hidden_cursor);
+        cursor_visible = False;
+***************
+*** 467,470 ****
+--- 495,499 ----
+      XGCValues           values;
+      XTextProperty       x_wname, x_iname;
++     struct timeval      current_time;
+  
+    dsyslog(&quot;[XvVideoOut]: patch version (%s)&quot;, PATCH_VERSION);
+***************
+*** 545,553 ****
+    cursor_mask = XCreateBitmapFromData(dpy, win, cursor_data, 1, 1);
+    hidden_cursor = XCreatePixmapCursor(dpy, cursor_mask, cursor_mask,
+! 				      &amp;dummy_col, &amp;dummy_col, 0, 0);
+    XFreePixmap(dpy, cursor_mask);
+    cursor_visible = True;
+!   gettimeofday(&amp;prev_time, NULL);
+!   cur_time.tv_sec = prev_time.tv_sec;
+  
+    /* -----------------------------------------------------------------------
+--- 574,586 ----
+    cursor_mask = XCreateBitmapFromData(dpy, win, cursor_data, 1, 1);
+    hidden_cursor = XCreatePixmapCursor(dpy, cursor_mask, cursor_mask,
+!                                       &amp;dummy_col, &amp;dummy_col, 0, 0);
+    XFreePixmap(dpy, cursor_mask);
+    cursor_visible = True;
+!   gettimeofday(&amp;current_time, NULL);
+!   button_time = motion_time = current_time.tv_sec;
+! 
+!   _NET_WM_STATE_FULLSCREEN = XInternAtom(dpy, &quot;_NET_WM_STATE_FULLSCREEN&quot;, False);
+!   _NET_WM_STATE = XInternAtom(dpy, &quot;_NET_WM_STATE&quot;, False);
+!   fullScreen = false;
+  
+    /* -----------------------------------------------------------------------
+
+Index: video-xv.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.h,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1.1.1 -r1.2
+*** video-xv.h	1 Aug 2004 05:07:05 -0000	1.1.1.1
+--- video-xv.h	8 Aug 2004 20:55:59 -0000	1.2
+***************
+*** 94,98 ****
+    Cursor            hidden_cursor;
+    Bool              cursor_visible;
+!   struct timeval    prev_time, cur_time;
+    int               initialized,
+                      osd_refresh_counter,
+--- 94,99 ----
+    Cursor            hidden_cursor;
+    Bool              cursor_visible;
+!   long              motion_time, button_time;
+!   Atom              _NET_WM_STATE_FULLSCREEN, _NET_WM_STATE;
+    int               initialized,
+                      osd_refresh_counter,
+***************
+*** 127,130 ****
+--- 128,135 ----
+    int xres, yres;
+    uint64_t lastUpdate;
++ 
++   bool              fullScreen;
++   void toggleFullScreen(void);
++ 
+  
+  public:
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000001.html">[Softdevice-cvs] softdevice video-dfb.c,1.1.1.1,1.2
+</A></li>
+	<LI>Next message: <A HREF="000003.html">[Softdevice-cvs] softdevice CHANGELOG,1.4,1.5 video-dfb.c,1.2,1.3 video-vidix.c,1.1.1.1,1.2
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#2">[ date ]</a>
+              <a href="thread.html#2">[ thread ]</a>
+              <a href="subject.html#2">[ subject ]</a>
+              <a href="author.html#2">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,208 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice utils.c,1.27,1.28 utils.h,1.18,1.19
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2009q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20utils.c%2C1.27%2C1.28%20utils.h%2C1.18%2C1.19&In-Reply-To=%3C20090227165058.69D5A172631%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000642.html">
+   <LINK REL="Next"  HREF="000644.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice utils.c,1.27,1.28 utils.h,1.18,1.19</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20utils.c%2C1.27%2C1.28%20utils.h%2C1.18%2C1.19&In-Reply-To=%3C20090227165058.69D5A172631%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice utils.c,1.27,1.28 utils.h,1.18,1.19">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Feb 27 17:50:58 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000642.html">[Softdevice-cvs] softdevice CHANGELOG, 1.345, 1.346 mpeg2decoder.c,	1.86, 1.87 mpeg2decoder.h, 1.45, 1.46 setup-softdevice-menu.c,	1.15, 1.16 setup-softdevice.c, 1.56, 1.57 setup-softdevice.h,	1.46, 1.47 softdevice.c, 1.93, 1.94 video.c, 1.77,	1.78 video.h, 1.56, 1.57
+</A></li>
+        <LI>Next message: <A HREF="000644.html">[Softdevice-cvs] softdevice mpeg2decoder.c, 1.87,	1.88 mpeg2decoder.h, 1.46, 1.47 PicBuffer.h, 1.10,	1.11 utils.c, 1.28, 1.29 utils.h, 1.19, 1.20 video.c, 1.78,	1.79 video.h, 1.57, 1.58 video-vidix.c, 1.27, 1.28
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#643">[ date ]</a>
+              <a href="thread.html#643">[ thread ]</a>
+              <a href="subject.html#643">[ subject ]</a>
+              <a href="author.html#643">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv15848
+
+Modified Files:
+	utils.c utils.h 
+Log Message:
+whitespace cleanup
+
+Index: utils.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/utils.c,v
+retrieving revision 1.27
+retrieving revision 1.28
+diff -C2 -d -r1.27 -r1.28
+*** utils.c	10 May 2007 21:57:26 -0000	1.27
+--- utils.c	27 Feb 2009 16:50:55 -0000	1.28
+***************
+*** 825,834 ****
+  
+  void yuv420_to_rgb15(uint8_t *dst1, uint8_t *dst2,
+!                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
+                   int pixel)
+  {
+    pixel/=2;
+    while (pixel) {
+!     YUV420P_TO_RGB(RGB15);  
+      pixel--;
+    };
+--- 825,834 ----
+  
+  void yuv420_to_rgb15(uint8_t *dst1, uint8_t *dst2,
+!                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv,
+                   int pixel)
+  {
+    pixel/=2;
+    while (pixel) {
+!     YUV420P_TO_RGB(RGB15);
+      pixel--;
+    };
+
+Index: utils.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/utils.h,v
+retrieving revision 1.18
+retrieving revision 1.19
+diff -C2 -d -r1.18 -r1.19
+*** utils.h	10 May 2007 21:57:26 -0000	1.18
+--- utils.h	27 Feb 2009 16:50:55 -0000	1.19
+***************
+*** 53,59 ****
+  //#warning Not using MMX extensions
+  #define PREFETCH(x)
+! #define MOVNTQ   
+  #define SFENCE
+! #define EMMS     
+  #endif
+  
+--- 53,59 ----
+  //#warning Not using MMX extensions
+  #define PREFETCH(x)
+! #define MOVNTQ
+  #define SFENCE
+! #define EMMS
+  #endif
+  
+***************
+*** 102,127 ****
+                   );
+  
+! typedef void (*yuv420_convert_fct)(uint8_t *dst1, uint8_t *dst2, 
+                  uint8_t *py1, uint8_t *py2,uint8_t *pu, uint8_t *pv,
+                  int pixel);
+  
+! void yuv420_to_yuy2(uint8_t *dst1, uint8_t *dst2, 
+                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv,
+                  int pixel);
+  void yuv420_to_rgb32(uint8_t *dst1, uint8_t *dst2,
+!                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
+                   int pixel);
+  void yuv420_to_rgb24(uint8_t *dst1, uint8_t *dst2,
+!                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
+                   int pixel);
+  void yuv420_to_bgr24(uint8_t *dst1, uint8_t *dst2,
+!                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
+                   int pixel);
+  void yuv420_to_rgb16(uint8_t *dst1, uint8_t *dst2,
+!                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
+                   int pixel);
+  
+  void yuv420_to_rgb15(uint8_t *dst1, uint8_t *dst2,
+!                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
+                   int pixel);
+  
+--- 102,127 ----
+                   );
+  
+! typedef void (*yuv420_convert_fct)(uint8_t *dst1, uint8_t *dst2,
+                  uint8_t *py1, uint8_t *py2,uint8_t *pu, uint8_t *pv,
+                  int pixel);
+  
+! void yuv420_to_yuy2(uint8_t *dst1, uint8_t *dst2,
+                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv,
+                  int pixel);
+  void yuv420_to_rgb32(uint8_t *dst1, uint8_t *dst2,
+!                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv,
+                   int pixel);
+  void yuv420_to_rgb24(uint8_t *dst1, uint8_t *dst2,
+!                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv,
+                   int pixel);
+  void yuv420_to_bgr24(uint8_t *dst1, uint8_t *dst2,
+!                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv,
+                   int pixel);
+  void yuv420_to_rgb16(uint8_t *dst1, uint8_t *dst2,
+!                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv,
+                   int pixel);
+  
+  void yuv420_to_rgb15(uint8_t *dst1, uint8_t *dst2,
+!                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv,
+                   int pixel);
+  
+***************
+*** 132,136 ****
+  uint64_t  getTimeMilis(void);
+  char      *getFBName(void);
+! bool  CatchRemoteKey(const char *remoteName, uint64_t key, 
+                  const int ToggleKey);
+  
+--- 132,136 ----
+  uint64_t  getTimeMilis(void);
+  char      *getFBName(void);
+! bool  CatchRemoteKey(const char *remoteName, uint64_t key,
+                  const int ToggleKey);
+  
+***************
+*** 146,150 ****
+              ((uint8_t *)dst)[3]=0; \
+          } while (0)
+! #define SIZE_RGB32 4 
+  
+  #define WRITE_RGB24(dst,r,g,b) \
+--- 146,150 ----
+              ((uint8_t *)dst)[3]=0; \
+          } while (0)
+! #define SIZE_RGB32 4
+  
+  #define WRITE_RGB24(dst,r,g,b) \
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000642.html">[Softdevice-cvs] softdevice CHANGELOG, 1.345, 1.346 mpeg2decoder.c,	1.86, 1.87 mpeg2decoder.h, 1.45, 1.46 setup-softdevice-menu.c,	1.15, 1.16 setup-softdevice.c, 1.56, 1.57 setup-softdevice.h,	1.46, 1.47 softdevice.c, 1.93, 1.94 video.c, 1.77,	1.78 video.h, 1.56, 1.57
+</A></li>
+	<LI>Next message: <A HREF="000644.html">[Softdevice-cvs] softdevice mpeg2decoder.c, 1.87,	1.88 mpeg2decoder.h, 1.46, 1.47 PicBuffer.h, 1.10,	1.11 utils.c, 1.28, 1.29 utils.h, 1.19, 1.20 video.c, 1.78,	1.79 video.h, 1.57, 1.58 video-vidix.c, 1.27, 1.28
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#643">[ date ]</a>
+              <a href="thread.html#643">[ thread ]</a>
+              <a href="subject.html#643">[ subject ]</a>
+              <a href="author.html#643">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

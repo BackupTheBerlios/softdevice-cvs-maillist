@@ -1,0 +1,616 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice utils.c, 1.20, 1.21 utils.h, 1.11,	1.12 CHANGELOG, 1.254, 1.255
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20utils.c%2C%201.20%2C%201.21%20utils.h%2C%201.11%2C%0A%091.12%20CHANGELOG%2C%201.254%2C%201.255&In-Reply-To=%3C20061107181415.66E9BA8C8E%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000459.html">
+   <LINK REL="Next"  HREF="000461.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice utils.c, 1.20, 1.21 utils.h, 1.11,	1.12 CHANGELOG, 1.254, 1.255</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20utils.c%2C%201.20%2C%201.21%20utils.h%2C%201.11%2C%0A%091.12%20CHANGELOG%2C%201.254%2C%201.255&In-Reply-To=%3C20061107181415.66E9BA8C8E%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice utils.c, 1.20, 1.21 utils.h, 1.11,	1.12 CHANGELOG, 1.254, 1.255">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue Nov  7 19:14:15 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000459.html">[Softdevice-cvs] softdevice CHANGELOG, 1.253, 1.254 README, 1.21,	1.22 audio-alsa.c, 1.2, 1.3 audio-alsa.h, 1.1,	1.2 setup-softdevice.c, 1.46, 1.47 setup-softdevice.h, 1.34,	1.35 softdevice.c, 1.72, 1.73
+</A></li>
+        <LI>Next message: <A HREF="000461.html">[Softdevice-cvs] softdevice audio-alsa.c, 1.3, 1.4 CHANGELOG, 1.255,	1.256
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#460">[ date ]</a>
+              <a href="thread.html#460">[ thread ]</a>
+              <a href="subject.html#460">[ subject ]</a>
+              <a href="author.html#460">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv23237
+
+Modified Files:
+	utils.c utils.h CHANGELOG 
+Log Message:
+- add yuv to rgb conversion routines for rgb32, rgb24, bgr24 and rgb16
+
+
+Index: utils.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/utils.c,v
+retrieving revision 1.20
+retrieving revision 1.21
+diff -C2 -d -r1.20 -r1.21
+*** utils.c	17 Sep 2006 18:41:27 -0000	1.20
+--- utils.c	7 Nov 2006 18:13:19 -0000	1.21
+***************
+*** 682,685 ****
+--- 682,1126 ----
+  #endif // USE_MMX
+  
++ inline uint8_t clip( int x) {
++   if (x&lt;=0)
++     return 0;
++   if (x&gt;=255)
++     return 255;
++   return (uint8_t) x;
++ };
++ 
++ #define YUV420P_TO_RGB(FMT) \
++     int y=(((int) *py1)-16)*298;        \
++     int u=((int) *pu)-128;              \
++     int v=((int) *pv)-128;              \
++                                         \
++     int r=(409*v+128);                  \
++     int g=(-100*u-208*v+128);           \
++     int b=(516*u+128);                  \
++                                         \
++     WRITE_##FMT(dst,clip((y+r)&gt;&gt;8),clip((y+g)&gt;&gt;8),clip((y+b)&gt;&gt;8)); \
++     py1++;                              \
++                                         \
++     y=(((int) *py1)-16)*298;            \
++     WRITE_##FMT(dst+SIZE_##FMT,clip((y+r)&gt;&gt;8),clip((y+g)&gt;&gt;8),clip((y+b)&gt;&gt;8)); \
++     py1++;                              \
++                                         \
++     /* second line */                   \
++     y=(((int) *py2)-16)*298;            \
++     WRITE_##FMT(dst+dst_stride,clip((y+r)&gt;&gt;8),clip((y+g)&gt;&gt;8),clip((y+b)&gt;&gt;8)); \
++     py2++;                              \
++                                         \
++     y=(((int) *py2)-16)*298;            \
++     WRITE_##FMT(dst+dst_stride+SIZE_##FMT,clip((y+r)&gt;&gt;8),clip((y+g)&gt;&gt;8),clip((y+b)&gt;&gt;8)); \
++     py2++;                              \
++                                         \
++     dst+=2*SIZE_##FMT;                  \
++     pu++;                               \
++     pv++;                               
++ 
++ // MMX macros taken from libswscale
++ /*
++  * Copyright (C) 2000, Silicon Integrated System Corp.
++  * All Rights Reserved.
++  *
++  * Author: Olie Lho &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">ollie at sis.com.tw</A>&gt;
++  *
++  * This file is part of mpeg2dec, a free MPEG-2 video decoder
++  * 
++  * 15,24 bpp and dithering from Michael Niedermayer (<A HREF="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">michaelni at gmx.at</A>)
++  * MMX/MMX2 Template stuff from Michael Niedermayer (needed for fast movntq support)
++  * context / deglobalize stuff by Michael Niedermayer
++  */
++ 
++ #define Y_COEFF      &quot;3*8&quot;
++ #define VR_COEFF     &quot;4*8&quot;
++ #define UB_COEFF     &quot;5*8&quot;
++ #define VG_COEFF     &quot;6*8&quot;
++ #define UG_COEFF     &quot;7*8&quot;
++ #define Y_OFFSET     &quot;8*8&quot;
++ #define U_OFFSET     &quot;9*8&quot;
++ #define V_OFFSET     &quot;10*8&quot;
++ #define MASK_00FF    &quot;11*8&quot;
++ #define RED_MASK     &quot;12*8&quot;
++ #define GREEN_MASK   &quot;13*8&quot;
++ #define M24A_MASK    &quot;14*8&quot;
++ #define M24B_MASK    &quot;15*8&quot;
++ #define M24C_MASK    &quot;16*8&quot;
++ 
++ static uint64_t __attribute__((aligned(8))) MMX_Constants[]= {
++         0,
++         0,
++         0,
++         0x253f253f253f253fULL, /* Y_COEFF    */
++         0x3312331233123312ULL, /* VR_COEFF   */
++         0x4093409340934093ULL, /* UB_COEFF   */
++         0xe5fce5fce5fce5fcULL, /* VG_COEFF   */
++         0xf37df37df37df37dULL, /* UG_COEFF   */
++         0x0080008000800080ULL, /* Y_OFFSET   */
++         0x0400040004000400ULL, /* U_OFFSET   */
++         0x0400040004000400ULL, /* V_OFFSET   */
++         0x00ff00ff00ff00ffULL, /* mask_00ff  */
++         0xf8f8f8f8f8f8f8f8ULL, /* red_mask   */
++         0xfcfcfcfcfcfcfcfcULL, /* green_mask */ 
++         0x00FF0000FF0000FFULL, /* M24A */  
++         0xFF0000FF0000FF00ULL, /* M24B */
++         0x0000FF0000FF0000ULL, /* M24C */
++ };
++ 
++ 
++ #define YUV2RGB \
++      /* Do the multiply part of the conversion for even and odd pixels,
++ 	register usage:
++ 	mm0 -&gt; Cblue, mm1 -&gt; Cred, mm2 -&gt; Cgreen even pixels,
++ 	mm3 -&gt; Cblue, mm4 -&gt; Cred, mm5 -&gt; Cgreen odd pixels,
++ 	mm6 -&gt; Y even, mm7 -&gt; Y odd */\
++      /* convert the chroma part */\
++      &quot;punpcklbw %%mm4, %%mm0\n&quot; /* scatter 4 Cb 00 u3 00 u2 00 u1 00 u0 */ \
++      &quot;punpcklbw %%mm4, %%mm1\n&quot; /* scatter 4 Cr 00 v3 00 v2 00 v1 00 v0 */ \
++ \
++      &quot;psllw $3, %%mm0\n&quot; /* Promote precision */ \
++      &quot;psllw $3, %%mm1\n&quot; /* Promote precision */ \
++ \
++      &quot;psubsw &quot;U_OFFSET&quot;(%0), %%mm0\n&quot; /* Cb -= 128 */ \
++      &quot;psubsw &quot;V_OFFSET&quot;(%0), %%mm1\n&quot; /* Cr -= 128 */ \
++ \
++      &quot;movq %%mm0, %%mm2\n&quot; /* Copy 4 Cb 00 u3 00 u2 00 u1 00 u0 */ \
++      &quot;movq %%mm1, %%mm3\n&quot; /* Copy 4 Cr 00 v3 00 v2 00 v1 00 v0 */ \
++ \
++      &quot;pmulhw &quot;UG_COEFF&quot;(%0), %%mm2\n&quot; /* Mul Cb with green coeff -&gt; Cb green */ \
++      &quot;pmulhw &quot;VG_COEFF&quot;(%0), %%mm3\n&quot; /* Mul Cr with green coeff -&gt; Cr green */ \
++ \
++      &quot;pmulhw &quot;UB_COEFF&quot;(%0), %%mm0\n&quot; /* Mul Cb -&gt; Cblue 00 b3 00 b2 00 b1 00 b0 */\
++      &quot;pmulhw &quot;VR_COEFF&quot;(%0), %%mm1\n&quot; /* Mul Cr -&gt; Cred 00 r3 00 r2 00 r1 00 r0 */\
++ \
++      &quot;paddsw %%mm3, %%mm2\n&quot; /* Cb green + Cr green -&gt; Cgreen */\
++ \
++      /* convert the luma part */\
++      &quot;movq %%mm6, %%mm7\n&quot; /* Copy 8 Y Y7 Y6 Y5 Y4 Y3 Y2 Y1 Y0 */\
++      &quot;pand &quot;MASK_00FF&quot;(%0), %%mm6\n&quot; /* get Y even 00 Y6 00 Y4 00 Y2 00 Y0 */\
++ \
++      &quot;psrlw $8, %%mm7\n&quot; /* get Y odd 00 Y7 00 Y5 00 Y3 00 Y1 */\
++ \
++      &quot;psllw $3, %%mm6\n&quot; /* Promote precision */\
++      &quot;psllw $3, %%mm7\n&quot; /* Promote precision */\
++ \
++      &quot;psubw &quot;Y_OFFSET&quot;(%0), %%mm6\n&quot; /* Y -= 16 */\
++      &quot;psubw &quot;Y_OFFSET&quot;(%0), %%mm7\n&quot; /* Y -= 16 */\
++ \
++      &quot;pmulhw &quot;Y_COEFF&quot;(%0), %%mm6\n&quot; /* Mul 4 Y even 00 y6 00 y4 00 y2 00 y0 */\
++      &quot;pmulhw &quot;Y_COEFF&quot;(%0), %%mm7\n&quot; /* Mul 4 Y odd 00 y7 00 y5 00 y3 00 y1 */\
++ \
++      /* Do the addition part of the conversion for even and odd pixels,
++ 	register usage:
++ 	mm0 -&gt; Cblue, mm1 -&gt; Cred, mm2 -&gt; Cgreen even pixels,
++ 	mm3 -&gt; Cblue, mm4 -&gt; Cred, mm5 -&gt; Cgreen odd pixels,
++ 	mm6 -&gt; Y even, mm7 -&gt; Y odd */\
++      &quot;movq %%mm0, %%mm3\n&quot; /* Copy Cblue */\
++      &quot;movq %%mm1, %%mm4\n&quot; /* Copy Cred */\
++      &quot;movq %%mm2, %%mm5\n&quot; /* Copy Cgreen */\
++ \
++      &quot;paddsw %%mm6, %%mm0\n&quot; /* Y even + Cblue 00 B6 00 B4 00 B2 00 B0 */\
++      &quot;paddsw %%mm7, %%mm3\n&quot; /* Y odd + Cblue 00 B7 00 B5 00 B3 00 B1 */\
++ \
++      &quot;paddsw %%mm6, %%mm1\n&quot; /* Y even + Cred 00 R6 00 R4 00 R2 00 R0 */\
++      &quot;paddsw %%mm7, %%mm4\n&quot; /* Y odd + Cred 00 R7 00 R5 00 R3 00 R1 */\
++ \
++      &quot;paddsw %%mm6, %%mm2\n&quot; /* Y even + Cgreen 00 G6 00 G4 00 G2 00 G0 */\
++      &quot;paddsw %%mm7, %%mm5\n&quot; /* Y odd + Cgreen 00 G7 00 G5 00 G3 00 G1 */\
++ \
++      /* Limit RGB even to 0..255 */\
++      &quot;packuswb %%mm0, %%mm0\n&quot; /* B6 B4 B2 B0  B6 B4 B2 B0 */\
++      &quot;packuswb %%mm1, %%mm1\n&quot; /* R6 R4 R2 R0  R6 R4 R2 R0 */\
++      &quot;packuswb %%mm2, %%mm2\n&quot; /* G6 G4 G2 G0  G6 G4 G2 G0 */\
++ \
++      /* Limit RGB odd to 0..255 */\
++      &quot;packuswb %%mm3, %%mm3\n&quot; /* B7 B5 B3 B1  B7 B5 B3 B1 */\
++      &quot;packuswb %%mm4, %%mm4\n&quot; /* R7 R5 R3 R1  R7 R5 R3 R1 */\
++      &quot;packuswb %%mm5, %%mm5\n&quot; /* G7 G5 G3 G1  G7 G5 G3 G1 */\
++ \
++      /* Interleave RGB even and odd */\
++      &quot;punpcklbw %%mm3, %%mm0\n&quot; /* B7 B6 B5 B4 B3 B2 B1 B0 */\
++      &quot;punpcklbw %%mm4, %%mm1\n&quot; /* R7 R6 R5 R4 R3 R2 R1 R0 */\
++      &quot;punpcklbw %%mm5, %%mm2\n&quot; /* G7 G6 G5 G4 G3 G2 G1 G0 */\
++ 
++ #define WRITE_RGB16_MMX  \
++        /* mask unneeded bits off */\
++        &quot;pand &quot;RED_MASK&quot;(%0), %%mm0\n&quot; /* b7b6b5b4 b3_0_0_0 b7b6b5b4 b3_0_0_0 */\
++        &quot;pand &quot;GREEN_MASK&quot;(%0), %%mm2\n&quot; /* g7g6g5g4 g3g2_0_0 g7g6g5g4 g3g2_0_0 */\
++        &quot;pand &quot;RED_MASK&quot;(%0), %%mm1\n&quot; /* r7r6r5r4 r3_0_0_0 r7r6r5r4 r3_0_0_0 */\
++ \
++        &quot;psrlw $3,%%mm0\n&quot; /* 0_0_0_b7 b6b5b4b3 0_0_0_b7 b6b5b4b3 */\
++        &quot;pxor %%mm4, %%mm4\n&quot; /* zero mm4 */\
++ \
++        &quot;movq %%mm0, %%mm5\n&quot; /* Copy B7-B0 */\
++        &quot;movq %%mm2, %%mm7\n&quot; /* Copy G7-G0 */\
++ \
++        /* convert rgb24 plane to rgb16 pack for pixel 0-3 */\
++        &quot;punpcklbw %%mm4, %%mm2\n&quot; /* 0_0_0_0 0_0_0_0 g7g6g5g4 g3g2_0_0 */\
++        &quot;punpcklbw %%mm1, %%mm0\n&quot; /* r7r6r5r4 r3_0_0_0 0_0_0_b7 b6b5b4b3 */\
++ \
++        &quot;psllw $3, %%mm2\n&quot; /* 0_0_0_0 0_g7g6g5 g4g3g2_0 0_0_0_0 */\
++        &quot;por %%mm2, %%mm0\n&quot; /* r7r6r5r4 r3g7g6g5 g4g3g2b7 b6b5b4b3 */\
++ \
++        MOVNTQ &quot; %%mm0, (%1)\n&quot; /* store pixel 0-3 */\
++ \
++        /* convert rgb24 plane to rgb16 pack for pixel 0-3 */\
++        &quot;punpckhbw %%mm4, %%mm7\n&quot; /* 0_0_0_0 0_0_0_0 g7g6g5g4 g3g2_0_0 */\
++        &quot;punpckhbw %%mm1, %%mm5\n&quot; /* r7r6r5r4 r3_0_0_0 0_0_0_b7 b6b5b4b3 */\
++ \
++        &quot;psllw $3, %%mm7\n&quot; /* 0_0_0_0 0_g7g6g5 g4g3g2_0 0_0_0_0 */\
++        &quot;por %%mm7, %%mm5\n&quot; /* r7r6r5r4 r3g7g6g5 g4g3g2b7 b6b5b4b3*/\
++        MOVNTQ &quot; %%mm5, 8 (%1)\n&quot; /* store pixel 4-7 */\
++ 
++ #define WRITE_RGB24_MMX  \
++ 	&quot;movq &quot;M24A_MASK&quot;(%0), %%mm4	\n\t&quot; \
++ 	&quot;movq &quot;M24C_MASK&quot;(%0), %%mm7	\n\t&quot; \
++ 	&quot;pshufw $0x50, %%mm0, %%mm5	\n\t&quot; /* B3 B2 B3 B2  B1 B0 B1 B0 */\
++ 	&quot;pshufw $0x50, %%mm2, %%mm3	\n\t&quot; /* G3 G2 G3 G2  G1 G0 G1 G0 */\
++ 	&quot;pshufw $0x00, %%mm1, %%mm6	\n\t&quot; /* R1 R0 R1 R0  R1 R0 R1 R0 */\
++ \
++ 	&quot;pand %%mm4, %%mm5		\n\t&quot; /*    B2        B1       B0 */\
++ 	&quot;pand %%mm4, %%mm3		\n\t&quot; /*    G2        G1       G0 */\
++ 	&quot;pand %%mm7, %%mm6		\n\t&quot; /*       R1        R0       */\
++ \
++ 	&quot;psllq $8, %%mm3		\n\t&quot; /* G2        G1       G0    */\
++ 	&quot;por %%mm5, %%mm6		\n\t&quot;\
++ 	&quot;por %%mm3, %%mm6		\n\t&quot;\
++ 	MOVNTQ&quot; %%mm6, (%1)		\n\t&quot;\
++ \
++ 	&quot;psrlq $8, %%mm2		\n\t&quot; /* 00 G7 G6 G5  G4 G3 G2 G1 */\
++ 	&quot;pshufw $0xA5, %%mm0, %%mm5	\n\t&quot; /* B5 B4 B5 B4  B3 B2 B3 B2 */\
++ 	&quot;pshufw $0x55, %%mm2, %%mm3	\n\t&quot; /* G4 G3 G4 G3  G4 G3 G4 G3 */\
++ 	&quot;pshufw $0xA5, %%mm1, %%mm6	\n\t&quot; /* R5 R4 R5 R4  R3 R2 R3 R2 */\
++ \
++ 	&quot;pand &quot;M24B_MASK&quot;(%0), %%mm5	\n\t&quot; /* B5       B4        B3    */\
++ 	&quot;pand %%mm7, %%mm3		\n\t&quot; /*       G4        G3       */\
++ 	&quot;pand %%mm4, %%mm6		\n\t&quot; /*    R4        R3       R2 */\
++ \
++ 	&quot;por %%mm5, %%mm3		\n\t&quot; /* B5    G4 B4     G3 B3    */\
++ 	&quot;por %%mm3, %%mm6		\n\t&quot;\
++ 	MOVNTQ&quot; %%mm6, 8(%1)		\n\t&quot;\
++ \
++ 	&quot;pshufw $0xFF, %%mm0, %%mm5	\n\t&quot; /* B7 B6 B7 B6  B7 B6 B6 B7 */\
++ 	&quot;pshufw $0xFA, %%mm2, %%mm3	\n\t&quot; /* 00 G7 00 G7  G6 G5 G6 G5 */\
++ 	&quot;pshufw $0xFA, %%mm1, %%mm6	\n\t&quot; /* R7 R6 R7 R6  R5 R4 R5 R4 */\
++ \
++ 	&quot;pand %%mm7, %%mm5		\n\t&quot; /*       B7        B6       */\
++ 	&quot;pand %%mm4, %%mm3		\n\t&quot; /*    G7        G6       G5 */\
++ 	&quot;pand &quot;M24B_MASK&quot;(%0), %%mm6	\n\t&quot; /* R7       R6        R5    */\
++ \
++ 	&quot;por %%mm5, %%mm3		\n\t&quot;\
++ 	&quot;por %%mm3, %%mm6		\n\t&quot;\
++ 	MOVNTQ&quot; %%mm6, 16(%1)		\n\t&quot;\
++ 	&quot;pxor %%mm4, %%mm4		\n\t&quot;\
++ 
++ #define WRITE_RGB32_MMX \
++         /* convert RGB plane to RGB packed format, */\
++ 	/* mm0 -&gt; B, mm1 -&gt; R, mm2 -&gt; G, mm3 -&gt; 0, */\
++ 	/* mm4 -&gt; GB, mm5 -&gt; AR pixel 4-7,         */\
++ 	/* mm6 -&gt; GB, mm7 -&gt; AR pixel 0-3          */\
++         &quot;pxor %%mm3, %%mm3\n&quot; /* zero mm3 */ \
++ \
++         &quot;movq %%mm0, %%mm6\n&quot; /* B7 B6 B5 B4 B3 B2 B1 B0 */\
++ 	&quot;movq %%mm1, %%mm7\n&quot; /* R7 R6 R5 R4 R3 R2 R1 R0 */\
++ \
++ 	&quot;movq %%mm0, %%mm4\n&quot; /* B7 B6 B5 B4 B3 B2 B1 B0 */\
++ 	&quot;movq %%mm1, %%mm5\n&quot; /* R7 R6 R5 R4 R3 R2 R1 R0 */\
++ \
++ 	&quot;punpcklbw %%mm2, %%mm6\n&quot; /* G3 B3 G2 B2 G1 B1 G0 B0 */\
++ 	&quot;punpcklbw %%mm3, %%mm7\n&quot; /* 00 R3 00 R2 00 R1 00 R0 */\
++ \
++ 	&quot;punpcklwd %%mm7, %%mm6\n&quot; /* 00 R1 B1 G1 00 R0 B0 G0 */\
++ 	MOVNTQ &quot; %%mm6, (%1)\n&quot; /* Store ARGB1 ARGB0 */\
++ \
++ 	&quot;movq %%mm0, %%mm6\n&quot; /* B7 B6 B5 B4 B3 B2 B1 B0 */\
++ 	&quot;punpcklbw %%mm2, %%mm6\n&quot; /* G3 B3 G2 B2 G1 B1 G0 B0 */\
++ \
++ 	&quot;punpckhwd %%mm7, %%mm6\n&quot; /* 00 R3 G3 B3 00 R2 B3 G2 */\
++ 	MOVNTQ &quot; %%mm6, 8 (%1)\n&quot; /* Store ARGB3 ARGB2 */\
++ \
++ 	&quot;punpckhbw %%mm2, %%mm4\n&quot; /* G7 B7 G6 B6 G5 B5 G4 B4 */\
++ 	&quot;punpckhbw %%mm3, %%mm5\n&quot; /* 00 R7 00 R6 00 R5 00 R4 */\
++ \
++ 	&quot;punpcklwd %%mm5, %%mm4\n&quot; /* 00 R5 B5 G5 00 R4 B4 G4 */\
++ 	MOVNTQ &quot; %%mm4, 16 (%1)\n&quot; /* Store ARGB5 ARGB4 */\
++ \
++ 	&quot;movq %%mm0, %%mm4\n&quot; /* B7 B6 B5 B4 B3 B2 B1 B0 */\
++ 	&quot;punpckhbw %%mm2, %%mm4\n&quot; /* G7 B7 G6 B6 G5 B5 G4 B4 */\
++ \
++ 	&quot;punpckhwd %%mm5, %%mm4\n&quot; /* 00 R7 G7 B7 00 R6 B6 G6 */\
++ 	MOVNTQ &quot; %%mm4, 24 (%1)\n&quot; /* Store ARGB7 ARGB6 */\
++ \
++ 	&quot;pxor %%mm4, %%mm4\n&quot; /* zero mm4 */\
++ 
++                   
++ // end of MMX macros from libswscale
++ 
++ void yuv420_to_rgb32(uint8_t *dst, int dst_stride,
++                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
++                  int pixel)
++ {
++ #ifdef USE_MMX
++   pixel/=8;
++   __asm__ __volatile__(
++       &quot;pxor %%mm4, %%mm4 \n&quot;
++       : : : &quot;memory&quot; );
++   while (pixel) {
++     __asm__ __volatile__ (
++           &quot;movd (%1), %%mm6  \n&quot;
++           &quot;movd (%2), %%mm0  \n&quot;
++           &quot;movd (%3), %%mm1  \n&quot;
++           &quot;punpckldq 4(%1), %%mm6  \n&quot;
++           YUV2RGB
++         	: : &quot;r&quot; (MMX_Constants), &quot;r&quot; (py1), &quot;r&quot; (pu), &quot;r&quot; (pv)
++                 : &quot;memory&quot;);
++     __asm__ __volatile__ (
++           WRITE_RGB32_MMX
++                 : : &quot;r&quot; (MMX_Constants),&quot;r&quot; (dst)
++                 : &quot;memory&quot;);
++     
++     __asm__ __volatile__ (
++           &quot;movd (%1), %%mm6  \n&quot;
++           &quot;movd (%2), %%mm0  \n&quot;
++           &quot;movd (%3), %%mm1  \n&quot;
++           &quot;punpckldq 4(%1), %%mm6  \n&quot;
++           YUV2RGB
++         	: : &quot;r&quot; (MMX_Constants), &quot;r&quot; (py2), &quot;r&quot; (pu), &quot;r&quot; (pv)
++                 : &quot;memory&quot;);
++     __asm__ __volatile__ (
++           WRITE_RGB32_MMX
++                 : : &quot;r&quot; (MMX_Constants), &quot;r&quot; (dst+dst_stride)
++                 : &quot;memory&quot;);
++     dst+=32;
++     py1+=8;
++     py2+=8;
++     pu+=4;
++     pv+=4;
++     pixel--;
++   };
++   EMMS;
++ #else
++   pixel/=2;
++   while (pixel) {
++     YUV420P_TO_RGB(RGB32);  
++     pixel--;
++   };
++ #endif
++ };
++ 
++ void yuv420_to_rgb24(uint8_t *dst, int dst_stride,
++                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
++                  int pixel)
++ {
++ #ifdef USE_MMX2
++   pixel/=8;
++   __asm__ __volatile__(
++       &quot;pxor %%mm4, %%mm4 \n&quot;
++       : : : &quot;memory&quot; );
++   while (pixel) {
++     __asm__ __volatile__ (
++           &quot;movd (%1), %%mm6  \n&quot;
++           &quot;movd (%2), %%mm0  \n&quot;
++           &quot;movd (%3), %%mm1  \n&quot;
++           &quot;punpckldq 4(%1), %%mm6  \n&quot;
++           YUV2RGB
++         	: : &quot;r&quot; (MMX_Constants), &quot;r&quot; (py1), &quot;r&quot; (pu), &quot;r&quot; (pv)
++                 : &quot;memory&quot;);
++     __asm__ __volatile__ (
++           WRITE_RGB24_MMX
++                 : : &quot;r&quot; (MMX_Constants),&quot;r&quot; (dst)
++                 : &quot;memory&quot;);
++     
++     __asm__ __volatile__ (
++           &quot;movd (%1), %%mm6  \n&quot;
++           &quot;movd (%2), %%mm0  \n&quot;
++           &quot;movd (%3), %%mm1  \n&quot;
++           &quot;punpckldq 4(%1), %%mm6  \n&quot;
++           YUV2RGB
++         	: : &quot;r&quot; (MMX_Constants), &quot;r&quot; (py2), &quot;r&quot; (pu), &quot;r&quot; (pv)
++                 : &quot;memory&quot;);
++     __asm__ __volatile__ (
++           WRITE_RGB24_MMX
++                 : : &quot;r&quot; (MMX_Constants), &quot;r&quot; (dst+dst_stride)
++                 : &quot;memory&quot;);
++     dst+=24;
++     py1+=8;
++     py2+=8;
++     pu+=4;
++     pv+=4;
++     pixel--;
++   };
++   EMMS;
++ #else
++   pixel/=2;
++   while (pixel) {
++     YUV420P_TO_RGB(RGB24);  
++     pixel--;
++   };
++ #endif
++ };
++ 
++ void yuv420_to_bgr24(uint8_t *dst, int dst_stride,
++                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
++                  int pixel)
++ {
++   pixel/=2;
++   while (pixel) {
++     YUV420P_TO_RGB(BGR24);  
++     pixel--;
++   };
++ };
++ 
++ void yuv420_to_rgb16(uint8_t *dst, int dst_stride,
++                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
++                  int pixel)
++ {
++ #ifdef USE_MMX
++   pixel/=8;
++   __asm__ __volatile__(
++       &quot;pxor %%mm4, %%mm4 \n&quot;
++       : : : &quot;memory&quot; );
++   while (pixel) {
++     __asm__ __volatile__ (
++           &quot;movd (%1), %%mm6  \n&quot;
++           &quot;movd (%2), %%mm0  \n&quot;
++           &quot;movd (%3), %%mm1  \n&quot;
++           &quot;punpckldq 4(%1), %%mm6  \n&quot;
++           YUV2RGB
++         	: : &quot;r&quot; (MMX_Constants), &quot;r&quot; (py1), &quot;r&quot; (pu), &quot;r&quot; (pv)
++                 : &quot;memory&quot;);
++     __asm__ __volatile__ (
++           WRITE_RGB16_MMX
++                 : : &quot;r&quot; (MMX_Constants),&quot;r&quot; (dst)
++                 : &quot;memory&quot;);
++     __asm__ __volatile__ (
++           &quot;movd (%1), %%mm6  \n&quot;
++           &quot;movd (%2), %%mm0  \n&quot;
++           &quot;movd (%3), %%mm1  \n&quot;
++           &quot;punpckldq 4(%1), %%mm6  \n&quot;
++           YUV2RGB
++         	: : &quot;r&quot; (MMX_Constants), &quot;r&quot; (py2), &quot;r&quot; (pu), &quot;r&quot; (pv)
++                 : &quot;memory&quot;);
++     __asm__ __volatile__ (
++           WRITE_RGB16_MMX
++                 : : &quot;r&quot; (MMX_Constants), &quot;r&quot; (dst+dst_stride)
++                 : &quot;memory&quot;);
++     dst+=16;
++     py1+=8;
++     py2+=8;
++     pu+=4;
++     pv+=4;
++     pixel--;
++   };
++   EMMS;
++ #else
++   pixel/=2;
++   while (pixel) {
++     YUV420P_TO_RGB(RGB16);  
++     pixel--;
++   };
++ #endif
++ };
++ 
+  void AlphaBlend(uint8_t *dest,uint8_t *P1,uint8_t *P2,
+            uint8_t *alpha,uint16_t count) {
+
+Index: utils.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/utils.h,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -C2 -d -r1.11 -r1.12
+*** utils.h	10 Jul 2006 17:46:59 -0000	1.11
+--- utils.h	7 Nov 2006 18:13:19 -0000	1.12
+***************
+*** 113,116 ****
+--- 113,129 ----
+                   int depth, unsigned char * mask, int deintMethod);
+  
++ void yuv420_to_rgb32(uint8_t *dst, int dst_stride,
++                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
++                  int pixel);
++ void yuv420_to_rgb24(uint8_t *dst, int dst_stride,
++                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
++                  int pixel);
++ void yuv420_to_bgr24(uint8_t *dst, int dst_stride,
++                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
++                  int pixel);
++ void yuv420_to_rgb16(uint8_t *dst, int dst_stride,
++                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
++                  int pixel);
++ 
+  void AlphaBlend(uint8_t *dest,uint8_t *P1,uint8_t *P2,
+         uint8_t *alpha,uint16_t count);
+***************
+*** 127,130 ****
+--- 140,179 ----
+  
+  void * fast_memcpy(void * to, const void * from, size_t len);
++ 
++ // RGB pixel write macros
++ #define WRITE_RGB32(dst,r,g,b) \
++         do { \
++             ((uint8_t *)dst)[0]=b; \
++             ((uint8_t *)dst)[1]=g; \
++             ((uint8_t *)dst)[2]=r; \
++             ((uint8_t *)dst)[3]=0; \
++         } while (0)
++ #define SIZE_RGB32 4 
++ 
++ #define WRITE_RGB24(dst,r,g,b) \
++         do { \
++             ((uint8_t *)dst)[0]=b; \
++             ((uint8_t *)dst)[1]=g; \
++             ((uint8_t *)dst)[2]=r; \
++         } while (0)
++ #define SIZE_RGB24  3
++ 
++ #define WRITE_BGR24(dst,r,g,b) \
++         do { \
++             ((uint8_t *)dst)[0]=r; \
++             ((uint8_t *)dst)[1]=g; \
++             ((uint8_t *)dst)[2]=b; \
++         } while (0)
++ #define SIZE_BGR24  3
++ 
++ 
++ #define WRITE_RGB16(dst,r,g,b) \
++         do { \
++             ((uint8_t *)dst)[0]=((b &gt;&gt; 3)&amp; 0x1F) | ((g &amp; 0x1C) &lt;&lt; 3); \
++             ((uint8_t *)dst)[1]=(r &amp; 0xF8) | (g &gt;&gt; 5); \
++         } while (0)
++ #define SIZE_RGB16  2
++ 
++ 
+  #endif
+  
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.254
+retrieving revision 1.255
+diff -C2 -d -r1.254 -r1.255
+*** CHANGELOG	5 Nov 2006 22:05:59 -0000	1.254
+--- CHANGELOG	7 Nov 2006 18:13:19 -0000	1.255
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2006-11-07:
++    - add yuv to rgb conversion routines for rgb32, rgb24, bgr24 and rgb16
+  2006-11-05: softdevice-0.3.1
+     - xv-out: limit used width &amp; height to screen dimensions.
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000459.html">[Softdevice-cvs] softdevice CHANGELOG, 1.253, 1.254 README, 1.21,	1.22 audio-alsa.c, 1.2, 1.3 audio-alsa.h, 1.1,	1.2 setup-softdevice.c, 1.46, 1.47 setup-softdevice.h, 1.34,	1.35 softdevice.c, 1.72, 1.73
+</A></li>
+	<LI>Next message: <A HREF="000461.html">[Softdevice-cvs] softdevice audio-alsa.c, 1.3, 1.4 CHANGELOG, 1.255,	1.256
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#460">[ date ]</a>
+              <a href="thread.html#460">[ thread ]</a>
+              <a href="subject.html#460">[ subject ]</a>
+              <a href="author.html#460">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

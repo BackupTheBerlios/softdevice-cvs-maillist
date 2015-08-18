@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice video.c,1.8,1.9
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video.c%2C1.8%2C1.9&In-Reply-To=%3C200502181738.j1IHc9N27627%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000056.html">
+   <LINK REL="Next"  HREF="000058.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice video.c,1.8,1.9</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video.c%2C1.8%2C1.9&In-Reply-To=%3C200502181738.j1IHc9N27627%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice video.c,1.8,1.9">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Feb 18 18:38:09 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000056.html">[Softdevice-cvs] softdevice video-fb.c,1.3,1.4 video-fb.h,1.1.1.1,1.2
+</A></li>
+        <LI>Next message: <A HREF="000058.html">[Softdevice-cvs] softdevice CHANGELOG,1.34,1.35 Makefile,1.5,1.6 mpeg2decoder.c,1.15,1.16 setup-softdevice.c,1.9,1.10 setup-softdevice.h,1.6,1.7 softdevice.c,1.13,1.14 video-dfb.c,1.17,1.18 video-dfb.h,1.4,1.5 video-dummy.c,1.1.1.1,1.2 video-dummy.h,1.1.1.1,1.2 video-fb.c,1.4,1.5 video-fb.h,1.2,1.3 video-vidix.c,1.5,1.6 video-vidix.h,1.2,1.3 video-xv.c,1.15,1.16 video-xv.h,1.5,1.6 video.c,1.9,1.10 video.h,1.8,1.9
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#57">[ date ]</a>
+              <a href="thread.html#57">[ thread ]</a>
+              <a href="subject.html#57">[ subject ]</a>
+              <a href="author.html#57">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv2139
+
+Modified Files:
+	video.c 
+Log Message:
+OSD drawing: off by 1 fix
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -C2 -d -r1.8 -r1.9
+*** video.c	18 Feb 2005 13:31:27 -0000	1.8
+--- video.c	18 Feb 2005 17:38:06 -0000	1.9
+***************
+*** 472,477 ****
+    {
+      y1=x1=0;
+!     x2=Bitmap-&gt;Width();
+!     y2=Bitmap-&gt;Height();
+    };
+  
+--- 472,477 ----
+    {
+      y1=x1=0;
+!     x2=Bitmap-&gt;Width()-1;
+!     y2=Bitmap-&gt;Height()-1;
+    };
+  
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000056.html">[Softdevice-cvs] softdevice video-fb.c,1.3,1.4 video-fb.h,1.1.1.1,1.2
+</A></li>
+	<LI>Next message: <A HREF="000058.html">[Softdevice-cvs] softdevice CHANGELOG,1.34,1.35 Makefile,1.5,1.6 mpeg2decoder.c,1.15,1.16 setup-softdevice.c,1.9,1.10 setup-softdevice.h,1.6,1.7 softdevice.c,1.13,1.14 video-dfb.c,1.17,1.18 video-dfb.h,1.4,1.5 video-dummy.c,1.1.1.1,1.2 video-dummy.h,1.1.1.1,1.2 video-fb.c,1.4,1.5 video-fb.h,1.2,1.3 video-vidix.c,1.5,1.6 video-vidix.h,1.2,1.3 video-xv.c,1.15,1.16 video-xv.h,1.5,1.6 video.c,1.9,1.10 video.h,1.8,1.9
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#57">[ date ]</a>
+              <a href="thread.html#57">[ thread ]</a>
+              <a href="subject.html#57">[ subject ]</a>
+              <a href="author.html#57">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,178 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice mpeg2decoder.c,1.51,1.52 CHANGELOG,1.103,1.104
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20mpeg2decoder.c%2C1.51%2C1.52%20CHANGELOG%2C1.103%2C1.104&In-Reply-To=%3C200508190909.j7J99P611517%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000194.html">
+   <LINK REL="Next"  HREF="000196.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice mpeg2decoder.c,1.51,1.52 CHANGELOG,1.103,1.104</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20mpeg2decoder.c%2C1.51%2C1.52%20CHANGELOG%2C1.103%2C1.104&In-Reply-To=%3C200508190909.j7J99P611517%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice mpeg2decoder.c,1.51,1.52 CHANGELOG,1.103,1.104">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Aug 19 11:09:25 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000194.html">[Softdevice-cvs] softdevice video.c,1.28,1.29 CHANGELOG,1.102,1.103
+</A></li>
+        <LI>Next message: <A HREF="000196.html">[Softdevice-cvs] softdevice utils.c,1.7,1.8
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#195">[ date ]</a>
+              <a href="thread.html#195">[ thread ]</a>
+              <a href="subject.html#195">[ subject ]</a>
+              <a href="author.html#195">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv8564
+
+Modified Files:
+	mpeg2decoder.c CHANGELOG 
+Log Message:
+- change #ifdefs to contain closing brackets (stops my editor from complaining...)
+	    
+
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.51
+retrieving revision 1.52
+diff -C2 -d -r1.51 -r1.52
+*** mpeg2decoder.c	8 Aug 2005 10:25:03 -0000	1.51
+--- mpeg2decoder.c	19 Aug 2005 09:09:22 -0000	1.52
+***************
+*** 1017,1024 ****
+      
+  #if LIBAVFORMAT_BUILD &gt;4625
+! static offset_t seek_RingBuffer(void *opaque, offset_t offset, int whence) {
+  #else
+! static int seek_RingBuffer(void *opaque, offset_t offset, int whence) {
+  #endif
+       cMpeg2Decoder *Dec=(cMpeg2Decoder *)(opaque);
+       if (Dec) 
+--- 1017,1025 ----
+      
+  #if LIBAVFORMAT_BUILD &gt;4625
+! static offset_t seek_RingBuffer(void *opaque, offset_t offset, int whence) 
+  #else
+! static int seek_RingBuffer(void *opaque, offset_t offset, int whence) 
+  #endif
++ {
+       cMpeg2Decoder *Dec=(cMpeg2Decoder *)(opaque);
+       if (Dec) 
+***************
+*** 1230,1246 ****
+  #if LIBAVFORMAT_BUILD &gt; 4628
+      aout = new cAudioStreamDecoder(ic-&gt;streams[pkt.stream_index]-&gt;codec,
+  #else
+      aout = new cAudioStreamDecoder(&amp;ic-&gt;streams[pkt.stream_index]-&gt;codec,
+- #endif
+                   audioOut, audioMode );
+    } else
+-   if (VideoIdx != DONT_PLAY &amp;&amp; ic-&gt;streams[pkt.stream_index] &amp;&amp;
+  #if LIBAVFORMAT_BUILD &gt; 4628
+        ic-&gt;streams[pkt.stream_index]-&gt;codec-&gt;codec_type == CODEC_TYPE_VIDEO &amp;&amp;
+  #else
+        ic-&gt;streams[pkt.stream_index]-&gt;codec.codec_type == CODEC_TYPE_VIDEO &amp;&amp;
+  #endif
+!       VideoIdx!=pkt.stream_index) {
+! 
+      CMDDEB(&quot;new Video stream index.. old %d new %d\n&quot;,
+        VideoIdx,pkt.stream_index);
+--- 1231,1250 ----
+  #if LIBAVFORMAT_BUILD &gt; 4628
+      aout = new cAudioStreamDecoder(ic-&gt;streams[pkt.stream_index]-&gt;codec,
++                  audioOut, audioMode );
+  #else
+      aout = new cAudioStreamDecoder(&amp;ic-&gt;streams[pkt.stream_index]-&gt;codec,
+                   audioOut, audioMode );
++ #endif
+    } else
+  #if LIBAVFORMAT_BUILD &gt; 4628
++   if (VideoIdx != DONT_PLAY &amp;&amp; ic-&gt;streams[pkt.stream_index] &amp;&amp;
+        ic-&gt;streams[pkt.stream_index]-&gt;codec-&gt;codec_type == CODEC_TYPE_VIDEO &amp;&amp;
++       VideoIdx!=pkt.stream_index) 
+  #else
++   if (VideoIdx != DONT_PLAY &amp;&amp; ic-&gt;streams[pkt.stream_index] &amp;&amp;
+        ic-&gt;streams[pkt.stream_index]-&gt;codec.codec_type == CODEC_TYPE_VIDEO &amp;&amp;
++       VideoIdx!=pkt.stream_index) 
+  #endif
+!   {
+      CMDDEB(&quot;new Video stream index.. old %d new %d\n&quot;,
+        VideoIdx,pkt.stream_index);
+***************
+*** 1253,1260 ****
+  #if LIBAVFORMAT_BUILD &gt; 4628
+      vout = new cVideoStreamDecoder(ic-&gt;streams[pkt.stream_index]-&gt;codec,
+  #else
+      vout = new cVideoStreamDecoder(&amp;ic-&gt;streams[pkt.stream_index]-&gt;codec,
+- #endif
+                     videoOut, &amp;clock, Speed );
+    };
+    
+--- 1257,1265 ----
+  #if LIBAVFORMAT_BUILD &gt; 4628
+      vout = new cVideoStreamDecoder(ic-&gt;streams[pkt.stream_index]-&gt;codec,
++                    videoOut, &amp;clock, Speed );
+  #else
+      vout = new cVideoStreamDecoder(&amp;ic-&gt;streams[pkt.stream_index]-&gt;codec,
+                     videoOut, &amp;clock, Speed );
++ #endif
+    };
+    
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.103
+retrieving revision 1.104
+diff -C2 -d -r1.103 -r1.104
+*** CHANGELOG	19 Aug 2005 09:02:05 -0000	1.103
+--- CHANGELOG	19 Aug 2005 09:09:22 -0000	1.104
+***************
+*** 1,4 ****
+--- 1,6 ----
+  Changelog
+  2005-08-19:
++     - change #ifdefs to contain closing brackets 
++         (stops my editor from complaining...)
+      - fix possible segfault in ToYUV()
+  2005-08-20:
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000194.html">[Softdevice-cvs] softdevice video.c,1.28,1.29 CHANGELOG,1.102,1.103
+</A></li>
+	<LI>Next message: <A HREF="000196.html">[Softdevice-cvs] softdevice utils.c,1.7,1.8
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#195">[ date ]</a>
+              <a href="thread.html#195">[ thread ]</a>
+              <a href="subject.html#195">[ subject ]</a>
+              <a href="author.html#195">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

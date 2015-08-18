@@ -1,0 +1,644 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.93,1.94 video-vidix.c,1.11,1.12 video-vidix.h,1.4,1.5
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.93%2C1.94%20video-vidix.c%2C1.11%2C1.12%20video-vidix.h%2C1.4%2C1.5&In-Reply-To=%3C200507232014.j6NKEYI08264%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000167.html">
+   <LINK REL="Next"  HREF="000169.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.93,1.94 video-vidix.c,1.11,1.12 video-vidix.h,1.4,1.5</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.93%2C1.94%20video-vidix.c%2C1.11%2C1.12%20video-vidix.h%2C1.4%2C1.5&In-Reply-To=%3C200507232014.j6NKEYI08264%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.93,1.94 video-vidix.c,1.11,1.12 video-vidix.h,1.4,1.5">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Jul 23 22:14:34 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000167.html">[Softdevice-cvs] softdevice CHANGELOG,1.92,1.93 mpeg2decoder.c,1.47,1.48 softdevice.c,1.36,1.37 video.c,1.26,1.27 video.h,1.17,1.18
+</A></li>
+        <LI>Next message: <A HREF="000169.html">[Softdevice-cvs] softdevice CHANGELOG,1.94,1.95 README,1.8,1.9 i18n.c,1.4,1.5
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#168">[ date ]</a>
+              <a href="thread.html#168">[ thread ]</a>
+              <a href="subject.html#168">[ subject ]</a>
+              <a href="author.html#168">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv16038
+
+Modified Files:
+	CHANGELOG video-vidix.c video-vidix.h 
+Log Message:
+vidix-out:
+  some cosmetic cleanups
+  force OSD mode pseudo when YUY2 pixelformat is choosen
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.93
+retrieving revision 1.94
+diff -C2 -d -r1.93 -r1.94
+*** CHANGELOG	22 Jul 2005 21:18:41 -0000	1.93
+--- CHANGELOG	23 Jul 2005 20:14:31 -0000	1.94
+***************
+*** 1,3 ****
+--- 1,7 ----
+  Changelog
++ 2005-07-23:
++     - vidix-out:
++       - some cosmetic cleanups
++       - force OSD mode pseudo when YUY2 pixelformat is choosen
+  2005-07-22:
+      - changed pause OSD handling in software drawing mode
+
+Index: video-vidix.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-vidix.c,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -C2 -d -r1.11 -r1.12
+*** video-vidix.c	20 Jul 2005 18:45:47 -0000	1.11
+--- video-vidix.c	23 Jul 2005 20:14:31 -0000	1.12
+***************
+*** 26,29 ****
+--- 26,31 ----
+  #endif
+  
++ /* ---------------------------------------------------------------------------
++  */
+  cVidixVideoOut::cVidixVideoOut(cSetupStore *setupStore)
+                    : cVideoOut(setupStore)
+***************
+*** 216,219 ****
+--- 218,306 ----
+  /* ----------------------------------------------------------------------------
+   */
++ void cVidixVideoOut::SetParams(int Ystride, int UVstride)
++ {
++   if (aspect_changed || currentPixelFormat != setupStore-&gt;pixelFormat ||
++       cutTop != setupStore-&gt;cropTopLines ||
++       cutBottom != setupStore-&gt;cropBottomLines )
++   {
++     cutTop    = setupStore-&gt;cropTopLines;
++     cutBottom = setupStore-&gt;cropBottomLines;
++ 
++     printf(&quot;cVidixVideoOut: Video changed format to %dx%d\n&quot;, fwidth, fheight);
++ 
++     if((Xres &gt; fwidth || Yres &gt; fheight) &amp;&amp;
++        (vidix_cap.flags &amp; FLAG_UPSCALER) != FLAG_UPSCALER)
++     {
++       esyslog(&quot;[cVidixVideoOut] vidix driver can't &quot;
++               &quot;upscale image (%dx%d -&gt; %dx%d) exiting\n&quot;,
++               fwidth, fheight, Xres, Yres);
++       exit(1);
++     }
++ 
++     if((Xres &lt; fwidth || Yres &lt; fheight) &amp;&amp;
++        (vidix_cap.flags &amp; FLAG_DOWNSCALER) != FLAG_DOWNSCALER)
++     {
++       esyslog(&quot;[cVidixVideoOut] vidix driver can't &quot;
++               &quot;downscale image (%dx%d -&gt; %dx%d) exiting\n&quot;,
++               fwidth, fheight, Xres, Yres);
++       exit(1);
++     }
++ 
++     if (currentPixelFormat != setupStore-&gt;pixelFormat)
++     {
++       if (setupStore-&gt;pixelFormat == 0)
++         vidix_fourcc.fourcc = IMGFMT_I420;
++       else if(setupStore-&gt;pixelFormat == 1)
++         vidix_fourcc.fourcc = IMGFMT_YV12;
++       else if(setupStore-&gt;pixelFormat == 2)
++         vidix_fourcc.fourcc = IMGFMT_YUY2;
++ 
++       currentPixelFormat = setupStore-&gt;pixelFormat;
++       if (vdlQueryFourcc(vidix_handler, &amp;vidix_fourcc))
++       {
++         if (!MatchPixelFormat())
++         {
++           esyslog(&quot;[cVidixVideoOut]: no matching pixel format found exiting\n&quot;);
++           exit(1);
++         }
++       }
++     }
++ 
++     vidix_play.fourcc       = vidix_fourcc.fourcc;
++ 
++     vidix_play.src.w  = swidth;
++     vidix_play.src.h  = sheight;
++ 
++     vidix_play.dest.x = lxoff;
++     vidix_play.dest.y = lyoff;
++     vidix_play.dest.w = lwidth;
++     vidix_play.dest.h = lheight;
++ 
++     vidix_play.src.pitch.y=Ystride;
++     vidix_play.src.pitch.u=UVstride;
++     vidix_play.src.pitch.v=UVstride;
++ 
++     AllocLayer();
++ #if 0
++     printf(&quot;cVidixVideoOut : num_frames=%d \n&quot;, vidix_play.num_frames);
++     printf(&quot;cVidixVideoOut : frame_size=%d\n&quot;,  vidix_play.frame_size);
++ 
++     printf(&quot;cVidixVideoOut : src pitches y=%d\n&quot;, vidix_play.src.pitch.y);
++     printf(&quot;cVidixVideoOut : src pitches u=%d\n&quot;, vidix_play.src.pitch.u);
++     printf(&quot;cVidixVideoOut : src pitches v=%d\n&quot;, vidix_play.src.pitch.v);
++ 
++     printf(&quot;cVidixVideoOut : dst pitches y=%d\n&quot;, vidix_play.dest.pitch.y);
++     printf(&quot;cVidixVideoOut : dst pitches u=%d\n&quot;, vidix_play.dest.pitch.u);
++     printf(&quot;cVidixVideoOut : dst pitches v=%d\n&quot;, vidix_play.dest.pitch.v);
++ 
++     printf(&quot;cVidixVideoOut : dstrides.y=%d\n&quot;, dstrides.y);
++     printf(&quot;cVidixVideoOut : dstrides.u=%d\n&quot;, dstrides.u);
++     printf(&quot;cVidixVideoOut : dstrides.v=%d\n&quot;, dstrides.v);
++ #endif
++   }
++ }
++ 
++ /* ----------------------------------------------------------------------------
++  */
+  void cVidixVideoOut::AllocLayer(void)
+  {
+***************
+*** 308,450 ****
+  /* ----------------------------------------------------------------------------
+   */
+! void cVidixVideoOut::YUV(uint8_t *Py, uint8_t *Pu, uint8_t *Pv, int Width, int Height, int Ystride, int UVstride)
+  {
+      uint8_t *dst;
+      int hi, wi;
+-     
+-     START;
+-     TIMINGS(&quot;start...\n&quot;);
+-     if (aspect_changed || currentPixelFormat != setupStore-&gt;pixelFormat ||
+-         cutTop != setupStore-&gt;cropTopLines || cutBottom != setupStore-&gt;cropBottomLines )
+-     {
+-        cutTop    = setupStore-&gt;cropTopLines;
+-        cutBottom = setupStore-&gt;cropBottomLines;
+-     
+-        printf(&quot;cVidixVideoOut: Video changed format to %dx%d\n&quot;, Width, Height);
+- 
+-        if((Xres &gt; Width || Yres &gt; Height) &amp;&amp;
+-           (vidix_cap.flags &amp; FLAG_UPSCALER) != FLAG_UPSCALER)
+-        {
+-            esyslog(&quot;[cVidixVideoOut] vidix driver can't upscale image (%dx%d -&gt; %dx%d) exiting\n&quot;,
+-                    Width, Height, Xres, Yres);
+-            exit(1);
+-        }
+- 
+-        if((Xres &lt; Width || Yres &lt; Height) &amp;&amp;
+-           (vidix_cap.flags &amp; FLAG_DOWNSCALER) != FLAG_DOWNSCALER)
+-        {
+-            esyslog(&quot;[cVidixVideoOut] vidix driver can't downscale image (%dx%d -&gt; %dx%d) exiting\n&quot;,
+-                    Width, Height, Xres, Yres);
+-            exit(1);
+-        }
+- 
+-        if (currentPixelFormat != setupStore-&gt;pixelFormat)
+-        {
+-          if (setupStore-&gt;pixelFormat == 0)
+-            vidix_fourcc.fourcc = IMGFMT_I420;
+-          else if(setupStore-&gt;pixelFormat == 1)
+-            vidix_fourcc.fourcc = IMGFMT_YV12;
+-          else if(setupStore-&gt;pixelFormat == 2)
+-            vidix_fourcc.fourcc = IMGFMT_YUY2;
+- 
+-          currentPixelFormat = setupStore-&gt;pixelFormat;
+-          if (vdlQueryFourcc(vidix_handler, &amp;vidix_fourcc))
+-          {
+-           if (!MatchPixelFormat())
+-           {
+-             esyslog(&quot;[cVidixVideoOut]: no matching pixel format found exiting\n&quot;);
+-             exit(1);
+-           }
+-          }
+-        }
+- 
+-        vidix_play.fourcc       = vidix_fourcc.fourcc;
+  
+!        vidix_play.src.w  = swidth;
+!        vidix_play.src.h  = sheight;
+  
+!        vidix_play.dest.x = lxoff;
+!        vidix_play.dest.y = lyoff;
+!        vidix_play.dest.w = lwidth;
+!        vidix_play.dest.h = lheight;
+  
+!        vidix_play.src.pitch.y=Ystride;
+!        vidix_play.src.pitch.u=UVstride;
+!        vidix_play.src.pitch.v=UVstride;
+  
+!        AllocLayer();
+! #if 0
+!        printf(&quot;cVidixVideoOut : num_frames=%d \n&quot;, vidix_play.num_frames);
+!        printf(&quot;cVidixVideoOut : frame_size=%d\n&quot;,  vidix_play.frame_size);
+  
+!        printf(&quot;cVidixVideoOut : src pitches y=%d\n&quot;, vidix_play.src.pitch.y);
+!        printf(&quot;cVidixVideoOut : src pitches u=%d\n&quot;, vidix_play.src.pitch.u);
+!        printf(&quot;cVidixVideoOut : src pitches v=%d\n&quot;, vidix_play.src.pitch.v);
+  
+!        printf(&quot;cVidixVideoOut : dst pitches y=%d\n&quot;, vidix_play.dest.pitch.y);
+!        printf(&quot;cVidixVideoOut : dst pitches u=%d\n&quot;, vidix_play.dest.pitch.u);
+!        printf(&quot;cVidixVideoOut : dst pitches v=%d\n&quot;, vidix_play.dest.pitch.v);
+  
+!        printf(&quot;cVidixVideoOut : dstrides.y=%d\n&quot;, dstrides.y);
+!        printf(&quot;cVidixVideoOut : dstrides.u=%d\n&quot;, dstrides.u);
+!        printf(&quot;cVidixVideoOut : dstrides.v=%d\n&quot;, dstrides.v);
+  #endif
+-     }
+-     TIMINGS(&quot;after if, before Y\n&quot;);
+- 
+-     // Plane Y
+-     dst = (uint8_t *) vidix_play.dga_addr + vidix_play.offsets[next_frame] + vidix_play.offset.y;
+- 
+-     Py += (Ystride * syoff);
+-     Pv += (UVstride * syoff/2);
+-     Pu += (UVstride * syoff/2);
+- 
+-     OsdRefreshCounter=0;
+- 
+-     if (currentPixelFormat == 0 || currentPixelFormat == 1)
+      {
+! #if VDRVERSNUM &gt;= 10307
+! 	if (OSDpresent &amp;&amp; current_osdMode==OSDMODE_SOFTWARE)
+! 	{
+!         for(hi=0; hi &lt; sheight; hi++){
+! 		AlphaBlend(dst, OsdPy+hi*OSD_FULL_WIDTH, Py + sxoff, OsdPAlphaY+hi*OSD_FULL_WIDTH, swidth);
+!           Py  += Ystride;
+!           dst += dstrides.y;
+! 	    }
+! 	    
+! 	    // Plane U
+! 	    dst = (uint8_t *)vidix_play.dga_addr + vidix_play.offsets[next_frame] + vidix_play.offset.u;
+! 	    for(hi=0; hi &lt; sheight/2; hi++){
+! 		    AlphaBlend(dst,OsdPu+hi*OSD_FULL_WIDTH/2, Pu + sxoff/2, OsdPAlphaUV+hi*OSD_FULL_WIDTH/2,swidth/2);
+! 		    Pu  += UVstride;
+! 		    dst += dstrides.y / 2;
+! 	    }
+! 
+! 	    // Plane V
+! 	    dst = (uint8_t *)vidix_play.dga_addr + vidix_play.offsets[next_frame] + vidix_play.offset.v;
+! 	    for(hi=0; hi &lt; sheight/2; hi++) {
+! 		    AlphaBlend(dst, OsdPv+hi*OSD_FULL_WIDTH/2, Pv + sxoff/2, OsdPAlphaUV+hi*OSD_FULL_WIDTH/2, swidth/2);
+! 		    Pv  += UVstride;
+! 		    dst += dstrides.v / 2;
+!         }
+!       } else
+! #endif
+! 	{	
+! 	    int chromaWidth  = swidth &gt;&gt; 1;
+! 	    int chromaOffset = sxoff &gt;&gt; 1;
+! 
+! 	    Py += Ystride  * cutTop * 2;
+! 	    Pv += UVstride * cutTop;
+! 	    Pu += UVstride * cutTop;
+  
+! 	    dst += dstrides.y * cutTop * 2;
+  
+  
+! 	    for(hi=cutTop*2; hi &lt; sheight-cutBottom*2; hi++)
+! 	    {
+!           memcpy(dst, Py+sxoff, swidth);
+!           Py  += Ystride;
+!           dst += dstrides.y;
+!         }
+  
+        TIMINGS(&quot;Before YUV\n&quot;);
+--- 395,481 ----
+  /* ----------------------------------------------------------------------------
+   */
+! void cVidixVideoOut::YUV(uint8_t *Py, uint8_t *Pu, uint8_t *Pv,
+!                          int Width, int Height,
+!                          int Ystride, int UVstride)
+  {
+      uint8_t *dst;
+      int hi, wi;
+  
+!   START;
+!   TIMINGS(&quot;start...\n&quot;);
+!   SetParams(Ystride, UVstride);
+!   TIMINGS(&quot;after if, before Y\n&quot;);
+  
+!   // Plane Y
+!   dst = (uint8_t *) vidix_play.dga_addr +
+!         vidix_play.offsets[next_frame] +
+!         vidix_play.offset.y;
+  
+!   Py += (Ystride * syoff);
+!   Pv += (UVstride * syoff/2);
+!   Pu += (UVstride * syoff/2);
+  
+!   OsdRefreshCounter=0;
+  
+!   if (currentPixelFormat == 0 || currentPixelFormat == 1)
+!   {
+! #if VDRVERSNUM &gt;= 10307
+!     if (OSDpresent &amp;&amp; current_osdMode==OSDMODE_SOFTWARE)
+!     {
+!       for (hi=0; hi &lt; sheight; hi++){
+!         AlphaBlend(dst,
+!                    OsdPy+hi*OSD_FULL_WIDTH,
+!                    Py + sxoff,
+!                    OsdPAlphaY+hi*OSD_FULL_WIDTH,
+!                    swidth);
+!         Py  += Ystride;
+!         dst += dstrides.y;
+!       }
+  
+!       // Plane U
+!       dst = (uint8_t *)vidix_play.dga_addr +
+!             vidix_play.offsets[next_frame] +
+!             vidix_play.offset.u;
+!       for (hi=0; hi &lt; sheight/2; hi++) {
+!         AlphaBlend(dst,
+!                    OsdPu+hi*OSD_FULL_WIDTH/2,
+!                    Pu + sxoff/2,
+!                    OsdPAlphaUV+hi*OSD_FULL_WIDTH/2,
+!                    swidth/2);
+!         Pu  += UVstride;
+!         dst += dstrides.y / 2;
+!       }
+  
+!       // Plane V
+!       dst = (uint8_t *)vidix_play.dga_addr +
+!             vidix_play.offsets[next_frame] +
+!             vidix_play.offset.v;
+!       for (hi=0; hi &lt; sheight/2; hi++) {
+!         AlphaBlend(dst,
+!                    OsdPv+hi*OSD_FULL_WIDTH/2,
+!                    Pv + sxoff/2,
+!                    OsdPAlphaUV+hi*OSD_FULL_WIDTH/2,
+!                    swidth/2);
+!         Pv  += UVstride;
+!         dst += dstrides.v / 2;
+!       }
+!     } else
+  #endif
+      {
+!         int chromaWidth  = swidth &gt;&gt; 1;
+!         int chromaOffset = sxoff &gt;&gt; 1;
+  
+!       Py += Ystride  * cutTop * 2;
+!       Pv += UVstride * cutTop;
+!       Pu += UVstride * cutTop;
+  
++       dst += dstrides.y * cutTop * 2;
+  
+!       for(hi=cutTop*2; hi &lt; sheight-cutBottom*2; hi++)
+!       {
+!         memcpy(dst, Py+sxoff, swidth);
+!         Py  += Ystride;
+!         dst += dstrides.y;
+!       }
+  
+        TIMINGS(&quot;Before YUV\n&quot;);
+***************
+*** 452,516 ****
+        if (vidix_play.flags &amp; VID_PLAY_INTERLEAVED_UV)
+        {
+! 		int dstStride = dstrides.v &lt;&lt; 1;
+! 		dst = (uint8_t *)vidix_play.dga_addr + vidix_play.offsets[next_frame] + vidix_play.offset.v + dstStride * cutTop;
+  
+! 		for(hi = cutTop; hi &lt; sheight/2; hi++)
+! 		{
+! 		    uint16_t *idst = (uint16_t *) dst;
+! 		    uint8_t  *usrc = Pu + chromaOffset, *vsrc = Pv + chromaOffset;
+  
+! 		    for(wi = 0; wi &lt; chromaWidth; wi++)
+! 		    {
+! 			*idst++ = ( usrc[0] &lt;&lt; 8 ) + vsrc[0];
+! 			usrc++;
+! 			vsrc++;
+            }
+  
+! 		    dst += dstStride;
+            Pu += UVstride;
+            Pv += UVstride;
+          }
+- 
+        } else {
+  
+- 		int dstStride;
+- 		
+          // Plane U
+! 		dstStride = dstrides.u &gt;&gt; 1;		
+! 		dst = (uint8_t *)vidix_play.dga_addr + vidix_play.offsets[next_frame] + vidix_play.offset.u + dstStride * cutTop;
+  
+! 		for(hi=cutTop; hi &lt; sheight/2 - cutBottom; hi++)
+! 		{
+!     		    memcpy(dst, Pu+chromaOffset, chromaWidth);
+!             Pu  += UVstride;
+! 		    dst += dstStride;
+!           }
+  
+!           // Plane V
+! 		dstStride = dstrides.v &gt;&gt; 1;
+! 		dst = (uint8_t *)vidix_play.dga_addr + vidix_play.offsets[next_frame] + vidix_play.offset.v + dstStride * cutTop;
+  
+! 		for(hi=cutTop; hi &lt; sheight/2 - cutBottom; hi++)
+          {
+!     		    memcpy(dst, Pv+chromaOffset, chromaWidth);
+!             Pv   += UVstride;
+! 		    dst += dstStride;
+!           }
+! 
+          }
+        }
+-     } else if (currentPixelFormat == 2) {
+-       yv12_to_yuy2(Py + Ystride  * cutTop * 2,
+-                    Pu + UVstride * cutTop,
+-                    Pv + UVstride * cutTop,
+-                    dst + dstrides.y*2 * cutTop * 2,
+-                    Width, Height - 2 * (cutTop + cutBottom),
+-                    Ystride, UVstride, dstrides.y*2);
+      }
+  
+!     TIMINGS(&quot;After UV\n&quot;);
+!     vdlPlaybackFrameSelect(vidix_handler, next_frame);
+!     next_frame = (next_frame+1) % vidix_play.num_frames;
+!     TIMINGS(&quot;End\n&quot;);
+  }
+  
+--- 483,556 ----
+        if (vidix_play.flags &amp; VID_PLAY_INTERLEAVED_UV)
+        {
+!           int dstStride = dstrides.v &lt;&lt; 1;
+  
+!         dst = (uint8_t *)vidix_play.dga_addr +
+!               vidix_play.offsets[next_frame] +
+!               vidix_play.offset.v +
+!               dstStride * cutTop;
+  
+!         for(hi = cutTop; hi &lt; sheight/2; hi++)
+!         {
+!             uint16_t  *idst = (uint16_t *) dst;
+!             uint8_t   *usrc = Pu + chromaOffset,
+!                       *vsrc = Pv + chromaOffset;
+! 
+!           for(wi = 0; wi &lt; chromaWidth; wi++)
+!           {
+!             *idst++ = ( usrc[0] &lt;&lt; 8 ) + vsrc[0];
+!             usrc++;
+!             vsrc++;
+            }
+  
+!           dst += dstStride;
+            Pu += UVstride;
+            Pv += UVstride;
+          }
+        } else {
++           int dstStride;
+  
+          // Plane U
+!         dstStride = dstrides.u &gt;&gt; 1;
+!         dst = (uint8_t *)vidix_play.dga_addr +
+!               vidix_play.offsets[next_frame] +
+!               vidix_play.offset.u +
+!               dstStride * cutTop;
+  
+!         for(hi=cutTop; hi &lt; sheight/2 - cutBottom; hi++)
+!         {
+!           memcpy(dst, Pu+chromaOffset, chromaWidth);
+!           Pu  += UVstride;
+!           dst += dstStride;
+!         }
+  
+!         // Plane V
+!         dstStride = dstrides.v &gt;&gt; 1;
+!         dst = (uint8_t *)vidix_play.dga_addr +
+!               vidix_play.offsets[next_frame] +
+!               vidix_play.offset.v +
+!               dstStride * cutTop;
+  
+!         for(hi=cutTop; hi &lt; sheight/2 - cutBottom; hi++)
+          {
+!           memcpy(dst, Pv+chromaOffset, chromaWidth);
+!           Pv   += UVstride;
+!           dst += dstStride;
+          }
+        }
+      }
++   } else if (currentPixelFormat == 2) {
++     current_osdMode = setupStore-&gt;osdMode = OSDMODE_PSEUDO;
++     yv12_to_yuy2(Py + Ystride  * cutTop * 2,
++                  Pu + UVstride * cutTop,
++                  Pv + UVstride * cutTop,
++                  dst + dstrides.y*2 * cutTop * 2,
++                  Width, Height - 2 * (cutTop + cutBottom),
++                  Ystride, UVstride, dstrides.y*2);
++   }
+  
+!   TIMINGS(&quot;After UV\n&quot;);
+!   vdlPlaybackFrameSelect(vidix_handler, next_frame);
+!   next_frame = (next_frame+1) % vidix_play.num_frames;
+!   TIMINGS(&quot;End\n&quot;);
+  }
+  
+***************
+*** 542,545 ****
+--- 582,587 ----
+  
+  
++ /* ---------------------------------------------------------------------------
++  */
+  void cVidixVideoOut::Refresh(cBitmap *Bitmap)
+  {
+***************
+*** 556,559 ****
+--- 598,603 ----
+  #else
+  
++ /* ---------------------------------------------------------------------------
++  */
+  void cVidixVideoOut::Refresh()
+  {
+***************
+*** 561,565 ****
+      for (int i = 0; i &lt; MAXNUMWINDOWS; i++)
+      {
+!         if (layer[i] &amp;&amp; layer[i]-&gt;visible) layer[i]-&gt;Draw(fb, fb_line_len, NULL);
+      }
+  }
+--- 605,610 ----
+      for (int i = 0; i &lt; MAXNUMWINDOWS; i++)
+      {
+!         if (layer[i] &amp;&amp; layer[i]-&gt;visible)
+!           layer[i]-&gt;Draw(fb, fb_line_len, NULL);
+      }
+  }
+***************
+*** 567,570 ****
+--- 612,617 ----
+  #endif
+  
++ /* ---------------------------------------------------------------------------
++  */
+  void cVidixVideoOut::CloseOSD()
+  {
+***************
+*** 573,576 ****
+--- 620,625 ----
+  }
+  
++ /* ---------------------------------------------------------------------------
++  */
+  cVidixVideoOut::~cVidixVideoOut()
+  {
+
+Index: video-vidix.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-vidix.h,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -C2 -d -r1.4 -r1.5
+*** video-vidix.h	5 Jun 2005 20:58:12 -0000	1.4
+--- video-vidix.h	23 Jul 2005 20:14:32 -0000	1.5
+***************
+*** 39,42 ****
+--- 39,44 ----
+      uint8_t            next_frame;
+  
++     void SetParams(int Ystride, int UVstride);
++ 
+  public:
+    cVidixVideoOut(cSetupStore *setupStore);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000167.html">[Softdevice-cvs] softdevice CHANGELOG,1.92,1.93 mpeg2decoder.c,1.47,1.48 softdevice.c,1.36,1.37 video.c,1.26,1.27 video.h,1.17,1.18
+</A></li>
+	<LI>Next message: <A HREF="000169.html">[Softdevice-cvs] softdevice CHANGELOG,1.94,1.95 README,1.8,1.9 i18n.c,1.4,1.5
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#168">[ date ]</a>
+              <a href="thread.html#168">[ thread ]</a>
+              <a href="subject.html#168">[ subject ]</a>
+              <a href="author.html#168">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

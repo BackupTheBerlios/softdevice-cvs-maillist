@@ -1,0 +1,369 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.15,1.16 video-xv.c,1.6,1.7 video-xv.h,1.2,1.3 video.h,1.3,1.4
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2004q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.15%2C1.16%20video-xv.c%2C1.6%2C1.7%20video-xv.h%2C1.2%2C1.3%20video.h%2C1.3%2C1.4&In-Reply-To=%3C200410292036.i9TKa9B23405%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000024.html">
+   <LINK REL="Next"  HREF="000026.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.15,1.16 video-xv.c,1.6,1.7 video-xv.h,1.2,1.3 video.h,1.3,1.4</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.15%2C1.16%20video-xv.c%2C1.6%2C1.7%20video-xv.h%2C1.2%2C1.3%20video.h%2C1.3%2C1.4&In-Reply-To=%3C200410292036.i9TKa9B23405%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.15,1.16 video-xv.c,1.6,1.7 video-xv.h,1.2,1.3 video.h,1.3,1.4">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Oct 29 22:36:09 CEST 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000024.html">[Softdevice-cvs] softdevice CHANGELOG,1.14,1.15 softdevice.c,1.3,1.4 video-xv.c,1.5,1.6
+</A></li>
+        <LI>Next message: <A HREF="000026.html">[Softdevice-cvs] softdevice CHANGELOG,1.16,1.17 softdevice.c,1.4,1.5 video-xv.c,1.7,1.8
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#25">[ date ]</a>
+              <a href="thread.html#25">[ thread ]</a>
+              <a href="subject.html#25">[ subject ]</a>
+              <a href="author.html#25">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv27251
+
+Modified Files:
+	CHANGELOG video-xv.c video-xv.h video.h 
+Log Message:
+changed fullscreen mode. works now with more wms
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.15
+retrieving revision 1.16
+diff -C2 -d -r1.15 -r1.16
+*** CHANGELOG	29 Oct 2004 17:54:22 -0000	1.15
+--- CHANGELOG	29 Oct 2004 20:36:07 -0000	1.16
+***************
+*** 1,4 ****
+--- 1,5 ----
+  Changelog
+    2004-10-29:
++    - xv-out: changed fullscreen mode. works now with more wms (bug: #2265)
+     - xv-out: fix possible race condition causing segfault during init (bug: #2699)
+     - allow setting alsa device with command line parameter or in setup.conf
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -C2 -d -r1.6 -r1.7
+*** video-xv.c	29 Oct 2004 17:54:22 -0000	1.6
+--- video-xv.c	29 Oct 2004 20:36:07 -0000	1.7
+***************
+*** 28,32 ****
+  #include &quot;utils.h&quot;
+  
+! #define PATCH_VERSION &quot;007_pre_3&quot;
+  
+  static pthread_mutex_t  xv_mutex = PTHREAD_MUTEX_INITIALIZER;
+--- 28,32 ----
+  #include &quot;utils.h&quot;
+  
+! #define PATCH_VERSION &quot;007_pre_3+&quot;
+  
+  static pthread_mutex_t  xv_mutex = PTHREAD_MUTEX_INITIALIZER;
+***************
+*** 283,299 ****
+  void cXvVideoOut::toggleFullScreen(void)
+  {
+    fullScreen = !fullScreen;
+!   XEvent e;
+  
+    memset(&amp;e,0,sizeof(e));
+    e.xclient.type = ClientMessage;
+!   e.xclient.message_type = _NET_WM_STATE;
+    e.xclient.display = dpy;
+    e.xclient.window = win;
+    e.xclient.format = 32;
+!   e.xclient.data.l[0] = fullScreen ? 1 : 0;
+!   e.xclient.data.l[1] = _NET_WM_STATE_FULLSCREEN;
+    XSendEvent(dpy, DefaultRootWindow(dpy), False, SubstructureRedirectMask, &amp;e);
+  
+    xScreensaver-&gt;DisableScreensaver(fullScreen); // enable of disable based on fullScreen state
+  }
+--- 283,374 ----
+  void cXvVideoOut::toggleFullScreen(void)
+  {
++     XEvent      e;
++     XSizeHints  wmHints;
++     Atom        wmAtom;
++     int         x, y, w, h;
++ 
+    fullScreen = !fullScreen;
+! 
+!   if (fullScreen)
+!   {
+!       XWindowAttributes winAttr;
+!       Window            dummyWin;
+! 
+! 
+!     if (XGetWindowAttributes(dpy, win, &amp;winAttr))
+!     {
+!         XVisualInfo vistemp, *vinfo;
+!         int         dummy;
+! 
+!       vinfo = XGetVisualInfo(dpy, VisualIDMask, &amp;vistemp, &amp;dummy);
+!       XTranslateCoordinates (dpy, win, winAttr.root,
+!                              -winAttr.border_width,
+!                              -winAttr.border_width,
+!                              &amp;old_x, &amp;old_y, &amp;dummyWin);
+!     }
+!     else
+!     {
+!       old_x       = dx;
+!       old_y       = dy;
+!     }
+!     old_dwidth  = dwidth;
+!     old_dheight = dheight;
+! 
+!     x = y = 0;
+!     w = DisplayWidth(dpy,DefaultScreen(dpy));
+!     h = DisplayHeight(dpy,DefaultScreen(dpy));
+!   }
+!   else
+!   {
+!     x = old_x;
+!     y = old_y;
+!     w = old_dwidth;
+!     h = old_dheight;
+!   }
+! 
+!   wmHints.flags = PSize | PPosition | PWinGravity;
+!   wmHints.win_gravity = StaticGravity;
+!   wmHints.x = x;
+!   wmHints.y = y;
+!   wmHints.width  = w;
+!   wmHints.height = h;
+!   wmHints.max_width  = 0;
+!   wmHints.max_height = 0;
+! 
+!   if ((wmAtom = XInternAtom (dpy, &quot;_MOTIF_WM_HINTS&quot;, False)))
+!   {
+!       int         mwmHints [5];
+! 
+!     mwmHints [0] = 2;
+!     mwmHints [2] = (fullScreen) ? 0 : 1;
+!     mwmHints [1] = mwmHints [3] = mwmHints [4] = 0;
+!     XChangeProperty (dpy, win, wmAtom, wmAtom,
+!                      32, PropModeReplace, (unsigned char *) mwmHints, 5);
+!   }
+! 
+!   XSetWMNormalHints(dpy, win, &amp;wmHints);
+  
+    memset(&amp;e,0,sizeof(e));
+    e.xclient.type = ClientMessage;
+!   e.xclient.message_type = net_wm_STATE;
+    e.xclient.display = dpy;
+    e.xclient.window = win;
+    e.xclient.format = 32;
+!   e.xclient.data.l[0] = (fullScreen) ? 1 : 0;
+!   if (net_wm_STATE_ABOVE)
+!     e.xclient.data.l[1] = net_wm_STATE_ABOVE;
+!   else if (net_wm_STATE_FULLSCREEN)
+!     e.xclient.data.l[1] = net_wm_STATE_FULLSCREEN;
+!   else //if (net_wm_STATE_STAYS_ON_TOP)
+!     e.xclient.data.l[1] = net_wm_STATE_STAYS_ON_TOP;
+    XSendEvent(dpy, DefaultRootWindow(dpy), False, SubstructureRedirectMask, &amp;e);
+  
++   XReparentWindow (dpy, win, DefaultRootWindow(dpy), x, y);
++   XMoveResizeWindow (dpy, win, x, y, w, h);
++ 
++   //XMapRaised (dpy, win);
++   //XRaiseWindow (dpy, win);
++ 
++   XFlush (dpy);
+    xScreensaver-&gt;DisableScreensaver(fullScreen); // enable of disable based on fullScreen state
+  }
+***************
+*** 306,310 ****
+      float           old_aspect;
+      char            buffer [80];
+!     int             len;
+      XComposeStatus  compose;
+      KeySym          keysym;
+--- 381,386 ----
+      float           old_aspect;
+      char            buffer [80];
+!     int             len,
+!                     map_count = 0;
+      XComposeStatus  compose;
+      KeySym          keysym;
+***************
+*** 338,341 ****
+--- 414,419 ----
+          break;
+        case ConfigureNotify:
++         dx = event.xconfigure.x;
++         dy = event.xconfigure.y;
+          dwidth = event.xconfigure.width;
+          dheight = event.xconfigure.height;
+***************
+*** 420,434 ****
+  
+        case MapNotify:
+          if (initialized) {
+!           XvShmPutImage(dpy, port,
+!                         win, gc,
+!                         xv_image,
+!                         sxoff, syoff,      /* sx, sy */
+!                         swidth, sheight,   /* sw, sh */
+!                         lxoff,  lyoff,     /* dx, dy */
+!                         lwidth, lheight,   /* dw, dh */
+!                         False);
+              XSync(dpy, False);
+            }
+          break;
+        case UnmapNotify:
+--- 498,520 ----
+  
+        case MapNotify:
++         map_count++;
+          if (initialized) {
+!           XSetInputFocus(dpy,
+!                    win,
+!                    RevertToParent,
+!                    CurrentTime);
+!           if (map_count &gt; 2) {
+!             XvShmPutImage(dpy, port,
+!                           win, gc,
+!                           xv_image,
+!                           sxoff, syoff,      /* sx, sy */
+!                           swidth, sheight,   /* sw, sh */
+!                           lxoff,  lyoff,     /* dx, dy */
+!                           lwidth, lheight,   /* dw, dh */
+!                           False);
+              XSync(dpy, False);
++             map_count = 0;
+            }
++         }
+          break;
+        case UnmapNotify:
+***************
+*** 443,446 ****
+--- 529,545 ----
+      }
+    }
++ 
++   if (initialized &amp;&amp; map_count) {
++     XvShmPutImage(dpy, port,
++                   win, gc,
++                   xv_image,
++                   sxoff, syoff,      /* sx, sy */
++                   swidth, sheight,   /* sw, sh */
++                   lxoff,  lyoff,     /* dx, dy */
++                   lwidth, lheight,   /* dw, dh */
++                   False);
++     XSync(dpy, False);
++   }
++ 
+    if(cursor_visible == True) {
+      gettimeofday(&amp;current_time, NULL);
+***************
+*** 588,593 ****
+    button_time = motion_time = current_time.tv_sec;
+  
+!   _NET_WM_STATE_FULLSCREEN = XInternAtom(dpy, &quot;_NET_WM_STATE_FULLSCREEN&quot;, False);
+!   _NET_WM_STATE = XInternAtom(dpy, &quot;_NET_WM_STATE&quot;, False);
+    fullScreen = false;
+  
+--- 687,694 ----
+    button_time = motion_time = current_time.tv_sec;
+  
+!   net_wm_STATE_FULLSCREEN = XInternAtom(dpy, &quot;_NET_WM_STATE_FULLSCREEN&quot;, False);
+!   net_wm_STATE_STAYS_ON_TOP = XInternAtom(dpy, &quot;_NET_WM_STATE_STAYS_ON_TOP&quot;, False);
+!   net_wm_STATE_ABOVE = XInternAtom(dpy, &quot;_NET_WM_STATE_ABOVE&quot;, False);
+!   net_wm_STATE = XInternAtom(dpy, &quot;_NET_WM_STATE&quot;, False);
+    fullScreen = false;
+  
+
+Index: video-xv.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.h,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** video-xv.h	8 Aug 2004 20:55:59 -0000	1.2
+--- video-xv.h	29 Oct 2004 20:36:07 -0000	1.3
+***************
+*** 95,99 ****
+    Bool              cursor_visible;
+    long              motion_time, button_time;
+!   Atom              _NET_WM_STATE_FULLSCREEN, _NET_WM_STATE;
+    int               initialized,
+                      osd_refresh_counter,
+--- 95,102 ----
+    Bool              cursor_visible;
+    long              motion_time, button_time;
+!   Atom              net_wm_STATE_FULLSCREEN,
+!                     net_wm_STATE_STAYS_ON_TOP,
+!                     net_wm_STATE_ABOVE,
+!                     net_wm_STATE;
+    int               initialized,
+                      osd_refresh_counter,
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** video.h	25 Oct 2004 17:58:59 -0000	1.3
+--- video.h	29 Oct 2004 20:36:07 -0000	1.4
+***************
+*** 46,50 ****
+              OSDpseudo_alpha;
+      int     Xres, Yres, Bpp; // the child class MUST set these params (for OSD Drawing)
+!     int     dwidth, dheight,
+              fwidth, fheight,
+              swidth, sheight,
+--- 46,51 ----
+              OSDpseudo_alpha;
+      int     Xres, Yres, Bpp; // the child class MUST set these params (for OSD Drawing)
+!     int     dx, dy, dwidth, dheight,
+!             old_x, old_y, old_dwidth, old_dheight,
+              fwidth, fheight,
+              swidth, sheight,
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000024.html">[Softdevice-cvs] softdevice CHANGELOG,1.14,1.15 softdevice.c,1.3,1.4 video-xv.c,1.5,1.6
+</A></li>
+	<LI>Next message: <A HREF="000026.html">[Softdevice-cvs] softdevice CHANGELOG,1.16,1.17 softdevice.c,1.4,1.5 video-xv.c,1.7,1.8
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#25">[ date ]</a>
+              <a href="thread.html#25">[ thread ]</a>
+              <a href="subject.html#25">[ subject ]</a>
+              <a href="author.html#25">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

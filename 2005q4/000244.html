@@ -1,0 +1,272 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice setup-softdevice.c,1.36,1.37 setup-softdevice.h,1.22,1.23
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20setup-softdevice.c%2C1.36%2C1.37%20setup-softdevice.h%2C1.22%2C1.23&In-Reply-To=%3C200511060726.jA67QaN17479%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000243.html">
+   <LINK REL="Next"  HREF="000245.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice setup-softdevice.c,1.36,1.37 setup-softdevice.h,1.22,1.23</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20setup-softdevice.c%2C1.36%2C1.37%20setup-softdevice.h%2C1.22%2C1.23&In-Reply-To=%3C200511060726.jA67QaN17479%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice setup-softdevice.c,1.36,1.37 setup-softdevice.h,1.22,1.23">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Nov  6 08:26:36 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000243.html">[Softdevice-cvs] softdevice i18n.c,1.11,1.12
+</A></li>
+        <LI>Next message: <A HREF="000245.html">[Softdevice-cvs] softdevice video-xv.c,1.33,1.34 video-xv.h,1.9,1.10
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#244">[ date ]</a>
+              <a href="thread.html#244">[ thread ]</a>
+              <a href="subject.html#244">[ subject ]</a>
+              <a href="author.html#244">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv12023
+
+Modified Files:
+	setup-softdevice.c setup-softdevice.h 
+Log Message:
+make some video attributes changeable via OSD
+
+Index: setup-softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.c,v
+retrieving revision 1.36
+retrieving revision 1.37
+diff -C2 -d -r1.36 -r1.37
+*** setup-softdevice.c	4 Nov 2005 22:32:02 -0000	1.36
+--- setup-softdevice.c	6 Nov 2005 07:26:31 -0000	1.37
+***************
+*** 130,133 ****
+--- 130,135 ----
+    mainMenu  = 1;
+    syncTimerMode = 2;
++   vidCaps = 0;
++   vidBrightness = vidHue = vidContrast = vidSaturation = VID_MAX_PARM_VALUE / 2;
+  
+    /* --------------------------------------------------------------------------
+***************
+*** 353,356 ****
+--- 355,374 ----
+      fprintf(stderr, &quot;[setup-softdevice] syncTimerMode: %s\n&quot;,
+              syncTimerNames[syncTimerMode]);
++   } else if (!strcasecmp(Name, &quot;vidBrightness&quot;)) {
++     vidBrightness = atoi (Value);
++     vidBrightness = clamp (0, vidBrightness, 100);
++     fprintf(stderr, &quot;[setup-softdevice] vidBrightness: %d\n&quot;, vidBrightness);
++   } else if (!strcasecmp(Name, &quot;vidContrast&quot;)) {
++     vidContrast = atoi (Value);
++     vidContrast = clamp (0, vidContrast, 100);
++     fprintf(stderr, &quot;[setup-softdevice] vidContrast: %d\n&quot;, vidContrast);
++   } else if (!strcasecmp(Name, &quot;vidHue&quot;)) {
++     vidHue = atoi (Value);
++     vidHue = clamp (0, vidHue, 100);
++     fprintf(stderr, &quot;[setup-softdevice] vidHue: %d\n&quot;, vidHue);
++   } else if (!strcasecmp(Name, &quot;vidSaturation&quot;)) {
++     vidSaturation = atoi (Value);
++     vidSaturation = clamp (0, vidSaturation, 100);
++     fprintf(stderr, &quot;[setup-softdevice] vidSaturation: %d\n&quot;, vidSaturation);
+    }  else
+      return false;
+***************
+*** 413,416 ****
+--- 431,499 ----
+  /* ---------------------------------------------------------------------------
+   */
++ cMenuSetupVideoParm::cMenuSetupVideoParm(const char *name) : cOsdMenu(name, 33)
++ {
++   copyData = setupStore;
++   data = &setupStore;
++ 
++   if (data-&gt;vidCaps &amp; CAP_BRIGHTNESS)
++   {
++     Add(new cMenuEditIntItem(tr(&quot;Brightness&quot;),
++                              &amp;data-&gt;vidBrightness,
++                              0,
++                              VID_MAX_PARM_VALUE));
++   }
++   if (data-&gt;vidCaps &amp; CAP_CONTRAST)
++   {
++     Add(new cMenuEditIntItem(tr(&quot;Contrast&quot;),
++                              &amp;data-&gt;vidContrast,
++                              0,
++                              VID_MAX_PARM_VALUE));
++   }
++   if (data-&gt;vidCaps &amp; CAP_HUE)
++   {
++     Add(new cMenuEditIntItem(tr(&quot;Hue&quot;),
++                              &amp;data-&gt;vidHue,
++                              0,
++                              VID_MAX_PARM_VALUE));
++   }
++   if (data-&gt;vidCaps &amp; CAP_SATURATION)
++   {
++     Add(new cMenuEditIntItem(tr(&quot;Saturation&quot;),
++                              &amp;data-&gt;vidSaturation,
++                              0,
++                              VID_MAX_PARM_VALUE));
++   }
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ eOSState cMenuSetupVideoParm::ProcessKey(eKeys Key)
++ {
++     eOSState state = cOsdMenu::ProcessKey(Key);
++ 
++   switch (state)
++   {
++     case osUnknown:
++       switch (Key)
++       {
++         case kOk:
++           state = osBack;
++           break;
++         default:
++           break;
++       }
++       break;
++     case osBack:
++       setupStore = copyData;
++       fprintf (stderr, &quot;[setup-videoparm] restoring setup state\n&quot;);
++       break;
++     default:
++       break;
++   }
++   return state;
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
+  cMenuSetupCropping::cMenuSetupCropping(const char *name) : cOsdMenu(name, 33)
+  {
+***************
+*** 576,579 ****
+--- 659,668 ----
+    Add(new cOsdItem(tr(&quot;Cropping&quot;)));
+    Add(new cOsdItem(tr(&quot;Post processing&quot;)));
++ 
++   if (data-&gt;vidCaps)
++   {
++     Add(new cOsdItem(tr(&quot;Video out&quot;)));
++   }
++ 
+  #if VDRVERSNUM &gt;= 10334
+    Add(new cOsdItem(&quot; &quot;, osUnknown, false));
+***************
+*** 688,691 ****
+--- 777,784 ----
+              return AddSubMenu (new cMenuSetupPostproc(tr(&quot;Post processing&quot;)));
+            }
++           else if (!strcmp(Get(Current())-&gt;Text(),tr(&quot;Video out&quot;)))
++           {
++             return AddSubMenu (new cMenuSetupVideoParm(tr(&quot;Video out&quot;)));
++           }
+            Store();
+            state = osBack;
+***************
+*** 745,747 ****
+--- 838,844 ----
+    SetupStore (&quot;mainMenu&quot;,             setupStore.mainMenu);
+    SetupStore (&quot;syncTimerMode&quot;,        setupStore.syncTimerMode);
++   SetupStore (&quot;vidBrightness&quot;,        setupStore.vidBrightness);
++   SetupStore (&quot;vidContrast&quot;,          setupStore.vidContrast);
++   SetupStore (&quot;vidHue&quot;,               setupStore.vidHue);
++   SetupStore (&quot;vidSaturation&quot;,        setupStore.vidSaturation);
+  }
+
+Index: setup-softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.h,v
+retrieving revision 1.22
+retrieving revision 1.23
+diff -C2 -d -r1.22 -r1.23
+*** setup-softdevice.h	4 Nov 2005 19:08:16 -0000	1.22
+--- setup-softdevice.h	6 Nov 2005 07:26:31 -0000	1.23
+***************
+*** 18,21 ****
+--- 18,28 ----
+  #define ALSA_DEVICE_NAME_LENGTH  64
+  
++ #define CAP_BRIGHTNESS  1
++ #define CAP_CONTRAST    2
++ #define CAP_HUE         4
++ #define CAP_SATURATION  8
++ 
++ #define VID_MAX_PARM_VALUE  100
++ 
+  /* ---------------------------------------------------------------------------
+   */
+***************
+*** 57,60 ****
+--- 64,72 ----
+      int   mainMenu;
+      int   syncTimerMode;
++     int   vidBrightness,
++           vidContrast,
++           vidHue,
++           vidSaturation,
++           vidCaps;
+      char  alsaDevice [ALSA_DEVICE_NAME_LENGTH];
+      char  alsaAC3Device [ALSA_DEVICE_NAME_LENGTH];
+***************
+*** 65,68 ****
+--- 77,94 ----
+  #define OSDMODE_PSEUDO    0
+  #define OSDMODE_SOFTWARE  1
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ class cMenuSetupVideoParm : public cOsdMenu
++ {
++   private:
++     cSetupStore *data, copyData;
++ 
++   protected:
++     virtual eOSState ProcessKey(eKeys Key);
++ 
++   public:
++     cMenuSetupVideoParm(const char *name);
++ };
+  
+  /* ---------------------------------------------------------------------------
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000243.html">[Softdevice-cvs] softdevice i18n.c,1.11,1.12
+</A></li>
+	<LI>Next message: <A HREF="000245.html">[Softdevice-cvs] softdevice video-xv.c,1.33,1.34 video-xv.h,1.9,1.10
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#244">[ date ]</a>
+              <a href="thread.html#244">[ thread ]</a>
+              <a href="subject.html#244">[ subject ]</a>
+              <a href="author.html#244">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

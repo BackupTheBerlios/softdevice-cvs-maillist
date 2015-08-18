@@ -1,0 +1,511 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice mpeg2decoder.c,1.37,1.38 mpeg2decoder.h,1.23,1.24 sync-timer.c,1.2,1.3 sync-timer.h,1.1,1.2 softdevice.c,1.33,1.34 CHANGELOG,1.70,1.71
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20mpeg2decoder.c%2C1.37%2C1.38%20mpeg2decoder.h%2C1.23%2C1.24%20sync-timer.c%2C1.2%2C1.3%20sync-timer.h%2C1.1%2C1.2%20softdevice.c%2C1.33%2C1.34%20CHANGELOG%2C1.70%2C1.71&In-Reply-To=%3C200505291014.j4TAE1m14017%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000133.html">
+   <LINK REL="Next"  HREF="000135.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice mpeg2decoder.c,1.37,1.38 mpeg2decoder.h,1.23,1.24 sync-timer.c,1.2,1.3 sync-timer.h,1.1,1.2 softdevice.c,1.33,1.34 CHANGELOG,1.70,1.71</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20mpeg2decoder.c%2C1.37%2C1.38%20mpeg2decoder.h%2C1.23%2C1.24%20sync-timer.c%2C1.2%2C1.3%20sync-timer.h%2C1.1%2C1.2%20softdevice.c%2C1.33%2C1.34%20CHANGELOG%2C1.70%2C1.71&In-Reply-To=%3C200505291014.j4TAE1m14017%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice mpeg2decoder.c,1.37,1.38 mpeg2decoder.h,1.23,1.24 sync-timer.c,1.2,1.3 sync-timer.h,1.1,1.2 softdevice.c,1.33,1.34 CHANGELOG,1.70,1.71">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun May 29 12:14:01 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000133.html">[Softdevice-cvs] softplay SoftPlayer.c,1.8,1.9
+</A></li>
+        <LI>Next message: <A HREF="000135.html">[Softdevice-cvs] softdevice CHANGELOG,1.71,1.72 README,1.5,1.6 i18n.c,1.3,1.4 setup-softdevice.c,1.17,1.18 setup-softdevice.h,1.12,1.13 video-dfb.c,1.26,1.27 video-vidix.c,1.7,1.8 video-xv.c,1.23,1.24 video.c,1.20,1.21 video.h,1.13,1.14
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#134">[ date ]</a>
+              <a href="thread.html#134">[ thread ]</a>
+              <a href="subject.html#134">[ subject ]</a>
+              <a href="author.html#134">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv2012
+
+Modified Files:
+	mpeg2decoder.c mpeg2decoder.h sync-timer.c sync-timer.h 
+	softdevice.c CHANGELOG 
+Log Message:
+- change buffering &amp; some segault fixes
+
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.37
+retrieving revision 1.38
+diff -C2 -d -r1.37 -r1.38
+*** mpeg2decoder.c	21 May 2005 11:05:59 -0000	1.37
+--- mpeg2decoder.c	29 May 2005 10:13:59 -0000	1.38
+***************
+*** 24,28 ****
+  #endif
+  
+! //#define CMDDEB(out...) {printf(&quot;CMD[%04d]:&quot;,(int)(getTimeMilis() % 10000));printf(out);}
+  
+  #ifndef CMDDEB
+--- 24,28 ----
+  #endif
+  
+! #define CMDDEB(out...) {printf(&quot;CMD[%04d]:&quot;,(int)(getTimeMilis() % 10000));printf(out);}
+  
+[...985 lines suppressed...]
+    mutex.Unlock();
+!   BUFDEB(&quot;Deocde finished\n&quot;);
+    
+    return Length;
+--- 1454,1468 ----
+      Data+=P;
+      Size-=P;
++     BUFDEB(&quot;Decode EnableGet.Signal(), EnablePut.Sleep start\n&quot;);
+      EnableGetSignal.Signal();
+      EnablePutSignal.Sleep(50000);
++     BUFDEB(&quot;Decode EnablePut.Sleep end\n&quot;);
+    }
+    mutex.Unlock();
+!   if (StreamBuffer-&gt;Available()&gt;MIN_BUF_SIZE) {
+!       BUFDEB(&quot;Decode Available &gt;MIN_BUF_SIZE EnableGetSignal.Signal \n&quot;);
+!       EnableGetSignal.Signal();
+!   };
+!   BUFDEB(&quot;Decode finished\n&quot;);
+    
+    return Length;
+
+Index: mpeg2decoder.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.h,v
+retrieving revision 1.23
+retrieving revision 1.24
+diff -C2 -d -r1.23 -r1.24
+*** mpeg2decoder.h	17 May 2005 19:58:06 -0000	1.23
+--- mpeg2decoder.h	29 May 2005 10:13:59 -0000	1.24
+***************
+*** 22,28 ****
+  #include &lt;vdr/ringbuffer.h&gt;
+  
+! #define DEFAULT_FRAMETIME 40   // for PAL
+! #define DVB_BUF_SIZE   (64*1024)  // same value as in dvbplayer.c
+! // 100 packet and 96*1024 works quite well...
+  #define NO_STREAM    -1
+  #define DONT_PLAY  -100
+--- 22,41 ----
+  #include &lt;vdr/ringbuffer.h&gt;
+  
+! #define DEFAULT_FRAMETIME 400   // for PAL in 0.1ms
+! #define MIN_BUF_SIZE  (16*1024) 
+! 
+! // this combination gives good results when seeking
+! #define DVB_BUF_SIZE   (32*1024)  
+! #define PACKET_BUF_SIZE 150
+! 
+! // this combination is save 
+! //#define DVB_BUF_SIZE   (64*1024)  
+! //#define PACKET_BUF_SIZE 300
+! 
+! // this combination works for HDTV 
+! //#define DVB_BUF_SIZE   (64*1024)  
+! //#define PACKET_BUF_SIZE 2000
+! 
+! 
+  #define NO_STREAM    -1
+  #define DONT_PLAY  -100
+***************
+*** 33,57 ****
+  // -----------------cClock --------------------------------------------
+  class cClock {
+!     static cAudioStreamDecoder *audioClock;
+!     static cVideoStreamDecoder *videoClock;
+  
+-     static bool waitForSync;
+  public:
+!     cClock() {audioClock=NULL;videoClock=NULL;};
+      virtual ~cClock() {};
+-     
+-     static void SetAudioClock(cAudioStreamDecoder *AudioClock)
+-     {audioClock=AudioClock;};
+-     
+-     static void SetVideoClock(cVideoStreamDecoder *VideoClock)
+-     {videoClock=VideoClock;};
+-     
+-     uint64_t GetPTS();
+-     
+-     static bool ReadyForPlay()
+-     { return (waitForSync ? (audioClock &amp;&amp; videoClock) : 1 ); };
+  
+!     void SetWaitForSync(bool WaitForSync)
+!     { waitForSync=WaitForSync; };
+  };	
+  
+--- 46,83 ----
+  // -----------------cClock --------------------------------------------
+  class cClock {
+! private:
+!     
+!     static int64_t audioOffset;
+!     static int64_t audioPTS;
+!     static int64_t videoOffset;
+!     static int64_t videoPTS;
+  
+  public:
+!     cClock() {audioOffset=0;videoOffset=0;};
+      virtual ~cClock() {};
+  
+!     static int64_t GetTime()
+!     {  
+!       struct timeval tv;
+!       struct timezone tz;
+!       gettimeofday(&amp;tv,&amp;tz);
+!       return tv.tv_sec*10000+tv.tv_usec/100;
+!     };
+!     
+!     static inline void AdjustAudioPTS(int64_t aPTS) {
+!       if (aPTS) 
+!         audioOffset=aPTS-GetTime();
+!       else audioOffset=0;
+!       audioPTS=aPTS;
+!     };
+!      
+!     static inline void AdjustVideoPTS(int64_t vPTS) {
+!       if (vPTS)
+!         videoOffset=vPTS-GetTime();
+!       else videoOffset=0;
+!       videoPTS=vPTS;
+!     };
+!    
+!     int64_t GetPTS();
+  };	
+  
+***************
+*** 59,77 ****
+  class cPacketQueue {
+      // Only one thread may read, and only one thread may write!!!
+- public:
+-    const static int MaxPackets=500;
+  private:
+!     AVPacket queue[MaxPackets];
+      int FirstPacket,LastPacket;
+  
+      inline int Next(int Packet) 
+      { return (Packet+1)%MaxPackets; };
+      
+  public:
+!     cPacketQueue();
+!     ~cPacketQueue() {};
+  
+      int PutPacket(const AVPacket &amp;Packet);
+  
+      AVPacket * GetReadPacket();
+      void FreeReadPacket(AVPacket *Packet);
+--- 85,108 ----
+  class cPacketQueue {
+      // Only one thread may read, and only one thread may write!!!
+  private:
+!     int MaxPackets;
+!     AVPacket *queue;
+      int FirstPacket,LastPacket;
+  
+      inline int Next(int Packet) 
+      { return (Packet+1)%MaxPackets; };
++ 
++     cSigTimer EnablePut;
++     cSigTimer EnableGet;
+      
+  public:
+!     cPacketQueue(int maxPackets=150);
+!     ~cPacketQueue();
+  
+      int PutPacket(const AVPacket &amp;Packet);
+  
++     inline void EnablePutSignal()
++     { EnablePut.Signal();};
++     
+      AVPacket * GetReadPacket();
+      void FreeReadPacket(AVPacket *Packet);
+***************
+*** 79,85 ****
+      void Clear();
+      inline int Available()
+!     { return (LastPacket+MaxPackets - FirstPacket)%MaxPackets; }; 
+  };
+!  
+  //--------------------------cSoftRingBufferLinear --------------------------
+  // wrapper class to access protected methods
+--- 110,118 ----
+      void Clear();
+      inline int Available()
+!     { return (LastPacket+MaxPackets - FirstPacket)%MaxPackets; };
+!     inline int GetMaxPackets()
+!     { return MaxPackets;};
+  };
+! 
+  //--------------------------cSoftRingBufferLinear --------------------------
+  // wrapper class to access protected methods
+***************
+*** 102,105 ****
+--- 135,139 ----
+  
+  protected:
++     cSyncTimer         *syncTimer;
+      bool freezeMode;
+      int64_t           pts;
+***************
+*** 187,193 ****
+  
+      // A-V syncing stuff
+-     bool               syncOnAudio;
+      int                hurry_up; 
+-     cSyncTimer         *syncTimer;
+      int                offset;
+      int                delay;
+--- 221,225 ----
+***************
+*** 283,288 ****
+        VideoIdx=playVideo?NO_STREAM:DONT_PLAY;}
+  
+!     inline void SetAudioMode(int AudioMode) 
+!     { audioMode=AudioMode; if (aout) aout-&gt;SetAudioMode(audioMode); };
+      inline int GetAudioMode()
+      { return audioMode; };
+--- 315,319 ----
+        VideoIdx=playVideo?NO_STREAM:DONT_PLAY;}
+  
+!     void SetAudioMode(int AudioMode); 
+      inline int GetAudioMode()
+      { return audioMode; };
+
+Index: sync-timer.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/sync-timer.c,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** sync-timer.c	1 May 2005 10:15:48 -0000	1.2
+--- sync-timer.c	29 May 2005 10:13:59 -0000	1.3
+***************
+*** 58,69 ****
+  /* --- cSigTimer --------------------------------------------------------------
+   */
+! void cSigTimer::Sleep( int timeoutUS )
+  {
+!   if (got_signal) {
+!     got_signal=false;
+!     return;
+!   };
+    if ( timeoutUS &lt; 0 )
+!     return;
+  
+    struct timeval tv;
+--- 58,66 ----
+  /* --- cSigTimer --------------------------------------------------------------
+   */
+! int cSigTimer::Sleep( int timeoutUS )
+  {
+!   got_signal=false;
+    if ( timeoutUS &lt; 0 )
+!     return GetRelTime();
+  
+    struct timeval tv;
+***************
+*** 82,85 ****
+--- 79,83 ----
+    got_signal = false;
+    pthread_mutex_unlock(&amp;mutex);
++   return GetRelTime();
+  }
+  
+***************
+*** 137,149 ****
+      close(rtcFd);
+  }
+! 
+  /* ----------------------------------------------------------------------------
+   */
+  void cSyncTimer::Sleep(int *timeoutUS)
+  {
+    switch(syncMode)
+    {
+      case emUsleepTimer: // usleep timer mode
+!       while (*timeoutUS &gt; 2200)
+        {
+          usleep (2200);
+--- 135,155 ----
+      close(rtcFd);
+  }
+! /* ----------------------------------------------------------------------------
+!  */
+! void cSyncTimer::Signal()
+! {
+!   if ( syncMode==emSigTimer ) 
+!     cSigTimer::Signal();
+!   else got_signal=true;
+! };
+  /* ----------------------------------------------------------------------------
+   */
+  void cSyncTimer::Sleep(int *timeoutUS)
+  {
++   got_signal=false;
+    switch(syncMode)
+    {
+      case emUsleepTimer: // usleep timer mode
+!       while (*timeoutUS &gt; 2200 &amp;&amp; !got_signal)
+        {
+          usleep (2200);
+***************
+*** 152,161 ****
+        break;
+      case emRtcTimer: // rtc timer mode
+!       while (*timeoutUS &gt; 15000)
+        {
+          usleep (10000);
+          *timeoutUS -= GetRelTime();
+        }
+!       while (*timeoutUS &gt; 1200)
+        {
+            uint32_t  ts;
+--- 158,167 ----
+        break;
+      case emRtcTimer: // rtc timer mode
+!       while (*timeoutUS &gt; 15000 &amp;&amp; !got_signal)
+        {
+          usleep (10000);
+          *timeoutUS -= GetRelTime();
+        }
+!       while (*timeoutUS &gt; 1200 &amp;&amp; !got_signal)
+        {
+            uint32_t  ts;
+***************
+*** 171,175 ****
+        break;
+      case emSigTimer: // signal timer mode
+!       cSigTimer::Sleep(*timeoutUS);
+        break;
+    }
+--- 177,181 ----
+        break;
+      case emSigTimer: // signal timer mode
+!       *timeoutUS -= cSigTimer::Sleep(*timeoutUS);
+        break;
+    }
+
+Index: sync-timer.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/sync-timer.h,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1 -r1.2
+*** sync-timer.h	1 May 2005 09:32:13 -0000	1.1
+--- sync-timer.h	29 May 2005 10:13:59 -0000	1.2
+***************
+*** 36,39 ****
+--- 36,40 ----
+       pthread_mutex_t mutex;
+       pthread_cond_t cond;
++    protected:
+       bool got_signal;
+  
+***************
+*** 51,57 ****
+        };
+  
+!       void Sleep( int timeoutUS );
+  
+!       void Signal(void);
+  };
+  
+--- 52,58 ----
+        };
+  
+!       int Sleep( int timeoutUS );
+  
+!       virtual void Signal(void);
+  };
+  
+***************
+*** 67,70 ****
+--- 68,73 ----
+      cSyncTimer(eSyncMode mode);
+      virtual ~cSyncTimer();
++     
++     virtual void Signal(void);      
+  
+      virtual void Sleep(int *timeoutUS);
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.33
+retrieving revision 1.34
+diff -C2 -d -r1.33 -r1.34
+*** softdevice.c	22 May 2005 07:21:12 -0000	1.33
+--- softdevice.c	29 May 2005 10:13:59 -0000	1.34
+***************
+*** 685,688 ****
+--- 685,689 ----
+          i++;
+          argc--;
++ 	continue;
+      };
+      if (!strcmp (argv[i], &quot;-vo&quot;)) {
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.70
+retrieving revision 1.71
+diff -C2 -d -r1.70 -r1.71
+*** CHANGELOG	22 May 2005 07:21:12 -0000	1.70
+--- CHANGELOG	29 May 2005 10:13:59 -0000	1.71
+***************
+*** 1,3 ****
+--- 1,10 ----
+  Changelog
++ 2005-05-29:
++     - fix some segfaults on bad signal
++     - fix possible segfault when called without arguments 
++       (thanks to Marko M&#228;kel&#228;)
++     - buffering is now complety signal triggered
++     - made buffersizes variable 
++ =======
+  2005-05-22: softdevice-0.1.2
+  2005-05-20:
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000133.html">[Softdevice-cvs] softplay SoftPlayer.c,1.8,1.9
+</A></li>
+	<LI>Next message: <A HREF="000135.html">[Softdevice-cvs] softdevice CHANGELOG,1.71,1.72 README,1.5,1.6 i18n.c,1.3,1.4 setup-softdevice.c,1.17,1.18 setup-softdevice.h,1.12,1.13 video-dfb.c,1.26,1.27 video-vidix.c,1.7,1.8 video-xv.c,1.23,1.24 video.c,1.20,1.21 video.h,1.13,1.14
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#134">[ date ]</a>
+              <a href="thread.html#134">[ thread ]</a>
+              <a href="subject.html#134">[ subject ]</a>
+              <a href="author.html#134">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

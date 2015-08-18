@@ -1,0 +1,336 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice utils.h,1.5,1.6 utils.c,1.10,1.11
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20utils.h%2C1.5%2C1.6%20utils.c%2C1.10%2C1.11&In-Reply-To=%3C200604141545.k3EFjJt20903%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000315.html">
+   <LINK REL="Next"  HREF="000317.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice utils.h,1.5,1.6 utils.c,1.10,1.11</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20utils.h%2C1.5%2C1.6%20utils.c%2C1.10%2C1.11&In-Reply-To=%3C200604141545.k3EFjJt20903%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice utils.h,1.5,1.6 utils.c,1.10,1.11">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Apr 14 17:45:19 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000315.html">[Softdevice-cvs] softplay PlayListMenu.c,1.3,1.4 FileIndex.c,1.1,1.2 softplay.c,1.10,1.11
+</A></li>
+        <LI>Next message: <A HREF="000317.html">[Softdevice-cvs] softdevice video-xv.h,1.17,1.18 video-xv.c,1.49,1.50
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#316">[ date ]</a>
+              <a href="thread.html#316">[ thread ]</a>
+              <a href="subject.html#316">[ subject ]</a>
+              <a href="author.html#316">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv25629
+
+Modified Files:
+	utils.h utils.c 
+Log Message:
+yv12 to yuy2 converter for field based chroma
+
+Index: utils.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/utils.h,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -C2 -d -r1.5 -r1.6
+*** utils.h	15 Jul 2005 20:42:16 -0000	1.5
+--- utils.h	14 Apr 2006 15:45:43 -0000	1.6
+***************
+*** 20,23 ****
+--- 20,47 ----
+  #endif
+  
++ void yv12_to_yuy2_il_c(const uint8_t *py,
++                        const uint8_t *pu,
++                        const uint8_t *pv,
++                        uint8_t *dst,
++                        int width,int height,
++                        int lumStride,int chromStride,
++                        int dstStride);
++ 
++ void yv12_to_yuy2_fr_c(const uint8_t *py,
++                        const uint8_t *pu,
++                        const uint8_t *pv,
++                        uint8_t *dst,
++                        int width,int height,
++                        int lumStride,int chromStride,
++                        int dstStride);
++ 
++ void yv12_to_yuy2_fr_mmx2(const uint8_t *py,
++                           const uint8_t *pu,
++                           const uint8_t *pv,
++                           uint8_t *dst,
++                           int width,int height,
++                           int lumStride,int chromStride,
++                           int dstStride);
++ 
+  void yv12_to_yuy2( const uint8_t *ysrc,
+                     const uint8_t *usrc,
+
+Index: utils.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/utils.c,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -C2 -d -r1.10 -r1.11
+*** utils.c	7 Jan 2006 13:26:43 -0000	1.10
+--- utils.c	14 Apr 2006 15:45:43 -0000	1.11
+***************
+*** 27,30 ****
+--- 27,188 ----
+  #endif
+  
++ /* ---------------------------------------------------------------------------
++  * chroma: field based
++  * lang: C
++  */
++ void yv12_to_yuy2_il_c(const uint8_t *py,
++                        const uint8_t *pu, const uint8_t *pv,
++                        uint8_t *dst, int width, int height,
++                        int lumStride, int chromStride, int dstStride)
++ {
++     const unsigned  chromWidth = width &gt;&gt; 1;
++     uint32_t        *idst1, *idst2;
++     const uint8_t   *yc1, *yc2, *uc, *vc;
++ 
++   for(int y=0; y&lt;height/4; y++)
++   {
++     /* -----------------------------------------------------------------------
++      * take chroma line x (it's from field A) for packing with
++      * luma lines x * 2 and x * 2 + 2
++      */
++     idst1 = (uint32_t *) (dst + 0 * dstStride);
++     idst2 = (uint32_t *) (dst + 2 * dstStride);
++     yc1 = py;
++     yc2 = py + 2 * lumStride;
++     uc = pu;
++     vc = pv;
++ 
++     for(unsigned i = 0; i &lt; chromWidth; i++)
++     {
++       *idst1++ = (yc1[0] &lt;&lt; 0)+ (uc[0] &lt;&lt; 8) + (yc1[1] &lt;&lt; 16) + (vc[0] &lt;&lt; 24);
++       *idst2++ = (yc2[0] &lt;&lt; 0)+ (uc[0] &lt;&lt; 8) + (yc2[1] &lt;&lt; 16) + (vc[0] &lt;&lt; 24);
++       yc1 += 2;
++       yc2 += 2;
++       uc++;
++       vc++;
++     }
++ 
++     /* -----------------------------------------------------------------------
++      * take chroma line x+1 (it's from field B) for packing with
++      * luma lines x * 2 + 1 and x * 2 + 3
++      */
++     py += lumStride;
++     pu += chromStride;
++     pv += chromStride;
++ 
++     yc1 = py;
++     yc2 = py + 2 * lumStride;
++     uc = pu;
++     vc = pv;
++     idst1 = (uint32_t *) (dst + 1 * dstStride);
++     idst2 = (uint32_t *) (dst + 3 * dstStride);
++ 
++     for(unsigned i = 0; i &lt; chromWidth; i++)
++     {
++       *idst1++ = (yc1[0] &lt;&lt; 0)+ (uc[0] &lt;&lt; 8) + (yc1[1] &lt;&lt; 16) + (vc[0] &lt;&lt; 24);
++       *idst2++ = (yc2[0] &lt;&lt; 0)+ (uc[0] &lt;&lt; 8) + (yc2[1] &lt;&lt; 16) + (vc[0] &lt;&lt; 24);
++       yc1 += 2;
++       yc2 += 2;
++       uc++;
++       vc++;
++     }
++ 
++     py += 3*lumStride;
++     pu += chromStride;
++     pv += chromStride;
++ 
++     dst  += 4 * dstStride;
++   }
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  * chroma: frame based
++  * lang: C
++  */
++ void yv12_to_yuy2_fr_c(const uint8_t *ysrc,
++                        const uint8_t *usrc, const uint8_t *vsrc,
++                        uint8_t *dst, int width, int height,
++                        int lumStride, int chromStride, int dstStride)
++ {
++     const unsigned chromWidth = width &gt;&gt; 1;
++ 
++   for(int y=0; y&lt;height; y++)
++   {
++       uint32_t *idst = (uint32_t *) dst;
++       const uint8_t *yc = ysrc, *uc = usrc, *vc = vsrc;
++ 
++     for(unsigned i = 0; i &lt; chromWidth; i++)
++     {
++       *idst++ = (yc[0] &lt;&lt; 0)+ (uc[0] &lt;&lt; 8) + (yc[1] &lt;&lt; 16) + (vc[0] &lt;&lt; 24);
++       yc += 2;
++       uc++;
++       vc++;
++     }
++ 
++     if( (y&amp;1) == 1)
++     {
++       usrc += chromStride;
++       vsrc += chromStride;
++     }
++ 
++     ysrc += lumStride;
++     dst  += dstStride;
++   }
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  * chroma: frame based
++  * lang: MMX2
++  */
++ void yv12_to_yuy2_fr_mmx2(const uint8_t *ysrc,
++                           const uint8_t *usrc, const uint8_t *vsrc,
++                           uint8_t *dst, int width, int height,
++                           int lumStride, int chromStride, int dstStride)
++ {
++   for (int i=0; i&lt;height; i++)
++   {
++       const uint8_t *pu, *pv, *py;
++       uint8_t  *srfc;
++ 
++     pu = usrc;
++     pv = vsrc;
++     py = ysrc;
++ 
++     srfc = dst;
++ 
++     for (int j =0; j &lt; width/8; j++)
++     {
++       movd_m2r(*pu, mm1);       // mm1 = 00 00 00 00 U3 U2 U1 U0
++       movd_m2r(*pv, mm2);       // mm2 = 00 00 00 00 V3 V2 V1 V0
++       movq_m2r(*py, mm0);       // mm0 = Y7 Y6 Y5 Y4 Y3 Y2 Y1 Y0
++       punpcklbw_r2r(mm2, mm1);  // mm1 = V3 U3 V2 U2 V1 U1 V0 U0
++       movq_r2r(mm0,mm3);        // mm3 = Y7 Y6 Y5 Y4 Y3 Y2 Y1 Y0
++       movq_r2r(mm1,mm4);        // mm4 = V3 U3 V2 U2 V1 U1 V0 U0
++       punpcklbw_r2r(mm1, mm0);  // mm0 = V1 Y3 U1 Y2 V0 Y1 U0 Y0
++       punpckhbw_r2r(mm4, mm3);  // mm3 = V3 Y7 U3 Y6 V2 Y5 U2 Y4
++ 
++       movntq(mm0,*srfc);        // Am Meisten brauchen die Speicherzugriffe
++       srfc+=8;
++       py+=8;
++       pu+=4;
++       pv+=4;
++       movntq(mm3,*srfc);      // wenn movntq nicht geht, dann movq verwenden
++       srfc+=8;
++     }
++ 
++     ysrc += lumStride;;
++ 
++     if (i % 2 == 1)
++     {
++       usrc += chromStride;
++       vsrc += chromStride;
++     }
++ 
++     dst += dstStride;
++   }
++   __asm__ __volatile__ (&quot;sfence \n&quot;
++ 		        &quot;emms \n&quot; : : : &quot;memory&quot;);
++ }
++ 
+  void yv12_to_yuy2(const uint8_t *ysrc, const uint8_t *usrc, const uint8_t *vsrc,
+                    uint8_t *dst, int width, int height,
+***************
+*** 219,223 ****
+      psllq_i2r (3, mm7);
+  
+!     
+      // jetzt muss ich die an bestimmten Stellen verdoppeln.
+      movntq (mm0, *(image));
+--- 377,381 ----
+      psllq_i2r (3, mm7);
+  
+! 
+      // jetzt muss ich die an bestimmten Stellen verdoppeln.
+      movntq (mm0, *(image));
+***************
+*** 225,229 ****
+      punpckhbw_r2r (mm1, mm5);
+      por_r2r (mm7, mm5);
+!     
+      movntq (mm5, *(image+8));
+      while(--lines) { // write the same in the line above
+--- 383,387 ----
+      punpckhbw_r2r (mm1, mm5);
+      por_r2r (mm7, mm5);
+! 
+      movntq (mm5, *(image+8));
+      while(--lines) { // write the same in the line above
+***************
+*** 268,279 ****
+  
+      psllq_i2r (3, mm7);
+!     
+      // jetzt muss ich die an bestimmten Stellen verdoppeln.
+!     psrlq_i2r(1,mm0);//MW 
+      movntq (mm0, *(image));
+  
+      punpckhbw_r2r (mm1, mm5);
+      por_r2r (mm7, mm5);
+!     
+      psrlq_i2r(1,mm5); //MW
+      movntq (mm5, *(image+8));
+--- 426,437 ----
+  
+      psllq_i2r (3, mm7);
+! 
+      // jetzt muss ich die an bestimmten Stellen verdoppeln.
+!     psrlq_i2r(1,mm0);//MW
+      movntq (mm0, *(image));
+  
+      punpckhbw_r2r (mm1, mm5);
+      por_r2r (mm7, mm5);
+! 
+      psrlq_i2r(1,mm5); //MW
+      movntq (mm5, *(image+8));
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000315.html">[Softdevice-cvs] softplay PlayListMenu.c,1.3,1.4 FileIndex.c,1.1,1.2 softplay.c,1.10,1.11
+</A></li>
+	<LI>Next message: <A HREF="000317.html">[Softdevice-cvs] softdevice video-xv.h,1.17,1.18 video-xv.c,1.49,1.50
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#316">[ date ]</a>
+              <a href="thread.html#316">[ thread ]</a>
+              <a href="subject.html#316">[ subject ]</a>
+              <a href="author.html#316">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

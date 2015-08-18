@@ -1,0 +1,273 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.88,1.89 setup-softdevice.c,1.22,1.23 setup-softdevice.h,1.16,1.17 video-dfb.c,1.33,1.34
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.88%2C1.89%20setup-softdevice.c%2C1.22%2C1.23%20setup-softdevice.h%2C1.16%2C1.17%20video-dfb.c%2C1.33%2C1.34&In-Reply-To=%3C200507201913.j6KJDdI05475%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000162.html">
+   <LINK REL="Next"  HREF="000164.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.88,1.89 setup-softdevice.c,1.22,1.23 setup-softdevice.h,1.16,1.17 video-dfb.c,1.33,1.34</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.88%2C1.89%20setup-softdevice.c%2C1.22%2C1.23%20setup-softdevice.h%2C1.16%2C1.17%20video-dfb.c%2C1.33%2C1.34&In-Reply-To=%3C200507201913.j6KJDdI05475%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.88,1.89 setup-softdevice.c,1.22,1.23 setup-softdevice.h,1.16,1.17 video-dfb.c,1.33,1.34">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Wed Jul 20 21:13:39 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000162.html">[Softdevice-cvs] softdevice CHANGELOG,1.87,1.88 setup-softdevice.c,1.21,1.22 setup-softdevice.h,1.15,1.16 video-xv.c,1.29,1.30 video.c,1.25,1.26 video.h,1.16,1.17
+</A></li>
+        <LI>Next message: <A HREF="000164.html">[Softdevice-cvs] softdevice CHANGELOG,1.89,1.90 mpeg2decoder.c,1.45,1.46 setup-softdevice.c,1.23,1.24 video-dfb.c,1.34,1.35 video-xv.c,1.30,1.31
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#163">[ date ]</a>
+              <a href="thread.html#163">[ thread ]</a>
+              <a href="subject.html#163">[ subject ]</a>
+              <a href="author.html#163">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv26700
+
+Modified Files:
+	CHANGELOG setup-softdevice.c setup-softdevice.h video-dfb.c 
+Log Message:
+stretchBlit mode for dfb-out is selectable via OSD
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.88
+retrieving revision 1.89
+diff -C2 -d -r1.88 -r1.89
+*** CHANGELOG	20 Jul 2005 18:58:52 -0000	1.88
+--- CHANGELOG	20 Jul 2005 19:13:36 -0000	1.89
+***************
+*** 1,4 ****
+--- 1,5 ----
+  Changelog
+  2005-07-17:
++     - stretchBlit mode for dfb-out is selectable via OSD
+      - cropLeft/Right for xv-out
+      - exclude cropTop/Bottom OSD from fb-out
+
+Index: setup-softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.c,v
+retrieving revision 1.22
+retrieving revision 1.23
+diff -C2 -d -r1.22 -r1.23
+*** setup-softdevice.c	20 Jul 2005 18:58:52 -0000	1.22
+--- setup-softdevice.c	20 Jul 2005 19:13:36 -0000	1.23
+***************
+*** 167,170 ****
+--- 167,171 ----
+    ac3Mode       = 0;
+    useMGAtv      = 0;
++   useStretchBlit = 0;
+    bufferMode    = 0;
+    /* --------------------------------------------------------------------------
+***************
+*** 214,218 ****
+    else if(!strcasecmp(Name,&quot;bufferMode&quot;)) {
+          bufferMode=atoi(Value);
+! 	bufferMode=clamp(0,bufferMode,2);
+    }
+    else if(!strcasecmp(Name,&quot;CropMode&quot;)) {
+--- 215,219 ----
+    else if(!strcasecmp(Name,&quot;bufferMode&quot;)) {
+          bufferMode=atoi(Value);
+!         bufferMode=clamp(0,bufferMode,2);
+    }
+    else if(!strcasecmp(Name,&quot;CropMode&quot;)) {
+***************
+*** 279,282 ****
+--- 280,287 ----
+              mirror,
+              mirror ? &quot;on&quot; : &quot;off&quot;);
++   } else if(!strcasecmp(Name, &quot;UseStretchBlit&quot;)) {
++     useStretchBlit = clamp (0, atoi(Value), 1);
++     fprintf(stderr,&quot;[softdevice] UseStretchBlitset to %s\n&quot;,
++             useStretchBlit ? &quot;on&quot; : &quot;off&quot;);
+    } else if (!strcasecmp(Name, &quot;SyncAllFrames&quot;)) {
+      syncOnFrames = atoi(Value);
+***************
+*** 460,463 ****
+--- 465,474 ----
+    }
+  
++   if (data-&gt;outputMethod == VOUT_DFB)
++   {
++     Add(new cMenuEditBoolItem(tr(&quot;Use StretchBlit&quot;),
++                               &amp;data-&gt;useStretchBlit, tr(&quot;off&quot;), tr(&quot;on&quot;)));
++   }
++ 
+    Add(new cMenuEditBoolItem(tr(&quot;Picture mirroring&quot;),
+                              &amp;data-&gt;mirror, tr(&quot;off&quot;), tr(&quot;on&quot;)));
+***************
+*** 541,544 ****
+--- 552,556 ----
+    SetupStore (&quot;Postprocess Quality&quot;, setupStore.ppQuality);
+    SetupStore (&quot;PixelFormat&quot;,        setupStore.pixelFormat);
++   SetupStore (&quot;UseStretchBlit&quot;,     setupStore.useStretchBlit);
+    SetupStore (&quot;Picture mirroring&quot;,  setupStore.mirror);
+    SetupStore (&quot;avOffset&quot;,           setupStore.avOffset);
+
+Index: setup-softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.h,v
+retrieving revision 1.16
+retrieving revision 1.17
+diff -C2 -d -r1.16 -r1.17
+*** setup-softdevice.h	20 Jul 2005 18:58:52 -0000	1.16
+--- setup-softdevice.h	20 Jul 2005 19:13:36 -0000	1.17
+***************
+*** 49,52 ****
+--- 49,53 ----
+      int   screenPixelAspect;
+      int   useMGAtv;
++     int   useStretchBlit;
+      int   shouldSuspend;
+      int   osdMode;
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.33
+retrieving revision 1.34
+diff -C2 -d -r1.33 -r1.34
+*** video-dfb.c	16 Jul 2005 12:52:04 -0000	1.33
+--- video-dfb.c	20 Jul 2005 19:13:36 -0000	1.34
+***************
+*** 302,305 ****
+--- 302,307 ----
+      layerInfo = &amp;layerList [CRTC2_LAYER_NEW];
+      currentPixelFormat = setupStore-&gt;pixelFormat = 2;
++     setupStore-&gt;useStretchBlit = 1;
++ 
+      if (!setupStore-&gt;screenPixelAspect)
+        setupStore-&gt;screenPixelAspect = 1;
+***************
+*** 441,452 ****
+      OSDpseudo_alpha = true;
+      if (setupStore-&gt;pixelFormat == 0)
+        vidDsc.pixelformat = DSPF_I420;
+      else if (setupStore-&gt;pixelFormat == 1)
+        vidDsc.pixelformat = DSPF_YV12;
+      else if (setupStore-&gt;pixelFormat == 2)
+      {
+        vidDsc.pixelformat = DSPF_YUY2;
+!       useStretchBlit = true;
+!       OSDpseudo_alpha = false;
+      }
+  
+--- 443,465 ----
+      OSDpseudo_alpha = true;
+      if (setupStore-&gt;pixelFormat == 0)
++     {
+        vidDsc.pixelformat = DSPF_I420;
++       setupStore-&gt;useStretchBlit = 0;
++       useStretchBlit = setupStore-&gt;useStretchBlit;
++     }
+      else if (setupStore-&gt;pixelFormat == 1)
++     {
+        vidDsc.pixelformat = DSPF_YV12;
++       setupStore-&gt;useStretchBlit = 0;
++       useStretchBlit = setupStore-&gt;useStretchBlit;
++     }
+      else if (setupStore-&gt;pixelFormat == 2)
+      {
+        vidDsc.pixelformat = DSPF_YUY2;
+!       if (setupStore-&gt;useStretchBlit)
+!       {
+!         useStretchBlit = true;
+!         OSDpseudo_alpha = false;
+!       }
+      }
+  
+***************
+*** 599,603 ****
+          currentPixelFormat != setupStore-&gt;pixelFormat ||
+          cutTop != setupStore-&gt;cropTopLines ||
+!         cutBottom != setupStore-&gt;cropBottomLines )
+      {
+  
+--- 612,617 ----
+          currentPixelFormat != setupStore-&gt;pixelFormat ||
+          cutTop != setupStore-&gt;cropTopLines ||
+!         cutBottom != setupStore-&gt;cropBottomLines ||
+!         useStretchBlit != setupStore-&gt;useStretchBlit )
+      {
+  
+***************
+*** 613,624 ****
+        OSDpseudo_alpha = (isVIAUnichrome) ? false: true;
+        if (setupStore-&gt;pixelFormat == 0)
+          dlc.pixelformat = DSPF_I420;
+        else if (setupStore-&gt;pixelFormat == 1)
+          dlc.pixelformat = DSPF_YV12;
+        else if (setupStore-&gt;pixelFormat == 2)
+        {
+          dlc.pixelformat = DSPF_YUY2;
+!         useStretchBlit = true;
+!         OSDpseudo_alpha = false;
+        }
+  
+--- 627,649 ----
+        OSDpseudo_alpha = (isVIAUnichrome) ? false: true;
+        if (setupStore-&gt;pixelFormat == 0)
++       {
+          dlc.pixelformat = DSPF_I420;
++         setupStore-&gt;useStretchBlit = 0;
++         useStretchBlit = setupStore-&gt;useStretchBlit;
++       }
+        else if (setupStore-&gt;pixelFormat == 1)
++       {
+          dlc.pixelformat = DSPF_YV12;
++         setupStore-&gt;useStretchBlit = 0;
++         useStretchBlit = setupStore-&gt;useStretchBlit;
++       }
+        else if (setupStore-&gt;pixelFormat == 2)
+        {
+          dlc.pixelformat = DSPF_YUY2;
+!         if (setupStore-&gt;useStretchBlit)
+!         {
+!           useStretchBlit = true;
+!           OSDpseudo_alpha = false;
+!         }
+        }
+  
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000162.html">[Softdevice-cvs] softdevice CHANGELOG,1.87,1.88 setup-softdevice.c,1.21,1.22 setup-softdevice.h,1.15,1.16 video-xv.c,1.29,1.30 video.c,1.25,1.26 video.h,1.16,1.17
+</A></li>
+	<LI>Next message: <A HREF="000164.html">[Softdevice-cvs] softdevice CHANGELOG,1.89,1.90 mpeg2decoder.c,1.45,1.46 setup-softdevice.c,1.23,1.24 video-dfb.c,1.34,1.35 video-xv.c,1.30,1.31
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#163">[ date ]</a>
+              <a href="thread.html#163">[ thread ]</a>
+              <a href="subject.html#163">[ subject ]</a>
+              <a href="author.html#163">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

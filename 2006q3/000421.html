@@ -1,0 +1,232 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice softdevice.c, 1.69, 1.70 CHANGELOG,	1.229, 1.230
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20softdevice.c%2C%201.69%2C%201.70%20CHANGELOG%2C%0A%091.229%2C%201.230&In-Reply-To=%3C20060912054525.24B8778615%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000420.html">
+   <LINK REL="Next"  HREF="000422.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice softdevice.c, 1.69, 1.70 CHANGELOG,	1.229, 1.230</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20softdevice.c%2C%201.69%2C%201.70%20CHANGELOG%2C%0A%091.229%2C%201.230&In-Reply-To=%3C20060912054525.24B8778615%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice softdevice.c, 1.69, 1.70 CHANGELOG,	1.229, 1.230">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue Sep 12 07:45:25 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000420.html">[Softdevice-cvs] softdevice CHANGELOG, 1.228, 1.229 softdevice.c,	1.68, 1.69
+</A></li>
+        <LI>Next message: <A HREF="000422.html">[Softdevice-cvs] softdevice CHANGELOG, 1.230, 1.231 configure, 1.24,	1.25 mpeg2decoder.c, 1.66, 1.67 video-dfb.c, 1.70,	1.71 softdevice.c, 1.70, 1.71
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#421">[ date ]</a>
+              <a href="thread.html#421">[ thread ]</a>
+              <a href="subject.html#421">[ subject ]</a>
+              <a href="author.html#421">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv18817
+
+Modified Files:
+	softdevice.c CHANGELOG 
+Log Message:
+don't continue on argument errors
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.69
+retrieving revision 1.70
+diff -C2 -d -r1.69 -r1.70
+*** softdevice.c	11 Sep 2006 21:30:25 -0000	1.69
+--- softdevice.c	12 Sep 2006 05:44:59 -0000	1.70
+***************
+*** 745,749 ****
+  bool cPluginSoftDevice::ProcessArgs(int argc, char *argv[])
+  {
+!   int i = 0;
+  
+    // Implement command line argument processing here if applicable.
+--- 745,750 ----
+  bool cPluginSoftDevice::ProcessArgs(int argc, char *argv[])
+  {
+!   int   i = 0;
+!   bool  ret = true;
+  
+    // Implement command line argument processing here if applicable.
+***************
+*** 788,791 ****
+--- 789,793 ----
+                           &quot;[ProcessArgs] xv: illegal value for sub option aspect (%s)\n&quot;,
+                           vo_argv);
++                 ret = false;
+                  break;
+                }
+***************
+*** 806,811 ****
+                vo_argv += 12;
+              } else {
+!                     fprintf(stderr,&quot;[softdevice] ignoring unrecognized option \&quot;%s\&quot;!\n&quot;,argv[i]);
+!                     esyslog(&quot;[softdevice] ignoring unrecognized option \&quot;%s\&quot;\n&quot;,argv[i]);
+                break;
+              }
+--- 808,814 ----
+                vo_argv += 12;
+              } else {
+!                fprintf(stderr,&quot;[softdevice] ignoring unrecognized option \&quot;%s\&quot;!\n&quot;,argv[i]);
+!                esyslog(&quot;[softdevice] ignoring unrecognized option \&quot;%s\&quot;\n&quot;,argv[i]);
+!               ret = false;
+                break;
+              }
+***************
+*** 813,816 ****
+--- 816,820 ----
+  #else
+            fprintf(stderr,&quot;[softdevice] xv support not compiled in\n&quot;);
++           ret = false;
+  #endif
+          } else if (!strncmp (vo_argv, &quot;fb:&quot;, 3)) {
+***************
+*** 857,862 ****
+                fprintf(stderr,&quot;[softdevice] enabling triple buffering\n&quot;);
+              } else {
+!               fprintf(stderr,&quot;[softdevice] ignoring unrecognized option \&quot;%s\&quot;!\n&quot;,argv[i]);
+!               esyslog(&quot;[softdevice] ignoring unrecognized option \&quot;%s\&quot;\n&quot;,argv[i]);
+                break;
+              }
+--- 861,867 ----
+                fprintf(stderr,&quot;[softdevice] enabling triple buffering\n&quot;);
+              } else {
+!               fprintf(stderr,&quot;[softdevice] ignoring unrecognized option \&quot;%s\&quot;!\n&quot;,vo_argv);
+!               esyslog(&quot;[softdevice] ignoring unrecognized option \&quot;%s\&quot;\n&quot;,vo_argv);
+!               ret = false;
+                break;
+              }
+***************
+*** 864,867 ****
+--- 869,873 ----
+  #else
+            fprintf(stderr,&quot;[softdevice] dfb support not compiled in\n&quot;);
++           ret = false;
+  #endif
+          } else if (!strncmp (vo_argv, &quot;vidix:&quot;, 6)) {
+***************
+*** 872,875 ****
+--- 878,882 ----
+  #else
+            fprintf(stderr,&quot;[softdevice] vidix support not compiled in\n&quot;);
++           ret = false;
+  #endif
+          } else if (!strncmp (vo_argv, &quot;dummy:&quot;, 6)) {
+***************
+*** 879,885 ****
+            fprintf(stderr,&quot;[softdevice] using dummy video out\n&quot;);
+          } else {
+!                 fprintf(stderr,&quot;[softdevice] ignoring unrecognized option \&quot;%s\&quot;!\n&quot;,argv[i]);
+!                 esyslog(&quot;[softdevice] ignoring unrecognized option \&quot;%s\&quot;\n&quot;,argv[i]);
+!         };
+  
+  
+--- 886,893 ----
+            fprintf(stderr,&quot;[softdevice] using dummy video out\n&quot;);
+          } else {
+!           fprintf(stderr,&quot;[softdevice] ignoring unrecognized option \&quot;%s\&quot;!\n&quot;,argv[i]);
+!           esyslog(&quot;[softdevice] ignoring unrecognized option \&quot;%s\&quot;\n&quot;,argv[i]);
+!           ret = false;
+!         }
+  
+  
+***************
+*** 941,958 ****
+            setupStore.aoArgs = ao_argv;
+            aoutMethod = AOUT_DUMMY;
+!         }     else {
+!                 fprintf(stderr,&quot;[softdevice] ignoring unrecognized option \&quot;%s\&quot;!\n&quot;,argv[i]);
+!                 esyslog(&quot;[softdevice] ignoring unrecognized option \&quot;%s\&quot;\n&quot;,argv[i]);
+!         };
+  
+        }
+      } else {
+!             fprintf(stderr,&quot;[softdevice] ignoring unrecognized option \&quot;%s\&quot;!\n&quot;,argv[i]);
+!             esyslog(&quot;[softdevice] ignoring unrecognized option \&quot;%s\&quot;\n&quot;,argv[i]);
+!     };
+      ++i;
+      --argc;
+    }
+!   return true;
+  }
+  
+--- 949,968 ----
+            setupStore.aoArgs = ao_argv;
+            aoutMethod = AOUT_DUMMY;
+!         } else {
+!           fprintf(stderr,&quot;[softdevice] ignoring unrecognized option \&quot;%s\&quot;!\n&quot;,argv[i]);
+!           esyslog(&quot;[softdevice] ignoring unrecognized option \&quot;%s\&quot;\n&quot;,argv[i]);
+!           ret = false;
+!       }
+  
+        }
+      } else {
+!       fprintf(stderr,&quot;[softdevice] ignoring unrecognized option \&quot;%s\&quot;!\n&quot;,argv[i]);
+!       esyslog(&quot;[softdevice] ignoring unrecognized option \&quot;%s\&quot;\n&quot;,argv[i]);
+!       ret = false;
+!     }
+      ++i;
+      --argc;
+    }
+!   return ret;
+  }
+  
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.229
+retrieving revision 1.230
+diff -C2 -d -r1.229 -r1.230
+*** CHANGELOG	11 Sep 2006 21:30:25 -0000	1.229
+--- CHANGELOG	12 Sep 2006 05:44:59 -0000	1.230
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2006-09-12:
++    - don't continue on argument errors
+  2006-09-11:
+     - catch unrecognized options for dfb-out (reported by Rolf Ahrenberg)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000420.html">[Softdevice-cvs] softdevice CHANGELOG, 1.228, 1.229 softdevice.c,	1.68, 1.69
+</A></li>
+	<LI>Next message: <A HREF="000422.html">[Softdevice-cvs] softdevice CHANGELOG, 1.230, 1.231 configure, 1.24,	1.25 mpeg2decoder.c, 1.66, 1.67 video-dfb.c, 1.70,	1.71 softdevice.c, 1.70, 1.71
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#421">[ date ]</a>
+              <a href="thread.html#421">[ thread ]</a>
+              <a href="subject.html#421">[ subject ]</a>
+              <a href="author.html#421">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

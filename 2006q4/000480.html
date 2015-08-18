@@ -1,0 +1,855 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice utils.c, 1.21, 1.22 utils.h, 1.13,	1.14 PicBuffer.c, 1.15, 1.16 CHANGELOG, 1.272, 1.273
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20utils.c%2C%201.21%2C%201.22%20utils.h%2C%201.13%2C%0A%091.14%20PicBuffer.c%2C%201.15%2C%201.16%20CHANGELOG%2C%201.272%2C%201.273&In-Reply-To=%3C20061203192609.43D1DB4B88%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000479.html">
+   <LINK REL="Next"  HREF="000481.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice utils.c, 1.21, 1.22 utils.h, 1.13,	1.14 PicBuffer.c, 1.15, 1.16 CHANGELOG, 1.272, 1.273</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20utils.c%2C%201.21%2C%201.22%20utils.h%2C%201.13%2C%0A%091.14%20PicBuffer.c%2C%201.15%2C%201.16%20CHANGELOG%2C%201.272%2C%201.273&In-Reply-To=%3C20061203192609.43D1DB4B88%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice utils.c, 1.21, 1.22 utils.h, 1.13,	1.14 PicBuffer.c, 1.15, 1.16 CHANGELOG, 1.272, 1.273">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Dec  3 20:26:09 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000479.html">[Softdevice-cvs] softdevice setup-softdevice.c, 1.47,	1.48 setup-softdevice.h, 1.35, 1.36 VdrReplacements.h, 1.2,	1.3 video.h, 1.47, 1.48 CHANGELOG, 1.271, 1.272
+</A></li>
+        <LI>Next message: <A HREF="000481.html">[Softdevice-cvs] softdevice CHANGELOG, 1.273, 1.274 video.c, 1.70,	1.71 video.h, 1.48, 1.49
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#480">[ date ]</a>
+              <a href="thread.html#480">[ thread ]</a>
+              <a href="subject.html#480">[ subject ]</a>
+              <a href="author.html#480">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv4068
+
+Modified Files:
+	utils.c utils.h PicBuffer.c CHANGELOG 
+Log Message:
+- unify yuv420_to_rgbXX() and yv12_to_yuy2_line() functions to allow
+  usage in CopyScalePicBuf()
+- change CopyPicBuf_YUV420P_to_YUY() to a general YUV420P to planar
+  conversion method
+	     
+
+
+Index: utils.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/utils.c,v
+retrieving revision 1.21
+retrieving revision 1.22
+diff -C2 -d -r1.21 -r1.22
+*** utils.c	7 Nov 2006 18:13:19 -0000	1.21
+--- utils.c	3 Dec 2006 19:25:08 -0000	1.22
+***************
+*** 101,117 ****
+  
+  /* ---------------------------------------------------------------------------
+!  * convert to lines luma and one line chroma
+   * lang: MMX2
+   */
+! void
+! yv12_to_yuy2_il_mmx2_line (uint8_t *dest1, uint8_t *dest2, 
+!                            const int chromaWidth,
+!                            const uint8_t *yc1, const uint8_t *yc2,
+!                            const uint8_t *uc, const uint8_t *vc)
+  {
+!   int i=chromaWidth;
+    
+  #ifdef USE_MMX 
+!   for(i = chromaWidth/4; i--; )
+    {
+      movq_m2r(*(yc1), mm1);     // mm1 = y7 y6 y5 y4 y3 y2 y1 y0
+--- 101,115 ----
+  
+  /* ---------------------------------------------------------------------------
+!  * convert two lines luma and one line chroma
+   * lang: MMX2
+   */
+! void yuv420_to_yuy2(uint8_t *dest1, uint8_t *dest2, 
+!                 uint8_t *yc1, uint8_t *yc2, uint8_t *uc, uint8_t *vc,
+!                 int pixel)
+  {
+!   int i=pixel;
+    
+  #ifdef USE_MMX 
+!   for(i = pixel/8; i--; )
+    {
+      movq_m2r(*(yc1), mm1);     // mm1 = y7 y6 y5 y4 y3 y2 y1 y0
+***************
+*** 154,158 ****
+     vector unsigned char y_vec;
+  
+!    for ( i=chromaWidth; i&gt;=16; i-=16) {
+          u_vec = vec_ld(0,uc); uc+=16;
+          v_vec = vec_ld(0,vc); vc+=16;
+--- 152,156 ----
+     vector unsigned char y_vec;
+  
+!    for ( i=pixel; i&gt;=32; i-=32) {
+          u_vec = vec_ld(0,uc); uc+=16;
+          v_vec = vec_ld(0,vc); vc+=16;
+***************
+*** 174,178 ****
+     }
+  #endif
+!    for ( ; i&gt;=1; i-=1 ) {
+        *((uint32_t *)dest1) = (yc1[0] &lt;&lt; 24)+ (uc[0] &lt;&lt; 16) + (yc1[1] &lt;&lt; 8) + (vc[0] &lt;&lt; 0);
+        *((uint32_t *)dest2) = (yc2[0] &lt;&lt; 24)+ (uc[0] &lt;&lt; 16) + (yc2[1] &lt;&lt; 8) + (vc[0] &lt;&lt; 0);
+--- 172,176 ----
+     }
+  #endif
+!    for ( ; i&gt;=2; i-=2 ) {
+        *((uint32_t *)dest1) = (yc1[0] &lt;&lt; 24)+ (uc[0] &lt;&lt; 16) + (yc1[1] &lt;&lt; 8) + (vc[0] &lt;&lt; 0);
+        *((uint32_t *)dest2) = (yc2[0] &lt;&lt; 24)+ (uc[0] &lt;&lt; 16) + (yc2[1] &lt;&lt; 8) + (vc[0] &lt;&lt; 0);
+***************
+*** 191,197 ****
+   * lang: MMX2
+   */
+! void yv12_to_yuy2_il_mmx2(const uint8_t *py,
+!                           const uint8_t *pu, const uint8_t *pv,
+!                           uint8_t *dst, const int width, const int height,
+                            const int lumStride, const int chromStride, 
+                            const int dstStride)
+--- 189,195 ----
+   * lang: MMX2
+   */
+! void yv12_to_yuy2_il_mmx2(uint8_t *py,
+!                           uint8_t *pu, uint8_t *pv,
+!                           uint8_t *dst, int width, int height,
+                            const int lumStride, const int chromStride, 
+                            const int dstStride)
+***************
+*** 203,218 ****
+       * luma lines y * 2 and y * 2 + 2
+       */
+!     yv12_to_yuy2_il_mmx2_line (dst,
+!                                dst + dstStride * 2, width &gt;&gt; 1,
+!                                py, py + lumStride *2,
+!                                pu, pv);
+      /* -----------------------------------------------------------------------
+       * take chroma line x+1 (it's from field B) for packing with
+       * luma lines y * 2 + 1 and y * 2 + 3
+       */
+!     yv12_to_yuy2_il_mmx2_line (dst + dstStride,
+!                                dst + dstStride * 3, width &gt;&gt; 1,
+!                                py + lumStride, py + lumStride * 3,
+!                                pu + chromStride, pv + chromStride);
+      py  += 4*lumStride;
+      pu  += 2*chromStride;
+--- 201,214 ----
+       * luma lines y * 2 and y * 2 + 2
+       */
+!     yuv420_to_yuy2(dst, dst + dstStride * 2,
+!                 py, py + lumStride *2,pu, pv, width);
+      /* -----------------------------------------------------------------------
+       * take chroma line x+1 (it's from field B) for packing with
+       * luma lines y * 2 + 1 and y * 2 + 3
+       */
+!     yuv420_to_yuy2(dst + dstStride,dst + dstStride * 3,
+!                 py + lumStride, py + lumStride * 3,pu + chromStride, pv + chromStride,
+!                 width);
+!     
+      py  += 4*lumStride;
+      pu  += 2*chromStride;
+***************
+*** 699,719 ****
+      int b=(516*u+128);                  \
+                                          \
+!     WRITE_##FMT(dst,clip((y+r)&gt;&gt;8),clip((y+g)&gt;&gt;8),clip((y+b)&gt;&gt;8)); \
+      py1++;                              \
+                                          \
+      y=(((int) *py1)-16)*298;            \
+!     WRITE_##FMT(dst+SIZE_##FMT,clip((y+r)&gt;&gt;8),clip((y+g)&gt;&gt;8),clip((y+b)&gt;&gt;8)); \
+      py1++;                              \
+                                          \
+      /* second line */                   \
+      y=(((int) *py2)-16)*298;            \
+!     WRITE_##FMT(dst+dst_stride,clip((y+r)&gt;&gt;8),clip((y+g)&gt;&gt;8),clip((y+b)&gt;&gt;8)); \
+      py2++;                              \
+                                          \
+      y=(((int) *py2)-16)*298;            \
+!     WRITE_##FMT(dst+dst_stride+SIZE_##FMT,clip((y+r)&gt;&gt;8),clip((y+g)&gt;&gt;8),clip((y+b)&gt;&gt;8)); \
+      py2++;                              \
+                                          \
+!     dst+=2*SIZE_##FMT;                  \
+      pu++;                               \
+      pv++;                               
+--- 695,716 ----
+      int b=(516*u+128);                  \
+                                          \
+!     WRITE_##FMT(dst1,clip((y+r)&gt;&gt;8),clip((y+g)&gt;&gt;8),clip((y+b)&gt;&gt;8)); \
+      py1++;                              \
+                                          \
+      y=(((int) *py1)-16)*298;            \
+!     WRITE_##FMT(dst1+SIZE_##FMT,clip((y+r)&gt;&gt;8),clip((y+g)&gt;&gt;8),clip((y+b)&gt;&gt;8)); \
+      py1++;                              \
+                                          \
+      /* second line */                   \
+      y=(((int) *py2)-16)*298;            \
+!     WRITE_##FMT(dst2,clip((y+r)&gt;&gt;8),clip((y+g)&gt;&gt;8),clip((y+b)&gt;&gt;8)); \
+      py2++;                              \
+                                          \
+      y=(((int) *py2)-16)*298;            \
+!     WRITE_##FMT(dst2+SIZE_##FMT,clip((y+r)&gt;&gt;8),clip((y+g)&gt;&gt;8),clip((y+b)&gt;&gt;8)); \
+      py2++;                              \
+                                          \
+!     dst1+=2*SIZE_##FMT;                 \
+!     dst2+=2*SIZE_##FMT;                 \
+      pu++;                               \
+      pv++;                               
+***************
+*** 957,961 ****
+  // end of MMX macros from libswscale
+  
+! void yuv420_to_rgb32(uint8_t *dst, int dst_stride,
+                   uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
+                   int pixel)
+--- 954,958 ----
+  // end of MMX macros from libswscale
+  
+! void yuv420_to_rgb32(uint8_t *dst1, uint8_t *dst2,
+                   uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
+                   int pixel)
+***************
+*** 977,981 ****
+      __asm__ __volatile__ (
+            WRITE_RGB32_MMX
+!                 : : &quot;r&quot; (MMX_Constants),&quot;r&quot; (dst)
+                  : &quot;memory&quot;);
+      
+--- 974,978 ----
+      __asm__ __volatile__ (
+            WRITE_RGB32_MMX
+!                 : : &quot;r&quot; (MMX_Constants),&quot;r&quot; (dst1)
+                  : &quot;memory&quot;);
+      
+***************
+*** 990,996 ****
+      __asm__ __volatile__ (
+            WRITE_RGB32_MMX
+!                 : : &quot;r&quot; (MMX_Constants), &quot;r&quot; (dst+dst_stride)
+                  : &quot;memory&quot;);
+!     dst+=32;
+      py1+=8;
+      py2+=8;
+--- 987,994 ----
+      __asm__ __volatile__ (
+            WRITE_RGB32_MMX
+!                 : : &quot;r&quot; (MMX_Constants), &quot;r&quot; (dst2)
+                  : &quot;memory&quot;);
+!     dst1+=32;
+!     dst2+=32;
+      py1+=8;
+      py2+=8;
+***************
+*** 1009,1013 ****
+  };
+  
+! void yuv420_to_rgb24(uint8_t *dst, int dst_stride,
+                   uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
+                   int pixel)
+--- 1007,1011 ----
+  };
+  
+! void yuv420_to_rgb24(uint8_t *dst1, uint8_t *dst2,
+                   uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
+                   int pixel)
+***************
+*** 1029,1033 ****
+      __asm__ __volatile__ (
+            WRITE_RGB24_MMX
+!                 : : &quot;r&quot; (MMX_Constants),&quot;r&quot; (dst)
+                  : &quot;memory&quot;);
+      
+--- 1027,1031 ----
+      __asm__ __volatile__ (
+            WRITE_RGB24_MMX
+!                 : : &quot;r&quot; (MMX_Constants),&quot;r&quot; (dst1)
+                  : &quot;memory&quot;);
+      
+***************
+*** 1042,1048 ****
+      __asm__ __volatile__ (
+            WRITE_RGB24_MMX
+!                 : : &quot;r&quot; (MMX_Constants), &quot;r&quot; (dst+dst_stride)
+                  : &quot;memory&quot;);
+!     dst+=24;
+      py1+=8;
+      py2+=8;
+--- 1040,1047 ----
+      __asm__ __volatile__ (
+            WRITE_RGB24_MMX
+!                 : : &quot;r&quot; (MMX_Constants), &quot;r&quot; (dst2)
+                  : &quot;memory&quot;);
+!     dst1+=24;
+!     dst2+=24;
+      py1+=8;
+      py2+=8;
+***************
+*** 1061,1065 ****
+  };
+  
+! void yuv420_to_bgr24(uint8_t *dst, int dst_stride,
+                   uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
+                   int pixel)
+--- 1060,1064 ----
+  };
+  
+! void yuv420_to_bgr24(uint8_t *dst1, uint8_t *dst2,
+                   uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
+                   int pixel)
+***************
+*** 1072,1076 ****
+  };
+  
+! void yuv420_to_rgb16(uint8_t *dst, int dst_stride,
+                   uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
+                   int pixel)
+--- 1071,1075 ----
+  };
+  
+! void yuv420_to_rgb16(uint8_t *dst1, uint8_t *dst2,
+                   uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
+                   int pixel)
+***************
+*** 1092,1096 ****
+      __asm__ __volatile__ (
+            WRITE_RGB16_MMX
+!                 : : &quot;r&quot; (MMX_Constants),&quot;r&quot; (dst)
+                  : &quot;memory&quot;);
+      __asm__ __volatile__ (
+--- 1091,1095 ----
+      __asm__ __volatile__ (
+            WRITE_RGB16_MMX
+!                 : : &quot;r&quot; (MMX_Constants),&quot;r&quot; (dst1)
+                  : &quot;memory&quot;);
+      __asm__ __volatile__ (
+***************
+*** 1104,1110 ****
+      __asm__ __volatile__ (
+            WRITE_RGB16_MMX
+!                 : : &quot;r&quot; (MMX_Constants), &quot;r&quot; (dst+dst_stride)
+                  : &quot;memory&quot;);
+!     dst+=16;
+      py1+=8;
+      py2+=8;
+--- 1103,1110 ----
+      __asm__ __volatile__ (
+            WRITE_RGB16_MMX
+!                 : : &quot;r&quot; (MMX_Constants), &quot;r&quot; (dst2)
+                  : &quot;memory&quot;);
+!     dst1+=16;
+!     dst2+=16;
+      py1+=8;
+      py2+=8;
+
+Index: utils.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/utils.h,v
+retrieving revision 1.13
+retrieving revision 1.14
+diff -C2 -d -r1.13 -r1.14
+*** utils.h	26 Nov 2006 18:52:02 -0000	1.13
+--- utils.h	3 Dec 2006 19:25:08 -0000	1.14
+***************
+*** 58,65 ****
+  #endif
+  
+- void yv12_to_yuy2_il_mmx2_line (uint8_t *dest1, uint8_t *dest2, 
+-                            const int chromaWidth,
+-                            const uint8_t *yc1, const uint8_t *yc2,
+-                            const uint8_t *uc, const uint8_t *vc);
+  
+  void yv12_to_yuy2_il_c(const uint8_t *py,
+--- 58,61 ----
+***************
+*** 71,77 ****
+                         int dstStride);
+  
+! void yv12_to_yuy2_il_mmx2(const uint8_t *py,
+!                           const uint8_t *pu,
+!                           const uint8_t *pv,
+                            uint8_t *dst,
+                            int width,int height,
+--- 67,73 ----
+                         int dstStride);
+  
+! void yv12_to_yuy2_il_mmx2(uint8_t *py,
+!                           uint8_t *pu,
+!                           uint8_t *pv,
+                            uint8_t *dst,
+                            int width,int height,
+***************
+*** 113,126 ****
+                   int depth, unsigned char * mask, int deintMethod);
+  
+! void yuv420_to_rgb32(uint8_t *dst, int dst_stride,
+                   uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
+                   int pixel);
+! void yuv420_to_rgb24(uint8_t *dst, int dst_stride,
+                   uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
+                   int pixel);
+! void yuv420_to_bgr24(uint8_t *dst, int dst_stride,
+                   uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
+                   int pixel);
+! void yuv420_to_rgb16(uint8_t *dst, int dst_stride,
+                   uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
+                   int pixel);
+--- 109,129 ----
+                   int depth, unsigned char * mask, int deintMethod);
+  
+! typedef void (*yuv420_convert_fct)(uint8_t *dst1, uint8_t *dst2, 
+!                 uint8_t *py1, uint8_t *py2,uint8_t *pu, uint8_t *pv,
+!                 int pixel);
+! 
+! void yuv420_to_yuy2(uint8_t *dst1, uint8_t *dst2, 
+!                 uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv,
+!                 int pixel);
+! void yuv420_to_rgb32(uint8_t *dst1, uint8_t *dst2,
+                   uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
+                   int pixel);
+! void yuv420_to_rgb24(uint8_t *dst1, uint8_t *dst2,
+                   uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
+                   int pixel);
+! void yuv420_to_bgr24(uint8_t *dst1, uint8_t *dst2,
+                   uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
+                   int pixel);
+! void yuv420_to_rgb16(uint8_t *dst1, uint8_t *dst2,
+                   uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
+                   int pixel);
+
+Index: PicBuffer.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/PicBuffer.c,v
+retrieving revision 1.15
+retrieving revision 1.16
+diff -C2 -d -r1.15 -r1.16
+*** PicBuffer.c	26 Nov 2006 18:53:41 -0000	1.15
+--- PicBuffer.c	3 Dec 2006 19:25:08 -0000	1.16
+***************
+*** 138,141 ****
+--- 138,160 ----
+  };
+  
++ yuv420_convert_fct GetYuv420ConvertFct(PixelFormat pix_fmt) {
++         switch (pix_fmt) {
++                 case PIX_FMT_RGBA32:
++                         return &amp;yuv420_to_rgb32;
++                 case PIX_FMT_BGR24:
++                         return &amp;yuv420_to_bgr24;
++                 case PIX_FMT_RGB24:
++                         return &amp;yuv420_to_rgb24;
++                 case PIX_FMT_RGB555:
++                 case PIX_FMT_RGB565:
++                         return &amp;yuv420_to_rgb16;
++                 case PIX_FMT_YUV422:
++                         return &amp;yuv420_to_yuy2;
++                 default:
++                         fprintf(stderr,&quot;unsupported format in GetYuv420ConvertFct \n&quot;);
++                         exit(-1);
++         };
++ };
++ 
+  /*----------------------------------------------------------------------*/
+  cPicBufferManager::cPicBufferManager() {
+***************
+*** 419,427 ****
+  
+  /*------------------------------------------------------------------------*/
+! static void CopyPicBuf_YUV420P_YUY2(sPicBuffer *dst, sPicBuffer *src,
+                  int cutTop, int cutBottom,
+                  int cutLeft, int cutRight) {
+!         PICDEB(&quot;CopyPicBuf_YUV420P_YUY2 width %d height %d\n&quot;,
+                          dst-&gt;width,dst-&gt;height);
+  
+          dst-&gt;interlaced_frame=src-&gt;interlaced_frame;
+--- 438,448 ----
+  
+  /*------------------------------------------------------------------------*/
+! static void CopyPicBuf_YUV420P_Convert(sPicBuffer *dst, sPicBuffer *src,
+                  int cutTop, int cutBottom,
+                  int cutLeft, int cutRight) {
+!         PICDEB(&quot;CopyPicBuf_Convert width %d height %d\n&quot;,
+                          dst-&gt;width,dst-&gt;height);
++         
++         yuv420_convert_fct yuv_convert=GetYuv420ConvertFct(dst-&gt;format);
+  
+          dst-&gt;interlaced_frame=src-&gt;interlaced_frame;
+***************
+*** 455,470 ****
+                           * with luma lines y * 2 and y * 2 + 2
+                           */
+!                         yv12_to_yuy2_il_mmx2_line (dst_ptr,
+!                                         dst_ptr + dstStride * 2, width &gt;&gt; 1,
+                                          py, py + lumStride *2,
+!                                         pu, pv);
+                          /* ----------------------------------------------
+                           * take chroma line x+1 (it's from field B) for packing
+                           * with luma lines y * 2 + 1 and y * 2 + 3
+                           */
+!                         yv12_to_yuy2_il_mmx2_line (dst_ptr + dstStride,
+!                                dst_ptr + dstStride * 3, width &gt;&gt; 1,
+                                 py + lumStride, py + lumStride * 3,
+!                                pu + chromStride, pv + chromStride);
+  
+                          py  += 4*lumStride;
+--- 476,492 ----
+                           * with luma lines y * 2 and y * 2 + 2
+                           */
+!                         (*yuv_convert)(dst_ptr,dst_ptr + dstStride * 2,
+                                          py, py + lumStride *2,
+!                                         pu, pv,
+!                                         width);
+                          /* ----------------------------------------------
+                           * take chroma line x+1 (it's from field B) for packing
+                           * with luma lines y * 2 + 1 and y * 2 + 3
+                           */
+!                         (*yuv_convert)(dst_ptr + dstStride,
+!                                dst_ptr + dstStride * 3,
+                                 py + lumStride, py + lumStride * 3,
+!                                pu + chromStride, pv + chromStride,
+!                                width);
+  
+                          py  += 4*lumStride;
+***************
+*** 475,482 ****
+          } else {
+                  for(int y=height/2; y--; ) {
+!                         yv12_to_yuy2_il_mmx2_line (dst_ptr,
+!                                         dst_ptr + dstStride , width &gt;&gt; 1,
+!                                         py, py + lumStride ,
+!                                         pu, pv);
+                          py  += 2*lumStride;
+                          pu  += chromStride;
+--- 497,504 ----
+          } else {
+                  for(int y=height/2; y--; ) {
+!                         (*yuv_convert)(dst_ptr, dst_ptr + dstStride,
+!                                         py, py + lumStride,
+!                                         pu, pv,
+!                                         width);
+                          py  += 2*lumStride;
+                          pu  += chromStride;
+***************
+*** 559,567 ****
+                                  cutTop,cutBottom,
+                                  cutLeft,cutRight);
+!         else if ( dst-&gt;format == PIX_FMT_YUV422 )
+!                 CopyPicBuf_YUV420P_YUY2(dst,src,
+                                  cutTop,cutBottom,
+                                  cutLeft,cutRight);
+-         else fprintf(stderr,&quot;Unsupported format in CopyPicBuf!\n&quot;);
+  }
+  
+--- 581,587 ----
+                                  cutTop,cutBottom,
+                                  cutLeft,cutRight);
+!         else CopyPicBuf_YUV420P_Convert(dst,src,
+                                  cutTop,cutBottom,
+                                  cutLeft,cutRight);
+  }
+  
+***************
+*** 649,655 ****
+          uint8_t *convert_dst=NULL;
+          int convert_dst_stride=0;
+!         void (*yuv_to_rgb)(uint8_t *dst, int dst_stride,
+!                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
+!                  int pixel)=NULL;
+  
+  
+--- 669,673 ----
+          uint8_t *convert_dst=NULL;
+          int convert_dst_stride=0;
+!         yuv420_convert_fct yuv_convert=NULL;
+  
+  
+***************
+*** 677,698 ****
+                          +dxoff*GetFormatBPP(dst-&gt;format);
+                  convert_dst_stride=dst-&gt;stride[0];
+!                 switch (dst-&gt;format) {
+!                         case PIX_FMT_RGBA32:
+!                                 yuv_to_rgb=yuv420_to_rgb32;
+!                                 break;
+!                         case PIX_FMT_BGR24:
+!                                 yuv_to_rgb=yuv420_to_bgr24;
+!                                 break;
+!                         case PIX_FMT_RGB24:
+!                                 yuv_to_rgb=yuv420_to_rgb24;
+!                                 break;
+!                         case PIX_FMT_RGB555:
+!                         case PIX_FMT_RGB565:
+!                                 yuv_to_rgb=yuv420_to_rgb16;
+!                                 break;
+!                         default:
+!                                 fprintf(stderr,&quot;unsupported format in CopyScalePicBuffer! \n&quot;);
+!                                 exit(-1);
+!                 };
+          };
+          
+--- 695,700 ----
+                          +dxoff*GetFormatBPP(dst-&gt;format);
+                  convert_dst_stride=dst-&gt;stride[0];
+!                 
+!                 yuv_convert=GetYuv420ConvertFct(dst-&gt;format);
+          };
+          
+***************
+*** 744,751 ****
+                  if (do_convert) {
+                          // convert yuv to destination format
+!                         (*yuv_to_rgb)(convert_dst,convert_dst_stride,
+!                         //yuv420_to_rgb24(convert_dst,convert_dst_stride,
+!                                         dst_ptr0,dst_ptr0+dst_stride0,
+!                                         dst_ptr1,dst_ptr2,dst_width);
+                          convert_dst+=2*convert_dst_stride;
+                  } else {
+--- 746,753 ----
+                  if (do_convert) {
+                          // convert yuv to destination format
+!                         (*yuv_convert)(convert_dst,
+!                                        convert_dst+convert_dst_stride,
+!                                        dst_ptr0,dst_ptr0+dst_stride0,
+!                                        dst_ptr1,dst_ptr2,dst_width);
+                          convert_dst+=2*convert_dst_stride;
+                  } else {
+***************
+*** 802,808 ****
+          uint8_t *convert_dst=NULL;
+          int convert_dst_stride=0;
+!         void (*yuv_to_rgb)(uint8_t *dst, int dst_stride,
+!                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
+!                  int pixel)=NULL;
+  
+          int src_stride0=src-&gt;stride[0];
+--- 804,808 ----
+          uint8_t *convert_dst=NULL;
+          int convert_dst_stride=0;
+!         yuv420_convert_fct yuv_convert=NULL;
+  
+          int src_stride0=src-&gt;stride[0];
+***************
+*** 842,863 ****
+                  convert_dst_stride=dst-&gt;stride[0];
+  
+!                 switch (dst-&gt;format) {
+!                         case PIX_FMT_RGBA32:
+!                                 yuv_to_rgb=yuv420_to_rgb32;
+!                                 break;
+!                         case PIX_FMT_RGB24:
+!                                 yuv_to_rgb=yuv420_to_rgb24;
+!                                 break;
+!                         case PIX_FMT_BGR24:
+!                                 yuv_to_rgb=yuv420_to_bgr24;
+!                                 break;
+!                         case PIX_FMT_RGB555:
+!                         case PIX_FMT_RGB565:
+!                                 yuv_to_rgb=yuv420_to_rgb16;
+!                                 break;
+!                         default:
+!                                 fprintf(stderr,&quot;unsupported format in CopyScalePicBuffer! \n&quot;);
+!                                 exit(-1);
+!                 };
+          };
+          
+--- 842,846 ----
+                  convert_dst_stride=dst-&gt;stride[0];
+  
+!                 yuv_convert=GetYuv420ConvertFct(dst-&gt;format);
+          };
+          
+***************
+*** 926,932 ****
+                  if (do_convert) {
+                          // convert yuv to destination format
+!                         (*yuv_to_rgb)(convert_dst,convert_dst_stride,
+!                                         dst_ptr0,dst_ptr0+dst_stride0,
+!                                         dst_ptr1,dst_ptr2,dst_width);
+                          convert_dst+=2*convert_dst_stride;
+                  } else {
+--- 909,916 ----
+                  if (do_convert) {
+                          // convert yuv to destination format
+!                         (*yuv_convert)(convert_dst,
+!                                        convert_dst+convert_dst_stride,
+!                                        dst_ptr0,dst_ptr0+dst_stride0,
+!                                        dst_ptr1,dst_ptr2,dst_width);
+                          convert_dst+=2*convert_dst_stride;
+                  } else {
+***************
+*** 942,946 ****
+  
+  /*------------------------------------------------------------------------*/
+! void CopyPicBufAlphaBlend_YUV420P_YUY2(sPicBuffer *dst, sPicBuffer *src,
+                  int width, int height,
+                  uint8_t *OsdPy,
+--- 926,930 ----
+  
+  /*------------------------------------------------------------------------*/
+! void CopyPicBufAlphaBlend_YUV420P_Convert(sPicBuffer *dst, sPicBuffer *src,
+                  int width, int height,
+                  uint8_t *OsdPy,
+***************
+*** 952,956 ****
+                  int cutTop, int cutBottom,
+                  int cutLeft, int cutRight) {
+!         PICDEB(&quot;CopyPicBufAlphaBlend_YUV420P_YUY2 width %d height %d\n&quot;,
+                          width,height);
+  
+--- 936,940 ----
+                  int cutTop, int cutBottom,
+                  int cutLeft, int cutRight) {
+!         PICDEB(&quot;CopyPicBufAlphaBlend_YUV420P_Convert width %d height %d\n&quot;,
+                          width,height);
+  
+***************
+*** 958,961 ****
+--- 942,946 ----
+          uint8_t tmp_u[width];
+          uint8_t tmp_v[width];
++         yuv420_convert_fct yuv_convert=GetYuv420ConvertFct(dst-&gt;format);
+  
+          dst-&gt;interlaced_frame=src-&gt;interlaced_frame;
+***************
+*** 1006,1013 ****
+                                          pv,alpha_puv,width&gt;&gt;1);
+  
+!                         yv12_to_yuy2_il_mmx2_line (dst_ptr,
+!                                         dst_ptr + dstStride * 2, width &gt;&gt; 1,
+                                          tmp_y, &amp;tmp_y[width],
+!                                         tmp_u, tmp_v);
+                          /* ----------------------------------------------
+                           * take chroma line x+1 (it's from field B) for packing
+--- 991,998 ----
+                                          pv,alpha_puv,width&gt;&gt;1);
+  
+!                         (*yuv_convert)(dst_ptr, dst_ptr + dstStride * 2,
+                                          tmp_y, &amp;tmp_y[width],
+!                                         tmp_u, tmp_v,
+!                                         width);
+                          /* ----------------------------------------------
+                           * take chroma line x+1 (it's from field B) for packing
+***************
+*** 1028,1035 ****
+                                          alpha_puv+OsdStride/2,width&gt;&gt;1);
+  
+!                         yv12_to_yuy2_il_mmx2_line (dst_ptr+dstStride,
+!                                         dst_ptr + dstStride * 3, width &gt;&gt; 1,
+!                                         tmp_y, &amp;tmp_y[width],
+!                                         tmp_u, tmp_v);
+  
+                          osd_py += 4*OsdStride;
+--- 1013,1021 ----
+                                          alpha_puv+OsdStride/2,width&gt;&gt;1);
+  
+!                         (*yuv_convert)(dst_ptr+dstStride,
+!                                        dst_ptr + dstStride * 3,
+!                                        tmp_y, &amp;tmp_y[width],
+!                                        tmp_u, tmp_v,
+!                                        width);
+  
+                          osd_py += 4*OsdStride;
+***************
+*** 1061,1068 ****
+                                          pv,alpha_puv,width&gt;&gt;1);
+  
+!                         yv12_to_yuy2_il_mmx2_line (dst_ptr,
+!                                         dst_ptr + dstStride , width &gt;&gt; 1,
+                                          tmp_y, &amp;tmp_y[width],
+!                                         tmp_u, tmp_v);
+  
+                          osd_py += 2*OsdStride;
+--- 1047,1054 ----
+                                          pv,alpha_puv,width&gt;&gt;1);
+  
+!                         (*yuv_convert)(dst_ptr, dst_ptr + dstStride,
+                                          tmp_y, &amp;tmp_y[width],
+!                                         tmp_u, tmp_v,
+!                                         width);
+  
+                          osd_py += 2*OsdStride;
+***************
+*** 1189,1199 ****
+                                  cutTop,cutBottom,
+                                  cutLeft,cutRight);
+!         else if ( dst-&gt;format == PIX_FMT_YUV422 )
+!                 CopyPicBufAlphaBlend_YUV420P_YUY2(dst,src,width,height,
+                                  OsdPy, OsdPu, OsdPv,
+                                  OsdPAlphaY, OsdPAlphaUV, OsdStride,
+                                  cutTop,cutBottom,
+                                  cutLeft,cutRight);
+-         else fprintf(stderr,&quot;Unsupported format in CopyPicBuf!\n&quot;);
+  };
+  
+--- 1175,1183 ----
+                                  cutTop,cutBottom,
+                                  cutLeft,cutRight);
+!         else CopyPicBufAlphaBlend_YUV420P_Convert(dst,src,width,height,
+                                  OsdPy, OsdPu, OsdPv,
+                                  OsdPAlphaY, OsdPAlphaUV, OsdStride,
+                                  cutTop,cutBottom,
+                                  cutLeft,cutRight);
+  };
+  
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.272
+retrieving revision 1.273
+diff -C2 -d -r1.272 -r1.273
+*** CHANGELOG	3 Dec 2006 18:26:21 -0000	1.272
+--- CHANGELOG	3 Dec 2006 19:25:08 -0000	1.273
+***************
+*** 2,5 ****
+--- 2,9 ----
+  2006-12-03:
+     - applied patch from Matthias Schwarzott for vdr uint64 change.
++    - unify yuv420_to_rgbXX() and yv12_to_yuy2_line() functions to allow
++      usage in CopyScalePicBuf()
++    - change CopyPicBuf_YUV420P_to_YUY() to a general YUV420P to planar
++      conversion method
+  2006-11-26:
+     - use brackets in WRITE_RGB16 macro, introduce WRITE_RGB15 (untested)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000479.html">[Softdevice-cvs] softdevice setup-softdevice.c, 1.47,	1.48 setup-softdevice.h, 1.35, 1.36 VdrReplacements.h, 1.2,	1.3 video.h, 1.47, 1.48 CHANGELOG, 1.271, 1.272
+</A></li>
+	<LI>Next message: <A HREF="000481.html">[Softdevice-cvs] softdevice CHANGELOG, 1.273, 1.274 video.c, 1.70,	1.71 video.h, 1.48, 1.49
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#480">[ date ]</a>
+              <a href="thread.html#480">[ thread ]</a>
+              <a href="subject.html#480">[ subject ]</a>
+              <a href="author.html#480">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

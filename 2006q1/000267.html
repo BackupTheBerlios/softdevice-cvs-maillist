@@ -1,0 +1,1890 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.134,1.135 Makefile,1.19,1.20 video.c,1.37,1.38 video.h,1.23,1.24 video-fb.c,1.9,1.10 video-fb.h,1.4,1.5 video-xv.c,1.35,1.36 video-xv.h,1.10,1.11 video-dfb.c,1.42,1.43 video-dfb.h,1.12,1.13 video-vidix.c,1.12,1.13 video-vidix.h,1.5,1.6
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.134%2C1.135%20Makefile%2C1.19%2C1.20%20video.c%2C1.37%2C1.38%20video.h%2C1.23%2C1.24%20video-fb.c%2C1.9%2C1.10%20video-fb.h%2C1.4%2C1.5%20video-xv.c%2C1.35%2C1.36%20video-xv.h%2C1.10%2C1.11%20video-dfb.c%2C1.42%2C1.43%20video-dfb.h%2C1.12%2C1.13%20video-vidix.c%2C1.12%2C1.13%20video-vidix.h%2C1.5%2C1.6&In-Reply-To=%3C200601071428.k07ESgH19572%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000264.html">
+   <LINK REL="Next"  HREF="000265.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.134,1.135 Makefile,1.19,1.20 video.c,1.37,1.38 video.h,1.23,1.24 video-fb.c,1.9,1.10 video-fb.h,1.4,1.5 video-xv.c,1.35,1.36 video-xv.h,1.10,1.11 video-dfb.c,1.42,1.43 video-dfb.h,1.12,1.13 video-vidix.c,1.12,1.13 video-vidix.h,1.5,1.6</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.134%2C1.135%20Makefile%2C1.19%2C1.20%20video.c%2C1.37%2C1.38%20video.h%2C1.23%2C1.24%20video-fb.c%2C1.9%2C1.10%20video-fb.h%2C1.4%2C1.5%20video-xv.c%2C1.35%2C1.36%20video-xv.h%2C1.10%2C1.11%20video-dfb.c%2C1.42%2C1.43%20video-dfb.h%2C1.12%2C1.13%20video-vidix.c%2C1.12%2C1.13%20video-vidix.h%2C1.5%2C1.6&In-Reply-To=%3C200601071428.k07ESgH19572%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.134,1.135 Makefile,1.19,1.20 video.c,1.37,1.38 video.h,1.23,1.24 video-fb.c,1.9,1.10 video-fb.h,1.4,1.5 video-xv.c,1.35,1.36 video-xv.h,1.10,1.11 video-dfb.c,1.42,1.43 video-dfb.h,1.12,1.13 video-vidix.c,1.12,1.13 video-vidix.h,1.5,1.6">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Jan  7 15:28:42 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000264.html">[Softdevice-cvs] softdevice utils.c,1.9,1.10 CHANGELOG,1.133,1.134
+</A></li>
+        <LI>Next message: <A HREF="000265.html">[Softdevice-cvs] softdevice SoftOsd.c,NONE,1.1 SoftOsd.h,NONE,1.1
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#267">[ date ]</a>
+              <a href="thread.html#267">[ thread ]</a>
+              <a href="subject.html#267">[ subject ]</a>
+              <a href="author.html#267">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv21292
+
+Modified Files:
+	CHANGELOG Makefile video.c video.h video-fb.c video-fb.h 
+	video-xv.c video-xv.h video-dfb.c video-dfb.h video-vidix.c 
+	video-vidix.h 
+Log Message:
+- completely rewritten OSD. Supports up- and down-scaleing in MMX
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.134
+retrieving revision 1.135
+diff -C2 -d -r1.134 -r1.135
+*** CHANGELOG	7 Jan 2006 13:26:43 -0000	1.134
+--- CHANGELOG	7 Jan 2006 14:28:39 -0000	1.135
+***************
+*** 1,4 ****
+--- 1,5 ----
+  Changelog
+  2006-01-07:
++     - completely rewritten OSD. Supports up- and down-scaleing in MMX
+      - add sfence and emms to yv12_to_yuy2()
+      - on resume try to open audio-out in non-blocking mode
+
+Index: Makefile
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/Makefile,v
+retrieving revision 1.19
+retrieving revision 1.20
+diff -C2 -d -r1.19 -r1.20
+*** Makefile	6 Oct 2005 21:28:11 -0000	1.19
+--- Makefile	7 Jan 2006 14:28:39 -0000	1.20
+***************
+*** 210,219 ****
+  TARGETS = libvdr-$(PLUGIN).so
+  LIBS = $(FFMPEGLIBS) -lasound
+! OBJS = $(PLUGIN).o utils.o i18n.o video.o mpeg2decoder.o audio.o audio-ac3pt.o video-dummy.o setup-softdevice.o sync-timer.o
+  ALL_OBJS = $(OBJS)
+  
+  ifdef DFB_SUPPORT
+    ifdef USE_SUBPLUGINS
+!     DFB_OBJS  = utils.o video.o video-dfb.o
+      ALL_OBJS += $(DFB_OBJS)
+      TARGETS  += libsubvdr-$(PLUGIN)-dfb.so
+--- 210,219 ----
+  TARGETS = libvdr-$(PLUGIN).so
+  LIBS = $(FFMPEGLIBS) -lasound
+! OBJS = $(PLUGIN).o utils.o i18n.o video.o mpeg2decoder.o audio.o audio-ac3pt.o video-dummy.o setup-softdevice.o sync-timer.o SoftOsd.o
+  ALL_OBJS = $(OBJS)
+  
+  ifdef DFB_SUPPORT
+    ifdef USE_SUBPLUGINS
+!     DFB_OBJS  = utils.o video.o video-dfb.o SoftOsd.o
+      ALL_OBJS += $(DFB_OBJS)
+      TARGETS  += libsubvdr-$(PLUGIN)-dfb.so
+***************
+*** 228,232 ****
+    ifdef USE_SUBPLUGINS
+      FB_LIBS   =
+!     FB_OBJS   = utils.o video.o video-fb.o
+      ALL_OBJS  += $(FB_OBJS)
+      TARGETS   += libsubvdr-$(PLUGIN)-fb.so
+--- 228,232 ----
+    ifdef USE_SUBPLUGINS
+      FB_LIBS   =
+!     FB_OBJS   = utils.o video.o video-fb.o SoftOsd.o
+      ALL_OBJS  += $(FB_OBJS)
+      TARGETS   += libsubvdr-$(PLUGIN)-fb.so
+***************
+*** 238,242 ****
+  ifdef XV_SUPPORT
+    ifdef USE_SUBPLUGINS
+!     XV_OBJS   = utils.o video.o video-xv.o xscreensaver.o
+      ALL_OBJS  += $(XV_OBJS)
+      TARGETS   += libsubvdr-$(PLUGIN)-xv.so
+--- 238,242 ----
+  ifdef XV_SUPPORT
+    ifdef USE_SUBPLUGINS
+!     XV_OBJS   = utils.o video.o video-xv.o xscreensaver.o SoftOsd.o
+      ALL_OBJS  += $(XV_OBJS)
+      TARGETS   += libsubvdr-$(PLUGIN)-xv.so
+***************
+*** 249,253 ****
+  ifdef VIDIX_SUPPORT
+    ifdef USE_SUBPLUGINS
+!     VIDIX_OBJS  = utils.o video.o video-vidix.o
+      ALL_OBJS    += $(VIDIX_OBJS)
+      TARGETS     += libsubvdr-$(PLUGIN)-vidix.so
+--- 249,253 ----
+  ifdef VIDIX_SUPPORT
+    ifdef USE_SUBPLUGINS
+!     VIDIX_OBJS  = utils.o video.o video-vidix.o SoftOsd.o
+      ALL_OBJS    += $(VIDIX_OBJS)
+      TARGETS     += libsubvdr-$(PLUGIN)-vidix.so
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.37
+retrieving revision 1.38
+diff -C2 -d -r1.37 -r1.38
+*** video.c	15 Nov 2005 06:02:16 -0000	1.37
+--- video.c	7 Jan 2006 14:28:39 -0000	1.38
+***************
+*** 15,18 ****
+--- 15,25 ----
+  #include &quot;setup-softdevice.h&quot;
+  #include &quot;sync-timer.h&quot;
++ #include &quot;SoftOsd.h&quot;
++ 
++ //#define OSDDEB(out...) {printf(&quot;vout_osd[%04d]:&quot;,(int)(getTimeMilis() % 10000));printf(out);}
++ 
++ #ifndef OSDDEB
++ #define OSDDEB(out...)
++ #endif
+  
+  cVideoOut::cVideoOut(cSetupStore *setupStore)
+***************
+*** 22,29 ****
+    OsdHeight=OSD_FULL_HEIGHT;
+  #endif
+    sxoff = syoff = lxoff = lyoff = 0;
+    cutTop = cutBottom = cutLeft = cutRight = 0;
+    OsdPy = OsdPu = OsdPv = OsdPAlphaY = OsdPAlphaUV = NULL;
+!   Osd_changed = Osd_Bitmap_changed = 0;
+    aspect_F = 4.1 / 3.0;
+    aspect_I = 0;
+--- 29,39 ----
+    OsdHeight=OSD_FULL_HEIGHT;
+  #endif
++   // set some reasonable defaults
++   fwidth = lwidth = old_dwidth = dwidth = swidth = 720;
++   fheight = lheight = old_dheight = dheight = sheight = 536;
+    sxoff = syoff = lxoff = lyoff = 0;
+    cutTop = cutBottom = cutLeft = cutRight = 0;
+    OsdPy = OsdPu = OsdPv = OsdPAlphaY = OsdPAlphaUV = NULL;
+!   Osd_changed = 0;
+    aspect_F = 4.1 / 3.0;
+    aspect_I = 0;
+***************
+*** 31,34 ****
+--- 41,45 ----
+    PixelMask=NULL;
+    OsdRefreshCounter=0;
++   osd=NULL;
+    displayTimeUS = 0;
+    this-&gt;setupStore=setupStore;
+***************
+*** 99,102 ****
+--- 110,114 ----
+           OsdRefreshCounter&gt;10 &amp;&amp; Osd_changed))
+      {
++       osdMutex.Lock();
+        if (old_picture)
+        {
+***************
+*** 110,120 ****
+        else
+        {
+!         DrawStill_420pl (OsdPy,OsdPu, OsdPv, OsdWidth, OsdHeight,
+                           OSD_FULL_WIDTH, OSD_FULL_WIDTH/2);
+        }
+-       
+-       osdMutex.Lock();
+        Osd_changed=0;
+        osdMutex.Unlock();
+      }
+  #if 0
+--- 122,131 ----
+        else
+        {
+!         DrawStill_420pl (OsdPy,OsdPu, OsdPv,OSD_FULL_WIDTH, OSD_FULL_HEIGHT,
+                           OSD_FULL_WIDTH, OSD_FULL_WIDTH/2);
+        }
+        Osd_changed=0;
+        osdMutex.Unlock();
++       
+      }
+  #if 0
+***************
+*** 131,158 ****
+        newOsdHeight=OSD_FULL_HEIGHT;
+      }
+!     else 
+!     {
+!       if (newOsdWidth &gt; OSD_FULL_WIDTH)
+!         newOsdWidth=OSD_FULL_WIDTH;
+!       if (newOsdHeight &gt; OSD_FULL_HEIGHT)
+!         newOsdHeight=OSD_FULL_HEIGHT;
+!     }
+!     if (OSDpresent &amp;&amp; osd
+         &amp;&amp; ( OsdWidth!=newOsdWidth  || OsdHeight!=newOsdHeight  || 
+             changeMode )
+          )
+      {
+!       OSDdirty=true;
+!       //printf(&quot;OsdWidth %d newOsdWidth %d OsdHeight %d newOsdHeight %d \n&quot;,
+!       //   OsdWidth,newOsdWidth,OsdHeight,newOsdHeight);
+!       if (changeMode) {
+!         cOsd *osdSave=osd;
+!         CloseOSD();
+!         current_osdMode=newOsdMode;
+!         OpenOSD(OSDxOfs,OSDyOfs);
+!         osd=osdSave;
+!       }
+!       osd-&gt;Flush();
+      }
+      usleep(50000);
+    }
+--- 142,159 ----
+        newOsdHeight=OSD_FULL_HEIGHT;
+      }
+!    
+!     osdMutex.Lock();
+!     if (OSDpresent &amp;&amp; osd 
+         &amp;&amp; ( OsdWidth!=newOsdWidth  || OsdHeight!=newOsdHeight  || 
+             changeMode )
+          )
+      {
+!       OSDDEB(&quot;change size: OsdWidth %d newOsdWidth %d\n&quot;,OsdWidth,newOsdWidth);
+!       current_osdMode=newOsdMode;
+!       // redraw the complete osd
+!       OSDFlush_nolock(osd,true);
+!       OSDDEB(&quot;change size end\n&quot;);
+      }
++     osdMutex.Unlock();
+      usleep(50000);
+    }
+***************
+*** 164,170 ****
+  void cVideoOut::InvalidateOldPicture(void)
+  {
+!   osdMutex.Lock();
+    old_picture = NULL;
+!   osdMutex.Unlock();
+  }
+  
+--- 165,171 ----
+  void cVideoOut::InvalidateOldPicture(void)
+  {
+!   areaMutex.Lock();
+    old_picture = NULL;
+!   areaMutex.Unlock();
+  }
+  
+***************
+*** 173,181 ****
+  void cVideoOut::SetOldPicture(AVFrame *picture, int width, int height)
+  {
+!   osdMutex.Lock();
+    old_picture = picture;
+    old_width = width;
+    old_height = height;
+!   osdMutex.Unlock();
+  }
+  
+--- 174,182 ----
+  void cVideoOut::SetOldPicture(AVFrame *picture, int width, int height)
+  {
+!   //osdMutex.Lock(); //protected by areaMutex osdMutex will cause deadlocks!
+    old_picture = picture;
+    old_width = width;
+    old_height = height;
+!   //osdMutex.Unlock();
+  }
+  
+***************
+*** 312,315 ****
+--- 313,317 ----
+  {
+    current_aspect = -1;
++   //printf(&quot;aspect_F %f\n&quot;,aspect_F);
+    CheckAspect (current_afd, aspect_F);
+  }
+***************
+*** 425,428 ****
+--- 427,431 ----
+  {
+    areaMutex. Lock();
++   OsdRefreshCounter=0;
+    CheckAspectDimensions(picture,context);
+    SetOldPicture(picture,context-&gt;width,context-&gt;height);
+***************
+*** 447,450 ****
+--- 450,454 ----
+  {
+    areaMutex. Lock();
++   OsdRefreshCounter=0;
+    CheckArea(w, h);
+    // display picture
+***************
+*** 453,468 ****
+  }
+  
+! #define OPACITY_THRESHOLD 0x8F
+! #define TRANSPARENT_THRESHOLD 0x0F
+! #define IS_BACKGROUND(a) (((a) &lt; OPACITY_THRESHOLD) &amp;&amp; (a &gt; TRANSPARENT_THRESHOLD))
+! 
+! /* ---------------------------------------------------------------------------
+!  */
+! void cVideoOut::OSDStart()
+  {
+!   osdMutex.Lock();
+!   //fprintf (stderr, &quot;+&quot;);
+  
+- #if VDRVERSNUM &gt;= 10307
+    if (current_osdMode==OSDMODE_SOFTWARE)
+    	init_OsdBuffers();
+--- 457,466 ----
+  }
+  
+! #if VDRVERSNUM &gt;= 10307
+! void cVideoOut::OSDFlush_nolock(cSoftOsd *Osd,bool RefreshAll)
+  {
+!   OSDDEB(&quot;OSDFlush RefreshAll: %d \n&quot;,
+!                   RefreshAll);
+  
+    if (current_osdMode==OSDMODE_SOFTWARE)
+    	init_OsdBuffers();
+***************
+*** 475,513 ****
+      newY=OSD_FULL_HEIGHT;
+    }
+-   else 
+-   {
+-     if (newX &gt; OSD_FULL_WIDTH)
+-       newX=OSD_FULL_WIDTH;
+-     if (newY &gt; OSD_FULL_HEIGHT)
+-       newY=OSD_FULL_HEIGHT;
+-   }
+    if (newX!=OsdWidth || newY!=OsdHeight)
+    {
+      OsdWidth=newX;
+      OsdHeight=newY;
+!     OSDdirty=true;
+    };
+  
+!   if (OSDdirty)
+      ClearOSD();
+! #endif
+! } 
+! 
+! /* ---------------------------------------------------------------------------
+!  */
+! void cVideoOut::OSDCommit()
+! {
+!   //fprintf (stderr, &quot;-&quot;);
+!   OSDdirty=false;
+    OSDpresent=true;
+! #if VDRVERSNUM &gt;= 10307
+!   if (Osd_Bitmap_changed)
+!   {
+!     Osd_Bitmap_changed = 0;
+!     Osd_changed = 1;
+!   }
+! #endif
+!   osdMutex.Unlock();
+  }
+  
+  /* ---------------------------------------------------------------------------
+--- 473,502 ----
+      newY=OSD_FULL_HEIGHT;
+    }
+    if (newX!=OsdWidth || newY!=OsdHeight)
+    {
++     OSDDEB(&quot;new osd dimensions: %d,%d\n&quot;,newX,newY);
+      OsdWidth=newX;
+      OsdHeight=newY;
+!     RefreshAll=true;
+    };
++   
+  
+!   if (RefreshAll)
+      ClearOSD();
+!  
+!   cSoftOsd *SoftOsd=dynamic_cast&lt;cSoftOsd*&gt;(Osd);
+!   if (SoftOsd) {
+!           int Depth; bool HasAlpha; bool AlphaInversed; bool IsYUV; 
+!           uint8_t *PixelMask;
+!           GetOSDMode(Depth,HasAlpha,AlphaInversed,IsYUV,PixelMask);
+!           SoftOsd-&gt;SetMode(Depth,HasAlpha,AlphaInversed,IsYUV,PixelMask);
+! 	  RefreshOSD(SoftOsd,RefreshAll);
+!   } else printf(&quot;SoftOsd=NULL!!!!!!!\n&quot;);
+!   
+    OSDpresent=true;
+!   Osd_changed = 1;
+!   OSDDEB(&quot;End OSDFlush\n&quot;);
+  }
++ #endif
+  
+  /* ---------------------------------------------------------------------------
+***************
+*** 515,518 ****
+--- 504,508 ----
+  void cVideoOut::ClearOSD()
+  {
++   OSDDEB(&quot;ClearOSD\n&quot;);
+    //if (current_osdMode==OSDMODE_SOFTWARE)
+    {
+***************
+*** 532,540 ****
+  #if VDRVERSNUM &gt;= 10307
+  
+! void cVideoOut::OpenOSD(int X, int Y)
+  {
+!   OSDxOfs = X;
+!   OSDyOfs = Y;
+!   OSDdirty=true;
+  }
+  
+--- 522,536 ----
+  #if VDRVERSNUM &gt;= 10307
+  
+! void cVideoOut::OpenOSD(int X, int Y, cSoftOsd * Osd)
+  {
+!   OSDDEB(&quot;OpenOSD\n&quot;);
+!   osd=Osd;
+!   //cSoftOsd *SoftOsd=dynamic_cast&lt;cSoftOsd*&gt;(osd);
+!   //if (SoftOsd) {
+!           int Depth; bool HasAlpha; bool AlphaInversed; bool IsYUV;
+!           uint8_t *PixelMask;
+!           GetOSDMode(Depth,HasAlpha,AlphaInversed,IsYUV,PixelMask);
+!           osd-&gt;SetMode(Depth,HasAlpha,AlphaInversed,IsYUV,PixelMask);
+!   //} else printf(&quot;SoftOSD NULL!\n&quot;);
+  }
+  
+***************
+*** 542,843 ****
+  {
+    osdMutex.Lock();
+- 
+    ClearOSD();
+-   
+    osd=NULL;
+    OSDpresent=false;
+    Osd_changed=1;
+    osdMutex.Unlock();
+  }
+  
+- 
+- /* ---------------------------------------------------------------------------
+-  */
+- 
+- void ScaleBitmap(cBitmap *Bitmap,
+-               int &amp;a, int &amp;r, int &amp;g, int &amp;b,
+-               int x, int y, int newX, int newY) {
+- // scales a bitmap down... no upscaling...
+-   const tIndex  *adr;
+-   struct color {
+-     unsigned char b;
+-     unsigned char g;
+-     unsigned char r;
+-     unsigned char a;
+-     } pixel;
+-  
+-   if ( OSD_FULL_HEIGHT == newY &amp;&amp;
+-       OSD_FULL_WIDTH == newX) 
+-   {
+-      adr = Bitmap-&gt;Data(x,y);
+-      *((uint32_t *) &amp;pixel) = (uint32_t) Bitmap-&gt;Color(*adr);
+-      a = pixel.a;
+-      b = pixel.b;
+-      r = pixel.r;
+-      g = pixel.g;
+-      return;
+-   };
+-   
+-   int minPY=OSD_FULL_HEIGHT*y/newY;
+-   int maxPY=OSD_FULL_HEIGHT*(y+1)/newY;
+-   int minPX=OSD_FULL_WIDTH*x/newX;
+-   int maxPX=OSD_FULL_WIDTH*(x+1)/newX;
+-   int sumA=0;
+-   int sumR=0;
+-   int sumG=0;
+-   int sumB=0;
+-   int weightYf=0;
+-   int weightYl=0;
+-   int weightXf=0;
+-   int weightXl=0;
+-   int weightX=0;
+-   int weight;
+-   int weights=0;
+-    
+- 
+-   weightYf=-OSD_FULL_HEIGHT*100*y/newY+(minPY+1)*100;
+-   weightYl=-(maxPY)*100+OSD_FULL_HEIGHT*100*(y+1)/newY;
+-   weightXf=-OSD_FULL_WIDTH*100*x/newX+(minPX+1)*100;
+-   weightXl=-(maxPX)*100+OSD_FULL_WIDTH*100*(x+1)/newX;
+- 
+-   for (int i=minPX; i&lt;= maxPX; i++) {
+-     if (i==minPX)
+-       weightX=weightXf;
+-     else if (i==maxPX)
+-       weightX=weightXl;
+-     else weight=100;
+-     
+-     for (int j=minPY; j&lt;= maxPY; j++) {
+-       if (j==minPY)
+-         weight=weightX*weightYf;
+-       else if (j==maxPY)
+-         weight=weightX*weightYl;
+-       else weight=weightX*100;
+- 
+- //      printf(&quot;minPX %d, maxPX %d, minPY %d maxPY %d, weightX %d,weightYf %d \n&quot;,
+- //       minPX,maxPX,minPY,maxPY,weightX,weightYf);
+-       if ( i &gt; Bitmap-&gt;Width() )
+-               continue;
+-       if ( j &gt; Bitmap-&gt;Height() )
+-               continue;
+-                       
+-       adr = Bitmap-&gt;Data(i,j);
+-       *((uint32_t *) &amp;pixel) = (uint32_t) Bitmap-&gt;Color(*adr);
+-       sumA+=weight* pixel.a;
+-       sumB+=weight* pixel.b;
+-       sumR+=weight* pixel.r;
+-       sumG+=weight* pixel.g;
+-       weights+=weight;
+-     };
+-   };
+- 
+-   a= sumA/weights;
+-   b= sumB/weights;
+-   r= sumR/weights;
+-   g= sumG/weights;
+- };
+-   
+- void cVideoOut::Draw(cBitmap *Bitmap,
+-                      unsigned char *osd_buf,
+-                      int linelen,
+-                      bool inverseAlpha)
+- {
+-     int           depth = (Bpp + 7) / 8;
+-     int           a, r, g, b;
+-     bool          prev_pix = false, do_dither;
+-     tIndex        *buf;
+-     int           x1,x2,y1,y2;
+-     uint8_t       *PixelMaskPtr;
+- 
+- 
+- //  printf( &quot;Draw: OSDWidth %d %d Bitmap %d %d \n&quot;,
+- //   OsdWidth,OsdHeight,Bitmap-&gt;Width(),Bitmap-&gt;Height()); 
+-     // if bitmap didn't change, return
+-     if (!Bitmap-&gt;Dirty(x1,y1,x2,y2) &amp;&amp; !OSDdirty )
+-       return;
+-   
+- // printf(&quot;dirty area (%d,%d) (%d,%d) \n&quot;,x1,y1,x2,y2);
+-   
+-   if (OSDdirty)
+-   {
+-     y1=x1=0;
+-     x2=Bitmap-&gt;Width()-1;
+-     y2=Bitmap-&gt;Height()-1;
+-   };
+- 
+- #define SCALEX(x) ((x) * OsdWidth/OSD_FULL_WIDTH)
+- #define SCALEY(y) ((y) * OsdHeight/OSD_FULL_HEIGHT)
+-   for (int y =SCALEY(y1); y &lt;= SCALEY(y2); y++)
+-   {
+-     buf = (tIndex *) osd_buf +
+-             linelen * ( OSDyOfs + y + SCALEY(Bitmap-&gt;Y0())) +
+-             (OSDxOfs + SCALEX(Bitmap-&gt;X0() + x1) ) * depth;
+-     PixelMaskPtr=PixelMask +
+-            linelen/16 * ( OSDyOfs + y + SCALEY(Bitmap-&gt;Y0())) +
+-             (OSDxOfs + SCALEX(Bitmap-&gt;X0() + x1))/8;
+-     prev_pix = false;
+- 
+-     for (int x = SCALEX(x1); x &lt;= SCALEX(x2); x++)
+-     {
+-       do_dither = ((x % 2 == 1 &amp;&amp; y % 2 == 1) ||
+-                     x % 2 == 0 &amp;&amp; y % 2 == 0 || prev_pix);
+-      /* 
+-       adr = Bitmap-&gt;Data(x, y);
+-       c = Bitmap-&gt;Color(*adr);
+-       a = (c &gt;&gt; 24) &amp; 255; //Alpha
+-       r = (c &gt;&gt; 16) &amp; 255; //Red
+-       g = (c &gt;&gt; 8) &amp; 255;  //Green
+-       b = c &amp; 255;         //Blue
+-     */ 
+-      ScaleBitmap(Bitmap,a,r,g,b,x,y,OsdWidth,OsdHeight);
+- 
+-       if (PixelMask) {
+-         if (a&gt;TRANSPARENT_THRESHOLD)
+-           PixelMaskPtr[x/8]|=(1&lt;&lt;x%8);
+-       }
+- 
+-       /* ---------------------------------------------------------------------
+-        * pseudo spu drawing looks better if rgb values are set to colorkey
+-        * so that they are full transparent in case of zero alpha value
+-        */
+-       if (!a)
+-         r = g = b = 0;
+- 
+-       switch (depth) {
+-         case 4:
+-           if ((do_dither &amp;&amp; IS_BACKGROUND(a) &amp;&amp; OSDpseudo_alpha) ||
+-               (a == 255 &amp;&amp; r == 0 &amp;&amp; g == 0 &amp;&amp; b == 0))
+-           {
+-             buf[0] = 1; buf[1] = 1; buf[2] = 1; buf[3] = 255;
+-           } else {
+-             if (inverseAlpha)
+-               a = 255 - a;
+- 
+-             buf[0] = b;
+-             buf[1] = g;
+-             buf[2] = r;
+-             buf[3] = a;
+-           }
+- 
+-           buf += 4;
+-           break;
+-         case 3:
+-           if ((do_dither &amp;&amp; IS_BACKGROUND(a)) ||
+-               (a == 255 &amp;&amp; r == 0 &amp;&amp; g == 0 &amp;&amp; b == 0))
+-           {
+-             buf[0] = 1; buf[1] = 1; buf[2] = 1;
+-           } else {
+-             buf[0] = b;
+-             buf[1] = g;
+-             buf[2] = r;
+-           }
+- 
+-           buf += 3;
+-           break;
+-         case 2:
+-           if ((do_dither &amp;&amp; IS_BACKGROUND(a)) ||
+-               (a == 255 &amp;&amp; r == 0 &amp;&amp; g == 0 &amp;&amp; b == 0))
+-           {
+-               buf[0] = 0x21; buf[1] = 0x08;
+-           } else {
+-             buf[0] = ((b &gt;&gt; 3)&amp; 0x1F) | ((g &amp; 0x1C) &lt;&lt; 3);
+-             buf[1] = (r &amp; 0xF8) | (g &gt;&gt; 5);
+-           }
+- 
+-           buf += 2;
+-           break;
+-         default:
+-             //dsyslog(&quot;[VideoOut] OSD: unsupported depth %d exiting&quot;,depth);
+-             //exit(1);
+-           break;
+-       }
+-       prev_pix = !IS_BACKGROUND(a);
+-     }
+-   }
+-   Bitmap-&gt;Clean();
+- }
+- 
+- void cVideoOut::ToYUV(cBitmap *Bitmap)
+- {
+-     int      a1, r1, g1, b1;
+-     int      a2, r2, g2, b2;
+-     uint8_t       Y1,U1,V1;
+-     uint8_t       Y2,U2,V2;
+-     int linelen=OSD_FULL_WIDTH;
+-     int offset;
+-   //  printf(&quot;ToYUV... OsdPy: 0%x Res:(%d,%d)\n&quot;,OsdPy,linelen,lines);
+- 
+-   
+-  // printf( &quot;YUV:OSDWidth %d %d Bitmap %d %d \n&quot;,
+-  //   OsdWidth,OsdHeight,Bitmap-&gt;Width(),Bitmap-&gt;Height());
+-  
+-     int           x1,x2,y1,y2;
+-     // if bitmap didn't change, return
+-     if (!Bitmap-&gt;Dirty(x1,y1,x2,y2) &amp;&amp; !OSDdirty)
+-       return;
+-     
+-   Osd_Bitmap_changed=1;
+-    //printf( &quot;----------------------------\nOSDWidth %d %d Bitmap %d %d \n&quot;,
+-    //     OsdWidth,OsdHeight,Bitmap-&gt;Width(),Bitmap-&gt;Height()); 
+-    //printf(&quot;dirty area (%d,%d) (%d,%d) \n&quot;,x1,y1,x2,y2);
+-     
+-     if ( OSDdirty )
+-     {
+-       //printf(&quot;++++++++++++++++++++++new OsdHeight+++++++ OSDdirty %d+++++\n&quot;,
+-       //  OSDdirty);
+-       x1=y1=0;
+-       x2=Bitmap-&gt;Width()-1;
+-       y2=Bitmap-&gt;Height()-1;
+-    }
+- 
+- #define SCALEX(x) ((x) * OsdWidth/OSD_FULL_WIDTH)
+- #define SCALEY(y) ((y) * OsdHeight/OSD_FULL_HEIGHT)
+- 
+-   y1=SCALEY(y1); 
+-   y2=SCALEY(y2); 
+-   x1=SCALEX(x1);
+-   x2=SCALEX(x2);
+-   int  x0=sxoff+SCALEX(OSDxOfs+Bitmap-&gt;X0());
+-   int  y0=(syoff+SCALEY(OSDyOfs+Bitmap-&gt;Y0())) &amp; ~1; // we need an even offset
+- 
+-   // we need a even starting point
+-   y1&amp;=~1;
+-   y2= (y2+2) &amp; ~1;
+-   y2= ( y2 &gt; Bitmap-&gt;Height()-1 ? Bitmap-&gt;Height()-1 : y2);
+-   // two rows at a time...
+-   for (int y = y1; y &lt; y2; y+=2) 
+-   {
+-     offset = (y0+y)*linelen;
+-     for (int x = x1; x &lt;= x2; x++)
+-     {
+-      ScaleBitmap(Bitmap,a1,r1,g1,b1,x,y,OsdWidth,OsdHeight);
+-      ScaleBitmap(Bitmap,a2,r2,g2,b2,x,y+1,OsdWidth,OsdHeight);
+-   
+-       Y1 = (( 66 * r1 + 129 * g1 + 25 * b1 + 128 )  &gt;&gt; 8)+16;
+-       Y2 = (( 66 * r2 + 129 * g2 + 25 * b2 + 128 )  &gt;&gt; 8)+16;
+-       OsdPy[offset+x+x0]=Y1;
+-       OsdPAlphaY[offset+x+x0]=a1;
+-       OsdPy[offset+linelen+x+x0]=Y2;
+-       OsdPAlphaY[offset+linelen+x+x0]=a2;
+-       
+-       // even columns have U and V
+-       if ( (x&amp;1)==0 ) 
+-       {
+-         // I got this formular from Wikipedia...
+-         U1 = (( -38 * r1 - 74 * g1 +112 * b1 + 128 )  &gt;&gt; 8)+128;
+-         V1 = (( 112 * r1 - 94 * g1 - 18 * b1 + 128 )  &gt;&gt; 8)+128;
+- 
+-         U2 = (( -38 * r2 - 74 * g2 +112 * b2 + 128 )  &gt;&gt; 8)+128;
+-         V2 = (( 112 * r2 - 94 * g2 - 18 * b2 + 128 )  &gt;&gt; 8)+128;
+- 
+-         OsdPu[offset/4+(x+x0)/2]=(U1+U2)/2;
+-         OsdPv[offset/4+(x+x0)/2]=(V1+V2)/2;
+-         OsdPAlphaUV[offset/4+(x+x0)/2]=(a1+a2)/2;
+-       }
+-      }
+-     }
+-   Bitmap-&gt;Clean();
+- 
+- }
+  void cVideoOut::AlphaBlend(uint8_t *dest,uint8_t *P1,uint8_t *P2,
+            uint8_t *alpha,uint16_t count) {
+--- 538,549 ----
+  {
+    osdMutex.Lock();
+    ClearOSD();
+    osd=NULL;
+    OSDpresent=false;
+    Osd_changed=1;
+    osdMutex.Unlock();
++   OSDDEB(&quot;CloseOSD\n&quot;);
+  }
+  
+  void cVideoOut::AlphaBlend(uint8_t *dest,uint8_t *P1,uint8_t *P2,
+            uint8_t *alpha,uint16_t count) {
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.23
+retrieving revision 1.24
+diff -C2 -d -r1.23 -r1.24
+*** video.h	25 Oct 2005 19:35:25 -0000	1.23
+--- video.h	7 Jan 2006 14:28:39 -0000	1.24
+***************
+*** 42,56 ****
+  #define PREFETCH &quot;prefetch &quot;
+  #define MOVQ     &quot;movntq &quot;
+! #define EMMS     __asm__ (&quot; femms \n&quot;: :  )
+  #elif defined ( USE_MMX2 )
+  //#warning Using MMX2 extensions
+  #define PREFETCH &quot;prefetchnta &quot;
+  #define MOVQ     &quot;movntq &quot;
+! #define EMMS     __asm__ (&quot; emms \n&quot;: :  )
+  #else
+  //#warning Using MMX extensions
+  #define PREFETCH
+  #define MOVQ     &quot;movq &quot;
+! #define EMMS     __asm__ (&quot; emms \n&quot;: :  )
+  #endif
+  
+--- 42,56 ----
+  #define PREFETCH &quot;prefetch &quot;
+  #define MOVQ     &quot;movntq &quot;
+! #define EMMS     __asm__ __volatile__  (&quot; femms \n&quot;: : : &quot;memory&quot;  )
+  #elif defined ( USE_MMX2 )
+  //#warning Using MMX2 extensions
+  #define PREFETCH &quot;prefetchnta &quot;
+  #define MOVQ     &quot;movntq &quot;
+! #define EMMS     __asm__ __volatile__ (&quot; emms \n&quot;: : : &quot;memory&quot;  )
+  #else
+  //#warning Using MMX extensions
+  #define PREFETCH
+  #define MOVQ     &quot;movq &quot;
+! #define EMMS     __asm__ __volatile__ (&quot; emms \n&quot;: : : &quot;memory&quot;  )
+  #endif
+  
+***************
+*** 77,80 ****
+--- 77,82 ----
+  #endif
+  
++ class cSoftOsd;
++ 
+  class cVideoOut: public cThread {
+  private:
+***************
+*** 85,90 ****
+      cMutex  osdMutex,
+              areaMutex;
+-     int     OSDxOfs, OSDyOfs,
+-             OSDw, OSDh;
+      bool    OSDpresent,
+              OSDpseudo_alpha;
+--- 87,90 ----
+***************
+*** 116,122 ****
+      cSetupStore *setupStore;
+  
+-     cOsd *osd;
+      bool active;
+-     bool OSDdirty;
+  
+      virtual void RecalculateAspect(void);
+--- 116,120 ----
+***************
+*** 125,133 ****
+      cVideoOut(cSetupStore *setupStore);
+      virtual ~cVideoOut();
+-     virtual void Size(int w, int h) {OSDw = w; OSDh = h;};
+-     virtual void OSDStart();
+-     virtual void OSDCommit();
+-     virtual void OpenOSD(int X, int Y);
+      virtual void CloseOSD();
+      virtual void Sync(cSyncTimer *syncTimer, int *delay);
+      virtual void YUV(uint8_t *Py, uint8_t *Pu, uint8_t *Pv, int Width, int Height, int Ystride, int UVstride) { return; };
+--- 123,128 ----
+      cVideoOut(cSetupStore *setupStore);
+      virtual ~cVideoOut();
+      virtual void CloseOSD();
++     
+      virtual void Sync(cSyncTimer *syncTimer, int *delay);
+      virtual void YUV(uint8_t *Py, uint8_t *Pu, uint8_t *Pv, int Width, int Height, int Ystride, int UVstride) { return; };
+***************
+*** 156,168 ****
+      // time
+  
+-     void SetOsd(cOsd * Osd) {osd=Osd;};
+-     // sets a pointer to the current osd. For refreshing of the osd 
+- 
+      virtual void InvalidateOldPicture(void);
+      virtual void SetOldPicture(AVFrame *picture, int width, int height);
+  
+      uint8_t *PixelMask;
+!     int     Osd_changed,
+!             Osd_Bitmap_changed;
+      uint8_t *OsdPy;
+      uint8_t *OsdPu; 
+--- 151,159 ----
+      // time
+  
+      virtual void InvalidateOldPicture(void);
+      virtual void SetOldPicture(AVFrame *picture, int width, int height);
+  
+      uint8_t *PixelMask;
+!     int     Osd_changed;
+      uint8_t *OsdPy;
+      uint8_t *OsdPu; 
+***************
+*** 185,188 ****
+--- 176,186 ----
+  
+  #if VDRVERSNUM &gt;= 10307
++     cSoftOsd *osd;
++     void OSDFlush_nolock(cSoftOsd *Osd,bool RefreshAll=false);
++     inline void OSDFlush(cSoftOsd *Osd,bool RefreshAll=false)
++     {osdMutex.Lock();OSDFlush_nolock(Osd,RefreshAll); osdMutex.Unlock();};
++     
++     virtual void OpenOSD(int X, int Y, cSoftOsd *Osd);
++     
+      virtual void GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight)
+      // called whenever OSD is to be displayed
+***************
+*** 190,208 ****
+      // for scaling, if -1,-1 is returned no scaling is done.
+      { OsdWidth=-1;OsdHeight=-1;};
+  
+!     
+!     virtual void Refresh(cBitmap *Bitmap) { return; };
+!     
+!     void Draw(cBitmap *Bitmap,
+!               unsigned char * buf,
+!               int linelen,
+!               bool inverseAlpha = false);
+!     // draws the bitmap in buf. The bitmap is scaled automaticaly if
+!     // GetOSDDimension return smaller dimensions
+        
+-    void ToYUV(cBitmap *Bitmap);
+-    // converts the bitmap to YUV format, saved in OSDP[yuv] and 
+-    // OSDPAlpha[YUV]. The bitmap is also scaled if requested
+-    
+     void AlphaBlend(uint8_t *dest,uint8_t *P1,uint8_t *P2,
+         uint8_t *alpha,uint16_t count);
+--- 188,201 ----
+      // for scaling, if -1,-1 is returned no scaling is done.
+      { OsdWidth=-1;OsdHeight=-1;};
++      
++     virtual void GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed, 
++                     bool &amp;IsYUV, uint8_t *&amp;PixelMask)
++     { Depth=32; HasAlpha=true; AlphaInversed=false; IsYUV=false; 
++             PixelMask=NULL;};
++     // should be implemented by all video out method to set the OSD pixel mode
+  
+!     virtual void RefreshOSD(cSoftOsd *SoftOsd, bool RefreshAll=false) 
+!     { return; };
+        
+     void AlphaBlend(uint8_t *dest,uint8_t *P1,uint8_t *P2,
+         uint8_t *alpha,uint16_t count);
+***************
+*** 210,213 ****
+--- 203,208 ----
+  
+  #else
++     int OSDxOfs,OSDyOfs;
++ 
+      cWindowLayer *layer[MAXNUMWINDOWS];
+      virtual bool OpenWindow(cWindow *Window);
+
+Index: video-fb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-fb.c,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -C2 -d -r1.9 -r1.10
+*** video-fb.c	20 May 2005 21:36:04 -0000	1.9
+--- video-fb.c	7 Jan 2006 14:28:39 -0000	1.10
+***************
+*** 18,21 ****
+--- 18,22 ----
+  #include &quot;utils.h&quot;
+  #include &quot;setup-softdevice.h&quot;
++ #include &quot;SoftOsd.h&quot;
+  
+  static  pthread_mutex_t fb_mutex = PTHREAD_MUTEX_INITIALIZER;
+***************
+*** 154,162 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cFBVideoOut::OpenOSD(int X, int Y)
+  {
+!   OSDxOfs = X &amp; ~7;
+!   OSDyOfs = Y &amp; ~1;
+!   OSDdirty=true;
+  }
+  
+--- 155,163 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void cFBVideoOut::OpenOSD(int X, int Y, cSoftOsd *osd)
+  {
+!   cVideoOut::OpenOSD(X,Y,osd);
+!   //OSDxOfs = X &amp; ~7;
+!   //OSDyOfs = Y &amp; ~1;
+  }
+  
+***************
+*** 181,189 ****
+  }
+  
+! void cFBVideoOut::Refresh(cBitmap *Bitmap)
+  {
+    pthread_mutex_lock(&amp;fb_mutex);
+    OSDpresent=true;
+!   Draw(Bitmap,fb,line_len);
+    pthread_mutex_unlock(&amp;fb_mutex);
+  }
+--- 182,191 ----
+  }
+  
+! void cFBVideoOut::RefreshOSD(cSoftOsd *Osd,bool RefreshAll)
+  {
+    pthread_mutex_lock(&amp;fb_mutex);
+    OSDpresent=true;
+!   Osd-&gt;CopyToBitmap(fb,line_len,OsdWidth,OsdHeight,RefreshAll);
+!   //Draw(Bitmap,fb,line_len);
+    pthread_mutex_unlock(&amp;fb_mutex);
+  }
+
+Index: video-fb.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-fb.h,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -C2 -d -r1.4 -r1.5
+*** video-fb.h	3 Mar 2005 20:22:17 -0000	1.4
+--- video-fb.h	7 Jan 2006 14:28:39 -0000	1.5
+***************
+*** 22,25 ****
+--- 22,26 ----
+    __u16 * orig_cmap;
+  
++   uint8_t *PixelMask;
+    size_t size;
+    int line_len;
+***************
+*** 29,35 ****
+    virtual ~cFBVideoOut();
+  #if VDRVERSNUM &gt;= 10307
+!   virtual void OpenOSD(int X, int Y);
+    virtual void ClearOSD();
+!   virtual void Refresh(cBitmap *Bitmap);
+    virtual void GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight);
+  #else
+--- 30,39 ----
+    virtual ~cFBVideoOut();
+  #if VDRVERSNUM &gt;= 10307
+!   virtual void OpenOSD(int X, int Y, cSoftOsd *osd);
+    virtual void ClearOSD();
+!   virtual void GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed, 
+! 		  bool &amp;IsYUV, uint8_t *&amp;pixelmask)
+!   { Depth=16;HasAlpha=false;IsYUV=false;pixelmask=PixelMask; };
+!   virtual void RefreshOSD(cSoftOsd *Osd, bool RefreshAll=false);
+    virtual void GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight);
+  #else
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.35
+retrieving revision 1.36
+diff -C2 -d -r1.35 -r1.36
+*** video-xv.c	7 Nov 2005 20:59:35 -0000	1.35
+--- video-xv.c	7 Jan 2006 14:28:39 -0000	1.36
+***************
+*** 32,36 ****
+  
+  static pthread_mutex_t  xv_mutex = PTHREAD_MUTEX_INITIALIZER;
+! static cXvRemote        *xvRemote = NULL;
+  static cScreensaver     *xScreensaver = NULL;
+  static int              events_not_done = 0;
+--- 32,36 ----
+  
+  static pthread_mutex_t  xv_mutex = PTHREAD_MUTEX_INITIALIZER;
+! cXvRemote        *xvRemote = NULL;
+  static cScreensaver     *xScreensaver = NULL;
+  static int              events_not_done = 0;
+***************
+*** 462,465 ****
+--- 462,468 ----
+  }
+  
++ //#define EVDEB(out...) {printf(&quot;EVDEB:&quot;);printf(out);} 
++ #define EVDEB(out...)
++ 
+  /* ---------------------------------------------------------------------------
+   */
+***************
+*** 501,504 ****
+--- 504,508 ----
+          break;
+        case ConfigureNotify:
++         EVDEB(&quot;ConfigureNotify\n&quot;);
+          map_count++;
+          dx = event.xconfigure.x;
+***************
+*** 610,613 ****
+--- 614,618 ----
+  
+        case MapNotify:
++         EVDEB(&quot;MapNotify\n&quot;);
+          map_count++;
+          if (initialized) {
+***************
+*** 618,621 ****
+--- 623,627 ----
+            if (map_count &gt; 2 &amp;&amp; xv_initialized) {
+              XClearArea (dpy, win, 0, 0, 0, 0, True);
++             ShowOSD(0,false);
+              XvShmPutImage(dpy, port,
+                            win, gc,
+***************
+*** 632,635 ****
+--- 638,642 ----
+          break;
+        case UnmapNotify:
++         EVDEB(&quot;UnmapNotify\n&quot;);
+          if (xv_initialized)
+            XvStopVideo (dpy,port,win);
+***************
+*** 639,643 ****
+--- 646,655 ----
+          }
+          break;
++       case Expose:
++         EVDEB(&quot;Expose\n&quot;);
++         map_count++;
++         break;
+        default:
++         EVDEB(&quot;unhandled event: %d\n&quot;,event.type);
+          break;
+      }
+***************
+*** 646,659 ****
+    if (xv_initialized) {
+      if (map_count) {
+!       XClearArea (dpy, win, 0, 0, 0, 0, True);
+!       XvShmPutImage(dpy, port,
+!                     win, gc,
+!                     xv_image,
+!                     sxoff, syoff,      /* sx, sy */
+!                     swidth, sheight,   /* sw, sh */
+!                     lxoff,  lyoff,     /* dx, dy */
+!                     lwidth, lheight,   /* dw, dh */
+!                     False);
+        XSync(dpy, False);
+      }
+      attributeStore.CheckVideoParmChange();
+--- 658,673 ----
+    if (xv_initialized) {
+      if (map_count) {
+!       //XClearArea (dpy, win, 0, 0, 0, 0, True);
+!       ShowOSD(0,false);
+! //      XvShmPutImage(dpy, port,
+! //                    win, gc,
+! //                    xv_image,
+! //                    sxoff, syoff,      /* sx, sy */
+! //                    swidth, sheight,   /* sw, sh */
+! //                    lxoff,  lyoff,     /* dx, dy */
+! //                    lwidth, lheight,   /* dw, dh */
+! //                    False);
+        XSync(dpy, False);
++       map_count=0;
+      }
+      attributeStore.CheckVideoParmChange();
+***************
+*** 841,844 ****
+--- 855,861 ----
+    useShm=XShmQueryExtension(dpy) &amp;&amp; isLocal;
+    if (useShm) {
++ 	  osd_max_width=DisplayWidth(dpy,DefaultScreen(dpy));
++           osd_max_height=DisplayHeight(dpy,DefaultScreen(dpy));
++ 
+            osd_image = XShmCreateImage (dpy,
+                            XDefaultVisual (dpy, scn_id),
+***************
+*** 846,850 ****
+                            ZPixmap,NULL,
+                            &amp;osd_shminfo,
+!                           width, height);
+            if (osd_image) {
+                    dsyslog(&quot;[XvVideoOut]: Initialize XShmCreateImage Successful (%p)&quot;, osd_image);
+--- 863,868 ----
+                            ZPixmap,NULL,
+                            &amp;osd_shminfo,
+! 			  osd_max_width,osd_max_height);
+!                           //width, height);
+            if (osd_image) {
+                    dsyslog(&quot;[XvVideoOut]: Initialize XShmCreateImage Successful (%p)&quot;, osd_image);
+***************
+*** 854,858 ****
+  
+            osd_shminfo.shmid = shmget (IPC_PRIVATE,
+!                           osd_image-&gt;bytes_per_line*height,
+                            IPC_CREAT | 0777);
+            if (osd_shminfo.shmid == -1) {
+--- 872,877 ----
+  
+            osd_shminfo.shmid = shmget (IPC_PRIVATE,
+!                           osd_image-&gt;bytes_per_line*osd_max_height,
+!                           //osd_image-&gt;bytes_per_line*height,
+                            IPC_CREAT | 0777);
+            if (osd_shminfo.shmid == -1) {
+***************
+*** 881,894 ****
+    } else {
+            osd_image = XGetImage(dpy, win, 0, 0,
+!                           width, height, AllPlanes,
+                            ZPixmap);
+            if (osd_image) {
+                    dsyslog(&quot;[XvVideoOut]: Initialize XGetImage Successful (%p)&quot;, osd_image);
+            } else {
+                    dsyslog(&quot;[XvVideoOut]: Initialize ERROR: XGetImage FAILED !&quot;);
+            }
+-           osd_buffer = (unsigned char *) osd_image-&gt;data;
+    };
+    Bpp=osd_image-&gt;bits_per_pixel;
+    
+    rc = XClearArea (dpy, win, 0, 0, 0, 0, True);
+--- 900,916 ----
+    } else {
+            osd_image = XGetImage(dpy, win, 0, 0,
+!                           osd_max_width, osd_max_height, AllPlanes,
+                            ZPixmap);
+            if (osd_image) {
+                    dsyslog(&quot;[XvVideoOut]: Initialize XGetImage Successful (%p)&quot;, osd_image);
++ 		  osd_buffer = (unsigned char *) osd_image-&gt;data;
+            } else {
+                    dsyslog(&quot;[XvVideoOut]: Initialize ERROR: XGetImage FAILED !&quot;);
++ 		  osd_buffer = NULL;
+            }
+    };
+    Bpp=osd_image-&gt;bits_per_pixel;
++   printf(&quot;got osd_image: width %d height %d, bytes per line %d\n&quot;,
++                   osd_max_width, osd_max_height,osd_image-&gt;bytes_per_line);
+    
+    rc = XClearArea (dpy, win, 0, 0, 0, 0, True);
+***************
+*** 1055,1059 ****
+    attributeStore.Save();
+    attributeStore.SetColorkey(0x00000000);
+!   attributeStore.SetValue(&quot;XV_AUTOPAINT_COLORKEY&quot;,1);
+  
+    /*
+--- 1077,1081 ----
+    attributeStore.Save();
+    attributeStore.SetColorkey(0x00000000);
+!   attributeStore.SetValue(&quot;XV_AUTOPAINT_COLORKEY&quot;,0);
+  
+    /*
+***************
+*** 1201,1208 ****
+    if (initialized)
+    {
+!     memset (osd_buffer, 0, osd_image-&gt;bytes_per_line * height);
+      pthread_mutex_lock(&amp;xv_mutex);
+      osd_refresh_counter = osd_skip_counter = 0;
+      XClearArea (dpy, win, 0, 0, 0, 0, True);
+      XSync(dpy, False);
+      pthread_mutex_unlock(&amp;xv_mutex);
+--- 1223,1231 ----
+    if (initialized)
+    {
+!     memset (osd_buffer, 0, osd_image-&gt;bytes_per_line * osd_max_height);
+      pthread_mutex_lock(&amp;xv_mutex);
+      osd_refresh_counter = osd_skip_counter = 0;
+      XClearArea (dpy, win, 0, 0, 0, 0, True);
++     ShowOSD(0,false);
+      XSync(dpy, False);
+      pthread_mutex_unlock(&amp;xv_mutex);
+***************
+*** 1217,1222 ****
+  {
+    cVideoOut::ClearOSD();
+!   if (initialized &amp;&amp; current_osdMode==OSDMODE_PSEUDO)
+!     memset (osd_buffer, 0, osd_image-&gt;bytes_per_line * height);
+  };
+  
+--- 1240,1250 ----
+  {
+    cVideoOut::ClearOSD();
+!   if (initialized &amp;&amp; current_osdMode==OSDMODE_PSEUDO) {
+!     pthread_mutex_lock(&amp;xv_mutex);
+!     memset (osd_buffer, 0, osd_image-&gt;bytes_per_line * osd_max_height);
+!     //XClearArea (dpy, win, 0, 0, 0, 0, True);// still needs locking!
+!     //XSync(dpy, False);
+!     pthread_mutex_unlock(&amp;xv_mutex);
+!   };
+  };
+  
+***************
+*** 1227,1232 ****
+     switch (current_osdMode) {
+        case OSDMODE_PSEUDO :
+!                 OsdWidth=lwidth;//*9/10;
+!                 OsdHeight=lheight;//*9/10;
+               break;
+        case OSDMODE_SOFTWARE:
+--- 1255,1260 ----
+     switch (current_osdMode) {
+        case OSDMODE_PSEUDO :
+!                 OsdWidth=lwidth&lt;osd_max_width?lwidth:osd_max_width;
+!                 OsdHeight=lheight&lt;osd_max_height?lheight:osd_max_height;
+               break;
+        case OSDMODE_SOFTWARE:
+***************
+*** 1237,1243 ****
+  };
+  
+! /* ---------------------------------------------------------------------------
+!  */
+! void cXvVideoOut::Refresh(cBitmap *Bitmap)
+  {
+    // refreshes the screen
+--- 1265,1283 ----
+  };
+  
+! void cXvVideoOut::GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed, 
+!                   bool &amp;IsYUV, uint8_t *&amp;PixelMask) {
+!         if (current_osdMode==OSDMODE_SOFTWARE) {
+!                 IsYUV=true;
+!                 PixelMask=NULL;
+!                 return;
+!         };
+! 
+!         IsYUV=false; 
+!         Depth=osd_image-&gt;bits_per_pixel;
+!         HasAlpha=false;
+!         PixelMask=NULL;
+! };       
+! 
+! void cXvVideoOut::RefreshOSD(cSoftOsd *Osd,bool RefreshAll)
+  {
+    // refreshes the screen
+***************
+*** 1249,1269 ****
+      switch (current_osdMode) {
+        case OSDMODE_PSEUDO :
+!               Draw(Bitmap, osd_buffer, osd_image-&gt;bytes_per_line);
+              break;
+        case OSDMODE_SOFTWARE:
+!               ToYUV(Bitmap);
+!             break;
+!     };
+!    
+      pthread_mutex_lock(&amp;xv_mutex);
+      ++osd_refresh_counter;
+!     osd_x = OSDxOfs;
+!     osd_y = OSDyOfs;
+!     osd_w = OSDw;
+!     osd_h = OSDh;
+      //OSDpresent=true;
+      pthread_mutex_unlock(&amp;xv_mutex);
+!   }
+! }
+  
+  #else
+--- 1289,1309 ----
+      switch (current_osdMode) {
+        case OSDMODE_PSEUDO :
+!               Osd-&gt;CopyToBitmap(osd_buffer, osd_image-&gt;bytes_per_line,
+!                               OsdWidth,OsdHeight,RefreshAll);
+              break;
+        case OSDMODE_SOFTWARE:
+! 	    Osd-&gt;CopyToBitmap(OsdPy,OsdPv,OsdPu,OsdPAlphaY,OsdPAlphaUV,
+!                             OSD_FULL_WIDTH,OSD_FULL_WIDTH/2,
+! 			    OsdWidth,OsdHeight,RefreshAll);
+! 	    break;
+!  
+!     }
+      pthread_mutex_lock(&amp;xv_mutex);
+      ++osd_refresh_counter;
+!     ShowOSD(0,1);
+      //OSDpresent=true;
+      pthread_mutex_unlock(&amp;xv_mutex);
+!   };
+! };
+  
+  #else
+***************
+*** 1276,1280 ****
+    if (!initialized)
+      return;
+!   if (OSDpresent)
+    {
+        int x0 = 0, y0 = 0, x1 = 0, y1 = 0, w = 0, h = 0,
+--- 1316,1320 ----
+    if (!initialized)
+      return;
+!   //if (OSDpresent)
+    {
+        int x0 = 0, y0 = 0, x1 = 0, y1 = 0, w = 0, h = 0,
+***************
+*** 1321,1324 ****
+--- 1361,1365 ----
+        osd_w = w;
+        osd_h = h;
++       ShowOSD(0,1);
+        pthread_mutex_unlock(&amp;xv_mutex);
+  
+***************
+*** 1332,1358 ****
+  void cXvVideoOut::ShowOSD (int skip, int do_sync)
+  {
+!   if (OSDpresent) {
+!     if (osd_refresh_counter) {
+!       if (current_osdMode==OSDMODE_PSEUDO &amp;&amp; osd_skip_counter &gt; skip) {
+!       
+!         int x= lwidth &gt; OSD_FULL_WIDTH ? osd_x + (dwidth - width) / 2:
+!                 lxoff + (osd_x * lwidth/OSD_FULL_WIDTH *9/10);
+!         int y= lheight &gt; OSD_FULL_HEIGHT ? osd_y + (dheight - height) / 2:
+!                 lyoff + (osd_y * lheight/OSD_FULL_HEIGHT *9/10);
+! 
+  	if (useShm) 
+  		XShmPutImage (dpy, win, gc, osd_image,
+! 				osd_x,
+! 				osd_y,
+  				x,y,
+! 				osd_w, osd_h,
+  				False);
+  	else
+  		XPutImage (dpy, win, gc, osd_image,
+! 				osd_x,
+! 				osd_y,
+  				x,y,
+! 				osd_w, osd_h);
+! 
+          if (do_sync)
+            XSync(dpy, False);
+--- 1373,1400 ----
+  void cXvVideoOut::ShowOSD (int skip, int do_sync)
+  {
+!   //if (OSDpresent) 
+!   {
+!     //if (osd_refresh_counter) {
+!       if (current_osdMode==OSDMODE_PSEUDO ){//&amp;&amp; osd_skip_counter &gt; skip) {
+!      
+! #if VDRVERSNUM &gt;= 10307
+!         int x= lwidth &gt; osd_max_width ?(lwidth - osd_max_width)/2+lxoff:lxoff;
+!         int y= lheight &gt; osd_max_height ? (lheight - osd_max_height) / 2+lyoff:lyoff;
+! #else
+!         int x=lwidth &gt; OSD_WIDTH ?(lwidth - OSD_WIDTH)/2+lxoff:lxoff;
+! 	int y=lheight &gt; OSD_HEIGHT?(lheight - OSD_HEIGHT) / 2+lyoff:lyoff;
+! #endif
+  	if (useShm) 
+  		XShmPutImage (dpy, win, gc, osd_image,
+! 				1,1,
+  				x,y,
+! 				lwidth-1,lheight-1,
+  				False);
+  	else
+  		XPutImage (dpy, win, gc, osd_image,
+! 				1,
+! 				1,
+  				x,y,
+! 				lwidth-1,lheight-1);
+          if (do_sync)
+            XSync(dpy, False);
+***************
+*** 1362,1366 ****
+          osd_skip_counter++;
+        }
+!     }
+    }
+  }
+--- 1404,1408 ----
+          osd_skip_counter++;
+        }
+!     //}
+    }
+  }
+***************
+*** 1375,1378 ****
+--- 1417,1421 ----
+      return;
+  
++   pthread_mutex_lock(&amp;xv_mutex);
+    if (aspect_changed ||
+        cutTop != setupStore-&gt;cropTopLines ||
+***************
+*** 1382,1385 ****
+--- 1425,1429 ----
+    {
+      XClearArea (dpy, win, 0, 0, 0, 0, True);
++     ShowOSD(0,false);
+      aspect_changed = 0;
+      cutTop = setupStore-&gt;cropTopLines;
+***************
+*** 1430,1438 ****
+                       fwidth/2-(cutLeft+cutRight));
+          }
+- #ifdef USE_MMX
+-      EMMS;
+- #endif
+  
+-         pthread_mutex_lock(&amp;xv_mutex);
+          XvShmPutImage(dpy, port,
+                  win, gc,
+--- 1474,1478 ----
+***************
+*** 1462,1466 ****
+                            fwidth / 2 - (cutLeft + cutRight));
+  
+-           pthread_mutex_lock(&amp;xv_mutex);
+            XvShmPutImage(dpy, port,
+                  win, gc,
+--- 1502,1505 ----
+***************
+*** 1471,1475 ****
+                  lwidth, lheight,   /* dw, dh */
+                  False);
+!           ShowOSD (1, False);
+    }
+    ProcessEvents ();
+--- 1510,1514 ----
+                  lwidth, lheight,   /* dw, dh */
+                  False);
+!           //ShowOSD (1, False);
+    }
+    ProcessEvents ();
+
+Index: video-xv.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.h,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -C2 -d -r1.10 -r1.11
+*** video-xv.h	6 Nov 2005 07:29:16 -0000	1.10
+--- video-xv.h	7 Jan 2006 14:28:39 -0000	1.11
+***************
+*** 19,22 ****
+--- 19,23 ----
+  #define VIDEO_XV_H
+  #include &quot;video.h&quot;
++ #include &quot;SoftOsd.h&quot;
+  
+  #include &lt;pthread.h&gt;
+***************
+*** 133,139 ****
+    bool              useShm;
+    XImage            *osd_image;
+    unsigned char     *outbuffer,
+                      *osd_buffer,
+-                     *osd_argb_buffer,
+                      *pixels[3];
+    char              *w_name, *i_name;
+--- 134,140 ----
+    bool              useShm;
+    XImage            *osd_image;
++   int               osd_max_width,osd_max_height;
+    unsigned char     *outbuffer,
+                      *osd_buffer,
+                      *pixels[3];
+    char              *w_name, *i_name;
+***************
+*** 158,162 ****
+    virtual void ClearOSD();
+    virtual void GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight);
+!   virtual void Refresh(cBitmap *Bitmap);
+  #else
+    virtual void Refresh();
+--- 159,165 ----
+    virtual void ClearOSD();
+    virtual void GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight);
+!   virtual void GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed, 
+!                   bool &amp;IsYUV, uint8_t *&amp;PixelMask);
+!  virtual void RefreshOSD(cSoftOsd *Osd, bool RefreshAll=false);
+  #else
+    virtual void Refresh();
+***************
+*** 189,195 ****
+      void          SetX11Info (Display *d, Window w);
+      void          XvRemoteStart (void);
+!     void          PutKey (KeySym key);
+  //    virtual bool  Initialize(void);
+  };
+  
+  #endif // VIDEO_XV_H
+--- 192,199 ----
+      void          SetX11Info (Display *d, Window w);
+      void          XvRemoteStart (void);
+!     virtual void  PutKey (KeySym key);
+  //    virtual bool  Initialize(void);
+  };
++ extern cXvRemote        *xvRemote;
+  
+  #endif // VIDEO_XV_H
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.42
+retrieving revision 1.43
+diff -C2 -d -r1.42 -r1.43
+*** video-dfb.c	15 Dec 2005 20:12:38 -0000	1.42
+--- video-dfb.c	7 Jan 2006 14:28:39 -0000	1.43
+***************
+*** 15,18 ****
+--- 15,20 ----
+  #include &quot;setup-softdevice.h&quot;
+  
++ #include &quot;SoftOsd.h&quot;
++ 
+  #ifdef HAVE_CONFIG
+  # include &quot;config.h&quot;
+***************
+*** 412,421 ****
+                 fmt, DFB_BITS_PER_PIXEL(fmt));
+        Bpp = DFB_BITS_PER_PIXEL(fmt);
+! 
+        if (Xres &gt; OSD_FULL_WIDTH)
+          Xres = OSD_FULL_WIDTH;
+        if (Yres &gt; OSD_FULL_HEIGHT)
+          Yres = OSD_FULL_HEIGHT;
+! 
+        /* ------------------------------------------------------------------------
+         * clear screen surface at startup
+--- 414,423 ----
+                 fmt, DFB_BITS_PER_PIXEL(fmt));
+        Bpp = DFB_BITS_PER_PIXEL(fmt);
+! /*
+        if (Xres &gt; OSD_FULL_WIDTH)
+          Xres = OSD_FULL_WIDTH;
+        if (Yres &gt; OSD_FULL_HEIGHT)
+          Yres = OSD_FULL_HEIGHT;
+! */
+        /* ------------------------------------------------------------------------
+         * clear screen surface at startup
+***************
+*** 924,928 ****
+        else
+        {
+!         fprintf (stderr, &quot;[dfb] creating new surface\n&quot;);
+          try
+          {
+--- 926,930 ----
+        else
+        {
+!         fprintf (stderr, &quot;[dfb] creating new surface (stretchBlit)\n&quot;);
+          try
+          {
+***************
+*** 989,997 ****
+  /* ----------------------------------------------------------------------------
+   */
+! void cDFBVideoOut::OpenOSD (int x, int y)
+  {
+      IDirectFBSurface  *tmpSurface;
+  
+!   cVideoOut::OpenOSD(x, y);
+    try
+    {
+--- 991,999 ----
+  /* ----------------------------------------------------------------------------
+   */
+! void cDFBVideoOut::OpenOSD (int x, int y, cSoftOsd *osd)
+  {
+      IDirectFBSurface  *tmpSurface;
+  
+!   cVideoOut::OpenOSD(x, y,osd);
+    try
+    {
+***************
+*** 1032,1041 ****
+  void cDFBVideoOut::OSDCommit()
+  {
+-   OSDdirty=false;
+    OSDpresent = true;
+  }
+  
+  /* ---------------------------------------------------------------------------
+   */
+  void cDFBVideoOut::Refresh(cBitmap *Bitmap)
+  {
+--- 1034,1087 ----
+  void cDFBVideoOut::OSDCommit()
+  {
+    OSDpresent = true;
+  }
+  
++ void cDFBVideoOut::RefreshOSD(cSoftOsd *Osd, bool RefreshAll) 
++ {
++     int               pitch;
++     uint8_t           *dst;
++     IDirectFBSurface  *tmpSurface;
++     DFBRegion         modArea;
++     DFBRectangle      osdsrc;
++ 
++     try
++     {
++       bool dirtyLines[Yres];
++       tmpSurface = (useStretchBlit) ? osdSurface : scrSurface;
++       tmpSurface-&gt;Lock(DSLF_WRITE, (void **)&amp;dst, &amp;pitch) ;
++       //Osd-&gt;SetMode(Bpp,!OSDpseudo_alpha,(isVIAUnichrome) ? true:false);
++       Osd-&gt;CopyToBitmap(dst, pitch,
++                               Xres,Yres,RefreshAll,dirtyLines);
++       tmpSurface-&gt;Unlock();
++ 
++       /* ------------------------------------------------------------------------
++        * TODO: Have to get area coordinates in screen dimensions from Draw().
++        *       In case Draw() scales down, bitmap dirty area coordinates
++        *       could not be transformed the following way.
++        */
++       modArea.x1 = 0;
++       modArea.y1 = 0;
++       modArea.x2 = Xres;
++       modArea.y2 = Yres;
++ 
++       tmpSurface-&gt;Flip(&amp;modArea,DSFLIP_WAIT);
++       osdsrc.x = modArea.x1;
++       osdsrc.y = modArea.y1;
++       osdsrc.w = modArea.x2 - modArea.x1 + 1;
++       osdsrc.h = modArea.y2 - modArea.y1 + 1;
++       tmpSurface-&gt;Blit(tmpSurface, &amp;osdsrc, modArea.x1, modArea.y1);
++     }
++     catch (DFBException *ex)
++     {
++       fprintf (stderr,&quot;[dfb] Refresh: action=%s, result=%s\n&quot;,
++                ex-&gt;GetAction(), ex-&gt;GetResult());
++       delete ex;
++     }
++ 
++ }
++ 	
+  /* ---------------------------------------------------------------------------
+   */
++ /*
+  void cDFBVideoOut::Refresh(cBitmap *Bitmap)
+  {
+***************
+*** 1055,1063 ****
+        tmpSurface-&gt;Unlock();
+  
+-       /* ------------------------------------------------------------------------
+-        * TODO: Have to get area coordinates in screen dimensions from Draw().
+-        *       In case Draw() scales down, bitmap dirty area coordinates
+-        *       could not be transformed the following way.
+-        */
+        modArea.x1 += OSDxOfs + Bitmap-&gt;X0();
+        modArea.y1 += OSDyOfs + Bitmap-&gt;Y0();
+--- 1101,1104 ----
+***************
+*** 1082,1086 ****
+    }
+  }
+! 
+  #else
+  
+--- 1123,1127 ----
+    }
+  }
+! */
+  #else
+  
+***************
+*** 1294,1298 ****
+                     Height - 2 * (cutTop + cutBottom),
+                     Ystride, UVstride, pitch);
+!     }
+  
+      videoSurface-&gt;Unlock();
+--- 1335,1339 ----
+                     Height - 2 * (cutTop + cutBottom),
+                     Ystride, UVstride, pitch);
+!      }
+  
+      videoSurface-&gt;Unlock();
+
+Index: video-dfb.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.h,v
+retrieving revision 1.12
+retrieving revision 1.13
+diff -C2 -d -r1.12 -r1.13
+*** video-dfb.h	6 Nov 2005 17:56:06 -0000	1.12
+--- video-dfb.h	7 Jan 2006 14:28:39 -0000	1.13
+***************
+*** 56,61 ****
+  
+  #if VDRVERSNUM &gt;= 10307
+!     virtual void OpenOSD(int x, int y);
+!     virtual void Refresh(cBitmap *Bitmap);
+      virtual void OSDStart();
+      virtual void OSDCommit();
+--- 56,62 ----
+  
+  #if VDRVERSNUM &gt;= 10307
+!     virtual void OpenOSD(int x, int y, cSoftOsd *Osd);
+! //    virtual void Refresh(cBitmap *Bitmap);
+!     virtual void RefreshOSD(cSoftOsd *Osd, bool RefreshAll=false);
+      virtual void OSDStart();
+      virtual void OSDCommit();
+
+Index: video-vidix.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-vidix.c,v
+retrieving revision 1.12
+retrieving revision 1.13
+diff -C2 -d -r1.12 -r1.13
+*** video-vidix.c	23 Jul 2005 20:14:31 -0000	1.12
+--- video-vidix.c	7 Jan 2006 14:28:39 -0000	1.13
+***************
+*** 14,17 ****
+--- 14,18 ----
+  #include &quot;utils.h&quot;
+  #include &quot;setup-softdevice.h&quot;
++ #include &quot;SoftOsd.h&quot;
+  
+  //#define TIMINGS
+***************
+*** 584,595 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cVidixVideoOut::Refresh(cBitmap *Bitmap)
+  {
+      switch (current_osdMode) {
+        case OSDMODE_PSEUDO :
+!               Draw(Bitmap, fb,fb_line_len);
+              break;
+        case OSDMODE_SOFTWARE:
+!               ToYUV(Bitmap);
+              break;
+      }
+--- 585,598 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void cVidixVideoOut::Refresh(cSoftOsd *Osd,bool RefreshAll)
+  {
+      switch (current_osdMode) {
+        case OSDMODE_PSEUDO :
+!               Osd-&gt;CopyToBitmap(fb,fb_line_len,OsdWidth,OsdHeight,RefreshAll);
+              break;
+        case OSDMODE_SOFTWARE:
+!               Osd-&gt;CopyToBitmap(OsdPy,OsdPu,OsdPv,OsdPAlphaY,OsdPAlphaUV,
+! 			      OSD_FULL_WIDTH,OSD_FULL_WIDTH/2,
+! 			      OsdWidth,OsdHeight,RefreshAll);
+              break;
+      }
+
+Index: video-vidix.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-vidix.h,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -C2 -d -r1.5 -r1.6
+*** video-vidix.h	23 Jul 2005 20:14:32 -0000	1.5
+--- video-vidix.h	7 Jan 2006 14:28:39 -0000	1.6
+***************
+*** 47,52 ****
+  #if VDRVERSNUM &gt;= 10307
+    virtual void ClearOSD();
+-   virtual void Refresh(cBitmap *Bitmap);
+    virtual void GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight); 
+  #else
+    virtual void Refresh();
+--- 47,57 ----
+  #if VDRVERSNUM &gt;= 10307
+    virtual void ClearOSD();
+    virtual void GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight); 
++   virtual void GetOSDMode(int &amp;Depth,bool &amp;HasAlpha, bool &amp;AlphaInversed,
++ 		  bool &amp;IsYUV,uint8_t *&amp;PixelMask)
++   { Depth=Bpp; HasAlpha=false;AlphaInversed=false; 
++ 	  IsYUV=(current_osdMode == OSDMODE_SOFTWARE);
++ 	  PixelMask=NULL;};
++   virtual void Refresh(cSoftOsd *Osd,bool RefreshAll=false);
+  #else
+    virtual void Refresh();
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000264.html">[Softdevice-cvs] softdevice utils.c,1.9,1.10 CHANGELOG,1.133,1.134
+</A></li>
+	<LI>Next message: <A HREF="000265.html">[Softdevice-cvs] softdevice SoftOsd.c,NONE,1.1 SoftOsd.h,NONE,1.1
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#267">[ date ]</a>
+              <a href="thread.html#267">[ thread ]</a>
+              <a href="subject.html#267">[ subject ]</a>
+              <a href="author.html#267">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

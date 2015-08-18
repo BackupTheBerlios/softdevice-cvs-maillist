@@ -1,0 +1,286 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice softdevice.c, 1.73, 1.74 softdevice.h,	1.11, 1.12 CHANGELOG, 1.258, 1.259
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20softdevice.c%2C%201.73%2C%201.74%20softdevice.h%2C%0A%091.11%2C%201.12%20CHANGELOG%2C%201.258%2C%201.259&In-Reply-To=%3C20061107191955.25F6FA61FB%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000463.html">
+   <LINK REL="Next"  HREF="000465.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice softdevice.c, 1.73, 1.74 softdevice.h,	1.11, 1.12 CHANGELOG, 1.258, 1.259</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20softdevice.c%2C%201.73%2C%201.74%20softdevice.h%2C%0A%091.11%2C%201.12%20CHANGELOG%2C%201.258%2C%201.259&In-Reply-To=%3C20061107191955.25F6FA61FB%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice softdevice.c, 1.73, 1.74 softdevice.h,	1.11, 1.12 CHANGELOG, 1.258, 1.259">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue Nov  7 20:19:55 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000463.html">[Softdevice-cvs] softdevice video.h, 1.44, 1.45 CHANGELOG, 1.257,	1.258
+</A></li>
+        <LI>Next message: <A HREF="000465.html">[Softdevice-cvs] softdevice CHANGELOG, 1.259, 1.260 ShmClient.c,	1.16, 1.17
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#464">[ date ]</a>
+              <a href="thread.html#464">[ thread ]</a>
+              <a href="subject.html#464">[ subject ]</a>
+              <a href="author.html#464">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv15109
+
+Modified Files:
+	softdevice.c softdevice.h CHANGELOG 
+Log Message:
+- add GrabImage() support. Currently there is no OSD in the grabbed
+  images.
+- some more debugging info in softdevice.c
+	 
+
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.73
+retrieving revision 1.74
+diff -C2 -d -r1.73 -r1.74
+*** softdevice.c	5 Nov 2006 22:05:59 -0000	1.73
+--- softdevice.c	7 Nov 2006 19:19:05 -0000	1.74
+***************
+*** 441,444 ****
+--- 441,445 ----
+  bool cSoftDevice::SetPlayMode(ePlayMode PlayMode)
+  {
++     SOFTDEB(&quot;SetPlayMode %d\n&quot;,PlayMode);
+      if (!decoder)
+         return false;
+***************
+*** 499,502 ****
+--- 500,504 ----
+        decoder-&gt;Play();
+      };
++     SOFTDEB(&quot;Play finished.\n&quot;);
+  }
+  
+***************
+*** 507,510 ****
+--- 509,513 ----
+      if (decoder)
+        decoder-&gt;Freeze();
++     SOFTDEB(&quot;Freeze finished.\n&quot;);
+  }
+  
+***************
+*** 530,534 ****
+  bool cSoftDevice::Poll(cPoller &amp;Poller, int TimeoutMs)
+  {
+!   SOFTDEB(&quot;[softdevice] Poll TimeoutMs: %d ....\n&quot;,TimeoutMs);
+  
+    if ( decoder-&gt;BufferFill() &gt; 90 ) {
+--- 533,537 ----
+  bool cSoftDevice::Poll(cPoller &amp;Poller, int TimeoutMs)
+  {
+!   //SOFTDEB(&quot;Poll TimeoutMs: %d ....\n&quot;,TimeoutMs);
+  
+    if ( decoder-&gt;BufferFill() &gt; 90 ) {
+***************
+*** 544,550 ****
+--- 547,555 ----
+       };
+  
++      //SOFTDEB(&quot;Poll finished after wait.\n&quot;);
+       return decoder-&gt;BufferFill() &lt; 99;
+    }
+  
++   //SOFTDEB(&quot;Poll finished.\n&quot;);
+    return true;
+  }
+***************
+*** 552,555 ****
+--- 557,561 ----
+  bool cSoftDevice::Flush(int TimeoutMs)
+  {
++   SOFTDEB(&quot;Flush %d\n&quot;,TimeoutMs);
+    int64_t TimeoutUs=TimeoutMs*1000;
+    cRelTimer Timer;
+***************
+*** 582,586 ****
+  # endif
+  {
+!   //fprintf(stderr,&quot;PlayAudio...\n&quot;);
+    if (! packetMode)
+      return decoder-&gt;Decode(Data, Length);
+--- 588,592 ----
+  # endif
+  {
+!   SOFTDEB(&quot;PlayAudio... %p length %d\n&quot;,Data,Length);
+    if (! packetMode)
+      return decoder-&gt;Decode(Data, Length);
+***************
+*** 617,620 ****
+--- 623,627 ----
+  void cSoftDevice::SetAudioChannelDevice(int AudioChannel)
+  {
++   SOFTDEB(&quot;SetAudioChannelDevice %d\n&quot;,AudioChannel);
+    if (decoder)
+       decoder-&gt;SetAudioMode(AudioChannel);
+***************
+*** 636,639 ****
+--- 643,647 ----
+  int cSoftDevice::PlayVideo(const uchar *Data, int Length)
+  {
++    SOFTDEB(&quot;PlayVideo %x length %d\n&quot;,Data,Length);
+     if (! packetMode)
+      return decoder-&gt;Decode(Data, Length);
+***************
+*** 651,654 ****
+--- 659,733 ----
+    return 0;
+  }
++ 
++ #if VDRVERSNUM &gt;= 10338
++ uchar *cSoftDevice::GrabImage(int &amp;Size, bool Jpeg, int Quality, 
++                 int SizeX, int SizeY)
++ {
++   Size=0;
++   if (!videoOut) 
++     return NULL;
++ 
++   sPicBuffer *orig_pic;
++   videoOut-&gt;GetLockLastPic(orig_pic);
++   if (!orig_pic)
++     return NULL;
++ 
++   if ( SizeX&lt;0 || SizeY&lt;0 ) {
++     SizeX=orig_pic-&gt;width;
++     SizeY=orig_pic-&gt;height;
++   };
++ 
++   if (Quality&lt;0)
++     Quality=100;
++ 
++   sPicBuffer dst;
++   AllocatePicBuffer(&amp;dst,PIX_FMT_BGR24,SizeX,SizeY);
++ 
++   CopyScalePicBuf(&amp;dst,orig_pic,
++       0,0,orig_pic-&gt;width,orig_pic-&gt;height,
++       0,0,SizeX,SizeY,
++       0,0,0,0);
++   SizeX=dst.width; 
++   SizeY=dst.height;
++   videoOut-&gt;UnlockBuffer(orig_pic);
++   orig_pic=NULL;
++ 
++   uint8_t *picture = NULL;
++   int l=0;
++   char buf[32];
++   picture = (uchar*) malloc( 32 + 3*SizeX*SizeY );
++   if (!picture) {
++     esyslog(&quot;[softdevice] failed to allocate grab image buffer&quot;);
++     DeallocatePicBuffer(&amp;dst);
++     return NULL;
++   };
++ 
++   if (!Jpeg) {
++     // write PNM header:
++     snprintf(buf, sizeof(buf), &quot;P6\n%d\n%d\n255\n&quot;, SizeX, SizeY);
++     l = strlen(buf);
++     memcpy(picture, buf, l);
++     Size+=l;
++   };
++ 
++   for (int i=0; i&lt;dst.height; i++) {
++     memcpy(picture+Size, dst.pixel[0]+i*dst.stride[0], dst.width*3);
++     Size+=dst.width*3;
++   };
++   DeallocatePicBuffer(&amp;dst);
++ 
++   if (Jpeg) {
++     uint8_t *jpeg_picture = RgbToJpeg(picture, SizeX, SizeY, Size, Quality);
++     free(picture);
++ 
++     if (!jpeg_picture) {
++       esyslog(&quot;[softdevice] failed to convert image to JPEG&quot;);
++       return NULL;
++     };
++     return jpeg_picture;
++   };
++   return picture;
++ };
++ #endif
+  
+  // --- cPluginSoftDevice ----------------------------------------------------------
+
+Index: softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.h,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -C2 -d -r1.11 -r1.12
+*** softdevice.h	27 Aug 2006 13:02:50 -0000	1.11
+--- softdevice.h	7 Nov 2006 19:19:05 -0000	1.12
+***************
+*** 117,120 ****
+--- 117,125 ----
+    virtual void SetAudioTrackDevice(eTrackType Type);
+  
++ #if VDRVERSNUM &gt;= 10338
++   virtual uchar *GrabImage(int &amp;Size, bool Jpeg, int Quality, 
++                   int SizeX, int SizeY);
++ #endif
++ 
+  # if VDRVERSNUM &gt;= 10342
+    virtual int  PlayAudio(const uchar *Data, int Length, uchar Id);
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.258
+retrieving revision 1.259
+diff -C2 -d -r1.258 -r1.259
+*** CHANGELOG	7 Nov 2006 19:09:00 -0000	1.258
+--- CHANGELOG	7 Nov 2006 19:19:05 -0000	1.259
+***************
+*** 9,12 ****
+--- 9,15 ----
+     - add packed pixel format to PicBuffer
+     - add GetLockLastPic() to video.h
++    - add GrabImage() support. Currently there is no OSD in the grabbed
++      images.
++    - some more debugging info in softdevice.c
+  2006-11-05: softdevice-0.3.1
+     - xv-out: limit used width &amp; height to screen dimensions.
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000463.html">[Softdevice-cvs] softdevice video.h, 1.44, 1.45 CHANGELOG, 1.257,	1.258
+</A></li>
+	<LI>Next message: <A HREF="000465.html">[Softdevice-cvs] softdevice CHANGELOG, 1.259, 1.260 ShmClient.c,	1.16, 1.17
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#464">[ date ]</a>
+              <a href="thread.html#464">[ thread ]</a>
+              <a href="subject.html#464">[ subject ]</a>
+              <a href="author.html#464">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

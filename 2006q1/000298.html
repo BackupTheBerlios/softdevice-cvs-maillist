@@ -1,0 +1,170 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.156,1.157 video-shm.c,1.4,1.5 video-shm.h,1.3,1.4
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.156%2C1.157%20video-shm.c%2C1.4%2C1.5%20video-shm.h%2C1.3%2C1.4&In-Reply-To=%3C200602191840.k1JIeWE16116%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000297.html">
+   <LINK REL="Next"  HREF="000299.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.156,1.157 video-shm.c,1.4,1.5 video-shm.h,1.3,1.4</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.156%2C1.157%20video-shm.c%2C1.4%2C1.5%20video-shm.h%2C1.3%2C1.4&In-Reply-To=%3C200602191840.k1JIeWE16116%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.156,1.157 video-shm.c,1.4,1.5 video-shm.h,1.3,1.4">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Feb 19 19:40:32 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000297.html">[Softdevice-cvs] softdevice CHANGELOG,1.155,1.156 ShmClient.c,1.6,1.7 shm-common.h,1.3,1.4
+</A></li>
+        <LI>Next message: <A HREF="000299.html">[Softdevice-cvs] softdevice CHANGELOG,1.157,1.158 video.c,1.45,1.46
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#298">[ date ]</a>
+              <a href="thread.html#298">[ thread ]</a>
+              <a href="subject.html#298">[ subject ]</a>
+              <a href="author.html#298">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv28771
+
+Modified Files:
+	CHANGELOG video-shm.c video-shm.h 
+Log Message:
+fix compilation of video-shm
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.156
+retrieving revision 1.157
+diff -C2 -d -r1.156 -r1.157
+*** CHANGELOG	19 Feb 2006 16:58:35 -0000	1.156
+--- CHANGELOG	19 Feb 2006 18:40:28 -0000	1.157
+***************
+*** 3,6 ****
+--- 3,7 ----
+     - some german translations
+     - fix compilation of shm-client
++    - fix compilation of video-shm
+  2006-02-18:
+     - fix OSD drawn at wrong location in software OSD blending mode when
+
+Index: video-shm.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-shm.c,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -C2 -d -r1.4 -r1.5
+*** video-shm.c	4 Feb 2006 14:40:04 -0000	1.4
+--- video-shm.c	19 Feb 2006 18:40:28 -0000	1.5
+***************
+*** 148,154 ****
+  };
+  
+! void cShmVideoOut::GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight) {
+!    switch (setupStore-&gt;osdMode) {
+!    //switch (current_osdMode) {
+        case OSDMODE_PSEUDO :
+                  OsdWidth=ctl-&gt;osd_width&gt;ctl-&gt;osd_max_width?
+--- 148,158 ----
+  };
+  
+! void cShmVideoOut::AdjustOSDMode() {
+!   current_osdMode = setupStore-&gt;osdMode;
+! }
+! 
+! void cShmVideoOut::GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight,
+!                                    int &amp;xPan, int &amp;yPan) {
+!    switch (current_osdMode) {
+        case OSDMODE_PSEUDO :
+                  OsdWidth=ctl-&gt;osd_width&gt;ctl-&gt;osd_max_width?
+***************
+*** 156,163 ****
+--- 160,170 ----
+                  OsdHeight=ctl-&gt;osd_height&gt;ctl-&gt;osd_max_height?
+                          ctl-&gt;osd_max_height:ctl-&gt;osd_height;
++                 xPan = yPan = 0;
+               break;
+        case OSDMODE_SOFTWARE:
+                  OsdWidth=swidth;
+                  OsdHeight=sheight;
++                 xPan = sxoff;
++                 yPan = syoff;
+               break;
+      };
+***************
+*** 166,170 ****
+  void cShmVideoOut::GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+                  bool &amp;IsYUV, uint8_t *&amp;PixelMask) {
+!         if (setupStore-&gt;osdMode==OSDMODE_SOFTWARE) {
+                  IsYUV=true;
+                  PixelMask=NULL;
+--- 173,177 ----
+  void cShmVideoOut::GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+                  bool &amp;IsYUV, uint8_t *&amp;PixelMask) {
+!         if (current_osdMode==OSDMODE_SOFTWARE) {
+                  IsYUV=true;
+                  PixelMask=NULL;
+
+Index: video-shm.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-shm.h,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** video-shm.h	4 Feb 2006 10:25:39 -0000	1.3
+--- video-shm.h	19 Feb 2006 18:40:28 -0000	1.4
+***************
+*** 44,49 ****
+          ~cShmVideoOut();
+          
+!         virtual void GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight);
+!         
+          virtual void GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+                      bool &amp;IsYUV, uint8_t *&amp;PixelMask);
+--- 44,52 ----
+          ~cShmVideoOut();
+          
+!         virtual void AdjustOSDMode();
+! 
+!         virtual void GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight,
+!                                      int &amp;xPan, int &amp;yPan);
+! 
+          virtual void GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+                      bool &amp;IsYUV, uint8_t *&amp;PixelMask);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000297.html">[Softdevice-cvs] softdevice CHANGELOG,1.155,1.156 ShmClient.c,1.6,1.7 shm-common.h,1.3,1.4
+</A></li>
+	<LI>Next message: <A HREF="000299.html">[Softdevice-cvs] softdevice CHANGELOG,1.157,1.158 video.c,1.45,1.46
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#298">[ date ]</a>
+              <a href="thread.html#298">[ thread ]</a>
+              <a href="subject.html#298">[ subject ]</a>
+              <a href="author.html#298">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

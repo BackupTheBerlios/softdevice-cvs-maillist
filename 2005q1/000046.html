@@ -1,0 +1,509 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice video.c,1.5,1.6 CHANGELOG,1.26,1.27
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video.c%2C1.5%2C1.6%20CHANGELOG%2C1.26%2C1.27&In-Reply-To=%3C200501122024.j0CKObn26748%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000045.html">
+   <LINK REL="Next"  HREF="000047.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice video.c,1.5,1.6 CHANGELOG,1.26,1.27</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video.c%2C1.5%2C1.6%20CHANGELOG%2C1.26%2C1.27&In-Reply-To=%3C200501122024.j0CKObn26748%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice video.c,1.5,1.6 CHANGELOG,1.26,1.27">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Wed Jan 12 21:24:37 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000045.html">[Softdevice-cvs] softdevice CHANGELOG,1.25,1.26 softdevice.c,1.9,1.10
+</A></li>
+        <LI>Next message: <A HREF="000047.html">[Softdevice-cvs] softdevice mpeg2decoder.c,1.11,1.12 mpeg2decoder.h,1.9,1.10 softdevice.c,1.10,1.11
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#46">[ date ]</a>
+              <a href="thread.html#46">[ thread ]</a>
+              <a href="subject.html#46">[ subject ]</a>
+              <a href="author.html#46">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv14669
+
+Modified Files:
+	video.c CHANGELOG 
+Log Message:
+fix aspect ratio calculation/recognition on some dvds
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -C2 -d -r1.5 -r1.6
+*** video.c	30 Dec 2004 18:47:50 -0000	1.5
+--- video.c	12 Jan 2005 20:24:34 -0000	1.6
+***************
+*** 129,134 ****
+                                          AVCodecContext *context)
+  {
+!     static float  new_asp, aspect_F = -100.0;
+!     static int    aspect_I = -100;
+  
+    /* --------------------------------------------------------------------------
+--- 129,134 ----
+                                          AVCodecContext *context)
+  {
+!     static volatile float new_asp, aspect_F = -100.0;
+!     static int            aspect_I = -100;
+  
+    /* --------------------------------------------------------------------------
+***************
+*** 144,163 ****
+  
+  #if LIBAVCODEC_BUILD &gt; 4686
+!   if (picture-&gt;pan_scan-&gt;width) {
+!     new_asp = (float) (picture-&gt;pan_scan-&gt;width *
+!                        context-&gt;sample_aspect_ratio.num) /
+!                (float) (picture-&gt;pan_scan-&gt;height *
+!                         context-&gt;sample_aspect_ratio.den);
+!   } else {
+!     new_asp = (float) (context-&gt;width *
+!                        context-&gt;sample_aspect_ratio.num) /
+!                (float) (context-&gt;height *
+!                         context-&gt;sample_aspect_ratio.den);
+!   }
+  #else
+    new_asp = context-&gt;aspect_ratio;
+  #endif
+  
+! 
+    if (aspect_I != context-&gt;dtg_active_format ||
+        aspect_F != new_asp)
+--- 144,164 ----
+  
+  #if LIBAVCODEC_BUILD &gt; 4686
+!   /* --------------------------------------------------------------------------
+!    * removed aspect ratio calculation based on picture-&gt;pan_scan-&gt;width
+!    * as this value seems to be wrong on some dvds.
+!    */
+!   new_asp = (float) (context-&gt;width * context-&gt;sample_aspect_ratio.num) /
+!               (float) (context-&gt;height * context-&gt;sample_aspect_ratio.den);
+  #else
+    new_asp = context-&gt;aspect_ratio;
+  #endif
+  
+!   /* --------------------------------------------------------------------------
+!    * aspect_F and new_asp are now static volatile float. Due to above
+!    * code removal, gcc-3.3.1 from suse compiles comparison wrong.
+!    * it compares the 32bit float value with it's temprary new_asp value
+!    * from above calculation which has even a higher precision than double :-( ,
+!    * and would result not_equal every time.
+!    */
+    if (aspect_I != context-&gt;dtg_active_format ||
+        aspect_F != new_asp)
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.26
+retrieving revision 1.27
+diff -C2 -d -r1.26 -r1.27
+*** CHANGELOG	4 Jan 2005 19:00:01 -0000	1.26
+--- CHANGELOG	12 Jan 2005 20:24:34 -0000	1.27
+***************
+*** 1,179 ****
+! Changelog
+!   2005-01-04: softdevice-0.0.8
+!   2005-01-02:
+!     -dfb-out: override pixelformat when mgatv is specified.
+!   2005-01-01:
+!    - dfb-out: fix for dfb-0.9.20 and 0.9.21 matrox crtc2 layer names
+!               fix for OSD not shown with vdr-1.2.x
+!   2004-12-31:
+!    - xv-out: Fix for our bug #2972. Black color key is
+!              now back to value 0x00000000. Savage card users have to
+!              file bug reports at X11 developers if their OSD is not shown
+!              or change colorkey setting to value 0x01000000 in file
+!              video-xv.c in call of &quot;attributeStore.SetColorkey(0x00000000);&quot; .
+!   2004-12-30:
+!    - xv-out: compile fix for gcc 3.4.3
+!              fix for vdr-1.2.x &quot;_ZN9cVideoOut8OSDStartEv&quot;
+!   2004-12-21: softdevice-0.0.8pre1
+!    - directFB:
+!       - some basic support for mga tv-out with directFB- this is selectable
+!         via option -vo dfb:mgatv .
+!       - VIA Unichrome handling added. works with recent cvs version of DFB
+!   2004-12-12:
+!    - Added reporting of AC3 stream info (with help from plugin femon).
+!    - Changed A/V sync point by 4 frames. Sync is now ok for streams with PTS
+!      value for each frame and for streams with PTS values for I-Frames only.
+!      Thus OSD option &quot;A/V Sync&quot; is obsolete.
+!   2004-11-14:
+!    - new A-V sync with linux RTC support
+!    - changed audio buffering 
+!    - implemented serveral missing cDevice methods:
+!      TrickSpeed(),Clear(),Freeze()...
+!    - process smaller packets at one time to improve
+!      the response time
+!    - sleep in Poll if buffer is full
+!   2004-11-04: softdevice-0.0.7
+!    - audio-out: don't exit when we get EINTR upon write
+!   2004-10-30: softdevice-0.0.7pre4 
+!   2004-10-29:
+!    - xv-out: changed fullscreen mode. works now with more wms (bug: #2265)
+!    - xv-out: fix possible race condition causing segfault during init (bug: #2699)
+!    - allow setting alsa device with command line parameter or in setup.conf
+!   2004-10-25:
+!    - compile fix for older vdr versions. tested with 1.2.1 .
+!    - bumped level to 0.0.7pre3 .
+!    - fix compile issues with X11 dpms headers. they are not usable for
+!      C++ code. see: <A HREF="http://freedesktop.org/bugzilla/show_bug.cgi?id=830">http://freedesktop.org/bugzilla/show_bug.cgi?id=830</A> .
+!   2004-10-24:
+!    - fix for DFB-out OSD not shown while paused in YUY2 mode (bug: #002266)
+!   2004-10-23:
+!    - some fixes upon deinterlacing selection (bug: #002267)
+!    - added pseudo alpha OSD background upon an idea of Torgeir Veimo
+!   2004-10-18:
+!    - xv-out: allow disabling screensaver when in full screen mode (Torgeir Veimo)
+!    - mpeg2decoder: enable adjustable audio / video offset (Torgeir Veimo)
+!    - DFB: fix compare DFXL_NONE using equals (Torgeir Veimo)
+!   2004-08-09:
+!    - DFB+vidix: fix wrong colors in crop mode
+!    - fix: segfaults during decoding
+!   2004-08-08:
+!     - DFB: fix calling sequence to avoid sig 6
+!     - xv-out: added fullscreen patch (Torgeir Veimo)
+!               toggle is done via pressing 'f'
+!               (works at the moment _only_ with gnome window manager)
+!   2004-08-01:
+!     - fix: syncOnFrames not stored (Torgeir Veimo)
+!     - fix: audio - some cards don't have any master volume (Torgeir Veimo)
+!   2004-07-25: softdevice-0.0.7pre2
+!     - Use of additional deinterlace methods of ffmpeg. This may require
+!       recompilation of ffmpeg (see hints in Makefile) (Thanks to Herbert Attenberger)
+!     - New OSD option for A/V sync selection. This is related to sync change
+!       from 2004-06-02. Normal sync is to get the sync pts from I-Frames only.
+!       To sync on any PTS you have to change this (DVB-T fix).
+!     - DFB: changed remote react on keypress instead of release
+!     - DFB: when selecting YUY2 mode you'll get an alpha blende OSD (at least
+!            with Matrox cards).
+!   2004-07-23:
+!     - xv-out: while mouse in window, auto hide cursor (thanks to Torgeir Veimo)
+!   2004-07-18:
+!     - moved ffmpeg version and build level report
+!     - setup-OSD does not depend on XV_SUPPORT
+!   2004-07-12:
+!     - fix: DFB cropping for 16:9 mode
+!     - OSD: softdevice menu now reachable via main menu entry
+!            menu behaves different to others: changes are active immediate,
+!            ok-key makes them permanent, back-key restores previous state.
+!   2004-07-11 :
+!     - fix: compile problem when only one output method (DFB) is selected
+!     - DFB + vidix: selectable pixel format I420, YV12 via OSD
+!     - OSD: offer only those menu items which are useful for current output method
+!     - OSD: changed text from &quot;Xv-Aspect&quot; to &quot;Xv startup aspect&quot; and use &quot;16:9 wide&quot;
+!            and &quot;4:3 normal&quot; strings for selection instead of 0, 1 values
+!   2004-07-10 : softdevice-0.0.7pre1
+!     - use of ffmpegs deinterlacer, selectable via OSD. Thanks to Herbert Attenberger
+!     - DFB out added aspect ratio and AFD handling
+!     - activate cropping support, selectable via OSD (xv-out + vidix-out + dfb-out)
+!   2004-07-09 : softdevice-0.0.6post3
+!     - DFB out set display layer configuration according to reported capabilities
+!     - DFB out use only first available video layer
+!   2004-06-28 :
+!     - DFB out changed COLORKEY to 0,0,0 to get transparent OSD with matrox
+!     - DFB out has it's own remote
+!     - DFB out only set videolayer if it is NOT set previously
+!   2004-06-02 : softdevice-0.0.6post2
+!              - added some addtional libs for ffmpeg which may be required
+!              - changed VIDIX out to probe for driver
+!              - fix for syncing on some DVB-T streams
+!   2004-05-30 - fix xv video refresh for MapNotify event
+!   2004-05-24 - added aspect ratio handling for VIDIX out
+!   2004-05-23 - added help text for commandline help
+! 
+!   2004-05-22 : softdevice-0.0.6
+!     - fix compilation for LIBAVCODEC_BUILD &lt;= 4686 (thanks to Luca Olivetti)
+!     - again fix savage colour key
+!     - revert OSD centering for FB + VIDIX out
+!       (it's a feature of vdr-1.3.7, OSD position is adjustable via OSD)
+! 
+!   2004-05-20 : softdevice-0.0.6pre3
+!     - fb output is now running with vdr-1.3.7 too
+!     - merged softdevice-0.0.5-fb-patch01
+!       (its intentionaly in the vdr-1.2.x section only)
+!     - fix OSD positioning fb-out + vidix-out for vdr-1.3.7
+! 
+!   2004-05-20 : softdevice-0.0.6pre2
+!     - xv output now works with vdr-1.3.7 too
+!     
+!   2004-05-19 : softdevice-0.0.6pre1
+!     - audio.c: dropped round() call
+!     - (f)printf() replaced by dsyslog()
+!         audio.c video-xv.c video.c
+!     - merged Vadim's
+!         vdr-softdevice-0.0.5-xv08.patch and
+!         vdr-softdevice-0.0.5-xv08-2.patch
+! 
+!   2004-04-xx : patch08
+!     - checked vidix method too. I had to select I420 instead of YV12 ;;-).
+!       (With YV12 I got swaped color components. Vidix driver reports only
+!       16 of my 32M G550 ;-) ).
+! 
+!   2004-04-28&#160;: patch07-02
+!     - fix: xv-color key for savage (workaround of X driver bug)
+!     - fix: compile problems with non CVS version of ffmpeg
+!     - new: xv: hack to control some atom values via keyboard.
+!                This bypasses VDR remote key control :-( .
+!                c/C  - contrast -/+
+!                h/H  - hue -/+
+!                b/B  - brightness -/+
+!                s/S  - saturation -/+
+!     - new: all output methods can be compiled in.
+!            method selectable at runtime via:
+!               '-vo xv:' or
+!               '-vo fb:' or
+!               '-vo dfb:' or
+!               '-vo vidix:'
+!            if there is only one method specified at compile time via Makefile
+!            this parameter is not required (tested only with xv and fb).
+! 
+!   2004-04-16 : xv output patch07
+!     - fix: force CheckAspect upon dimension change (since patch06)
+!     - report PAN/SCAN info if present
+! 
+!   2004-04-16 : xv output patch06
+!     - implemented StillPicture method
+!     - clean up some messages
+!     - AFD tag support
+! 
+!   2004-03-07 : xv output patch05
+!     - fixed rounding error for 16:9 output area (height 575 instead of 576).
+!     - OSD opaque black color translated to a different dark value so that it
+!       is different from the COLORKEY and no longer transparent.
+!     - xv output has now a commandline argument:
+!         -vo xv:aspect=[wide|normal]
+!         examples:
+!         ./vdr -P streamdev -P 'softdevice -vo xv:aspect=wide'
+!         ./vdr -P streamdev -P 'softdevice -vo xv:aspect=normal'
+!     - OSD not shown (for new users) during remote teaching phase
+!       (introduced by patch03).
+!     - changed last paramter of X..ShmPut..() to False and replaced XFlush()
+!       by XSync() (according to vlc this should save CPU time).
+!     - added volume control.
+--- 1,181 ----
+! Changelog
+!   2005-01-12:
+!     - fix aspect ratio calculation/recognition on some dvds
+!   2005-01-04: softdevice-0.0.8
+!   2005-01-02:
+!     -dfb-out: override pixelformat when mgatv is specified.
+!   2005-01-01:
+!    - dfb-out: fix for dfb-0.9.20 and 0.9.21 matrox crtc2 layer names
+!               fix for OSD not shown with vdr-1.2.x
+!   2004-12-31:
+!    - xv-out: Fix for our bug #2972. Black color key is
+!              now back to value 0x00000000. Savage card users have to
+!              file bug reports at X11 developers if their OSD is not shown
+!              or change colorkey setting to value 0x01000000 in file
+!              video-xv.c in call of &quot;attributeStore.SetColorkey(0x00000000);&quot; .
+!   2004-12-30:
+!    - xv-out: compile fix for gcc 3.4.3
+!              fix for vdr-1.2.x &quot;_ZN9cVideoOut8OSDStartEv&quot;
+!   2004-12-21: softdevice-0.0.8pre1
+!    - directFB:
+!       - some basic support for mga tv-out with directFB- this is selectable
+!         via option -vo dfb:mgatv .
+!       - VIA Unichrome handling added. works with recent cvs version of DFB
+!   2004-12-12:
+!    - Added reporting of AC3 stream info (with help from plugin femon).
+!    - Changed A/V sync point by 4 frames. Sync is now ok for streams with PTS
+!      value for each frame and for streams with PTS values for I-Frames only.
+!      Thus OSD option &quot;A/V Sync&quot; is obsolete.
+!   2004-11-14:
+!    - new A-V sync with linux RTC support
+!    - changed audio buffering 
+!    - implemented serveral missing cDevice methods:
+!      TrickSpeed(),Clear(),Freeze()...
+!    - process smaller packets at one time to improve
+!      the response time
+!    - sleep in Poll if buffer is full
+!   2004-11-04: softdevice-0.0.7
+!    - audio-out: don't exit when we get EINTR upon write
+!   2004-10-30: softdevice-0.0.7pre4 
+!   2004-10-29:
+!    - xv-out: changed fullscreen mode. works now with more wms (bug: #2265)
+!    - xv-out: fix possible race condition causing segfault during init (bug: #2699)
+!    - allow setting alsa device with command line parameter or in setup.conf
+!   2004-10-25:
+!    - compile fix for older vdr versions. tested with 1.2.1 .
+!    - bumped level to 0.0.7pre3 .
+!    - fix compile issues with X11 dpms headers. they are not usable for
+!      C++ code. see: <A HREF="http://freedesktop.org/bugzilla/show_bug.cgi?id=830">http://freedesktop.org/bugzilla/show_bug.cgi?id=830</A> .
+!   2004-10-24:
+!    - fix for DFB-out OSD not shown while paused in YUY2 mode (bug: #002266)
+!   2004-10-23:
+!    - some fixes upon deinterlacing selection (bug: #002267)
+!    - added pseudo alpha OSD background upon an idea of Torgeir Veimo
+!   2004-10-18:
+!    - xv-out: allow disabling screensaver when in full screen mode (Torgeir Veimo)
+!    - mpeg2decoder: enable adjustable audio / video offset (Torgeir Veimo)
+!    - DFB: fix compare DFXL_NONE using equals (Torgeir Veimo)
+!   2004-08-09:
+!    - DFB+vidix: fix wrong colors in crop mode
+!    - fix: segfaults during decoding
+!   2004-08-08:
+!     - DFB: fix calling sequence to avoid sig 6
+!     - xv-out: added fullscreen patch (Torgeir Veimo)
+!               toggle is done via pressing 'f'
+!               (works at the moment _only_ with gnome window manager)
+!   2004-08-01:
+!     - fix: syncOnFrames not stored (Torgeir Veimo)
+!     - fix: audio - some cards don't have any master volume (Torgeir Veimo)
+!   2004-07-25: softdevice-0.0.7pre2
+!     - Use of additional deinterlace methods of ffmpeg. This may require
+!       recompilation of ffmpeg (see hints in Makefile) (Thanks to Herbert Attenberger)
+!     - New OSD option for A/V sync selection. This is related to sync change
+!       from 2004-06-02. Normal sync is to get the sync pts from I-Frames only.
+!       To sync on any PTS you have to change this (DVB-T fix).
+!     - DFB: changed remote react on keypress instead of release
+!     - DFB: when selecting YUY2 mode you'll get an alpha blende OSD (at least
+!            with Matrox cards).
+!   2004-07-23:
+!     - xv-out: while mouse in window, auto hide cursor (thanks to Torgeir Veimo)
+!   2004-07-18:
+!     - moved ffmpeg version and build level report
+!     - setup-OSD does not depend on XV_SUPPORT
+!   2004-07-12:
+!     - fix: DFB cropping for 16:9 mode
+!     - OSD: softdevice menu now reachable via main menu entry
+!            menu behaves different to others: changes are active immediate,
+!            ok-key makes them permanent, back-key restores previous state.
+!   2004-07-11 :
+!     - fix: compile problem when only one output method (DFB) is selected
+!     - DFB + vidix: selectable pixel format I420, YV12 via OSD
+!     - OSD: offer only those menu items which are useful for current output method
+!     - OSD: changed text from &quot;Xv-Aspect&quot; to &quot;Xv startup aspect&quot; and use &quot;16:9 wide&quot;
+!            and &quot;4:3 normal&quot; strings for selection instead of 0, 1 values
+!   2004-07-10 : softdevice-0.0.7pre1
+!     - use of ffmpegs deinterlacer, selectable via OSD. Thanks to Herbert Attenberger
+!     - DFB out added aspect ratio and AFD handling
+!     - activate cropping support, selectable via OSD (xv-out + vidix-out + dfb-out)
+!   2004-07-09 : softdevice-0.0.6post3
+!     - DFB out set display layer configuration according to reported capabilities
+!     - DFB out use only first available video layer
+!   2004-06-28 :
+!     - DFB out changed COLORKEY to 0,0,0 to get transparent OSD with matrox
+!     - DFB out has it's own remote
+!     - DFB out only set videolayer if it is NOT set previously
+!   2004-06-02 : softdevice-0.0.6post2
+!              - added some addtional libs for ffmpeg which may be required
+!              - changed VIDIX out to probe for driver
+!              - fix for syncing on some DVB-T streams
+!   2004-05-30 - fix xv video refresh for MapNotify event
+!   2004-05-24 - added aspect ratio handling for VIDIX out
+!   2004-05-23 - added help text for commandline help
+! 
+!   2004-05-22 : softdevice-0.0.6
+!     - fix compilation for LIBAVCODEC_BUILD &lt;= 4686 (thanks to Luca Olivetti)
+!     - again fix savage colour key
+!     - revert OSD centering for FB + VIDIX out
+!       (it's a feature of vdr-1.3.7, OSD position is adjustable via OSD)
+! 
+!   2004-05-20 : softdevice-0.0.6pre3
+!     - fb output is now running with vdr-1.3.7 too
+!     - merged softdevice-0.0.5-fb-patch01
+!       (its intentionaly in the vdr-1.2.x section only)
+!     - fix OSD positioning fb-out + vidix-out for vdr-1.3.7
+! 
+!   2004-05-20 : softdevice-0.0.6pre2
+!     - xv output now works with vdr-1.3.7 too
+!     
+!   2004-05-19 : softdevice-0.0.6pre1
+!     - audio.c: dropped round() call
+!     - (f)printf() replaced by dsyslog()
+!         audio.c video-xv.c video.c
+!     - merged Vadim's
+!         vdr-softdevice-0.0.5-xv08.patch and
+!         vdr-softdevice-0.0.5-xv08-2.patch
+! 
+!   2004-04-xx : patch08
+!     - checked vidix method too. I had to select I420 instead of YV12 ;;-).
+!       (With YV12 I got swaped color components. Vidix driver reports only
+!       16 of my 32M G550 ;-) ).
+! 
+!   2004-04-28&#160;: patch07-02
+!     - fix: xv-color key for savage (workaround of X driver bug)
+!     - fix: compile problems with non CVS version of ffmpeg
+!     - new: xv: hack to control some atom values via keyboard.
+!                This bypasses VDR remote key control :-( .
+!                c/C  - contrast -/+
+!                h/H  - hue -/+
+!                b/B  - brightness -/+
+!                s/S  - saturation -/+
+!     - new: all output methods can be compiled in.
+!            method selectable at runtime via:
+!               '-vo xv:' or
+!               '-vo fb:' or
+!               '-vo dfb:' or
+!               '-vo vidix:'
+!            if there is only one method specified at compile time via Makefile
+!            this parameter is not required (tested only with xv and fb).
+! 
+!   2004-04-16 : xv output patch07
+!     - fix: force CheckAspect upon dimension change (since patch06)
+!     - report PAN/SCAN info if present
+! 
+!   2004-04-16 : xv output patch06
+!     - implemented StillPicture method
+!     - clean up some messages
+!     - AFD tag support
+! 
+!   2004-03-07 : xv output patch05
+!     - fixed rounding error for 16:9 output area (height 575 instead of 576).
+!     - OSD opaque black color translated to a different dark value so that it
+!       is different from the COLORKEY and no longer transparent.
+!     - xv output has now a commandline argument:
+!         -vo xv:aspect=[wide|normal]
+!         examples:
+!         ./vdr -P streamdev -P 'softdevice -vo xv:aspect=wide'
+!         ./vdr -P streamdev -P 'softdevice -vo xv:aspect=normal'
+!     - OSD not shown (for new users) during remote teaching phase
+!       (introduced by patch03).
+!     - changed last paramter of X..ShmPut..() to False and replaced XFlush()
+!       by XSync() (according to vlc this should save CPU time).
+!     - added volume control.
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000045.html">[Softdevice-cvs] softdevice CHANGELOG,1.25,1.26 softdevice.c,1.9,1.10
+</A></li>
+	<LI>Next message: <A HREF="000047.html">[Softdevice-cvs] softdevice mpeg2decoder.c,1.11,1.12 mpeg2decoder.h,1.9,1.10 softdevice.c,1.10,1.11
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#46">[ date ]</a>
+              <a href="thread.html#46">[ thread ]</a>
+              <a href="subject.html#46">[ subject ]</a>
+              <a href="author.html#46">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

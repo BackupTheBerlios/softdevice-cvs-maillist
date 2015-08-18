@@ -1,0 +1,262 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.183,1.184 configure,1.12,1.13 video-dfb.c,1.59,1.60
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.183%2C1.184%20configure%2C1.12%2C1.13%20video-dfb.c%2C1.59%2C1.60&In-Reply-To=%3C200605072051.k47Kp2t15808%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000356.html">
+   <LINK REL="Next"  HREF="000358.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.183,1.184 configure,1.12,1.13 video-dfb.c,1.59,1.60</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.183%2C1.184%20configure%2C1.12%2C1.13%20video-dfb.c%2C1.59%2C1.60&In-Reply-To=%3C200605072051.k47Kp2t15808%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.183,1.184 configure,1.12,1.13 video-dfb.c,1.59,1.60">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun May  7 22:51:02 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000356.html">[Softdevice-cvs] softdevice setup-softdevice.h,1.28,1.29
+</A></li>
+        <LI>Next message: <A HREF="000358.html">[Softdevice-cvs] softdevice CHANGELOG,1.184,1.185 utils.c,1.13,1.14 utils.h,1.7,1.8 video.c,1.55,1.56 video.h,1.37,1.38
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#357">[ date ]</a>
+              <a href="thread.html#357">[ thread ]</a>
+              <a href="subject.html#357">[ subject ]</a>
+              <a href="author.html#357">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv5162
+
+Modified Files:
+	CHANGELOG configure video-dfb.c 
+Log Message:
+video-dfb: preparation for DSBLIT_INTERLACED which results
+in better displaying of downscaled 16:9 on 4:3 TVs with matrox.
+video-dfb: make YUY2 color info reordering dependant of
+interlaced vs. progressive video.
+
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.183
+retrieving revision 1.184
+diff -C2 -d -r1.183 -r1.184
+*** CHANGELOG	30 Apr 2006 13:50:10 -0000	1.183
+--- CHANGELOG	7 May 2006 20:52:23 -0000	1.184
+***************
+*** 1,3 ****
+--- 1,10 ----
+  Changelog
++ 2006-05-07:
++    - video-dfb: preparation for DSBLIT_INTERLACED which results
++      in better displaying of downscaled 16:9 on 4:3 TVs with matrox.
++    - video-dfb: make YUY2 color info reordering dependant of
++      interlaced vs. progressive video.
++ 2006-05-01:
++    - some fixes for DirectFB compile, configure &amp; 64bit arch .
+  2006-04-30: softdevice-0.2.3
+  2006-04-29:
+
+Index: configure
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/configure,v
+retrieving revision 1.12
+retrieving revision 1.13
+diff -C2 -d -r1.12 -r1.13
+*** configure	30 Apr 2006 19:28:47 -0000	1.12
+--- configure	7 May 2006 20:52:23 -0000	1.13
+***************
+*** 98,101 ****
+--- 98,102 ----
+  dfb_dscaps_double=&quot;yes&quot;
+  dfb_dief_repeat=&quot;yes&quot;
++ dfb_blit_interlaced=&quot;yes&quot;
+  
+  cat &gt; ${TMPC} &lt;&lt; EOF
+***************
+*** 149,152 ****
+--- 150,164 ----
+  $cc $CFLAGS $dfb_opts -o $TMPE $TMPC &gt; /dev/null 2&gt;&amp;1 || dfb_dief_repeat=&quot;no&quot;
+  
++ cat &gt; ${TMPC} &lt;&lt; EOF
++ #include &lt;stdio.h&gt;
++ #include &lt;dfb++.h&gt;
++ #include &lt;directfb.h&gt;
++ int main(void) {
++     DFBSurfaceBlittingFlags   flags = DSBLIT_INTERLACED;
++   return 0;
++ }
++ EOF
++ $cc $CFLAGS $dfb_opts -o $TMPE $TMPC &gt; /dev/null 2&gt;&amp;1 || dfb_blit_interlaced=&quot;no&quot;
++ 
+    fi
+  fi
+***************
+*** 304,307 ****
+--- 316,325 ----
+    else
+      echo &quot;#define HAVE_DIEF_REPEAT                0&quot; &gt;&gt; $TMPH
++   fi
++ 
++   if test &quot;${dfb_blit_interlaced}&quot; = &quot;yes&quot; ; then
++     echo &quot;#define HAVE_DSBLIT_INTERLACED          1&quot; &gt;&gt; $TMPH
++   else
++     echo &quot;#define HAVE_DSBLIT_INTERLACED          0&quot; &gt;&gt; $TMPH
+    fi
+  fi
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.59
+retrieving revision 1.60
+diff -C2 -d -r1.59 -r1.60
+*** video-dfb.c	30 Apr 2006 23:56:13 -0000	1.59
+--- video-dfb.c	7 May 2006 20:52:23 -0000	1.60
+***************
+*** 20,23 ****
+--- 20,24 ----
+  #else
+  # define HAVE_SetSourceLocation 0
++ # define HAVE_DSBLIT_INTERLACED 0
+  # if (DIRECTFB_MAJOR_VERSION == 0) &amp;&amp; (DIRECTFB_MINOR_VERSION == 9) &amp;&amp; (DIRECTFB_MICRO_VERSION &lt; 23)
+  #   define HAVE_GraphicsDeviceDescription 0
+***************
+*** 166,169 ****
+--- 167,173 ----
+    if (caps.blitting_flags &amp; DSBLIT_DEMULTIPLY ) fprintf(stderr,&quot;Demultiply &quot;);
+    if (caps.blitting_flags &amp; DSBLIT_DEINTERLACE ) fprintf(stderr,&quot;Deinterlace &quot;);
++ #if HAVE_DSBLIT_INTERLACED
++   if (caps.blitting_flags &amp; DSBLIT_INTERLACED ) fprintf(stderr,&quot;Interlaced &quot;);
++ #endif
+    fprintf(stderr,&quot;\n&quot;);
+  }
+***************
+*** 890,893 ****
+--- 894,903 ----
+              videoSurface-&gt;Release();
+            }
++ #if HAVE_DSBLIT_INTERLACED
++ 	  if (setupStore-&gt;useMGAtv)
++ 	  {
++ 	    vidDsc.caps = DFB_ADD_SURFACE_CAPS(vidDsc.caps, DSCAPS_INTERLACED);
++ 	  }
++ #endif	  
+  
+            videoSurface=dfb-&gt;CreateSurface(vidDsc);
+***************
+*** 1206,1211 ****
+--- 1216,1234 ----
+        }
+  
++ #if HAVE_DSBLIT_INTERLACED
++       if (setupStore-&gt;useMGAtv)
++       {
++         scrSurface-&gt;SetBlittingFlags(DSBLIT_INTERLACED);
++         scrSurface-&gt;StretchBlit(videoSurface, &amp;src, &amp;dst);
++       }
++       else
++       {
++         scrSurface-&gt;SetBlittingFlags(DSBLIT_NOFX);
++         scrSurface-&gt;StretchBlit(videoSurface, &amp;src, &amp;dst);
++       }
++ #else
+        scrSurface-&gt;SetBlittingFlags(DSBLIT_NOFX);
+        scrSurface-&gt;StretchBlit(videoSurface, &amp;src, &amp;dst);
++ #endif      
+        if (OSDpresent)
+        {
+***************
+*** 1307,1318 ****
+      } else if (pixelformat == DSPF_YUY2) {
+  
+!       yv12_to_yuy2(Py + Ystride  * cutTop * 2 + cutLeft * 2,
+!       //yv12_to_yuy2_il_c(Py + Ystride  * cutTop * 2 + cutLeft * 2,
+!                    Pu + UVstride * cutTop + cutLeft,
+!                    Pv + UVstride * cutTop + cutLeft,
+!                    dst + pitch * cutTop * 2 + cutLeft * 4,
+!                    Width - 2 * (cutLeft + cutRight),
+!                    Height - 2 * (cutTop + cutBottom),
+!                    Ystride, UVstride, pitch);
+       }
+  
+--- 1330,1350 ----
+      } else if (pixelformat == DSPF_YUY2) {
+  
+!       if (interlaceMode) {
+!         yv12_to_yuy2_il_c(Py + Ystride  * cutTop * 2 + cutLeft * 2,
+!                           Pu + UVstride * cutTop + cutLeft,
+!                           Pv + UVstride * cutTop + cutLeft,
+!                           dst + pitch * cutTop * 2 + cutLeft * 4,
+!                           Width - 2 * (cutLeft + cutRight),
+!                           Height - 2 * (cutTop + cutBottom),
+!                           Ystride, UVstride, pitch);
+!       } else {
+!         yv12_to_yuy2(Py + Ystride  * cutTop * 2 + cutLeft * 2,
+!                      Pu + UVstride * cutTop + cutLeft,
+!                      Pv + UVstride * cutTop + cutLeft,
+!                      dst + pitch * cutTop * 2 + cutLeft * 4,
+!                      Width - 2 * (cutLeft + cutRight),
+!                      Height - 2 * (cutTop + cutBottom),
+!                      Ystride, UVstride, pitch);
+!       }
+       }
+  
+***************
+*** 1346,1351 ****
+--- 1378,1394 ----
+        osdMutex.Unlock();
+  
++ #if HAVE_DSBLIT_INTERLACED
++       if (setupStore-&gt;useMGAtv)
++       {
++         scrSurface-&gt;SetBlittingFlags(DSBLIT_INTERLACED);
++         scrSurface-&gt;StretchBlit(videoSurface, &amp;src, &amp;dst);
++       } else {
++         scrSurface-&gt;SetBlittingFlags(DSBLIT_NOFX);
++         scrSurface-&gt;StretchBlit(videoSurface, &amp;src, &amp;dst);
++       }
++ #else
+        scrSurface-&gt;SetBlittingFlags(DSBLIT_NOFX);
+        scrSurface-&gt;StretchBlit(videoSurface, &amp;src, &amp;dst);
++ #endif      
+  
+        if (OSDpresent)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000356.html">[Softdevice-cvs] softdevice setup-softdevice.h,1.28,1.29
+</A></li>
+	<LI>Next message: <A HREF="000358.html">[Softdevice-cvs] softdevice CHANGELOG,1.184,1.185 utils.c,1.13,1.14 utils.h,1.7,1.8 video.c,1.55,1.56 video.h,1.37,1.38
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#357">[ date ]</a>
+              <a href="thread.html#357">[ thread ]</a>
+              <a href="subject.html#357">[ subject ]</a>
+              <a href="author.html#357">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

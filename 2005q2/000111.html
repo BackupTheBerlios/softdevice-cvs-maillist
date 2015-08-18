@@ -1,0 +1,346 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice video-dfb.c,1.25,1.26 video-vidix.c,1.6,1.7 video-xv.c,1.22,1.23 video.c,1.16,1.17 video.h,1.10,1.11
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-dfb.c%2C1.25%2C1.26%20video-vidix.c%2C1.6%2C1.7%20video-xv.c%2C1.22%2C1.23%20video.c%2C1.16%2C1.17%20video.h%2C1.10%2C1.11&In-Reply-To=%3C200505161553.j4GFrFm00739%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000110.html">
+   <LINK REL="Next"  HREF="000112.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice video-dfb.c,1.25,1.26 video-vidix.c,1.6,1.7 video-xv.c,1.22,1.23 video.c,1.16,1.17 video.h,1.10,1.11</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-dfb.c%2C1.25%2C1.26%20video-vidix.c%2C1.6%2C1.7%20video-xv.c%2C1.22%2C1.23%20video.c%2C1.16%2C1.17%20video.h%2C1.10%2C1.11&In-Reply-To=%3C200505161553.j4GFrFm00739%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice video-dfb.c,1.25,1.26 video-vidix.c,1.6,1.7 video-xv.c,1.22,1.23 video.c,1.16,1.17 video.h,1.10,1.11">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon May 16 17:53:15 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000110.html">[Softdevice-cvs] softdevice CHANGELOG,1.63,1.64 setup-softdevice.c,1.16,1.17
+</A></li>
+        <LI>Next message: <A HREF="000112.html">[Softdevice-cvs] softdevice mpeg2decoder.c,1.33,1.34 mpeg2decoder.h,1.21,1.22
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#111">[ date ]</a>
+              <a href="thread.html#111">[ thread ]</a>
+              <a href="subject.html#111">[ subject ]</a>
+              <a href="author.html#111">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv29824
+
+Modified Files:
+	video-dfb.c video-vidix.c video-xv.c video.c video.h 
+Log Message:
+- blank screen after some time with no signal
+
+
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.25
+retrieving revision 1.26
+diff -C2 -d -r1.25 -r1.26
+*** video-dfb.c	6 May 2005 18:48:53 -0000	1.25
+--- video-dfb.c	16 May 2005 15:53:12 -0000	1.26
+***************
+*** 971,974 ****
+--- 971,975 ----
+      int hi;
+  
++   OsdRefreshCounter=0;
+    events_not_done = 0;
+    SetParams();
+
+Index: video-vidix.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-vidix.c,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -C2 -d -r1.6 -r1.7
+*** video-vidix.c	24 Feb 2005 22:35:51 -0000	1.6
+--- video-vidix.c	16 May 2005 15:53:12 -0000	1.7
+***************
+*** 206,213 ****
+         vdlSetGrKeys(vidix_handler, &amp;gr_key);
+      }
+-   //start osd refresh thread
+-   active=true;
+-   Start();
+- 
+  }
+  
+--- 206,209 ----
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.22
+retrieving revision 1.23
+diff -C2 -d -r1.22 -r1.23
+*** video-xv.c	30 Apr 2005 20:50:42 -0000	1.22
+--- video-xv.c	16 May 2005 15:53:12 -0000	1.23
+***************
+*** 615,621 ****
+      lwidth = dwidth = XV_DEST_WIDTH_16_9;
+    }
+-   //start osd refresh thread
+-   active=true;
+-   Start();
+  }
+  
+--- 615,618 ----
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.16
+retrieving revision 1.17
+diff -C2 -d -r1.16 -r1.17
+*** video.c	1 May 2005 10:24:02 -0000	1.16
+--- video.c	16 May 2005 15:53:12 -0000	1.17
+***************
+*** 25,31 ****
+    PixelMask=NULL;
+    this-&gt;setupStore=setupStore;
+!  //start thread
+!  // active=true;
+!  // Start();
+  };
+  
+--- 25,31 ----
+    PixelMask=NULL;
+    this-&gt;setupStore=setupStore;
+!   //start osd thread
+!   active=true;
+!   Start();
+  };
+  
+***************
+*** 38,43 ****
+--- 38,67 ----
+  
+  /*----------------------------------------------------------------------------*/
++ void cVideoOut::init_OsdBuffers()
++ {
++     int Ysize=(OSD_FULL_WIDTH*OSD_FULL_HEIGHT);
++     if (!OsdPy)
++        OsdPy=(uint8_t*)malloc(Ysize+8);
++     if (!OsdPAlphaY) 
++     {
++        OsdPAlphaY=(uint8_t*)malloc(Ysize+8);
++        memset(OsdPAlphaY,0,Ysize);
++     };
++     if (!OsdPu)
++        OsdPu=(uint8_t*)malloc(Ysize/4+8);
++     if (!OsdPv)
++        OsdPv=(uint8_t*)malloc(Ysize/4+8);
++     if (!OsdPAlphaUV)
++     {
++        OsdPAlphaUV=(uint8_t*)malloc(Ysize/4+8);
++        memset(OsdPAlphaUV,0,Ysize/4);
++     }
++ }; 
++ 
++ /*----------------------------------------------------------------------------*/
+  void cVideoOut::Action() 
+  {
++   init_OsdBuffers();
++   ClearOSD();
+  #if VDRVERSNUM &gt;= 10307
+    while(active)
+***************
+*** 52,60 ****
+      changeMode=(current_osdMode != setupStore-&gt;osdMode);
+      newOsdMode=setupStore-&gt;osdMode;
+!     // if software osd has not been shown for some time fall back
+!     // to pseudo osd..
+!     if ( OsdRefreshCounter &gt; 80 &amp;&amp; setupStore-&gt;osdMode == OSDMODE_SOFTWARE ) {
+!         changeMode= (current_osdMode != OSDMODE_PSEUDO);
+!         newOsdMode=OSDMODE_PSEUDO;
+      }
+      
+--- 76,89 ----
+      changeMode=(current_osdMode != setupStore-&gt;osdMode);
+      newOsdMode=setupStore-&gt;osdMode;
+!     // if software osd has not been shown for some time or
+!     // no signal 
+!     if ( OsdRefreshCounter &gt; 80 ||
+!          (setupStore-&gt;osdMode == OSDMODE_SOFTWARE &amp;&amp;
+! 	  OsdRefreshCounter&gt;10 &amp;&amp; Osd_changed ) ) {
+! 	    osdMutex.Lock();
+! 	    YUV(OsdPy,OsdPu, OsdPv, OsdWidth, OsdHeight, 
+! 			    OSD_FULL_WIDTH, OSD_FULL_WIDTH/2); 
+! 	    Osd_changed=0;
+! 	    osdMutex.Unlock();
+      }
+      
+***************
+*** 284,307 ****
+  
+  #if VDRVERSNUM &gt;= 10307
+!   if (current_osdMode==OSDMODE_SOFTWARE) 
+!   {
+!     int Ysize=(OSD_FULL_WIDTH*OSD_FULL_HEIGHT);
+!     if (!OsdPy)
+!        OsdPy=(uint8_t*)malloc(Ysize+8);
+!     if (!OsdPAlphaY) 
+!     {
+!        OsdPAlphaY=(uint8_t*)malloc(Ysize+8);
+!        memset(OsdPAlphaY,0,Ysize);
+!     };
+!     if (!OsdPu)
+!        OsdPu=(uint8_t*)malloc(Ysize/4+8);
+!     if (!OsdPv)
+!        OsdPv=(uint8_t*)malloc(Ysize/4+8);
+!     if (!OsdPAlphaUV)
+!     {
+!        OsdPAlphaUV=(uint8_t*)malloc(Ysize/4+8);
+!        memset(OsdPAlphaUV,0,Ysize/4);
+!     }
+!   }
+  
+    int newX,newY;
+--- 313,318 ----
+  
+  #if VDRVERSNUM &gt;= 10307
+!   if (current_osdMode==OSDMODE_SOFTWARE)
+!   	init_OsdBuffers();
+  
+    int newX,newY;
+***************
+*** 353,363 ****
+  {
+    osdMutex.Lock();
+-   if (OsdPAlphaY)
+-        memset(OsdPAlphaY,0,OSD_FULL_WIDTH*OSD_FULL_HEIGHT);
+-   if (OsdPAlphaUV)
+-        memset(OsdPAlphaUV,0,OSD_FULL_WIDTH*OSD_FULL_HEIGHT/4);
+  
+    osd=NULL;
+    OSDpresent=false;
+    osdMutex.Unlock();
+  }
+--- 364,373 ----
+  {
+    osdMutex.Lock();
+  
++   ClearOSD();
++   
+    osd=NULL;
+    OSDpresent=false;
++   Osd_changed=1;
+    osdMutex.Unlock();
+  }
+***************
+*** 367,377 ****
+  void cVideoOut::ClearOSD()
+  {
+!   if (current_osdMode==OSDMODE_SOFTWARE) 
+    {
+      if (OsdPAlphaY)
+         memset(OsdPAlphaY,0,OSD_FULL_WIDTH*OSD_FULL_HEIGHT);
+      if (OsdPAlphaUV)
+         memset(OsdPAlphaUV,0,OSD_FULL_WIDTH*OSD_FULL_HEIGHT/4);
+!   };
+  };
+  
+--- 377,393 ----
+  void cVideoOut::ClearOSD()
+  {
+!   //if (current_osdMode==OSDMODE_SOFTWARE) 
+    {
++     if (OsdPy)
++        memset(OsdPy,0,OSD_FULL_WIDTH*OSD_FULL_HEIGHT);
++     if (OsdPu)
++        memset(OsdPu,127,OSD_FULL_WIDTH*OSD_FULL_HEIGHT/4);
++     if (OsdPv)
++        memset(OsdPv,127,OSD_FULL_WIDTH*OSD_FULL_HEIGHT/4);
+      if (OsdPAlphaY)
+         memset(OsdPAlphaY,0,OSD_FULL_WIDTH*OSD_FULL_HEIGHT);
+      if (OsdPAlphaUV)
+         memset(OsdPAlphaUV,0,OSD_FULL_WIDTH*OSD_FULL_HEIGHT/4);
+!    };
+  };
+  
+***************
+*** 475,479 ****
+      if (!Bitmap-&gt;Dirty(x1,y1,x2,y2) &amp;&amp; !OSDdirty )
+        return;
+! 
+  // printf(&quot;dirty area (%d,%d) (%d,%d) \n&quot;,x1,y1,x2,y2);
+    
+--- 491,495 ----
+      if (!Bitmap-&gt;Dirty(x1,y1,x2,y2) &amp;&amp; !OSDdirty )
+        return;
+!   
+  // printf(&quot;dirty area (%d,%d) (%d,%d) \n&quot;,x1,y1,x2,y2);
+    
+***************
+*** 596,599 ****
+--- 612,616 ----
+        return;
+      
++   Osd_changed=1;
+     //printf( &quot;----------------------------\nOSDWidth %d %d Bitmap %d %d \n&quot;,
+     //     OsdWidth,OsdHeight,Bitmap-&gt;Width(),Bitmap-&gt;Height()); 
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -C2 -d -r1.10 -r1.11
+*** video.h	1 May 2005 10:24:02 -0000	1.10
+--- video.h	16 May 2005 15:53:13 -0000	1.11
+***************
+*** 129,132 ****
+--- 129,133 ----
+      uint8_t *PixelMask;
+  #if VDRVERSNUM &gt;= 10307
++     int Osd_changed;
+      uint8_t *OsdPy;
+      uint8_t *OsdPu; 
+***************
+*** 135,138 ****
+--- 136,140 ----
+      uint8_t *OsdPAlphaUV;
+      // buffers for software osd alpha blending 
++     void init_OsdBuffers();
+      
+      uint16_t OsdHeight;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000110.html">[Softdevice-cvs] softdevice CHANGELOG,1.63,1.64 setup-softdevice.c,1.16,1.17
+</A></li>
+	<LI>Next message: <A HREF="000112.html">[Softdevice-cvs] softdevice mpeg2decoder.c,1.33,1.34 mpeg2decoder.h,1.21,1.22
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#111">[ date ]</a>
+              <a href="thread.html#111">[ thread ]</a>
+              <a href="subject.html#111">[ subject ]</a>
+              <a href="author.html#111">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

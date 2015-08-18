@@ -1,0 +1,120 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.346, 1.347 README, 1.30,	1.31 softdevice.c, 1.94, 1.95
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2009q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.346%2C%201.347%20README%2C%201.30%2C%0A%091.31%20softdevice.c%2C%201.94%2C%201.95&In-Reply-To=%3C20090322125536.B2960D6F0%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000644.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.346, 1.347 README, 1.30,	1.31 softdevice.c, 1.94, 1.95</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.346%2C%201.347%20README%2C%201.30%2C%0A%091.31%20softdevice.c%2C%201.94%2C%201.95&In-Reply-To=%3C20090322125536.B2960D6F0%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.346, 1.347 README, 1.30,	1.31 softdevice.c, 1.94, 1.95">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Mar 22 13:55:36 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000644.html">[Softdevice-cvs] softdevice mpeg2decoder.c, 1.87,	1.88 mpeg2decoder.h, 1.46, 1.47 PicBuffer.h, 1.10,	1.11 utils.c, 1.28, 1.29 utils.h, 1.19, 1.20 video.c, 1.78,	1.79 video.h, 1.57, 1.58 video-vidix.c, 1.27, 1.28
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#645">[ date ]</a>
+              <a href="thread.html#645">[ thread ]</a>
+              <a href="subject.html#645">[ subject ]</a>
+              <a href="author.html#645">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv30570
+
+Modified Files:
+	CHANGELOG README softdevice.c 
+Log Message:
+Patch by Pridvorov Andrey to make softdevice work with mplayer-plugin.
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.346
+retrieving revision 1.347
+diff -C2 -d -r1.346 -r1.347
+*** CHANGELOG	19 Feb 2009 20:27:58 -0000	1.346
+--- CHANGELOG	22 Mar 2009 12:55:33 -0000	1.347
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2009-03-22:
++    - Patch by Pridvorov Andrey to make softdevice work with mplayer-plugin.
+  2009-02-19:
+     - decoding: Enable selection between av_read_packet() and av_read_frame() via
+
+Index: README
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/README,v
+retrieving revision 1.30
+retrieving revision 1.31
+diff -C2 -d -r1.30 -r1.31
+*** README	25 Oct 2008 10:23:49 -0000	1.30
+--- README	22 Mar 2009 12:55:33 -0000	1.31
+***************
+*** 368,371 ****
+--- 368,372 ----
+  - Petri Hintukainen
+  - Prakash Punnoor
++ - Pridvorov Andrey
+  - Roland Praml
+  - Rolf Ahrenberg
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.94
+retrieving revision 1.95
+diff -C2 -d -r1.94 -r1.95
+*** softdevice.c	19 Feb 2009 20:27:58 -0000	1.94
+--- softdevice.c	22 Mar 2009 12:55:33 -0000	1.95
+***************
+*** 460,463 ****
+--- 460,466 ----
+            decoder-&gt;Stop();
+            break;
++       case pmExtern_THIS_SHOULD_BE_AVOIDED:
++ 	  decoder-&gt;Suspend();
++ 	  break;
+        default:
+            printf(&quot;playmode not implemented... %d\n&quot;,PlayMode);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000644.html">[Softdevice-cvs] softdevice mpeg2decoder.c, 1.87,	1.88 mpeg2decoder.h, 1.46, 1.47 PicBuffer.h, 1.10,	1.11 utils.c, 1.28, 1.29 utils.h, 1.19, 1.20 video.c, 1.78,	1.79 video.h, 1.57, 1.58 video-vidix.c, 1.27, 1.28
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#645">[ date ]</a>
+              <a href="thread.html#645">[ thread ]</a>
+              <a href="subject.html#645">[ subject ]</a>
+              <a href="author.html#645">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

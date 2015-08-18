@@ -1,0 +1,1957 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.34,1.35 Makefile,1.5,1.6 mpeg2decoder.c,1.15,1.16 setup-softdevice.c,1.9,1.10 setup-softdevice.h,1.6,1.7 softdevice.c,1.13,1.14 video-dfb.c,1.17,1.18 video-dfb.h,1.4,1.5 video-dummy.c,1.1.1.1,1.2 video-dummy.h,1.1.1.1,1.2 video-fb.c,1.4,1.5 video-fb.h,1.2,1.3 video-vidix.c,1.5,1.6 video-vidix.h,1.2,1.3 video-xv.c,1.15,1.16 video-xv.h,1.5,1.6 video.c,1.9,1.10 video.h,1.8,1.9
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.34%2C1.35%20Makefile%2C1.5%2C1.6%20mpeg2decoder.c%2C1.15%2C1.16%20setup-softdevice.c%2C1.9%2C1.10%20setup-softdevice.h%2C1.6%2C1.7%20softdevice.c%2C1.13%2C1.14%20video-dfb.c%2C1.17%2C1.18%20video-dfb.h%2C1.4%2C1.5%20video-dummy.c%2C1.1.1.1%2C1.2%20video-dummy.h%2C1.1.1.1%2C1.2%20video-fb.c%2C1.4%2C1.5%20video-fb.h%2C1.2%2C1.3%20video-vidix.c%2C1.5%2C1.6%20video-vidix.h%2C1.2%2C1.3%20video-xv.c%2C1.15%2C1.16%20video-xv.h%2C1.5%2C1.6%20video.c%2C1.9%2C1.10%20video.h%2C1.8%2C1.9&In-Reply-To=%3C200502242235.j1OMZrN16341%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000057.html">
+   <LINK REL="Next"  HREF="000059.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.34,1.35 Makefile,1.5,1.6 mpeg2decoder.c,1.15,1.16 setup-softdevice.c,1.9,1.10 setup-softdevice.h,1.6,1.7 softdevice.c,1.13,1.14 video-dfb.c,1.17,1.18 video-dfb.h,1.4,1.5 video-dummy.c,1.1.1.1,1.2 video-dummy.h,1.1.1.1,1.2 video-fb.c,1.4,1.5 video-fb.h,1.2,1.3 video-vidix.c,1.5,1.6 video-vidix.h,1.2,1.3 video-xv.c,1.15,1.16 video-xv.h,1.5,1.6 video.c,1.9,1.10 video.h,1.8,1.9</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.34%2C1.35%20Makefile%2C1.5%2C1.6%20mpeg2decoder.c%2C1.15%2C1.16%20setup-softdevice.c%2C1.9%2C1.10%20setup-softdevice.h%2C1.6%2C1.7%20softdevice.c%2C1.13%2C1.14%20video-dfb.c%2C1.17%2C1.18%20video-dfb.h%2C1.4%2C1.5%20video-dummy.c%2C1.1.1.1%2C1.2%20video-dummy.h%2C1.1.1.1%2C1.2%20video-fb.c%2C1.4%2C1.5%20video-fb.h%2C1.2%2C1.3%20video-vidix.c%2C1.5%2C1.6%20video-vidix.h%2C1.2%2C1.3%20video-xv.c%2C1.15%2C1.16%20video-xv.h%2C1.5%2C1.6%20video.c%2C1.9%2C1.10%20video.h%2C1.8%2C1.9&In-Reply-To=%3C200502242235.j1OMZrN16341%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.34,1.35 Makefile,1.5,1.6 mpeg2decoder.c,1.15,1.16 setup-softdevice.c,1.9,1.10 setup-softdevice.h,1.6,1.7 softdevice.c,1.13,1.14 video-dfb.c,1.17,1.18 video-dfb.h,1.4,1.5 video-dummy.c,1.1.1.1,1.2 video-dummy.h,1.1.1.1,1.2 video-fb.c,1.4,1.5 video-fb.h,1.2,1.3 video-vidix.c,1.5,1.6 video-vidix.h,1.2,1.3 video-xv.c,1.15,1.16 video-xv.h,1.5,1.6 video.c,1.9,1.10 video.h,1.8,1.9">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Thu Feb 24 23:35:53 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000057.html">[Softdevice-cvs] softdevice video.c,1.8,1.9
+</A></li>
+        <LI>Next message: <A HREF="000059.html">[Softdevice-cvs] softdevice CHANGELOG,1.35,1.36 Makefile,1.6,1.7 setup-softdevice.c,1.10,1.11 setup-softdevice.h,1.7,1.8 softdevice.c,1.14,1.15 video-dfb.c,1.18,1.19
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#58">[ date ]</a>
+              <a href="thread.html#58">[ thread ]</a>
+              <a href="subject.html#58">[ subject ]</a>
+              <a href="author.html#58">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv26752
+
+Modified Files:
+	CHANGELOG Makefile mpeg2decoder.c setup-softdevice.c 
+	setup-softdevice.h softdevice.c video-dfb.c video-dfb.h 
+	video-dummy.c video-dummy.h video-fb.c video-fb.h 
+	video-vidix.c video-vidix.h video-xv.c video-xv.h video.c 
+	video.h 
+Log Message:
+    - vidix-out: fix segfaults upon switch from software OSD back to pseudo mode.
+                 match available fourcc against selected.
+                 support for YUY2 added (without soft alpha [todo]).
+    - all-out: unified constuctor parameter
+               optionaly output method is loaded at runtime. by this, one can
+               build and ship binaries with all methods enabled to target
+               enviroments where not all libs are present.
+    - removed obsolete OSD option &quot;sync on&quot; (I-frame/all frames).
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.34
+retrieving revision 1.35
+diff -C2 -d -r1.34 -r1.35
+*** CHANGELOG	18 Feb 2005 13:31:26 -0000	1.34
+--- CHANGELOG	24 Feb 2005 22:35:50 -0000	1.35
+***************
+*** 1,3 ****
+--- 1,12 ----
+  Changelog
++  2005-02-25:
++     - vidix-out: fix segfaults upon switch from software OSD back to pseudo mode.
++                  match available fourcc against selected.
++                  support for YUY2 added (without soft alpha [todo]).
++     - all-out: unified constuctor parameter
++                optionaly output method is loaded at runtime. by this, one can
++                build and ship binaries with all methods enabled to target
++                enviroments where not all libs are present.
++     - removed obsolete OSD option &quot;sync on&quot; (I-frame/all frames).
+   2005-02-18:
+      - support for DIRECTCOLOR framebuffer ( most ATI cards, tested with Mach64)
+
+Index: Makefile
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/Makefile,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -C2 -d -r1.5 -r1.6
+*** Makefile	23 Jan 2005 14:54:22 -0000	1.5
+--- Makefile	24 Feb 2005 22:35:50 -0000	1.6
+***************
+*** 55,58 ****
+--- 55,62 ----
+  
+  # -----------------------------------------------------------------------------
++ # if you want output methods build as separate libs uncomment this
++ #USE_SUBPLUGINS = 1
++ 
++ # -----------------------------------------------------------------------------
+  # framebuffer device name
+  #
+***************
+*** 145,189 ****
+  ### The object files (add further files here):
+  
+! OBJS = $(PLUGIN).o utils.o i18n.o video.o mpeg2decoder.o audio.o video-dummy.o setup-softdevice.o
+  LIBS = $(FFMPEGLIBS) -lasound -lz
+  
+  ifdef DFB_SUPPORT
+! OBJS     += video-dfb.o
+! DEFINES  += -DDFB_SUPPORT
+! INCLUDES += -I/usr/local/include/dfb++ -I/usr/local/include/directfb
+! LIBS 	 += -L/usr/local/lib -ldfb++
+! #INCLUDES += -I/opt/directfb/include/directfb -I/opt/directfb/include
+! #LIBS 	 += -L/opt/directfb/lib -ldfb++
+  endif
+  
+  ifdef FB_SUPPORT
+! OBJS 	+= video-fb.o
+! DEFINES += -DFB_SUPPORT -DFBDEV=\&quot;$(FBDEV)\&quot;
+  endif
+  
+  ifdef XV_SUPPORT
+! OBJS 	+= video-xv.o xscreensaver.o
+! DEFINES += -DXV_SUPPORT
+! ifdef LIBXDPMS_SUPPORT
+! DEFINES += -DLIBXDPMS_SUPPORT
+! endif
+! LIBS 	+= -L/usr/X11R6/lib -lXi -lXext -lX11 -lm -lXv
+  endif
+  
+  ifdef VIDIX_SUPPORT
+! OBJS        += video-vidix.o
+! CXXFLAGS    += -L$(VIDIX_DIR)/lib
+! INCLUDES    += -I$(VIDIX_DIR)/include/vidix
+! DEFINES     += -DVIDIX_SUPPORT -DVIDIX_DIR=\&quot;$(VIDIX_DIR)/lib/vidix/\&quot; -DFBDEV=\&quot;$(FBDEV)\&quot;
+! LIBS        += -lvidix
+  endif
+  
+  ifdef PP_LIBAVCODEC
+! DEFINES     += -DPP_LIBAVCODEC
+! FFMPEGLIBS  += -lpostproc
+  endif
+  
+  ifdef SUSPEND_BY_KEY
+! DEFINES     += -DSUSPEND_BY_KEY
+  endif
+  
+--- 149,225 ----
+  ### The object files (add further files here):
+  
+! ifdef USE_SUBPLUGINS
+!   DEFINES += -DUSE_SUBPLUGINS
+! endif
+! 
+! TARGETS = libvdr-$(PLUGIN).so
+  LIBS = $(FFMPEGLIBS) -lasound -lz
++ OBJS = $(PLUGIN).o utils.o i18n.o video.o mpeg2decoder.o audio.o video-dummy.o setup-softdevice.o
++ ALL_OBJS = $(OBJS)
+  
+  ifdef DFB_SUPPORT
+!   ifdef USE_SUBPLUGINS
+!     DFB_LIBS  = -L/usr/local/lib -ldfb++
+!     DFB_OBJS  = video.o video-dfb.o
+!     ALL_OBJS += $(DFB_OBJS)
+!     TARGETS  += libvdr-$(PLUGIN)-dfb.so
+!   else
+!     OBJS     += video-dfb.o
+!     LIBS     += -L/usr/local/lib -ldfb++
+!   endif
+!   DEFINES  += -DDFB_SUPPORT
+!   INCLUDES += -I/usr/local/include/dfb++ -I/usr/local/include/directfb
+  endif
+  
+  ifdef FB_SUPPORT
+!   ifdef USE_SUBPLUGINS
+!     FB_LIBS   =
+!     FB_OBJS   = video.o video-fb.o
+!     ALL_OBJS  += $(FB_OBJS)
+!     TARGETS   += libvdr-$(PLUGIN)-fb.so
+!   else
+!     OBJS 	+= video-fb.o
+!   endif
+!   DEFINES += -DFB_SUPPORT -DFBDEV=\&quot;$(FBDEV)\&quot;
+  endif
+  
+  ifdef XV_SUPPORT
+!   ifdef USE_SUBPLUGINS
+!     XV_LIBS   = -L/usr/X11R6/lib -lXi -lXext -lX11 -lm -lXv
+!     XV_OBJS   = video.o video-xv.o xscreensaver.o
+!     ALL_OBJS  += $(XV_OBJS)
+!     TARGETS   += libvdr-$(PLUGIN)-xv.so
+!   else
+!     OBJS 	+= video-xv.o xscreensaver.o
+!     LIBS 	+= -L/usr/X11R6/lib -lXi -lXext -lX11 -lm -lXv
+!   endif
+!   ifdef LIBXDPMS_SUPPORT
+!     DEFINES += -DLIBXDPMS_SUPPORT
+!   endif
+!   DEFINES += -DXV_SUPPORT
+  endif
+  
+  ifdef VIDIX_SUPPORT
+!   ifdef USE_SUBPLUGINS
+!     VIDIX_OBJS  = video.o video-vidix.o
+!     VIDIX_LIBS  = -lvidix
+!     ALL_OBJS    += $(VIDIX_OBJS)
+!     TARGETS     += libvdr-$(PLUGIN)-vidix.so
+!   else
+!     OBJS        += video-vidix.o
+!     LIBS        += -lvidix
+!   endif
+!   CXXFLAGS    += -L$(VIDIX_DIR)/lib
+!   INCLUDES    += -I$(VIDIX_DIR)/include/vidix
+!   DEFINES     += -DVIDIX_SUPPORT -DVIDIX_DIR=\&quot;$(VIDIX_DIR)/lib/vidix/\&quot; -DFBDEV=\&quot;$(FBDEV)\&quot;
+  endif
+  
+  ifdef PP_LIBAVCODEC
+!   DEFINES     += -DPP_LIBAVCODEC
+!   FFMPEGLIBS  += -lpostproc
+  endif
+  
+  ifdef SUSPEND_BY_KEY
+!   DEFINES     += -DSUSPEND_BY_KEY
+  endif
+  
+***************
+*** 205,214 ****
+  ### Targets:
+  
+! all: libvdr-$(PLUGIN).so
+! 
+  
+  libvdr-$(PLUGIN).so: $(OBJS)
+  	$(CXX) $(CXXFLAGS) -shared $(OBJS) $(LIBS) -o $@
+  	@cp $@ $(LIBDIR)/$@.$(VDRVERSION)
+  
+  dist: clean
+--- 241,269 ----
+  ### Targets:
+  
+! all: $(TARGETS)
+  
+  libvdr-$(PLUGIN).so: $(OBJS)
+  	$(CXX) $(CXXFLAGS) -shared $(OBJS) $(LIBS) -o $@
+  	@cp $@ $(LIBDIR)/$@.$(VDRVERSION)
++ 
++ ifdef USE_SUBPLUGINS
++ 
++ libvdr-$(PLUGIN)-dfb.so: $(DFB_OBJS)
++ 	$(CXX) $(CXXFLAGS) -shared $(DFB_OBJS) $(DFB_LIBS) -o $@
++ 	@cp $@ $(LIBDIR)/$@.$(VDRVERSION)
++ 
++ libvdr-$(PLUGIN)-fb.so: $(FB_OBJS)
++ 	$(CXX) $(CXXFLAGS) -shared $(FB_OBJS) $(FB_LIBS) -o $@
++ 	@cp $@ $(LIBDIR)/$@.$(VDRVERSION)
++ 
++ libvdr-$(PLUGIN)-xv.so: $(XV_OBJS)
++ 	$(CXX) $(CXXFLAGS) -shared $(XV_OBJS) $(XV_LIBS) -o $@
++ 	@cp $@ $(LIBDIR)/$@.$(VDRVERSION)
++ 
++ libvdr-$(PLUGIN)-vidix.so: $(VIDIX_OBJS)
++ 	$(CXX) $(CXXFLAGS) -shared $(VIDIX_OBJS) $(VIDIX_LIBS) -o $@
++ 	@cp $@ $(LIBDIR)/$@.$(VDRVERSION)
++ 
++ endif
+  
+  dist: clean
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.15
+retrieving revision 1.16
+diff -C2 -d -r1.15 -r1.16
+*** mpeg2decoder.c	13 Feb 2005 18:12:31 -0000	1.15
+--- mpeg2decoder.c	24 Feb 2005 22:35:50 -0000	1.16
+***************
+*** 573,577 ****
+    }
+  
+- #if 1 // new method for setting the video PTS
+    if (picture-&gt;coded_picture_number)
+    {
+--- 573,576 ----
+***************
+*** 609,623 ****
+      //fprintf (stderr, &quot;+ using PTS value (%lld)\n&quot;, pts);
+    }
+- #else
+-   if (validPTS &amp;&amp;
+-       (setupStore.syncOnFrames ||
+-        context-&gt;coded_frame-&gt;pict_type == FF_I_TYPE))
+-   {
+-     //pts=(GET_MPEG2_PTS(header)/90);
+-     pts=newPTS;
+-     MPGDEB(&quot;Got Video PTS: %lld \n&quot;,pts);
+-     validPTS=false;
+-   }
+- #endif
+  
+    historyPTS[historyPTSIndex++%PTS_COUNT] = newPTS;
+--- 608,611 ----
+
+Index: setup-softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.c,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -C2 -d -r1.9 -r1.10
+*** setup-softdevice.c	18 Feb 2005 13:31:26 -0000	1.9
+--- setup-softdevice.c	24 Feb 2005 22:35:51 -0000	1.10
+***************
+*** 61,71 ****
+  /* ----------------------------------------------------------------------------
+   */
+- char *syncOnFramesStr [] = {
+-         &quot;I-Frames&quot;,
+-         &quot;Any Frames&quot;,
+-         NULL
+-      };
+- /* ----------------------------------------------------------------------------
+-  */
+  char *suspendVideo [] = {
+          &quot;playing&quot;,
+--- 61,64 ----
+***************
+*** 285,292 ****
+                              &amp;data-&gt;mirror, tr(&quot;off&quot;), tr(&quot;on&quot;)));
+  
+-   Add(new cMenuEditStraItem(tr(&quot;A/V Sync&quot;),
+-                             &amp;data-&gt;syncOnFrames,
+-                             2,
+-                             syncOnFramesStr));
+    Add(new cMenuEditIntItem(tr(&quot;A/V Offset&quot;),
+                             &amp;data-&gt;avOffset,
+--- 278,281 ----
+***************
+*** 355,359 ****
+    SetupStore (&quot;PixelFormat&quot;,        setupStore.pixelFormat);
+    SetupStore (&quot;Picture mirroring&quot;,  setupStore.mirror);
+-   SetupStore (&quot;SyncAllFrames&quot;,      setupStore.syncOnFrames);
+    SetupStore (&quot;avOffset&quot;,           setupStore.avOffset);
+    SetupStore (&quot;AlsaDevice&quot;,         setupStore.alsaDevice);
+--- 344,347 ----
+
+Index: setup-softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.h,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -C2 -d -r1.6 -r1.7
+*** setup-softdevice.h	18 Feb 2005 13:31:27 -0000	1.6
+--- setup-softdevice.h	24 Feb 2005 22:35:51 -0000	1.7
+***************
+*** 21,28 ****
+  class cSetupStore {
+    public:
+!     cSetupStore ();
+!     bool  SetupParse(const char *Name, const char *Value);
+!     char  *getPPValue(void);
+!     void  getScreenDimension(int &amp;w, int &amp;h);
+  
+      int   xvAspect;
+--- 21,28 ----
+  class cSetupStore {
+    public:
+!                   cSetupStore ();
+!     bool          SetupParse(const char *Name, const char *Value);
+!     char          *getPPValue(void);
+!     virtual void  getScreenDimension(int &amp;w, int &amp;h);
+  
+      int   xvAspect;
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.13
+retrieving revision 1.14
+diff -C2 -d -r1.13 -r1.14
+*** softdevice.c	18 Feb 2005 13:31:27 -0000	1.13
+--- softdevice.c	24 Feb 2005 22:35:51 -0000	1.14
+***************
+*** 9,12 ****
+--- 9,17 ----
+  #include &lt;getopt.h&gt;
+  #include &lt;stdlib.h&gt;
++ 
++ #ifdef USE_SUBPLUGINS
++ #include &lt;dlfcn.h&gt;
++ #endif
++ 
+  #include &lt;vdr/interface.h&gt;
+  #include &lt;vdr/plugin.h&gt;
+***************
+*** 76,81 ****
+  #define INBUF_SIZE 4096
+  
+- 
+- 
+  #if VDRVERSNUM &gt;= 10307
+  
+--- 81,84 ----
+***************
+*** 301,308 ****
+              FFMPEG_VERSION, LIBAVCODEC_BUILD);
+      setupStore.outputMethod = method;
+      switch (method) {
+        case VOUT_XV:
+  #ifdef XV_SUPPORT
+!         videoOut = new cXvVideoOut (setupStore. xvAspect);
+          if (videoOut-&gt;Initialize () &amp;&amp; videoOut-&gt;Reconfigure (FOURCC_YV12)) {
+            fprintf (stderr, &quot;[softdevice] Xv out OK !\n&quot;);
+--- 304,389 ----
+              FFMPEG_VERSION, LIBAVCODEC_BUILD);
+      setupStore.outputMethod = method;
++ #ifdef USE_SUBPLUGINS
++   {
++       char  *pluginPath = &quot;./PLUGINS/lib&quot;;
++       char  *subPluginFileName = NULL;
++       char  *outMethodName  = NULL;
++       int   reconfigureArg  = 0;
++     switch (method) {
++     case VOUT_XV:
++ #ifdef XV_SUPPORT
++       outMethodName = &quot;xv&quot;;
++       reconfigureArg = FOURCC_YV12;
++ #endif
++       break;
++     case VOUT_FB:
++ #ifdef FB_SUPPORT
++       outMethodName = &quot;fb&quot;;
++ #endif
++       break;
++     case VOUT_DFB:
++ #ifdef DFB_SUPPORT
++       outMethodName = &quot;dfb&quot;;
++ #endif
++       break;
++     case VOUT_VIDIX:
++ #ifdef VIDIX_SUPPORT
++       outMethodName = &quot;vidix&quot;;
++ #endif
++       break;
++     default:
++       break;
++     }
++ 
++     asprintf (&amp;subPluginFileName,
++               &quot;%s/%s%s.so.%s&quot;,
++               pluginPath,
++               &quot;libvdr-softdevice-&quot;,
++               outMethodName,
++               VDRVERSION);
++     void *handle = dlopen (subPluginFileName, RTLD_NOW);
++     char *err = dlerror();
++     if (!err)
++     {
++         void  *(*creator)(cSetupStore *store);
++ 
++       creator = (void *(*)(cSetupStore *))dlsym(handle,
++                                                 &quot;SubPluginCreator&quot;);
++       err = dlerror();
++       if (!err)
++       {
++         videoOut = (cVideoOut *) creator (&amp;setupStore);
++       }
++       else
++       {
++         esyslog(&quot;[softdevice] could not load (%s)[%s] exiting\n&quot;,
++                 &quot;SubPluginCreator&quot;, err);
++         exit(1);
++       }
++       if (videoOut-&gt;Initialize () &amp;&amp;
++           videoOut-&gt;Reconfigure (reconfigureArg))
++       {
++           dsyslog(&quot;[softdevice] videoOut OK !\n&quot;);
++       }
++       else
++       {
++         esyslog(&quot;[softdevice] videoOut failure exiting\n&quot;);
++         exit (1);
++       }
++ 
++     }
++     else
++     {
++       esyslog(&quot;[softdevice] could not load (%s)[%s] exiting\n&quot;,
++               subPluginFileName, err);
++       exit(1);
++     }
++ 
++     }
++ #else
+      switch (method) {
+        case VOUT_XV:
+  #ifdef XV_SUPPORT
+!         videoOut = new cXvVideoOut (&amp;setupStore);
+          if (videoOut-&gt;Initialize () &amp;&amp; videoOut-&gt;Reconfigure (FOURCC_YV12)) {
+            fprintf (stderr, &quot;[softdevice] Xv out OK !\n&quot;);
+***************
+*** 315,324 ****
+        case VOUT_FB:
+  #ifdef FB_SUPPORT
+!         videoOut=new cFBVideoOut();
+  #endif
+          break;
+        case VOUT_DFB:
+  #ifdef DFB_SUPPORT
+!         videoOut=new cDFBVideoOut();
+          videoOut-&gt;Initialize();
+  #endif
+--- 396,405 ----
+        case VOUT_FB:
+  #ifdef FB_SUPPORT
+!         videoOut=new cFBVideoOut(&amp;setupStore);
+  #endif
+          break;
+        case VOUT_DFB:
+  #ifdef DFB_SUPPORT
+!         videoOut=new cDFBVideoOut(&amp;setupStore);
+          videoOut-&gt;Initialize();
+  #endif
+***************
+*** 326,330 ****
+        case VOUT_VIDIX:
+  #ifdef VIDIX_SUPPORT
+!         videoOut=new cVidixVideoOut();
+  #endif
+          break;
+--- 407,411 ----
+        case VOUT_VIDIX:
+  #ifdef VIDIX_SUPPORT
+!         videoOut=new cVidixVideoOut(&amp;setupStore);
+  #endif
+          break;
+***************
+*** 332,335 ****
+--- 413,417 ----
+          break;
+      }
++ #endif
+      fprintf(stderr,&quot;[softdevice] Video Out seems to be OK\n&quot;);
+      fprintf(stderr,&quot;[softdevice] Initializing Audio Out\n&quot;);
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.17
+retrieving revision 1.18
+diff -C2 -d -r1.17 -r1.18
+*** video-dfb.c	18 Feb 2005 13:31:27 -0000	1.17
+--- video-dfb.c	24 Feb 2005 22:35:51 -0000	1.18
+***************
+*** 230,234 ****
+  /* ---------------------------------------------------------------------------
+   */
+! cDFBVideoOut::cDFBVideoOut()
+  {
+      DFBDisplayLayerDescription    desc;
+--- 230,235 ----
+  /* ---------------------------------------------------------------------------
+   */
+! cDFBVideoOut::cDFBVideoOut(cSetupStore *setupStore)
+!               : cVideoOut(setupStore)
+  {
+      DFBDisplayLayerDescription    desc;
+***************
+*** 243,249 ****
+    sheight = fheight = 576;
+  
+-   sxoff = syoff = lxoff = lyoff = 0;
+    screenPixelAspect = -1;
+!   currentPixelFormat = setupStore.pixelFormat;
+    isVIAUnichrome = false;
+    clearAlpha = 0x00;
+--- 244,249 ----
+    sheight = fheight = 576;
+  
+    screenPixelAspect = -1;
+!   currentPixelFormat = setupStore-&gt;pixelFormat;
+    isVIAUnichrome = false;
+    clearAlpha = 0x00;
+***************
+*** 253,257 ****
+    DirectFB::Init();
+    dfb = DirectFB::Create();
+!   if (!setupStore.useMGAtv)
+      dfb-&gt;SetCooperativeLevel(DFSCL_FULLSCREEN);
+  
+--- 253,257 ----
+    DirectFB::Init();
+    dfb = DirectFB::Create();
+!   if (!setupStore-&gt;useMGAtv)
+      dfb-&gt;SetCooperativeLevel(DFSCL_FULLSCREEN);
+  
+***************
+*** 276,284 ****
+    videoLayer = NULL;
+    layerInfo = &amp;layerList [ANY_LAYER];
+!   if (setupStore.useMGAtv) {
+      layerInfo = &amp;layerList [CRTC2_LAYER_NEW];
+!     currentPixelFormat = setupStore.pixelFormat = 2;
+!     if (!setupStore.screenPixelAspect)
+!       setupStore.screenPixelAspect = 1;
+    }
+  
+--- 276,284 ----
+    videoLayer = NULL;
+    layerInfo = &amp;layerList [ANY_LAYER];
+!   if (setupStore-&gt;useMGAtv) {
+      layerInfo = &amp;layerList [CRTC2_LAYER_NEW];
+!     currentPixelFormat = setupStore-&gt;pixelFormat = 2;
+!     if (!setupStore-&gt;screenPixelAspect)
+!       setupStore-&gt;screenPixelAspect = 1;
+    }
+  
+***************
+*** 286,290 ****
+    videoLayer = layerInfo-&gt;layer;
+  
+!   if (setupStore.useMGAtv &amp;&amp; !videoLayer) {
+      layerInfo = &amp;layerList [CRTC2_LAYER_OLD];
+      fprintf(stderr, &quot;[dfb] New layer name allocation failed. Trying old (dfb-0.9.20) layer name\n&quot;);
+--- 286,290 ----
+    videoLayer = layerInfo-&gt;layer;
+  
+!   if (setupStore-&gt;useMGAtv &amp;&amp; !videoLayer) {
+      layerInfo = &amp;layerList [CRTC2_LAYER_OLD];
+      fprintf(stderr, &quot;[dfb] New layer name allocation failed. Trying old (dfb-0.9.20) layer name\n&quot;);
+***************
+*** 302,306 ****
+    scrDsc.pixelformat = DSPF_ARGB;
+  
+!   if (setupStore.useMGAtv)
+    {
+        DFBDisplayLayerConfig   dlc;
+--- 302,306 ----
+    scrDsc.pixelformat = DSPF_ARGB;
+  
+!   if (setupStore-&gt;useMGAtv)
+    {
+        DFBDisplayLayerConfig   dlc;
+***************
+*** 409,417 ****
+      useStretchBlit = false;
+      OSDpseudo_alpha = true;
+!     if (setupStore.pixelFormat == 0)
+        vidDsc.pixelformat = DSPF_I420;
+!     else if (setupStore.pixelFormat == 1)
+        vidDsc.pixelformat = DSPF_YV12;
+!     else if (setupStore.pixelFormat == 2)
+      {
+        vidDsc.pixelformat = DSPF_YUY2;
+--- 409,417 ----
+      useStretchBlit = false;
+      OSDpseudo_alpha = true;
+!     if (setupStore-&gt;pixelFormat == 0)
+        vidDsc.pixelformat = DSPF_I420;
+!     else if (setupStore-&gt;pixelFormat == 1)
+        vidDsc.pixelformat = DSPF_YV12;
+!     else if (setupStore-&gt;pixelFormat == 2)
+      {
+        vidDsc.pixelformat = DSPF_YUY2;
+***************
+*** 457,461 ****
+      reportSurfaceCapabilities (&quot;videoSurface:&quot;, videoSurface);
+  
+!     if (!setupStore.useMGAtv)
+      {
+        fprintf(stderr,&quot;[dfb] Configuring CooperativeLevel for Overlay\n&quot;);
+--- 457,461 ----
+      reportSurfaceCapabilities (&quot;videoSurface:&quot;, videoSurface);
+  
+!     if (!setupStore-&gt;useMGAtv)
+      {
+        fprintf(stderr,&quot;[dfb] Configuring CooperativeLevel for Overlay\n&quot;);
+***************
+*** 476,480 ****
+    /* create an event buffer with all devices attached */
+    events = dfb-&gt;CreateInputEventBuffer(DICAPS_ALL,
+!                                        (setupStore.useMGAtv) ? DFB_TRUE : DFB_FALSE);
+  }
+  
+--- 476,480 ----
+    /* create an event buffer with all devices attached */
+    events = dfb-&gt;CreateInputEventBuffer(DICAPS_ALL,
+!                                        (setupStore-&gt;useMGAtv) ? DFB_TRUE : DFB_FALSE);
+  }
+  
+***************
+*** 541,545 ****
+      if (!videoSurface ||
+          aspect_changed ||
+!         currentPixelFormat != setupStore.pixelFormat)
+      {
+  
+--- 541,545 ----
+      if (!videoSurface ||
+          aspect_changed ||
+!         currentPixelFormat != setupStore-&gt;pixelFormat)
+      {
+  
+***************
+*** 551,559 ****
+        useStretchBlit = false;
+        OSDpseudo_alpha = (isVIAUnichrome) ? false: true;
+!       if (setupStore.pixelFormat == 0)
+          dlc.pixelformat = DSPF_I420;
+!       else if (setupStore.pixelFormat == 1)
+          dlc.pixelformat = DSPF_YV12;
+!       else if (setupStore.pixelFormat == 2)
+        {
+          dlc.pixelformat = DSPF_YUY2;
+--- 551,559 ----
+        useStretchBlit = false;
+        OSDpseudo_alpha = (isVIAUnichrome) ? false: true;
+!       if (setupStore-&gt;pixelFormat == 0)
+          dlc.pixelformat = DSPF_I420;
+!       else if (setupStore-&gt;pixelFormat == 1)
+          dlc.pixelformat = DSPF_YV12;
+!       else if (setupStore-&gt;pixelFormat == 2)
+        {
+          dlc.pixelformat = DSPF_YUY2;
+***************
+*** 598,602 ****
+        vidDsc.pixelformat = dlc.pixelformat;
+  
+!       currentPixelFormat = setupStore.pixelFormat;
+  
+        pixelformat = dlc.pixelformat;
+--- 598,602 ----
+        vidDsc.pixelformat = dlc.pixelformat;
+  
+!       currentPixelFormat = setupStore-&gt;pixelFormat;
+  
+        pixelformat = dlc.pixelformat;
+***************
+*** 643,647 ****
+          }
+  
+!         if (setupStore.useMGAtv)
+            dlc.options = (DFBDisplayLayerOptions)((int)dlc.options|
+                                                   DLOP_FIELD_PARITY);
+--- 643,647 ----
+          }
+  
+!         if (setupStore-&gt;useMGAtv)
+            dlc.options = (DFBDisplayLayerOptions)((int)dlc.options|
+                                                   DLOP_FIELD_PARITY);
+***************
+*** 664,668 ****
+          }
+  
+!         //if (setupStore.useMGAtv)
+            //videoLayer-&gt;SetFieldParity(0);
+  
+--- 664,668 ----
+          }
+  
+!         //if (setupStore-&gt;useMGAtv)
+            //videoLayer-&gt;SetFieldParity(0);
+  
+***************
+*** 1069,1073 ****
+  
+        }
+!       scrSurface-&gt;Flip(NULL, (setupStore.useMGAtv) ? DSFLIP_WAITFORSYNC:DSFLIP_ONSYNC);
+  
+        if (aspect_changed || osdClrBack)
+--- 1069,1073 ----
+  
+        }
+!       scrSurface-&gt;Flip(NULL, (setupStore-&gt;useMGAtv) ? DSFLIP_WAITFORSYNC:DSFLIP_ONSYNC);
+  
+        if (aspect_changed || osdClrBack)
+***************
+*** 1101,1102 ****
+--- 1101,1112 ----
+    if (dfb)          dfb-&gt;Release();
+  }
++ 
++ #ifdef USE_SUBPLUGINS
++ /* ---------------------------------------------------------------------------
++  */
++ extern &quot;C&quot; void *
++ SubPluginCreator(cSetupStore *s)
++ {
++   return new cDFBVideoOut(s);
++ }
++ #endif
+
+Index: video-dfb.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.h,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -C2 -d -r1.4 -r1.5
+*** video-dfb.h	21 Dec 2004 05:55:42 -0000	1.4
+--- video-dfb.h	24 Feb 2005 22:35:51 -0000	1.5
+***************
+*** 44,48 ****
+    public:
+      IDirectFB	*dfb;
+!     cDFBVideoOut();
+      virtual ~cDFBVideoOut();
+      void ProcessEvents ();
+--- 44,48 ----
+    public:
+      IDirectFB	*dfb;
+!     cDFBVideoOut(cSetupStore *setupStore);
+      virtual ~cDFBVideoOut();
+      void ProcessEvents ();
+
+Index: video-dummy.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dummy.c,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1.1.1 -r1.2
+*** video-dummy.c	1 Aug 2004 05:07:05 -0000	1.1.1.1
+--- video-dummy.c	24 Feb 2005 22:35:51 -0000	1.2
+***************
+*** 13,17 ****
+  
+  
+! cDummyVideoOut::cDummyVideoOut()
+  {
+      printf(&quot;[video-dummy] Initializing Driver, no output supported. You have to configure a driver IN the Makefile\n&quot;);
+--- 13,18 ----
+  
+  
+! cDummyVideoOut::cDummyVideoOut(cSetupStore *setupStore)
+!                 : cVideoOut(setupStore)
+  {
+      printf(&quot;[video-dummy] Initializing Driver, no output supported. You have to configure a driver IN the Makefile\n&quot;);
+
+Index: video-dummy.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dummy.h,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1.1.1 -r1.2
+*** video-dummy.h	1 Aug 2004 05:07:05 -0000	1.1.1.1
+--- video-dummy.h	24 Feb 2005 22:35:51 -0000	1.2
+***************
+*** 14,18 ****
+  private:
+  public:
+!   cDummyVideoOut();
+    virtual ~cDummyVideoOut();
+  
+--- 14,18 ----
+  private:
+  public:
+!   cDummyVideoOut(cSetupStore *setupStore);
+    virtual ~cDummyVideoOut();
+  
+
+Index: video-fb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-fb.c,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -C2 -d -r1.4 -r1.5
+*** video-fb.c	18 Feb 2005 17:32:36 -0000	1.4
+--- video-fb.c	24 Feb 2005 22:35:51 -0000	1.5
+***************
+*** 21,25 ****
+  static  pthread_mutex_t fb_mutex = PTHREAD_MUTEX_INITIALIZER;
+  // --- cFrameBuffer --------------------------------------------------------
+! cFBVideoOut::cFBVideoOut()
+  {
+      printf(&quot;[video-fb] Initializing Driver\n&quot;);
+--- 21,26 ----
+  static  pthread_mutex_t fb_mutex = PTHREAD_MUTEX_INITIALIZER;
+  // --- cFrameBuffer --------------------------------------------------------
+! cFBVideoOut::cFBVideoOut(cSetupStore *etupStore)
+!               : cVideoOut(setupStore)
+  {
+      printf(&quot;[video-fb] Initializing Driver\n&quot;);
+***************
+*** 249,250 ****
+--- 250,260 ----
+  }
+  
++ #ifdef USE_SUBPLUGINS
++ /* ---------------------------------------------------------------------------
++  */
++ extern &quot;C&quot; void *
++ SubPluginCreator(cSetupStore *s)
++ {
++   return new cFBVideoOut(s);
++ }
++ #endif
+
+Index: video-fb.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-fb.h,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** video-fb.h	18 Feb 2005 17:32:36 -0000	1.2
+--- video-fb.h	24 Feb 2005 22:35:51 -0000	1.3
+***************
+*** 26,30 ****
+    unsigned char * fb;	// Framebuffer memory
+  public:
+!   cFBVideoOut();
+    virtual ~cFBVideoOut();
+  #if VDRVERSNUM &gt;= 10307
+--- 26,30 ----
+    unsigned char * fb;	// Framebuffer memory
+  public:
+!   cFBVideoOut(cSetupStore *setupStore);
+    virtual ~cFBVideoOut();
+  #if VDRVERSNUM &gt;= 10307
+
+Index: video-vidix.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-vidix.c,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -C2 -d -r1.5 -r1.6
+*** video-vidix.c	18 Feb 2005 13:31:27 -0000	1.5
+--- video-vidix.c	24 Feb 2005 22:35:51 -0000	1.6
+***************
+*** 26,46 ****
+  #endif
+  
+! cVidixVideoOut::cVidixVideoOut() : cVideoOut()
+  {
+      int err;
+      if ((fbdev = open(FBDEV, O_RDWR)) == -1) {
+!         printf(&quot;cVidixVideoOut: Can't open framebuffer\n&quot;);
+          exit(1);
+      }
+!     
+      if (ioctl(fbdev, FBIOGET_VSCREENINFO, &amp;fb_vinfo)) {
+!         printf(&quot;cVidixVideoOut: Can't get VSCREENINFO\n&quot;);
+          exit(1);
+      }
+      if (ioctl(fbdev, FBIOGET_FSCREENINFO, &amp;fb_finfo)) {
+!         printf(&quot;cVidixVideoOut: Can't get FSCREENINFO\n&quot;);
+          exit(1);
+      }
+!          
+      switch (fb_finfo.visual) {
+  
+--- 26,47 ----
+  #endif
+  
+! cVidixVideoOut::cVidixVideoOut(cSetupStore *setupStore)
+!                   : cVideoOut(setupStore)
+  {
+      int err;
+      if ((fbdev = open(FBDEV, O_RDWR)) == -1) {
+!         esyslog(&quot;[cVidixVideoOut] Can't open framebuffer exiting\n&quot;);
+          exit(1);
+      }
+! 
+      if (ioctl(fbdev, FBIOGET_VSCREENINFO, &amp;fb_vinfo)) {
+!         esyslog(&quot;[cVidixVideoOut] Can't get VSCREENINFO exiting\n&quot;);
+          exit(1);
+      }
+      if (ioctl(fbdev, FBIOGET_FSCREENINFO, &amp;fb_finfo)) {
+!         esyslog(&quot;[cVidixVideoOut] Can't get FSCREENINFO exiting\n&quot;);
+          exit(1);
+      }
+! 
+      switch (fb_finfo.visual) {
+  
+***************
+*** 60,64 ****
+  
+             if ( orig_cmap == NULL ) {
+!                printf(&quot;cVidixVideoOut: Can't alloc memory for cmap\n&quot;);
+                 exit(1);
+             }
+--- 61,65 ----
+  
+             if ( orig_cmap == NULL ) {
+!                esyslog(&quot;[cVidixVideoOut] Can't alloc memory for cmap exiting\n&quot;);
+                 exit(1);
+             }
+***************
+*** 106,110 ****
+      fwidth = lwidth = dwidth = swidth = Xres;
+      fheight = lheight = dheight = sheight = Yres;
+-     sxoff = syoff = lxoff = lyoff = 0;
+  
+      printf(&quot;cVidixVideoOut: xres = %d yres= %d \n&quot;, fb_vinfo.xres, fb_vinfo.yres);
+--- 107,110 ----
+***************
+*** 115,119 ****
+  
+      if ( fb == (uint8_t *) -1 ) {
+!        printf(&quot;cVidixVideoOut: Can't mmap framebuffer memory\n&quot;);
+         exit(1);
+       }
+--- 115,119 ----
+  
+      if ( fb == (uint8_t *) -1 ) {
+!        esyslog(&quot;[cVidixVideoOut] Can't mmap framebuffer memory exiting\n&quot;);
+         exit(1);
+       }
+***************
+*** 122,126 ****
+  
+      if ( osd == NULL ) {
+!        printf(&quot;cVidixVideoOut: Can't alloc osd memory\n&quot;);
+         exit(1);
+      }
+--- 122,126 ----
+  
+      if ( osd == NULL ) {
+!        esyslog(&quot;[cVidixVideoOut] Can't alloc osd memory exiting\n&quot;);
+         exit(1);
+      }
+***************
+*** 141,145 ****
+      if( !vidix_handler )
+      {
+!        printf(&quot;cVidixVideoOut: Couldn't find working VIDIX driver\n&quot;);
+         exit(1);
+      }
+--- 141,145 ----
+      if( !vidix_handler )
+      {
+!        esyslog(&quot;[cVidixVideoOut] Couldn't find working VIDIX driver exiting\n&quot;);
+         exit(1);
+      }
+***************
+*** 147,166 ****
+      if( (err = vdlGetCapability(vidix_handler,&amp;vidix_cap)) != 0)
+      {
+!        printf(&quot;cVidixVideoOut: Couldn't get capability: %s\n&quot;, strerror(err) );
+         exit(1);
+      }
+      printf(&quot;cVidixVideoOut: capabilities:  0x%0x\n&quot;, vidix_cap.flags );
+!     
+      OSDpseudo_alpha = true;
+  
+!     if (setupStore.pixelFormat == 0)
+        vidix_fourcc.fourcc = IMGFMT_I420;
+!     else if(setupStore.pixelFormat == 1)
+        vidix_fourcc.fourcc = IMGFMT_YV12;
+  
+!     currentPixelFormat = setupStore.pixelFormat;
+      screenPixelAspect = -1;
+  
+      vdlQueryFourcc(vidix_handler, &amp;vidix_fourcc);
+  
+      memset(&amp;vidix_play, 0, sizeof(vidix_playback_t));
+--- 147,177 ----
+      if( (err = vdlGetCapability(vidix_handler,&amp;vidix_cap)) != 0)
+      {
+!        esyslog(&quot;[cVidixVideoOut] Couldn't get capability: %s exiting\n&quot;,
+!                strerror(err) );
+         exit(1);
+      }
+      printf(&quot;cVidixVideoOut: capabilities:  0x%0x\n&quot;, vidix_cap.flags );
+! 
+      OSDpseudo_alpha = true;
+  
+!     if (setupStore-&gt;pixelFormat == 0)
+        vidix_fourcc.fourcc = IMGFMT_I420;
+!     else if(setupStore-&gt;pixelFormat == 1)
+        vidix_fourcc.fourcc = IMGFMT_YV12;
++     else if (setupStore-&gt;pixelFormat == 2)
++       vidix_fourcc.fourcc = IMGFMT_YUY2;
+  
+!     currentPixelFormat = setupStore-&gt;pixelFormat;
+      screenPixelAspect = -1;
+  
+      vdlQueryFourcc(vidix_handler, &amp;vidix_fourcc);
++     if (vdlQueryFourcc(vidix_handler, &amp;vidix_fourcc))
++     {
++       if (!matchPixelFormat())
++       {
++         esyslog(&quot;[cVidixVideoOut]: no matching pixel format found exiting\n&quot;);
++         exit(1);
++       }
++     }
+  
+      memset(&amp;vidix_play, 0, sizeof(vidix_playback_t));
+***************
+*** 190,194 ****
+  
+         gr_key.ckey.op = CKEY_TRUE;
+!        gr_key.ckey.red = gr_key.ckey.green = gr_key.ckey.blue = 32;
+  
+         vdlSetGrKeys(vidix_handler, &amp;gr_key);
+--- 201,206 ----
+  
+         gr_key.ckey.op = CKEY_TRUE;
+!        //gr_key.ckey.red = gr_key.ckey.green = gr_key.ckey.blue = 32;
+!        gr_key.ckey.red = gr_key.ckey.green = gr_key.ckey.blue = 0;
+  
+         vdlSetGrKeys(vidix_handler, &amp;gr_key);
+***************
+*** 200,207 ****
+--- 212,244 ----
+  }
+  
++ /* ----------------------------------------------------------------------------
++  */
++ bool cVidixVideoOut::matchPixelFormat()
++ {
++   for (int i = 0; i &lt; 3; ++i)
++   {
++     switch (i)
++     {
++       case 0: vidix_fourcc.fourcc = IMGFMT_I420; break;
++       case 1: vidix_fourcc.fourcc = IMGFMT_YV12; break;
++       case 2: vidix_fourcc.fourcc = IMGFMT_YUY2; break;
++     }
++     if (!vdlQueryFourcc(vidix_handler, &amp;vidix_fourcc))
++     {
++       currentPixelFormat = setupStore-&gt;pixelFormat = i;
++       return true;
++     }
++   }
++   return false;
++ }
++ 
++ /* ----------------------------------------------------------------------------
++  */
+  void cVidixVideoOut::Pause(void)
+  {
+  }
+  
++ /* ----------------------------------------------------------------------------
++  */
+  void cVidixVideoOut::YUV(uint8_t *Py, uint8_t *Pu, uint8_t *Pv, int Width, int Height, int Ystride, int UVstride)
+  {
+***************
+*** 213,242 ****
+      TIMINGS(&quot;start...\n&quot;);
+      
+!     if (aspect_changed || currentPixelFormat != setupStore.pixelFormat)
+      {
+         printf(&quot;cVidixVideoOut: Video changed format to %dx%d\n&quot;, Width, Height);
+  
+!        if((Xres &gt; Width || Yres &gt; Height) &amp;&amp; (vidix_cap.flags &amp; FLAG_UPSCALER) != FLAG_UPSCALER)
+         {
+!            printf(&quot;cVidixVideoOut : vidix driver can't upscale image (%dx%d -&gt; %dx%d)\n&quot;, Width, Height, Xres, Yres);
+             exit(1);
+         }
+  
+!        if((Xres &lt; Width || Yres &lt; Height) &amp;&amp; (vidix_cap.flags &amp; FLAG_DOWNSCALER) != FLAG_DOWNSCALER)
+         {
+!            printf(&quot;cVidixVideoOut : vidix driver can't downscale image (%dx%d -&gt; %dx%d)\n&quot;, Width, Height, Xres, Yres);
+             exit(1);
+         }
+  
+!        if (currentPixelFormat != setupStore.pixelFormat)
+         {
+!          if (setupStore.pixelFormat == 0)
+!            vidix_play.fourcc = IMGFMT_I420;
+!          else if(setupStore.pixelFormat == 1)
+!            vidix_play.fourcc = IMGFMT_YV12;
+  
+!          currentPixelFormat = setupStore.pixelFormat;
+         }
+  
+         vidix_play.src.w  = swidth;
+         vidix_play.src.h  = sheight;
+--- 250,295 ----
+      TIMINGS(&quot;start...\n&quot;);
+      
+!     if (aspect_changed || currentPixelFormat != setupStore-&gt;pixelFormat)
+      {
+         printf(&quot;cVidixVideoOut: Video changed format to %dx%d\n&quot;, Width, Height);
+  
+!        if((Xres &gt; Width || Yres &gt; Height) &amp;&amp;
+!           (vidix_cap.flags &amp; FLAG_UPSCALER) != FLAG_UPSCALER)
+         {
+!            esyslog(&quot;[cVidixVideoOut] vidix driver can't upscale image (%dx%d -&gt; %dx%d) exiting\n&quot;,
+!                    Width, Height, Xres, Yres);
+             exit(1);
+         }
+  
+!        if((Xres &lt; Width || Yres &lt; Height) &amp;&amp;
+!           (vidix_cap.flags &amp; FLAG_DOWNSCALER) != FLAG_DOWNSCALER)
+         {
+!            esyslog(&quot;[cVidixVideoOut] vidix driver can't downscale image (%dx%d -&gt; %dx%d) exiting\n&quot;,
+!                    Width, Height, Xres, Yres);
+             exit(1);
+         }
+  
+!        if (currentPixelFormat != setupStore-&gt;pixelFormat)
+         {
+!          if (setupStore-&gt;pixelFormat == 0)
+!            vidix_fourcc.fourcc = IMGFMT_I420;
+!          else if(setupStore-&gt;pixelFormat == 1)
+!            vidix_fourcc.fourcc = IMGFMT_YV12;
+!          else if(setupStore-&gt;pixelFormat == 2)
+!            vidix_fourcc.fourcc = IMGFMT_YUY2;
+  
+!          currentPixelFormat = setupStore-&gt;pixelFormat;
+!          if (vdlQueryFourcc(vidix_handler, &amp;vidix_fourcc))
+!          {
+!           if (!matchPixelFormat())
+!           {
+!             esyslog(&quot;[cVidixVideoOut]: no matching pixel format found exiting\n&quot;);
+!             exit(1);
+!           }
+!          }
+         }
+  
++        vidix_play.fourcc       = vidix_fourcc.fourcc;
++ 
+         vidix_play.src.w  = swidth;
+         vidix_play.src.h  = sheight;
+***************
+*** 251,269 ****
+         vidix_play.src.pitch.v=UVstride;
+  
+         if((err = vdlPlaybackOff(vidix_handler)) != 0) {
+!            printf(&quot;cVidixVideoOut : Can't stop playback: %s\n&quot;, strerror(err));
+             exit(1);
+         }
+  
+         if((err = vdlConfigPlayback(vidix_handler, &amp;vidix_play)) != 0) {
+!            printf(&quot;cVidixVideoOut : Can't configure playback: %s\n&quot;, strerror(err));
+             exit(1);
+         }
+  
+         if((err = vdlPlaybackOn(vidix_handler)) != 0) {
+!            printf(&quot;cVidixVideoOut : Can't start playback: %s\n&quot;, strerror(err));
+             exit(1);
+         }
+!   
+         if( vidix_fourcc.flags &amp; VID_CAP_COLORKEY )
+         {
+--- 304,328 ----
+         vidix_play.src.pitch.v=UVstride;
+  
++        if (currentPixelFormat == 2)
++          vidix_play.src.pitch.y *= 2;
++ 
+         if((err = vdlPlaybackOff(vidix_handler)) != 0) {
+!            esyslog(&quot;[cVidixVideoOut] Can't stop playback: %s exiting\n&quot;,
+!                    strerror(err));
+             exit(1);
+         }
+  
+         if((err = vdlConfigPlayback(vidix_handler, &amp;vidix_play)) != 0) {
+!            esyslog(&quot;[cVidixVideoOut] Can't configure playback: %s exiting\n&quot;,
+!                    strerror(err));
+             exit(1);
+         }
+  
+         if((err = vdlPlaybackOn(vidix_handler)) != 0) {
+!            esyslog(&quot;[cVidixVideoOut] Can't start playback: %s exiting\n&quot;,
+!                    strerror(err));
+             exit(1);
+         }
+! 
+         if( vidix_fourcc.flags &amp; VID_CAP_COLORKEY )
+         {
+***************
+*** 274,278 ****
+  
+           gr_key.ckey.op = CKEY_TRUE;
+!          gr_key.ckey.red = gr_key.ckey.green = gr_key.ckey.blue = 0xff;
+  
+           vdlSetGrKeys(vidix_handler, &amp;gr_key);
+--- 333,338 ----
+  
+           gr_key.ckey.op = CKEY_TRUE;
+!          //gr_key.ckey.red = gr_key.ckey.green = gr_key.ckey.blue = 0xff;
+!          gr_key.ckey.red = gr_key.ckey.green = gr_key.ckey.blue = 0;
+  
+           vdlSetGrKeys(vidix_handler, &amp;gr_key);
+***************
+*** 303,306 ****
+--- 363,367 ----
+         }
+  
++ #if 0
+         printf(&quot;cVidixVideoOut : num_frames=%d \n&quot;, vidix_play.num_frames);
+         printf(&quot;cVidixVideoOut : frame_size=%d\n&quot;,  vidix_play.frame_size);
+***************
+*** 317,323 ****
+         printf(&quot;cVidixVideoOut : dstrides.u=%d\n&quot;, dstrides.u);
+         printf(&quot;cVidixVideoOut : dstrides.v=%d\n&quot;, dstrides.v);
+      }
+      TIMINGS(&quot;after if, before Y\n&quot;);
+!     
+      // Plane Y
+      dst = (uint8_t *) vidix_play.dga_addr + vidix_play.offsets[next_frame] + vidix_play.offset.y;
+--- 378,385 ----
+         printf(&quot;cVidixVideoOut : dstrides.u=%d\n&quot;, dstrides.u);
+         printf(&quot;cVidixVideoOut : dstrides.v=%d\n&quot;, dstrides.v);
++ #endif
+      }
+      TIMINGS(&quot;after if, before Y\n&quot;);
+! 
+      // Plane Y
+      dst = (uint8_t *) vidix_play.dga_addr + vidix_play.offsets[next_frame] + vidix_play.offset.y;
+***************
+*** 327,409 ****
+      Pu += (UVstride * syoff/2);
+  
+  #if VDRVERSNUM &gt;= 10307
+!     OsdRefreshCounter=0;
+!     if (OSDpresent &amp;&amp; current_osdMode==OSDMODE_SOFTWARE) {
+!        for(hi=0; hi &lt; sheight; hi++){
+!            AlphaBlend(dst,OsdPy+hi*OSD_FULL_WIDTH,
+!             Py + sxoff,
+!             OsdPAlphaY+hi*OSD_FULL_WIDTH,swidth);
+            Py  += Ystride;
+            dst += dstrides.y;
+!   
+!        }
+!        EMMS;
+!     } else
+  #endif
+!     for(hi=0; hi &lt; sheight; hi++){
+!          memcpy(dst, Py+sxoff, swidth);
+!          Py  += Ystride;
+            dst += dstrides.y;
+!       }
+!     
+!     TIMINGS(&quot;Before YUV\n&quot;);
+!     
+!     if (vidix_play.flags &amp; VID_PLAY_INTERLEAVED_UV)
+!     {
+          dst = (uint8_t *)vidix_play.dga_addr + vidix_play.offsets[next_frame] + vidix_play.offset.v;
+  
+          for(hi = 0; hi &lt; sheight/2; hi++) {
+!             for(wi = 0; wi &lt; swidth/2; wi++) {
+!                 dst[2*wi+0] = Pu[wi+sxoff/2];
+!                 dst[2*wi+1] = Pv[wi+sxoff/2];
+!             }
+  
+!             dst += dstrides.y;
+!             Pu += UVstride;
+!            Pv += UVstride;
+!        }
+!     } else {
+!       
+!       // Plane U
+!       dst = (uint8_t *)vidix_play.dga_addr + vidix_play.offsets[next_frame] + vidix_play.offset.u;
+  
+  #if VDRVERSNUM &gt;= 10307
+!       if (OSDpresent &amp;&amp; current_osdMode==OSDMODE_SOFTWARE) { 
+!          for(hi=0; hi &lt; sheight/2; hi++){
+!              AlphaBlend(dst,OsdPu+hi*OSD_FULL_WIDTH/2,
+                 Pu + sxoff/2,
+                 OsdPAlphaUV+hi*OSD_FULL_WIDTH/2,swidth/2);
+!              Pu  += UVstride;
+!              dst += dstrides.y / 2;
+!          }
+!          
+!          // Plane V
+!          dst = (uint8_t *)vidix_play.dga_addr + vidix_play.offsets[next_frame] + vidix_play.offset.v;
+!          for(hi=0; hi &lt; sheight/2; hi++) {
+!                  AlphaBlend(dst, OsdPv+hi*OSD_FULL_WIDTH/2,
+!                    Pv + sxoff/2, 
+                     OsdPAlphaUV+hi*OSD_FULL_WIDTH/2, swidth/2);
+!                  Pv   += UVstride;
+!                  dst += dstrides.v / 2;
+!          }
+  
+!          EMMS;
+!      } else 
+  #endif
+!      {
+!         for(hi=0; hi &lt; sheight/2; hi++) {
+!                memcpy(dst, Pu+sxoff/2, swidth/2);
+!                Pu   += UVstride;
+!                dst += dstrides.u / 2;
+!          }
+  
+!          // Plane V
+!          dst = (uint8_t *)vidix_play.dga_addr + vidix_play.offsets[next_frame] + vidix_play.offset.v;
+!          for(hi=0; hi &lt; sheight/2; hi++) {
+!                 memcpy(dst, Pv+sxoff/2, swidth/2);
+!                 Pv   += UVstride;
+!                 dst += dstrides.v / 2;
+!          }
+!        }
+      }
+  
+--- 389,529 ----
+      Pu += (UVstride * syoff/2);
+  
++     if (currentPixelFormat == 0 || currentPixelFormat == 1)
++     {
+  #if VDRVERSNUM &gt;= 10307
+!       OsdRefreshCounter=0;
+!       if (OSDpresent &amp;&amp; current_osdMode==OSDMODE_SOFTWARE) {
+!         for(hi=0; hi &lt; sheight; hi++){
+!           AlphaBlend(dst,OsdPy+hi*OSD_FULL_WIDTH,
+!               Py + sxoff,
+!               OsdPAlphaY+hi*OSD_FULL_WIDTH,swidth);
+            Py  += Ystride;
+            dst += dstrides.y;
+! 
+!         }
+!         EMMS;
+!       } else
+  #endif
+! 
+!         for(hi=0; hi &lt; sheight; hi++){
+!           memcpy(dst, Py+sxoff, swidth);
+!           Py  += Ystride;
+            dst += dstrides.y;
+!         }
+! 
+!       TIMINGS(&quot;Before YUV\n&quot;);
+! 
+!       if (vidix_play.flags &amp; VID_PLAY_INTERLEAVED_UV)
+!       {
+          dst = (uint8_t *)vidix_play.dga_addr + vidix_play.offsets[next_frame] + vidix_play.offset.v;
+  
+          for(hi = 0; hi &lt; sheight/2; hi++) {
+!           for(wi = 0; wi &lt; swidth/2; wi++) {
+!             dst[2*wi+0] = Pu[wi+sxoff/2];
+!             dst[2*wi+1] = Pv[wi+sxoff/2];
+!           }
+  
+!           dst += dstrides.y;
+!           Pu += UVstride;
+!           Pv += UVstride;
+!         }
+!       } else {
+! 
+!         // Plane U
+!         dst = (uint8_t *)vidix_play.dga_addr + vidix_play.offsets[next_frame] + vidix_play.offset.u;
+  
+  #if VDRVERSNUM &gt;= 10307
+!         if (OSDpresent &amp;&amp; current_osdMode==OSDMODE_SOFTWARE) {
+!           for(hi=0; hi &lt; sheight/2; hi++){
+!             AlphaBlend(dst,OsdPu+hi*OSD_FULL_WIDTH/2,
+                 Pu + sxoff/2,
+                 OsdPAlphaUV+hi*OSD_FULL_WIDTH/2,swidth/2);
+!             Pu  += UVstride;
+!             dst += dstrides.y / 2;
+!           }
+! 
+!           // Plane V
+!           dst = (uint8_t *)vidix_play.dga_addr + vidix_play.offsets[next_frame] + vidix_play.offset.v;
+!           for(hi=0; hi &lt; sheight/2; hi++) {
+!             AlphaBlend(dst, OsdPv+hi*OSD_FULL_WIDTH/2,
+!                    Pv + sxoff/2,
+                     OsdPAlphaUV+hi*OSD_FULL_WIDTH/2, swidth/2);
+!             Pv  += UVstride;
+!             dst += dstrides.v / 2;
+!           }
+  
+!           EMMS;
+!         } else
+  #endif
+!         {
+!           for(hi=0; hi &lt; sheight/2; hi++) {
+!             memcpy(dst, Pu+sxoff/2, swidth/2);
+!             Pu   += UVstride;
+!             dst += dstrides.u / 2;
+!           }
+  
+!           // Plane V
+!           dst = (uint8_t *)vidix_play.dga_addr + vidix_play.offsets[next_frame] + vidix_play.offset.v;
+!           for(hi=0; hi &lt; sheight/2; hi++) {
+!             memcpy(dst, Pv+sxoff/2, swidth/2);
+!             Pv   += UVstride;
+!             dst += dstrides.v / 2;
+!           }
+!         }
+!       }
+!     } else if (currentPixelFormat == 2) {
+! 
+! #ifndef USE_MMX
+! 
+!       /* reference implementation */
+!       //int p = vidix_play.src.pitch.y - Width*2;
+!       for (int i=0; i&lt;Height; i++) {
+!         for (int j =0; j &lt; Width/2; j++) {
+!           *dst = *(Py + (j*2) + i * Ystride);
+!           dst +=1;
+!           *dst = *(Pu + j + (i/2) * UVstride);
+!           dst +=1;
+!           *dst = *(Py + (j*2)+1 + i * Ystride);
+!           dst +=1;
+!           *dst = *(Pv + j + (i/2) * UVstride);
+!           dst +=1;
+!         }
+!         //dst +=p;
+!       }
+! #else
+!       /* deltas */
+!       for (int i=0; i&lt;Height; i++) {
+!           uint8_t *pu, *pv, *py, *srfc;
+! 
+!         pu = Pu;
+!         pv = Pv;
+!         py = Py;
+!         srfc = dst;
+!         for (int j =0; j &lt; Width/8; j++) {
+!           movd_m2r(*pu, mm1);       // mm1 = 00 00 00 00 U3 U2 U1 U0
+!           movd_m2r(*pv, mm2);       // mm2 = 00 00 00 00 V3 V2 V1 V0
+!           movq_m2r(*py, mm0);       // mm0 = Y7 Y6 Y5 Y4 Y3 Y2 Y1 Y0
+!           punpcklbw_r2r(mm2, mm1);  // mm1 = V3 U3 V2 U2 V1 U1 V0 U0
+!           movq_r2r(mm0,mm3);        // mm3 = Y7 Y6 Y5 Y4 Y3 Y2 Y1 Y0
+!           movq_r2r(mm1,mm4);        // mm4 = V3 U3 V2 U2 V1 U1 V0 U0
+!           punpcklbw_r2r(mm1, mm0);  // mm0 = V1 Y3 U1 Y2 V0 Y1 U0 Y0
+!           punpckhbw_r2r(mm4, mm3);  // mm3 = V3 Y7 U3 Y6 V2 Y5 U2 Y4
+! 
+!           movntq(mm0,*srfc);        // Am Meisten brauchen die Speicherzugriffe
+!           srfc+=8;
+!           py+=8;
+!           pu+=4;
+!           pv+=4;
+!           movntq(mm3,*srfc);      // wenn movntq nicht geht, dann movq verwenden
+!           srfc+=8;
+!         }
+!         Py += Ystride;;
+!         if (i % 2 == 1) {
+!           Pu += UVstride;
+!           Pv += UVstride;
+!         }
+!         dst += Width*2;
+!       }
+! #endif
+      }
+  
+***************
+*** 450,454 ****
+                ToYUV(Bitmap);
+              break;
+!     };
+  }
+  
+--- 570,574 ----
+                ToYUV(Bitmap);
+              break;
+!     }
+  }
+  
+***************
+*** 512,513 ****
+--- 632,643 ----
+      if (fbdev) close(fbdev);
+  }
++ 
++ #ifdef USE_SUBPLUGINS
++ /* ---------------------------------------------------------------------------
++  */
++ extern &quot;C&quot; void *
++ SubPluginCreator(cSetupStore *s)
++ {
++   return new cVidixVideoOut(s);
++ }
++ #endif
+
+Index: video-vidix.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-vidix.h,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** video-vidix.h	18 Feb 2005 13:31:27 -0000	1.2
+--- video-vidix.h	24 Feb 2005 22:35:51 -0000	1.3
+***************
+*** 41,45 ****
+  
+  public:
+!   cVidixVideoOut();
+    virtual ~cVidixVideoOut();
+  
+--- 41,45 ----
+  
+  public:
+!   cVidixVideoOut(cSetupStore *setupStore);
+    virtual ~cVidixVideoOut();
+  
+***************
+*** 56,59 ****
+--- 56,61 ----
+    virtual void YUV(uint8_t *Py, uint8_t *Pu, uint8_t *Pv, int Width, int Height, int Ystride, int UVstride);
+    virtual void Pause(void);
++ 
++   bool matchPixelFormat(void);
+  };
+  
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.15
+retrieving revision 1.16
+diff -C2 -d -r1.15 -r1.16
+*** video-xv.c	18 Feb 2005 13:31:27 -0000	1.15
+--- video-xv.c	24 Feb 2005 22:35:51 -0000	1.16
+***************
+*** 508,512 ****
+            case 'r':
+            case 'R':
+!             setupStore.shouldSuspend=!setupStore.shouldSuspend;
+  #endif
+            default:
+--- 508,512 ----
+            case 'r':
+            case 'R':
+!             setupStore-&gt;shouldSuspend=!setupStore-&gt;shouldSuspend;
+  #endif
+            default:
+***************
+*** 576,580 ****
+  /* ---------------------------------------------------------------------------
+   */
+! cXvVideoOut::cXvVideoOut(int aspect, int port, int crop, int xres, int yres)
+  {
+    OSDpresent = false;
+--- 576,581 ----
+  /* ---------------------------------------------------------------------------
+   */
+! cXvVideoOut::cXvVideoOut(cSetupStore *setupStore)
+!               : cVideoOut(setupStore)
+  {
+    OSDpresent = false;
+***************
+*** 584,595 ****
+     * could be specified by argv ! TODO
+     */
+!   display_aspect = current_aspect = aspect;
+    scale_size = 0;
+    screenPixelAspect = -1;
+!   width = xres;
+!   height = yres;
+  
+    format = FOURCC_YV12;
+!   use_xv_port = port;
+    len = width * height * 4;
+    outbuffer = NULL;
+--- 585,596 ----
+     * could be specified by argv ! TODO
+     */
+!   display_aspect = current_aspect = setupStore-&gt;xvAspect;
+    scale_size = 0;
+    screenPixelAspect = -1;
+!   width = XV_SRC_WIDTH;
+!   height = XV_SRC_HEIGHT;
+  
+    format = FOURCC_YV12;
+!   use_xv_port = 0;
+    len = width * height * 4;
+    outbuffer = NULL;
+***************
+*** 606,610 ****
+    fwidth = lwidth = dwidth = swidth = width;
+    fheight = lheight = dheight = sheight = height;
+-   sxoff = syoff = lxoff = lyoff = 0;
+  
+    if (current_aspect == DV_FORMAT_NORMAL) {
+--- 607,610 ----
+***************
+*** 961,973 ****
+  /* ---------------------------------------------------------------------------
+   */
+- cXvVideoOut::cXvVideoOut() : cVideoOut()
+- {
+-   //start osd refresh thread
+-   active=true;
+-   Start();  
+- }
+- 
+- /* ---------------------------------------------------------------------------
+-  */
+  void cXvVideoOut::Pause(void)
+  {
+--- 961,964 ----
+***************
+*** 1332,1333 ****
+--- 1323,1334 ----
+  #endif
+  }
++ 
++ #ifdef USE_SUBPLUGINS
++ /* ---------------------------------------------------------------------------
++  */
++ extern &quot;C&quot; void *
++ SubPluginCreator(cSetupStore *s)
++ {
++   return new cXvVideoOut(s);
++ }
++ #endif
+
+Index: video-xv.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.h,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -C2 -d -r1.5 -r1.6
+*** video-xv.h	18 Feb 2005 13:31:27 -0000	1.5
+--- video-xv.h	24 Feb 2005 22:35:51 -0000	1.6
+***************
+*** 139,145 ****
+  
+  public:
+!   cXvVideoOut();
+!   cXvVideoOut (int aspect = DV_FORMAT_NORMAL, int port = 0, int crop = 0,
+!                int xres = XV_SRC_WIDTH, int yres = XV_SRC_HEIGHT);
+    virtual ~cXvVideoOut();
+    void ProcessEvents ();
+--- 139,143 ----
+  
+  public:
+!   cXvVideoOut(cSetupStore *setupStore);
+    virtual ~cXvVideoOut();
+    void ProcessEvents ();
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -C2 -d -r1.9 -r1.10
+*** video.c	18 Feb 2005 17:38:06 -0000	1.9
+--- video.c	24 Feb 2005 22:35:51 -0000	1.10
+***************
+*** 16,20 ****
+  
+  
+! cVideoOut::cVideoOut()
+  {
+  #if VDRVERSNUM &gt;= 10307
+--- 16,20 ----
+  
+  
+! cVideoOut::cVideoOut(cSetupStore *setupStore)
+  {
+  #if VDRVERSNUM &gt;= 10307
+***************
+*** 22,27 ****
+    OsdHeight=OSD_FULL_HEIGHT;
+  #endif
+!   syoff=sxoff=0;
+    PixelMask=NULL;
+   //start thread
+   // active=true;
+--- 22,28 ----
+    OsdHeight=OSD_FULL_HEIGHT;
+  #endif
+!   sxoff = syoff = lxoff = lyoff = 0;
+    PixelMask=NULL;
++   this-&gt;setupStore=setupStore;
+   //start thread
+   // active=true;
+***************
+*** 49,60 ****
+      OsdRefreshCounter++;
+      
+!     changeMode=(current_osdMode != setupStore.osdMode);
+!     newOsdMode=setupStore.osdMode;
+      // if software osd has not been shown for some time fall back
+      // to pseudo osd..
+!     if ( OsdRefreshCounter &gt; 40 &amp;&amp; setupStore.osdMode == OSDMODE_SOFTWARE ) {
+          changeMode= (current_osdMode != OSDMODE_PSEUDO);
+          newOsdMode=OSDMODE_PSEUDO;
+!     };
+      
+      GetOSDDimension(newOsdWidth,newOsdHeight);
+--- 50,61 ----
+      OsdRefreshCounter++;
+      
+!     changeMode=(current_osdMode != setupStore-&gt;osdMode);
+!     newOsdMode=setupStore-&gt;osdMode;
+      // if software osd has not been shown for some time fall back
+      // to pseudo osd..
+!     if ( OsdRefreshCounter &gt; 40 &amp;&amp; setupStore-&gt;osdMode == OSDMODE_SOFTWARE ) {
+          changeMode= (current_osdMode != OSDMODE_PSEUDO);
+          newOsdMode=OSDMODE_PSEUDO;
+!     }
+      
+      GetOSDDimension(newOsdWidth,newOsdHeight);
+***************
+*** 85,95 ****
+          OpenOSD(OSDxOfs,OSDyOfs);
+          osd=osdSave;
+!       };
+        osd-&gt;Flush();
+      }
+      usleep(50000);
+!   };
+  #endif
+! };
+  
+  /* ---------------------------------------------------------------------------
+--- 86,96 ----
+          OpenOSD(OSDxOfs,OSDyOfs);
+          osd=osdSave;
+!       }
+        osd-&gt;Flush();
+      }
+      usleep(50000);
+!   }
+  #endif
+! }
+  
+  /* ---------------------------------------------------------------------------
+***************
+*** 112,116 ****
+     * override afd value with crop value from setup
+     */
+!   new_afd = (setupStore.cropMode) ? setupStore.cropMode : new_afd;
+  
+    /* -------------------------------------------------------------------------
+--- 113,117 ----
+     * override afd value with crop value from setup
+     */
+!   new_afd = (setupStore-&gt;cropMode) ? setupStore-&gt;cropMode : new_afd;
+  
+    /* -------------------------------------------------------------------------
+***************
+*** 118,124 ****
+     */
+  
+!   if (screenPixelAspect != setupStore.screenPixelAspect)
+    {
+!     screenPixelAspect = setupStore.screenPixelAspect;
+      /* -----------------------------------------------------------------------
+       * force recalculation for aspect ration handling
+--- 119,125 ----
+     */
+  
+!   if (screenPixelAspect != setupStore-&gt;screenPixelAspect)
+    {
+!     screenPixelAspect = setupStore-&gt;screenPixelAspect;
+      /* -----------------------------------------------------------------------
+       * force recalculation for aspect ration handling
+***************
+*** 133,137 ****
+    }
+  
+!   setupStore.getScreenDimension (screenWidth, screenHeight);
+    aspect_changed = 1;
+  
+--- 134,138 ----
+    }
+  
+!   setupStore-&gt;getScreenDimension (screenWidth, screenHeight);
+    aspect_changed = 1;
+  
+***************
+*** 343,352 ****
+  void cVideoOut::CloseOSD()
+  {
+!   osdMutex.Lock(); 
+    if (OsdPAlphaY)
+!        memset(OsdPAlphaY,0,Xres*Yres);
+    if (OsdPAlphaUV)
+!        memset(OsdPAlphaUV,0,Xres*Yres/4);
+!  
+    osd=NULL;
+    OSDpresent=false;
+--- 344,353 ----
+  void cVideoOut::CloseOSD()
+  {
+!   osdMutex.Lock();
+    if (OsdPAlphaY)
+!        memset(OsdPAlphaY,0,OSD_FULL_WIDTH*OSD_FULL_HEIGHT);
+    if (OsdPAlphaUV)
+!        memset(OsdPAlphaUV,0,OSD_FULL_WIDTH*OSD_FULL_HEIGHT/4);
+! 
+    osd=NULL;
+    OSDpresent=false;
+***************
+*** 589,595 ****
+        //  OSDdirty);
+        x1=y1=0;
+!       x2=Bitmap-&gt;Width();
+!       y2=Bitmap-&gt;Height();
+!    };
+  
+  #define SCALEX(x) ((x) * OsdWidth/OSD_FULL_WIDTH)
+--- 590,596 ----
+        //  OSDdirty);
+        x1=y1=0;
+!       x2=Bitmap-&gt;Width()-1;
+!       y2=Bitmap-&gt;Height()-1;
+!    }
+  
+  #define SCALEX(x) ((x) * OsdWidth/OSD_FULL_WIDTH)
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -C2 -d -r1.8 -r1.9
+*** video.h	18 Feb 2005 13:31:27 -0000	1.8
+--- video.h	24 Feb 2005 22:35:51 -0000	1.9
+***************
+*** 11,14 ****
+--- 11,16 ----
+  
+  #include &lt;vdr/plugin.h&gt;
++ #include &quot;setup-softdevice.h&quot;
++ 
+  #if VDRVERSNUM &gt;= 10307
+  #include &lt;vdr/osd.h&gt;
+***************
+*** 89,93 ****
+              aspect_changed,
+              current_afd;
+!     
+      cOsd *osd;
+      bool active;
+--- 91,97 ----
+              aspect_changed,
+              current_afd;
+! 
+!     cSetupStore *setupStore;
+!                 
+      cOsd *osd;
+      bool active;
+***************
+*** 95,99 ****
+  
+  public:
+!     cVideoOut();
+      virtual ~cVideoOut();
+      virtual void Size(int w, int h) {OSDw = w; OSDh = h;};
+--- 99,103 ----
+  
+  public:
+!     cVideoOut(cSetupStore *setupStore);
+      virtual ~cVideoOut();
+      virtual void Size(int w, int h) {OSDw = w; OSDh = h;};
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000057.html">[Softdevice-cvs] softdevice video.c,1.8,1.9
+</A></li>
+	<LI>Next message: <A HREF="000059.html">[Softdevice-cvs] softdevice CHANGELOG,1.35,1.36 Makefile,1.6,1.7 setup-softdevice.c,1.10,1.11 setup-softdevice.h,1.7,1.8 softdevice.c,1.14,1.15 video-dfb.c,1.18,1.19
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#58">[ date ]</a>
+              <a href="thread.html#58">[ thread ]</a>
+              <a href="subject.html#58">[ subject ]</a>
+              <a href="author.html#58">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

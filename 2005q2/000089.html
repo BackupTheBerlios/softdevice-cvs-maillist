@@ -1,0 +1,263 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice README,1.1.1.1,1.2
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20README%2C1.1.1.1%2C1.2&In-Reply-To=%3C200504091342.j39Dgxm28743%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000088.html">
+   <LINK REL="Next"  HREF="000090.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice README,1.1.1.1,1.2</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20README%2C1.1.1.1%2C1.2&In-Reply-To=%3C200504091342.j39Dgxm28743%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice README,1.1.1.1,1.2">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Apr  9 15:42:59 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000088.html">[Softdevice-cvs] softdevice mpeg2decoder.c,1.27,1.28
+</A></li>
+        <LI>Next message: <A HREF="000090.html">[Softdevice-cvs] softdevice mpeg2decoder.c,1.28,1.29
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#89">[ date ]</a>
+              <a href="thread.html#89">[ thread ]</a>
+              <a href="subject.html#89">[ subject ]</a>
+              <a href="author.html#89">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv30275
+
+Modified Files:
+	README 
+Log Message:
+- update the README
+
+
+Index: README
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/README,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1.1.1 -r1.2
+*** README	1 Aug 2004 05:07:03 -0000	1.1.1.1
+--- README	9 Apr 2005 13:42:57 -0000	1.2
+***************
+*** 1,7 ****
+  This is a &quot;plugin&quot; for the Video Disk Recorder (VDR).
+  
+! Written by:                  Roland Praml &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">praml.roland at t-online.de</A>&gt;
+! 
+! Project's homepage:	     none, <A HREF="http://www.k13zoo.de/vdr">http://www.k13zoo.de/vdr</A>
+  
+  
+--- 1,8 ----
+  This is a &quot;plugin&quot; for the Video Disk Recorder (VDR).
+  
+! Written by:                  The Softdevice Team
+!                              Stefan Lucke, Torgeir Vemo, Martin Wache     
+! 			     
+! Project's homepage:	     <A HREF="http://softdevice.berlios.de">http://softdevice.berlios.de</A>
+  
+  
+***************
+*** 10,16 ****
+  
+  This plugin is a MPEG2 decoder.
+  
+- With the help of this plugin you could use the framebuffer as output
+- device.
+  
+  Requirements:
+--- 11,17 ----
+  
+  This plugin is a MPEG2 decoder.
++ It can be used as an output device for the vdr. Possible output devices are
++ Xv, DirectFB, Vidix or a framebuffer.
+  
+  
+  Requirements:
+***************
+*** 18,23 ****
+  
+  - libavcodec (i took the one shipped with ffmpeg 0.4.8)
+! - ALSA (plughw:0:0 is hard-coded in audio.c but this should work in most cases)
+! 
+  - DirectFB compatible VGA-Card
+  - DirectFB (I use cvs, 0.9.20 should work also)
+--- 19,25 ----
+  
+  - libavcodec (i took the one shipped with ffmpeg 0.4.8)
+! - libavformat (also included in ffmpeg)
+! - ALSA 
+! And one of the following:
+  - DirectFB compatible VGA-Card
+  - DirectFB (I use cvs, 0.9.20 should work also)
+***************
+*** 31,48 ****
+  - A strong CPU and a Framebuffer with 16 bit
+  
+! (Select output method in the Makefile!)
+  
+  Installation:
+  -------------
+  
+! This plugin is written for VDR 1.2.x
+  
+  As usual, unpack the plugin and make a link in the
+  ./VDR/PLUGINS/src directory
+  
+! modify the path to libavcodec in the Makefile.
+! Adjust other options (MMX/ MMX2)
+  
+! set up a framebuffer on /dev/fb0
+  
+  recommened resolution: 768x576
+--- 33,53 ----
+  - A strong CPU and a Framebuffer with 16 bit
+  
+! Typically a CPU with around 1 GHz gives you smooth playback for
+! all accelerated video out methods (all except frambuffer). 
+  
+  Installation:
+  -------------
+  
+! This plugin is written for VDR 1.2.x and VDR 1.3.x
+  
+  As usual, unpack the plugin and make a link in the
+  ./VDR/PLUGINS/src directory
+  
+! You _will_ have to modify the Makefile to your needs. Comment out all
+! ouput methods that you don't plan to use ( put a &quot;#&quot;-sign in at the
+! start of the line ). Adjust the path to libavcodec in the Makefile, 
+! and disable all other features you don't want.
+  
+! If you don't plan to use Xv,set up a framebuffer on /dev/fb0
+  
+  recommened resolution: 768x576
+***************
+*** 50,70 ****
+  32bit with XV/DFB/Vidix output
+  
+! start vdr with -P softdevice
+! 
+! Set the PrimaryDVB value to the last device.
+  
+! Hope that the plugin won't crash ;-)
+! (If you get a segmention fault disable MMX2 in the Makefile. Don't forget to do
+! a &quot;make clean&quot; in the plugin-dir)
+  
+! If you use FB-output and your CPU is too slow you can also disable DEINTERLACE
+! and VERT_SCALING in utils.c.
+! If you have some faster/better algos to scale or deinterlace, let me know.
+  
+! Maybe you give some other output-drivers a chance. These use accellerated
+! functions of the VGA-card.
+  
+- FB, Vidix, DFB works with my Matrox G200 (OSD &amp; fullscreen video)
+- XV is currenntly not tested in this version!
+  
+  Problems/todo:
+--- 55,70 ----
+  32bit with XV/DFB/Vidix output
+  
+! Start vdr with -P&quot; softdevice -vo [your prefered output method]:&quot;
+! Example:
+! - vdr -P&quot; softdevice -vo xv:&quot; for X11/Xv
+! - vdr -P&quot; softdevice -vo dfb:&quot; for DirectFB
+  
+! To get a full list of options try &quot;vdr -h&quot; 
+  
+! Set the PrimaryDVB value to the last device if you own a FF-Card.
+  
+! Note that we strongly recommend to use Xv, DirectFB or Vidix for output. 
+! Framebuffer mode is not well maintained and  _completly_ unaccelerated. 
+  
+  
+  Problems/todo:
+***************
+*** 72,88 ****
+  What does NOT work:
+  - Only 16 bit framebuffer is supported. (in FB-mode)
+- - plugin often crashes when mpeg stream changes format
+- - The transfermode doesn't work on some channels
+- - Replay functions like Pause/Trickspeed don't work
+- 
+- What DOES work:
+- - you get a picture and can hear audio ;-)
+- - scaling
+- - you can zap through the program and use OSD
+- - you can watch recorded videos
+- 
+- Please note that this is a very alpha version. (proof of concept)
+- My goal is to use a PC without any special MPEG2 Hardware as VDR client
+- (Maybe streamDev as input device)
+  
+  The code in the plugin is based on parts of:
+--- 72,75 ----
+***************
+*** 92,111 ****
+  
+  Many thanks to
+  - Holger Wachechtler &lt;holger @ convergence.de&gt; for some DFB-examples and useful tips
+  - Stefan Lucke &lt;stefan @ lucke.in-berlin.de&gt; for the Xv-output
+  - Vadim Catana &lt;vcatana @ registru.md&gt; for the Vidix-output
+- 
+- Internals:
+- 
+- A/V-Sync: The PTS are parsed in the decoder classes.
+- The audio device provides the master PTS. The frame-rate of the
+- video-device is adjusted to follow the master PTS
+- 
+- OSD: If no OSD is shown, the picture is directy written to the FB
+- else the picture and the rendered OSD image are &quot;mixed&quot; together.
+- This needs much CPU-power. To keep it simple, the Refresh-function
+- refreshes only everey 40 ms.
+- In later versions I plan to use accellerated functions for OSD layer,
+- YUV-&gt;RGB and scaling provided by the graphic card so that this should
+- not be the prolem.
+  
+--- 79,86 ----
+  
+  Many thanks to
++ - Roland Praml &lt;praml.roland @ t-online.de&gt; for writing the first versions of
++   the softdevice
+  - Holger Wachechtler &lt;holger @ convergence.de&gt; for some DFB-examples and useful tips
+  - Stefan Lucke &lt;stefan @ lucke.in-berlin.de&gt; for the Xv-output
+  - Vadim Catana &lt;vcatana @ registru.md&gt; for the Vidix-output
+  
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000088.html">[Softdevice-cvs] softdevice mpeg2decoder.c,1.27,1.28
+</A></li>
+	<LI>Next message: <A HREF="000090.html">[Softdevice-cvs] softdevice mpeg2decoder.c,1.28,1.29
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#89">[ date ]</a>
+              <a href="thread.html#89">[ thread ]</a>
+              <a href="subject.html#89">[ subject ]</a>
+              <a href="author.html#89">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,231 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice video-dfb.c,1.62,1.63 video-xv.c,1.55,1.56 video-vidix.c,1.19,1.20
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-dfb.c%2C1.62%2C1.63%20video-xv.c%2C1.55%2C1.56%20video-vidix.c%2C1.19%2C1.20&In-Reply-To=%3C200606091624.k59GObb19580%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000375.html">
+   <LINK REL="Next"  HREF="000377.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice video-dfb.c,1.62,1.63 video-xv.c,1.55,1.56 video-vidix.c,1.19,1.20</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-dfb.c%2C1.62%2C1.63%20video-xv.c%2C1.55%2C1.56%20video-vidix.c%2C1.19%2C1.20&In-Reply-To=%3C200606091624.k59GObb19580%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice video-dfb.c,1.62,1.63 video-xv.c,1.55,1.56 video-vidix.c,1.19,1.20">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Jun  9 18:24:37 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000375.html">[Softdevice-cvs] softdevice CHANGELOG,1.194,1.195 utils.c,1.14,1.15 utils.h,1.8,1.9
+</A></li>
+        <LI>Next message: <A HREF="000377.html">[Softdevice-cvs] softdevice softdevice.h,1.9,1.10 softdevice.c,1.59,1.60 Makefile,1.29,1.30 CHANGELOG,1.195,1.196 README,1.18,1.19
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#376">[ date ]</a>
+              <a href="thread.html#376">[ thread ]</a>
+              <a href="subject.html#376">[ subject ]</a>
+              <a href="author.html#376">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv30684
+
+Modified Files:
+	video-dfb.c video-xv.c video-vidix.c 
+Log Message:
+activate mmx version of yv12_to_yuy2_il_ () for dfb, xv and vidix
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.62
+retrieving revision 1.63
+diff -C2 -d -r1.62 -r1.63
+*** video-dfb.c	27 May 2006 19:12:41 -0000	1.62
+--- video-dfb.c	9 Jun 2006 16:24:34 -0000	1.63
+***************
+*** 1303,1307 ****
+    int Width=buf-&gt;width;
+    int Height=buf-&gt;height;
+!   
+    if (!videoInitialized)
+      return;
+--- 1303,1307 ----
+    int Width=buf-&gt;width;
+    int Height=buf-&gt;height;
+! 
+    if (!videoInitialized)
+      return;
+***************
+*** 1375,1393 ****
+  
+        if (interlaceMode) {
+!         yv12_to_yuy2_il_c(Py + Ystride  * cutTop * 2 + cutLeft * 2,
+!                           Pu + UVstride * cutTop + cutLeft,
+!                           Pv + UVstride * cutTop + cutLeft,
+!                           dst + pitch * cutTop * 2 + cutLeft * 4,
+!                           Width - 2 * (cutLeft + cutRight),
+!                           Height - 2 * (cutTop + cutBottom),
+!                           Ystride, UVstride, pitch);
+        } else {
+!         yv12_to_yuy2(Py + Ystride  * cutTop * 2 + cutLeft * 2,
+!                      Pu + UVstride * cutTop + cutLeft,
+!                      Pv + UVstride * cutTop + cutLeft,
+!                      dst + pitch * cutTop * 2 + cutLeft * 4,
+!                      Width - 2 * (cutLeft + cutRight),
+!                      Height - 2 * (cutTop + cutBottom),
+!                      Ystride, UVstride, pitch);
+        }
+       }
+--- 1375,1393 ----
+  
+        if (interlaceMode) {
+!         yv12_to_yuy2_il_mmx2(Py + Ystride  * cutTop * 2 + cutLeft * 2,
+!                              Pu + UVstride * cutTop + cutLeft,
+!                              Pv + UVstride * cutTop + cutLeft,
+!                              dst + pitch * cutTop * 2 + cutLeft * 4,
+!                              Width - 2 * (cutLeft + cutRight),
+!                              Height - 2 * (cutTop + cutBottom),
+!                              Ystride, UVstride, pitch);
+        } else {
+!         yv12_to_yuy2_fr_mmx2(Py + Ystride  * cutTop * 2 + cutLeft * 2,
+!                              Pu + UVstride * cutTop + cutLeft,
+!                              Pv + UVstride * cutTop + cutLeft,
+!                              dst + pitch * cutTop * 2 + cutLeft * 4,
+!                              Width - 2 * (cutLeft + cutRight),
+!                              Height - 2 * (cutTop + cutBottom),
+!                              Ystride, UVstride, pitch);
+        }
+       }
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.55
+retrieving revision 1.56
+diff -C2 -d -r1.55 -r1.56
+*** video-xv.c	27 May 2006 19:12:42 -0000	1.55
+--- video-xv.c	9 Jun 2006 16:24:34 -0000	1.56
+***************
+*** 1617,1621 ****
+    int Width=buf-&gt;width;
+    int Height=buf-&gt;height;
+!   
+    if ( Py &amp;&amp; Pu &amp;&amp; Pv ) {
+  #if VDRVERSNUM &gt;= 10307
+--- 1617,1621 ----
+    int Width=buf-&gt;width;
+    int Height=buf-&gt;height;
+! 
+    if ( Py &amp;&amp; Pu &amp;&amp; Pv ) {
+  #if VDRVERSNUM &gt;= 10307
+***************
+*** 1678,1689 ****
+            break;
+          case FOURCC_YUY2:
+!           //yv12_to_yuy2_il_c(Py + Ystride  * cutTop * 2 + cutLeft * 2,
+!           yv12_to_yuy2(Py + Ystride  * cutTop * 2 + cutLeft * 2,
+!                        Pu + UVstride * cutTop + cutLeft,
+!                        Pv + UVstride * cutTop + cutLeft,
+!                        pixels[0] + 2*xvWidth * cutTop * 2 + cutLeft * 4,
+!                        Width - 2 * (cutLeft + cutRight),
+!                        Height - 2 * (cutTop + cutBottom),
+!                        Ystride, UVstride, 2*xvWidth);
+            break;
+        }
+--- 1678,1698 ----
+            break;
+          case FOURCC_YUY2:
+!       if (interlaceMode) {
+!           yv12_to_yuy2_il_mmx2(Py + Ystride  * cutTop * 2 + cutLeft * 2,
+!                                Pu + UVstride * cutTop + cutLeft,
+!                                Pv + UVstride * cutTop + cutLeft,
+!                                pixels[0] + 2*xvWidth * cutTop * 2 + cutLeft * 4,
+!                                Width - 2 * (cutLeft + cutRight),
+!                                Height - 2 * (cutTop + cutBottom),
+!                                Ystride, UVstride, 2*xvWidth);
+!       } else {
+!           yv12_to_yuy2_fr_mmx2(Py + Ystride  * cutTop * 2 + cutLeft * 2,
+!                                Pu + UVstride * cutTop + cutLeft,
+!                                Pv + UVstride * cutTop + cutLeft,
+!                                pixels[0] + 2*xvWidth * cutTop * 2 + cutLeft * 4,
+!                                Width - 2 * (cutLeft + cutRight),
+!                                Height - 2 * (cutTop + cutBottom),
+!                                Ystride, UVstride, 2*xvWidth);
+!       }
+            break;
+        }
+
+Index: video-vidix.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-vidix.c,v
+retrieving revision 1.19
+retrieving revision 1.20
+diff -C2 -d -r1.19 -r1.20
+*** video-vidix.c	27 May 2006 19:12:41 -0000	1.19
+--- video-vidix.c	9 Jun 2006 16:24:35 -0000	1.20
+***************
+*** 551,560 ****
+    } else if (currentPixelFormat == 2) {
+      current_osdMode = setupStore-&gt;osdMode = OSDMODE_PSEUDO;
+!     yv12_to_yuy2(Py + Ystride  * cutTop * 2,
+!                  Pu + UVstride * cutTop,
+!                  Pv + UVstride * cutTop,
+!                  dst + dstrides.y*2 * cutTop * 2,
+!                  Width, Height - 2 * (cutTop + cutBottom),
+!                  Ystride, UVstride, dstrides.y*2);
+    }
+  
+--- 551,569 ----
+    } else if (currentPixelFormat == 2) {
+      current_osdMode = setupStore-&gt;osdMode = OSDMODE_PSEUDO;
+!     if (interlaceMode) {
+!       yv12_to_yuy2_il_mmx2(Py + Ystride  * cutTop * 2,
+!                         Pu + UVstride * cutTop,
+!                         Pv + UVstride * cutTop,
+!                         dst + dstrides.y*2 * cutTop * 2,
+!                         Width, Height - 2 * (cutTop + cutBottom),
+!                         Ystride, UVstride, dstrides.y*2);
+!     } else {
+!       yv12_to_yuy2_fr_mmx2(Py + Ystride  * cutTop * 2,
+!                            Pu + UVstride * cutTop,
+!                            Pv + UVstride * cutTop,
+!                            dst + dstrides.y*2 * cutTop * 2,
+!                            Width, Height - 2 * (cutTop + cutBottom),
+!                            Ystride, UVstride, dstrides.y*2);
+!     }
+    }
+  
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000375.html">[Softdevice-cvs] softdevice CHANGELOG,1.194,1.195 utils.c,1.14,1.15 utils.h,1.8,1.9
+</A></li>
+	<LI>Next message: <A HREF="000377.html">[Softdevice-cvs] softdevice softdevice.h,1.9,1.10 softdevice.c,1.59,1.60 Makefile,1.29,1.30 CHANGELOG,1.195,1.196 README,1.18,1.19
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#376">[ date ]</a>
+              <a href="thread.html#376">[ thread ]</a>
+              <a href="subject.html#376">[ subject ]</a>
+              <a href="author.html#376">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

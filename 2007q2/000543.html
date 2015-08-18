@@ -1,0 +1,322 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice MacVdrClient.c,NONE,1.1
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20MacVdrClient.c%2CNONE%2C1.1&In-Reply-To=%3C20070403214528.7EA92DDDA7%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000542.html">
+   <LINK REL="Next"  HREF="000544.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice MacVdrClient.c,NONE,1.1</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20MacVdrClient.c%2CNONE%2C1.1&In-Reply-To=%3C20070403214528.7EA92DDDA7%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice MacVdrClient.c,NONE,1.1">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue Apr  3 23:45:28 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000542.html">[Softdevice-cvs] softdevice CHANGELOG, 1.306,	1.307 setup-softdevice.h, 1.39, 1.40
+</A></li>
+        <LI>Next message: <A HREF="000544.html">[Softdevice-cvs] softdevice configure,1.38,1.39
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#543">[ date ]</a>
+              <a href="thread.html#543">[ thread ]</a>
+              <a href="subject.html#543">[ subject ]</a>
+              <a href="author.html#543">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv20161
+
+Added Files:
+	MacVdrClient.c 
+Log Message:
+- add MacVdrClient
+
+
+--- NEW FILE: MacVdrClient.c ---
+/*
+ * softdevice plugin for VDR
+ *
+ * Copyright (C) 2005 Martin Wache
+ *
+ * This code is distributed under the terms and conditions of the
+ * GNU GENERAL PUBLIC LICENSE. See the file COPYING for details.
+ *
+ * $Id: MacVdrClient.c,v 1.1 2007/04/03 21:43:35 wachm Exp $
+ */
+
+#include &lt;signal.h&gt;
+#include &lt;string.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;stdlib.h&gt;
+
+#include &quot;video-quartz.h&quot;
+#include &quot;shm-common.h&quot;
+#include &quot;utils.h&quot;
+
+//#define SHMDEB(out...) {printf(&quot;MCVDR[%04d]:&quot;,(int)(getTimeMilis() % 10000));printf(out);}
+
+#ifndef SHMDEB
+#define SHMDEB(out...)
+#endif
+
+ShmCtlBlock * ctl;
+bool active=true;
+
+void sig_handler(int signal) {
+        printf(&quot;got signal, ending\n&quot;);
+        active=false;
+};
+
+class cShmRemote : public cSoftRemote, public cThread {
+        private:
+                bool running;
+        public:
+                cShmRemote(const char *Name)
+                        : cSoftRemote(Name), running(false)
+                        {};
+
+                ~cShmRemote()
+                {};
+
+                virtual bool PutKey(uint64_t Code, bool Repeat = false,
+                                bool Release = false);
+
+                virtual void Action();
+};
+
+bool cShmRemote::PutKey(uint64_t Code, bool Repeat,
+                                bool Release) {
+        if (ctl)
+        {
+                SHMDEB(&quot;get lock for the key\n&quot;);
+                sem_wait_lock(ctl-&gt;semid,KEY_MUT);
+                SHMDEB(&quot;got lock for the key\n&quot;);
+
+                ctl-&gt;key=Code;
+
+                // release lock
+                sem_sig_unlock(ctl-&gt;semid,KEY_MUT);
+                // signal new key
+                sem_sig_unlock(ctl-&gt;semid,KEY_SIG);
+                SHMDEB(&quot;signal new key\n&quot;);
+        };
+        return true;
+};
+
+void cShmRemote::Action() {
+        running=true;
+        while (running) {
+                // I don't know if there is a timeout mechanism (which would probably the better solution),
+                // so we just signal every once and a while so that the client processes its events.
+                if (ctl)
+                        sem_sig_unlock(ctl-&gt;semid,PICT_SIG);
+                usleep(113000);
+        };
+};
+
+int main(int argc, char **argv) {
+        cSetupStore SetupStore;
+        int pict_shmid_sav;
+        int osd_shmid_sav;
+        SetupStore.xvFullscreen=0;
+        cQuartzVideoOut *vout=new cQuartzVideoOut(&amp;SetupStore);
+        quartzRemote= new cShmRemote(&quot;softdevice-quartz&quot;);
+
+        signal(SIGINT,sig_handler);
+        signal(SIGQUIT,sig_handler);
+
+        int ctl_shmid;
+        key_t ctl_key=CTL_KEY;
+
+        //int curr_pict_shmid;
+        uint8_t *curr_pict=0;
+        uint8_t *curr_osd=0;
+        sPicBuffer picture;
+        //uint8_t *pixel[4];
+
+        if ((ctl_shmid = shmget(ctl_key, sizeof( ShmCtlBlock ), 0666)) &lt; 0) {
+                fprintf(stderr,&quot;ctl_shmid error in shmget!\n&quot;);
+                fprintf(stderr,&quot;Check if the Vdr is running with the softdevice and the option \&quot;-vo shm:\&quot;!\n&quot;);
+                delete vout;
+                exit(1);
+        }
+
+        if ( (ctl = (ShmCtlBlock *)shmat(ctl_shmid,NULL,0))
+                        == (ShmCtlBlock *) -1 ) {
+                fprintf(stderr,&quot;ctl_shmid error attatching shm ctl %d!\n&quot;,ctl_shmid);
+                delete vout;
+                exit(-1);
+        };
+
+        if ( !vout-&gt;Initialize() ) {
+                fprintf(stderr,&quot;Could not init video out!\n&quot;);
+                delete vout;
+                exit(-1);
+        };
+
+#if  0 
+        // create a picture in shm
+        ctl-&gt;max_width=736;
+        ctl-&gt;max_height=576;
+        ctl-&gt;stride0=ctl-&gt;max_width;
+        ctl-&gt;stride2=ctl-&gt;stride1=ctl-&gt;max_width/2;
+        ctl-&gt;format=PIX_FMT_YUV420P;
+
+        if ( (pict_shmid_sav = ctl-&gt;pict_shmid = shmget(IPC_PRIVATE,
+                                        ctl-&gt;max_width*ctl-&gt;max_height*2,
+                                        IPC_CREAT | 0666)) &lt; 0 ) {
+                fprintf(stderr,&quot;error creating  pict_shm! width %d height %d\n&quot;,
+                        ctl-&gt;max_width,ctl-&gt;max_height);
+                delete vout;
+                exit(-1);
+        };
+
+        if ( (curr_pict = (uint8_t*)shmat(ctl-&gt;pict_shmid,NULL,0))
+                        == (uint8_t*) -1 ) {
+                fprintf(stderr,&quot;error attatching shm ctl!\n&quot;);
+                delete vout;
+                exit(-1);
+        };
+/*
+        // request removing after detaching
+        if ( ctl-&gt;pict_shmid &gt; 0)
+                shmctl (ctl-&gt;pict_shmid, IPC_RMID, 0);
+*/
+        picture.format=PIX_FMT_YUV420P;
+        picture.stride[0]=ctl-&gt;stride0;
+        picture.stride[1]=ctl-&gt;stride1;
+        picture.stride[2]=ctl-&gt;stride1;
+        picture.pixel[0]=curr_pict;
+        picture.pixel[1]=curr_pict+ctl-&gt;max_height*ctl-&gt;stride0;
+        picture.pixel[2]=picture.pixel[1]+ctl-&gt;max_height/2*ctl-&gt;stride1;
+        picture.edge_width=picture.edge_height=0;
+#else
+        // put quartz image into ctl shm
+        ctl-&gt;max_width=IMAGE_WIDTH;
+        ctl-&gt;max_height=IMAGE_HEIGHT;
+        ctl-&gt;stride0=ctl-&gt;max_width*2;
+        ctl-&gt;format=PIX_FMT_YUV422;
+
+        pict_shmid_sav=ctl-&gt;pict_shmid=vout-&gt;pic_shm_id;
+
+        picture.format=PIX_FMT_YUV422;
+        picture.stride[0]=ctl-&gt;stride0;
+        picture.pixel[0]=NULL;
+        
+#endif
+        
+        osd_shmid_sav=ctl-&gt;osd_shmid=vout-&gt;osd_shm_id;
+        ctl-&gt;osd_stride=IMAGE_WIDTH*4;
+        ctl-&gt;osd_max_width=ctl-&gt;osd_width=IMAGE_WIDTH;
+        ctl-&gt;osd_max_height=ctl-&gt;osd_height=IMAGE_HEIGHT;
+        ctl-&gt;osd_depth=32;
+        
+        ctl-&gt;attached=1;
+        //printf(&quot;pict_shmid: %d max: (%d,%d), stride0: %d, stride2: %d\n&quot;,
+        //                       ctl-&gt;pict_shmid, ctl-&gt;max_width,ctl-&gt;max_height,
+        //                       ctl-&gt;stride0,ctl-&gt;stride2);
+
+        ctl-&gt;key=NO_KEY;
+        (dynamic_cast&lt;cShmRemote*&gt;(quartzRemote))-&gt;Start();        
+        // wakeup remote thread to unsuspend video/audio
+        sem_sig_unlock(ctl-&gt;semid,KEY_SIG);
+
+        while (active &amp;&amp; vout-&gt;IsOpen() ) {
+                if (!ctl-&gt;attached) {
+                        ctl-&gt;pict_shmid=pict_shmid_sav;
+                        ctl-&gt;osd_shmid=osd_shmid_sav;
+                        ctl-&gt;attached=1;
+                };
+
+                //SHMDEB(&quot;wait for signal\n&quot;);
+                sem_wait_lock(ctl-&gt;semid,PICT_SIG);
+                //SHMDEB(&quot;got signal\n&quot;);
+                sem_wait_lock(ctl-&gt;semid,PICT_MUT,SEM_UNDO);
+                //SHMDEB(&quot;got lock\n&quot;);
+
+                if (ctl-&gt;new_pict) {
+                        int width=ctl-&gt;width&gt;ctl-&gt;max_width?
+                                ctl-&gt;max_width:ctl-&gt;width;
+                        int height=ctl-&gt;height&gt;ctl-&gt;max_height?
+                                ctl-&gt;max_height:ctl-&gt;height;
+
+                        picture.width=ctl-&gt;width;
+                        picture.height=ctl-&gt;height;
+                        picture.dtg_active_format=ctl-&gt;new_afd;
+                        picture.aspect_ratio=ctl-&gt;new_asp;
+
+                        vout-&gt;CheckArea(width,height);
+                        //vout-&gt;CheckAspect(ctl-&gt;new_afd,ctl-&gt;new_asp);
+                        vout-&gt;DrawStill_420pl(&amp;picture);
+                        ctl-&gt;new_pict=0;
+                };
+                if (ctl-&gt;new_osd) {
+                        SHMDEB(&quot;new osd picture\n&quot;);
+/*                        if ( !vout-&gt;useShm ) {
+                                uint8_t *dest_osd;
+                                int osd_stride;
+                                bool *dirtyLines;
+                                vout-&gt;GetLockOsdSurface(dest_osd,osd_stride,
+                                                dirtyLines);
+                                memcpy(dest_osd,curr_osd,ctl-&gt;osd_height*osd_stride);
+                        };
+  */                      vout-&gt;CommitUnlockOsdSurface();
+                        ctl-&gt;new_osd=0;
+                };
+
+                vout-&gt;GetOSDDimension(ctl-&gt;osd_width,ctl-&gt;osd_height,
+                                      ctl-&gt;osd_xPan,ctl-&gt;osd_yPan);
+                // consumed all pictures - set semaphore to 0
+                sem_zero(ctl-&gt;semid,PICT_SIG);
+                // unlock picture ctl
+                sem_sig_unlock(ctl-&gt;semid,PICT_MUT,SEM_UNDO);
+                //SHMDEB(&quot;released the lock\n&quot;);
+                vout-&gt;ProcessEvents();
+                // in case there are no semaphores (no vdr connected)
+                usleep(3000);
+        };
+        ctl-&gt;attached=0;
+        // request removing after detaching
+        if ( ctl-&gt;pict_shmid &gt; 0)
+                shmctl (ctl-&gt;pict_shmid, IPC_RMID, 0);
+        ctl-&gt;pict_shmid=-1;
+        delete vout;
+};
+
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000542.html">[Softdevice-cvs] softdevice CHANGELOG, 1.306,	1.307 setup-softdevice.h, 1.39, 1.40
+</A></li>
+	<LI>Next message: <A HREF="000544.html">[Softdevice-cvs] softdevice configure,1.38,1.39
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#543">[ date ]</a>
+              <a href="thread.html#543">[ thread ]</a>
+              <a href="subject.html#543">[ subject ]</a>
+              <a href="author.html#543">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

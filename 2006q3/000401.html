@@ -1,0 +1,314 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.214, 1.215 audio-alsa.c,	1.1, 1.2
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.214%2C%201.215%20audio-alsa.c%2C%0A%091.1%2C%201.2&In-Reply-To=%3C20060725194546.D69C35CD75%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000400.html">
+   <LINK REL="Next"  HREF="000402.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.214, 1.215 audio-alsa.c,	1.1, 1.2</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.214%2C%201.215%20audio-alsa.c%2C%0A%091.1%2C%201.2&In-Reply-To=%3C20060725194546.D69C35CD75%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.214, 1.215 audio-alsa.c,	1.1, 1.2">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue Jul 25 21:45:46 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000400.html">[Softdevice-cvs] softdevice configure,1.22,1.23
+</A></li>
+        <LI>Next message: <A HREF="000402.html">[Softdevice-cvs] softdevice CHANGELOG, 1.215, 1.216 video-dfb.c,	1.68, 1.69
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#401">[ date ]</a>
+              <a href="thread.html#401">[ thread ]</a>
+              <a href="subject.html#401">[ subject ]</a>
+              <a href="author.html#401">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv25151
+
+Modified Files:
+	CHANGELOG audio-alsa.c 
+Log Message:
+- no longer exit when a audio mode is not available, audio is only disabled.
+- clean up audio-alsa
+   
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.214
+retrieving revision 1.215
+diff -C2 -d -r1.214 -r1.215
+*** CHANGELOG	16 Jul 2006 11:35:36 -0000	1.214
+--- CHANGELOG	25 Jul 2006 19:45:37 -0000	1.215
+***************
+*** 1,3 ****
+--- 1,6 ----
+  Changelog
++ 2006-07-25:
++    - no longer exit when a audio mode is not available, audio is only disabled.
++    - clean up audio-alsa
+  2006-07-16:
+     - only link against libXi if necessary ( do we need libXi at all?)
+
+Index: audio-alsa.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio-alsa.c,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1 -r1.2
+*** audio-alsa.c	10 Jul 2006 19:40:25 -0000	1.1
+--- audio-alsa.c	25 Jul 2006 19:45:37 -0000	1.2
+***************
+*** 75,79 ****
+  bool cAlsaAudioOut::Resume() {
+     int err;
+!    printf(&quot;Device %s\n&quot;,device);
+     if ((err = snd_pcm_open(&amp;handle, device, SND_PCM_STREAM_PLAYBACK,SND_PCM_NONBLOCK )) &lt; 0) {
+       esyslog(&quot;[softdevice-audio] Playback open error: %s, %s &quot;,
+--- 75,79 ----
+  bool cAlsaAudioOut::Resume() {
+     int err;
+!    AUDIODEB(&quot;Device %s\n&quot;,device);
+     if ((err = snd_pcm_open(&amp;handle, device, SND_PCM_STREAM_PLAYBACK,SND_PCM_NONBLOCK )) &lt; 0) {
+       esyslog(&quot;[softdevice-audio] Playback open error: %s, %s &quot;,
+***************
+*** 96,99 ****
+--- 96,102 ----
+    AUDIODEB(&quot;Write %p %d\n&quot;,Data,Length);
+  
++   if (!handle)
++           return;
++ 
+    handleMutex.Lock();
+    if (ac3PassThrough)
+***************
+*** 265,275 ****
+  /* ----------------------------------------------------------------------------
+   */
+! int cAlsaAudioOut::SetParams(SampleContext &amp;context)
+! //int cAlsaAudioOut::SetParams(int channels, unsigned int samplerate)
+! {
+        int err;
+  
+      // not needed to set again
+-     //if ((chn == channels) &amp;&amp; (rate == samplerate)) return 0;
+      if (currContext.samplerate == context.samplerate &amp;&amp;
+          currContext.channels == context.channels ) {
+--- 268,275 ----
+  /* ----------------------------------------------------------------------------
+   */
+! int cAlsaAudioOut::SetParams(SampleContext &amp;context) {
+        int err;
+  
+      // not needed to set again
+      if (currContext.samplerate == context.samplerate &amp;&amp;
+          currContext.channels == context.channels ) {
+***************
+*** 281,285 ****
+   
+      handleMutex.Lock();
+!     snd_pcm_close(handle);
+      if ((err = snd_pcm_open(&amp;handle,
+                              device,
+--- 281,288 ----
+   
+      handleMutex.Lock();
+!     
+!     if (handle) 
+!             snd_pcm_close(handle);
+!     
+      if ((err = snd_pcm_open(&amp;handle,
+                              device,
+***************
+*** 287,297 ****
+        esyslog(&quot;[softdevice-audio] Playback reopen error: %s, %s FATAL exiting&quot;,
+                device, snd_strerror(err));
+!       exit(1);
+      }
+  
+      dsyslog (&quot;[softdevice-audio] samplerate: %dHz, channels: #%d&quot;,
+               currContext.samplerate, currContext.channels);
+-     //rate=samplerate;
+-     //chn=channels;
+      snd_pcm_hw_params_t *params;
+      snd_pcm_sw_params_t *swparams;
+--- 290,301 ----
+        esyslog(&quot;[softdevice-audio] Playback reopen error: %s, %s FATAL exiting&quot;,
+                device, snd_strerror(err));
+!       // should we close handle?
+!       handle = NULL;
+!       handleMutex.Unlock();
+!       return -1;
+      }
+  
+      dsyslog (&quot;[softdevice-audio] samplerate: %dHz, channels: #%d&quot;,
+               currContext.samplerate, currContext.channels);
+      snd_pcm_hw_params_t *params;
+      snd_pcm_sw_params_t *swparams;
+***************
+*** 303,306 ****
+--- 307,311 ----
+      if (err &lt; 0) {
+        esyslog(&quot;[softdevice-audio] Broken config for this PCM: no configurations available&quot;);
++       handleMutex.Unlock();
+        exit(EXIT_FAILURE);
+      }
+***************
+*** 313,330 ****
+      err = snd_pcm_hw_params_set_access_mask(handle, params, mask);
+      if (err &lt; 0) {
+!       esyslog(&quot;[softdevice-audio] Access type not available FATAL exiting&quot;);
+!       exit(EXIT_FAILURE);
+      }
+  
+      err = snd_pcm_hw_params_set_format(handle, params, PCM_FMT);
+      if (err &lt; 0) {
+!       esyslog(&quot;[softdevice-audio] Sample format non available FATAL exiting&quot;);
+!       exit(EXIT_FAILURE);
+      }
+  
+      err = snd_pcm_hw_params_set_channels(handle, params,currContext.channels);
+      if (err &lt; 0) {
+!       esyslog(&quot;[softdevice-audio] Channels count non available FATAL exiting&quot;);
+!       exit(EXIT_FAILURE);
+      }
+  
+--- 318,341 ----
+      err = snd_pcm_hw_params_set_access_mask(handle, params, mask);
+      if (err &lt; 0) {
+!       esyslog(&quot;[softdevice-audio] Access type not available NO AUDIO!&quot;);
+!       handleMutex.Unlock();
+!       Suspend();
+!       return -1;
+      }
+  
+      err = snd_pcm_hw_params_set_format(handle, params, PCM_FMT);
+      if (err &lt; 0) {
+!       esyslog(&quot;[softdevice-audio] Sample format non available NO AUDIO!&quot;);
+!       handleMutex.Unlock();
+!       Suspend();
+!       return -1;
+      }
+  
+      err = snd_pcm_hw_params_set_channels(handle, params,currContext.channels);
+      if (err &lt; 0) {
+!       esyslog(&quot;[softdevice-audio] Channels count non available NO AUDIO&quot;);
+!       handleMutex.Unlock();
+!       Suspend();
+!       return -1;
+      }
+  
+***************
+*** 332,337 ****
+      assert(err &gt;= 0);
+      if (currContext.samplerate != context.samplerate ) {
+!       esyslog(&quot;[softdevice-audio] Rate %d Hz is not possible (and using instead %d Hz is not implemented) FATAL exiting&quot;,context.samplerate,currContext.samplerate);
+!       exit(1);
+      }
+  
+--- 343,350 ----
+      assert(err &gt;= 0);
+      if (currContext.samplerate != context.samplerate ) {
+!       esyslog(&quot;[softdevice-audio] Rate %d Hz is not possible (and using instead %d Hz is not implemented) NO AUDIO!&quot;,context.samplerate,currContext.samplerate);
+!       handleMutex.Unlock();
+!       Suspend();
+!       return -1;
+      }
+  
+***************
+*** 343,348 ****
+      err = snd_pcm_hw_params_set_period_size_near(handle, params, &amp;periodSize, 0);
+      if ( err &lt; 0)  {
+!       esyslog(&quot;[softdevice-audio] Failed to set period size!&quot;);
+!       exit(1);
+      }
+  
+--- 356,363 ----
+      err = snd_pcm_hw_params_set_period_size_near(handle, params, &amp;periodSize, 0);
+      if ( err &lt; 0)  {
+!       esyslog(&quot;[softdevice-audio] Failed to set period size! NO AUDIO!&quot;);
+!       handleMutex.Unlock();
+!       Suspend();
+!       return -1;
+      }
+  
+***************
+*** 351,356 ****
+      err = snd_pcm_hw_params_set_buffer_size_near(handle, params, &amp;buffersize);
+      if ( err &lt; 0 ) {
+!       esyslog(&quot;[softdevice-audio] Failed to set buffer size!&quot;);
+!       exit(1);
+      }
+  
+--- 366,373 ----
+      err = snd_pcm_hw_params_set_buffer_size_near(handle, params, &amp;buffersize);
+      if ( err &lt; 0 ) {
+!       esyslog(&quot;[softdevice-audio] Failed to set buffer size! NO AUDIO&quot;);
+!       handleMutex.Unlock();
+!       Suspend();
+!       return -1;
+      }
+  
+***************
+*** 358,361 ****
+--- 375,379 ----
+      if (err &lt; 0) {
+        esyslog(&quot;[softdevice-audio] Unable to install hw params: FATAL exiting&quot;);
++       handleMutex.Unlock();
+        exit(EXIT_FAILURE);
+      }
+***************
+*** 366,369 ****
+--- 384,388 ----
+        esyslog(&quot;[softdevice-audio] Can't use period equal to buffer size (%lu == %lu) FATAL exiting&quot;,
+                periodSize, bufferSize);
++       handleMutex.Unlock();
+        exit(EXIT_FAILURE);
+      }
+***************
+*** 378,381 ****
+--- 397,401 ----
+      if (err &lt; 0) {
+        esyslog(&quot;[softdevice-audio] Unable to obtain xfer align FATAL exiting&quot;);
++       handleMutex.Unlock();
+        exit(EXIT_FAILURE);
+      }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000400.html">[Softdevice-cvs] softdevice configure,1.22,1.23
+</A></li>
+	<LI>Next message: <A HREF="000402.html">[Softdevice-cvs] softdevice CHANGELOG, 1.215, 1.216 video-dfb.c,	1.68, 1.69
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#401">[ date ]</a>
+              <a href="thread.html#401">[ thread ]</a>
+              <a href="subject.html#401">[ subject ]</a>
+              <a href="author.html#401">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,91 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice video-dfb.c,1.84,1.85
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2008q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-dfb.c%2C1.84%2C1.85&In-Reply-To=%3C20080720171747.6299614C652%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000631.html">
+   <LINK REL="Next"  HREF="000633.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice video-dfb.c,1.84,1.85</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-dfb.c%2C1.84%2C1.85&In-Reply-To=%3C20080720171747.6299614C652%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice video-dfb.c,1.84,1.85">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Jul 20 19:17:47 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000631.html">[Softdevice-cvs] softdevice CHANGELOG, 1.336, 1.337 PicBuffer.c,	1.21, 1.22 PicBuffer.h, 1.9, 1.10 mpeg2decoder.c, 1.82,	1.83 setup-softdevice-menu.c, 1.14, 1.15 setup-softdevice.c,	1.55, 1.56 setup-softdevice.h, 1.44, 1.45 video-dfb.c, 1.83,	1.84 video-dfb.h, 1.28, 1.29 video.c, 1.76, 1.77 video.h, 1.55, 1.56
+</A></li>
+        <LI>Next message: <A HREF="000633.html">[Softdevice-cvs] softdevice PicBuffer.c, 1.22, 1.23 CHANGELOG, 1.337,	1.338
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#632">[ date ]</a>
+              <a href="thread.html#632">[ thread ]</a>
+              <a href="subject.html#632">[ subject ]</a>
+              <a href="author.html#632">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv22209
+
+Modified Files:
+	video-dfb.c 
+Log Message:
+Fix layer message for switching field order.
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.84
+retrieving revision 1.85
+diff -C2 -d -r1.84 -r1.85
+*** video-dfb.c	20 Jul 2008 16:41:01 -0000	1.84
+--- video-dfb.c	20 Jul 2008 17:17:42 -0000	1.85
+***************
+*** 653,657 ****
+  
+    softlog-&gt;Log(SOFT_LOG_INFO, 0,
+!                &quot;[dfb] Set DLBM_TRIPLE for layer [%s] to (%s)\n&quot;,
+                 desc.name,
+                 (fieldOrder) ? &quot;TOP field first&quot; : &quot;BOTTOM field first&quot;);
+--- 653,657 ----
+  
+    softlog-&gt;Log(SOFT_LOG_INFO, 0,
+!                &quot;[dfb] Set layer [%s] to (%s)\n&quot;,
+                 desc.name,
+                 (fieldOrder) ? &quot;TOP field first&quot; : &quot;BOTTOM field first&quot;);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000631.html">[Softdevice-cvs] softdevice CHANGELOG, 1.336, 1.337 PicBuffer.c,	1.21, 1.22 PicBuffer.h, 1.9, 1.10 mpeg2decoder.c, 1.82,	1.83 setup-softdevice-menu.c, 1.14, 1.15 setup-softdevice.c,	1.55, 1.56 setup-softdevice.h, 1.44, 1.45 video-dfb.c, 1.83,	1.84 video-dfb.h, 1.28, 1.29 video.c, 1.76, 1.77 video.h, 1.55, 1.56
+</A></li>
+	<LI>Next message: <A HREF="000633.html">[Softdevice-cvs] softdevice PicBuffer.c, 1.22, 1.23 CHANGELOG, 1.337,	1.338
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#632">[ date ]</a>
+              <a href="thread.html#632">[ thread ]</a>
+              <a href="subject.html#632">[ subject ]</a>
+              <a href="author.html#632">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

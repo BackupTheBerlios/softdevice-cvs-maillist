@@ -1,0 +1,1069 @@
+From lucke at sheep.berlios.de  Wed Apr 13 21:57:01 2011
+From: lucke at sheep.berlios.de (lucke at BerliOS)
+Date: Wed, 13 Apr 2011 19:57:01 +0000
+Subject: [Softdevice-cvs] softdevice setup-softlog.c,1.9,1.10
+Message-ID: <20110413195701.BC35B480747@sheep.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv11500
+
+Modified Files:
+	setup-softlog.c 
+Log Message:
+Fix logging crash (by scop)
+
+Index: setup-softlog.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softlog.c,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -C 2 -d -r1.9 -r1.10
+*** setup-softlog.c	14 Jun 2009 16:18:53 -0000	1.9
+--- setup-softlog.c	13 Apr 2011 19:56:58 -0000	1.10
+***************
+*** 235,244 ****
+      return;
+  
+-   va_start(argList, format);
+    priority = LogPriority(currPriority);
+-   snprintf(fmt, sizeof(fmt), "[%d] %s",SoftdeviceGetTid(), format);
+  
+!   if (priority != NO_LOG)
+      vsyslog(priority, fmt, argList);
+  
+    if (logFile) {
+--- 235,246 ----
+      return;
+  
+    priority = LogPriority(currPriority);
+  
+!   if (priority != NO_LOG) {
+!     snprintf(fmt, sizeof(fmt), "[%d] %s",SoftdeviceGetTid(), format);
+!     va_start(argList, format);
+      vsyslog(priority, fmt, argList);
++     va_end(argList);
++   }
+  
+    if (logFile) {
+***************
+*** 252,260 ****
+               Priority2Char(currPriority),
+               SoftdeviceGetTid(), format);
+      vfprintf(logFile, fmt, argList);
+      fflush(logFile);
+    }
+- 
+-   va_end(argList);
+  }
+  
+--- 254,262 ----
+               Priority2Char(currPriority),
+               SoftdeviceGetTid(), format);
++     va_start(argList, format);
+      vfprintf(logFile, fmt, argList);
++     va_end(argList);
+      fflush(logFile);
+    }
+  }
+  
+
+
+
+From lucke at sheep.berlios.de  Wed Apr 13 23:25:11 2011
+From: lucke at sheep.berlios.de (lucke at BerliOS)
+Date: Wed, 13 Apr 2011 21:25:11 +0000
+Subject: [Softdevice-cvs] softdevice audio-ac3pt.c, 1.5, 1.6 CHANGELOG, 1.348,
+	1.349
+Message-ID: <20110413212512.4772A48113B@sheep.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv18927
+
+Modified Files:
+	audio-ac3pt.c CHANGELOG 
+Log Message:
+Allow AC3 output via hdmi.
+
+Index: audio-ac3pt.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio-ac3pt.c,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -C 2 -d -r1.5 -r1.6
+*** audio-ac3pt.c	14 Jun 2009 18:02:45 -0000	1.5
+--- audio-ac3pt.c	13 Apr 2011 21:25:09 -0000	1.6
+***************
+*** 501,505 ****
+  cAlsaAC3pt::SpdifInitAC3(snd_pcm_t **handle, char *device, bool spdifPro)
+  {
+!     char                      pcm_name[256];
+      static snd_aes_iec958_t   spdif;
+      unsigned int              rate = 48000;
+--- 501,510 ----
+  cAlsaAC3pt::SpdifInitAC3(snd_pcm_t **handle, char *device, bool spdifPro)
+  {
+!     char                      pcm_name [256],
+!                               control_name [16],
+!                               card_name [16],
+!                               device_name [16],
+!                               *control_end,
+!                               *card_end;
+      static snd_aes_iec958_t   spdif;
+      unsigned int              rate = 48000;
+***************
+*** 543,547 ****
+      }
+  
+- 
+      snprintf(pcm_name, sizeof (pcm_name),
+               "iec958:AES0=0x%.2x,AES1=0x%.2x,AES2=0x%.2x,AES3=0x%.2x,CARD=%1d",
+--- 548,551 ----
+***************
+*** 550,553 ****
+--- 554,612 ----
+               0);
+  
++     /* -----------------------------------------------------------------------
++      * check for syntax:
++      * "control_name:card_name[,device_name]"
++      */
++     memset (control_name, 0, sizeof (control_name));
++     memset (card_name, 0, sizeof (card_name));
++     memset (device_name, 0, sizeof (device_name));
++     if ((control_end = strchr (device, ':')))
++     {
++         int control_len = 0,
++             card_len = 0;
++ 
++       control_len = control_end - device;
++       if (control_len < (int) sizeof (control_name))
++       {
++         strncpy (control_name, device, control_len);
++         card_len = strlen (device + control_len + 1);
++         if ((card_end = strchr (device + control_len + 1, ',')))
++         {
++           card_len = card_end - (device + control_len + 1);
++           if (card_len >= (int) sizeof (card_name))
++           {
++             fprintf (stderr,
++                      "ac3play: card name too long (%s,%d >= %d)\n",
++                      device + control_len + 1, card_len, sizeof (card_name));
++           }
++         }
++         if (card_len)
++         {
++           strncpy (card_name, device + control_len + 1, card_len);
++           snprintf(pcm_name, sizeof (pcm_name),
++                    "%s:AES0=0x%.2x,AES1=0x%.2x,AES2=0x%.2x,AES3=0x%.2x,CARD=%s",
++                    control_name,
++                    spdif. status [0], spdif. status [1],
++                    spdif. status [2], spdif. status [3],
++                    card_name);
++         }
++         else
++         {
++           fprintf (stderr,
++                    "ac3play: card name not specified (%s)\n", device);
++         }
++       }
++       else
++       {
++         fprintf (stderr,
++                  "ac3play: control name too long (%s,%d >= %d)\n",
++                  device, control_end - device, sizeof (control_name));
++       }
++     }
++     else
++     {
++       fprintf (stderr, "ac3play: separator ':' not found in %s\n", device);
++     }
++ 
+      err = snd_pcm_open (handle, pcm_name, SND_PCM_STREAM_PLAYBACK, 0);
+      if (err >= 0) {
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.348
+retrieving revision 1.349
+diff -C 2 -d -r1.348 -r1.349
+*** CHANGELOG	14 Jun 2009 11:20:28 -0000	1.348
+--- CHANGELOG	13 Apr 2011 21:25:09 -0000	1.349
+***************
+*** 1,3 ****
+--- 1,8 ----
+  Changelog
++ 2011-04-13:
++    - setup-softlog: Fix crash during logging by 'scop'.
++    - audio-ac3: Don't stick to fixed control (iec958) and card names (0)
++                 Allow AC3 output via hdmi:
++                 -ao alsa:pcm=hw:1,3#ac3=hdmi:HDMI#
+  2009-06-14:
+     - build: Fix compiling with newer ffmpeg versions.
+
+
+
+From lucke at sheep.berlios.de  Sat Apr 16 15:14:01 2011
+From: lucke at sheep.berlios.de (lucke at BerliOS)
+Date: Sat, 16 Apr 2011 13:14:01 +0000
+Subject: [Softdevice-cvs] softdevice softdevice.c, 1.96, 1.97 softdevice.h,
+	1.15, 1.16
+Message-ID: <20110416131401.AA240481378@sheep.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv17150
+
+Modified Files:
+	softdevice.c softdevice.h 
+Log Message:
+Support some new vdr-1.7x functions
+
+Index: softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.h,v
+retrieving revision 1.15
+retrieving revision 1.16
+diff -C 2 -d -r1.15 -r1.16
+*** softdevice.h	14 Jun 2009 17:25:35 -0000	1.15
+--- softdevice.h	16 Apr 2011 13:13:58 -0000	1.16
+***************
+*** 94,99 ****
+--- 94,104 ----
+  
+    virtual bool HasDecoder(void) const;
++ 
++ protected:
+    virtual bool CanReplay(void) const;
+    virtual bool SetPlayMode(ePlayMode PlayMode);
++   virtual int PlayVideo(const uchar *Data, int Length);
++ 
++ public:
+    virtual void TrickSpeed(int Speed);
+    virtual void Clear(void);
+***************
+*** 106,110 ****
+    virtual bool Flush(int TimeoutMs = 0);
+    virtual int64_t GetSTC(void);
+!   virtual int PlayVideo(const uchar *Data, int Length);
+  #if VDRVERSNUM < 10318
+    virtual void PlayAudio(const uchar *Data, int Length);
+--- 111,124 ----
+    virtual bool Flush(int TimeoutMs = 0);
+    virtual int64_t GetSTC(void);
+! 
+! #if VDRVERSNUM >= 10701
+! protected:
+!   virtual int PlayTsVideo(const uchar *Data, int Length);
+!   virtual int PlayTsAudio(const uchar *Data, int Length);
+! public:
+!   virtual int PlayTs(const uchar *Data, int Length, bool VideoOnly = false);
+! #endif
+! 
+! protected:
+  #if VDRVERSNUM < 10318
+    virtual void PlayAudio(const uchar *Data, int Length);
+***************
+*** 116,123 ****
+--- 130,139 ----
+  
+  #if VDRVERSNUM >= 10338
++ public:
+    virtual uchar *GrabImage(int &Size, bool Jpeg, int Quality,
+                    int SizeX, int SizeY);
+  #endif
+  
++ protected:
+  # if VDRVERSNUM >= 10342
+    virtual int  PlayAudio(const uchar *Data, int Length, uchar Id);
+***************
+*** 135,138 ****
+--- 151,155 ----
+    virtual cSpuDecoder *GetSpuDecoder(void);
+  
++ protected:
+    virtual void MakePrimaryDevice(bool On);
+  };
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.96
+retrieving revision 1.97
+diff -C 2 -d -r1.96 -r1.97
+*** softdevice.c	14 Jun 2009 17:25:35 -0000	1.96
+--- softdevice.c	16 Apr 2011 13:13:58 -0000	1.97
+***************
+*** 673,676 ****
+--- 673,697 ----
+  }
+  
++ #if VDRVERSNUM >= 10701
++ /* ----------------------------------------------------------------------------
++  */
++ int cSoftDevice::PlayTsAudio(const uchar *data, int len)
++ {
++   return cDevice::PlayTsAudio(data, len);
++ }
++ 
++ /* ----------------------------------------------------------------------------
++  */
++ int cSoftDevice::PlayTsVideo(const uchar *data, int len)
++ {
++   return cDevice::PlayTsVideo(data, len);
++ }
++ 
++ int cSoftDevice::PlayTs(const uchar *data, int len, bool VideoOnly)
++ {
++   return cDevice::PlayTs(data, len, VideoOnly);
++ }
++ #endif
++ 
+  #if VDRVERSNUM >= 10338
+  uchar *cSoftDevice::GrabImage(int &Size, bool Jpeg, int Quality,
+
+
+
+From lucke at sheep.berlios.de  Sat Apr 16 15:21:30 2011
+From: lucke at sheep.berlios.de (lucke at BerliOS)
+Date: Sat, 16 Apr 2011 13:21:30 +0000
+Subject: [Softdevice-cvs] softdevice SoftOsd.c,1.35,1.36
+Message-ID: <20110416132130.8FF6B480875@sheep.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv17830
+
+Modified Files:
+	SoftOsd.c 
+Log Message:
+Reorder some OSD debug macros.
+
+Index: SoftOsd.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.c,v
+retrieving revision 1.35
+retrieving revision 1.36
+diff -C 2 -d -r1.35 -r1.36
+*** SoftOsd.c	12 Sep 2008 16:48:58 -0000	1.35
+--- SoftOsd.c	16 Apr 2011 13:21:27 -0000	1.36
+***************
+*** 17,21 ****
+--- 17,29 ----
+  #endif
+  
++ /* ---------------------------------------------------------------------------
++  */
+  //#define OSDDEB(out...) {printf("soft_osd[%04d]:",(int)(getTimeMilis() % 10000));printf(out);}
++ //#define OSDDEB1(out...) {printf("soft_osd[%04d]:",(int)(getTimeMilis() % 10000));printf(out);}
++ //#define SCALEUPDEBV(out...) printf(out)
++ //#define SCALEUPDEBH(out...) printf(out)
++ //#define SCALEDEBV(out...) printf(out)
++ //#define SCALEDEBH(out...) printf(out)
++ 
+  
+  #ifndef OSDDEB
+***************
+*** 23,26 ****
+--- 31,56 ----
+  #endif
+  
++ #ifndef OSDDEB1
++ #define OSDDEB1(out...)
++ #endif
++ 
++ #ifndef SCALEUPDEBV
++ #define SCALEUPDEBV(out...)
++ #endif
++ 
++ #ifndef SCALEUPDEBH
++ #define SCALEUPDEBH(out...)
++ #endif
++ 
++ #ifndef SCALEDEBV
++ #define SCALEDEBV(out...)
++ #endif
++ 
++ #ifndef SCALEDEBH
++ #define SCALEDEBH(out...)
++ #endif
++ 
++ /* ---------------------------------------------------------------------------
++  */
+  #define COLOR_64BIT(x) ( ((x)<<32) | (x) )
+  #define ALPHA_VALUE(x) ( (x) << 24 )
+***************
+*** 1013,1016 ****
+--- 1043,1048 ----
+          uint32_t new_pixel_height=(OSD_HEIGHT*ScaleFactor)/dest_Height;
+          int lines_count=(new_pixel_height/ScaleFactor*2+4);
++         OSDDEB1("1 Scale to %d,%d\n",dest_Width,dest_Height);
++ 
+          color scaleH_pixmap[lines_count*OSD_STRIDE];
+          color *scaleH_Reference[lines_count];
+***************
+*** 1181,1184 ****
+--- 1213,1218 ----
+          uint32_t new_pixel_height=(OSD_HEIGHT*ScaleFactor)/dest_Height;
+          int lines_count=(new_pixel_height/ScaleFactor*2+4);
++         OSDDEB1("2 Scale to %d,%d\n",dest_Width,dest_Height);
++ 
+          color scaleH_pixmap[lines_count*OSD_STRIDE];
+          color *scaleH_Reference[lines_count];
+***************
+*** 1301,1304 ****
+--- 1335,1340 ----
+          const int ScaleFactor=1<<6;
+          uint32_t new_pixel_height=(OSD_HEIGHT*ScaleFactor)/dest_Height;
++         OSDDEB1("3 Scale to %d,%d\n",dest_Width,dest_Height);
++ 
+          color scaleH_pixmap[2*dest_stride];//dest_Width];
+          color *scaleH_Reference[2];
+***************
+*** 1450,1453 ****
+--- 1486,1491 ----
+          uint32_t new_pixel_height=(OSD_HEIGHT*ScaleFactor)/dest_Height;
+          int lines_count=new_pixel_height/ScaleFactor+2;
++         OSDDEB1("4 Scale to %d,%d\n",dest_Width,dest_Height);
++ 
+          color scaleH_pixmap[lines_count*dest_stride];
+          color *scaleH_Reference[lines_count];
+***************
+*** 1495,1501 ****
+  
+  //------------------------ lowlevel scaling functions ------------------------
+- //#define SCALEDEBV(out...) printf(out)
+- #define SCALEDEBV(out...)
+- 
+  void cSoftOsd::ScaleDownVert_MMX(uint32_t * dest, int linesize,
+                  int32_t new_pixel_height, int start_pos,
+--- 1533,1536 ----
+***************
+*** 1638,1643 ****
+  
+  //-----------------------------------------------------------------
+- #define SCALEDEBH(out...)
+- 
+  void cSoftOsd::ScaleDownHoriz_MMX(uint32_t * dest, int dest_Width,
+                  color * pixmap, int Pixel) {
+--- 1673,1676 ----
+***************
+*** 1773,1780 ****
+  
+  //-----------------------------------------------------------------------
+- #define SCALEUPDEBH(out...)
+- //#define SCALEUPDEBH(out...) printf(out)
+- 
+- 
+  void cSoftOsd::ScaleUpHoriz_MMX(uint32_t * dest, int dest_Width,
+                  color * pixmap, int Pixel) {
+--- 1806,1809 ----
+***************
+*** 1873,1878 ****
+  
+  //-------------------------------------------------------------------------
+- #define SCALEUPDEBV(out...)
+- 
+  void cSoftOsd::ScaleUpVert_MMX(uint32_t *dest, int linesize,
+                  int32_t new_pixel_height, int start_pos,
+--- 1902,1905 ----
+
+
+
+From lucke at sheep.berlios.de  Sat Apr 16 16:24:02 2011
+From: lucke at sheep.berlios.de (lucke at BerliOS)
+Date: Sat, 16 Apr 2011 14:24:02 +0000
+Subject: [Softdevice-cvs] softdevice mpeg2decoder.c, 1.88,
+	1.89 mpeg2decoder.h, 1.47, 1.48
+Message-ID: <20110416142402.C8084481378@sheep.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv31449
+
+Modified Files:
+	mpeg2decoder.c mpeg2decoder.h 
+Log Message:
+Applied frametime handling patch (by wallak)
+
+Index: mpeg2decoder.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.h,v
+retrieving revision 1.47
+retrieving revision 1.48
+diff -C 2 -d -r1.47 -r1.48
+*** mpeg2decoder.h	27 Feb 2009 17:02:35 -0000	1.47
+--- mpeg2decoder.h	16 Apr 2011 14:23:59 -0000	1.48
+***************
+*** 172,175 ****
+--- 172,178 ----
+  
+  public:
++     int               repeatFrame;
++ 
++ public:
+      inline int        PutPacket(const AVPacket &pkt)
+                          { return PacketQueue.PutPacket(pkt); };
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.88
+retrieving revision 1.89
+diff -C 2 -d -r1.88 -r1.89
+*** mpeg2decoder.c	27 Feb 2009 17:02:35 -0000	1.88
+--- mpeg2decoder.c	16 Apr 2011 14:23:59 -0000	1.89
+***************
+*** 139,142 ****
+--- 139,143 ----
+          : PacketQueue(packet_buf_size[setupStore->bufferMode])
+  {
++   repeatFrame=0;
+    context=Context;
+    if (context)
+***************
+*** 895,899 ****
+           if (lastDuration) {
+  #if LIBAVCODEC_BUILD > 4753
+!                  default_frametime=context->time_base.num*
+                           10000/context->time_base.den;
+  #else
+--- 896,900 ----
+           if (lastDuration) {
+  #if LIBAVCODEC_BUILD > 4753
+!            default_frametime=context->time_base.num*(1+repeatFrame)*
+                           10000/context->time_base.den;
+  #else
+***************
+*** 1288,1293 ****
+  #if LIBAVFORMAT_BUILD > 4628
+    if ( ic->streams[pkt.stream_index]
+!                   && ic->streams[pkt.stream_index]->codec )
+!           packet_type = ic->streams[pkt.stream_index]->codec->codec_type;
+  #else
+    if ( ic->streams[pkt.stream_index] )
+--- 1289,1298 ----
+  #if LIBAVFORMAT_BUILD > 4628
+    if ( ic->streams[pkt.stream_index]
+!        && ic->streams[pkt.stream_index]->codec ) {
+!        packet_type = ic->streams[pkt.stream_index]->codec->codec_type;
+! 
+!        if (packet_type == CODEC_TYPE_VIDEO && vout)
+!          vout->repeatFrame = ic->streams[pkt.stream_index]->parser->repeat_pict;
+!   }
+  #else
+    if ( ic->streams[pkt.stream_index] )
+
+
+
+From lucke at sheep.berlios.de  Sun Apr 17 18:06:33 2011
+From: lucke at sheep.berlios.de (lucke at BerliOS)
+Date: Sun, 17 Apr 2011 16:06:33 +0000
+Subject: [Softdevice-cvs] softdevice PicBuffer.c, 1.23, 1.24 SoftOsd.c, 1.36,
+	1.37 softdevice.c, 1.97, 1.98
+Message-ID: <20110417160634.4DFD9481366@sheep.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv7987
+
+Modified Files:
+	PicBuffer.c SoftOsd.c softdevice.c 
+Log Message:
+Silence compiler warnings.
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.97
+retrieving revision 1.98
+diff -C 2 -d -r1.97 -r1.98
+*** softdevice.c	16 Apr 2011 13:13:58 -0000	1.97
+--- softdevice.c	17 Apr 2011 16:06:31 -0000	1.98
+***************
+*** 336,353 ****
+  
+  #ifdef APIVERSION
+!   asprintf (&subPluginFileName,
+!             "%s/%s%s.so.%s",
+!             pluginPath,
+!             "libsoftdevice-",
+!             outMethodName,
+!             APIVERSION);
+  #else
+!   asprintf (&subPluginFileName,
+!             "%s/%s%s.so.%s",
+!             pluginPath,
+!             "libsoftdevice-",
+!             outMethodName,
+!             VDRVERSION);
+  #endif
+  
+    void *handle = dlopen (subPluginFileName, RTLD_NOW);
+--- 336,359 ----
+  
+  #ifdef APIVERSION
+!   if (asprintf (&subPluginFileName,
+!                 "%s/%s%s.so.%s",
+!                 pluginPath,
+!                 "libsoftdevice-",
+!                 outMethodName,
+!                 APIVERSION) < 0)
+  #else
+!   if (asprintf (&subPluginFileName,
+!                 "%s/%s%s.so.%s",
+!                 pluginPath,
+!                 "libsoftdevice-",
+!                 outMethodName,
+!                 VDRVERSION) < 0)
+  #endif
++   {
++     esyslog("[softdevice] could not generate filename "
++               "for path(%s) method(%s)\n",
++             pluginPath, outMethodName);
++     exit (1);
++   }
+  
+    void *handle = dlopen (subPluginFileName, RTLD_NOW);
+
+Index: PicBuffer.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/PicBuffer.c,v
+retrieving revision 1.23
+retrieving revision 1.24
+diff -C 2 -d -r1.23 -r1.24
+*** PicBuffer.c	27 Jul 2008 17:34:42 -0000	1.23
+--- PicBuffer.c	17 Apr 2011 16:06:31 -0000	1.24
+***************
+*** 823,827 ****
+                  // we have to do format conversions
+                  do_convert=true;
+!                 dst_stride0 = 4*(dst_width+15 & ~15);
+                  convert_buf=(uint8_t*)malloc(4*dst_stride0);
+                  dst_ptr0=convert_buf;
+--- 823,827 ----
+                  // we have to do format conversions
+                  do_convert=true;
+!                 dst_stride0 = 4*((dst_width+15) & ~15);
+                  convert_buf=(uint8_t*)malloc(4*dst_stride0);
+                  dst_ptr0=convert_buf;
+***************
+*** 972,976 ****
+                  // we have to do format conversions
+                  do_convert=true;
+!                 dst_stride0 = 4*(dst_width+15 & ~15);
+                  convert_buf=(uint8_t*)malloc(4*dst_stride0);
+                  dst_ptr0=convert_buf;
+--- 972,976 ----
+                  // we have to do format conversions
+                  do_convert=true;
+!                 dst_stride0 = 4*((dst_width+15) & ~15);
+                  convert_buf=(uint8_t*)malloc(4*dst_stride0);
+                  dst_ptr0=convert_buf;
+
+Index: SoftOsd.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.c,v
+retrieving revision 1.36
+retrieving revision 1.37
+diff -C 2 -d -r1.36 -r1.37
+*** SoftOsd.c	16 Apr 2011 13:21:27 -0000	1.36
+--- SoftOsd.c	17 Apr 2011 16:06:31 -0000	1.37
+***************
+*** 1008,1012 ****
+                  return;
+  
+!         if (dest_Height & 0x1 !=0) {
+                  //printf("warning dest_Height not even!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+                  dest_Height &= ~0x1;
+--- 1008,1012 ----
+                  return;
+  
+!         if ((dest_Height & 0x1) !=0) {
+                  //printf("warning dest_Height not even!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+                  dest_Height &= ~0x1;
+
+
+
+From lucke at sheep.berlios.de  Sun Apr 17 19:22:22 2011
+From: lucke at sheep.berlios.de (lucke at BerliOS)
+Date: Sun, 17 Apr 2011 17:22:22 +0000
+Subject: [Softdevice-cvs] softdevice SoftOsd.h, 1.20, 1.21 mpeg2decoder.c,
+	1.89, 1.90 softdevice.c, 1.98, 1.99 softdevice.h, 1.16,
+	1.17 video.c, 1.79, 1.80 video.h, 1.59, 1.60
+Message-ID: <20110417172223.0F7A1481366@sheep.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv7411
+
+Modified Files:
+	SoftOsd.h mpeg2decoder.c softdevice.c softdevice.h video.c 
+	video.h 
+Log Message:
+Some changes for vdr-1.7.x support.
+
+Index: SoftOsd.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.h,v
+retrieving revision 1.20
+retrieving revision 1.21
+diff -C 2 -d -r1.20 -r1.21
+*** SoftOsd.h	12 Sep 2008 16:48:58 -0000	1.20
+--- SoftOsd.h	17 Apr 2011 17:22:18 -0000	1.21
+***************
+*** 13,16 ****
+--- 13,20 ----
+  #define __SOFTOSD_H__
+  
++ #include <vdr/config.h>
++ #include <vdr/osd.h>
++ #include <vdr/thread.h>
++ 
+  // osd some constants and macros
+  #define OPACITY_THRESHOLD 0x9FLL
+***************
+*** 18,23 ****
+--- 22,38 ----
+  #define COLOR_KEY 0x00000000LL
+  
++ #if VDRVERSNUM <= 10707
++ 
+  #define OSD_WIDTH   720
+  #define OSD_HEIGHT  576
++ #define OSD_STRIDE (736)
++ 
++ #else
++ 
++ #define OSD_WIDTH   1920
++ #define OSD_HEIGHT  1080
++ #define OSD_STRIDE (1920)
++ 
++ #endif
+  
+  #define IS_BACKGROUND(a) (((a) < OPACITY_THRESHOLD) && ((a) > TRANSPARENT_THRESHOLD))
+***************
+*** 25,32 ****
+  #define IS_OPAQUE(a) ((a) > OPACITY_THRESHOLD)
+  
+- #include <vdr/config.h>
+- 
+- #include <vdr/osd.h>
+- #include <vdr/thread.h>
+  #include "video.h"
+  
+--- 40,43 ----
+***************
+*** 34,38 ****
+  #define Y_OFFSET 0
+  
+- #define OSD_STRIDE (736)
+  
+  #define COLOR_RGB16(r,g,b) (((b >> 3)& 0x1F) | ((g & 0xF8) << 2)| ((r & 0xF8)<<10) )
+--- 45,48 ----
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.89
+retrieving revision 1.90
+diff -C 2 -d -r1.89 -r1.90
+*** mpeg2decoder.c	16 Apr 2011 14:23:59 -0000	1.89
+--- mpeg2decoder.c	17 Apr 2011 17:22:18 -0000	1.90
+***************
+*** 125,136 ****
+  bool cClock::freezeMode=true;
+  
+! int64_t  cClock::GetPTS() {
+!   //MPGDEB("audioOffset %lld time %lld\n",audioOffset,GetTime());
+    if ( audioOffset )
+!      return freezeMode ? audioPTS : GetTime()+audioOffset;
+    else if ( videoOffset )
+!      return freezeMode ? videoPTS : GetTime()+videoOffset;
+!   else return 0;
+! };
+  
+  // --- cStreamDecoder ---------------------------------------------------------
+--- 125,154 ----
+  bool cClock::freezeMode=true;
+  
+! /* ---------------------------------------------------------------------------
+!  */
+! int64_t  cClock::GetPTS()
+! {
+!     int64_t    rc = 0;
+!     static int lastrc = 0;
+! 
+!  //MPGDEB("audioOffset %lld time %lld\n",audioOffset,GetTime());
+    if ( audioOffset )
+!      rc = freezeMode ? audioPTS : GetTime()+audioOffset;
+    else if ( videoOffset )
+!      rc = freezeMode ? videoPTS : GetTime()+videoOffset;
+! 
+! #if 0
+!   fprintf (stderr,
+!            "-- f(%d) ap(%lld - %lld) vp(%lld - %lld) gt(%lld) "
+!              "rc(%lld %lld %lld)\n",
+!            freezeMode,
+!            audioPTS, audioOffset,
+!            videoPTS, videoOffset,
+!            GetTime(),
+!            rc, (int64_t) (rc / 10000), (rc - lastrc) / 10000);
+! #endif
+!   lastrc = rc;
+!   return rc;
+! }
+  
+  // --- cStreamDecoder ---------------------------------------------------------
+***************
+*** 297,300 ****
+--- 315,327 ----
+    }
+  
++ #if 0
++   int thread_count = 3;
++   if (thread_count > 1) {
++     avcodec_thread_init (context, thread_count);
++     context->thread_count = thread_count;
++     fprintf(stderr, "using %d threads\n", thread_count);
++   }
++ #endif
++ 
+    if ( (ret=avcodec_open(context, codec)) < 0)
+    {
+***************
+*** 1487,1491 ****
+  {
+    CMDDEB("Freeze Streams %d freeze %d\n",Stream,freeze);
+!   if (Stream & SOFTDEVICE_BOTH_STREAMS == SOFTDEVICE_BOTH_STREAMS )
+      freezeMode=freeze;
+    if (freeze)
+--- 1514,1518 ----
+  {
+    CMDDEB("Freeze Streams %d freeze %d\n",Stream,freeze);
+!   if ((Stream & SOFTDEVICE_BOTH_STREAMS) == SOFTDEVICE_BOTH_STREAMS )
+      freezeMode=freeze;
+    if (freeze)
+
+Index: softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.h,v
+retrieving revision 1.16
+retrieving revision 1.17
+diff -C 2 -d -r1.16 -r1.17
+*** softdevice.h	16 Apr 2011 13:13:58 -0000	1.16
+--- softdevice.h	17 Apr 2011 17:22:19 -0000	1.17
+***************
+*** 118,121 ****
+--- 118,127 ----
+  public:
+    virtual int PlayTs(const uchar *Data, int Length, bool VideoOnly = false);
++ 
++ #if VDRVERSNUM > 10707
++   virtual void GetVideoSize(int &Width, int &Height, double &VideoAspect);
++   virtual void GetOsdSize(int &Width, int &Height, double &PixelAspect);
++ #endif
++ 
+  #endif
+  
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.79
+retrieving revision 1.80
+diff -C 2 -d -r1.79 -r1.80
+*** video.c	27 Feb 2009 17:02:35 -0000	1.79
+--- video.c	17 Apr 2011 17:22:19 -0000	1.80
+***************
+*** 32,37 ****
+    OsdHeight=OSD_FULL_HEIGHT;
+    // set some reasonable defaults
+!   fwidth = lwidth = old_dwidth = dwidth = swidth = 720;
+!   fheight = lheight = old_dheight = dheight = sheight = 536;
+    sxoff = syoff = lxoff = lyoff = 0;
+    cutTop = cutBottom = cutLeft = cutRight = 0;
+--- 32,37 ----
+    OsdHeight=OSD_FULL_HEIGHT;
+    // set some reasonable defaults
+!   fwidth = lwidth = old_dwidth = dwidth = swidth = VIDEO_DEF_WIDTH;
+!   fheight = lheight = old_dheight = dheight = sheight = VIDEO_DEF_HEIGHT;
+    sxoff = syoff = lxoff = lyoff = 0;
+    cutTop = cutBottom = cutLeft = cutRight = 0;
+***************
+*** 752,753 ****
+--- 752,773 ----
+    current_osdMode = OSDMODE_PSEUDO;
+  }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ void cVideoOut::GetVideoSize(int &w, int &h, double &a)
++ {
++   w = swidth;
++   h = sheight;
++   a = 1.0;
++   fprintf (stderr, "GetVideoSize (w = %d, h = %d, a = %.3f)\n", w, h, a);
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ void cVideoOut::GetOsdSize(int &w, int &h, double &a)
++ {
++   w = OSD_FULL_WIDTH;
++   h = OSD_FULL_HEIGHT;
++   a = 1.0;
++   //fprintf (stderr, "GetOsdSize (w = %d, h = %d, a = %.3f)\n", w, h, a);
++ }
+\ No newline at end of file
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.59
+retrieving revision 1.60
+diff -C 2 -d -r1.59 -r1.60
+*** video.h	14 Jun 2009 10:50:47 -0000	1.59
+--- video.h	17 Apr 2011 17:22:19 -0000	1.60
+***************
+*** 29,38 ****
+  #define DV_FORMAT_WIDE    2
+  
+  #define OSD_FULL_WIDTH    736
+  #define OSD_FULL_HEIGHT   576
+- 
+  #define SRC_HEIGHT         576
+  #define SRC_WIDTH          736
+  
+  #define AVRG_OFF_CNT        16
+  
+--- 29,51 ----
+  #define DV_FORMAT_WIDE    2
+  
++ #if  VDRVERSNUM <= 10707
++ 
+  #define OSD_FULL_WIDTH    736
+  #define OSD_FULL_HEIGHT   576
+  #define SRC_HEIGHT         576
+  #define SRC_WIDTH          736
+  
++ #else
++ 
++ #define OSD_FULL_WIDTH      (8+1920+8)
++ #define OSD_FULL_HEIGHT     (1080)
++ #define SRC_HEIGHT          1080
++ #define SRC_WIDTH           (8+1920+8)
++ 
++ #endif
++ 
++ #define VIDEO_DEF_WIDTH        720
++ #define VIDEO_DEF_HEIGHT       576
++ 
+  #define AVRG_OFF_CNT        16
+  
+***************
+*** 171,174 ****
+--- 184,188 ----
+      virtual void CheckAspect(int new_afd, double new_asp);
+      virtual void CheckAspectDimensions (sPicBuffer *pic);
++     virtual void GetVideoSize(int &w, int &h, double &a);
+      virtual void CheckArea(int w, int h);
+      virtual void DrawVideo_420pl(cSyncTimer *syncTimer,
+***************
+*** 242,245 ****
+--- 256,260 ----
+      { OsdWidth=-1;OsdHeight=-1; xPan = yPan = 0;};
+  
++     virtual void GetOsdSize(int &w, int &h, double &a);
+      virtual void GetOSDMode(int &Depth, bool &HasAlpha, bool &AlphaInversed,
+                      bool &IsYUV)
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.98
+retrieving revision 1.99
+diff -C 2 -d -r1.98 -r1.99
+*** softdevice.c	17 Apr 2011 16:06:31 -0000	1.98
+--- softdevice.c	17 Apr 2011 17:22:19 -0000	1.99
+***************
+*** 694,701 ****
+--- 694,726 ----
+  }
+  
++ /* ----------------------------------------------------------------------------
++  */
+  int cSoftDevice::PlayTs(const uchar *data, int len, bool VideoOnly)
+  {
+    return cDevice::PlayTs(data, len, VideoOnly);
+  }
++ 
++ #if VDRVERSNUM > 10707
++ /* ----------------------------------------------------------------------------
++  */
++ void cSoftDevice::GetVideoSize(int &Width, int &Height, double &VideoAspect)
++ {
++   if (videoOut)
++     videoOut->GetVideoSize (Width, Height, VideoAspect);
++   else
++     cDevice::GetVideoSize (Width, Height, VideoAspect);
++ }
++ 
++ /* ----------------------------------------------------------------------------
++  */
++ void cSoftDevice::GetOsdSize(int &Width, int &Height, double &VideoAspect)
++ {
++   if (videoOut)
++     videoOut->GetOsdSize (Width, Height, VideoAspect);
++   else
++     cDevice::GetOsdSize (Width, Height, VideoAspect);
++ }
++ #endif
++ 
+  #endif
+  
+
+
+
+From lucke at sheep.berlios.de  Sun Apr 17 20:06:59 2011
+From: lucke at sheep.berlios.de (lucke at BerliOS)
+Date: Sun, 17 Apr 2011 18:06:59 +0000
+Subject: [Softdevice-cvs] softdevice CHANGELOG,1.349,1.350
+Message-ID: <20110417180700.3DFFE481247@sheep.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv21047
+
+Modified Files:
+	CHANGELOG 
+Log Message:
+Update to recent changes.
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.349
+retrieving revision 1.350
+diff -C 2 -d -r1.349 -r1.350
+*** CHANGELOG	13 Apr 2011 21:25:09 -0000	1.349
+--- CHANGELOG	17 Apr 2011 18:06:57 -0000	1.350
+***************
+*** 1,3 ****
+--- 1,6 ----
+  Changelog
++ 2011-04-17:
++    - Fix OSD drawing with vdr-1.7.x (tested with x == 15).
++    - Silence some compiler warnings.
+  2011-04-13:
+     - setup-softlog: Fix crash during logging by 'scop'.
+
+
+
+From wallak at free.fr  Fri Apr 29 01:03:08 2011
+From: wallak at free.fr (wallak at free.fr)
+Date: Fri, 29 Apr 2011 01:03:08 +0200
+Subject: [Softdevice-cvs] Last ffmpeg compatibility patch.
+Message-ID: <1304031788.4db9f22c93f45@imp.free.fr>
+
+Hi,
+
+  You will find here a usefull patch.
+
+Best Regards.
+
+

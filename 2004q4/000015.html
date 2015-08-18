@@ -1,0 +1,375 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.9,1.10 video-dfb.c,1.4,1.5 video-vidix.c,1.2,1.3 video-xv.c,1.3,1.4 video.c,1.1.1.1,1.2 video.h,1.1.1.1,1.2
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2004q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.9%2C1.10%20video-dfb.c%2C1.4%2C1.5%20video-vidix.c%2C1.2%2C1.3%20video-xv.c%2C1.3%2C1.4%20video.c%2C1.1.1.1%2C1.2%20video.h%2C1.1.1.1%2C1.2&In-Reply-To=%3C200410232133.i9NLXSB31038%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000014.html">
+   <LINK REL="Next"  HREF="000016.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.9,1.10 video-dfb.c,1.4,1.5 video-vidix.c,1.2,1.3 video-xv.c,1.3,1.4 video.c,1.1.1.1,1.2 video.h,1.1.1.1,1.2</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.9%2C1.10%20video-dfb.c%2C1.4%2C1.5%20video-vidix.c%2C1.2%2C1.3%20video-xv.c%2C1.3%2C1.4%20video.c%2C1.1.1.1%2C1.2%20video.h%2C1.1.1.1%2C1.2&In-Reply-To=%3C200410232133.i9NLXSB31038%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.9,1.10 video-dfb.c,1.4,1.5 video-vidix.c,1.2,1.3 video-xv.c,1.3,1.4 video.c,1.1.1.1,1.2 video.h,1.1.1.1,1.2">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Oct 23 23:33:29 CEST 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000014.html">[Softdevice-cvs] softdevice CHANGELOG,1.8,1.9
+</A></li>
+        <LI>Next message: <A HREF="000016.html">[Softdevice-cvs] softdevice video-dfb.c,1.5,1.6
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#15">[ date ]</a>
+              <a href="thread.html#15">[ thread ]</a>
+              <a href="subject.html#15">[ subject ]</a>
+              <a href="author.html#15">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv28492
+
+Modified Files:
+	CHANGELOG video-dfb.c video-vidix.c video-xv.c video.c video.h 
+Log Message:
+added pseudo alpha OSD background
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -C2 -d -r1.9 -r1.10
+*** CHANGELOG	22 Oct 2004 22:05:43 -0000	1.9
+--- CHANGELOG	23 Oct 2004 21:33:26 -0000	1.10
+***************
+*** 2,5 ****
+--- 2,6 ----
+    2004-10-23:
+     - some fixes upon deinterlacing selection (bug: #002267)
++    - added pseudo alpha OSD background upon an idea of Torgeir Veimo
+    2004-10-18:
+     - xv-out: allow disabling screensaver when in full screen mode (Torgeir Veimo)
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -C2 -d -r1.4 -r1.5
+*** video-dfb.c	18 Oct 2004 03:29:36 -0000	1.4
+--- video-dfb.c	23 Oct 2004 21:33:26 -0000	1.5
+***************
+*** 308,311 ****
+--- 308,312 ----
+  
+      useStretchBlit = false;
++     OSDpseudo_alpha = true;
+      if (setupStore.pixelFormat == 0)
+        vidDsc.pixelformat = DSPF_I420;
+***************
+*** 316,319 ****
+--- 317,321 ----
+        vidDsc.pixelformat = DSPF_YUY2;
+        useStretchBlit = true;
++       OSDpseudo_alpha = false;
+      }
+  
+***************
+*** 438,441 ****
+--- 440,444 ----
+  
+        useStretchBlit = false;
++       OSDpseudo_alpha = true;
+        if (setupStore.pixelFormat == 0)
+          dlc.pixelformat = DSPF_I420;
+***************
+*** 446,449 ****
+--- 449,453 ----
+          dlc.pixelformat = DSPF_YUY2;
+          useStretchBlit = true;
++         OSDpseudo_alpha = false;
+        }
+  
+
+Index: video-vidix.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-vidix.c,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** video-vidix.c	9 Aug 2004 18:45:49 -0000	1.2
+--- video-vidix.c	23 Oct 2004 21:33:26 -0000	1.3
+***************
+*** 140,143 ****
+--- 140,145 ----
+      }
+  
++     OSDpseudo_alpha = true;
++ 
+      if (setupStore.pixelFormat == 0)
+        vidix_fourcc.fourcc = IMGFMT_I420;
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** video-xv.c	18 Oct 2004 03:32:37 -0000	1.3
+--- video-xv.c	23 Oct 2004 21:33:26 -0000	1.4
+***************
+*** 456,459 ****
+--- 456,460 ----
+  {
+    OSDpresent = false;
++   OSDpseudo_alpha = true;
+    initialized = 0;
+    /* -------------------------------------------------------------------------
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1.1.1 -r1.2
+*** video.c	1 Aug 2004 05:07:05 -0000	1.1.1.1
+--- video.c	23 Oct 2004 21:33:26 -0000	1.2
+***************
+*** 165,168 ****
+--- 165,172 ----
+  }
+  
++ #define OPACITY_THRESHOLD 0x8F
++ #define TRANSPARENT_THRESHOLD 0x0F
++ #define IS_BACKGROUND(a) (((a) &lt; OPACITY_THRESHOLD) &amp;&amp; (a &gt; TRANSPARENT_THRESHOLD))
++ 
+  #if VDRVERSNUM &gt;= 10307
+  
+***************
+*** 183,186 ****
+--- 187,191 ----
+      int           depth = (Bpp + 7) / 8;
+      int           a, r, g, b;
++     bool          prev_pix = false, do_dither;
+      tColor        c;
+      tIndex        *buf;
+***************
+*** 192,198 ****
+--- 197,206 ----
+              linelen * ( OSDyOfs + y ) +
+              OSDxOfs * depth;
++     prev_pix = false;
+  
+      for (int x = 0; x &lt; Bitmap-&gt;Width(); x++)
+      {
++       do_dither = ((x % 2 == 1 &amp;&amp; y % 2 == 1) ||
++                     x % 2 == 0 &amp;&amp; y % 2 == 0 || prev_pix);
+        adr = Bitmap-&gt;Data(x, y);
+        c = Bitmap-&gt;Color(*adr);
+***************
+*** 203,207 ****
+        switch (depth) {
+          case 4:
+!           if (a == 255 &amp;&amp; r == 0 &amp;&amp; g == 0 &amp;&amp; b == 0)
+            {
+              buf[0] = 1; buf[1] = 1; buf[2] = 1; buf[3] = 255;
+--- 211,216 ----
+        switch (depth) {
+          case 4:
+!           if ((do_dither &amp;&amp; IS_BACKGROUND(a) &amp;&amp; OSDpseudo_alpha) ||
+!               (a == 255 &amp;&amp; r == 0 &amp;&amp; g == 0 &amp;&amp; b == 0))
+            {
+              buf[0] = 1; buf[1] = 1; buf[2] = 1; buf[3] = 255;
+***************
+*** 212,219 ****
+              buf[3] = a;
+            }
+            buf += 4;
+            break;
+          case 3:
+!           if (a == 255 &amp;&amp; r == 0 &amp;&amp; g == 0 &amp;&amp; b == 0)
+            {
+              buf[0] = 1; buf[1] = 1; buf[2] = 1;
+--- 221,230 ----
+              buf[3] = a;
+            }
++ 
+            buf += 4;
+            break;
+          case 3:
+!           if ((do_dither &amp;&amp; IS_BACKGROUND(a)) ||
+!               (a == 255 &amp;&amp; r == 0 &amp;&amp; g == 0 &amp;&amp; b == 0))
+            {
+              buf[0] = 1; buf[1] = 1; buf[2] = 1;
+***************
+*** 223,230 ****
+              buf[2] = r;
+            }
+            buf += 3;
+            break;
+          case 2:
+!           if (a == 255 &amp;&amp; r == 0 &amp;&amp; g == 0 &amp;&amp; b == 0)
+            {
+                buf[0] = 0x21; buf[1] = 0x08;
+--- 234,243 ----
+              buf[2] = r;
+            }
++ 
+            buf += 3;
+            break;
+          case 2:
+!           if ((do_dither &amp;&amp; IS_BACKGROUND(a)) ||
+!               (a == 255 &amp;&amp; r == 0 &amp;&amp; g == 0 &amp;&amp; b == 0))
+            {
+                buf[0] = 0x21; buf[1] = 0x08;
+***************
+*** 233,236 ****
+--- 246,250 ----
+              buf[1] = (r &amp; 0xF8) | (g &gt;&gt; 5);
+            }
++ 
+            buf += 2;
+            break;
+***************
+*** 240,243 ****
+--- 254,258 ----
+            break;
+        }
++       prev_pix = !IS_BACKGROUND(a);
+      }
+    }
+***************
+*** 364,378 ****
+      int depth = (bpp + 7) / 8;
+      int dx = linelen - width * depth;
+      buf += top * linelen + left * depth; // upper left corner
+      for (int y = top; y &lt; top+height; y++) {
+  	for (int x = left; x &lt; left+width; x++) {
+  	   if ( (im[3] != 0)
+  		&amp;&amp; (x &gt;= 0) &amp;&amp; (x &lt; xres)
+  		&amp;&amp; (y &gt;= 0) &amp;&amp; (y &lt; yres))  { // Alpha != 0 and in the screen
+  
+  		//if (keymap) keymap[(x+y*linelen / depth) / 8] |= (1 &lt;&lt; (x % 8));
+  		switch (depth) {
+  		    case 4:
+!           if (im[3] == 255 &amp;&amp; im[0] == 0 &amp;&amp; im[1] == 0 &amp;&amp; im[2] == 0) {
+              *buf++ = 1; *buf++ = 1; *buf++ = 1; *buf++ = 255;
+            } else {
+--- 379,400 ----
+      int depth = (bpp + 7) / 8;
+      int dx = linelen - width * depth;
++     bool          prev_pix = false, do_dither;
++ 
+      buf += top * linelen + left * depth; // upper left corner
+      for (int y = top; y &lt; top+height; y++) {
++       prev_pix = false;
++ 
+  	for (int x = left; x &lt; left+width; x++) {
+  	   if ( (im[3] != 0)
+  		&amp;&amp; (x &gt;= 0) &amp;&amp; (x &lt; xres)
+  		&amp;&amp; (y &gt;= 0) &amp;&amp; (y &lt; yres))  { // Alpha != 0 and in the screen
++       do_dither = ((x % 2 == 1 &amp;&amp; y % 2 == 1) ||
++                     x % 2 == 0 &amp;&amp; y % 2 == 0 || prev_pix);
+  
+  		//if (keymap) keymap[(x+y*linelen / depth) / 8] |= (1 &lt;&lt; (x % 8));
+  		switch (depth) {
+  		    case 4:
+!           if ((do_dither &amp;&amp; IS_BACKGROUND(im[3]) &amp;&amp; OSDpseudo_alpha) ||
+!               (im[3] == 255 &amp;&amp; im[0] == 0 &amp;&amp; im[1] == 0 &amp;&amp; im[2] == 0)) {
+              *buf++ = 1; *buf++ = 1; *buf++ = 1; *buf++ = 255;
+            } else {
+***************
+*** 385,389 ****
+  			break;
+  		    case 3:
+!           if (im[3] == 255 &amp;&amp; im[0] == 0 &amp;&amp; im[1] == 0 &amp;&amp; im[2] == 0) {
+              *buf++ = 1; *buf++ = 1; *buf++ = 1;
+            } else {
+--- 407,412 ----
+  			break;
+  		    case 3:
+!           if ((do_dither &amp;&amp; IS_BACKGROUND(im[3])) ||
+!               (im[3] == 255 &amp;&amp; im[0] == 0 &amp;&amp; im[1] == 0 &amp;&amp; im[2] == 0)) {
+              *buf++ = 1; *buf++ = 1; *buf++ = 1;
+            } else {
+***************
+*** 394,398 ****
+  			break;
+  		    case 2: // 565 RGB
+!           if (im[3] == 255 &amp;&amp; im[0] == 0 &amp;&amp; im[1] == 0 &amp;&amp; im[2] == 0) {
+              *buf++ = 0x21; *buf++ = 0x08;
+            } else {
+--- 417,422 ----
+  			break;
+  		    case 2: // 565 RGB
+!           if ((do_dither &amp;&amp; IS_BACKGROUND(im[3])) ||
+!               (im[3] == 255 &amp;&amp; im[0] == 0 &amp;&amp; im[1] == 0 &amp;&amp; im[2] == 0)) {
+              *buf++ = 0x21; *buf++ = 0x08;
+            } else {
+***************
+*** 405,408 ****
+--- 429,434 ----
+  			exit(1);
+      		}
++         prev_pix = !IS_BACKGROUND(a);
++ 
+  
+  	    } else  {
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1.1.1 -r1.2
+*** video.h	1 Aug 2004 05:07:05 -0000	1.1.1.1
+--- video.h	23 Oct 2004 21:33:26 -0000	1.2
+***************
+*** 41,45 ****
+      cMutex  osdMutex;
+      int     OSDxOfs, OSDyOfs;
+!     bool    OSDpresent;
+      int     Xres, Yres, Bpp; // the child class MUST set these params (for OSD Drawing)
+      int     dwidth, dheight,
+--- 41,46 ----
+      cMutex  osdMutex;
+      int     OSDxOfs, OSDyOfs;
+!     bool    OSDpresent,
+!             OSDpseudo_alpha;
+      int     Xres, Yres, Bpp; // the child class MUST set these params (for OSD Drawing)
+      int     dwidth, dheight,
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000014.html">[Softdevice-cvs] softdevice CHANGELOG,1.8,1.9
+</A></li>
+	<LI>Next message: <A HREF="000016.html">[Softdevice-cvs] softdevice video-dfb.c,1.5,1.6
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#15">[ date ]</a>
+              <a href="thread.html#15">[ thread ]</a>
+              <a href="subject.html#15">[ subject ]</a>
+              <a href="author.html#15">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

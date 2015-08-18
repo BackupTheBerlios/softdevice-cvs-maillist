@@ -1,0 +1,187 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.212, 1.213 configure, 1.20,	1.21
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.212%2C%201.213%20configure%2C%201.20%2C%0A%091.21&In-Reply-To=%3C20060716112206.8E074555B2%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000397.html">
+   <LINK REL="Next"  HREF="000399.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.212, 1.213 configure, 1.20,	1.21</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.212%2C%201.213%20configure%2C%201.20%2C%0A%091.21&In-Reply-To=%3C20060716112206.8E074555B2%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.212, 1.213 configure, 1.20,	1.21">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Jul 16 13:22:06 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000397.html">[Softdevice-cvs] softdevice video-xv.c, 1.56, 1.57 CHANGELOG, 1.211,	1.212
+</A></li>
+        <LI>Next message: <A HREF="000399.html">[Softdevice-cvs] softdevice CHANGELOG, 1.213, 1.214 configure, 1.21,	1.22
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#398">[ date ]</a>
+              <a href="thread.html#398">[ thread ]</a>
+              <a href="subject.html#398">[ subject ]</a>
+              <a href="author.html#398">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv14288
+
+Modified Files:
+	CHANGELOG configure 
+Log Message:
+- check explicitly for pkg-config in configure
+- configure: &quot;--with-ffmpeg-path&quot; overrides pkg-config
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.212
+retrieving revision 1.213
+diff -C2 -d -r1.212 -r1.213
+*** CHANGELOG	16 Jul 2006 02:09:22 -0000	1.212
+--- CHANGELOG	16 Jul 2006 11:22:00 -0000	1.213
+***************
+*** 1,4 ****
+  Changelog
+! 2006-07-16:
+     - unconditionally set _NET_WM_FULLSCREEN Atom when going fullscreen (recent Metacity WM need it)
+  2006-07-12:
+--- 1,6 ----
+  Changelog
+! 2006-07-16:
+!    - check explicitly for pkg-config in configure
+!    - configure: &quot;--with-ffmpeg-path&quot; overrides pkg-config
+     - unconditionally set _NET_WM_FULLSCREEN Atom when going fullscreen (recent Metacity WM need it)
+  2006-07-12:
+
+Index: configure
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/configure,v
+retrieving revision 1.20
+retrieving revision 1.21
+diff -C2 -d -r1.20 -r1.21
+*** configure	10 Jul 2006 19:40:25 -0000	1.20
+--- configure	16 Jul 2006 11:22:00 -0000	1.21
+***************
+*** 21,25 ****
+--- 21,27 ----
+  : ${CFLAGS=&quot;&quot;}
+  
++ use_pkgconfig=&quot;yes&quot;
+  ffmpeg=&quot;yes&quot;
++ ffmpeg_use_path=&quot;no&quot;
+  dfb=&quot;yes&quot;
+  libpostproc=&quot;no&quot;
+***************
+*** 72,75 ****
+--- 74,78 ----
+      --with-ffmpeg-path) shift;
+        ffmpeg_path=$1 ;
++       ffmpeg_use_path=&quot;yes&quot; ;
+        echo &quot;ffmpeg path set to: $ffmpeg_path&quot; ;
+        shift ;;
+***************
+*** 84,87 ****
+--- 87,108 ----
+  
+  #########################################################
++ # start pkg-config test
++ #
++ if test &quot;${use_pkgconfig}&quot; = &quot;yes&quot; ; then
++   echo -n &quot;Checking for pkg-config... &quot;
++   echo  &quot;Checking for pkg-config.-------------------------------&quot; &gt;&gt; config.log
++         
++   pkg-config --version &gt;&gt; config.log 2&gt;&amp;1 || use_pkgconfig=&quot;no&quot;;
++   
++   if test &quot;${use_pkgconfig}&quot; = &quot;no&quot; ; then
++     echo &quot;Not found.&quot;
++     echo &quot;Please consider installing pkg-config. Many parts of this configure&quot;
++     echo &quot;rely on pkg-config to find the parameters of the needed libraries.&quot;
++   else
++     echo &quot;Found.&quot;
++   fi
++ fi
++ 
++ #########################################################
+  # start ffmpeg test
+  #
+***************
+*** 112,115 ****
+--- 133,140 ----
+  };
+  
++ ffmpeg=&quot;no&quot; # = not yet configured 
++ if test &quot;${use_pkgconfig}&quot; = &quot;yes&quot; ; then
++   if test &quot;${ffmpeg_use_path}&quot; = &quot;no&quot; ; then
++ 
+  echo &quot;try to use pkg-config.&quot; &gt;&gt; config.log
+  ffmpeg_l1=&quot;libavcodec libavformat&quot;
+***************
+*** 123,126 ****
+--- 148,154 ----
+  test_ffmpeg
+  
++   fi
++ fi
++ 
+  if test &quot;${ffmpeg}&quot; = &quot;no&quot; ; then
+    echo &quot;pkg-config failed, try the default/parameter path.&quot; &gt;&gt; config.log
+***************
+*** 144,148 ****
+      echo &quot;No usable ffmpeg library found in ${ffmpeg_path}.&quot;
+      echo &quot;Specify the path to your ffmpeg installation using --with-ffmpeg-path&quot;
+!     echo &quot;or use a more recent (cvs) version of ffmpeg with pkg-config.&quot;
+      echo &quot;For details check config.log.&quot;
+      exit 8;
+--- 172,176 ----
+      echo &quot;No usable ffmpeg library found in ${ffmpeg_path}.&quot;
+      echo &quot;Specify the path to your ffmpeg installation using --with-ffmpeg-path&quot;
+!     echo &quot;or use a more recent (svn) version of ffmpeg and use/install pkg-config.&quot;
+      echo &quot;For details check config.log.&quot;
+      exit 8;
+***************
+*** 151,154 ****
+--- 179,183 ----
+  
+  echo &quot;Ok.&quot;
++ 
+  ########################################################
+  # check for ALSA
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000397.html">[Softdevice-cvs] softdevice video-xv.c, 1.56, 1.57 CHANGELOG, 1.211,	1.212
+</A></li>
+	<LI>Next message: <A HREF="000399.html">[Softdevice-cvs] softdevice CHANGELOG, 1.213, 1.214 configure, 1.21,	1.22
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#398">[ date ]</a>
+              <a href="thread.html#398">[ thread ]</a>
+              <a href="subject.html#398">[ subject ]</a>
+              <a href="author.html#398">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

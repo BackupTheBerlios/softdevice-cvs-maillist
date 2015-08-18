@@ -1,0 +1,196 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.110,1.111 configure,1.3,1.4
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.110%2C1.111%20configure%2C1.3%2C1.4&In-Reply-To=%3C200509171617.j8HGHH124773%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000212.html">
+   <LINK REL="Next"  HREF="000214.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.110,1.111 configure,1.3,1.4</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.110%2C1.111%20configure%2C1.3%2C1.4&In-Reply-To=%3C200509171617.j8HGHH124773%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.110,1.111 configure,1.3,1.4">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Sep 17 18:17:17 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000212.html">[Softdevice-cvs] softdevice CHANGELOG,1.109,1.110
+</A></li>
+        <LI>Next message: <A HREF="000214.html">[Softdevice-cvs] softdevice Makefile,1.15,1.16 CHANGELOG,1.111,1.112
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#213">[ date ]</a>
+              <a href="thread.html#213">[ thread ]</a>
+              <a href="subject.html#213">[ subject ]</a>
+              <a href="author.html#213">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv28580
+
+Modified Files:
+	CHANGELOG configure 
+Log Message:
+check if vidix compiles, optionally disable fb-out via command line &quot;--disable-fb&quot; and/or subplugins via &quot;--disable-subplugins&quot;
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.110
+retrieving revision 1.111
+diff -C2 -d -r1.110 -r1.111
+*** CHANGELOG	16 Sep 2005 16:16:38 -0000	1.110
+--- CHANGELOG	17 Sep 2005 16:17:15 -0000	1.111
+***************
+*** 1,3 ****
+--- 1,6 ----
+  Changelog
++ 2005-09-17
++     - configure: check if vidix compiles, optionally disable fb-out via
++                  command line &quot;--disable-fb&quot; and/or subplugins via &quot;--disable-subplugins&quot;
+  2005-09-16:
+      - introduce audio debug
+
+Index: configure
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/configure,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** configure	15 Sep 2005 18:23:05 -0000	1.3
+--- configure	17 Sep 2005 16:17:15 -0000	1.4
+***************
+*** 20,24 ****
+  vidix=&quot;yes&quot;
+  vidix_path=&quot;/usr/local&quot;
+- subplugins=&quot;yes&quot;
+  with_fb=&quot;yes&quot;
+  fb_dev_name=&quot;/dev/fb0&quot;
+--- 20,23 ----
+***************
+*** 31,36 ****
+--- 30,37 ----
+    echo &quot;available options are:&quot;
+    echo &quot;  --disable-vidix&quot;
++   echo &quot;  --disable-fb&quot;
+    echo &quot;  --disable-dfb&quot;
+    echo &quot;  --disable-xv&quot;
++   echo &quot;  --disable-subplugins&quot;
+    echo &quot;  --with-vidix-path YOUR_VIDIX_PATH&quot;
+    echo &quot;  --help&quot;
+***************
+*** 41,46 ****
+--- 42,49 ----
+    case $1 in
+      --disable-vidix) shift; vidix=&quot;no&quot; ;;
++     --disable-fb) shift; with_fb=&quot;no&quot; ;;
+      --disable-dfb) shift; dfb=&quot;no&quot; ;;
+      --disable-xv) shift; xv=&quot;no&quot; ;;
++     --disable-subplugins) shift; with_subplugins=&quot;no&quot; ;;
+      --with-vidix-path) shift;
+        vidix_path=$1 ;
+***************
+*** 57,61 ****
+  ffmpeg_l1=&quot;libavcodec libavformat&quot;
+  
+- # pkg-config --libs libavutil 2&gt;/dev/null &amp;&amp; ffmpeg_l1=&quot;$ffmpeg_l1 libavutil&quot;
+  pkg-config --libs libpostproc &gt;/dev/null 2&gt;&amp;1 &amp;&amp; { ffmpeg_l1=&quot;$ffmpeg_l1 libpostproc&quot;;libpostproc=&quot;yes&quot;; }
+  
+--- 60,63 ----
+***************
+*** 133,140 ****
+  # end of DirectFB specific tests
+  
+! ## echo ${dfb_opts}
+! ## echo dfb_device_desc = ${dfb_device_desc}
+  
+! ###########
+  broken_gcc_cpp=&quot;no&quot;
+  cat &gt; ${TMPC} &lt;&lt; EOF
+--- 135,156 ----
+  # end of DirectFB specific tests
+  
+! #########################################################
+! # vidix: check if we could compile with specified options
+! #
+! if test &quot;${vidix}&quot; = &quot;yes&quot; ; then
+!   vidix_cflags=&quot;-I${vidix_path}/include/vidix&quot;
+!   vidix_libs=&quot;-L${vidix_path}/lib -lvidix&quot;
+!   cat &gt; ${TMPC} &lt;&lt; EOF
+! #include &lt;stdio.h&gt;
+! #include &quot;vidixlib.h&quot;
+! int main(void) {
+!     vidix_capability_t vidix_cap;
+!   return 0;
+! }
+! EOF
+! $cc $CFLAGS $vidix_cflags $vidix_libs -o $TMPE $TMPC &gt; /dev/null 2&gt;&amp;1 || vidix=&quot;no&quot;
+! fi
+  
+! #########################################################
+  broken_gcc_cpp=&quot;no&quot;
+  cat &gt; ${TMPC} &lt;&lt; EOF
+***************
+*** 177,181 ****
+  ###########
+  
+! echo &quot;Creating temporay config.h and config.mak&quot;
+  echo &quot;/* Generated by configure - do not modify */&quot; &gt; $TMPH
+  echo &quot;# Generated by configure - do not modify&quot; &gt; $TMPM
+--- 193,197 ----
+  ###########
+  
+! echo &quot;Creating temporary config.h and config.mak&quot;
+  echo &quot;/* Generated by configure - do not modify */&quot; &gt; $TMPH
+  echo &quot;# Generated by configure - do not modify&quot; &gt; $TMPM
+***************
+*** 241,246 ****
+    echo &quot;VIDIX_SUPPORT = 1&quot; &gt;&gt; $TMPM
+    echo &quot;VIDIX_DIR     = ${vidix_path}&quot; &gt;&gt; $TMPM
+!   echo &quot;VIDIX_LIBS    = -L${vidix_path}/lib -lvidix&quot; &gt;&gt; $TMPM
+!   echo &quot;VIDIX_CFLAGS  = -I${vidix_path}/include/vidix&quot; &gt;&gt; $TMPM
+    echo &quot;#define VIDIX_SUPPORT 1&quot; &gt;&gt; $TMPH
+    echo &quot;#define VIDIX_DIR     \&quot;${vidix_path}/lib/vidix\&quot;&quot; &gt;&gt; $TMPH
+--- 257,262 ----
+    echo &quot;VIDIX_SUPPORT = 1&quot; &gt;&gt; $TMPM
+    echo &quot;VIDIX_DIR     = ${vidix_path}&quot; &gt;&gt; $TMPM
+!   echo &quot;VIDIX_LIBS    = ${vidix_libs}&quot; &gt;&gt; $TMPM
+!   echo &quot;VIDIX_CFLAGS  = ${vidix_cflags}&quot; &gt;&gt; $TMPM
+    echo &quot;#define VIDIX_SUPPORT 1&quot; &gt;&gt; $TMPH
+    echo &quot;#define VIDIX_DIR     \&quot;${vidix_path}/lib/vidix\&quot;&quot; &gt;&gt; $TMPH
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000212.html">[Softdevice-cvs] softdevice CHANGELOG,1.109,1.110
+</A></li>
+	<LI>Next message: <A HREF="000214.html">[Softdevice-cvs] softdevice Makefile,1.15,1.16 CHANGELOG,1.111,1.112
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#213">[ date ]</a>
+              <a href="thread.html#213">[ thread ]</a>
+              <a href="subject.html#213">[ subject ]</a>
+              <a href="author.html#213">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,488 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice softdevice.h,1.9,1.10 softdevice.c,1.59,1.60 Makefile,1.29,1.30 CHANGELOG,1.195,1.196 README,1.18,1.19
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20softdevice.h%2C1.9%2C1.10%20softdevice.c%2C1.59%2C1.60%20Makefile%2C1.29%2C1.30%20CHANGELOG%2C1.195%2C1.196%20README%2C1.18%2C1.19&In-Reply-To=%3C200606091645.k59GjHb20417%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000376.html">
+   <LINK REL="Next"  HREF="000378.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice softdevice.h,1.9,1.10 softdevice.c,1.59,1.60 Makefile,1.29,1.30 CHANGELOG,1.195,1.196 README,1.18,1.19</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20softdevice.h%2C1.9%2C1.10%20softdevice.c%2C1.59%2C1.60%20Makefile%2C1.29%2C1.30%20CHANGELOG%2C1.195%2C1.196%20README%2C1.18%2C1.19&In-Reply-To=%3C200606091645.k59GjHb20417%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice softdevice.h,1.9,1.10 softdevice.c,1.59,1.60 Makefile,1.29,1.30 CHANGELOG,1.195,1.196 README,1.18,1.19">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Jun  9 18:45:18 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000376.html">[Softdevice-cvs] softdevice video-dfb.c,1.62,1.63 video-xv.c,1.55,1.56 video-vidix.c,1.19,1.20
+</A></li>
+        <LI>Next message: <A HREF="000378.html">[Softdevice-cvs] softdevice CHANGELOG,1.196,1.197 configure,1.15,1.16
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#377">[ date ]</a>
+              <a href="thread.html#377">[ thread ]</a>
+              <a href="subject.html#377">[ subject ]</a>
+              <a href="author.html#377">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv1914
+
+Modified Files:
+	softdevice.h softdevice.c Makefile CHANGELOG README 
+Log Message:
+activate mmx version of yv12_to_yuy2_il_ () for dfb, xv and vidix.
+name change libsubvdr-softdevice-METHOD.so.?? -&gt; libsoftdevice-METHOD.so.?? .
+removed option -L . is obsolete since we can get the path we are loaded from,
+at runtime (thanks to Petri Hintukainen).
+
+
+
+Index: softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.h,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -C2 -d -r1.9 -r1.10
+*** softdevice.h	23 Apr 2006 19:55:53 -0000	1.9
+--- softdevice.h	9 Jun 2006 16:45:13 -0000	1.10
+***************
+*** 32,39 ****
+          // value = 0 Play, value = 1 Pause
+  };
+!         
+  
+  static const char *const GET_PACKET_HANDEL_IDV100=&quot;softdevice-GetPacketHandles-v1.0&quot;;
+! // 
+  
+  // --- cSoftDevice ------------------------------------------------------------
+--- 32,39 ----
+          // value = 0 Play, value = 1 Pause
+  };
+! 
+  
+  static const char *const GET_PACKET_HANDEL_IDV100=&quot;softdevice-GetPacketHandles-v1.0&quot;;
+! //
+  
+  // --- cSoftDevice ------------------------------------------------------------
+***************
+*** 42,51 ****
+    int   voutMethod;
+    int   aoutMethod;
+!   char  *pluginPath;
+  
+  public:
+    cPluginSoftDevice(void);
+    virtual ~cPluginSoftDevice();
+!   virtual const char *Version(void); 
+    virtual const char *Description(void);
+    virtual const char *CommandLineHelp(void);
+--- 42,52 ----
+    int   voutMethod;
+    int   aoutMethod;
+!   char  *pluginPath,
+!         *runtimePluginPath;
+  
+  public:
+    cPluginSoftDevice(void);
+    virtual ~cPluginSoftDevice();
+!   virtual const char *Version(void);
+    virtual const char *Description(void);
+    virtual const char *CommandLineHelp(void);
+***************
+*** 82,89 ****
+    cSoftDevice(int method, int audioMethod, char *pluginPath);
+    ~cSoftDevice();
+!   
+!   inline void QueuePacket(AVFormatContext *ic, AVPacket &amp;pkt) 
+    { if (decoder) decoder-&gt;QueuePacket(ic,pkt,true); };
+!   inline int ResetDecoder(int Stream) 
+    { if (decoder) decoder-&gt;ResetDecoder(Stream); return 0;};
+    inline int BufferFill(int Stream)
+--- 83,90 ----
+    cSoftDevice(int method, int audioMethod, char *pluginPath);
+    ~cSoftDevice();
+! 
+!   inline void QueuePacket(AVFormatContext *ic, AVPacket &amp;pkt)
+    { if (decoder) decoder-&gt;QueuePacket(ic,pkt,true); };
+!   inline int ResetDecoder(int Stream)
+    { if (decoder) decoder-&gt;ResetDecoder(Stream); return 0;};
+    inline int BufferFill(int Stream)
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.59
+retrieving revision 1.60
+diff -C2 -d -r1.59 -r1.60
+*** softdevice.c	30 Apr 2006 13:50:12 -0000	1.59
+--- softdevice.c	9 Jun 2006 16:45:13 -0000	1.60
+***************
+*** 290,293 ****
+--- 290,295 ----
+  }
+  
++ /* ----------------------------------------------------------------------------
++  */
+  cSoftDevice::~cSoftDevice()
+  {
+***************
+*** 309,313 ****
+              &quot;%s/%s%s.so.%s&quot;,
+              pluginPath,
+!             &quot;libsubvdr-softdevice-&quot;,
+              outMethodName,
+              APIVERSION);
+--- 311,315 ----
+              &quot;%s/%s%s.so.%s&quot;,
+              pluginPath,
+!             &quot;libsoftdevice-&quot;,
+              outMethodName,
+              APIVERSION);
+***************
+*** 316,323 ****
+              &quot;%s/%s%s.so.%s&quot;,
+              pluginPath,
+!             &quot;libsubvdr-softdevice-&quot;,
+              outMethodName,
+              VDRVERSION);
+  #endif
+    void *handle = dlopen (subPluginFileName, RTLD_NOW);
+    char *err = dlerror();
+--- 318,326 ----
+              &quot;%s/%s%s.so.%s&quot;,
+              pluginPath,
+!             &quot;libsoftdevice-&quot;,
+              outMethodName,
+              VDRVERSION);
+  #endif
++ 
+    void *handle = dlopen (subPluginFileName, RTLD_NOW);
+    char *err = dlerror();
+***************
+*** 628,631 ****
+--- 631,654 ----
+  // --- cPluginSoftDevice ----------------------------------------------------------
+  
++ /* ----------------------------------------------------------------------------
++  */
++ static char *GetLibPath(void)
++ {
++     Dl_info info;
++     char *libpath, *pt;
++     static int my_marker = 0;
++ 
++   if(!dladdr((void *)&amp;my_marker, &amp;info)) {
++     fprintf(stderr, &quot;Error: dladdr() returned false (%s)&quot;, dlerror());
++     return NULL;
++   }
++ 
++   libpath = strdup(info.dli_fname);
++   if(NULL != (pt=strrchr(libpath, '/')))
++     *(pt+1) = 0;
++ 
++   return libpath;
++ }
++ 
+  cPluginSoftDevice::cPluginSoftDevice(void)
+  {
+***************
+*** 640,643 ****
+--- 663,667 ----
+    aoutMethod = AOUT_ALSA;
+    pluginPath = PLUGINLIBDIR;
++   runtimePluginPath = GetLibPath();
+  }
+  
+***************
+*** 687,691 ****
+  #endif
+    &quot;  -vo dummy:               enable output to dummy device\n&quot;
+-   &quot;  -L &lt;plugin_path_name&gt;    search path for loading subplugins\n&quot;
+    &quot;\n&quot;;
+  }
+--- 711,714 ----
+***************
+*** 872,880 ****
+  
+        }
+-     } else if (!strcmp (argv[i], &quot;-L&quot;)) {
+-       ++i; --argc;
+-       if (argc &gt; 0) {
+-         pluginPath = argv[i];
+-       }
+      } else {
+              fprintf(stderr,&quot;[softdevice] ignoring unrecognized option \&quot;%s\&quot;!\n&quot;,argv[i]);
+--- 895,898 ----
+***************
+*** 951,955 ****
+    // Start any background activities the plugin shall perform.
+    fprintf(stderr,&quot;[softdevice] initializing Plugin\n&quot;);
+!   new cSoftDevice(voutMethod,aoutMethod,pluginPath);
+    return true;
+  }
+--- 969,975 ----
+    // Start any background activities the plugin shall perform.
+    fprintf(stderr,&quot;[softdevice] initializing Plugin\n&quot;);
+!   new cSoftDevice(voutMethod,
+!                   aoutMethod,
+!                   (runtimePluginPath) ? runtimePluginPath : pluginPath);
+    return true;
+  }
+
+Index: Makefile
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/Makefile,v
+retrieving revision 1.29
+retrieving revision 1.30
+diff -C2 -d -r1.29 -r1.30
+*** Makefile	27 May 2006 19:15:31 -0000	1.29
+--- Makefile	9 Jun 2006 16:45:13 -0000	1.30
+***************
+*** 203,214 ****
+  APIVERSION = $(shell sed -ne '/define APIVERSION/ { s/^.*&quot;\(.*\)&quot;.*$$/\1/; p }' $(VDRDIR)/config.h)
+  
+- INST_VERSION = $(APIVERSION)
+- 
+  ifeq ($(APIVERSION),)
+! 	INST_VERSION = $(VDRVERSION)
+  endif
+  
+- #DUMMY=$(LIBDIR)/fake.vdr.Makefile.check.$(APIVERSION)
+- 
+  ### The name of the distribution archive:
+  
+--- 203,210 ----
+  APIVERSION = $(shell sed -ne '/define APIVERSION/ { s/^.*&quot;\(.*\)&quot;.*$$/\1/; p }' $(VDRDIR)/config.h)
+  
+  ifeq ($(APIVERSION),)
+! 	APIVERSION = $(VDRVERSION)
+  endif
+  
+  ### The name of the distribution archive:
+  
+***************
+*** 234,238 ****
+      DFB_OBJS  = utils.o video.o video-dfb.o PicBuffer.o
+      ALL_OBJS += $(DFB_OBJS)
+!     TARGETS  += libsubvdr-$(PLUGIN)-dfb.so
+    else
+      OBJS     += video-dfb.o
+--- 230,234 ----
+      DFB_OBJS  = utils.o video.o video-dfb.o PicBuffer.o
+      ALL_OBJS += $(DFB_OBJS)
+!     TARGETS  += lib$(PLUGIN)-dfb.so
+    else
+      OBJS     += video-dfb.o
+***************
+*** 247,251 ****
+      FB_OBJS   = utils.o video.o video-fb.o PicBuffer.o
+      ALL_OBJS  += $(FB_OBJS)
+!     TARGETS   += libsubvdr-$(PLUGIN)-fb.so
+    else
+      OBJS 	+= video-fb.o
+--- 243,247 ----
+      FB_OBJS   = utils.o video.o video-fb.o PicBuffer.o
+      ALL_OBJS  += $(FB_OBJS)
+!     TARGETS   += lib$(PLUGIN)-fb.so
+    else
+      OBJS 	+= video-fb.o
+***************
+*** 257,261 ****
+      XV_OBJS   = utils.o video.o video-xv.o xscreensaver.o PicBuffer.o
+      ALL_OBJS  += $(XV_OBJS)
+!     TARGETS   += libsubvdr-$(PLUGIN)-xv.so
+    else
+      OBJS 	+= video-xv.o xscreensaver.o
+--- 253,257 ----
+      XV_OBJS   = utils.o video.o video-xv.o xscreensaver.o PicBuffer.o
+      ALL_OBJS  += $(XV_OBJS)
+!     TARGETS   += lib$(PLUGIN)-xv.so
+    else
+      OBJS 	+= video-xv.o xscreensaver.o
+***************
+*** 268,272 ****
+      VIDIX_OBJS  = utils.o video.o video-vidix.o PicBuffer.o
+      ALL_OBJS    += $(VIDIX_OBJS)
+!     TARGETS     += libsubvdr-$(PLUGIN)-vidix.so
+    else
+      OBJS        += video-vidix.o
+--- 264,268 ----
+      VIDIX_OBJS  = utils.o video.o video-vidix.o PicBuffer.o
+      ALL_OBJS    += $(VIDIX_OBJS)
+!     TARGETS     += lib$(PLUGIN)-vidix.so
+    else
+      OBJS        += video-vidix.o
+***************
+*** 280,284 ****
+      SHM_OBJS  = utils.o video.o video-shm.o PicBuffer.o
+      ALL_OBJS    += $(SHM_OBJS)
+!     TARGETS     += libsubvdr-$(PLUGIN)-shm.so
+    else
+      OBJS += video-shm.o
+--- 276,280 ----
+      SHM_OBJS  = utils.o video.o video-shm.o PicBuffer.o
+      ALL_OBJS    += $(SHM_OBJS)
+!     TARGETS     += lib$(PLUGIN)-shm.so
+    else
+      OBJS += video-shm.o
+***************
+*** 309,335 ****
+  libvdr-$(PLUGIN).so: $(OBJS)
+  	$(CXX) $(CXXFLAGS) -shared $(OBJS) $(LIBS) -o $@
+! 	@cp $@ $(LIBDIR)/$@.$(INST_VERSION)
+  
+  ifdef USE_SUBPLUGINS
+  
+! libsubvdr-$(PLUGIN)-dfb.so: $(DFB_OBJS)
+  	$(CXX) $(CXXFLAGS) -shared $(DFB_OBJS) $(DFB_LIBS) -o $@
+! 	@cp $@ $(LIBDIR)/$@.$(INST_VERSION)
+  
+! libsubvdr-$(PLUGIN)-fb.so: $(FB_OBJS)
+  	$(CXX) $(CXXFLAGS) -shared $(FB_OBJS) $(FB_LIBS) -o $@
+! 	@cp $@ $(LIBDIR)/$@.$(INST_VERSION)
+  
+! libsubvdr-$(PLUGIN)-xv.so: $(XV_OBJS)
+  	$(CXX) $(CXXFLAGS) -shared $(XV_OBJS) $(XV_LIBS) -o $@
+! 	@cp $@ $(LIBDIR)/$@.$(INST_VERSION)
+  
+! libsubvdr-$(PLUGIN)-vidix.so: $(VIDIX_OBJS)
+  	$(CXX) $(CXXFLAGS) -shared $(VIDIX_OBJS) $(VIDIX_LIBS) -o $@
+! 	@cp $@ $(LIBDIR)/$@.$(INST_VERSION)
+  
+! libsubvdr-$(PLUGIN)-shm.so: $(SHM_OBJS)
+  	$(CXX) $(CXXFLAGS) -shared $(SHM_OBJS) $(SHM_LIBS) -o $@
+! 	@cp $@ $(LIBDIR)/$@.$(INST_VERSION)
+  
+  endif
+--- 305,331 ----
+  libvdr-$(PLUGIN).so: $(OBJS)
+  	$(CXX) $(CXXFLAGS) -shared $(OBJS) $(LIBS) -o $@
+! 	@cp $@ $(LIBDIR)/$@.$(APIVERSION)
+  
+  ifdef USE_SUBPLUGINS
+  
+! lib$(PLUGIN)-dfb.so: $(DFB_OBJS)
+  	$(CXX) $(CXXFLAGS) -shared $(DFB_OBJS) $(DFB_LIBS) -o $@
+! 	@cp $@ $(LIBDIR)/$@.$(APIVERSION)
+  
+! lib$(PLUGIN)-fb.so: $(FB_OBJS)
+  	$(CXX) $(CXXFLAGS) -shared $(FB_OBJS) $(FB_LIBS) -o $@
+! 	@cp $@ $(LIBDIR)/$@.$(APIVERSION)
+  
+! lib$(PLUGIN)-xv.so: $(XV_OBJS)
+  	$(CXX) $(CXXFLAGS) -shared $(XV_OBJS) $(XV_LIBS) -o $@
+! 	@cp $@ $(LIBDIR)/$@.$(APIVERSION)
+  
+! lib$(PLUGIN)-vidix.so: $(VIDIX_OBJS)
+  	$(CXX) $(CXXFLAGS) -shared $(VIDIX_OBJS) $(VIDIX_LIBS) -o $@
+! 	@cp $@ $(LIBDIR)/$@.$(APIVERSION)
+  
+! lib$(PLUGIN)-shm.so: $(SHM_OBJS)
+  	$(CXX) $(CXXFLAGS) -shared $(SHM_OBJS) $(SHM_LIBS) -o $@
+! 	@cp $@ $(LIBDIR)/$@.$(APIVERSION)
+  
+  endif
+***************
+*** 355,359 ****
+  SHM_CLIENT_OBJS  = video_shm.o video-xv_shm.o setup-softdevice_shm.o\
+  		   xscreensaver_shm.o utils_shm.o VdrReplacements_shm.o\
+! 		   ShmClient_shm.o PicBuffer_shm.o 
+  
+  %_shm.o: %.c
+--- 351,355 ----
+  SHM_CLIENT_OBJS  = video_shm.o video-xv_shm.o setup-softdevice_shm.o\
+  		   xscreensaver_shm.o utils_shm.o VdrReplacements_shm.o\
+! 		   ShmClient_shm.o PicBuffer_shm.o
+  
+  %_shm.o: %.c
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.195
+retrieving revision 1.196
+diff -C2 -d -r1.195 -r1.196
+*** CHANGELOG	6 Jun 2006 20:55:19 -0000	1.195
+--- CHANGELOG	9 Jun 2006 16:45:13 -0000	1.196
+***************
+*** 1,3 ****
+--- 1,8 ----
+  Changelog
++ 2006-06-09:
++    - activate mmx version of yv12_to_yuy2_il_ () for dfb, xv and vidix.
++    - name change libsubvdr-softdevice-METHOD.so.?? -&gt; libsoftdevice-METHOD.so.?? .
++    - removed option -L . is obsolete since we can get the path we are loaded from,
++      at runtime (thanks to Petri Hintukainen).
+  2006-06-06:
+     - mmx version of yv12_to_yuy2_il_c(): yv12_to_yuy2_il_mmx2(). not yet called.
+
+Index: README
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/README,v
+retrieving revision 1.18
+retrieving revision 1.19
+diff -C2 -d -r1.18 -r1.19
+*** README	29 Apr 2006 16:01:09 -0000	1.18
+--- README	9 Jun 2006 16:45:13 -0000	1.19
+***************
+*** 81,89 ****
+  
+  
+- If you compiled softdevice with option USE_SUBPLUGINS (the default from
+- Makefile) and you start vdr with option -L PATH or --lib=PATH , you'll have to
+- specify that pathname to softdevice too via option -L PATH.
+- 
+- 
+  To get a full list of options try &quot;vdr -h&quot;
+  
+--- 81,84 ----
+***************
+*** 268,271 ****
+--- 263,267 ----
+  - Martin Wache
+  - Nicolas Huillard
++ - Petri Hintukainen
+  - Roland Praml
+  - Rolf Ahrenberg
+***************
+*** 274,276 ****
+  - Torgeir Veimo
+  - Vadim Catana
+- 
+--- 270,271 ----
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000376.html">[Softdevice-cvs] softdevice video-dfb.c,1.62,1.63 video-xv.c,1.55,1.56 video-vidix.c,1.19,1.20
+</A></li>
+	<LI>Next message: <A HREF="000378.html">[Softdevice-cvs] softdevice CHANGELOG,1.196,1.197 configure,1.15,1.16
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#377">[ date ]</a>
+              <a href="thread.html#377">[ thread ]</a>
+              <a href="subject.html#377">[ subject ]</a>
+              <a href="author.html#377">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

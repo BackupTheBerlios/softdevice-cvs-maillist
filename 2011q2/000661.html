@@ -1,0 +1,198 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice SoftOsd.c,1.35,1.36
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2011q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20SoftOsd.c%2C1.35%2C1.36&In-Reply-To=%3C20110416132130.8FF6B480875%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000660.html">
+   <LINK REL="Next"  HREF="000662.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice SoftOsd.c,1.35,1.36</H1>
+    <B>lucke at BerliOS</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20SoftOsd.c%2C1.35%2C1.36&In-Reply-To=%3C20110416132130.8FF6B480875%40sheep.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice SoftOsd.c,1.35,1.36">lucke at sheep.berlios.de
+       </A><BR>
+    <I>Sat Apr 16 15:21:30 CEST 2011</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000660.html">[Softdevice-cvs] softdevice softdevice.c, 1.96, 1.97 softdevice.h,	1.15, 1.16
+</A></li>
+        <LI>Next message: <A HREF="000662.html">[Softdevice-cvs] softdevice mpeg2decoder.c, 1.88,	1.89 mpeg2decoder.h, 1.47, 1.48
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#661">[ date ]</a>
+              <a href="thread.html#661">[ thread ]</a>
+              <a href="subject.html#661">[ subject ]</a>
+              <a href="author.html#661">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv17830
+
+Modified Files:
+	SoftOsd.c 
+Log Message:
+Reorder some OSD debug macros.
+
+Index: SoftOsd.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.c,v
+retrieving revision 1.35
+retrieving revision 1.36
+diff -C 2 -d -r1.35 -r1.36
+*** SoftOsd.c	12 Sep 2008 16:48:58 -0000	1.35
+--- SoftOsd.c	16 Apr 2011 13:21:27 -0000	1.36
+***************
+*** 17,21 ****
+--- 17,29 ----
+  #endif
+  
++ /* ---------------------------------------------------------------------------
++  */
+  //#define OSDDEB(out...) {printf(&quot;soft_osd[%04d]:&quot;,(int)(getTimeMilis() % 10000));printf(out);}
++ //#define OSDDEB1(out...) {printf(&quot;soft_osd[%04d]:&quot;,(int)(getTimeMilis() % 10000));printf(out);}
++ //#define SCALEUPDEBV(out...) printf(out)
++ //#define SCALEUPDEBH(out...) printf(out)
++ //#define SCALEDEBV(out...) printf(out)
++ //#define SCALEDEBH(out...) printf(out)
++ 
+  
+  #ifndef OSDDEB
+***************
+*** 23,26 ****
+--- 31,56 ----
+  #endif
+  
++ #ifndef OSDDEB1
++ #define OSDDEB1(out...)
++ #endif
++ 
++ #ifndef SCALEUPDEBV
++ #define SCALEUPDEBV(out...)
++ #endif
++ 
++ #ifndef SCALEUPDEBH
++ #define SCALEUPDEBH(out...)
++ #endif
++ 
++ #ifndef SCALEDEBV
++ #define SCALEDEBV(out...)
++ #endif
++ 
++ #ifndef SCALEDEBH
++ #define SCALEDEBH(out...)
++ #endif
++ 
++ /* ---------------------------------------------------------------------------
++  */
+  #define COLOR_64BIT(x) ( ((x)&lt;&lt;32) | (x) )
+  #define ALPHA_VALUE(x) ( (x) &lt;&lt; 24 )
+***************
+*** 1013,1016 ****
+--- 1043,1048 ----
+          uint32_t new_pixel_height=(OSD_HEIGHT*ScaleFactor)/dest_Height;
+          int lines_count=(new_pixel_height/ScaleFactor*2+4);
++         OSDDEB1(&quot;1 Scale to %d,%d\n&quot;,dest_Width,dest_Height);
++ 
+          color scaleH_pixmap[lines_count*OSD_STRIDE];
+          color *scaleH_Reference[lines_count];
+***************
+*** 1181,1184 ****
+--- 1213,1218 ----
+          uint32_t new_pixel_height=(OSD_HEIGHT*ScaleFactor)/dest_Height;
+          int lines_count=(new_pixel_height/ScaleFactor*2+4);
++         OSDDEB1(&quot;2 Scale to %d,%d\n&quot;,dest_Width,dest_Height);
++ 
+          color scaleH_pixmap[lines_count*OSD_STRIDE];
+          color *scaleH_Reference[lines_count];
+***************
+*** 1301,1304 ****
+--- 1335,1340 ----
+          const int ScaleFactor=1&lt;&lt;6;
+          uint32_t new_pixel_height=(OSD_HEIGHT*ScaleFactor)/dest_Height;
++         OSDDEB1(&quot;3 Scale to %d,%d\n&quot;,dest_Width,dest_Height);
++ 
+          color scaleH_pixmap[2*dest_stride];//dest_Width];
+          color *scaleH_Reference[2];
+***************
+*** 1450,1453 ****
+--- 1486,1491 ----
+          uint32_t new_pixel_height=(OSD_HEIGHT*ScaleFactor)/dest_Height;
+          int lines_count=new_pixel_height/ScaleFactor+2;
++         OSDDEB1(&quot;4 Scale to %d,%d\n&quot;,dest_Width,dest_Height);
++ 
+          color scaleH_pixmap[lines_count*dest_stride];
+          color *scaleH_Reference[lines_count];
+***************
+*** 1495,1501 ****
+  
+  //------------------------ lowlevel scaling functions ------------------------
+- //#define SCALEDEBV(out...) printf(out)
+- #define SCALEDEBV(out...)
+- 
+  void cSoftOsd::ScaleDownVert_MMX(uint32_t * dest, int linesize,
+                  int32_t new_pixel_height, int start_pos,
+--- 1533,1536 ----
+***************
+*** 1638,1643 ****
+  
+  //-----------------------------------------------------------------
+- #define SCALEDEBH(out...)
+- 
+  void cSoftOsd::ScaleDownHoriz_MMX(uint32_t * dest, int dest_Width,
+                  color * pixmap, int Pixel) {
+--- 1673,1676 ----
+***************
+*** 1773,1780 ****
+  
+  //-----------------------------------------------------------------------
+- #define SCALEUPDEBH(out...)
+- //#define SCALEUPDEBH(out...) printf(out)
+- 
+- 
+  void cSoftOsd::ScaleUpHoriz_MMX(uint32_t * dest, int dest_Width,
+                  color * pixmap, int Pixel) {
+--- 1806,1809 ----
+***************
+*** 1873,1878 ****
+  
+  //-------------------------------------------------------------------------
+- #define SCALEUPDEBV(out...)
+- 
+  void cSoftOsd::ScaleUpVert_MMX(uint32_t *dest, int linesize,
+                  int32_t new_pixel_height, int start_pos,
+--- 1902,1905 ----
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000660.html">[Softdevice-cvs] softdevice softdevice.c, 1.96, 1.97 softdevice.h,	1.15, 1.16
+</A></li>
+	<LI>Next message: <A HREF="000662.html">[Softdevice-cvs] softdevice mpeg2decoder.c, 1.88,	1.89 mpeg2decoder.h, 1.47, 1.48
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#661">[ date ]</a>
+              <a href="thread.html#661">[ thread ]</a>
+              <a href="subject.html#661">[ subject ]</a>
+              <a href="author.html#661">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

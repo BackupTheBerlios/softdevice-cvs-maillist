@@ -1,0 +1,299 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice mpeg2decoder.c,1.56,1.57 CHANGELOG,1.121,1.122
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20mpeg2decoder.c%2C1.56%2C1.57%20CHANGELOG%2C1.121%2C1.122&In-Reply-To=%3C200510292306.j9TN6rw10588%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000233.html">
+   <LINK REL="Next"  HREF="000235.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice mpeg2decoder.c,1.56,1.57 CHANGELOG,1.121,1.122</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20mpeg2decoder.c%2C1.56%2C1.57%20CHANGELOG%2C1.121%2C1.122&In-Reply-To=%3C200510292306.j9TN6rw10588%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice mpeg2decoder.c,1.56,1.57 CHANGELOG,1.121,1.122">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Oct 30 01:06:53 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000233.html">[Softdevice-cvs] softdevice CHANGELOG,1.120,1.121 mpeg2decoder.c,1.55,1.56 mpeg2decoder.h,1.32,1.33 softdevice.c,1.44,1.45
+</A></li>
+        <LI>Next message: <A HREF="000235.html">[Softdevice-cvs] softdevice i18n.c,1.9,1.10
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#234">[ date ]</a>
+              <a href="thread.html#234">[ thread ]</a>
+              <a href="subject.html#234">[ subject ]</a>
+              <a href="author.html#234">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv15307
+
+Modified Files:
+	mpeg2decoder.c CHANGELOG 
+Log Message:
+DV read via dv1394 seems to have
+context-&gt;coded_frame-&gt;coded_picture_number
+always set to zero. Therefor lets do the following guess upon current
+PTS value. Don't know if there are other codecs which deliver
+codec_picture_number as zero.
+Hopefully noone else will see '#' chars printed.
+
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.56
+retrieving revision 1.57
+diff -C2 -d -r1.56 -r1.57
+*** mpeg2decoder.c	29 Oct 2005 08:30:27 -0000	1.56
+--- mpeg2decoder.c	29 Oct 2005 23:06:48 -0000	1.57
+***************
+*** 60,64 ****
+        EnableGet.Signal();
+    };
+!   
+    if (FirstPacket == Next(LastPacket) ) {
+          BUFDEB(&quot;PacketQueue.EnablePut.Sleep start\n&quot;);
+--- 60,64 ----
+        EnableGet.Signal();
+    };
+! 
+    if (FirstPacket == Next(LastPacket) ) {
+          BUFDEB(&quot;PacketQueue.EnablePut.Sleep start\n&quot;);
+***************
+*** 66,70 ****
+          BUFDEB(&quot;PacketQueue.EnablePut.Sleep stop\n&quot;);
+    };
+!   
+    if (FirstPacket != Next(LastPacket) ) {
+      queue[LastPacket]=Packet;
+--- 66,70 ----
+          BUFDEB(&quot;PacketQueue.EnablePut.Sleep stop\n&quot;);
+    };
+! 
+    if (FirstPacket != Next(LastPacket) ) {
+      queue[LastPacket]=Packet;
+***************
+*** 89,93 ****
+         BUFDEB(&quot;PacketQueue.EnableGet.Sleep stop pid: %d \n&quot;,getpid());
+    };
+!   
+    if ( FirstPacket != LastPacket )
+      return &amp;queue[FirstPacket];
+--- 89,93 ----
+         BUFDEB(&quot;PacketQueue.EnableGet.Sleep stop pid: %d \n&quot;,getpid());
+    };
+! 
+    if ( FirstPacket != LastPacket )
+      return &amp;queue[FirstPacket];
+***************
+*** 158,162 ****
+      avcodec_close(context);
+    else fprintf(stderr,&quot;Error not closing context %p, codec %p\n&quot;,context,codec);
+!   
+    PacketQueue.Clear();
+  }
+--- 158,162 ----
+      avcodec_close(context);
+    else fprintf(stderr,&quot;Error not closing context %p, codec %p\n&quot;,context,codec);
+! 
+    PacketQueue.Clear();
+  }
+***************
+*** 174,178 ****
+      usleep(10000);
+    };
+!  
+    while(active)
+    {
+--- 174,178 ----
+      usleep(10000);
+    };
+! 
+    while(active)
+    {
+***************
+*** 279,283 ****
+        context-&gt;flags|= CODEC_FLAG_TRUNCATED;
+    }
+!   
+    if ( (ret=avcodec_open(context, codec)) &lt; 0)
+    {
+--- 279,283 ----
+        context-&gt;flags|= CODEC_FLAG_TRUNCATED;
+    }
+! 
+    if ( (ret=avcodec_open(context, codec)) &lt; 0)
+    {
+***************
+*** 556,560 ****
+      size-=len;
+      data+=len;
+!  
+      // save coded picture number together with corresponding pts
+      if (context-&gt;coded_frame  &amp;&amp;
+--- 556,560 ----
+      size-=len;
+      data+=len;
+! 
+      // save coded picture number together with corresponding pts
+      if (context-&gt;coded_frame  &amp;&amp;
+***************
+*** 563,567 ****
+        pts_values[lastPTSidx].pts = lastPTS;
+        pts_values[lastPTSidx].duration = lastDuration;
+!       pts_values[lastPTSidx].coded_frame_no = 
+          context-&gt;coded_frame-&gt;coded_picture_number;
+        lastPTSidx = (lastPTSidx+1)%NO_PTS_VALUES;
+--- 563,567 ----
+        pts_values[lastPTSidx].pts = lastPTS;
+        pts_values[lastPTSidx].duration = lastDuration;
+!       pts_values[lastPTSidx].coded_frame_no =
+          context-&gt;coded_frame-&gt;coded_picture_number;
+        lastPTSidx = (lastPTSidx+1)%NO_PTS_VALUES;
+***************
+*** 572,581 ****
+          lastPTSidx);
+        lastPTS = AV_NOPTS_VALUE;
+!     };
+!     
+      if (pkt-&gt;pts != (int64_t) AV_NOPTS_VALUE) {
+           lastPTS=pkt-&gt;pts;
+           lastDuration=pkt-&gt;duration;
+!          
+           if (lastDuration) {
+  #if LIBAVCODEC_BUILD &gt; 4753
+--- 572,581 ----
+          lastPTSidx);
+        lastPTS = AV_NOPTS_VALUE;
+!     }
+! 
+      if (pkt-&gt;pts != (int64_t) AV_NOPTS_VALUE) {
+           lastPTS=pkt-&gt;pts;
+           lastDuration=pkt-&gt;duration;
+! 
+           if (lastDuration) {
+  #if LIBAVCODEC_BUILD &gt; 4753
+***************
+*** 622,640 ****
+      pix_fmt = context-&gt;pix_fmt;
+  
+- 
+      // find decoded pictures pts value
+      int findPTS=(lastPTSidx+1)%NO_PTS_VALUES;
+      while ( picture-&gt;coded_picture_number !=
+!                 pts_values[findPTS].coded_frame_no &amp;&amp; 
+!                 findPTS != lastPTSidx) 
+           findPTS=(findPTS+1)%NO_PTS_VALUES;
+!    
+!      // found corresponding pts value
+!      if (picture-&gt;coded_picture_number==pts_values[findPTS].coded_frame_no) {
+!           MPGDEB(&quot;video pts: %lld, values.pkt : %lld pts - valid PTS: %lld pictno: %d idx: %d\n&quot;,
+!           pts,pts_values[findPTS].pts,(int) pts - pts_values[findPTS].pts,
+!           picture-&gt;coded_picture_number,findPTS);
+!           pts = pts_values[findPTS].pts;
+!      };
+  
+    if (!hurry_up || frame % 2 )
+--- 622,653 ----
+      pix_fmt = context-&gt;pix_fmt;
+  
+      // find decoded pictures pts value
+      int findPTS=(lastPTSidx+1)%NO_PTS_VALUES;
+      while ( picture-&gt;coded_picture_number !=
+!                 pts_values[findPTS].coded_frame_no &amp;&amp;
+!                 findPTS != lastPTSidx)
+           findPTS=(findPTS+1)%NO_PTS_VALUES;
+! 
+!     // found corresponding pts value
+!     if (picture-&gt;coded_picture_number==pts_values[findPTS].coded_frame_no) {
+!       MPGDEB(&quot;video pts: %lld, values.pkt : %lld pts - valid PTS: %lld pictno: %d idx: %d\n&quot;,
+!              pts,pts_values[findPTS].pts,(int) pts - pts_values[findPTS].pts,
+!              picture-&gt;coded_picture_number,findPTS);
+!       pts = pts_values[findPTS].pts;
+!     }
+! 
+!     /* ------------------------------------------------------------------------
+!      * DV read via dv1394 seems to have
+!      * context-&gt;coded_frame-&gt;coded_picture_number
+!      * always set to zero. Therefor lets do the following guess upon current
+!      * PTS value. Don't know if there are other codecs which deliver
+!      * codec_picture_number as zero.
+!      * Hopefully noone else will see '#' chars printed.
+!      */
+!     if (!pts &amp;&amp; lastPTS != (int64_t) AV_NOPTS_VALUE)
+!     {
+!        fprintf(stderr,&quot;#&quot;);
+!        pts = lastPTS;
+!     }
+  
+    if (!hurry_up || frame % 2 )
+***************
+*** 667,673 ****
+    // calculate delay
+    delay += ( frametime() - pts_corr  ) * 100;
+!   // update video pts 
+    pts += frametime();
+!  
+    if (delay &gt; 2*frametime()*100)
+      delay = 2*frametime()*100;
+--- 680,686 ----
+    // calculate delay
+    delay += ( frametime() - pts_corr  ) * 100;
+!   // update video pts
+    pts += frametime();
+! 
+    if (delay &gt; 2*frametime()*100)
+      delay = 2*frametime()*100;
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.121
+retrieving revision 1.122
+diff -C2 -d -r1.121 -r1.122
+*** CHANGELOG	29 Oct 2005 08:30:27 -0000	1.121
+--- CHANGELOG	29 Oct 2005 23:06:49 -0000	1.122
+***************
+*** 4,7 ****
+--- 4,8 ----
+      - packet playback: assume we get complete frames via packet interface.
+                         This fixes playing divx via softplay.
++     - fix frame dropping with IEEE1394 read.                       
+  2005-10-26:
+      - fix cropmode handling via OSD
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000233.html">[Softdevice-cvs] softdevice CHANGELOG,1.120,1.121 mpeg2decoder.c,1.55,1.56 mpeg2decoder.h,1.32,1.33 softdevice.c,1.44,1.45
+</A></li>
+	<LI>Next message: <A HREF="000235.html">[Softdevice-cvs] softdevice i18n.c,1.9,1.10
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#234">[ date ]</a>
+              <a href="thread.html#234">[ thread ]</a>
+              <a href="subject.html#234">[ subject ]</a>
+              <a href="author.html#234">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,1084 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.206,1.207 SoftOsd.c,1.15,1.16 SoftOsd.h,1.6,1.7
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.206%2C1.207%20SoftOsd.c%2C1.15%2C1.16%20SoftOsd.h%2C1.6%2C1.7&In-Reply-To=%3C200607101823.k6AINVY19844%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000390.html">
+   <LINK REL="Next"  HREF="000392.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.206,1.207 SoftOsd.c,1.15,1.16 SoftOsd.h,1.6,1.7</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.206%2C1.207%20SoftOsd.c%2C1.15%2C1.16%20SoftOsd.h%2C1.6%2C1.7&In-Reply-To=%3C200607101823.k6AINVY19844%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.206,1.207 SoftOsd.c,1.15,1.16 SoftOsd.h,1.6,1.7">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon Jul 10 20:23:31 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000390.html">[Softdevice-cvs] softdevice CHANGELOG,1.205,1.206 PicBuffer.c,1.5,1.6 PicBuffer.h,1.2,1.3
+</A></li>
+        <LI>Next message: <A HREF="000392.html">[Softdevice-cvs] softdevice CHANGELOG,1.207,1.208 softdevice.c,1.61,1.62 video.c,1.58,1.59
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#391">[ date ]</a>
+              <a href="thread.html#391">[ thread ]</a>
+              <a href="subject.html#391">[ subject ]</a>
+              <a href="author.html#391">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv9040
+
+Modified Files:
+	CHANGELOG SoftOsd.c SoftOsd.h 
+Log Message:
+ - fix possible endianness problems in SoftOsd.c
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.206
+retrieving revision 1.207
+diff -C2 -d -r1.206 -r1.207
+*** CHANGELOG	10 Jul 2006 17:56:29 -0000	1.206
+--- CHANGELOG	10 Jul 2006 18:23:28 -0000	1.207
+***************
+*** 1,4 ****
+--- 1,5 ----
+  Changelog
+  2006-07-10:
++    - fix possible endianness problems in SoftOsd.c
+     - add support for yuy2 pixel format to alpha blend and copy pic buf code
+     - change return value of AllocPicBuffer()
+
+Index: SoftOsd.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.c,v
+retrieving revision 1.15
+retrieving revision 1.16
+diff -C2 -d -r1.15 -r1.16
+*** SoftOsd.c	15 Jun 2006 21:34:20 -0000	1.15
+--- SoftOsd.c	10 Jul 2006 18:23:28 -0000	1.16
+***************
+*** 29,32 ****
+--- 29,33 ----
+  
+  
++ //#undef USE_MMX
+  //#undef USE_MMX2
+  /* ---------------------------------------------------------------------------
+***************
+*** 274,278 ****
+          // Handle YUV format
+          if (bitmap_Format == PF_AYUV) {
+! 		ARGB_to_AYUV((uint8_t*)palette,(color *)orig_palette,
+                                  maxColors);
+                  return;
+--- 275,279 ----
+          // Handle YUV format
+          if (bitmap_Format == PF_AYUV) {
+! 		ARGB_to_AYUV((uint32_t*)palette,(color *)orig_palette,
+                                  maxColors);
+                  return;
+***************
+*** 289,293 ****
+  			};
+  
+!                         // replace transparent colors with color key
+                          if ( IS_TRANSPARENT( (uint32_t)palette[i] &gt;&gt; 24  ) ) {
+                          //if (((uint32_t)palette[i] &amp; 0xFF000000) == 0x000000 ) {
+--- 290,294 ----
+  			};
+  
+!                        // replace transparent colors with color key
+                          if ( IS_TRANSPARENT( (uint32_t)palette[i] &gt;&gt; 24  ) ) {
+                          //if (((uint32_t)palette[i] &amp; 0xFF000000) == 0x000000 ) {
+***************
+*** 297,301 ****
+  	} else if ( bitmap_Format == PF_inverseAlpha_ARGB32 ) {
+  		for (int i=0; i&lt;maxColors; i++) {
+!                         ((color*) palette)[i].a=0xFF-((color*) palette)[i].a;
+                  };
+  	};
+--- 298,305 ----
+  	} else if ( bitmap_Format == PF_inverseAlpha_ARGB32 ) {
+  		for (int i=0; i&lt;maxColors; i++) {
+!                         int a=GET_A(((color*) palette)[i]);
+!                         ((color*) palette)[i]&amp;=~SET_A(0xFF);
+!                         ((color*) palette)[i]|=SET_A(0xFF-a);
+!                         //((color*) palette)[i].a=0xFF-((color*) palette)[i].a;
+                  };
+  	};
+***************
+*** 356,377 ****
+  /*----------------------------------------------------------------------*/
+  
+! void cSoftOsd::ARGB_to_AYUV(uint8_t * dest, color * pixmap, int Pixel) {
+          int Y;
+          int U;
+          int V;
+          while (Pixel&gt;0) {
+!                 //printf(&quot;ARGB: %02x,%02x,%02x,%02x &quot;,pixmap-&gt;a,pixmap-&gt;r,
+!                 //                pixmap-&gt;g,pixmap-&gt;b);
+                  // I got this formular from Wikipedia...
+!                 Y = (( 66 * (int)pixmap-&gt;r + 129 * (int)pixmap-&gt;g 
+!                                + 25 * (int)pixmap-&gt;b + 128 )  &gt;&gt; 8)+16;
+!                 U = (( -38 * (int)pixmap-&gt;r - 74 * (int)pixmap-&gt;g 
+!                                +112 * (int)pixmap-&gt;b + 128 )  &gt;&gt; 8)+128;
+!                 V = (( 112 * (int)pixmap-&gt;r - 94 * (int)pixmap-&gt;g 
+!                                - 18 * (int)pixmap-&gt;b + 128 )  &gt;&gt; 8)+128;
+!                 *dest++=(uint8_t)V;
+!                 *dest++=(uint8_t)U;
+!                 *dest++=(uint8_t)Y;
+!                 *dest++=pixmap-&gt;a;
+                  //printf(&quot;-&gt;AYUV: %0x,%02x,%02x,%02x\n&quot;,pixmap-&gt;a,Y,U,V);
+                  pixmap++;
+--- 360,380 ----
+  /*----------------------------------------------------------------------*/
+  
+! void cSoftOsd::ARGB_to_AYUV(uint32_t * dest, color * pixmap, int Pixel) {
+          int Y;
+          int U;
+          int V;
++         int a,r,g,b;
++         int c;
+          while (Pixel&gt;0) {
+!                 a=GET_A(*pixmap); r=GET_R(*pixmap);
+!                 g=GET_G(*pixmap); b=GET_B(*pixmap);
+!                 
+!                 //printf(&quot;ARGB: %02x,%02x,%02x,%02x &quot;,a,r,g,b);
+                  // I got this formular from Wikipedia...
+!                 Y = (( 66 * r + 129 * g + 25 * b + 128 )  &gt;&gt; 8)+16;
+!                 U = (( -38 * r - 74 * g +112 * b + 128 )  &gt;&gt; 8)+128;
+!                 V = (( 112 * r - 94 * g - 18 * b + 128 )  &gt;&gt; 8)+128;
+!                 c = SET_A(a) | SET_R(Y) | SET_G(U) | SET_B(V);
+!                 *dest++ = c;
+                  //printf(&quot;-&gt;AYUV: %0x,%02x,%02x,%02x\n&quot;,pixmap-&gt;a,Y,U,V);
+                  pixmap++;
+***************
+*** 443,455 ****
+  	end_dest+=16;
+  #endif
+          while (end_dest&gt;dest) {
+!                 if ( IS_BACKGROUND(pixmap-&gt;a) &amp;&amp; (((intptr_t)dest) &amp; 0x4) ) {
+                          dest[0] = 0; dest[1] = 0; dest[2] = 0; dest[3] = 0x00;
+                          // color key!
+                  } else {
+!                         dest[0]=pixmap-&gt;b;
+!                         dest[1]=pixmap-&gt;g;
+!                         dest[2]=pixmap-&gt;r;
+!                         dest[3]=pixmap-&gt;a;
+                  }
+                  dest+=4;
+--- 446,460 ----
+  	end_dest+=16;
+  #endif
++         int c;
+          while (end_dest&gt;dest) {
+!                 c=*pixmap;
+!                 if ( IS_BACKGROUND(GET_A(c)) &amp;&amp; (((intptr_t)dest) &amp; 0x4) ) {
+                          dest[0] = 0; dest[1] = 0; dest[2] = 0; dest[3] = 0x00;
+                          // color key!
+                  } else {
+!                         dest[0]=GET_B(c);
+!                         dest[1]=GET_G(c);
+!                         dest[2]=GET_R(c);
+!                         dest[3]=GET_A(c);
+                  }
+                  dest+=4;
+***************
+*** 650,671 ****
+  	EMMS;
+  #endif
+  	while (Pixel&gt;1) {
+! 		*(PAlphaY1++)=pixmap1[0].a; *(PAlphaY1++)=pixmap1[1].a;
+! 		*(PAlphaY2++)=pixmap2[0].a; *(PAlphaY2++)=pixmap2[1].a;
+! 		*(PY1++)=pixmap1[0].r; *(PY1++)=pixmap1[1].r;
+! 		*(PY2++)=pixmap2[0].r; *(PY2++)=pixmap2[1].r;
+                  
+! 		*(PU++)=(uint8_t)((uint16_t)
+!                                 ((uint16_t)pixmap1[0].b+(uint16_t)pixmap1[1].b+
+! 				  (uint16_t)pixmap2[0].b+(uint16_t)pixmap2[1].b)
+! 			&gt;&gt;2);
+! 		*(PV++)=(uint8_t)((uint16_t)(
+!                                   (uint16_t)pixmap1[0].g+(uint16_t)pixmap1[1].g+
+! 				  (uint16_t)pixmap2[0].g+(uint16_t)pixmap2[1].g)
+! 			&gt;&gt;2);
+! 		*(PAlphaUV++)=(uint8_t)((uint16_t)
+! 			((uint16_t)pixmap1[0].a+(uint16_t)pixmap1[1].a+
+! 			(uint16_t)pixmap2[0].a+(uint16_t)pixmap2[1].a)
+! 			&gt;&gt;2);
+                          
+                  pixmap1+=2;
+--- 655,679 ----
+  	EMMS;
+  #endif
++         int p10,p11;
++         int p20,p21;
+  	while (Pixel&gt;1) {
+!                 p10=pixmap1[0]; p11=pixmap1[1];
+!                 p20=pixmap2[0]; p21=pixmap2[1];
+                  
+! 		*(PAlphaY1++)=GET_A(p10); *(PAlphaY1++)=GET_A(p11);
+! 		*(PAlphaY2++)=GET_A(p20); *(PAlphaY2++)=GET_A(p21);
+! 		*(PAlphaUV++)=(uint8_t)((unsigned int)
+! 			(GET_A(p10)+GET_A(p11)+
+! 			 GET_A(p20)+GET_A(p21))&gt;&gt;2);
+! 
+!                 *(PY1++)=GET_R(p10); *(PY1++)=GET_R(p11);
+! 		*(PY2++)=GET_R(p20); *(PY2++)=GET_R(p21);
+!                 
+! 		*(PU++)=(uint8_t)((unsigned int)
+!                                 (GET_B(p10) + GET_B(p11) +
+! 				  GET_B(p20)+ GET_B(p21))&gt;&gt;2);
+! 		*(PV++)=(uint8_t)((unsigned int)
+!                                   (GET_G(p10)+GET_G(p11)+
+! 				   GET_G(p20)+GET_G(p21))&gt;&gt;2);
+                          
+                  pixmap1+=2;
+***************
+*** 678,688 ****
+  
+  void cSoftOsd::ARGB_to_RGB24(uint8_t * dest, color * pixmap, int Pixel) {
+          while (Pixel) {
+!                 if ( IS_BACKGROUND(pixmap-&gt;a) &amp;&amp; (Pixel &amp; 0x1) ) {
+                          dest[0] = 0x0; dest[1] = 0x0; dest[1] = 0x0; // color key!
+                  } else {
+!                         dest[0]=pixmap-&gt;b;
+!                         dest[1]=pixmap-&gt;g;
+!                         dest[2]=pixmap-&gt;r;
+                  }
+                  dest+=3;
+--- 686,698 ----
+  
+  void cSoftOsd::ARGB_to_RGB24(uint8_t * dest, color * pixmap, int Pixel) {
++         int c;
+          while (Pixel) {
+!                 c = *pixmap;
+!                 if ( IS_BACKGROUND(GET_A(c)) &amp;&amp; (Pixel &amp; 0x1) ) {
+                          dest[0] = 0x0; dest[1] = 0x0; dest[1] = 0x0; // color key!
+                  } else {
+!                         dest[0]=GET_B(c);
+!                         dest[1]=GET_G(c);
+!                         dest[2]=GET_R(c);
+                  }
+                  dest+=3;
+***************
+*** 777,787 ****
+          end_dest+=8;
+  #endif
+          while (end_dest&gt;dest) {
+!                 if ( IS_BACKGROUND(pixmap-&gt;a) &amp;&amp; (((intptr_t)dest) &amp; 0x2) ) {
+                          dest[0] = 0x0; dest[1] = 0x0; // color key!
+                  } else {
+!                         dest[0] = ((pixmap-&gt;b &gt;&gt; 3)&amp; 0x1F) | 
+!                                 ((pixmap-&gt;g &amp; 0x1C) &lt;&lt; 3);
+!                         dest[1] = (pixmap-&gt;r &amp; 0xF8) | (pixmap-&gt;g &gt;&gt; 5);
+                  }
+                  dest+=2;
+--- 787,799 ----
+          end_dest+=8;
+  #endif
++         int c;
+          while (end_dest&gt;dest) {
+!                 c = *pixmap;
+!                 if ( IS_BACKGROUND(GET_A(c)) &amp;&amp; (((intptr_t)dest) &amp; 0x2) ) {
+                          dest[0] = 0x0; dest[1] = 0x0; // color key!
+                  } else {
+!                         dest[0] = ((GET_B(c) &gt;&gt; 3)&amp; 0x1F) | 
+!                                 ((GET_G(c) &amp; 0x1C) &lt;&lt; 3);
+!                         dest[1] = (GET_R(c) &amp; 0xF8) | (GET_G(c) &gt;&gt; 5);
+                  }
+                  dest+=2;
+***************
+*** 795,808 ****
+  	uint8_t *end_dest=dest+2*Pixel;
+  	int PixelCount=0;
+          while (end_dest&gt;dest) {
+!                 if ( IS_BACKGROUND(pixmap-&gt;a) &amp;&amp; (((intptr_t)pixmap) &amp; 0x4)
+! 				|| IS_TRANSPARENT(pixmap-&gt;a) ) {
+                          // transparent, don't draw anything !
+                  } else {
+                          // FIXME 15/16bit mode? Probably broken!
+! 			dest[0] = ((pixmap-&gt;b &gt;&gt; 3)&amp; 0x1F) | 
+!                                 ((pixmap-&gt;g &amp; 0x1C) &lt;&lt; 3);
+!                         dest[1] = ((pixmap-&gt;r ) &amp; 0xF8) 
+! 			 	| ((pixmap-&gt;g &gt;&gt; 5) );
+                  }
+                  dest+=2;
+--- 807,822 ----
+  	uint8_t *end_dest=dest+2*Pixel;
+  	int PixelCount=0;
++         int c;
+          while (end_dest&gt;dest) {
+!                 c=*pixmap;
+!                 if ( IS_BACKGROUND(GET_A(c)) &amp;&amp; (((intptr_t)pixmap) &amp; 0x4)
+! 				|| IS_TRANSPARENT(GET_A(c)) ) {
+                          // transparent, don't draw anything !
+                  } else {
+                          // FIXME 15/16bit mode? Probably broken!
+! 			dest[0] = ((GET_B(c) &gt;&gt; 3)&amp; 0x1F) | 
+!                                 ((GET_G(c) &amp; 0x1C) &lt;&lt; 3);
+!                         dest[1] = ((GET_R(c) ) &amp; 0xF8) 
+! 			 	| ((GET_G(c) &gt;&gt; 5) );
+                  }
+                  dest+=2;
+***************
+*** 814,820 ****
+  void cSoftOsd::CreatePixelMask(uint8_t * dest, color * pixmap, int Pixel) {
+  	int CurrPixel=0;
+          while (CurrPixel&lt;Pixel) {
+!                 if ( (IS_BACKGROUND(pixmap-&gt;a) &amp;&amp; !(((intptr_t)pixmap) &amp; 0x4)  )
+!                                 || IS_OPAQUE(pixmap-&gt;a) ) 
+                          dest[CurrPixel/8]|=(1&lt;&lt;CurrPixel%8);
+                   else dest[CurrPixel/8]&amp;=~(1&lt;&lt;CurrPixel%8);
+--- 828,836 ----
+  void cSoftOsd::CreatePixelMask(uint8_t * dest, color * pixmap, int Pixel) {
+  	int CurrPixel=0;
++         int c;
+          while (CurrPixel&lt;Pixel) {
+!                 c = *pixmap;
+!                 if ( (IS_BACKGROUND(GET_A(c)) &amp;&amp; !(((intptr_t)pixmap) &amp; 0x4)  )
+!                                 || IS_OPAQUE(GET_A(c)) ) 
+                          dest[CurrPixel/8]|=(1&lt;&lt;CurrPixel%8);
+                   else dest[CurrPixel/8]&amp;=~(1&lt;&lt;CurrPixel%8);
+***************
+*** 857,861 ****
+          uint8_t *pY;uint8_t *pU;uint8_t *pV;
+          uint8_t *pAlphaY; uint8_t *pAlphaUV;
+!  	void (cSoftOsd::*ScaleHoriz)(uint8_t * dest, int dest_Width, color * pixmap,int Pixel);
+  	ScaleHoriz = ( dest_Width&lt;OSD_WIDTH ? &amp;cSoftOsd::ScaleDownHoriz_MMX :
+                        ( dest_Width==OSD_WIDTH ? &amp;cSoftOsd::NoScaleHoriz_MMX :
+--- 873,877 ----
+          uint8_t *pY;uint8_t *pU;uint8_t *pV;
+          uint8_t *pAlphaY; uint8_t *pAlphaUV;
+!  	void (cSoftOsd::*ScaleHoriz)(uint32_t * dest, int dest_Width, color * pixmap,int Pixel);
+  	ScaleHoriz = ( dest_Width&lt;OSD_WIDTH ? &amp;cSoftOsd::ScaleDownHoriz_MMX :
+                        ( dest_Width==OSD_WIDTH ? &amp;cSoftOsd::NoScaleHoriz_MMX :
+***************
+*** 877,883 ****
+                  } else {
+                          //printf(&quot;Horiz scaling line %d\n&quot;,start_row+i);
+!                         (this-&gt;*ScaleHoriz)((uint8_t *)tmp_pixmap,dest_Width,
+                                              &amp;pixmap[y*OSD_STRIDE],OSD_WIDTH-1); 
+!                         (this-&gt;*ScaleHoriz)((uint8_t *)&amp;tmp_pixmap[dest_Stride],
+                                              dest_Width,
+                                              &amp;pixmap[(y+1)*OSD_STRIDE],OSD_WIDTH-1); 
+--- 893,899 ----
+                  } else {
+                          //printf(&quot;Horiz scaling line %d\n&quot;,start_row+i);
+!                         (this-&gt;*ScaleHoriz)((uint32_t*)tmp_pixmap,dest_Width,
+                                              &amp;pixmap[y*OSD_STRIDE],OSD_WIDTH-1); 
+!                         (this-&gt;*ScaleHoriz)((uint32_t*)&amp;tmp_pixmap[dest_Stride],
+                                              dest_Width,
+                                              &amp;pixmap[(y+1)*OSD_STRIDE],OSD_WIDTH-1); 
+***************
+*** 955,959 ****
+                          if (scaleH_lines[SCALEH_IDX(i)]!=start_row+i){
+                                  //printf(&quot;Horiz scaling line %d\n&quot;,start_row+i);
+!                                 ScaleDownHoriz_MMX((uint8_t *)scaleH_Reference[i],dest_Width,
+                                                  &amp;pixmap[(start_row+i)*OSD_STRIDE],OSD_WIDTH-1); 
+                                  scaleH_lines[SCALEH_IDX(i)]=start_row+i;
+--- 971,975 ----
+                          if (scaleH_lines[SCALEH_IDX(i)]!=start_row+i){
+                                  //printf(&quot;Horiz scaling line %d\n&quot;,start_row+i);
+!                                 ScaleDownHoriz_MMX((uint32_t*)scaleH_Reference[i],dest_Width,
+                                                  &amp;pixmap[(start_row+i)*OSD_STRIDE],OSD_WIDTH-1); 
+                                  scaleH_lines[SCALEH_IDX(i)]=start_row+i;
+***************
+*** 967,971 ****
+                   */ 
+                  OSDDEB(&quot;start_pos %d start_row %d\n&quot;,start_pos,start_row);
+!                 ScaleDownVert_MMX((uint8_t*) tmp_pixmap,0,
+  				new_pixel_height,start_pos,
+                                  scaleH_Reference,dest_Width);
+--- 983,987 ----
+                   */ 
+                  OSDDEB(&quot;start_pos %d start_row %d\n&quot;,start_pos,start_row);
+!                 ScaleDownVert_MMX((uint32_t*)tmp_pixmap,0,
+  				new_pixel_height,start_pos,
+                                  scaleH_Reference,dest_Width);
+***************
+*** 982,986 ****
+                  
+                  OSDDEB(&quot;start_pos %d new_start_row %d\n&quot;,start_pos,new_start_row);
+!                 ScaleDownVert_MMX((uint8_t*) &amp;tmp_pixmap[OSD_STRIDE],0,
+  				new_pixel_height,start_pos,
+                                  &amp;scaleH_Reference[start_row_idx],
+--- 998,1002 ----
+                  
+                  OSDDEB(&quot;start_pos %d new_start_row %d\n&quot;,start_pos,new_start_row);
+!                 ScaleDownVert_MMX((uint32_t*)&amp;tmp_pixmap[OSD_STRIDE],0,
+  				new_pixel_height,start_pos,
+                                  &amp;scaleH_Reference[start_row_idx],
+***************
+*** 1036,1040 ****
+  	cMutexLock dirty(&amp;dirty_Mutex);
+  	const int dest_stride=(dest_Width+32)&amp;~0xF;
+! 	void (cSoftOsd::*ScaleHoriz)(uint8_t * dest, int dest_Width, color * pixmap,int Pixel);
+  	ScaleHoriz= dest_Width&lt;OSD_WIDTH ? &amp;cSoftOsd::ScaleDownHoriz_MMX :
+  		&amp;cSoftOsd::ScaleUpHoriz_MMX;
+--- 1052,1056 ----
+  	cMutexLock dirty(&amp;dirty_Mutex);
+  	const int dest_stride=(dest_Width+32)&amp;~0xF;
+! 	void (cSoftOsd::*ScaleHoriz)(uint32_t * dest, int dest_Width, color * pixmap,int Pixel);
+  	ScaleHoriz= dest_Width&lt;OSD_WIDTH ? &amp;cSoftOsd::ScaleDownHoriz_MMX :
+  		&amp;cSoftOsd::ScaleUpHoriz_MMX;
+***************
+*** 1078,1082 ****
+  		if ( scaleH_lines[scaleH_strtIdx] != start_row ) {
+  			(this-&gt;*ScaleHoriz)
+! 				((uint8_t *)scaleH_Reference[0],dest_Width,
+  				 &amp;pixmap[(start_row+0)*OSD_STRIDE],OSD_WIDTH);
+  			scaleH_lines[scaleH_strtIdx] = start_row;
+--- 1094,1098 ----
+  		if ( scaleH_lines[scaleH_strtIdx] != start_row ) {
+  			(this-&gt;*ScaleHoriz)
+! 				((uint32_t*)scaleH_Reference[0],dest_Width,
+  				 &amp;pixmap[(start_row+0)*OSD_STRIDE],OSD_WIDTH);
+  			scaleH_lines[scaleH_strtIdx] = start_row;
+***************
+*** 1084,1092 ****
+  		
+  		(this-&gt;*ScaleHoriz)
+! 			((uint8_t *)scaleH_Reference[1],dest_Width,
+  			 &amp;pixmap[(start_row+1)*OSD_STRIDE],OSD_WIDTH);
+  	
+  		scaleH_lines[!scaleH_strtIdx] = start_row+1;
+! 		ScaleUpVert_MMX((uint8_t*) tmp_pixmap,dest_Width*4,
+  				new_pixel_height,start_pos,
+                                  scaleH_Reference,dest_Width);
+--- 1100,1108 ----
+  		
+  		(this-&gt;*ScaleHoriz)
+! 			((uint32_t*)scaleH_Reference[1],dest_Width,
+  			 &amp;pixmap[(start_row+1)*OSD_STRIDE],OSD_WIDTH);
+  	
+  		scaleH_lines[!scaleH_strtIdx] = start_row+1;
+! 		ScaleUpVert_MMX((uint32_t*)tmp_pixmap,dest_Width,
+  				new_pixel_height,start_pos,
+                                  scaleH_Reference,dest_Width);
+***************
+*** 1143,1147 ****
+          color tmp_pixmap[2*dest_stride];
+  
+!        void (cSoftOsd::*ScaleHoriz)(uint8_t * dest, int dest_Width, color * pixmap,int Pixel);
+  	ScaleHoriz= dest_Width&lt;OSD_WIDTH ? &amp;cSoftOsd::ScaleDownHoriz_MMX :
+  		&amp;cSoftOsd::ScaleUpHoriz_MMX;
+--- 1159,1163 ----
+          color tmp_pixmap[2*dest_stride];
+  
+!        void (cSoftOsd::*ScaleHoriz)(uint32_t * dest, int dest_Width, color * pixmap,int Pixel);
+  	ScaleHoriz= dest_Width&lt;OSD_WIDTH ? &amp;cSoftOsd::ScaleDownHoriz_MMX :
+  		&amp;cSoftOsd::ScaleUpHoriz_MMX;
+***************
+*** 1176,1185 ****
+                          if (scaleH_lines[SCALEH_IDX(i)]!=start_row+i){
+                                  //printf(&quot;Horiz scaling line %d\n&quot;,start_row+i);
+!                                 (this-&gt;*ScaleHoriz)((uint8_t *)scaleH_Reference[i],dest_Width,
+                                                  &amp;pixmap[(start_row+i)*OSD_STRIDE],OSD_WIDTH-1); 
+                                  scaleH_lines[SCALEH_IDX(i)]=start_row+i;
+                          }
+                  };
+!                 ScaleDownVert_MMX((uint8_t*) tmp_pixmap,linesize,
+  				new_pixel_height,start_pos,
+                                  scaleH_Reference,dest_Width);
+--- 1192,1201 ----
+                          if (scaleH_lines[SCALEH_IDX(i)]!=start_row+i){
+                                  //printf(&quot;Horiz scaling line %d\n&quot;,start_row+i);
+!                                 (this-&gt;*ScaleHoriz)((uint32_t*)scaleH_Reference[i],dest_Width,
+                                                  &amp;pixmap[(start_row+i)*OSD_STRIDE],OSD_WIDTH-1); 
+                                  scaleH_lines[SCALEH_IDX(i)]=start_row+i;
+                          }
+                  };
+!                 ScaleDownVert_MMX((uint32_t*)tmp_pixmap,linesize,
+  				new_pixel_height,start_pos,
+                                  scaleH_Reference,dest_Width);
+***************
+*** 1204,1208 ****
+  #define SCALEDEBV(out...) 
+  
+! void cSoftOsd::ScaleDownVert_MMX(uint8_t * dest, int linesize,
+  		int32_t new_pixel_height, int start_pos,
+                  color ** pixmap, int Pixel) {
+--- 1220,1224 ----
+  #define SCALEDEBV(out...) 
+  
+! void cSoftOsd::ScaleDownVert_MMX(uint32_t * dest, int linesize,
+  		int32_t new_pixel_height, int start_pos,
+                  color ** pixmap, int Pixel) {
+***************
+*** 1212,1219 ****
+          const int ScaleFactor=1&lt;&lt;SHIFT_BITS_NUM;
+  #ifndef USE_MMX2
+!         uint16_t a_sum=0;
+!         uint16_t b_sum=0;
+!         uint16_t g_sum=0;
+!         uint16_t r_sum=0;
+  #endif
+  
+--- 1228,1236 ----
+          const int ScaleFactor=1&lt;&lt;SHIFT_BITS_NUM;
+  #ifndef USE_MMX2
+!         unsigned int a_sum=0;
+!         unsigned int b_sum=0;
+!         unsigned int g_sum=0;
+!         unsigned int r_sum=0;
+!         unsigned int c;
+  #endif
+  
+***************
+*** 1246,1253 ****
+  #ifndef USE_MMX2                       
+                  a_sum=b_sum=g_sum=r_sum=0;
+!                 a_sum=((int) pixmap[row][Pixel].a)*a_pos;
+!                 b_sum=((int) pixmap[row][Pixel].b)*a_pos;
+!                 g_sum=((int) pixmap[row][Pixel].g)*a_pos;
+!                 r_sum=((int) pixmap[row][Pixel].r)*a_pos;
+  #else
+                  __asm__(
+--- 1263,1271 ----
+  #ifndef USE_MMX2                       
+                  a_sum=b_sum=g_sum=r_sum=0;
+!                 c = pixmap[row][Pixel];
+!                 a_sum= GET_A(c)*a_pos;
+!                 b_sum= GET_B(c)*a_pos;
+!                 g_sum= GET_G(c)*a_pos;
+!                 r_sum= GET_R(c)*a_pos;
+  #else
+                  __asm__(
+***************
+*** 1269,1277 ****
+                                          pixmap[row][Pixel].r,pixmap[row][Pixel].g,pixmap[row][Pixel].b);
+  
+! #ifndef USE_MMX2                       
+!                         a_sum+=((int) pixmap[row][Pixel].a)*ScaleFactor;
+!                         b_sum+=((int) pixmap[row][Pixel].b)*ScaleFactor;
+!                         g_sum+=((int) pixmap[row][Pixel].g)*ScaleFactor;
+!                         r_sum+=((int) pixmap[row][Pixel].r)*ScaleFactor;
+  #else
+                          __asm__(
+--- 1287,1296 ----
+                                          pixmap[row][Pixel].r,pixmap[row][Pixel].g,pixmap[row][Pixel].b);
+  
+! #ifndef USE_MMX2               
+!                         c=pixmap[row][Pixel];
+!                         a_sum+=GET_A(c)*ScaleFactor;
+!                         b_sum+=GET_B(c)*ScaleFactor;
+!                         g_sum+=GET_G(c)*ScaleFactor;
+!                         r_sum+=GET_R(c)*ScaleFactor;
+  #else
+                          __asm__(
+***************
+*** 1290,1297 ****
+                                          pixmap[row][Pixel].r,pixmap[row][Pixel].g,pixmap[row][Pixel].b,pos);
+  #ifndef USE_MMX2                       
+!                 a_sum+=((int) pixmap[row][Pixel].a)*pos;
+!                 b_sum+=((int) pixmap[row][Pixel].b)*pos;
+!                 g_sum+=((int) pixmap[row][Pixel].g)*pos;
+!                 r_sum+=((int) pixmap[row][Pixel].r)*pos;
+  #else
+                  __asm__(
+--- 1309,1317 ----
+                                          pixmap[row][Pixel].r,pixmap[row][Pixel].g,pixmap[row][Pixel].b,pos);
+  #ifndef USE_MMX2                       
+!                 c=pixmap[row][Pixel];
+!                 a_sum+=GET_A(c)*pos;
+!                 b_sum+=GET_B(c)*pos;
+!                 g_sum+=GET_G(c)*pos;
+!                 r_sum+=GET_R(c)*pos;
+  #else
+                  __asm__(
+***************
+*** 1315,1322 ****
+                  r_sum=r_sum/ScaleFactor*new_pixel_height_rec/ScaleFactor;
+                  
+!                 dest[Pixel*4+0]=b_sum;
+!                 dest[Pixel*4+1]=g_sum;
+!                 dest[Pixel*4+2]=r_sum;
+!                 dest[Pixel*4+3]=a_sum;
+  #else
+                  __asm__(
+--- 1335,1340 ----
+                  r_sum=r_sum/ScaleFactor*new_pixel_height_rec/ScaleFactor;
+                  
+!                 c = SET_B(b_sum) | SET_G(g_sum) | SET_R(r_sum) | SET_A(a_sum);
+!                 dest[Pixel]=c;
+  #else
+                  __asm__(
+***************
+*** 1326,1330 ****
+                        &quot; packuswb %%mm0,%%mm0 \n&quot;
+                        &quot; movd %%mm0,(%0) \n&quot;
+!                       : : &quot;r&quot;(&amp;dest[Pixel*4]) );
+  #endif
+                  SCALEDEBV(&quot;, %d, %d, %d\n&quot;,r_sum,g_sum,b_sum);
+--- 1344,1348 ----
+                        &quot; packuswb %%mm0,%%mm0 \n&quot;
+                        &quot; movd %%mm0,(%0) \n&quot;
+!                       : : &quot;r&quot;(&amp;dest[Pixel]) );
+  #endif
+                  SCALEDEBV(&quot;, %d, %d, %d\n&quot;,r_sum,g_sum,b_sum);
+***************
+*** 1336,1340 ****
+  };
+  
+! void cSoftOsd::NoScaleHoriz_MMX(uint8_t * dest, int dest_Width, 
+                  color * pixmap, int Pixel) {
+          memcpy(dest,pixmap,Pixel*sizeof(color));
+--- 1354,1358 ----
+  };
+  
+! void cSoftOsd::NoScaleHoriz_MMX(uint32_t * dest, int dest_Width, 
+                  color * pixmap, int Pixel) {
+          memcpy(dest,pixmap,Pixel*sizeof(color));
+***************
+*** 1344,1348 ****
+  #define SCALEDEBH(out...) 
+  
+! void cSoftOsd::ScaleDownHoriz_MMX(uint8_t * dest, int dest_Width, 
+                  color * pixmap, int Pixel) {
+  #define SHIFT_BITS &quot;6&quot;
+--- 1362,1366 ----
+  #define SCALEDEBH(out...) 
+  
+! void cSoftOsd::ScaleDownHoriz_MMX(uint32_t * dest, int dest_Width, 
+                  color * pixmap, int Pixel) {
+  #define SHIFT_BITS &quot;6&quot;
+***************
+*** 1350,1357 ****
+          const int ScaleFactor=1&lt;&lt;SHIFT_BITS_NUM;
+  #ifndef USE_MMX2
+!         uint16_t a_sum=0;
+!         uint16_t b_sum=0;
+!         uint16_t g_sum=0;
+!         uint16_t r_sum=0;
+  #endif
+          uint32_t new_pixel_width=(OSD_WIDTH*ScaleFactor)/dest_Width;
+--- 1368,1376 ----
+          const int ScaleFactor=1&lt;&lt;SHIFT_BITS_NUM;
+  #ifndef USE_MMX2
+!         unsigned int a_sum=0;
+!         unsigned int b_sum=0;
+!         unsigned int g_sum=0;
+!         unsigned int r_sum=0;
+!         unsigned int c;
+  #endif
+          uint32_t new_pixel_width=(OSD_WIDTH*ScaleFactor)/dest_Width;
+***************
+*** 1377,1385 ****
+                                          pixmap-&gt;r,pixmap-&gt;g,pixmap-&gt;b);
+  
+! #ifndef USE_MMX2                       
+!                         a_sum+=((int) pixmap-&gt;a)*ScaleFactor;
+!                         b_sum+=((int) pixmap-&gt;b)*ScaleFactor;
+!                         g_sum+=((int) pixmap-&gt;g)*ScaleFactor;
+!                         r_sum+=((int) pixmap-&gt;r)*ScaleFactor;
+  #else
+                          __asm__ __volatile__(
+--- 1396,1405 ----
+                                          pixmap-&gt;r,pixmap-&gt;g,pixmap-&gt;b);
+  
+! #ifndef USE_MMX2               
+!                         c=*pixmap;
+!                         a_sum+=GET_A(c)*ScaleFactor;
+!                         b_sum+=GET_B(c)*ScaleFactor;
+!                         g_sum+=GET_G(c)*ScaleFactor;
+!                         r_sum+=GET_R(c)*ScaleFactor;
+  #else
+                          __asm__ __volatile__(
+***************
+*** 1398,1405 ****
+                                          pixmap-&gt;r,pixmap-&gt;g,pixmap-&gt;b,pos);
+  #ifndef USE_MMX2                       
+!                 a_sum+=((int) pixmap-&gt;a)*pos;
+!                 b_sum+=((int) pixmap-&gt;b)*pos;
+!                 g_sum+=((int) pixmap-&gt;g)*pos;
+!                 r_sum+=((int) pixmap-&gt;r)*pos;
+  #else
+                  __asm__ __volatile__(
+--- 1418,1426 ----
+                                          pixmap-&gt;r,pixmap-&gt;g,pixmap-&gt;b,pos);
+  #ifndef USE_MMX2                       
+!                 c=*pixmap;
+!                 a_sum+=GET_A(c)*pos;
+!                 b_sum+=GET_B(c)*pos;
+!                 g_sum+=GET_G(c)*pos;
+!                 r_sum+=GET_R(c)*pos;
+  #else
+                  __asm__ __volatile__(
+***************
+*** 1423,1430 ****
+                  r_sum=r_sum/ScaleFactor*new_pixel_width_rec/ScaleFactor;
+                  
+  		dest[0]=b_sum;
+                  dest[1]=g_sum;
+                  dest[2]=r_sum;
+!                 dest[3]=a_sum;
+                  a_sum=b_sum=g_sum=r_sum=0;
+  #else
+--- 1444,1454 ----
+                  r_sum=r_sum/ScaleFactor*new_pixel_width_rec/ScaleFactor;
+                  
++                 c = SET_B(b_sum) | SET_G(g_sum) | SET_R(r_sum) | SET_A(a_sum);
++                 *dest=c;
++                 /*
+  		dest[0]=b_sum;
+                  dest[1]=g_sum;
+                  dest[2]=r_sum;
+!                 dest[3]=a_sum;*/
+                  a_sum=b_sum=g_sum=r_sum=0;
+  #else
+***************
+*** 1439,1443 ****
+  #endif
+                  SCALEDEBH(&quot;, %d, %d, %d\n&quot;,r_sum,g_sum,b_sum);
+!                 dest+=4;
+  
+                  pos-=ScaleFactor;
+--- 1463,1467 ----
+  #endif
+                  SCALEDEBH(&quot;, %d, %d, %d\n&quot;,r_sum,g_sum,b_sum);
+!                 dest++;
+  
+                  pos-=ScaleFactor;
+***************
+*** 1448,1456 ****
+                  //uint32_t apos=-(pos);
+                  uint32_t apos=abs(pos);
+! #ifndef USE_MMX2                       
+!                 a_sum=((int) pixmap-&gt;a)*apos;
+!                 b_sum=((int) pixmap-&gt;b)*apos;
+!                 g_sum=((int) pixmap-&gt;g)*apos;
+!                 r_sum=((int) pixmap-&gt;r)*apos;
+  #else
+                  __asm__ __volatile__ (
+--- 1472,1481 ----
+                  //uint32_t apos=-(pos);
+                  uint32_t apos=abs(pos);
+! #ifndef USE_MMX2            
+!                 c=*pixmap;
+!                 a_sum=GET_A(c)*apos;
+!                 b_sum=GET_B(c)*apos;
+!                 g_sum=GET_G(c)*apos;
+!                 r_sum=GET_R(c)*apos;
+  #else
+                  __asm__ __volatile__ (
+***************
+*** 1473,1477 ****
+  #define SCALEUPDEBH(out...) 
+  
+! void cSoftOsd::ScaleUpHoriz_MMX(uint8_t * dest, int dest_Width, 
+                  color * pixmap, int Pixel) {
+  #define SHIFT_BITS &quot;6&quot;
+--- 1498,1502 ----
+  #define SCALEUPDEBH(out...) 
+  
+! void cSoftOsd::ScaleUpHoriz_MMX(uint32_t * dest, int dest_Width, 
+                  color * pixmap, int Pixel) {
+  #define SHIFT_BITS &quot;6&quot;
+***************
+*** 1481,1493 ****
+          color *end_pixmap=pixmap+Pixel;
+  #ifndef USE_MMX2
+! 	uint16_t a1=pixmap-&gt;a;
+! 	uint16_t b1=pixmap-&gt;b;
+! 	uint16_t g1=pixmap-&gt;g;
+! 	uint16_t r1=pixmap-&gt;r;
+  	pixmap++;
+! 	uint16_t a2=pixmap-&gt;a;
+! 	uint16_t b2=pixmap-&gt;b;
+! 	uint16_t g2=pixmap-&gt;g;
+! 	uint16_t r2=pixmap-&gt;r;
+  #else
+  	__asm__(
+--- 1506,1520 ----
+          color *end_pixmap=pixmap+Pixel;
+  #ifndef USE_MMX2
+!         unsigned int c=*pixmap;
+! 	unsigned int a1=GET_A(c);
+! 	unsigned int b1=GET_B(c);
+! 	unsigned int g1=GET_G(c);
+! 	unsigned int r1=GET_R(c);
+  	pixmap++;
+!         c=*pixmap;
+! 	unsigned int a2=GET_A(c);
+! 	unsigned int b2=GET_B(c);
+! 	unsigned int g2=GET_G(c);
+! 	unsigned int r2=GET_R(c);
+  #else
+  	__asm__(
+***************
+*** 1516,1523 ****
+  			// funny that's the same formula we use for
+  			// alpha blending ;-)
+! 			dest[0]=(uint8_t) (b1+(pos*(b2-b1)/ScaleFactor));
+! 			dest[1]=(uint8_t) (g1+(pos*(g2-g1)/ScaleFactor));
+! 			dest[2]=(uint8_t) (r1+(pos*(r2-r1)/ScaleFactor));
+! 			dest[3]=(uint8_t) (a1+(pos*(a2-a1)/ScaleFactor));
+  #else
+  			__asm__(
+--- 1543,1551 ----
+  			// funny that's the same formula we use for
+  			// alpha blending ;-)
+!                         c  = SET_B(b1+(pos*(b2-b1)/ScaleFactor));
+!                         c |= SET_G(g1+(pos*(g2-g1)/ScaleFactor));
+!                         c |= SET_R(r1+(pos*(r2-r1)/ScaleFactor));
+!                         c |= SET_A(a1+(pos*(a2-a1)/ScaleFactor));
+!                         *dest=c;
+  #else
+  			__asm__(
+***************
+*** 1534,1538 ****
+                         
+                          pos +=new_pixel_width;
+!                         dest+=4;
+                  };
+  		pixmap++;
+--- 1562,1566 ----
+                         
+                          pos +=new_pixel_width;
+!                         dest++;
+                  };
+  		pixmap++;
+***************
+*** 1543,1550 ****
+  		g1=g2;
+  		r1=r2;
+! 		a2=pixmap-&gt;a;
+! 		b2=pixmap-&gt;b;
+! 		g2=pixmap-&gt;g;
+! 		r2=pixmap-&gt;r;
+  #else
+  		__asm__(
+--- 1571,1579 ----
+  		g1=g2;
+  		r1=r2;
+!                 c=*pixmap;
+! 		a2=GET_A(c);
+! 		b2=GET_B(c);
+! 		g2=GET_G(c);
+! 		r2=GET_R(c);
+  #else
+  		__asm__(
+***************
+*** 1565,1569 ****
+  #define SCALEUPDEBV(out...)  
+  
+! void cSoftOsd::ScaleUpVert_MMX(uint8_t *dest, int linesize, 
+  		int32_t new_pixel_height, int start_pos,
+                  color **pixmap, int Pixel) {
+--- 1594,1598 ----
+  #define SCALEUPDEBV(out...)  
+  
+! void cSoftOsd::ScaleUpVert_MMX(uint32_t *dest, int linesize, 
+  		int32_t new_pixel_height, int start_pos,
+                  color **pixmap, int Pixel) {
+***************
+*** 1573,1585 ****
+          //const int ScaleFactor=100;
+  #ifndef USE_MMX2
+!         int16_t a1=0;
+!         int16_t b1=0;
+!         int16_t g1=0;
+!         int16_t r1=0;
+  
+! 	int16_t a2=0;
+!         int16_t b2=0;
+!         int16_t g2=0;
+!         int16_t r2=0;
+  #else
+          __asm__(
+--- 1602,1615 ----
+          //const int ScaleFactor=100;
+  #ifndef USE_MMX2
+!         int a1=0;
+!         int b1=0;
+!         int g1=0;
+!         int r1=0;
+  
+! 	int a2=0;
+!         int b2=0;
+!         int g2=0;
+!         int r2=0;
+!         unsigned int c;
+  #else
+          __asm__(
+***************
+*** 1594,1606 ****
+          while (currPixel&lt;Pixel) {
+  #ifndef USE_MMX2
+! 		a1=pixmap[0][currPixel].a;
+! 		b1=pixmap[0][currPixel].b;
+! 		g1=pixmap[0][currPixel].g;
+! 		r1=pixmap[0][currPixel].r;
+  
+! 		a2=pixmap[1][currPixel].a-a1;
+! 		b2=pixmap[1][currPixel].b-b1;
+! 		g2=pixmap[1][currPixel].g-g1;
+! 		r2=pixmap[1][currPixel].r-r1;
+  #else
+                  __asm__(
+--- 1624,1638 ----
+          while (currPixel&lt;Pixel) {
+  #ifndef USE_MMX2
+!                 c=pixmap[0][currPixel];
+! 		a1=GET_A(c);
+! 		b1=GET_B(c);
+! 		g1=GET_G(c);
+! 		r1=GET_R(c);
+  
+!                 c=pixmap[1][currPixel];
+! 		a2=GET_A(c)-a1;
+! 		b2=GET_B(c)-b1;
+! 		g2=GET_G(c)-g1;
+! 		r2=GET_R(c)-r1;
+  #else
+                  __asm__(
+***************
+*** 1619,1631 ****
+                          //SCALEUPDEBV(&quot;while loop pixel: %d pos: %d, row %d\n&quot;,
+  			//		currPixel,pos,ypos);
+! #ifndef USE_MMX2                       
+! 			dest[ypos*linesize+currPixel*4+0]=
+! 				(uint8_t) (b1+(pos*(b2)/ScaleFactor));
+! 			dest[ypos*linesize+currPixel*4+1]=
+! 				(uint8_t) (g1+(pos*(g2)/ScaleFactor));
+! 			dest[ypos*linesize+currPixel*4+2]=
+! 				(uint8_t) (r1+(pos*(r2)/ScaleFactor));
+! 			dest[ypos*linesize+currPixel*4+3]=
+! 				(uint8_t) (a1+(pos*(a2)/ScaleFactor));
+  #else
+  			__asm__(
+--- 1651,1660 ----
+                          //SCALEUPDEBV(&quot;while loop pixel: %d pos: %d, row %d\n&quot;,
+  			//		currPixel,pos,ypos);
+! #ifndef USE_MMX2       
+!                         c  = SET_B(b1+(pos*(b2)/ScaleFactor));
+!                         c |= SET_G(g1+(pos*(g2)/ScaleFactor));
+!                         c |= SET_R(r1+(pos*(r2)/ScaleFactor));
+!                         c |= SET_A(a1+(pos*(a2)/ScaleFactor));
+!                         dest[ypos*linesize+currPixel]=c;
+  #else
+  			__asm__(
+***************
+*** 1639,1643 ****
+  				&quot; movd %%mm0,(%1) \n&quot;
+  				: : &quot;r&quot; (pos),
+! 				&quot;r&quot; (&amp;dest[ypos*linesize+currPixel*4]) );
+  #endif
+                         
+--- 1668,1672 ----
+  				&quot; movd %%mm0,(%1) \n&quot;
+  				: : &quot;r&quot; (pos),
+! 				&quot;r&quot; (&amp;dest[ypos*linesize+currPixel]) );
+  #endif
+                         
+
+Index: SoftOsd.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.h,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -C2 -d -r1.6 -r1.7
+*** SoftOsd.h	1 Apr 2006 08:26:56 -0000	1.6
+--- SoftOsd.h	10 Jul 2006 18:23:28 -0000	1.7
+***************
+*** 40,44 ****
+--- 40,53 ----
+  #define COLOR_RGB16(r,g,b) (((b &gt;&gt; 3)&amp; 0x1F) | ((g &amp; 0xF8) &lt;&lt; 2)| ((r &amp; 0xF8)&lt;&lt;10) )
+  
++ #define GET_A(x) ((x) &gt;&gt; 24 &amp; 0xFF)
++ #define GET_R(x) ((x) &gt;&gt; 16 &amp; 0xFF)
++ #define GET_G(x) ((x) &gt;&gt;  8 &amp; 0xFF)
++ #define GET_B(x) ((x) &gt;&gt;  0 &amp; 0xFF)
+  
++ #define SET_A(x) ((x) &lt;&lt; 24 &amp; 0xFF000000)
++ #define SET_R(x) ((x) &lt;&lt; 16 &amp; 0x00FF0000)
++ #define SET_G(x) ((x) &lt;&lt;  8 &amp; 0x0000FF00)
++ #define SET_B(x) ((x) &lt;&lt;  0 &amp; 0x000000FF)
++ /*
+  struct color {
+      unsigned char b;
+***************
+*** 47,50 ****
+--- 56,61 ----
+      unsigned char a;
+  };
++ */
++ typedef uint32_t color;
+  
+  class cVideoOut;
+***************
+*** 95,99 ****
+      virtual void Action();
+      
+!     static void ARGB_to_AYUV(uint8_t * dest, color * pixmap, int Pixel);
+      static void ARGB_to_ARGB32(uint8_t * dest, color * pixmap, int Pixel);
+      static void ARGB_to_RGB32(uint8_t * dest, color * pixmap, int Pixel);
+--- 106,110 ----
+      virtual void Action();
+      
+!     static void ARGB_to_AYUV(uint32_t * dest, color * pixmap, int Pixel);
+      static void ARGB_to_ARGB32(uint8_t * dest, color * pixmap, int Pixel);
+      static void ARGB_to_RGB32(uint8_t * dest, color * pixmap, int Pixel);
+***************
+*** 142,152 ****
+      
+   private:
+!     void NoScaleHoriz_MMX(uint8_t * dest, int dest_Width, color * pixmap,int Pixel);
+!     void ScaleUpHoriz_MMX(uint8_t * dest, int dest_Width, color * pixmap,int Pixel);
+!     void ScaleDownHoriz_MMX(uint8_t * dest, int dest_Width, color * pixmap,int Pixel);
+!     void ScaleDownVert_MMX(uint8_t * dest, int linesize, int32_t new_pixel_height, 
+                  int start_pos,
+                  color ** pixmap, int Pixel);
+!     void ScaleUpVert_MMX(uint8_t *dest, int linesize, int32_t new_pixel_height, 
+                  int start_pos,
+                  color **pixmap, int Pixel);
+--- 153,163 ----
+      
+   private:
+!     void NoScaleHoriz_MMX(uint32_t * dest, int dest_Width, color * pixmap,int Pixel);
+!     void ScaleUpHoriz_MMX(uint32_t * dest, int dest_Width, color * pixmap,int Pixel);
+!     void ScaleDownHoriz_MMX(uint32_t * dest, int dest_Width, color * pixmap,int Pixel);
+!     void ScaleDownVert_MMX(uint32_t * dest, int linesize, int32_t new_pixel_height, 
+                  int start_pos,
+                  color ** pixmap, int Pixel);
+!     void ScaleUpVert_MMX(uint32_t *dest, int linesize, int32_t new_pixel_height, 
+                  int start_pos,
+                  color **pixmap, int Pixel);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000390.html">[Softdevice-cvs] softdevice CHANGELOG,1.205,1.206 PicBuffer.c,1.5,1.6 PicBuffer.h,1.2,1.3
+</A></li>
+	<LI>Next message: <A HREF="000392.html">[Softdevice-cvs] softdevice CHANGELOG,1.207,1.208 softdevice.c,1.61,1.62 video.c,1.58,1.59
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#391">[ date ]</a>
+              <a href="thread.html#391">[ thread ]</a>
+              <a href="subject.html#391">[ subject ]</a>
+              <a href="author.html#391">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

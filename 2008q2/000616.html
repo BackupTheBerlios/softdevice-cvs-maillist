@@ -1,0 +1,188 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.332, 1.333 audio-alsa.c,	1.8, 1.9 mpeg2decoder.c, 1.80, 1.81 setup-softlog.c, 1.6, 1.7
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2008q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.332%2C%201.333%20audio-alsa.c%2C%0A%091.8%2C%201.9%20mpeg2decoder.c%2C%201.80%2C%201.81%20setup-softlog.c%2C%201.6%2C%201.7&In-Reply-To=%3C20080416090918.002831FCEB%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000615.html">
+   <LINK REL="Next"  HREF="000617.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.332, 1.333 audio-alsa.c,	1.8, 1.9 mpeg2decoder.c, 1.80, 1.81 setup-softlog.c, 1.6, 1.7</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.332%2C%201.333%20audio-alsa.c%2C%0A%091.8%2C%201.9%20mpeg2decoder.c%2C%201.80%2C%201.81%20setup-softlog.c%2C%201.6%2C%201.7&In-Reply-To=%3C20080416090918.002831FCEB%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.332, 1.333 audio-alsa.c,	1.8, 1.9 mpeg2decoder.c, 1.80, 1.81 setup-softlog.c, 1.6, 1.7">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Wed Apr 16 11:09:18 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000615.html">[Softdevice-cvs] softdevice mpeg2decoder.c, 1.79, 1.80 CHANGELOG,	1.331, 1.332
+</A></li>
+        <LI>Next message: <A HREF="000617.html">[Softdevice-cvs] softdevice softdevice.c,1.90,1.91
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#616">[ date ]</a>
+              <a href="thread.html#616">[ thread ]</a>
+              <a href="subject.html#616">[ subject ]</a>
+              <a href="author.html#616">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv2352
+
+Modified Files:
+	CHANGELOG audio-alsa.c mpeg2decoder.c setup-softlog.c 
+Log Message:
+Silence some warnings.
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.332
+retrieving revision 1.333
+diff -C2 -d -r1.332 -r1.333
+*** CHANGELOG	15 Apr 2008 17:34:30 -0000	1.332
+--- CHANGELOG	16 Apr 2008 09:06:31 -0000	1.333
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2008-04-16:
++    - Silence some warnings.
+  2008-04-15:
+     - Fixed (changed) som italian chars.
+
+Index: audio-alsa.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio-alsa.c,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -C2 -d -r1.8 -r1.9
+*** audio-alsa.c	25 Dec 2007 13:41:13 -0000	1.8
+--- audio-alsa.c	16 Apr 2008 09:06:31 -0000	1.9
+***************
+*** 275,279 ****
+  int cAlsaAudioOut::SetParams(SampleContext &amp;context) {
+        int   err;
+-       char  *ch_dev = NULL;
+  
+      // not needed to set again
+--- 275,278 ----
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.80
+retrieving revision 1.81
+diff -C2 -d -r1.80 -r1.81
+*** mpeg2decoder.c	15 Apr 2008 17:34:30 -0000	1.80
+--- mpeg2decoder.c	16 Apr 2008 09:06:31 -0000	1.81
+***************
+*** 466,471 ****
+--- 466,477 ----
+        //   2nd call delivers data.
+        if (context-&gt;codec_id == CODEC_ID_AC3) {
++ #if LIBAVCODEC_VERSION_INT &gt;= ((51&lt;&lt;16)+(29&lt;&lt;8)+0)
++         audio_size=AVCODEC_MAX_AUDIO_FRAME_SIZE;
++         len=avcodec_decode_audio2(context, (short *)audiosamples,
++                                   &amp;audio_size, data, size);
++ #else
+          len=avcodec_decode_audio(context, (short *)audiosamples,
+                                   &amp;audio_size, data, 1);
++ #endif
+          //fprintf(stderr,&quot;2nd call len: %d a_size: %d\n&quot;, len, audio_size);
+        }
+***************
+*** 1185,1189 ****
+          QueuePacket(ic,pkt,packetMode);
+  
+!         if (nStreams!=ic-&gt;nb_streams ){
+            PacketCount=0;
+            nStreams=ic-&gt;nb_streams;
+--- 1191,1195 ----
+          QueuePacket(ic,pkt,packetMode);
+  
+!         if (nStreams != (int) ic-&gt;nb_streams ){
+            PacketCount=0;
+            nStreams=ic-&gt;nb_streams;
+***************
+*** 1245,1249 ****
+          return;
+    };
+!   if ( pkt.stream_index &gt;= ic-&gt;nb_streams ) {
+           fprintf(stderr,&quot;Error: stream index larger than nb_streams\n&quot;);
+          av_free_packet(&amp;pkt);
+--- 1251,1255 ----
+          return;
+    };
+!   if ( pkt.stream_index &gt;= (int) ic-&gt;nb_streams ) {
+           fprintf(stderr,&quot;Error: stream index larger than nb_streams\n&quot;);
+          av_free_packet(&amp;pkt);
+
+Index: setup-softlog.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softlog.c,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -C2 -d -r1.6 -r1.7
+*** setup-softlog.c	3 Apr 2007 19:24:31 -0000	1.6
+--- setup-softlog.c	16 Apr 2008 09:06:31 -0000	1.7
+***************
+*** 235,239 ****
+    va_start(argList, format);
+    priority = LogPriority(currPriority);
+!   snprintf(fmt, sizeof(fmt), &quot;[%ld] %s&quot;,SoftdeviceGetTid(), format);
+  
+    if (priority != NO_LOG)
+--- 235,239 ----
+    va_start(argList, format);
+    priority = LogPriority(currPriority);
+!   snprintf(fmt, sizeof(fmt), &quot;[%d] %s&quot;,SoftdeviceGetTid(), format);
+  
+    if (priority != NO_LOG)
+***************
+*** 246,250 ****
+      gettimeofday(&amp;now, NULL);
+      tmp = localtime(&amp;now.tv_sec);
+!     snprintf(fmt, sizeof(fmt), &quot;%02d:%02d:%02d.%04d %c [%ld] %s&quot;,
+               tmp-&gt;tm_hour, tmp-&gt;tm_min, tmp-&gt;tm_sec, (int) now.tv_usec/1000,
+               Priority2Char(currPriority),
+--- 246,250 ----
+      gettimeofday(&amp;now, NULL);
+      tmp = localtime(&amp;now.tv_sec);
+!     snprintf(fmt, sizeof(fmt), &quot;%02d:%02d:%02d.%04d %c [%d] %s&quot;,
+               tmp-&gt;tm_hour, tmp-&gt;tm_min, tmp-&gt;tm_sec, (int) now.tv_usec/1000,
+               Priority2Char(currPriority),
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000615.html">[Softdevice-cvs] softdevice mpeg2decoder.c, 1.79, 1.80 CHANGELOG,	1.331, 1.332
+</A></li>
+	<LI>Next message: <A HREF="000617.html">[Softdevice-cvs] softdevice softdevice.c,1.90,1.91
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#616">[ date ]</a>
+              <a href="thread.html#616">[ thread ]</a>
+              <a href="subject.html#616">[ subject ]</a>
+              <a href="author.html#616">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

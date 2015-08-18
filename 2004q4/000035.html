@@ -1,0 +1,342 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice mpeg2decoder.c,1.8,1.9 mpeg2decoder.h,1.6,1.7 CHANGELOG,1.19,1.20
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2004q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20mpeg2decoder.c%2C1.8%2C1.9%20mpeg2decoder.h%2C1.6%2C1.7%20CHANGELOG%2C1.19%2C1.20&In-Reply-To=%3C200412120709.iBC79FB29398%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000034.html">
+   <LINK REL="Next"  HREF="000036.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice mpeg2decoder.c,1.8,1.9 mpeg2decoder.h,1.6,1.7 CHANGELOG,1.19,1.20</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20mpeg2decoder.c%2C1.8%2C1.9%20mpeg2decoder.h%2C1.6%2C1.7%20CHANGELOG%2C1.19%2C1.20&In-Reply-To=%3C200412120709.iBC79FB29398%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice mpeg2decoder.c,1.8,1.9 mpeg2decoder.h,1.6,1.7 CHANGELOG,1.19,1.20">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Dec 12 08:09:15 CET 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000034.html">[Softdevice-cvs] softdevice audio.c,1.5,1.6
+</A></li>
+        <LI>Next message: <A HREF="000036.html">[Softdevice-cvs] softdevice CHANGELOG,1.20,1.21 mpeg2decoder.c,1.9,1.10 mpeg2decoder.h,1.7,1.8 softdevice.c,1.7,1.8
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#35">[ date ]</a>
+              <a href="thread.html#35">[ thread ]</a>
+              <a href="subject.html#35">[ subject ]</a>
+              <a href="author.html#35">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv4748
+
+Modified Files:
+	mpeg2decoder.c mpeg2decoder.h CHANGELOG 
+Log Message:
+Changed A/V sync point by 4 frames. Sync is now ok for streams with PTS
+value for each frame and for streams with PTS values for I-Frames only.
+Thus OSD option &quot;A/V Sync&quot; is obsolete.
+
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -C2 -d -r1.8 -r1.9
+*** mpeg2decoder.c	14 Nov 2004 16:24:38 -0000	1.8
+--- mpeg2decoder.c	12 Dec 2004 07:09:13 -0000	1.9
+***************
+*** 62,66 ****
+    freezeMode=false;
+    state=UNSYNCED;
+!   pts=0;
+    validPTS=false;
+    ringBuffer=new cSoftRingBufferLinear(DVB_BUF_SIZE,1024,true);
+--- 62,69 ----
+    freezeMode=false;
+    state=UNSYNCED;
+!   prevPTS = newPTS = pts=0;
+!   for (int i = 0; i &lt; PTS_COUNT; i++)
+!     historyPTS [i] = 0;
+!   historyPTSIndex = 0;
+    validPTS=false;
+    ringBuffer=new cSoftRingBufferLinear(DVB_BUF_SIZE,1024,true);
+***************
+*** 148,155 ****
+              hdr_ptr++;
+              if (!--headerLength) {
+                if (validPTS)
+                  newPTS=GET_MPEG2_PTS(header)/90;
+                else newPTS=0;
+!  
+                state=STREAM;
+                HDRDEB(&quot;ID: 0x%x PTS: %lld DTS: %lld ESCR: %lld\n&quot;,streamID,
+--- 151,159 ----
+              hdr_ptr++;
+              if (!--headerLength) {
++               prevPTS = newPTS;
+                if (validPTS)
+                  newPTS=GET_MPEG2_PTS(header)/90;
+                else newPTS=0;
+! 
+                state=STREAM;
+                HDRDEB(&quot;ID: 0x%x PTS: %lld DTS: %lld ESCR: %lld\n&quot;,streamID,
+***************
+*** 307,314 ****
+  
+    // no new frame decoded, return
+!   if (audio_size == 0) 
+      return len;
+  
+!   if (validPTS) 
+    {
+      validPTS=false;
+--- 311,318 ----
+  
+    // no new frame decoded, return
+!   if (audio_size == 0)
+      return len;
+  
+!   if (validPTS)
+    {
+      validPTS=false;
+***************
+*** 416,420 ****
+    gettimeofday(&amp;tv,&amp;tz);
+    now=tv.tv_sec*1000000+tv.tv_usec;
+!   if ( now &lt; lastTime ) { 
+      ret = (uint32_t) (now - lastTime + 60 *1000000); // untested
+      MPGDEB(&quot;now %lld kleiner als lastTime %lld\n&quot;,now,lastTime);
+--- 420,424 ----
+    gettimeofday(&amp;tv,&amp;tz);
+    now=tv.tv_sec*1000000+tv.tv_usec;
+!   if ( now &lt; lastTime ) {
+      ret = (uint32_t) (now - lastTime + 60 *1000000); // untested
+      MPGDEB(&quot;now %lld kleiner als lastTime %lld\n&quot;,now,lastTime);
+***************
+*** 501,504 ****
+--- 505,587 ----
+    };
+     */
++ 
++ /*
++  * A. recording sequence where only I-frames have pts values defined
++  * B. recording sequence where each frame has a pts value defined
++  * Lines marked with '*' show when we got a I-frame pts values
++  * before it it passed to the decoder.
++  * Lines marked with '+' are the ones when this I-frames is passed
++  * to us for displaying.
++  */
++ 
++ /* sequence A.
++  V(0) NPTS(65785272) PPTS(0)        P(2) P2(1) CF(1)  CF2(0)
++  V(0) NPTS(65785272) PPTS(0)        P(3) P2(3) CF(2)  CF2(2)
++  V(0) NPTS(65785272) PPTS(0)        P(3) P2(3) CF(3)  CF2(3)
++  V(0) NPTS(65785272) PPTS(0)        P(2) P2(2) CF(4)  CF2(1)
++  V(0) NPTS(65785272) PPTS(0)        P(3) P2(3) CF(5)  CF2(5)
++  V(0) NPTS(65785272) PPTS(0)        P(3) P2(3) CF(6)  CF2(6)
++  V(0) NPTS(65785272) PPTS(0)        P(2) P2(2) CF(7)  CF2(4)
++  V(0) NPTS(65785272) PPTS(0)        P(3) P2(3) CF(8)  CF2(8)
++ *V(1) NPTS(65785752) PPTS(65785272) P(3) P2(3) CF(9)  CF2(9)
++  V(0) NPTS(65785752) PPTS(65785272) P(1) P2(2) CF(10) CF2(7)
++  V(0) NPTS(65785752) PPTS(65785272) P(3) P2(3) CF(11) CF2(11)
++  V(0) NPTS(65785752) PPTS(65785272) P(3) P2(3) CF(12) CF2(12)
++ +V(0) NPTS(65785752) PPTS(65785272) P(2) P2(1) CF(13) CF2(10)
++ */
++ 
++ /* sequence B.
++  V(1) NPTS(69692924) PPTS(69693004) P(2) P2(1) CF(1)  CF2(0)
++  V(1) NPTS(69692964) PPTS(69692924) P(3) P2(3) CF(2)  CF2(2)
++  V(1) NPTS(69693124) PPTS(69692964) P(3) P2(3) CF(3)  CF2(3)
++  V(1) NPTS(69693044) PPTS(69693124) P(2) P2(2) CF(4)  CF2(1)
++  V(1) NPTS(69693084) PPTS(69693044) P(3) P2(3) CF(5)  CF2(5)
++  V(1) NPTS(69693244) PPTS(69693084) P(3) P2(3) CF(6)  CF2(6)
++  V(1) NPTS(69693164) PPTS(69693244) P(2) P2(2) CF(7)  CF2(4)
++  V(1) NPTS(69693204) PPTS(69693164) P(3) P2(3) CF(8)  CF2(8)
++ *V(1) NPTS(69693364) PPTS(69693204) P(3) P2(3) CF(9)  CF2(9)
++  V(1) NPTS(69693284) PPTS(69693364) P(1) P2(2) CF(10) CF2(7)
++  V(1) NPTS(69693324) PPTS(69693284) P(3) P2(3) CF(11) CF2(11)
++  V(1) NPTS(69693484) PPTS(69693324) P(3) P2(3) CF(12) CF2(12)
++ +V(1) NPTS(69693404) PPTS(69693484) P(2) P2(1) CF(13) CF2(10)
++ */
++ 
++ #if 0
++   fprintf(stderr,
++           &quot; V(%d) NPTS(%lld) PPTS(%lld) P(%d) P2(%d) CF(%d) CF2(%d)\n&quot;,
++           validPTS,
++           newPTS,
++           prevPTS,
++           context-&gt;coded_frame-&gt;pict_type,
++           picture-&gt;pict_type,
++           context-&gt;coded_frame-&gt;coded_picture_number,
++           picture-&gt;coded_picture_number);
++ #endif
++ 
++ #if 1 // new method for setting the video PTS
++   if (picture-&gt;coded_picture_number)
++   {
++     if (picture-&gt;pict_type == FF_I_TYPE)
++     {
++ #if 0
++       fprintf (stderr, &quot; changing PTS from %lld to %lld. delta %lld\n&quot;,
++                pts, historyPTS[(historyPTSIndex+PTS_COUNT-4)%PTS_COUNT],
++                historyPTS[(historyPTSIndex+PTS_COUNT-4)%PTS_COUNT]-pts);
++ #endif               
++       pts = historyPTS[(historyPTSIndex+PTS_COUNT-4)%PTS_COUNT];
++       //fprintf (stderr, &quot;* using PTS value (%lld)\n&quot;, pts);
++     }
++   }
++   else
++   {
++     /**
++      * without subtracting 4 frame times I'll get deltas (see above)
++      * upon 2nd PTS setting in the range 0 to -160 ms. So this should
++      * change that 2nd deltas to -80 to +80 .
++      */
++     pts = newPTS - 2 * frametime;
++     //fprintf (stderr, &quot;+ using PTS value (%lld)\n&quot;, pts);
++   }
++ #else
+    if (validPTS &amp;&amp;
+        (setupStore.syncOnFrames ||
+***************
+*** 507,513 ****
+      //pts=(GET_MPEG2_PTS(header)/90);
+      pts=newPTS;
+!     MPGDEB(&quot;Got Video PTS: %lld \n&quot;,pts); 
+      validPTS=false;
+    }
+  
+    // this few lines does the whole syncing
+--- 590,599 ----
+      //pts=(GET_MPEG2_PTS(header)/90);
+      pts=newPTS;
+!     MPGDEB(&quot;Got Video PTS: %lld \n&quot;,pts);
+      validPTS=false;
+    }
++ #endif
++ 
++   historyPTS[historyPTSIndex++%PTS_COUNT] = newPTS;
+  
+    // this few lines does the whole syncing
+***************
+*** 602,606 ****
+  #endif
+  
+! #if 1 
+    if (!(frame % 1) || context-&gt;hurry_up) {
+      int dispTime=GetRelTime();
+--- 688,692 ----
+  #endif
+  
+! #if 1
+    if (!(frame % 1) || context-&gt;hurry_up) {
+      int dispTime=GetRelTime();
+
+Index: mpeg2decoder.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.h,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -C2 -d -r1.6 -r1.7
+*** mpeg2decoder.h	14 Nov 2004 22:33:54 -0000	1.6
+--- mpeg2decoder.h	12 Dec 2004 07:09:13 -0000	1.7
+***************
+*** 21,24 ****
+--- 21,25 ----
+  #define DVB_BUF_SIZE   (4* 256*1024)  // same value as in dvbplayer.c
+  #define AVG_FRAME_SIZE 15000         // dito 
++ #define PTS_COUNT       4             // history of four PTS values
+  
+  struct PES_Header1 {
+***************
+*** 70,85 ****
+      bool freezeMode;
+  protected:
+!     unsigned int streamID; // stream to filter
+!     int64_t newPTS;
+!     int64_t pts;
+!     int frame;
+!     bool validPTS;
+!     unsigned char header[MAX_HDR_LEN];     
+!     AVCodec *codec;
+!     AVCodecContext *context;
+      
+!     cMutex              mutex;
+!     cSoftRingBufferLinear   *ringBuffer;
+!     bool                active, running;
+      
+      int ParseStream(uchar *Data, int Length);
+--- 71,89 ----
+      bool freezeMode;
+  protected:
+!     unsigned int          streamID; // stream to filter
+!     int64_t               newPTS,
+!                           prevPTS,
+!                           historyPTS[PTS_COUNT],
+!                           pts;
+!     int                   frame,
+!                           historyPTSIndex;
+!     bool                  validPTS;
+!     unsigned char         header[MAX_HDR_LEN];
+!     AVCodec               *codec;
+!     AVCodecContext        *context;
+      
+!     cMutex                mutex;
+!     cSoftRingBufferLinear *ringBuffer;
+!     bool                  active, running;
+      
+      int ParseStream(uchar *Data, int Length);
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.19
+retrieving revision 1.20
+diff -C2 -d -r1.19 -r1.20
+*** CHANGELOG	14 Nov 2004 16:25:54 -0000	1.19
+--- CHANGELOG	12 Dec 2004 07:09:13 -0000	1.20
+***************
+*** 1,3 ****
+--- 1,7 ----
+  Changelog
++   2004-12-12:
++    - Changed A/V sync point by 4 frames. Sync is now ok for streams with PTS
++      value for each frame and for streams with PTS values for I-Frames only.
++      Thus OSD option &quot;A/V Sync&quot; is obsolete.
+    2004-11-14:
+     - new A-V sync with linux RTC support
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000034.html">[Softdevice-cvs] softdevice audio.c,1.5,1.6
+</A></li>
+	<LI>Next message: <A HREF="000036.html">[Softdevice-cvs] softdevice CHANGELOG,1.20,1.21 mpeg2decoder.c,1.9,1.10 mpeg2decoder.h,1.7,1.8 softdevice.c,1.7,1.8
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#35">[ date ]</a>
+              <a href="thread.html#35">[ thread ]</a>
+              <a href="subject.html#35">[ subject ]</a>
+              <a href="author.html#35">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

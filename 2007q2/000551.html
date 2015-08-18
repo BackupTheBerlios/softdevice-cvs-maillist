@@ -1,0 +1,142 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice ShmClient.c,1.21,1.22
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20ShmClient.c%2C1.21%2C1.22&In-Reply-To=%3C20070412083329.91697DC7CE%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000550.html">
+   <LINK REL="Next"  HREF="000552.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice ShmClient.c,1.21,1.22</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20ShmClient.c%2C1.21%2C1.22&In-Reply-To=%3C20070412083329.91697DC7CE%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice ShmClient.c,1.21,1.22">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Thu Apr 12 10:33:29 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000550.html">[Softdevice-cvs] softdevice setup-softdevice.c,1.51,1.52
+</A></li>
+        <LI>Next message: <A HREF="000552.html">[Softdevice-cvs] softdevice CHANGELOG,1.308,1.309
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#551">[ date ]</a>
+              <a href="thread.html#551">[ thread ]</a>
+              <a href="subject.html#551">[ subject ]</a>
+              <a href="author.html#551">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv6562
+
+Modified Files:
+	ShmClient.c 
+Log Message:
+fullscreen start option for ShmClient
+
+Index: ShmClient.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/ShmClient.c,v
+retrieving revision 1.21
+retrieving revision 1.22
+diff -C2 -d -r1.21 -r1.22
+*** ShmClient.c	15 Jan 2007 19:37:08 -0000	1.21
+--- ShmClient.c	12 Apr 2007 08:31:33 -0000	1.22
+***************
+*** 83,86 ****
+--- 83,99 ----
+          cSetupStore SetupStore;
+          SetupStore.xvFullscreen=0;
++ 
++         if (argc &gt; 1) {
++                 if (strcmp(argv[1], &quot;-f&quot;) == 0) {
++                         SetupStore.xvFullscreen=1;
++                 } else {
++                         // unknown or -h option: report available options.
++                         printf (&quot;Shared-Memory-Client for vdr-softdevice\n&quot;);
++                         printf (&quot;Options:\n&quot;);
++                         printf (&quot;  -f   Start fullscreen\n&quot;);
++                         return 0;
++                 }
++         }
++ 
+          cXvVideoOut *vout=new cXvVideoOut(&amp;SetupStore);
+          xvRemote= new cShmRemote(&quot;softdevice-xv&quot;);
+***************
+*** 110,123 ****
+                  exit(-1);
+          };
+!         
+          if ( !vout-&gt;Initialize()  ) {
+                  fprintf(stderr,&quot;Could not init video out!\n&quot;);
+                  exit(-1);
+          };
+!        
+!         while (!vout-&gt;Reconfigure(SetupStore.pixelFormat) 
+                          &amp;&amp; SetupStore.pixelFormat &lt; 3 )
+                  SetupStore.pixelFormat++;
+!         
+          if ( vout-&gt;useShm &amp;&amp; vout-&gt;xv_image ) {
+                  ctl-&gt;pict_shmid= vout-&gt;shminfo.shmid;
+--- 123,136 ----
+                  exit(-1);
+          };
+! 
+          if ( !vout-&gt;Initialize()  ) {
+                  fprintf(stderr,&quot;Could not init video out!\n&quot;);
+                  exit(-1);
+          };
+! 
+!         while (!vout-&gt;Reconfigure(SetupStore.pixelFormat)
+                          &amp;&amp; SetupStore.pixelFormat &lt; 3 )
+                  SetupStore.pixelFormat++;
+! 
+          if ( vout-&gt;useShm &amp;&amp; vout-&gt;xv_image ) {
+                  ctl-&gt;pict_shmid= vout-&gt;shminfo.shmid;
+***************
+*** 149,153 ****
+                                  break;
+                  };
+!                 
+                  picture.pixel[0]=picture.pixel[1]=picture.pixel[2]=NULL;
+                  picture.stride[0]=picture.stride[1]=picture.stride[2]=0;
+--- 162,166 ----
+                                  break;
+                  };
+! 
+                  picture.pixel[0]=picture.pixel[1]=picture.pixel[2]=NULL;
+                  picture.stride[0]=picture.stride[1]=picture.stride[2]=0;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000550.html">[Softdevice-cvs] softdevice setup-softdevice.c,1.51,1.52
+</A></li>
+	<LI>Next message: <A HREF="000552.html">[Softdevice-cvs] softdevice CHANGELOG,1.308,1.309
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#551">[ date ]</a>
+              <a href="thread.html#551">[ thread ]</a>
+              <a href="subject.html#551">[ subject ]</a>
+              <a href="author.html#551">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

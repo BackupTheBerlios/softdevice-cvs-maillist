@@ -1,0 +1,88 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice setup-softdevice.c,1.27,1.28
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20setup-softdevice.c%2C1.27%2C1.28&In-Reply-To=%3C200508160922.j7G9ML516552%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000190.html">
+   <LINK REL="Next"  HREF="000192.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice setup-softdevice.c,1.27,1.28</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20setup-softdevice.c%2C1.27%2C1.28&In-Reply-To=%3C200508160922.j7G9ML516552%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice setup-softdevice.c,1.27,1.28">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue Aug 16 11:22:21 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000190.html">[Softdevice-cvs] softdevice video-xv.c,1.31,1.32 video-xv.h,1.8,1.9
+</A></li>
+        <LI>Next message: <A HREF="000192.html">[Softdevice-cvs] softdevice video.c,1.27,1.28 video.h,1.18,1.19
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#191">[ date ]</a>
+              <a href="thread.html#191">[ thread ]</a>
+              <a href="subject.html#191">[ subject ]</a>
+              <a href="author.html#191">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv21660
+
+Modified Files:
+	setup-softdevice.c 
+Log Message:
+- report alpha blend mode setup
+
+
+Index: setup-softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.c,v
+retrieving revision 1.27
+retrieving revision 1.28
+diff -C2 -d -r1.27 -r1.28
+*** setup-softdevice.c	31 Jul 2005 07:58:20 -0000	1.27
+--- setup-softdevice.c	16 Aug 2005 09:22:18 -0000	1.28
+***************
+*** 318,321 ****
+--- 318,323 ----
+      osdMode = atoi (Value);
+      osdMode = clamp (0, osdMode, 1);
++     fprintf(stderr,&quot;[setup-softdevice] setting alpha blend mode to %s\n&quot;,
++ 		    osdModeNames[osdMode]);
+    } else if (!strcasecmp(Name, &quot;Suspend&quot;)) {
+      shouldSuspend = atoi (Value);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000190.html">[Softdevice-cvs] softdevice video-xv.c,1.31,1.32 video-xv.h,1.8,1.9
+</A></li>
+	<LI>Next message: <A HREF="000192.html">[Softdevice-cvs] softdevice video.c,1.27,1.28 video.h,1.18,1.19
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#191">[ date ]</a>
+              <a href="thread.html#191">[ thread ]</a>
+              <a href="subject.html#191">[ subject ]</a>
+              <a href="author.html#191">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

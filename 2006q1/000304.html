@@ -1,0 +1,977 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softplay FileIndex.c,NONE,1.1 FileIndex.h,NONE,1.1 Receiver.c,NONE,1.1 Receiver.h,NONE,1.1 Setup.c,NONE,1.1 Setup.h,NONE,1.1 SoftHandles.h,NONE,1.1 README,1.5,1.6
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softplay%20FileIndex.c%2CNONE%2C1.1%20FileIndex.h%2CNONE%2C1.1%20Receiver.c%2CNONE%2C1.1%20Receiver.h%2CNONE%2C1.1%20Setup.c%2CNONE%2C1.1%20Setup.h%2CNONE%2C1.1%20SoftHandles.h%2CNONE%2C1.1%20README%2C1.5%2C1.6&In-Reply-To=%3C200603122122.k2CLM4b02003%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000303.html">
+   <LINK REL="Next"  HREF="000305.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softplay FileIndex.c,NONE,1.1 FileIndex.h,NONE,1.1 Receiver.c,NONE,1.1 Receiver.h,NONE,1.1 Setup.c,NONE,1.1 Setup.h,NONE,1.1 SoftHandles.h,NONE,1.1 README,1.5,1.6</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softplay%20FileIndex.c%2CNONE%2C1.1%20FileIndex.h%2CNONE%2C1.1%20Receiver.c%2CNONE%2C1.1%20Receiver.h%2CNONE%2C1.1%20Setup.c%2CNONE%2C1.1%20Setup.h%2CNONE%2C1.1%20SoftHandles.h%2CNONE%2C1.1%20README%2C1.5%2C1.6&In-Reply-To=%3C200603122122.k2CLM4b02003%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softplay FileIndex.c,NONE,1.1 FileIndex.h,NONE,1.1 Receiver.c,NONE,1.1 Receiver.h,NONE,1.1 Setup.c,NONE,1.1 Setup.h,NONE,1.1 SoftHandles.h,NONE,1.1 README,1.5,1.6">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Mar 12 22:22:04 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000303.html">[Softdevice-cvs] softdevice SoftOsd.c,1.10,1.11
+</A></li>
+        <LI>Next message: <A HREF="000305.html">[Softdevice-cvs] softplay Makefile,1.4,1.5 PlayList.c,1.12,1.13 PlayList.h,1.10,1.11 PlayListMenu.c,1.2,1.3 PlayListMenu.h,1.1,1.2 SoftPlayer.c,1.13,1.14 SoftPlayer.h,1.5,1.6 softplay.c,1.9,1.10 softplay.h,1.3,1.4
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#304">[ date ]</a>
+              <a href="thread.html#304">[ thread ]</a>
+              <a href="subject.html#304">[ subject ]</a>
+              <a href="author.html#304">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softplay
+In directory sheep:/tmp/cvs-serv30097
+
+Modified Files:
+	README 
+Added Files:
+	FileIndex.c FileIndex.h Receiver.c Receiver.h Setup.c Setup.h 
+	SoftHandles.h 
+Log Message:
+- change playlist format
+- use the service interface (no need to include softdevice.h anymore!)
+- introduce a file index
+- introduce setup options
+- introduce a receiver for live tv
+- many, more things I forgot about...
+
+
+
+--- NEW FILE: FileIndex.c ---
+/*
+ * Media Player plugin for VDR
+ *
+ * Copyright (C) 2005 Martin Wache
+ *
+ * This code is distributed under the terms and conditions of the
+ * GNU GENERAL PUBLIC LICENSE. See the file COPYING for details.
+ *
+ * $Id: FileIndex.c,v 1.1 2006/03/12 20:23:23 wachm Exp $
+ */
+
+#include &quot;FileIndex.h&quot;
+
+#define INDEXDEB(out...) printf(&quot;INDEXDEB: &quot; out)
+
+
+//--cIndex------------------------------------------------------------------
+
+void cIndex::copyName(char* dest,int size, const char *const src) {
+        strlcpy(dest,src,size);
+        stripTrailingNonLetters(dest);
+        //printf(&quot;copyName to '%s'\n&quot;);
+};
+
+
+void cIndex::Save(FILE *out) {
+        
+        //don't save empty entries (at least for now...)
+        if ( !*GetTitle() )
+                return;
+	
+        fprintf(out,&quot;\&quot;%s\&quot;,&quot;,GetFilename());
+	fprintf(out,&quot;\&quot;%s\&quot;,&quot;,GetTitle());
+        fprintf(out,&quot;\&quot;%s\&quot;,&quot;,GetAlbum());
+        fprintf(out,&quot;\&quot;%s\&quot;,&quot;,GetAuthor());
+        fprintf(out,&quot;\&quot;%d\&quot;,&quot;,GetDuration());
+        fprintf(out,&quot;\n&quot;);
+};
+
+void cIndex::ParseSaveLine(const char *pos ) {
+        char str[STR_LENGTH];
+ 
+	skipSpaces(pos);
+ 	// read title
+        if ( !(pos = ReadQuotedString(str,pos) ) ) {
+                printf(&quot;Could not parse title. Ignoring.\n&quot;);
+                return;
+        };
+	SetTitle(str);
+	
+	nextField(pos);
+ 	// read album
+        if ( !(pos = ReadQuotedString(str,pos) ) ) {
+                printf(&quot;Could not parse album. Ignoring.\n&quot;);
+                return ;
+        };
+	SetAlbum(str);
+
+	nextField(pos);
+	// read author
+        if ( !(pos = ReadQuotedString(str,pos) ) ) {
+                printf(&quot;Could not parse author. Ignoring.\n&quot;);
+                return;
+        };
+	SetAuthor(str);
+
+	nextField(pos);
+	// read duration
+        if ( !(pos = ReadQuotedString(str,pos) ) ) {
+                printf(&quot;Could not parse duration. Ignoring.\n&quot;);
+                return;
+        };
+	SetDuration(atoi(str));
+};
+ 
+void cIndex::ParseM3uExtInf(const char *pos) {
+	char tmp[100];
+	int len=0;
+
+        INDEXDEB(&quot;Parse extinfo '%s'\n&quot;,pos);
+
+	if ( !pos || *pos !='#' )
+		return;
+	pos++;
+	
+	skipSpaces(pos);
+	if ( strncmp(pos,&quot;EXTINF&quot;,6) )
+		return;
+	pos+=6;
+
+	skipSpaces(pos);
+	if ( *pos !=':' )
+		return;
+	pos++;
+	
+	skipSpaces(pos);
+        printf(&quot;duration '%s' \n&quot;,pos);
+        if ( !*pos || sscanf(pos,&quot;%100[0-9]%n&quot;,&amp;tmp,&amp;len) == 0 ) {
+                printf(&quot;EXTINF Could not parse duration \&quot;%s\&quot;. Ignoring.\n&quot;,pos);
+                return;
+        };
+        duration=atoi(tmp);
+        printf(&quot;duration parsed '%s'= %d\n&quot;,tmp,duration);
+        pos=pos + len;
+
+	skipSpaces(pos);
+	if ( *pos !=',' )
+		return;
+	pos++;
+	
+	skipSpaces(pos);
+	if ( !*pos || sscanf(pos,&quot;%100[^-]%n&quot;,tmp,&amp;len) == 0 ) {
+                printf(&quot;EXTINF Could not parse author \&quot;%s\&quot;. Ignoring.\n&quot;,pos);
+                return;
+        };
+        pos=pos + len;
+	SetAuthor(tmp);
+	
+	skipSpaces(pos);
+	if ( *pos !='-' )
+		return;
+	pos++;
+	
+	skipSpaces(pos);
+	// the rest should be the title
+	SetTitle(pos);
+
+	INDEXDEB(&quot;Parsed M3U EXTINF: %d '%s' '%s'\n&quot;,duration,author,title);
+};	
+
+//---cIndexIdx------------------------------------------------------------
+
+cIndexIdx::~cIndexIdx() {
+        if (!index)
+                       return;
+
+        while ( nIndex-- ) 
+                delete index[nIndex].file;
+
+        free(index);
+};
+
+
+cIndex *cIndexIdx::GetIndex(const char *Filename) {
+        if (!index || !Filename)
+                return NULL;
+        
+        int Hash=SimpleHash(Filename);
+        
+        for (int i=0; i &lt; nIndex; i++ ) 
+                if ( Hash == index[i].hash &amp;&amp; 
+                            strcmp(index[i].file-&gt;GetFilename(),Filename)==0 )
+                        return index[i].file;
+        
+        
+        return NULL;
+};
+
+#define MIN_INDEX_SIZE 200
+
+bool cIndexIdx::ReallocIndex() {
+        void *tmp;
+        
+        if ( !(tmp=realloc(index,indexSize+MIN_INDEX_SIZE*
+                                        sizeof(sIndexRef))) ) {
+                fprintf(stderr,&quot;reallocation of file index failed!\n&quot;);
+                return false;
+        };
+
+        index=(sIndexRef *) tmp;
+        indexSize+=MIN_INDEX_SIZE;
+        return true;
+};
+
+cIndex *cIndexIdx::AddIndex(const char *Filename) {
+        if (!Filename)
+                return NULL;
+        // realloc in case the array is too small
+        if ( nIndex &gt;= indexSize &amp;&amp; !ReallocIndex() )
+                return NULL;
+        
+        index[nIndex].hash=SimpleHash(Filename);
+        index[nIndex].file=new cIndex(Filename);
+        nIndex++;
+
+        return index[nIndex-1].file;
+};
+
+void cIndexIdx::SaveIndex(const char *Filename) {
+	if (!index)
+		return;
+
+        FILE *out=fopen(Filename,&quot;w&quot;);
+        if (!out)
+                return;
+
+        for (int i=0; i &lt; nIndex; i++ ) 
+                if (index[i].file)
+                        index[i].file-&gt;Save(out);
+
+        return;
+};
+
+bool cIndexIdx::ReadIndex(const char *Filename) {
+        char line[500];
+        char str[STR_LENGTH];
+        const char *pos;
+        cIndex *Idx;
+        
+        FILE *in=fopen(Filename,&quot;r&quot;);
+        if (!in)
+                return false;
+                
+        while( !feof(in) &amp;&amp; fgets(line,500,in)) {
+                chomp(line);
+
+                pos=line;
+                skipSpaces(pos);
+                // read filename
+                if ( !(pos = ReadQuotedString(str,pos) ) ) {
+                        INDEXDEB(&quot;Could not parse filename. Ignoring.\n&quot;);
+                        continue;
+                };
+                Idx=GetOrAddIndex(str);
+                if (!Idx)
+                        return false;
+                
+                nextField(pos);
+                Idx-&gt;ParseSaveLine(pos);
+        };
+        return true;
+};
+
+        
+
+--- NEW FILE: FileIndex.h ---
+/*
+ * Media Player plugin for VDR
+ *
+ * Copyright (C) 2005 Martin Wache
+ *
+ * This code is distributed under the terms and conditions of the
+ * GNU GENERAL PUBLIC LICENSE. See the file COPYING for details.
+ *
+ * $Id: FileIndex.h,v 1.1 2006/03/12 20:23:23 wachm Exp $
+ */
+
+#ifndef __FILEINDEX_H__
+#define __FILEINDEX_H__
+
+#include &lt;string.h&gt;
+
+#include &quot;softplay.h&quot;
+
+class cIndex {
+        protected:
+                char filename[STR_LENGTH];
+                char title[STR_LENGTH];
+                char album[STR_LENGTH];
+                char author[STR_LENGTH];
+
+                int duration;
+
+                void copyName(char* dest,int size, const char *const src);
+        public:
+                cIndex(const char *Filename=NULL) {
+                        if (Filename)
+                                copyName(filename,sizeof(filename),Filename);
+                        else filename[0]=0;
+                                
+                        title[0]=album[0]=author[0]=0;
+                        duration=0;
+                };
+                virtual ~cIndex() {};
+  
+  		inline const char *GetFilename() 
+                { return filename; };
+
+                
+                inline const char *GetTitle() 
+                { return title; };
+
+                inline void SetTitle( const char *const Title) { 
+                        copyName(title,sizeof(title),Title);
+                };
+
+                inline const char *GetAlbum()
+                { return album; };
+
+                inline void SetAlbum( const char *const Album) {
+                        copyName(album,sizeof(album),Album);
+                };
+
+                inline const char *GetAuthor()
+                { return author; };
+
+                inline void SetAuthor( const char *const Author) {
+                        copyName(author,sizeof(author),Author);
+                };
+
+                inline const int GetDuration()
+                { return duration; };
+
+                inline void SetDuration(int Duration) {
+                        duration=Duration;
+                };
+
+                void Save(FILE *out);
+                
+                void ParseSaveLine(const char *pos );
+                void ParseM3uExtInf(const char *pos);
+};
+
+struct sIndexRef {
+        int hash;
+        cIndex *file;
+};
+
+class cIndexIdx {
+        protected:
+                sIndexRef *index;
+                int nIndex;
+                int indexSize;
+        
+		bool ReallocIndex();
+        public:
+                cIndexIdx() : index(NULL),nIndex(0),indexSize(0)
+                {};
+                   
+                virtual ~cIndexIdx();
+
+		cIndex *GetIndex(const char *Filename);
+
+		cIndex *AddIndex(const char *Filename);
+
+		inline cIndex *GetOrAddIndex(const char *Filename) {
+                        cIndex *Idx=GetIndex(Filename);
+                        return Idx ? Idx : AddIndex(Filename);
+                };
+
+                void SaveIndex(const char *File);
+
+                bool ReadIndex(const char *File);
+};     
+
+#endif //__FILEINDEX_H__
+
+
+--- NEW FILE: Receiver.c ---
+/*
+ * Media Player plugin for VDR
+ *
+ * Copyright (C) 2005 Martin Wache
+ *
+ * This code is distributed under the terms and conditions of the
+ * GNU GENERAL PUBLIC LICENSE. See the file COPYING for details.
+ *
+ * $Id: Receiver.c,v 1.1 2006/03/12 20:23:23 wachm Exp $
+ */
+
+#include &quot;Receiver.h&quot;
+
+#include &lt;sys/time.h&gt;
+
+#include &lt;vdr/channels.h&gt;
+#include &lt;vdr/device.h&gt;
+#include &lt;vdr/remux.h&gt;
+#include &lt;vdr/ringbuffer.h&gt;
+
+//#define RECEIVER_DEB(out...) {printf(&quot;RECIEVER[%04d]:&quot;,(int)(getTimeMillis() % 10000));printf(out);}
+
+#ifndef RECEIVER_DEB
+#define RECEIVER_DEB(out...)
+#endif
+
+#define BUFFER_SIZE 1024*1024
+
+static inline uint64_t getTimeMillis(void) {
+        struct timeval tv;
+        gettimeofday(&amp;tv,NULL);
+        return (int64_t)tv.tv_sec * 1000 + tv.tv_usec / 1000;
+}
+
+cSoftplayReceiver::cSoftplayReceiver(const cChannel *Channel, cDevice *Device,
+                PacketHandlesV100 &amp;SoftHandles) 
+        : cReceiver(Channel-&gt;Ca(),0,Channel-&gt;Vpid()),startChannel(*Channel),
+          currChannel(*Channel) {
+                RECEIVER_DEB(&quot;cSoftplayReceiver&quot;);
+                device=Device;
+                softHandles=SoftHandles;
+                buffer = new cRingBufferLinear(BUFFER_SIZE,TS_SIZE*2);
+
+                remux = new cRemux(Channel-&gt;Vpid(), NULL, NULL, NULL,true);
+                active=false;
+        };
+
+cSoftplayReceiver::~cSoftplayReceiver() {
+        RECEIVER_DEB(&quot;~cSoftplayReceiver&quot;);
+        if (active) {
+                active = false;
+                Cancel(3);
+        };
+        
+        Detach();
+        delete buffer;
+        delete remux;
+};
+
+
+void cSoftplayReceiver::Activate(bool On) {
+        RECEIVER_DEB(&quot;Activate %d\n&quot;,On);
+        if (On) {
+                Start();
+                StartTransfer();
+        } else if ( active ) {
+                StopTransfer();
+                active =false;
+                Cancel(3);
+        };
+};
+
+
+void cSoftplayReceiver::Receive(uchar *Data, int Length) {
+        //RECEIVER_DEB(&quot;Receive data: %p, length %d transfer %d\n&quot;,
+        //                Data,Length,transfer);
+        if (!transfer)
+                return;
+
+        int ret = buffer-&gt;Put(Data, Length);
+        if (ret != Length) {
+                RECEIVER_DEB(&quot;buffer overflow in Receive ret=%d!\n&quot;,ret);
+                fprintf(stderr,&quot;buffer overflow in Receive!\n&quot;);
+        };
+};
+
+void cSoftplayReceiver::Action() {
+        uchar *pes=NULL;
+        RECEIVER_DEB(&quot;cSoftplayReceiver thread started!\n&quot;);
+
+        active = true;
+        while (active) {
+                int length;
+                if ( buffer-&gt;Available() &gt; 9 * BUFFER_SIZE/10 ) {
+                        printf(&quot;clearing receiver buffers!!\n&quot;);
+                        buffer-&gt;Clear();
+                        remux-&gt;Clear();
+                        softHandles.ResetDecoder(device,SOFTDEVICE_VIDEO_STREAM,0);
+                };
+        
+                if (!transfer ) {
+                        RECEIVER_DEB(&quot;Transfer stopped, waiting!!\n&quot;);
+                        buffer-&gt;Clear();
+                        remux-&gt;Clear();
+                        softHandles.ResetDecoder(device,SOFTDEVICE_VIDEO_STREAM,0);
+                        transfer_stopped=true;
+                        while ( !transfer &amp;&amp; active )
+                                usleep(10000);
+                        buffer-&gt;Clear();
+                        transfer_stopped=false;
+                        RECEIVER_DEB(&quot;Transfer restarted!!\n&quot;);
+                };
+                uchar *data=buffer-&gt;Get(length);
+                if (!data) {
+                        // no data in buffer
+                        usleep(10000);
+                        continue;
+                };
+
+
+                RECEIVER_DEB(&quot;got %d bytes from buffer\n&quot;,length);
+                length=remux-&gt;Put(data,length);
+                RECEIVER_DEB(&quot;put %d bytes into remux\n&quot;,length);
+                if (length)
+                        buffer-&gt;Del(length);
+                
+                pes=remux-&gt;Get(length);
+                if (!pes) 
+                        continue;
+                RECEIVER_DEB(&quot;got %d (%p) from remuxer\n&quot;,length,data);
+
+                int count=0;
+                while (softHandles.BufferFill(device,SOFTDEVICE_VIDEO_STREAM,0) &gt; 90  
+                                &amp;&amp; count &lt; 10 ) {
+                        usleep(10000);
+                        count++;
+                };
+                if ( count &gt; 9) {
+                        printf(&quot;Poll timeout. Reset decoder!\n&quot;);
+                        softHandles.ResetDecoder(device,SOFTDEVICE_VIDEO_STREAM,0);
+                };
+                
+                int played = device-&gt;PlayPes(pes,length,true);
+                RECEIVER_DEB(&quot;played %d\n&quot;,played);
+
+                if ( played &gt; 0 ) {
+                       remux-&gt;Del(played);
+                       if (length &lt;= 0)
+                               pes=NULL;
+                } else  {
+                        printf(&quot;PlayPes error: %d\n&quot;,played);
+                        device-&gt;PlayPes(NULL,0,true);
+                        usleep(10000);
+                };
+        };
+        RECEIVER_DEB(&quot;cSoftplayReceiver thread ended!\n&quot;);
+};
+
+                
+        
+
+--- NEW FILE: Receiver.h ---
+/*
+ * Media Player plugin for VDR
+ *
+ * Copyright (C) 2005 Martin Wache
+ *
+ * This code is distributed under the terms and conditions of the
+ * GNU GENERAL PUBLIC LICENSE. See the file COPYING for details.
+ *
+ * $Id: Receiver.h,v 1.1 2006/03/12 20:23:23 wachm Exp $
+ */
+#ifndef __RECEIVER_H__
+#define __RECEIVER_H__
+
+#include &quot;vdr/receiver.h&quot;
+#include &quot;vdr/thread.h&quot;
+#include &quot;vdr/device.h&quot;
+#include &quot;vdr/remux.h&quot;
+#include &quot;SoftHandles.h&quot;
+//#include &quot;../softdevice/softdevice.h&quot;
+
+class cSoftplayReceiver : public cReceiver, public cThread {
+        private: 
+                friend class cSoftPlayer;
+                cRingBufferLinear *buffer;
+                cDevice *device;
+                cRemux *remux;
+                PacketHandlesV100 softHandles;
+
+                bool active;
+
+                bool transfer,transfer_stopped;
+                cChannel startChannel;
+                cChannel currChannel;
+        public:
+                cSoftplayReceiver( const cChannel *Channel, cDevice *Device,
+                                PacketHandlesV100 &amp;SoftHandles);
+                virtual ~cSoftplayReceiver();
+                
+        protected:
+                virtual void Activate(bool On);
+                virtual void Receive(uchar *Data, int Length);
+                virtual void Action(void);
+
+        public:
+                inline void StopTransfer() {
+                      transfer=false;
+                      while (!transfer_stopped)
+                              usleep(10000);
+                };
+
+                inline void StartTransfer() {
+                        transfer=true;
+                };
+                
+};
+
+#endif // __RECEIVER_H_
+
+--- NEW FILE: Setup.c ---
+/*
+ * softplay.c: A plugin for the Video Disk Recorder
+ *
+ * See the README file for copyright information and how to reach the author.
+ *
+ * $Id: Setup.c,v 1.1 2006/03/12 20:23:23 wachm Exp $
+ */
+
+#include &quot;Setup.h&quot;
+
+#define SETUPDBG(out...) {printf(&quot;[Setup-Softplay] &quot;);printf(out);}
+
+#ifndef SETUPDBG
+#define SETUPDBG(out...)
+#endif
+
+static inline int clamp (int min, int val, int max)
+{
+  if (val &lt; min)
+    return min;
+  if (val &gt; max)
+    return max;
+  return val;
+}
+
+//-- cSetup ------------------------------------------------------------
+
+cSoftplaySetup SoftplaySetup;
+
+void cSoftplaySetup::Store() {
+        if (!plugin) {
+                printf(&quot;[Setup-Softplay] can't save values, no plugin!\n&quot;);
+                return;
+        };
+        
+        plugin-&gt;SetupStore (&quot;UseReceiver&quot;, receiver);
+        plugin-&gt;SetupStore (&quot;UseFileIndex&quot;, fileIndex);
+	plugin-&gt;SetupStore (&quot;LastBrowsedDir&quot;, lastDir);
+	plugin-&gt;SetupStore (&quot;openLastDir&quot;, openLastDir);
+};        
+
+bool cSoftplaySetup::Parse( const char *Name, const char *Value) {
+        if ( !Value || !Name )
+                return false;
+        
+        if ( strcasecmp(Name,&quot;UseReceiver&quot;) == 0 ) {
+                receiver=clamp( 0, atoi(Value), 1 );
+                SETUPDBG(&quot;set live-TV while audio to %d\n&quot;,receiver);
+                return true;
+        } else if ( strcasecmp(Name,&quot;UseFileIndex&quot;) == 0 ) {
+                fileIndex=clamp(0, atoi(Value), 1 );
+                SETUPDBG(&quot;set use file index to %d\n&quot;,fileIndex);
+                return true;
+        } else if ( strcasecmp(Name,&quot;LastBrowsedDir&quot;) == 0) {
+		strncpy(lastDir,Value,sizeof(lastDir));
+		SETUPDBG(&quot;set lastDir to '%s'\n&quot;,lastDir);
+		return true;
+	} else if ( strcasecmp(Name,&quot;openLastDir&quot;) == 0) {
+		openLastDir=clamp(0,atoi(Value), 1);
+                SETUPDBG(&quot;set openLastDir to %d\n&quot;,openLastDir);
+		return true;
+        } else if ( strcasecmp(Name,&quot;returnToLiveTV&quot;) == 0) {
+		returnToLiveTV=clamp(0,atoi(Value), 1);
+                SETUPDBG(&quot;set returnToLiveTV to %d\n&quot;,returnToLiveTV);
+		return true;
+	} else return false;
+};
+                
+//-- cSoftplaySetupMenu-------------------------------------------------
+
+cSoftplaySetupMenu::cSoftplaySetupMenu( cPlugin *plugin, cSoftplaySetup *Data ) 
+        : data(Data), origData(*Data) 
+{ 
+        SetPlugin(plugin);
+          
+        Add(new cMenuEditBoolItem(tr(&quot;Use Fileindex&quot;),
+                            (int*)&amp;data-&gt;fileIndex, tr(&quot;no&quot;), tr(&quot;yes&quot;)));
+
+        Add(new cMenuEditBoolItem(tr(&quot;Watch live TV while audio replay&quot;),
+                            (int*)&amp;data-&gt;receiver, tr(&quot;no&quot;), tr(&quot;yes&quot;)));
+
+        Add(new cMenuEditBoolItem(tr(&quot;Remember last directory&quot;),
+                            (int*)&amp;data-&gt;openLastDir, tr(&quot;no&quot;), tr(&quot;yes&quot;)));
+
+        Add(new cMenuEditBoolItem(tr(&quot;return to live TV after replay&quot;),
+                            (int*)&amp;data-&gt;returnToLiveTV, tr(&quot;no&quot;), tr(&quot;yes&quot;)));
+
+};
+
+eOSState cSoftplaySetupMenu::ProcessKey(eKeys Key) {
+        eOSState state = cOsdMenu::ProcessKey(Key);
+
+        if ( state != osUnknown )
+                return state;
+        
+        if ( Key == kOk ) {
+                data-&gt;Store();
+                state = osBack;
+                return state;
+        } else if ( Key == kBack ) {
+                // restore all changed settings
+                *data = origData;
+                state = osBack;
+                return state;
+        }
+        return state;
+}
+
+
+--- NEW FILE: Setup.h ---
+/*
+ * softplay.c: A plugin for the Video Disk Recorder
+ *
+ * See the README file for copyright information and how to reach the author.
+ *
+ * $Id: Setup.h,v 1.1 2006/03/12 20:23:23 wachm Exp $
+ */
+
+#ifndef __SETUP_H__
+#define __SETUP_H__
+
+#include &quot;vdr/menuitems.h&quot;
+#include &quot;vdr/plugin.h&quot;
+
+class cSoftplaySetup {
+        friend class cSoftplaySetupMenu;
+        
+        private:
+                cPlugin *plugin;
+                
+                int receiver;
+                int fileIndex;
+		char lastDir[120];
+		int openLastDir;
+                int returnToLiveTV;
+        public:
+                cSoftplaySetup() 
+                {};
+                ~cSoftplaySetup()
+                {};
+                
+                inline void SetPlugin(cPlugin *Plugin) {
+                        plugin=Plugin;
+                };
+
+		inline void SetLastDir( const char * Dir ) {
+			strncpy(lastDir,Dir,sizeof(lastDir));
+		};
+
+		inline const char *GetLastDir() {
+			return lastDir;
+		};			
+
+                inline bool UseReceiver() {
+                        return receiver;
+                };
+                
+                inline bool UseFileIndex() {
+                        return fileIndex;
+                };
+
+		inline bool OpenLastDir() {
+			return openLastDir;
+		};
+
+                inline bool ReturnToLiveTV() {
+                        return returnToLiveTV;
+                };
+
+                void Store( void );
+
+                bool Parse( const char *Name, const char *Value);
+
+};
+
+extern cSoftplaySetup SoftplaySetup;
+
+class cSoftplaySetupMenu: public cMenuSetupPage {
+        private :
+                cSoftplaySetup *data;
+                cSoftplaySetup origData;
+                
+        public:
+                cSoftplaySetupMenu( cPlugin *plugin, cSoftplaySetup *Data ) ; 
+                
+                ~cSoftplaySetupMenu()
+                {};
+
+        protected:
+                virtual eOSState ProcessKey(eKeys Key);
+                
+                virtual void Store( void ) {
+                        if (data)
+                                data-&gt;Store();
+                };
+};
+                
+#endif //__SETUP_H__
+
+--- NEW FILE: SoftHandles.h ---
+/*
+ * Media Player plugin for VDR
+ *
+ * Copyright (C) 2005 Martin Wache
+ *
+ * This code is distributed under the terms and conditions of the
+ * GNU GENERAL PUBLIC LICENSE. See the file COPYING for details.
+ *
+ * $Id: SoftHandles.h,v 1.1 2006/03/12 20:23:23 wachm Exp $
+ */
+
+#ifndef __SOFTHANDLES_H
+#define __SOFTHANDLES_H
+
+#include &lt;avformat.h&gt;
+
+#if VDRVERSNUM &gt;= 10330
+#define SOFTDEVICE_VIDEO_STREAM  1
+#define SOFTDEVICE_AUDIO_STREAM  2 
+#define SOFTDEVICE_BOTH_STREAMS (SOFTDEVICE_VIDEO_STREAM | SOFTDEVICE_AUDIO_STREAM )
+        
+       typedef void (* fQueuePacket)(cDevice *Device, AVFormatContext *ic, AVPacket &amp;pkt);
+
+typedef int (* SoftdeviceHandle)(cDevice *Device,int Stream, int value);
+
+typedef void (* SoftdeviceDrawStill)(cDevice *Device,
+                                uint8_t *pY, uint8_t *pU, uint8_t *pV,
+                                int w, int h, int yPitch, int uvPitch);
+
+struct PacketHandlesV100{
+        fQueuePacket  QueuePacket;
+        SoftdeviceHandle ResetDecoder;
+        SoftdeviceHandle BufferFill;
+        SoftdeviceHandle Freeze;
+        // value = 0 Play, value = 1 Pause
+};
+        
+
+static const char *const GET_PACKET_HANDEL_IDV100=&quot;softdevice-GetPacketHandles-v1.0&quot;;
+
+#else
+#include &quot;../softdevice/softdevice.h&quot;
+#endif
+
+
+#endif
+
+Index: README
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/README,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -C2 -d -r1.5 -r1.6
+*** README	8 Aug 2005 08:40:10 -0000	1.5
+--- README	12 Mar 2006 20:23:22 -0000	1.6
+***************
+*** 60,63 ****
+--- 60,69 ----
+  keys):
+  
++ (If you have enabled LiveTV during audio playback:
++         (1)                  (2)
++        Chan.                Chan.
++        down                  up
++ )
++        
+          (4)       (5)        (6)
+         Prev.    Playlist     Next
+***************
+*** 80,87 ****
+  will start.
+  To add/remove a file or directory to the current playlist use the yellow
+! button, files included in the current playlist will be marked with 'P'. To
+  start the playback of the current playlist press the blue button.
+  
+  
+  TODO
+  ----
+--- 86,110 ----
+  will start.
+  To add/remove a file or directory to the current playlist use the yellow
+! button, files included in the current playlist will be marked with '*'. To
+  start the playback of the current playlist press the blue button.
+  
++ The Setup Menu
++ ==============
++ 
++ Use Fileindex:
++  if switched to yes, sofplay uses extended information for example
++  mp3-id tags and saves the information in a separate file for easier 
++  access
+  
++ Watch live TV while audio replay:
++   I guess that's self-explanatory. Nice for commercial breaks :-)
++   
++ Remember last directory:
++   opens the last browsed directory in the File Menu by default.
++   
++ Return to live TV after replay:
++   Also self-explanatory. 
++   
++   
+  TODO
+  ----
+***************
+*** 89,96 ****
+  - fast forward / backward
+  - selection of audio tracks for videos
+! - playlist saving
+! - add .m3u-playlist support
+! - read ID 3 tags for playlists
+  - get playtime of playlists
+  
+  Problems
+--- 112,122 ----
+  - fast forward / backward
+  - selection of audio tracks for videos
+! X playlist saving 
+! X add .m3u-playlist support
+! X read ID 3 tags for playlists (introduced file index)
+  - get playtime of playlists
++ x introduce a setup menu (with option saving)
++ - playlist reading at startup
++ - add files in playlists
+  
+  Problems
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000303.html">[Softdevice-cvs] softdevice SoftOsd.c,1.10,1.11
+</A></li>
+	<LI>Next message: <A HREF="000305.html">[Softdevice-cvs] softplay Makefile,1.4,1.5 PlayList.c,1.12,1.13 PlayList.h,1.10,1.11 PlayListMenu.c,1.2,1.3 PlayListMenu.h,1.1,1.2 SoftPlayer.c,1.13,1.14 SoftPlayer.h,1.5,1.6 softplay.c,1.9,1.10 softplay.h,1.3,1.4
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#304">[ date ]</a>
+              <a href="thread.html#304">[ thread ]</a>
+              <a href="subject.html#304">[ subject ]</a>
+              <a href="author.html#304">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,424 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.31,1.32 video-dfb.c,1.15,1.16 video-xv.c,1.13,1.14
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.31%2C1.32%20video-dfb.c%2C1.15%2C1.16%20video-xv.c%2C1.13%2C1.14&In-Reply-To=%3C200502082131.j18LVKN03472%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000052.html">
+   <LINK REL="Next"  HREF="000054.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.31,1.32 video-dfb.c,1.15,1.16 video-xv.c,1.13,1.14</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.31%2C1.32%20video-dfb.c%2C1.15%2C1.16%20video-xv.c%2C1.13%2C1.14&In-Reply-To=%3C200502082131.j18LVKN03472%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.31,1.32 video-dfb.c,1.15,1.16 video-xv.c,1.13,1.14">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue Feb  8 22:31:20 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000052.html">[Softdevice-cvs] softdevice audio.c,1.6,1.7 audio.h,1.2,1.3 setup-softdevice.c,1.7,1.8 setup-softdevice.h,1.4,1.5
+</A></li>
+        <LI>Next message: <A HREF="000054.html">[Softdevice-cvs] softdevice CHANGELOG,1.32,1.33 mpeg2decoder.c,1.14,1.15 mpeg2decoder.h,1.11,1.12
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#53">[ date ]</a>
+              <a href="thread.html#53">[ thread ]</a>
+              <a href="subject.html#53">[ subject ]</a>
+              <a href="author.html#53">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv19816
+
+Modified Files:
+	CHANGELOG video-dfb.c video-xv.c 
+Log Message:
+    - dfb-out: fix for field parity in tv-out mode
+    - xv-out: fix compile warnings on amd64 (reported by Konrad Naumann)
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.31
+retrieving revision 1.32
+diff -C2 -d -r1.31 -r1.32
+*** CHANGELOG	23 Jan 2005 14:54:22 -0000	1.31
+--- CHANGELOG	8 Feb 2005 21:31:17 -0000	1.32
+***************
+*** 1,3 ****
+--- 1,6 ----
+  Changelog
++  2005-02-08:
++     - dfb-out: fix for field parity in tv-out mode
++     - xv-out: fix compile warnings on amd64 (reported by Konrad Naumann)
+   2005-01-23:
+      - added suspend video playback patch. 
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.15
+retrieving revision 1.16
+diff -C2 -d -r1.15 -r1.16
+*** video-dfb.c	15 Jan 2005 08:33:04 -0000	1.15
+--- video-dfb.c	8 Feb 2005 21:31:17 -0000	1.16
+***************
+*** 253,257 ****
+    DirectFB::Init();
+    dfb = DirectFB::Create();
+!   dfb-&gt;SetCooperativeLevel(DFSCL_FULLSCREEN);
+    reportCardInfo (dfb);
+  
+--- 253,259 ----
+    DirectFB::Init();
+    dfb = DirectFB::Create();
+!   if (!setupStore.useMGAtv)
+!     dfb-&gt;SetCooperativeLevel(DFSCL_FULLSCREEN);
+! 
+    reportCardInfo (dfb);
+  
+***************
+*** 300,306 ****
+    scrDsc.pixelformat = DSPF_ARGB;
+  
+!   scrSurface   = dfb-&gt;CreateSurface (scrDsc);
+  
+!   if (!videoLayer) {
+      fprintf(stderr,&quot;[dfb]: could not find suitable videolayer\n&quot;);
+      exit(1);
+--- 302,356 ----
+    scrDsc.pixelformat = DSPF_ARGB;
+  
+!   if (setupStore.useMGAtv)
+!   {
+!       DFBDisplayLayerConfig   dlc;
+  
+!     dlc.flags = (DFBDisplayLayerConfigFlags)
+!                   (DLCONF_PIXELFORMAT | DLCONF_BUFFERMODE | DLCONF_OPTIONS);
+!     dlc.buffermode = DLBM_BACKVIDEO;
+!     dlc.pixelformat = DSPF_ARGB;
+!     dlc.options = DLOP_FIELD_PARITY;
+! 
+!     try
+!     {
+!       osdLayer-&gt;SetCooperativeLevel(DLSCL_EXCLUSIVE);
+!       osdLayer-&gt;SetOpacity(0xff);
+!     }
+!     catch (DFBException *ex)
+!     {
+!       fprintf (stderr,
+!                &quot;Caught: action=%s, result=%s (could not set DLSCL_EXCLUSIVE)\n&quot;,
+!                ex-&gt;GetAction(), ex-&gt;GetResult());
+!     }
+! 
+!     try
+!     {
+!       osdLayer-&gt;SetConfiguration(dlc);
+!     }
+!     catch (DFBException *ex)
+!     {
+!       fprintf (stderr,&quot;Caught: action=%s, result=%s\n&quot;,
+!                ex-&gt;GetAction(), ex-&gt;GetResult());
+!     }
+! 
+!     try
+!     {
+!       osdLayer-&gt;SetFieldParity(0);
+!     }
+!     catch (DFBException *ex)
+!     {
+!       fprintf (stderr,&quot;Caught: action=%s, result=%s (could not set field parity)\n&quot;,
+!                ex-&gt;GetAction(), ex-&gt;GetResult());
+!     }
+!     scrSurface = osdLayer-&gt;GetSurface();
+! 
+!   }
+!   else
+!   {
+!     scrSurface   = dfb-&gt;CreateSurface (scrDsc);
+!   }
+! 
+!   if (!videoLayer)
+!   {
+      fprintf(stderr,&quot;[dfb]: could not find suitable videolayer\n&quot;);
+      exit(1);
+***************
+*** 407,418 ****
+      reportSurfaceCapabilities (&quot;videoSurface:&quot;, videoSurface);
+  
+!     fprintf(stderr,&quot;[dfb] Configuring CooperativeLevel for Overlay\n&quot;);
+!     videoLayer-&gt;SetCooperativeLevel(DLSCL_ADMINISTRATIVE);
+! 
+!     fprintf(stderr,&quot;[dfb] Configuring ColorKeying\n&quot;);
+!     //videoLayer-&gt;SetDstColorKey(COLORKEY);
+  
+!     fprintf(stderr,&quot;[dfb] Configuring CooperativeLevel for OSD\n&quot;);
+!     osdLayer-&gt;SetCooperativeLevel(DLSCL_ADMINISTRATIVE);
+  
+      desc = osdLayer-&gt;GetDescription();
+--- 457,468 ----
+      reportSurfaceCapabilities (&quot;videoSurface:&quot;, videoSurface);
+  
+!     if (!setupStore.useMGAtv)
+!     {
+!       fprintf(stderr,&quot;[dfb] Configuring CooperativeLevel for Overlay\n&quot;);
+!       videoLayer-&gt;SetCooperativeLevel(DLSCL_ADMINISTRATIVE);
+  
+!       fprintf(stderr,&quot;[dfb] Configuring CooperativeLevel for OSD\n&quot;);
+!       osdLayer-&gt;SetCooperativeLevel(DLSCL_ADMINISTRATIVE);
+!     }
+  
+      desc = osdLayer-&gt;GetDescription();
+***************
+*** 425,429 ****
+    
+    /* create an event buffer with all devices attached */
+!   events = dfb-&gt;CreateInputEventBuffer( DICAPS_ALL );
+  }
+  
+--- 475,480 ----
+    
+    /* create an event buffer with all devices attached */
+!   events = dfb-&gt;CreateInputEventBuffer(DICAPS_ALL,
+!                                        (setupStore.useMGAtv) ? DFB_TRUE : DFB_FALSE);
+  }
+  
+***************
+*** 492,495 ****
+--- 543,547 ----
+          currentPixelFormat != setupStore.pixelFormat)
+      {
++ 
+        fprintf(stderr,
+                &quot;[dfb] (re)configuring Videolayer to %d x %d (%dx%d)\n&quot;,
+***************
+*** 535,539 ****
+                 dlc.flags   = (DFBDisplayLayerConfigFlags)
+                                ((int) dlc.flags | DLCONF_OPTIONS);
+!                dlc.options  = DLOP_FIELD_PARITY;
+  
+        vidDsc.flags = (DFBSurfaceDescriptionFlags) (DSDESC_CAPS |
+--- 587,591 ----
+                 dlc.flags   = (DFBDisplayLayerConfigFlags)
+                                ((int) dlc.flags | DLCONF_OPTIONS);
+!                dlc.options  = DLOP_FIELD_PARITY; //DLOP_NONE; //DLOP_FIELD_PARITY;
+  
+        vidDsc.flags = (DFBSurfaceDescriptionFlags) (DSDESC_CAPS |
+***************
+*** 550,556 ****
+        pixelformat = dlc.pixelformat;
+  
+        if (!useStretchBlit)
+        {
+-         desc = videoLayer-&gt;GetDescription();
+          if (videoSurface)
+            videoSurface-&gt;Release();
+--- 602,609 ----
+        pixelformat = dlc.pixelformat;
+  
++       desc = videoLayer-&gt;GetDescription();
++ 
+        if (!useStretchBlit)
+        {
+          if (videoSurface)
+            videoSurface-&gt;Release();
+***************
+*** 564,568 ****
+          if (desc.caps &amp; DLCAPS_DEINTERLACING)
+          {
+- //        fprintf (stderr, &quot;deinterlacing\n&quot;);
+            /* ------------------------------------------------------------------
+             * if deinterlacing is supported we'll use that
+--- 617,620 ----
+***************
+*** 581,588 ****
+          else
+          {
+- //          fprintf (stderr, &quot;no alpha channel\n&quot;);
+            if (desc.caps &amp; DLCAPS_DST_COLORKEY)
+            {
+- //            fprintf (stderr, &quot;dest color key\n&quot;);
+              /* ----------------------------------------------------------------
+               * no alpha channel but destination color keying is supported
+--- 633,638 ----
+***************
+*** 631,634 ****
+--- 681,689 ----
+          if (desc.caps &amp; DLCAPS_SCREEN_LOCATION)
+          {
++           /* ------------------------------------------------------------------
++            * workaround for a bug in DirectFB: force SetScreenLocation to be
++            * executed always.
++            */
++           videoLayer-&gt;SetScreenLocation(0.0,0.0,0.5,0.5);
+            videoLayer-&gt;SetScreenLocation((float) lxoff / (float) dwidth,
+                                          (float) lyoff / (float) dheight,
+***************
+*** 653,657 ****
+        {
+          fprintf (stderr, &quot;[dfb] creating new surface\n&quot;);
+!         if (videoSurface) {
+            /* ------------------------------------------------------------------
+             * clear previous used surface. there were some troubles when we
+--- 708,713 ----
+        {
+          fprintf (stderr, &quot;[dfb] creating new surface\n&quot;);
+!         if (videoSurface)
+!         {
+            /* ------------------------------------------------------------------
+             * clear previous used surface. there were some troubles when we
+***************
+*** 663,669 ****
+          }
+  
+-         //if (setupStore.useMGAtv)
+-           //videoLayer-&gt;SetFieldParity(0);
+- 
+          videoSurface=NULL;
+          videoSurface=dfb-&gt;CreateSurface(vidDsc);
+--- 719,722 ----
+***************
+*** 999,1006 ****
+          osdsrc.w = Xres;osdsrc.h=Yres;
+          scrSurface-&gt;SetBlittingFlags(DSBLIT_BLEND_ALPHACHANNEL);
+          scrSurface-&gt;Blit(osdSurface, &amp;osdsrc, 0, 0);
+!       }
+  
+!       scrSurface-&gt;Flip(NULL, DSFLIP_ONSYNC);
+  
+        if (aspect_changed || osdClrBack)
+--- 1052,1069 ----
+          osdsrc.w = Xres;osdsrc.h=Yres;
+          scrSurface-&gt;SetBlittingFlags(DSBLIT_BLEND_ALPHACHANNEL);
++ #if 0
++         /* --------------------------------------------------------------------
++          * test for OSD scaleinf to 4:3 aspect on a 16:9 tv
++          */
++           DFBRectangle  osddest;
++         osddest.x = 90; osddest.y = 0;
++         osddest.w = 540; osddest.h = Yres;
++         scrSurface-&gt;StretchBlit(osdSurface, &amp;osdsrc, &amp;osddest);
++ #else
+          scrSurface-&gt;Blit(osdSurface, &amp;osdsrc, 0, 0);
+! #endif
+  
+!       }
+!       scrSurface-&gt;Flip(NULL, (setupStore.useMGAtv) ? DSFLIP_WAITFORSYNC:DSFLIP_ONSYNC);
+  
+        if (aspect_changed || osdClrBack)
+***************
+*** 1025,1029 ****
+  cDFBVideoOut::~cDFBVideoOut()
+  {
+!     fprintf(stderr,&quot;Releasing DFB\n&quot;);
+!     if (dfb) dfb-&gt;Release();
+  }
+--- 1088,1098 ----
+  cDFBVideoOut::~cDFBVideoOut()
+  {
+!   fprintf(stderr,&quot;Releasing DFB\n&quot;);
+! 
+!   if (videoSurface) videoSurface-&gt;Release();
+!   if (osdSurface)   osdSurface-&gt;Release();
+!   if (scrSurface)   scrSurface-&gt;Release();
+!   if (videoLayer)   videoLayer-&gt;Release ();
+!   if (osdLayer)     osdLayer-&gt;Release();
+!   if (dfb)          dfb-&gt;Release();
+  }
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.13
+retrieving revision 1.14
+diff -C2 -d -r1.13 -r1.14
+*** video-xv.c	23 Jan 2005 14:54:22 -0000	1.13
+--- video-xv.c	8 Feb 2005 21:31:17 -0000	1.14
+***************
+*** 726,731 ****
+                                 width, height);
+    if (osd_image) {
+!     dsyslog(&quot;[XvVideoOut]: Initialize XShmCreateImage Successful (0x%08x)&quot;,
+!             (unsigned int) osd_image);
+    } else {
+      dsyslog(&quot;[XvVideoOut]: Initialize ERROR: XShmCreateImage FAILED !&quot;);
+--- 726,730 ----
+                                 width, height);
+    if (osd_image) {
+!     dsyslog(&quot;[XvVideoOut]: Initialize XShmCreateImage Successful (%p)&quot;, osd_image);
+    } else {
+      dsyslog(&quot;[XvVideoOut]: Initialize ERROR: XShmCreateImage FAILED !&quot;);
+***************
+*** 750,754 ****
+    osd_image-&gt;data = (char *) osd_buffer;
+  
+!   if ((int) osd_image-&gt;data == -1) {
+      dsyslog(&quot;[XvVideoOut]: Initialize ERROR: shmat FAILED !&quot;);
+    } else {
+--- 749,753 ----
+    osd_image-&gt;data = (char *) osd_buffer;
+  
+!   if (osd_image-&gt;data == (char *) -1L) {
+      dsyslog(&quot;[XvVideoOut]: Initialize ERROR: shmat FAILED !&quot;);
+    } else {
+***************
+*** 895,900 ****
+  
+    if (xv_image) {
+!     dsyslog(&quot;[XvVideoOut]: XvShmCreateImage Successful (0x%08x)&quot;,
+!             (unsigned int) xv_image);
+    } else {
+      dsyslog(&quot;[XvVideoOut]: ERROR: XvShmCreateImage FAILED !&quot;);
+--- 894,898 ----
+  
+    if (xv_image) {
+!     dsyslog(&quot;[XvVideoOut]: XvShmCreateImage Successful (%p)&quot;, xv_image);
+    } else {
+      dsyslog(&quot;[XvVideoOut]: ERROR: XvShmCreateImage FAILED !&quot;);
+***************
+*** 917,921 ****
+    xv_image-&gt;data = (char *) outbuffer;
+  
+!   if ((int) xv_image-&gt;data == -1) {
+      dsyslog(&quot;[XvVideoOut]: ERROR: shmat FAILED !&quot;);
+    } else {
+--- 915,919 ----
+    xv_image-&gt;data = (char *) outbuffer;
+  
+!   if (xv_image-&gt;data == (char *) -1L) {
+      dsyslog(&quot;[XvVideoOut]: ERROR: shmat FAILED !&quot;);
+    } else {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000052.html">[Softdevice-cvs] softdevice audio.c,1.6,1.7 audio.h,1.2,1.3 setup-softdevice.c,1.7,1.8 setup-softdevice.h,1.4,1.5
+</A></li>
+	<LI>Next message: <A HREF="000054.html">[Softdevice-cvs] softdevice CHANGELOG,1.32,1.33 mpeg2decoder.c,1.14,1.15 mpeg2decoder.h,1.11,1.12
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#53">[ date ]</a>
+              <a href="thread.html#53">[ thread ]</a>
+              <a href="subject.html#53">[ subject ]</a>
+              <a href="author.html#53">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

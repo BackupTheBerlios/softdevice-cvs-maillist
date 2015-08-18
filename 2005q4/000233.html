@@ -1,0 +1,381 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.120,1.121 mpeg2decoder.c,1.55,1.56 mpeg2decoder.h,1.32,1.33 softdevice.c,1.44,1.45
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.120%2C1.121%20mpeg2decoder.c%2C1.55%2C1.56%20mpeg2decoder.h%2C1.32%2C1.33%20softdevice.c%2C1.44%2C1.45&In-Reply-To=%3C200510290830.j9T8UWw16572%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000232.html">
+   <LINK REL="Next"  HREF="000234.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.120,1.121 mpeg2decoder.c,1.55,1.56 mpeg2decoder.h,1.32,1.33 softdevice.c,1.44,1.45</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.120%2C1.121%20mpeg2decoder.c%2C1.55%2C1.56%20mpeg2decoder.h%2C1.32%2C1.33%20softdevice.c%2C1.44%2C1.45&In-Reply-To=%3C200510290830.j9T8UWw16572%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.120,1.121 mpeg2decoder.c,1.55,1.56 mpeg2decoder.h,1.32,1.33 softdevice.c,1.44,1.45">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Oct 29 10:30:32 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000232.html">[Softdevice-cvs] softdevice CHANGELOG,1.119,1.120 i18n.c,1.8,1.9
+</A></li>
+        <LI>Next message: <A HREF="000234.html">[Softdevice-cvs] softdevice mpeg2decoder.c,1.56,1.57 CHANGELOG,1.121,1.122
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#233">[ date ]</a>
+              <a href="thread.html#233">[ thread ]</a>
+              <a href="subject.html#233">[ subject ]</a>
+              <a href="author.html#233">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv4439
+
+Modified Files:
+	CHANGELOG mpeg2decoder.c mpeg2decoder.h softdevice.c 
+Log Message:
+packet playback: assume we get complete frames via packet interface.
+                 This fixes playing divx via softplay.
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.120
+retrieving revision 1.121
+diff -C2 -d -r1.120 -r1.121
+*** CHANGELOG	29 Oct 2005 05:10:31 -0000	1.120
+--- CHANGELOG	29 Oct 2005 08:30:27 -0000	1.121
+***************
+*** 2,5 ****
+--- 2,7 ----
+  2005-10-29:
+      - french translations (by Nicolas Huillard)
++     - packet playback: assume we get complete frames via packet interface.
++                        This fixes playing divx via softplay.
+  2005-10-26:
+      - fix cropmode handling via OSD
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.55
+retrieving revision 1.56
+diff -C2 -d -r1.55 -r1.56
+*** mpeg2decoder.c	6 Oct 2005 21:28:11 -0000	1.55
+--- mpeg2decoder.c	29 Oct 2005 08:30:27 -0000	1.56
+***************
+*** 131,135 ****
+  // --- cStreamDecoder ---------------------------------------------------------
+  
+! cStreamDecoder::cStreamDecoder(AVCodecContext *Context)
+          : PacketQueue(packet_buf_size[setupStore.bufferMode])
+  {
+--- 131,135 ----
+  // --- cStreamDecoder ---------------------------------------------------------
+  
+! cStreamDecoder::cStreamDecoder(AVCodecContext *Context, bool packetMode)
+          : PacketQueue(packet_buf_size[setupStore.bufferMode])
+  {
+***************
+*** 141,144 ****
+--- 141,145 ----
+    pts=0;
+    frame=0;
++   this-&gt;packetMode = packetMode;
+    initCodec();
+    syncTimer=NULL;
+***************
+*** 271,278 ****
+      return false;
+    }
+!   
+!     /* we don't send complete frames */
+!   if(codec-&gt;capabilities&amp;CODEC_CAP_TRUNCATED)
+!     context-&gt;flags|= CODEC_FLAG_TRUNCATED; 
+    
+    if ( (ret=avcodec_open(context, codec)) &lt; 0)
+--- 272,282 ----
+      return false;
+    }
+! 
+!   if (!packetMode)
+!   {
+!       /* we don't send complete frames */
+!     if(codec-&gt;capabilities&amp;CODEC_CAP_TRUNCATED)
+!       context-&gt;flags|= CODEC_FLAG_TRUNCATED;
+!   }
+    
+    if ( (ret=avcodec_open(context, codec)) &lt; 0)
+***************
+*** 305,310 ****
+  // --- AUDIO ------------------------------------------------------------------
+  cAudioStreamDecoder::cAudioStreamDecoder(AVCodecContext *Context,
+!                                          cAudioOut *AudioOut, int AudioMode)
+!                                          : cStreamDecoder(Context)
+  {
+    audioOut=AudioOut;
+--- 309,315 ----
+  // --- AUDIO ------------------------------------------------------------------
+  cAudioStreamDecoder::cAudioStreamDecoder(AVCodecContext *Context,
+!                                          cAudioOut *AudioOut, int AudioMode,
+!                                          bool packetMode)
+!                                          : cStreamDecoder(Context, packetMode)
+  {
+    audioOut=AudioOut;
+***************
+*** 468,473 ****
+  cVideoStreamDecoder::cVideoStreamDecoder(AVCodecContext *Context,
+                                           cVideoOut *VideoOut, cClock *Clock,
+!                                          int Trickspeed)
+!                                          : cStreamDecoder(Context)
+  {
+    width = height = -1;
+--- 473,479 ----
+  cVideoStreamDecoder::cVideoStreamDecoder(AVCodecContext *Context,
+                                           cVideoOut *VideoOut, cClock *Clock,
+!                                          int Trickspeed,
+!                                          bool packetMode)
+!                                          : cStreamDecoder(Context, packetMode)
+  {
+    width = height = -1;
+***************
+*** 1252,1259 ****
+  #if LIBAVFORMAT_BUILD &gt; 4628
+      aout = new cAudioStreamDecoder(ic-&gt;streams[pkt.stream_index]-&gt;codec,
+!                  audioOut, audioMode );
+  #else
+      aout = new cAudioStreamDecoder(&amp;ic-&gt;streams[pkt.stream_index]-&gt;codec,
+!                  audioOut, audioMode );
+  #endif
+    } else
+--- 1258,1265 ----
+  #if LIBAVFORMAT_BUILD &gt; 4628
+      aout = new cAudioStreamDecoder(ic-&gt;streams[pkt.stream_index]-&gt;codec,
+!                  audioOut, audioMode, packetMode );
+  #else
+      aout = new cAudioStreamDecoder(&amp;ic-&gt;streams[pkt.stream_index]-&gt;codec,
+!                  audioOut, audioMode, packetMode );
+  #endif
+    } else
+***************
+*** 1261,1269 ****
+    if (VideoIdx != DONT_PLAY &amp;&amp; ic-&gt;streams[pkt.stream_index] &amp;&amp;
+        ic-&gt;streams[pkt.stream_index]-&gt;codec-&gt;codec_type == CODEC_TYPE_VIDEO &amp;&amp;
+!       VideoIdx!=pkt.stream_index) 
+  #else
+    if (VideoIdx != DONT_PLAY &amp;&amp; ic-&gt;streams[pkt.stream_index] &amp;&amp;
+        ic-&gt;streams[pkt.stream_index]-&gt;codec.codec_type == CODEC_TYPE_VIDEO &amp;&amp;
+!       VideoIdx!=pkt.stream_index) 
+  #endif
+    {
+--- 1267,1275 ----
+    if (VideoIdx != DONT_PLAY &amp;&amp; ic-&gt;streams[pkt.stream_index] &amp;&amp;
+        ic-&gt;streams[pkt.stream_index]-&gt;codec-&gt;codec_type == CODEC_TYPE_VIDEO &amp;&amp;
+!       VideoIdx!=pkt.stream_index)
+  #else
+    if (VideoIdx != DONT_PLAY &amp;&amp; ic-&gt;streams[pkt.stream_index] &amp;&amp;
+        ic-&gt;streams[pkt.stream_index]-&gt;codec.codec_type == CODEC_TYPE_VIDEO &amp;&amp;
+!       VideoIdx!=pkt.stream_index)
+  #endif
+    {
+***************
+*** 1278,1285 ****
+  #if LIBAVFORMAT_BUILD &gt; 4628
+      vout = new cVideoStreamDecoder(ic-&gt;streams[pkt.stream_index]-&gt;codec,
+!                    videoOut, &amp;clock, Speed );
+  #else
+      vout = new cVideoStreamDecoder(&amp;ic-&gt;streams[pkt.stream_index]-&gt;codec,
+!                    videoOut, &amp;clock, Speed );
+  #endif
+    };
+--- 1284,1291 ----
+  #if LIBAVFORMAT_BUILD &gt; 4628
+      vout = new cVideoStreamDecoder(ic-&gt;streams[pkt.stream_index]-&gt;codec,
+!                    videoOut, &amp;clock, Speed, packetMode );
+  #else
+      vout = new cVideoStreamDecoder(&amp;ic-&gt;streams[pkt.stream_index]-&gt;codec,
+!                    videoOut, &amp;clock, Speed, packetMode );
+  #endif
+    };
+***************
+*** 1381,1387 ****
+  };
+  
+! void cMpeg2Decoder::SetPlayMode(softPlayMode playMode)
+  {
+    curPlayMode=playMode;
+    switch (curPlayMode) {
+      case PmAudioVideo: 
+--- 1387,1394 ----
+  };
+  
+! void cMpeg2Decoder::SetPlayMode(softPlayMode playMode, bool packetMode)
+  {
+    curPlayMode=playMode;
++   this-&gt;packetMode=packetMode;
+    switch (curPlayMode) {
+      case PmAudioVideo: 
+
+Index: mpeg2decoder.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.h,v
+retrieving revision 1.32
+retrieving revision 1.33
+diff -C2 -d -r1.32 -r1.33
+*** mpeg2decoder.h	10 Sep 2005 19:43:21 -0000	1.32
+--- mpeg2decoder.h	29 Oct 2005 08:30:27 -0000	1.33
+***************
+*** 144,148 ****
+  class cStreamDecoder : public cThread {
+  private:
+!     cPacketQueue PacketQueue;
+  
+  protected:
+--- 144,149 ----
+  class cStreamDecoder : public cThread {
+  private:
+!     cPacketQueue  PacketQueue;
+!     bool          packetMode;
+  
+  protected:
+***************
+*** 176,180 ****
+      virtual uint64_t  GetPTS()  {return pts;};
+      
+!     cStreamDecoder(AVCodecContext * Context);
+      virtual ~cStreamDecoder();
+  };
+--- 177,181 ----
+      virtual uint64_t  GetPTS()  {return pts;};
+      
+!     cStreamDecoder(AVCodecContext * Context, bool packetMode);
+      virtual ~cStreamDecoder();
+  };
+***************
+*** 199,203 ****
+      virtual int DecodePacket(AVPacket *pkt);
+      cAudioStreamDecoder(AVCodecContext *Context, cAudioOut *AudioOut,
+!        int AudioChannel=0);
+      ~cAudioStreamDecoder();
+      inline void SetAudioMode(int AudioMode)
+--- 200,204 ----
+      virtual int DecodePacket(AVPacket *pkt);
+      cAudioStreamDecoder(AVCodecContext *Context, cAudioOut *AudioOut,
+!        int AudioChannel=0, bool packetMode = false);
+      ~cAudioStreamDecoder();
+      inline void SetAudioMode(int AudioMode)
+***************
+*** 255,259 ****
+    public:
+      cVideoStreamDecoder(AVCodecContext *Context, cVideoOut *VideoOut,
+!        cClock *clock, int Trickspeed);
+      ~cVideoStreamDecoder();
+  
+--- 256,260 ----
+    public:
+      cVideoStreamDecoder(AVCodecContext *Context, cVideoOut *VideoOut,
+!        cClock *clock, int Trickspeed, bool packetMode);
+      ~cVideoStreamDecoder();
+  
+***************
+*** 304,308 ****
+      };
+  private:
+!     softPlayMode curPlayMode;
+  public:
+      int read_packet(uint8_t *buf, int buf_size);
+--- 305,310 ----
+      };
+  private:
+!     softPlayMode  curPlayMode;
+!     bool          packetMode;
+  public:
+      int read_packet(uint8_t *buf, int buf_size);
+***************
+*** 326,330 ****
+      void TrickSpeed(int Speed);
+     
+!     void SetPlayMode(softPlayMode playMode);
+      void PlayAudioVideo(bool playAudio,bool playVideo)
+      { AudioIdx=playAudio?NO_STREAM:DONT_PLAY;
+--- 328,332 ----
+      void TrickSpeed(int Speed);
+     
+!     void SetPlayMode(softPlayMode playMode, bool packetMode);
+      void PlayAudioVideo(bool playAudio,bool playVideo)
+      { AudioIdx=playAudio?NO_STREAM:DONT_PLAY;
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.44
+retrieving revision 1.45
+diff -C2 -d -r1.44 -r1.45
+*** softdevice.c	8 Oct 2005 12:37:16 -0000	1.44
+--- softdevice.c	29 Oct 2005 08:30:27 -0000	1.45
+***************
+*** 449,463 ****
+        // FIXME - Implement audio or video only Playmode (is this really needed?)
+        case pmAudioVideo:
+!           decoder-&gt;SetPlayMode(cMpeg2Decoder::PmAudioVideo);
+            decoder-&gt;Start();
+            break;
+        case pmAudioOnly:
+        case pmAudioOnlyBlack:
+!           decoder-&gt;SetPlayMode(cMpeg2Decoder::PmAudioOnly);
+            decoder-&gt;Start();
+            break;
+  #if VDRVERSNUM &gt; 10310
+        case pmVideoOnly:
+!           decoder-&gt;SetPlayMode(cMpeg2Decoder::PmVideoOnly);
+            decoder-&gt;Start();
+            break;
+--- 449,463 ----
+        // FIXME - Implement audio or video only Playmode (is this really needed?)
+        case pmAudioVideo:
+!           decoder-&gt;SetPlayMode(cMpeg2Decoder::PmAudioVideo,packetMode);
+            decoder-&gt;Start();
+            break;
+        case pmAudioOnly:
+        case pmAudioOnlyBlack:
+!           decoder-&gt;SetPlayMode(cMpeg2Decoder::PmAudioOnly,packetMode);
+            decoder-&gt;Start();
+            break;
+  #if VDRVERSNUM &gt; 10310
+        case pmVideoOnly:
+!           decoder-&gt;SetPlayMode(cMpeg2Decoder::PmVideoOnly,packetMode);
+            decoder-&gt;Start();
+            break;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000232.html">[Softdevice-cvs] softdevice CHANGELOG,1.119,1.120 i18n.c,1.8,1.9
+</A></li>
+	<LI>Next message: <A HREF="000234.html">[Softdevice-cvs] softdevice mpeg2decoder.c,1.56,1.57 CHANGELOG,1.121,1.122
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#233">[ date ]</a>
+              <a href="thread.html#233">[ thread ]</a>
+              <a href="subject.html#233">[ subject ]</a>
+              <a href="author.html#233">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

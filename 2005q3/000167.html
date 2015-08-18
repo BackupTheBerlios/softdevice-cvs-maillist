@@ -1,0 +1,326 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.92,1.93 mpeg2decoder.c,1.47,1.48 softdevice.c,1.36,1.37 video.c,1.26,1.27 video.h,1.17,1.18
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.92%2C1.93%20mpeg2decoder.c%2C1.47%2C1.48%20softdevice.c%2C1.36%2C1.37%20video.c%2C1.26%2C1.27%20video.h%2C1.17%2C1.18&In-Reply-To=%3C200507222118.j6MLIhI04517%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000166.html">
+   <LINK REL="Next"  HREF="000168.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.92,1.93 mpeg2decoder.c,1.47,1.48 softdevice.c,1.36,1.37 video.c,1.26,1.27 video.h,1.17,1.18</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.92%2C1.93%20mpeg2decoder.c%2C1.47%2C1.48%20softdevice.c%2C1.36%2C1.37%20video.c%2C1.26%2C1.27%20video.h%2C1.17%2C1.18&In-Reply-To=%3C200507222118.j6MLIhI04517%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.92,1.93 mpeg2decoder.c,1.47,1.48 softdevice.c,1.36,1.37 video.c,1.26,1.27 video.h,1.17,1.18">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Jul 22 23:18:43 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000166.html">[Softdevice-cvs] softdevice CHANGELOG,1.91,1.92 mpeg2decoder.c,1.46,1.47 softdevice.c,1.35,1.36
+</A></li>
+        <LI>Next message: <A HREF="000168.html">[Softdevice-cvs] softdevice CHANGELOG,1.93,1.94 video-vidix.c,1.11,1.12 video-vidix.h,1.4,1.5
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#167">[ date ]</a>
+              <a href="thread.html#167">[ thread ]</a>
+              <a href="subject.html#167">[ subject ]</a>
+              <a href="author.html#167">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv14800
+
+Modified Files:
+	CHANGELOG mpeg2decoder.c softdevice.c video.c video.h 
+Log Message:
+  changed pause OSD handling in software drawing mode
+  This may break blanking mode.
+  It can be viewed as a hack, as it just keeps a reference to the previous
+  decoded picture. By this way, I can reuse this decoded picture during redraw
+  of OSD. The reason for this change is, that it is now possible to edit
+  recordings (pause, move and jump between cut marks) when viewing
+  is done in software OSD mode.
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.92
+retrieving revision 1.93
+diff -C2 -d -r1.92 -r1.93
+*** CHANGELOG	22 Jul 2005 17:55:05 -0000	1.92
+--- CHANGELOG	22 Jul 2005 21:18:41 -0000	1.93
+***************
+*** 1,6 ****
+  Changelog
+  2005-07-22:
+      - work around for some *.avi files where frametime is zero
+!     - fix previously intoduced compile fail without -DUSE_SUBPLUGINS
+      - include patch from Claas Hilbrecht for &quot;-vo dummy:&quot;
+      - some code reorg for subpluging loader
+--- 1,7 ----
+  Changelog
+  2005-07-22:
++     - changed pause OSD handling in software drawing mode
+      - work around for some *.avi files where frametime is zero
+!     - fix previously introduced compile fail without -DUSE_SUBPLUGINS
+      - include patch from Claas Hilbrecht for &quot;-vo dummy:&quot;
+      - some code reorg for subpluging loader
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.47
+retrieving revision 1.48
+diff -C2 -d -r1.47 -r1.48
+*** mpeg2decoder.c	22 Jul 2005 17:55:06 -0000	1.47
+--- mpeg2decoder.c	22 Jul 2005 21:18:41 -0000	1.48
+***************
+*** 225,229 ****
+  };
+  
+! void cStreamDecoder::Stop(void) 
+  {
+    if (syncTimer)
+--- 225,229 ----
+  };
+  
+! void cStreamDecoder::Stop(void)
+  {
+    if (syncTimer)
+***************
+*** 592,596 ****
+    // prepare picture for display
+    videoOut-&gt;CheckAspectDimensions(picture,context);
+!   
+    if (!hurry_up || frame % 2 ) {
+      // sleep ....
+--- 592,597 ----
+    // prepare picture for display
+    videoOut-&gt;CheckAspectDimensions(picture,context);
+!   videoOut-&gt;SetOldPicture(picture,context-&gt;width,context-&gt;height);
+! 
+    if (!hurry_up || frame % 2 ) {
+      // sleep ....
+***************
+*** 972,975 ****
+--- 973,977 ----
+  {
+    cClock::AdjustVideoPTS(0);
++   videoOut-&gt;InvalidateOldPicture();
+    delete(syncTimer);
+    free(picture);
+***************
+*** 1350,1354 ****
+    };
+  };
+!   
+  void cMpeg2Decoder::Stop(bool GetMutex)
+  {
+--- 1352,1356 ----
+    };
+  };
+! 
+  void cMpeg2Decoder::Stop(bool GetMutex)
+  {
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.36
+retrieving revision 1.37
+diff -C2 -d -r1.36 -r1.37
+*** softdevice.c	22 Jul 2005 17:55:06 -0000	1.36
+--- softdevice.c	22 Jul 2005 21:18:41 -0000	1.37
+***************
+*** 474,479 ****
+      if ( !packetMode ) {
+        cDevice::Clear();
+!       decoder-&gt;Clear();
+!     } else decoder-&gt;ClearPacketQueue();
+  }
+  void cSoftDevice::Play(void)
+--- 474,479 ----
+      if ( !packetMode ) {
+        cDevice::Clear();
+!     }
+!     decoder-&gt;ClearPacketQueue();
+  }
+  void cSoftDevice::Play(void)
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.26
+retrieving revision 1.27
+diff -C2 -d -r1.26 -r1.27
+*** video.c	20 Jul 2005 18:58:52 -0000	1.26
+--- video.c	22 Jul 2005 21:18:41 -0000	1.27
+***************
+*** 30,33 ****
+--- 30,34 ----
+    this-&gt;setupStore=setupStore;
+    freezeMode=false;
++   old_picture = NULL;
+  
+    for (int i = 0; i &lt; MAX_PAR; ++i)
+***************
+*** 82,88 ****
+  
+      OsdRefreshCounter++;
+      if (freezeMode &amp;&amp; OsdRefreshCounter &gt; 10 )
+!     	OsdRefreshCounter=3;
+! 
+      changeMode=(current_osdMode != setupStore-&gt;osdMode);
+      newOsdMode=setupStore-&gt;osdMode;
+--- 83,90 ----
+  
+      OsdRefreshCounter++;
++ #if 0
+      if (freezeMode &amp;&amp; OsdRefreshCounter &gt; 10 )
+!       OsdRefreshCounter=3;
+! #endif
+      changeMode=(current_osdMode != setupStore-&gt;osdMode);
+      newOsdMode=setupStore-&gt;osdMode;
+***************
+*** 94,103 ****
+      {
+        osdMutex.Lock();
+!       YUV(OsdPy,OsdPu, OsdPv, OsdWidth, OsdHeight,
+!           OSD_FULL_WIDTH, OSD_FULL_WIDTH/2);
+        Osd_changed=0;
+        osdMutex.Unlock();
+      }
+! 
+      // freeze mode and osd changed, change osd mode
+      if ( Osd_changed &amp;&amp; freezeMode &amp;&amp; OsdRefreshCounter &gt;  2 ) {
+--- 96,114 ----
+      {
+        osdMutex.Lock();
+!       if (old_picture)
+!       {
+!         YUV(old_picture-&gt;data[0], old_picture-&gt;data[1], old_picture-&gt;data[2],
+!             old_width,old_height,
+!             old_picture-&gt;linesize[0],old_picture-&gt;linesize[1]);
+!       }
+!       else
+!       {
+!         YUV(OsdPy,OsdPu, OsdPv, OsdWidth, OsdHeight,
+!             OSD_FULL_WIDTH, OSD_FULL_WIDTH/2);
+!       }
+        Osd_changed=0;
+        osdMutex.Unlock();
+      }
+! #if 0
+      // freeze mode and osd changed, change osd mode
+      if ( Osd_changed &amp;&amp; freezeMode &amp;&amp; OsdRefreshCounter &gt;  2 ) {
+***************
+*** 105,109 ****
+          newOsdMode=OSDMODE_PSEUDO;
+      }
+!     
+      GetOSDDimension(newOsdWidth,newOsdHeight);
+      if ( newOsdWidth==-1 || newOsdHeight==-1 )
+--- 116,120 ----
+          newOsdMode=OSDMODE_PSEUDO;
+      }
+! #endif
+      GetOSDDimension(newOsdWidth,newOsdHeight);
+      if ( newOsdWidth==-1 || newOsdHeight==-1 )
+***************
+*** 139,142 ****
+--- 150,173 ----
+    }
+  #endif
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ void cVideoOut::InvalidateOldPicture(void)
++ {
++   osdMutex.Lock();
++   old_picture = NULL;
++   osdMutex.Unlock();
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ void cVideoOut::SetOldPicture(AVFrame *picture, int width, int height)
++ {
++   osdMutex.Lock();
++   old_picture = picture;
++   old_width = width;
++   old_height = height;
++   osdMutex.Unlock();
+  }
+  
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.17
+retrieving revision 1.18
+diff -C2 -d -r1.17 -r1.18
+*** video.h	20 Jul 2005 18:58:52 -0000	1.17
+--- video.h	22 Jul 2005 21:18:41 -0000	1.18
+***************
+*** 99,104 ****
+      double  parValues[MAX_PAR];
+  
+      cSetupStore *setupStore;
+!                 
+      cOsd *osd;
+      bool active;
+--- 99,107 ----
+      double  parValues[MAX_PAR];
+  
++     AVFrame *old_picture;
++     int     old_width, old_height;
++ 
+      cSetupStore *setupStore;
+! 
+      cOsd *osd;
+      bool active;
+***************
+*** 136,139 ****
+--- 139,145 ----
+      void SetOsd(cOsd * Osd) {osd=Osd;};
+      // sets a pointer to the current osd. For refreshing of the osd 
++ 
++     virtual void InvalidateOldPicture(void);
++     virtual void SetOldPicture(AVFrame *picture, int width, int height);
+  
+      uint8_t *PixelMask;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000166.html">[Softdevice-cvs] softdevice CHANGELOG,1.91,1.92 mpeg2decoder.c,1.46,1.47 softdevice.c,1.35,1.36
+</A></li>
+	<LI>Next message: <A HREF="000168.html">[Softdevice-cvs] softdevice CHANGELOG,1.93,1.94 video-vidix.c,1.11,1.12 video-vidix.h,1.4,1.5
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#167">[ date ]</a>
+              <a href="thread.html#167">[ thread ]</a>
+              <a href="subject.html#167">[ subject ]</a>
+              <a href="author.html#167">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

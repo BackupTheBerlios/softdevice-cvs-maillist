@@ -1,0 +1,2459 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softplay Makefile,1.4,1.5 PlayList.c,1.12,1.13 PlayList.h,1.10,1.11 PlayListMenu.c,1.2,1.3 PlayListMenu.h,1.1,1.2 SoftPlayer.c,1.13,1.14 SoftPlayer.h,1.5,1.6 softplay.c,1.9,1.10 softplay.h,1.3,1.4
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softplay%20Makefile%2C1.4%2C1.5%20PlayList.c%2C1.12%2C1.13%20PlayList.h%2C1.10%2C1.11%20PlayListMenu.c%2C1.2%2C1.3%20PlayListMenu.h%2C1.1%2C1.2%20SoftPlayer.c%2C1.13%2C1.14%20SoftPlayer.h%2C1.5%2C1.6%20softplay.c%2C1.9%2C1.10%20softplay.h%2C1.3%2C1.4&In-Reply-To=%3C200603122127.k2CLRXb02181%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000304.html">
+   <LINK REL="Next"  HREF="000306.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softplay Makefile,1.4,1.5 PlayList.c,1.12,1.13 PlayList.h,1.10,1.11 PlayListMenu.c,1.2,1.3 PlayListMenu.h,1.1,1.2 SoftPlayer.c,1.13,1.14 SoftPlayer.h,1.5,1.6 softplay.c,1.9,1.10 softplay.h,1.3,1.4</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softplay%20Makefile%2C1.4%2C1.5%20PlayList.c%2C1.12%2C1.13%20PlayList.h%2C1.10%2C1.11%20PlayListMenu.c%2C1.2%2C1.3%20PlayListMenu.h%2C1.1%2C1.2%20SoftPlayer.c%2C1.13%2C1.14%20SoftPlayer.h%2C1.5%2C1.6%20softplay.c%2C1.9%2C1.10%20softplay.h%2C1.3%2C1.4&In-Reply-To=%3C200603122127.k2CLRXb02181%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softplay Makefile,1.4,1.5 PlayList.c,1.12,1.13 PlayList.h,1.10,1.11 PlayListMenu.c,1.2,1.3 PlayListMenu.h,1.1,1.2 SoftPlayer.c,1.13,1.14 SoftPlayer.h,1.5,1.6 softplay.c,1.9,1.10 softplay.h,1.3,1.4">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Mar 12 22:27:33 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000304.html">[Softdevice-cvs] softplay FileIndex.c,NONE,1.1 FileIndex.h,NONE,1.1 Receiver.c,NONE,1.1 Receiver.h,NONE,1.1 Setup.c,NONE,1.1 Setup.h,NONE,1.1 SoftHandles.h,NONE,1.1 README,1.5,1.6
+</A></li>
+        <LI>Next message: <A HREF="000306.html">[Softdevice-cvs] softdevice video-xv.h,1.15,1.16 video-xv.c,1.45,1.46
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#305">[ date ]</a>
+              <a href="thread.html#305">[ thread ]</a>
+              <a href="subject.html#305">[ subject ]</a>
+              <a href="author.html#305">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softplay
+In directory sheep:/tmp/cvs-serv1872
+
+Modified Files:
+	Makefile PlayList.c PlayList.h PlayListMenu.c PlayListMenu.h 
+	SoftPlayer.c SoftPlayer.h softplay.c softplay.h 
+Log Message:
+- some more files to commit
+
+
+
+Index: Makefile
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/Makefile,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -C2 -d -r1.4 -r1.5
+*** Makefile	15 Aug 2005 09:13:39 -0000	1.4
+--- Makefile	12 Mar 2006 20:28:52 -0000	1.5
+***************
+*** 10,14 ****
+  PLUGIN = softplay
+  
+! #LIBFFMPEG=/home/martin/ffmpeg_cvs
+  #LIBFFMPEG=/home/martin/vdr/ffmpeg-0.4.9-pre1
+  LIBFFMPEG=/usr/local/include/ffmpeg/
+--- 10,14 ----
+  PLUGIN = softplay
+  
+! #LIBFFMPEG=/home/martin/vdr/ffmpeg
+  #LIBFFMPEG=/home/martin/vdr/ffmpeg-0.4.9-pre1
+  LIBFFMPEG=/usr/local/include/ffmpeg/
+***************
+*** 52,56 ****
+  ### The object files (add further files here):
+  
+! OBJS = $(PLUGIN).o SoftPlayer.o PlayList.o PlayListMenu.o i18n.o
+  
+  LIBS = -lavformat -lavcodec -lz
+--- 52,56 ----
+  ### The object files (add further files here):
+  
+! OBJS = $(PLUGIN).o SoftPlayer.o PlayList.o PlayListMenu.o i18n.o FileIndex.o Receiver.o Setup.o
+  
+  LIBS = -lavformat -lavcodec -lz
+
+Index: PlayList.c
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/PlayList.c,v
+retrieving revision 1.12
+retrieving revision 1.13
+diff -C2 -d -r1.12 -r1.13
+*** PlayList.c	15 Aug 2005 13:13:14 -0000	1.12
+--- PlayList.c	12 Mar 2006 20:28:52 -0000	1.13
+***************
+*** 18,21 ****
+--- 18,23 ----
+  #include &quot;vdr/player.h&quot;
+  
++ #include &quot;FileIndex.h&quot;
++ 
+  #define LISTDEB(out...) {printf(&quot;LISTDEB: &quot;);printf(out);}
+  
+***************
+*** 255,265 ****
+  };
+  
+  
+! // ---cPlayListItem--------------------------------------------------------
+! cPlayListItem::cPlayListItem(const char *Filename, const char *Name) {
+!         if (Name) {
+!                 SetName(Name);
+!         } else name[0]=0;
+  
+          if (Filename) {
+                  SetFilename(Filename);
+--- 257,300 ----
+  };
+  
++ void cItemIdx::Move(int From, int To) {
++         LISTDEB(&quot;Move From %d to %d currIdx %d\n&quot;,From,To,currShuffleIdx);
++ //        for (int i=(To&gt;From?From:To)-1; i &lt; (To&gt;From?To:From) +1; i++ ) 
++ //                if ( i &gt; 0 &amp;&amp; i &lt;  nIdx )
++ //                        LISTDEB(&quot;Item %d '%s'\n&quot;,i,Idx[i].Item-&gt;GetFilename());
+  
+!         if ( From == To )
+!                 return;
+!         
+! 	if ( From &gt;= 0 &amp;&amp; From &lt;  nIdx
+!              &amp;&amp; To &gt;= 0 &amp;&amp; To &lt;  nIdx ) {
+!                 sIdx dummy=Idx[From];
+!                 if ( From &lt; To ) {
+!                         memmove(&amp;Idx[From],&amp;Idx[From+1],
+!                                         sizeof(Idx[To])*(To-From));
+!                         if ( currShuffleIdx == From)
+!                                 currShuffleIdx = To;
+!                         else if ( currShuffleIdx &gt; From &amp;&amp; 
+!                                         currShuffleIdx &lt;= To )
+!                                 currShuffleIdx--;
+!                 } else {
+!                         memmove(&amp;Idx[To+1],&amp;Idx[To],
+!                                         sizeof(Idx[To])*(From-To));
+!                         if ( currShuffleIdx == From )
+!                                 currShuffleIdx = To;
+!                         else if ( currShuffleIdx &gt;= To &amp;&amp; 
+!                                         currShuffleIdx &lt; From )
+!                                 currShuffleIdx++;
+!                 };
+!                 Idx[To]=dummy;
+!         };
+!         LISTDEB(&quot;After Move From %d to %d currIdx %d\n&quot;,From,To,currShuffleIdx);
+!         for (int i=(To&gt;From?From:To)-1; i &lt; (To&gt;From?To:From) +2; i++ ) 
+!                 if ( i &gt;= 0 &amp;&amp; i &lt;  nIdx )
+!                         LISTDEB(&quot;Item %d '%s'\n&quot;,i,Idx[i].Item-&gt;GetFilename());
+! };
+  
++ 
++ // ---cPlayListItem--------------------------------------------------------
++ cPlayListItem::cPlayListItem(const char *Filename) {
+          if (Filename) {
+                  SetFilename(Filename);
+***************
+*** 281,291 ****
+  };
+  
+  
+  void cPlayListItem::BuildIdx(cItemIdx *ShuffleIdx) {
+  };
+  
+! const char *cPlayListItem::ParseTypeFilenameName(const char *pos, 
+!                 char *Type, char *Filename, char *Name) {
+          int len;
+          // read entry type
+          if ( sscanf(pos,&quot;%20[^:]:%n&quot;,Type,&amp;len) == 0 ) {
+--- 316,336 ----
+  };
+  
++ void cPlayListItem::RemoveSelfFromList() {
++         if (next) 
++                 next-&gt;previous=previous;
++         if (previous)
++                 previous-&gt;next=next;
++ };
++ 
+  
+  void cPlayListItem::BuildIdx(cItemIdx *ShuffleIdx) {
+  };
+  
+! const char *cPlayListItem::ParseTypeFilename(const char *pos, 
+!                 char *Type, char *Filename) {
+          int len;
++ 	if (!*pos)
++ 		return NULL;
++ 
+          // read entry type
+          if ( sscanf(pos,&quot;%20[^:]:%n&quot;,Type,&amp;len) == 0 ) {
+***************
+*** 295,343 ****
+          pos = &amp;pos[len];
+  
+!         //skip whitespaces
+!         while (pos[0] &amp;&amp; pos[0]==' ')
+!                 pos++;
+          // read file name (should be always present)
+!         if ( !strncmp(pos,&quot;\&quot;\&quot;,&quot;,3) ) {
+!                 filename[0]=0;
+!                 len=3;
+!         } else if ( sscanf(pos,&quot;\&quot;%&quot; TO_STRING(STR_LENGTH) 
+!                                 &quot;[^\&quot;]\&quot;,%n&quot;,Filename,&amp;len) == 0 ) {
+                  LISTDEB(&quot;Could not parse filename at pos \&quot;%s\&quot;. Ignoring.\n&quot;,pos);
+                  return NULL;
+          };
+-         pos = &amp;pos[len];
+- 
+-         // skip whitespaces
+-         while (pos[0] &amp;&amp; pos[0]==' ')
+-                 pos++;
+- 
+-         // read name (should be always present)
+-         if ( !strncmp(pos,&quot;\&quot;\&quot;,&quot;,3) ) {
+-                 name[0]=0;
+-                 len=3;
+-         } else if ( sscanf(pos,&quot;\&quot;%&quot; TO_STRING(SHORT_STR) 
+-                                 &quot;[^\&quot;]\&quot;,%n&quot;,Name,&amp;len) == 0 ) {
+-                 LISTDEB(&quot;Could not parse name at pos \&quot;%s\&quot;. Ignoring.\n&quot;,pos);
+-                 return NULL;
+-         };
+-         pos = &amp;pos[len];
+  
+          return pos;
+  };
+-  
+- //-----cPlayListRegular-----------------------------------------------------
+  
+! void cPlayListRegular::Save(FILE *out) {
+  	fprintf(out,&quot;File: &quot;);
+          fprintf(out,&quot;\&quot;%s\&quot;,&quot;,GetFilename());
+-         fprintf(out,&quot;\&quot;%s\&quot;,&quot;,GetName());
+-         fprintf(out,&quot;\n&quot;);
+  };
+! 
+  // -----cPlayList------------------------------------------------------------
+! cPlayList::cPlayList(const char *Filename, const char *Name,
+!                 cItemIdx *ShuffleIdx) 
+!                 : cPlayListItem(Filename,(Name ? Name : tr(&quot;Playlist 1&quot;))) {
+          first=NULL;
+          last=NULL;
+--- 340,363 ----
+          pos = &amp;pos[len];
+  
+! 
+!         skipSpaces(pos);
+          // read file name (should be always present)
+!         if ( !(pos = ReadQuotedString(Filename,pos) ) ) {
+                  LISTDEB(&quot;Could not parse filename at pos \&quot;%s\&quot;. Ignoring.\n&quot;,pos);
+                  return NULL;
+          };
+  
++ 	nextField(pos);
+          return pos;
+  };
+  
+! void cPlayListItem::Save(FILE *out) {
+  	fprintf(out,&quot;File: &quot;);
+          fprintf(out,&quot;\&quot;%s\&quot;,&quot;,GetFilename());
+  };
+! 	
+  // -----cPlayList------------------------------------------------------------
+! cPlayList::cPlayList(const char *Filename, cItemIdx *ShuffleIdx) 
+!                 : cPlayListItem( (Filename? Filename : tr(&quot;Playlist 1&quot;)) ) {
+          first=NULL;
+          last=NULL;
+***************
+*** 365,382 ****
+  bool cPlayList::RemoveItemFromList(cPlayListItem *Item) {
+          LISTDEB(&quot;RemoveItemFromList %p, first %p last %p\n&quot;,Item,first,last);
+! 	
+!         // is it the first or the last item?
+          if (first &amp;&amp; Item == first)
+!                 first = first-&gt;next;
+          if (last &amp;&amp; Item == last) 
+!                 last = last-&gt;previous;
+  	// remove from list
+!         if (Item-&gt;next) 
+!                 Item-&gt;next-&gt;previous=Item-&gt;previous;
+!         if (Item-&gt;previous) 
+!                 Item-&gt;previous-&gt;next=Item-&gt;next;
+!         Item-&gt;previous=NULL;
+!         Item-&gt;next=NULL;
+!         delete Item;
+  	return true;
+  };
+--- 385,398 ----
+  bool cPlayList::RemoveItemFromList(cPlayListItem *Item) {
+          LISTDEB(&quot;RemoveItemFromList %p, first %p last %p\n&quot;,Item,first,last);
+! 
+! 	// is it the first or the last item?
+          if (first &amp;&amp; Item == first)
+!                 first = first-&gt;GetNext();
+          if (last &amp;&amp; Item == last) 
+!                 last = last-&gt;GetPrev();
+  	// remove from list
+!         Item-&gt;RemoveSelfFromList();
+! 	delete Item;
+! 
+  	return true;
+  };
+***************
+*** 387,393 ****
+                  first = last = Item;
+          } else {
+!                 last-&gt;next = Item;
+!                 Item-&gt;previous = last;
+!                 Item-&gt;next = NULL;
+                  last = Item;
+          };
+--- 403,407 ----
+                  first = last = Item;
+          } else {
+!                 Item-&gt;InsertSelfIntoList(NULL,last);
+                  last = Item;
+          };
+***************
+*** 412,418 ****
+  };
+  
+! bool cPlayList::AddFile(char * filename, char *title) {
+          LISTDEB(&quot;AddFile %s\n&quot;,filename);
+!         cPlayListItem *Item= new cPlayListRegular(filename,title);
+          LISTDEB(&quot;Item created %p\n&quot;,Item);
+          AddItemAtEnd(Item);
+--- 426,432 ----
+  };
+  
+! bool cPlayList::AddFile(char * filename) {
+          LISTDEB(&quot;AddFile %s\n&quot;,filename);
+!         cPlayListItem *Item= new cPlayListItem(filename);
+          LISTDEB(&quot;Item created %p\n&quot;,Item);
+          AddItemAtEnd(Item);
+***************
+*** 422,428 ****
+  };
+  
+! bool cPlayList::AddDir(char * dirname, char * title, bool recursive) {
+          LISTDEB(&quot;AddDir %s\n&quot;,dirname);
+!         cPlayList *Item= new cPlayList(dirname,title,shuffleIdx);
+          Item-&gt;ScanDir(dirname,recursive);
+          AddItemAtEnd(Item);
+--- 436,442 ----
+  };
+  
+! bool cPlayList::AddDir(char * dirname, bool recursive) {
+          LISTDEB(&quot;AddDir %s\n&quot;,dirname);
+!         cPlayList *Item= new cPlayList(dirname,shuffleIdx);
+          Item-&gt;ScanDir(dirname,recursive);
+          AddItemAtEnd(Item);
+***************
+*** 431,438 ****
+  };
+  
+! bool cPlayList::AddM3U(char * Filename, char * title) {
+          LISTDEB(&quot;AddM3U %s\n&quot;,Filename);
+!         cPlayList *Item= new cPlayList(Filename,title,shuffleIdx);
+!         Item-&gt;LoadM3U(Filename,title);
+          AddItemAtEnd(Item);
+  
+--- 445,452 ----
+  };
+  
+! bool cPlayList::AddM3U(char * Filename) {
+          LISTDEB(&quot;AddM3U %s\n&quot;,Filename);
+!         cPlayList *Item= new cPlayList(Filename,shuffleIdx);
+!         Item-&gt;LoadM3U(Filename);
+          AddItemAtEnd(Item);
+  
+***************
+*** 466,471 ****
+--- 480,492 ----
+  
+          options=Options;
++         SetFilename(Options.name);
+  };
+  
++ void cPlayList::GetOptions( sPlayListOptions &amp;Options) {
++         Options=options;
++         strncpy(Options.name,GetFilename(),40);
++         Options.name[40-1]=0;
++ };
++         
+  bool cPlayList::ScanDir(char * dirname, bool recursive) {
+          struct dirent **namelist;
+***************
+*** 506,511 ****
+  
+                  if (namelist[i]-&gt;d_type == DT_DIR &amp;&amp; recursive )  
+!                         ret=AddDir(Name,namelist[i]-&gt;d_name,recursive);
+!                 else  ret=AddFile(Name,namelist[i]-&gt;d_name);
+  
+                  free(namelist[i]);	  
+--- 527,532 ----
+  
+                  if (namelist[i]-&gt;d_type == DT_DIR &amp;&amp; recursive )  
+!                         ret=AddDir(Name,recursive);
+!                 else  ret=AddFile(Name);
+  
+                  free(namelist[i]);	  
+***************
+*** 515,537 ****
+  };
+  
+- 
+  void cPlayList::Save(FILE *out) {
+          cPlayListItem *Item;
+          
+          fprintf(out,&quot;Start_List: &quot;);
+!         fprintf(out,&quot;\&quot;%s\&quot;,&quot;,filename);
+!         fprintf(out,&quot;\&quot;%s\&quot;,&quot;,name);
+          fprintf(out,&quot;\n&quot;);
+          
+          Item=first;
+          while (Item) {
+!                 Item-&gt;Save(out);
+!                 Item=Item-&gt;next;
+          };
+  
+          fprintf(out,&quot;End_List: &quot;);
+!         fprintf(out,&quot;\&quot;%s\&quot;,&quot;,filename);
+!         fprintf(out,&quot;\&quot;%s\&quot;,&quot;,name);
+!         fprintf(out,&quot;\n&quot;);
+  };
+          
+--- 536,555 ----
+  };
+  
+  void cPlayList::Save(FILE *out) {
+          cPlayListItem *Item;
+          
+          fprintf(out,&quot;Start_List: &quot;);
+!         fprintf(out,&quot;\&quot;%s\&quot;,&quot;,GetFilename());
+          fprintf(out,&quot;\n&quot;);
+          
+          Item=first;
+          while (Item) {
+!                 Item-&gt;Save(out);fprintf(out,&quot;\n&quot;);
+!                 Item=Item-&gt;GetNext();
+          };
+  
+          fprintf(out,&quot;End_List: &quot;);
+!         fprintf(out,&quot;\&quot;%s\&quot;,&quot;,GetFilename());
+!         //fprintf(out,&quot;\n&quot;);
+  };
+          
+***************
+*** 542,549 ****
+          char Type[STR_LENGTH];
+          char Filename[STR_LENGTH];
+-         char Name[SHORT_STR];
+         
+          if (StartLine) {
+!                 if ( !(pos=ParseTypeFilenameName(StartLine,Type,Filename,Name)) ) {
+                          LISTDEB(&quot;Could not parse Startline. Returning. \n&quot;);
+                          return -1;
+--- 560,566 ----
+          char Type[STR_LENGTH];
+          char Filename[STR_LENGTH];
+         
+          if (StartLine) {
+!                 if ( !(pos=ParseTypeFilename(StartLine,Type,Filename)) ) {
+                          LISTDEB(&quot;Could not parse Startline. Returning. \n&quot;);
+                          return -1;
+***************
+*** 555,559 ****
+                  };
+                  
+-                 SetName(Name);
+                  SetFilename(Filename);
+          };              
+--- 572,575 ----
+***************
+*** 562,574 ****
+                  chomp(line);
+  
+!                 LISTDEB(&quot;read line %s \n&quot;,line); 
+  
+!                 if ( !(pos=ParseTypeFilenameName(line,Type,Filename,Name)) )
+                          continue;
+                         
+!                 LISTDEB(&quot;filename \&quot;%s\&quot; name \&quot;%s\&quot; \n&quot;,Filename,Name); 
+                  if ( !strcmp(Type,&quot;Start_List&quot;) ) {
+                          LISTDEB(&quot;Found start of list\n&quot;);
+!                         cPlayList *Item = new cPlayList(Filename,Name,shuffleIdx);
+                          if ( Item-&gt;Load(in,line)&lt;0 )
+                                  return -1;
+--- 578,590 ----
+                  chomp(line);
+  
+!                 LISTDEB(&quot;read line '%s' \n&quot;,line); 
+  
+!                 if ( !(pos=ParseTypeFilename(line,Type,Filename)) )
+                          continue;
+                         
+!                 LISTDEB(&quot;filename \&quot;%s\&quot;\n&quot;,Filename); 
+                  if ( !strcmp(Type,&quot;Start_List&quot;) ) {
+                          LISTDEB(&quot;Found start of list\n&quot;);
+!                         cPlayList *Item = new cPlayList(Filename,shuffleIdx);
+                          if ( Item-&gt;Load(in,line)&lt;0 )
+                                  return -1;
+***************
+*** 577,582 ****
+                  } else if ( !strcmp(Type,&quot;End_List&quot;) ) {
+                          LISTDEB(&quot;Found end of list \n&quot;);
+!                         if ( strcmp(Filename,GetFilename()) ||
+!                                         strcmp(Name,GetName()) ) {
+                                  LISTDEB(&quot;End of list doesn't match! Returning!\n&quot;);
+                                  return -1; 
+--- 593,597 ----
+                  } else if ( !strcmp(Type,&quot;End_List&quot;) ) {
+                          LISTDEB(&quot;Found end of list \n&quot;);
+!                         if ( strcmp(Filename,GetFilename()) ) { 
+                                  LISTDEB(&quot;End of list doesn't match! Returning!\n&quot;);
+                                  return -1; 
+***************
+*** 585,590 ****
+                  } else if ( !strcmp(Type,&quot;File&quot;) ) {
+                          LISTDEB(&quot;Found file \n&quot;);
+!                         cPlayListItem *Item = new cPlayListRegular(Filename,Name);
+!                         Item-&gt;ParseSaveLine(line);
+                          AddItemAtEnd(Item);
+                  } else {
+--- 600,605 ----
+                  } else if ( !strcmp(Type,&quot;File&quot;) ) {
+                          LISTDEB(&quot;Found file \n&quot;);
+!                         cPlayListItem *Item = new cPlayListItem(Filename);
+!                         Item-&gt;ParseSaveLine(pos);
+                          AddItemAtEnd(Item);
+                  } else {
+***************
+*** 595,603 ****
+  };
+  
+! int cPlayList::LoadM3U(const char *Filename, const char *Name) {
+          FILE *list;
+!         char line[500];
+          char dir[STR_LENGTH];
+!         LISTDEB(&quot;LoadM3U: %s\n&quot;,Filename);
+          
+          list = fopen( Filename, &quot;r&quot;);
+--- 610,621 ----
+  };
+  
+! int cPlayList::LoadM3U(const char *Filename) {
+          FILE *list;
+!         char line[2][500];
+          char dir[STR_LENGTH];
+! 	int swapLine=0;
+! 	line[0][0]=line[1][0]=0;
+! 	
+! 	LISTDEB(&quot;LoadM3U: %s\n&quot;,Filename);
+          
+          list = fopen( Filename, &quot;r&quot;);
+***************
+*** 608,612 ****
+          };
+          
+-         SetName(Name);
+          SetFilename(Filename);
+          char *ncopy=rindex(Filename,'/');
+--- 626,629 ----
+***************
+*** 620,653 ****
+          LISTDEB(&quot;dir: %s\n&quot;,dir);
+  
+!         while ( !feof(list)  &amp;&amp; fgets(line,500,list) ) {
+!                 chomp(line);
+!                 printf(&quot;read line \&quot;%s\&quot;\n&quot;,line);
+!                 if (line[0]=='#')
+                          continue;
+  
+-                 // poor man's windows to linux filename transformation
+-                 char *pos=line;
+-                 while ( (pos=index(pos,'\\')) )
+-                         *pos='/';
+-     
+-                 ncopy=line;
+-                 // don't copy leading &quot;./&quot;
+-                 if (ncopy[0]=='.' &amp;&amp; ncopy[1]=='/')
+-                         ncopy+=2;
+-                 
+-                 char ItemName[SHORT_STR];
+                  char ItemFile[STR_LENGTH];
+!                 snprintf(ItemFile,STR_LENGTH,&quot;%s/%s&quot;,dir,ncopy);
+  
+!                 // strip off all directories to extract the name
+!                 ncopy = rindex(line,'/');
+!                 if (!ncopy)
+!                         ncopy=line;
+!                 else ncopy++;
+!                 snprintf(ItemName,SHORT_STR,&quot;%s&quot;,ncopy);
+!                 printf(&quot;Name %s \n&quot;,ncopy);
+                  
+!                 cPlayListItem *Item = new cPlayListRegular(ItemFile,ItemName);
+!                 AddItemAtEnd(Item);
+          };
+  
+--- 637,684 ----
+          LISTDEB(&quot;dir: %s\n&quot;,dir);
+  
+! 	
+!         while ( fgets(line[swapLine],500,list) ) {
+!                 chomp(line[swapLine]);
+!                 LISTDEB(&quot;read line \&quot;%s\&quot;\n&quot;,line[swapLine]);
+!                 char *pos=line[swapLine];
+!                 
+!                 
+! 		//skip leading white spaces
+! 		skipSpaces((const char *) pos);
+! 
+! 		if ( *pos=='#' ) {
+! 			// either a comment or EXTINF
+! 			swapLine=!swapLine;
+                          continue;
++ 		};
+  
+                  char ItemFile[STR_LENGTH];
+!                 if ( IsStream(pos) ) {
+!                         snprintf(ItemFile,STR_LENGTH,&quot;%s&quot;,pos);
+!                 } else {
+!                         // regular file
+!                         // poor man's windows to linux filename transformation
+!                         char *tmp=pos;
+!                         while ( (tmp=index(tmp,'\\')) )
+!                                 *tmp='/';
+  
+!                         // don't copy leading &quot;./&quot;
+!                         if (pos[0]=='.' &amp;&amp; pos[1]=='/')
+!                                 pos+=2;
+! 
+!                         snprintf(ItemFile,STR_LENGTH,&quot;%s/%s&quot;,dir,pos);
+!                 };
+                  
+! 		// check for extinfos...
+! 		char *extInfoPos=line[!swapLine];
+! 		skipSpaces((const char *)extInfoPos);
+! 		if ( *extInfoPos=='#' &amp;&amp; FileIndex ) {
+! 			cIndex *Idx=FileIndex-&gt;GetOrAddIndex(ItemFile);
+! 			if (Idx)
+! 				Idx-&gt;ParseM3uExtInf(extInfoPos);
+! 		};
+! 
+!                 AddItemAtEnd(new cPlayListItem(ItemFile));
+! 		swapLine=!swapLine;
+          };
+  
+
+Index: PlayList.h
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/PlayList.h,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -C2 -d -r1.10 -r1.11
+*** PlayList.h	15 Aug 2005 13:13:14 -0000	1.10
+--- PlayList.h	12 Mar 2006 20:28:52 -0000	1.11
+***************
+*** 63,78 ****
+  
+                  void Shuffle();
+  };      
+  
+  class cPlayListItem {
+-         friend class cPlayList;
+          private:
+!                 char name[SHORT_STR];
+                  char filename[STR_LENGTH];
+          protected:
+                  cPlayListItem *next;
+                  cPlayListItem *previous;
+          public:
+!                 cPlayListItem(const char *Filename=NULL, const char *Name=NULL);
+                  virtual ~cPlayListItem();
+  
+--- 63,87 ----
+  
+                  void Shuffle();
++ 
++                 void Move(int From, int To);
+  };      
+  
+  class cPlayListItem {
+          private:
+! 		char *namePos;
+                  char filename[STR_LENGTH];
+          protected:
+                  cPlayListItem *next;
+                  cPlayListItem *previous;
++       
+          public:
+!                 inline cPlayListItem *GetNext()
+!                 {return next;};
+! 
+!                 inline cPlayListItem *GetPrev()
+!                 {return previous;};
+! 
+!         public:
+!                 cPlayListItem(const char *Filename=NULL);
+                  virtual ~cPlayListItem();
+  
+***************
+*** 80,97 ****
+                                  cPlayListItem *previous);
+  
+!                 inline char * GetName()
+!                 { return name; };
+   
+!                 inline char * GetFilename()
+                  { return filename; };
+  
+-         protected:
+-                 inline void SetName(const char *Name) {
+-                         strncpy(name,Name,SHORT_STR);
+-                         name[SHORT_STR-1]=0;
+-                 };
+                  inline void SetFilename(const char *Filename) {
+                          strncpy(filename,Filename,STR_LENGTH);
+                          filename[STR_LENGTH-1]=0;
+                  };
+  
+--- 89,107 ----
+                                  cPlayListItem *previous);
+  
+!                 void RemoveSelfFromList();
+! 
+!                 inline const char * GetName()
+!                 { return namePos; };
+   
+!                 inline const char * GetFilename()
+                  { return filename; };
+  
+                  inline void SetFilename(const char *Filename) {
+                          strncpy(filename,Filename,STR_LENGTH);
+                          filename[STR_LENGTH-1]=0;
++ 			namePos=rindex(filename,'/');
++ 			if (namePos)
++                                 namePos++;
++                         else namePos=filename;
+                  };
+  
+***************
+*** 99,167 ****
+                  virtual void BuildIdx(cItemIdx *shuffleIdx);
+                          
+!                 inline cPlayListItem *GetNext()
+!                 {return next;};
+! 
+!                 inline cPlayListItem *GetPrev()
+!                 {return previous;};
+! 
+! 		virtual void Save(FILE *out)
+! 		{};
+  
+                  virtual void ParseSaveLine(const char *Line)
+                  {};
+-         protected:
+-                 const char *ParseTypeFilenameName(const char *Str, 
+-                                 char *Type, char *Filename, char *Name);
+- };
+- 
+- class cPlayListRegular: public cPlayListItem {
+-         private:
+-                 char title[STR_LENGTH];
+-                 char album[STR_LENGTH];
+-                 char author[STR_LENGTH];
+- 
+-                 int duration;
+-         public:
+-                 cPlayListRegular(char *Filename,  char *Name) :
+-                         cPlayListItem(Filename,Name) {};
+-                 virtual ~cPlayListRegular() {};
+- 
+- 		virtual void Save(FILE *out);
+- 
+-                 virtual void ParseSaveLine(const char *Line){};
+- 
+-                 inline char *GetTitle() 
+-                 { return title; };
+- 
+-                 inline void SetTitle( const char *const Title) { 
+-                         strncpy(title,Title,STR_LENGTH);
+-                         title[STR_LENGTH-1]=0;
+-                 };
+- 
+-                 inline char *GetAlbum()
+-                 { return album; };
+- 
+-                 inline void SetAlbum( const char *const Album) {
+-                         strncpy(album,Album,STR_LENGTH);
+-                         album[STR_LENGTH-1]=0;
+-                 };
+  
+-                 inline char *GetAuthor()
+-                 { return author; };
+  
+!                 inline void SetAuthor( const char *const Author) {
+!                         strncpy(author,Author,STR_LENGTH);
+!                         author[STR_LENGTH-1]=0;
+!                 };
+! 
+!                 inline int GetDuration()
+!                 { return duration; };
+  
+!                 inline void SetDuration(int Duration) {
+!                         duration=Duration;
+!                 };
+! }; 
+  
+  struct sPlayListOptions {
+  	int shuffle;
+  	int autoRepeat;
+--- 109,126 ----
+                  virtual void BuildIdx(cItemIdx *shuffleIdx);
+                          
+!  		virtual void Save(FILE *out);
+  
+                  virtual void ParseSaveLine(const char *Line)
+                  {};
+  
+  
+!         protected:
+!                 const char *ParseTypeFilename(const char *Str, 
+!                                 char *Type, char *Filename);
+  
+! };
+  
+  struct sPlayListOptions {
++         char name[40];
+  	int shuffle;
+  	int autoRepeat;
+***************
+*** 177,182 ****
+    public:
+          sPlayListOptions options;
+!         cPlayList(const char *Filename=NULL, const char *Name=NULL,
+!                         cItemIdx *shuffleIdx=NULL);
+    private:
+  	cPlayList(const cPlayList &amp;List) {};
+--- 136,140 ----
+    public:
+          sPlayListOptions options;
+!         cPlayList(const char *Filename=NULL,cItemIdx *shuffleIdx=NULL);
+    private:
+  	cPlayList(const cPlayList &amp;List) {};
+***************
+*** 191,196 ****
+          void PrepareForPlayback();
+  	void SetOptions(sPlayListOptions &amp;Options);
+! 	void GetOptions(sPlayListOptions &amp;Options)
+! 	{ Options=options; };
+          
+    private:
+--- 149,153 ----
+          void PrepareForPlayback();
+  	void SetOptions(sPlayListOptions &amp;Options);
+! 	void GetOptions(sPlayListOptions &amp;Options);
+          
+    private:
+***************
+*** 209,215 ****
+  	{ return first; };
+  
+!         bool AddFile(char * Filename,char *Title = NULL);
+!         bool AddDir(char * dirname,char *Title = NULL, bool recursive = true);
+!         bool AddM3U(char * Filename,char *Title = NULL);
+  
+          virtual void Save(FILE *out);
+--- 166,172 ----
+  	{ return first; };
+  
+!         bool AddFile(char * Filename);
+!         bool AddDir(char * dirname, bool recursive = true);
+!         bool AddM3U(char * Filename);
+  
+          virtual void Save(FILE *out);
+***************
+*** 218,224 ****
+          bool ScanDir(char * dirname, bool recursive = true);
+          
+!         int LoadM3U(const char *Filename, const char *Name);
+  
+!         // interface to cItemIdx        
+  	inline bool IsDirty()
+  	{ return shuffleIdx ? shuffleIdx-&gt;reshuffled : 0; };
+--- 175,183 ----
+          bool ScanDir(char * dirname, bool recursive = true);
+          
+!         int LoadM3U(const char *Filename);
+  
+!         // interface to cItemIdx    
+!         cItemIdx *GetShuffleIdx() 
+!         { return shuffleIdx; };
+  	inline bool IsDirty()
+  	{ return shuffleIdx ? shuffleIdx-&gt;reshuffled : 0; };
+***************
+*** 229,234 ****
+          inline int GetCurrIdx()
+  	{ return shuffleIdx ? shuffleIdx-&gt;currShuffleIdx : -1; };
+!         inline void SetCurrShuffleIdx(int Idx)
+  	{ if (shuffleIdx) shuffleIdx-&gt;currShuffleIdx = Idx; };
+  
+  	inline int GetNIdx()
+--- 188,196 ----
+          inline int GetCurrIdx()
+  	{ return shuffleIdx ? shuffleIdx-&gt;currShuffleIdx : -1; };
+!         inline void SetCurrIdx(int Idx)
+  	{ if (shuffleIdx) shuffleIdx-&gt;currShuffleIdx = Idx; };
++ 	inline cPlayListItem* GetCurrItem()
++ 	{ return shuffleIdx ? shuffleIdx-&gt;GetItemByIndex(
++                         shuffleIdx-&gt;currShuffleIdx) : NULL; };
+  
+  	inline int GetNIdx()
+***************
+*** 246,250 ****
+          { return shuffleIdx ? shuffleIdx-&gt;PrevAlbumFile() : NULL; };
+  	
+!         inline cPlayListItem *GetShuffledItemByIndex(int Index) {   
+                  return shuffleIdx ?
+                          shuffleIdx-&gt;GetItemByIndex(Index) : NULL; 
+--- 208,212 ----
+          { return shuffleIdx ? shuffleIdx-&gt;PrevAlbumFile() : NULL; };
+  	
+!         inline cPlayListItem *GetItemByIndex(int Index) {   
+                  return shuffleIdx ?
+                          shuffleIdx-&gt;GetItemByIndex(Index) : NULL; 
+
+Index: PlayListMenu.c
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/PlayListMenu.c,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** PlayListMenu.c	15 Aug 2005 13:13:14 -0000	1.2
+--- PlayListMenu.c	12 Mar 2006 20:28:52 -0000	1.3
+***************
+*** 12,15 ****
+--- 12,16 ----
+  
+  #include &quot;PlayListMenu.h&quot;
++ #include &quot;FileIndex.h&quot;
+  
+  #define MENUDEB(out...) {printf(&quot;MENUDEB: &quot;);printf(out);}
+***************
+*** 56,61 ****
+                          }  else {
+                                  // skip to current track
+!                                 playList-&gt;SetCurrShuffleIdx(
+!                                         playList-&gt;GetIndexByItem(Item) );
+                                  state = PLAY_CURR_FILE;
+                          };
+--- 57,62 ----
+                          }  else {
+                                  // skip to current track
+!                                 playList-&gt;SetCurrIdx(
+!                                                 playList-&gt;GetIndexByItem(Item));
+                                  state = PLAY_CURR_FILE;
+                          };
+***************
+*** 90,97 ****
+  
+  // ----cReplayList------------------------------------------------------------
+! cReplayList::cReplayList(cPlayList * List) : cOsdMenu(List-&gt;GetName()) {
+          playList=List;
+-         SetHelp(tr(&quot;Options&quot;),tr(&quot;(Add)&quot;),tr(&quot;Delete&quot;),tr(&quot;Stop&quot;));
+          RebuildList();
+  };
+  
+--- 91,105 ----
+  
+  // ----cReplayList------------------------------------------------------------
+! cReplayList::eMode cReplayList::Mode=cReplayList::eMNormal;
+! 
+! cReplayList::cReplayList(cPlayList * List) 
+!                 : cOsdMenu(List-&gt;GetName(),20,1,16,5) {
+!         displayedCurrIdx=-1;
+          playList=List;
+          RebuildList();
++ 	UpdateHelp();
++         lastModeActivity=time(NULL)-600;
++         lastActivity=time(NULL)-600;
++         hold=false;
+  };
+  
+***************
+*** 99,102 ****
+--- 107,149 ----
+  };
+  
++ void cReplayList::UpdateHelp() {
++ 	switch (Mode) {
++ 		case eMEdit:
++ 			SetHelp(tr(&quot;Mode&quot;),tr(&quot;(Add)&quot;),
++ 					tr(&quot;Delete&quot;),tr(&quot;Move&quot;));
++ 			break;
++ 		case eMNormal:
++ 			SetHelp(tr(&quot;Mode&quot;),tr(&quot;Skip Forward&quot;),
++ 					tr(&quot;Skip Back&quot;),tr(&quot;Stop&quot;));
++ 			break;
++ 		case eMOptions:
++ 			SetHelp(tr(&quot;Mode&quot;),tr(&quot;Options&quot;),NULL,tr(&quot;Save&quot;));
++ 			break;
++                 default:
++                         break;
++ 	};
++         lastMode=Mode;
++ };
++ 
++ void cReplayList::PrintItemStr(char *ItemStr, int count,
++                         cPlayListItem *Item, bool hold ) {
++         cIndex *Idx=FileIndex ? 
++                 FileIndex-&gt;GetIndex(Item-&gt;GetFilename()) : NULL ;
++         char holdR = hold ? '&gt;' : ' ';
++         char holdL = hold ? '&lt;' : ' ';
++                
++         if ( Idx &amp;&amp; *Idx-&gt;GetTitle() ) { 
++                 snprintf(ItemStr,100,&quot; %c%s\t\t%s\t%3d:%02d%c &quot;,
++                                 holdR,
++                                 Idx-&gt;GetTitle(),
++                                 Idx-&gt;GetAuthor(),
++                                 Idx-&gt;GetDuration()/60,
++                                 Idx-&gt;GetDuration()%60,
++                                 holdL);
++         } else
++                 snprintf(ItemStr,count,&quot; %c%s%c &quot;,
++                                 holdR,Item-&gt;GetName(),holdL);
++ };
++ 
+  void cReplayList::RebuildList() {
+          int nItems=playList-&gt;GetNIdx();
+***************
+*** 104,109 ****
+  
+          cPlayListItem * Item;
+!         for (int i = 0 ; i&lt;nItems; i++) {
+! 		Item=playList-&gt;GetShuffledItemByIndex(i);
+                  if (!Item) {
+                          printf(&quot;Error getting all files for list index %d\n&quot;,
+--- 151,156 ----
+  
+          cPlayListItem * Item;
+!         for (int i = 0; i &lt; nItems; i++) {
+! 		Item=playList-&gt;GetItemByIndex(i);
+                  if (!Item) {
+                          printf(&quot;Error getting all files for list index %d\n&quot;,
+***************
+*** 114,119 ****
+  		MENUDEB(&quot;Add item %d (%p)  %s\n&quot;,
+                                  i,Item,Item-&gt;GetName());
+!                 Add(new cOsdItem(Item-&gt;GetName(),
+!                    osUnknown),false);
+          };
+          lastListItemCount = playList-&gt;GetNIdx();
+--- 161,168 ----
+  		MENUDEB(&quot;Add item %d (%p)  %s\n&quot;,
+                                  i,Item,Item-&gt;GetName());
+! 
+!                 char ItemStr[100];
+!                 PrintItemStr(ItemStr,100,Item);                
+!                 Add(new cOsdItem(ItemStr,osUnknown),false);
+          };
+          lastListItemCount = playList-&gt;GetNIdx();
+***************
+*** 128,131 ****
+--- 177,181 ----
+          char Status[60];
+          char Name[60];
++         cPlayListItem *Item;
+          
+          if (!cControl::Control() || 
+***************
+*** 140,165 ****
+          SetStatus(Status);
+  
+!         if (displayedCurrIdx != playList-&gt;GetCurrIdx()){
+!                 cPlayListItem *Item=playList-&gt;GetShuffledItemByIndex(
+!                                 playList-&gt;GetCurrIdx());
+!                 if (Item) {
+!                         PrintCutDownString(Name,Item-&gt;GetName(),30);
+!                         snprintf(Status,60,&quot;%s: %s&quot;,playList-&gt;GetName(),
+!                                                 Name);
+!                         SetTitle(Status);
+!                         Display();
+!                         displayedCurrIdx=playList-&gt;GetCurrIdx();
+!                 } else printf(&quot;Didn't get currShuffleIdx %d!\n&quot;,playList-&gt;GetCurrIdx());
+          };
+  };
+  
+  eOSState cReplayList::ProcessKey(eKeys Key) {
+          eOSState state = cOsdMenu::ProcessKey(Key);
+  
+! 	// don't move cursor when it has been moved by the user
+! 	// a short while ago
+          if ( Key==kUp || Key==kDown || Key==kRight || Key==kLeft ) 
+                  lastActivity=time(NULL);
+          
+          if ( lastListItemCount != playList-&gt;GetNIdx()
+  	     || playList-&gt;IsDirty() ) {
+--- 190,296 ----
+          SetStatus(Status);
+  
+!         if ( displayedCurrIdx != playList-&gt;GetCurrIdx() 
+!                         &amp;&amp; ( Item=playList-&gt;GetCurrItem() ) ) {
+!                 cIndex *Idx=FileIndex ? 
+!                         FileIndex-&gt;GetIndex(Item-&gt;GetFilename()) : NULL ;
+!                 if ( Idx &amp;&amp; *Idx-&gt;GetTitle() ) 
+!                         PrintCutDownString(Name,Idx-&gt;GetTitle(),30);
+!                 else PrintCutDownString(Name,Item-&gt;GetName(),30);
+!                 
+!                 snprintf(Status,60,&quot;%s: %s&quot;,playList-&gt;GetName(),
+!                                 Name);
+!                 SetTitle(Status);
+!                 Display();
+!                 displayedCurrIdx=playList-&gt;GetCurrIdx();
+          };
+  };
+  
+  eOSState cReplayList::ProcessKey(eKeys Key) {
++         int lastCurrent=Current();
+          eOSState state = cOsdMenu::ProcessKey(Key);
+  
+! 
+!         // fallback to default mode after some time of inactivity
+!         if ( Key!=kNone) 
+!                 lastModeActivity=time(NULL);
+!        
+!         if ( lastMode !=eMNormal &amp;&amp; 
+!                         time(NULL) - lastModeActivity &gt; 40 ) {
+!                 if (hold) {
+!                         // break move
+!                         hold=false;
+!                         SetItemStr(Get(Current()),
+!                                         playList-&gt;GetItemByIndex(Current()),
+!                                         hold);
+!                         Move(Current(),origPos);
+!                         playList-&gt;GetShuffleIdx()-&gt;Move(Current(),
+!                                         origPos);
+!                         SetCurrent(Get(origPos));
+!                         Display();
+!                 };
+!                Mode=eMNormal;
+!         };
+!  
+!         // don't move cursor when it has been moved by the user
+! 	// a short while ago or in move item mode
+          if ( Key==kUp || Key==kDown || Key==kRight || Key==kLeft ) 
+                  lastActivity=time(NULL);
++ 
++         if (Current() != playList-&gt;GetCurrIdx() &amp;&amp; 
++                         time(NULL) - lastActivity &gt; 40
++                         &amp;&amp; !hold ) {
++                 MENUDEB(&quot;SetCurrent current title %d  time %d lastActivity %d\n&quot;,
++                                 playList-&gt;GetCurrIdx(),time(NULL),lastActivity);
++                 SetCurrent(Get(playList-&gt;GetCurrIdx()));
++                 Display();
++         };
++        
++         // handle move item mode
++         if ( lastMode == eMEdit &amp;&amp; hold ) {
++                 // moves
++                 if ( (Key==kUp || Key==kDown|| Key==kRight || Key==kLeft) ) {
++                         Move(lastCurrent,Current());
++                         playList-&gt;GetShuffleIdx()-&gt;Move(lastCurrent,Current()); 
++                         Display();
++                 };
++                
++                 // end move
++                 switch(Key) {
++                         case kBack:
++                         case kRed:
++                         case kGreen:
++                         case kYellow:
++                                 // break Move
++                                 hold=false;
++                                 SetItemStr(Get(Current()),
++                                                 playList-&gt;GetItemByIndex(Current()),
++                                                 hold);
++                                 Move(Current(),origPos);
++                                 playList-&gt;GetShuffleIdx()-&gt;Move(Current(),
++                                                 origPos);
++                                 SetCurrent(Get(origPos));
++                                 Display();
++ 
++                                 Key=kNone;
++                                 state= osContinue;
++                                 break;
++                         case kOk:
++                         case kBlue:
++                                 // finish move
++                                 hold=false;
++                                 SetItemStr(Get(Current()),
++                                                 playList-&gt;GetItemByIndex(Current()),
++                                                 hold);
++ 
++                                 DisplayCurrent(true);
++                                 state= osContinue;
++                                 break;
++                         default:
++                                 break;
++                 } 
+          
++         };
++ 
++         // handle new items or removed items
+          if ( lastListItemCount != playList-&gt;GetNIdx()
+  	     || playList-&gt;IsDirty() ) {
+***************
+*** 169,230 ****
+          };
+          
+-         if (Current() != playList-&gt;GetCurrIdx() &amp;&amp; 
+-                         time(NULL) - lastActivity &gt; 12 ) {
+-                 MENUDEB(&quot;SetCurrent current title %d  time %d lastActivity %d\n&quot;,
+-                                 playList-&gt;GetCurrIdx(),time(NULL),lastActivity);
+-                 SetCurrent(Get(playList-&gt;GetCurrIdx()));
+-                 Display();
+-         };
+  
+  	if (state != osUnknown ) 
+  		return state;
+  
+-         cPlayListItem *Item;
+-         switch (Key) {
+-                 case kOk:
+-                         // skip to current track
+-                         playList-&gt;SetCurrShuffleIdx( Current() );
+-                         state = PLAY_CURR_FILE;
+-                         // want to have automatic track change
+-                         lastActivity=time(NULL)-300;
+-                         break;
+-                 case kBack:
+-                         state= osBack;
+-                         break;
+-                 case kBlue:
+-                         state= osEnd;
+-                         break;
+-                 case kGreen:
+- 			// not yet implemented
+-                         state= osContinue;
+-                         break;
+-                 case kRed:
+-                         return AddSubMenu(new cPlOptionsMenu(playList));
+-                         break;
+-                 case kYellow:
+-                         Item=playList-&gt;GetShuffledItemByIndex(Current());
+-                         if (!Item) {
+-                                 printf(&quot;No current Item %d!\n&quot;,Current());
+-                                 break;
+-                         };
+-                         MENUDEB(&quot;Del current %d: %s\n&quot;,
+-                                         Current(),
+-                                         Item-&gt;GetName() );
+-                         playList-&gt;RemoveItem(Item);
+- 			lastListItemCount = playList-&gt;GetNIdx();
+-                         Del(Current());
+-                         Display();
+-                         state=osContinue;
+-                         break;
+  
+!                 default:    
+!                         break;
+!         }
+          if (!HasSubMenu())
+                  UpdateStatus();
+! 		
+          return state;
+  }
+  
+  
+  // ---cPlOptionsMenu-------------------------------------------------------
+--- 300,422 ----
+          };
+          
+  
+  	if (state != osUnknown ) 
+  		return state;
+  
+  
+! 	switch (Key) {
+! 		case kOk:
+! 			// skip to current track
+! 			playList-&gt;SetCurrIdx( Current() );
+! 			state = PLAY_CURR_FILE;
+! 			// want to have automatic track change
+! 			lastActivity=time(NULL)-300;
+! 			break;
+! 		case kBack:
+! 			state= osBack;
+! 			break;
+! 		default:    
+! 			break;
+! 	};
+! 
+!         if ( Key &gt;= kRed &amp;&amp; Key &lt;= kBlue)
+!                 state=ProcessColourKeys(Key);
+!         
+          if (!HasSubMenu())
+                  UpdateStatus();
+!         
+!         if ( Mode != lastMode ) 
+! 		UpdateHelp();
+! 
+          return state;
+  }
+  
++ eOSState cReplayList::ProcessColourKeys(eKeys Key) {
++         eOSState state = osUnknown;
++         
++ 	if (Key==kRed) { 
++ 		Mode=(eMode) ( ( Mode + 1 ) % eMLast );
++ 		return osContinue;
++ 	};
++ 	
++ 	switch (lastMode) {
++ 		case eMNormal:
++ 			switch(Key) {
++ 				case kGreen:
++ 					// Skip backward, pass to cControl
++ 					state= osUnknown;
++ 					break;
++ 				case kYellow:
++ 					// Skip forward, pass to cControl
++ 					state= osUnknown;
++ 					break;
++ 				case kBlue:
++                                         // end replay
++ 					state= osEnd;
++ 					break;
++                                 default:
++                                         break;
++ 			};
++ 			break;
++ 		case eMEdit:
++ 			switch(Key) {
++ 				case kGreen:
++ 					// add files TODO
++ 					state= osContinue;
++ 					break;
++ 				case kYellow:
++ 					// delete Item
++ 					MENUDEB(&quot;Del current %d: %s\n&quot;,
++                                                  Current(),
++                                                  playList-&gt;GetItemByIndex(Current())-&gt;GetName() );
++ 					playList-&gt;RemoveItem(
++ 					  playList-&gt;GetItemByIndex(Current()));
++ 					MENUDEB(&quot;Remove finished\n&quot;);
++ 					Del(Current());
++ 					Display();
++ 					state=osContinue;
++ 					break;
++ 				case kBlue:
++                                         // move files TODO
++                                         hold=true;
++                                         origPos=Current();
++                                         SetItemStr(Get(Current()),
++                                                playList-&gt;GetItemByIndex(Current()),
++                                                hold);
++                                         DisplayCurrent(true);
++ 					state= osContinue;
++ 					break;
++                                 default:
++                                         break;
++ 			};
++ 			break;
++ 		case eMOptions:
++ 			switch(Key) {
++ 				case kGreen:
++ 					// call options menu
++                                         state = AddSubMenu(
++                                                 new cPlOptionsMenu(playList));
++ 
++ 					break;
++ 				case kYellow:
++ 					// nothing
++ 					state= osContinue;
++ 					break;
++ 				case kBlue:
++                                         // save list TODO
++ 					state= osContinue;
++ 					Softplay-&gt;SaveList(playList);
++ 					break;
++                                 default:
++                                         break;
++ 			};
++ 			break;
++                 default:
++                         break;
++ 	};
++         return state;
++ };
++ 
++ 
+  
+  // ---cPlOptionsMenu-------------------------------------------------------
+***************
+*** 234,237 ****
+--- 426,433 ----
+          playList=PlayList;
+          playList-&gt;GetOptions(playListOptions);
++ 
++         printf(&quot;playlistname '%s' \n&quot;,playListOptions.name);
++         Add(new cMenuEditStrItem(tr(&quot;Name&quot;),playListOptions.name,40,tr(FileNameChars)));
++         
+          Add(new cMenuEditBoolItem(tr(&quot;Shuffle Mode&quot;),
+                                 &amp;playListOptions.shuffle, tr(&quot;no&quot;), tr(&quot;yes&quot;)));
+
+Index: PlayListMenu.h
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/PlayListMenu.h,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1 -r1.2
+*** PlayListMenu.h	15 Aug 2005 09:07:30 -0000	1.1
+--- PlayListMenu.h	12 Mar 2006 20:28:52 -0000	1.2
+***************
+*** 16,20 ****
+  class cAlbumList: public cOsdMenu {
+          time_t lastActivity;
+-         int displayedCurrIdx;
+          cPlayList *playList;
+          public:
+--- 16,19 ----
+***************
+*** 29,38 ****
+          cPlayList *playList;
+  	int lastListItemCount;
+          public:
+          cReplayList(cPlayList * List);
+          ~cReplayList();
+! 	void RebuildList();
+          eOSState ProcessKey(eKeys Key);
+          void UpdateStatus();
+  };
+  
+--- 28,66 ----
+          cPlayList *playList;
+  	int lastListItemCount;
++ 	
++ 	enum eMode {
++ 		eMNormal,
++ 		eMEdit,
++ 		eMOptions,
++                 eMLast,
++         }; 
++ 	static eMode Mode;
++ 	eMode lastMode;
++         time_t lastModeActivity;
++ 
++         bool hold;
++         int origPos;
++ 
+          public:
+          cReplayList(cPlayList * List);
+          ~cReplayList();
+! 	
+!         void RebuildList();
+!         
+!         void PrintItemStr(char *ItemStr, int count,
+!                         cPlayListItem *Item, bool hold=false);
+!         
+!         inline void SetItemStr(cOsdItem *OsdItem, cPlayListItem *Item,
+!                         bool hold=false) {
+!                 char Str[100];
+!                 PrintItemStr(Str,100,Item,hold);
+!                 OsdItem-&gt;SetText(Str);
+!         };
+!         
+          eOSState ProcessKey(eKeys Key);
++         eOSState ProcessColourKeys(eKeys Key);
++         
+          void UpdateStatus();
++         void UpdateHelp();
+  };
+  
+
+Index: SoftPlayer.c
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/SoftPlayer.c,v
+retrieving revision 1.13
+retrieving revision 1.14
+diff -C2 -d -r1.13 -r1.14
+*** SoftPlayer.c	15 Aug 2005 13:13:14 -0000	1.13
+--- SoftPlayer.c	12 Mar 2006 20:28:52 -0000	1.14
+***************
+*** 13,16 ****
+--- 13,19 ----
+  #include &quot;softplay.h&quot;
+  #include &quot;PlayListMenu.h&quot;
++ #include &quot;FileIndex.h&quot;
++ 
++ #include &quot;vdr/status.h&quot;
+  
+  #define PLDBG(out...) { printf(&quot;PLDBG: &quot;);printf(out);}
+***************
+*** 28,33 ****
+[...1114 lines suppressed...]
++                          if (SoftPlayer-&gt;Receiver)
++                                  SoftPlayer-&gt;ChannelUpDown(+1);
++                          break;
++                 case k1:
++                          if (SoftPlayer-&gt;Receiver)
++                                  SoftPlayer-&gt;ChannelUpDown(-1);
++                          break;
++ 
++ 		case kBack:	
++                          Hide();
++                          OsdActive=OsdPrivMenu;
++                          privateMenu=
++                                  cMenuDirectory::OpenLastBrowsedDir();
++                          //privateMenu-&gt;Display();
++                          return osContinue;
++ 			break;
++ 
++ 			 
+  		default:
+  			 break;
+
+Index: SoftPlayer.h
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/SoftPlayer.h,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -C2 -d -r1.5 -r1.6
+*** SoftPlayer.h	16 May 2005 19:07:54 -0000	1.5
+--- SoftPlayer.h	12 Mar 2006 20:28:52 -0000	1.6
+***************
+*** 18,26 ****
+  #include &lt;avformat.h&gt;
+  
+! #include &quot;../softdevice/softdevice.h&quot;
+  #include &quot;PlayList.h&quot;
+  
+  class cSoftPlayer : public cPlayer, cThread {
+   private:
+         bool running;
+         bool reading;
+--- 18,28 ----
+  #include &lt;avformat.h&gt;
+  
+! #include &quot;SoftHandles.h&quot;
+  #include &quot;PlayList.h&quot;
++ #include &quot;Receiver.h&quot;
+  
+  class cSoftPlayer : public cPlayer, cThread {
+   private:
++        friend class cSoftControl;
+         bool running;
+         bool reading;
+***************
+*** 36,45 ****
+         
+         int pollTimeouts;
+! 	cSoftDevice *SoftDevice;
+         AVFormatContext *ic;
+         AVFormatParameters ap;
+!    	char title[120];
+!    
+!        ePlayMode softPlayMode;
+   public:
+         cSoftPlayer();  
+--- 38,57 ----
+         
+         int pollTimeouts;
+!        cDevice *SoftDevice;
+!        PacketHandlesV100 SoftHandles;
+         AVFormatContext *ic;
+         AVFormatParameters ap;
+!        cSoftplayReceiver *Receiver;
+! 
+!        char curr_filename[200];
+!        char title[60];
+!        char author[60];
+!        char album[60];
+!        int duration;
+!        int start_time;
+!        
+!        char filename[200];
+!        bool newFile;
+!        int Streams;
+   public:
+         cSoftPlayer();  
+***************
+*** 50,54 ****
+         virtual void Action();
+  
+!        inline bool IsRunning() {return running;};
+  	
+         inline void SkipSeconds(int Skip) 
+--- 62,66 ----
+         virtual void Action();
+  
+!        inline bool IsRunning() {return reading || newFile ;};
+  	
+         inline void SkipSeconds(int Skip) 
+***************
+*** 68,73 ****
+         void OpenFile(const char *filename);
+         void PlayFile(const char *filename);
+!        
+!        ePlayMode GetPlayMode(AVFormatContext *IC); 
+         
+         void Stop();
+--- 80,89 ----
+         void OpenFile(const char *filename);
+         void PlayFile(const char *filename);
+!       
+!        void FileReplay();
+! 
+!        void RemuxAndQueue( AVPacket &amp;pkt);
+! 
+!        int GetPlayMode(AVFormatContext *IC); 
+         
+         void Stop();
+***************
+*** 81,91 ****
+         { pause=false; new_speed=-1;new_forward=true; };
+  
+!        char * GetTitle(); 
+         virtual bool GetIndex(int &amp;Current, int &amp;Total, 
+          	bool SnapToIFrame = false);
+         virtual bool GetReplayMode(bool &amp;Play, bool &amp;Forward, int &amp;Speed)
+         {Play=!pause;Forward=forward;Speed=speed;return true;};
+!        int GetDuration(); 
+!        int GetCurrPos();
+   };
+  
+--- 97,138 ----
+         { pause=false; new_speed=-1;new_forward=true; };
+  
+!        inline const char * GetTitle()
+!        { return title; };
+!        inline const char * GetAuthor()
+!        { return author; };
+!        inline const char * GetAlbum()
+!        { return album; };
+!        inline const char * GetFilename()
+!        { return curr_filename; };
+!       
+!        inline int GetDuration()
+!        { return duration/AV_TIME_BASE; };
+!        
+!        int GetCurrPos();
+!        
+         virtual bool GetIndex(int &amp;Current, int &amp;Total, 
+          	bool SnapToIFrame = false);
++ 		
+         virtual bool GetReplayMode(bool &amp;Play, bool &amp;Forward, int &amp;Speed)
+         {Play=!pause;Forward=forward;Speed=speed;return true;};
+! 
+!        inline bool GetPlay() 
+!        { return !pause; };
+! 
+!        inline bool GetForward()
+!        { return forward; };
+! 
+!        inline int GetSpeed()
+!        { return speed; };
+! 
+!        // -- Receiver controls ----------------------------------
+!        void ChannelUpDown(int i);
+! 
+!  protected:
+!        void ResetDevice( int Streams);
+!        bool PollDevice( int Streams);
+!        void FlushDevice( int Streams);
+!        void FreezeDevice( int Streams, bool Freeze);
+! 
+   };
+  
+***************
+*** 93,96 ****
+--- 140,144 ----
+    private:
+        cSoftPlayer *SoftPlayer;
++       cSoftplayReceiver *Receiver;
+        
+        cSkinDisplayReplay *displayReplay;
+***************
+*** 104,108 ****
+        bool shouldStop;
+        cPlayList *playList;
+!       int32_t currTitleHash;
+    public:
+       cSoftControl( const char * filename );
+--- 152,158 ----
+        bool shouldStop;
+        cPlayList *playList;
+! 
+!       // to notice when the next file starts
+!       bool newFile; 
+    public:
+       cSoftControl( const char * filename );
+***************
+*** 112,115 ****
+--- 162,166 ----
+       virtual eOSState ProcessKey(eKeys Key);
+       void ShowProgress();
++      void SendStatus();
+  };
+  
+
+Index: softplay.c
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/softplay.c,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -C2 -d -r1.9 -r1.10
+*** softplay.c	15 Aug 2005 09:07:30 -0000	1.9
+--- softplay.c	12 Mar 2006 20:28:52 -0000	1.10
+***************
+*** 8,11 ****
+--- 8,13 ----
+  
+  
++ #include &lt;dirent.h&gt;
++ 
+  #include &quot;softplay.h&quot;
+  #include &quot;SoftPlayer.h&quot;
+***************
+*** 13,20 ****
+  #include &quot;PlayListMenu.h&quot;
+  #include &quot;i18n.h&quot;
+  
+- #include &lt;dirent.h&gt;
+- 
+- #define NAME_LENGTH 200
+  
+  static const char *VERSION        = &quot;0.0.2&quot;;
+--- 15,20 ----
+  #include &quot;PlayListMenu.h&quot;
+  #include &quot;i18n.h&quot;
++ #include &quot;FileIndex.h&quot;
+  
+  
+  static const char *VERSION        = &quot;0.0.2&quot;;
+***************
+*** 24,28 ****
+  static const char *DIR_NAME =&quot;softplay&quot;;
+  
+! //#define PLUGDEB(out...)     {printf(&quot;PLUGDEB: &quot;);printf(out...);}
+  
+  #ifndef PLUGDEB
+--- 24,28 ----
+  static const char *DIR_NAME =&quot;softplay&quot;;
+  
+! //#define PLUGDEB(out...)     {printf(&quot;PLUGDEB: &quot;);printf(out);}
+  
+  #ifndef PLUGDEB
+***************
+*** 32,57 ****
+  // --- cMenuDirectory -------------------------------------------
+  
+! class cMenuDirectory : public cOsdMenu {
+! private:
+!   char start_path[NAME_LENGTH];
+!   struct DirEntry {
+!       char name[NAME_LENGTH];
+!       char title[NAME_LENGTH];
+!       int type;
+!   } * Entries;
+!   int nEntries;
+!   int keySelNo;
+!   cPlayList *editList;
+!   void PrintItemName(char *Name, const struct DirEntry &amp;Entry,int i);
+!   eOSState SelectEntry(int No, bool play);
+!   
+! public:
+!   void PrepareDirectory(char * path);
+!   cMenuDirectory(char * path, cPlayList *EditList=NULL);
+!   virtual ~cMenuDirectory();
+!   virtual eOSState ProcessKey(eKeys Key);
+! };
+! 
+! cMenuDirectory::cMenuDirectory(char * path, cPlayList *EditList) 
+          : cOsdMenu(tr(&quot;Files&quot;),4,2,8) 
+  {
+--- 32,37 ----
+  // --- cMenuDirectory -------------------------------------------
+  
+! cMenuDirectory::cMenuDirectory(const char * path, cPlayList *EditList, 
+! 		const char *ToPos) 
+          : cOsdMenu(tr(&quot;Files&quot;),4,2,8) 
+  {
+***************
+*** 61,65 ****
+    SetHelp(NULL,tr(&quot;Play&quot;),tr(&quot;Toggle List&quot;),tr(&quot;Play List&quot;));
+    editList=EditList;
+!   PrepareDirectory(path);
+  };
+  
+--- 41,61 ----
+    SetHelp(NULL,tr(&quot;Play&quot;),tr(&quot;Toggle List&quot;),tr(&quot;Play List&quot;));
+    editList=EditList;
+!   if (ToPos) {
+! 	  printf(&quot;Opening dir '%s' until '%s'\n&quot;,path,ToPos);
+! 	  char myDir[120];
+! 	  char *myToPos;
+! 	  strlcpy(myDir,path,
+! 	      ((unsigned int)(ToPos-path+1))&gt;(unsigned int)sizeof(myDir)?
+! 	      sizeof(myDir): (unsigned int)(ToPos-path+1));
+! 	  printf(&quot;MyDir '%s'\n&quot;,myDir);
+! 	  PrepareDirectory(myDir);
+! 	  myToPos=index(ToPos+1,'/');
+! 	  AddSubMenu(new cMenuDirectory(path,EditList,myToPos));
+!   } else  {
+! 	  printf(&quot;Open only directory '%s'.\n&quot;,path);
+! 	  PrepareDirectory(path);
+! 	  SoftplaySetup.SetLastDir(path);
+!   };
+! 	  
+  };
+  
+***************
+*** 70,73 ****
+--- 66,76 ----
+  };
+  
++ cMenuDirectory * cMenuDirectory::OpenLastBrowsedDir() {
++ 	const char *lastDir=SoftplaySetup.GetLastDir();
++ 	const char *startFrom=lastDir+strlen(Softplay-&gt;MediaPath());
++ 	printf(&quot;OpenLastBrowsedDir: '%s' startFrom '%s'\n&quot;,lastDir,startFrom);
++ 	return new cMenuDirectory(lastDir,Softplay-&gt;GetCurrList(),startFrom);
++ };
++ 
+  void cMenuDirectory::PrintItemName(char *Name, const struct DirEntry &amp;Entry,int i) {
+          char inPlayList=' ';
+***************
+*** 91,95 ****
+  };
+  
+! void cMenuDirectory::PrepareDirectory(char *path) 
+  {
+    struct dirent **namelist;
+--- 94,98 ----
+  };
+  
+! bool cMenuDirectory::PrepareDirectory(const char *path) 
+  {
+    struct dirent **namelist;
+***************
+*** 104,112 ****
+    };
+  
+!   strncpy(start_path,path,NAME_LENGTH);
+!   start_path[NAME_LENGTH-1]=0;
+  
+    //FIXME find a clever way to cut down the directory name
+!   PrintCutDownString(Name,&amp;start_path[Softplay-&gt;MediaPathLen()],30);
+    snprintf(Title,60,tr(&quot;Files: %s&quot;),Name);
+    SetTitle(Title);
+--- 107,114 ----
+    };
+  
+!   strlcpy(start_path,path,sizeof(start_path));
+  
+    //FIXME find a clever way to cut down the directory name
+!   PrintCutDownString(Name,start_path,30);
+    snprintf(Title,60,tr(&quot;Files: %s&quot;),Name);
+    SetTitle(Title);
+***************
+*** 115,119 ****
+    if (n&lt;0) {
+  	  printf(&quot;scandir error\n&quot;);
+! 	  return;
+    };
+    Entries=new DirEntry[n];
+--- 117,121 ----
+    if (n&lt;0) {
+  	  printf(&quot;scandir error\n&quot;);
+! 	  return false;
+    };
+    Entries=new DirEntry[n];
+***************
+*** 128,136 ****
+  
+  	  // fill Entries array and resolve symlinks
+! 	  snprintf(Entries[nEntries].name,NAME_LENGTH,&quot;%s/%s&quot;,
+  	            start_path,namelist[i]-&gt;d_name);
+! 	  Entries[nEntries].name[NAME_LENGTH-1]=0;
+!           strncpy(Entries[nEntries].title,namelist[i]-&gt;d_name,NAME_LENGTH);
+!           Entries[nEntries].title[NAME_LENGTH-1]=0;
+  
+  	  Entries[nEntries].type=namelist[i]-&gt;d_type;
+--- 130,138 ----
+  
+  	  // fill Entries array and resolve symlinks
+! 	  snprintf(Entries[nEntries].name,STR_LENGTH,&quot;%s/%s&quot;,
+  	            start_path,namelist[i]-&gt;d_name);
+! 	  Entries[nEntries].name[STR_LENGTH-1]=0;
+!           strlcpy(Entries[nEntries].title,namelist[i]-&gt;d_name,STR_LENGTH);
+!           Entries[nEntries].title[STR_LENGTH-1]=0;
+  
+  	  Entries[nEntries].type=namelist[i]-&gt;d_type;
+***************
+*** 158,161 ****
+--- 160,164 ----
+    }
+    free(namelist);
++   return true;
+  };
+  
+***************
+*** 182,187 ****
+                  PLUGDEB(&quot;Item %p\n&quot;,Item);
+                  if (!Item)
+!                         PlayList-&gt;AddDir(Entries[No].name,
+!                                         Entries[No].title,true);
+                  else PlayList-&gt;RemoveItem(Item);
+          } else if (Entries[No].type == DT_REG &amp;&amp; 
+--- 185,189 ----
+                  PLUGDEB(&quot;Item %p\n&quot;,Item);
+                  if (!Item)
+!                         PlayList-&gt;AddDir(Entries[No].name,true);
+                  else PlayList-&gt;RemoveItem(Item);
+          } else if (Entries[No].type == DT_REG &amp;&amp; 
+***************
+*** 190,195 ****
+                  PLUGDEB(&quot;Item %p\n&quot;,Item);
+                  if (!Item)
+!                         PlayList-&gt;AddM3U(Entries[No].name,
+!                                         Entries[No].title);
+                  else PlayList-&gt;RemoveItem(Item);   
+                  refreshAll=true;
+--- 192,196 ----
+                  PLUGDEB(&quot;Item %p\n&quot;,Item);
+                  if (!Item)
+!                         PlayList-&gt;AddM3U(Entries[No].name);
+                  else PlayList-&gt;RemoveItem(Item);   
+                  refreshAll=true;
+***************
+*** 197,207 ****
+                  Item=PlayList-&gt;GetItemByFilename(Entries[No].name);
+                  if (!Item)
+!                         PlayList-&gt;AddFile(Entries[No].name,
+!                                         Entries[No].title);
+                  else PlayList-&gt;RemoveItem(Item);
+          };
+          if (play) {
+-                 // FIXME remove
+-                // Softplay-&gt;SaveList(PlayList);
+                 cControl::Launch(new cSoftControl(PlayList));
+                 return osEnd;
+--- 198,205 ----
+                  Item=PlayList-&gt;GetItemByFilename(Entries[No].name);
+                  if (!Item)
+!                         PlayList-&gt;AddFile(Entries[No].name);
+                  else PlayList-&gt;RemoveItem(Item);
+          };
+          if (play) {
+                 cControl::Launch(new cSoftControl(PlayList));
+                 return osEnd;
+***************
+*** 232,236 ****
+  eOSState cMenuDirectory::ProcessKey(eKeys Key) {
+  	eOSState state = cOsdMenu::ProcessKey(Key);
+-         cPlayListItem *Item;
+  	int No=0;
+  
+--- 230,233 ----
+***************
+*** 323,328 ****
+    switch (state) {
+      case PLAY_FILES:  
+!             return AddSubMenu(new cMenuDirectory(Softplay-&gt;MediaPath(),
+!                                     Softplay-&gt;GetCurrList()));
+              break;
+  
+--- 320,327 ----
+    switch (state) {
+      case PLAY_FILES:  
+!             return  ( SoftplaySetup.OpenLastDir() ?
+! 		    AddSubMenu(cMenuDirectory::OpenLastBrowsedDir()) :
+! 		    AddSubMenu(new cMenuDirectory(Softplay-&gt;MediaPath(),
+!                                     Softplay-&gt;GetCurrList())) );
+              break;
+  
+***************
+*** 357,370 ****
+  
+  bool cSoftPlay::Initialize(void) {
+! 	configDir=ConfigDirectory(DIR_NAME);
+!         currList=OpenList();
+  	return true;
+  };
+  	
+  cSoftPlay::~cSoftPlay() {
+          // Clean up after yourself!
+          if (currList &amp;&amp; currListIsTmp)
+                  delete currList;
+! }
+  
+  const char *cSoftPlay::Version(void) { 
+--- 356,385 ----
+  
+  bool cSoftPlay::Initialize(void) {
+! 	strlcpy(configDir,ConfigDirectory(DIR_NAME),sizeof(configDir));
+!         currList=OpenList(&quot;current&quot;);
+! 	if (!FileIndex)
+!                 FileIndex=new cIndexIdx;
+! 
+!         FileIndex-&gt;ReadIndex(&quot;/video/plugins/softplay/index&quot;);
+!         
+!         ScanForPlaylists();
+  	return true;
+  };
+  	
+  cSoftPlay::~cSoftPlay() {
++         if (currList)
++                 // FIXME remove
++               SaveList(currList,&quot;current&quot;);
++ 
+          // Clean up after yourself!
+          if (currList &amp;&amp; currListIsTmp)
+                  delete currList;
+! 
+!         if (FileIndex){
+! 		// FIXME remove
+! 		FileIndex-&gt;SaveIndex(&quot;/video/plugins/softplay/index&quot;);
+!                 delete FileIndex;
+! 	};
+! };
+  
+  const char *cSoftPlay::Version(void) { 
+***************
+*** 396,402 ****
+  		i++;
+  		if (argc&gt;0) {
+! 			strncpy(start_path,argv[i],60);
+! 			start_path[59]=0;
+!                         start_path_len=strlen(start_path)+1;
+  			argc--;
+  			i++;
+--- 411,415 ----
+  		i++;
+  		if (argc&gt;0) {
+! 			strlcpy(start_path,argv[i],sizeof(start_path));
+  			argc--;
+  			i++;
+***************
+*** 412,415 ****
+--- 425,429 ----
+    // Start any background activities the plugin shall perform.
+    RegisterI18n(Phrases);
++   SoftplaySetup.SetPlugin(this);
+    return true;
+  }
+***************
+*** 434,438 ****
+  {
+    // Return a setup menu in case the plugin supports one.
+!   return NULL;
+  }
+  
+--- 448,452 ----
+  {
+    // Return a setup menu in case the plugin supports one.
+!   return new cSoftplaySetupMenu(this,&amp;SoftplaySetup);
+  }
+  
+***************
+*** 440,444 ****
+  {
+    // Parse your own setup parameters and store their values.
+!   return false;
+  }
+  
+--- 454,458 ----
+  {
+    // Parse your own setup parameters and store their values.
+!   return SoftplaySetup.Parse(Name,Value);
+  }
+  
+***************
+*** 449,455 ****
+  };
+  
+! void cSoftPlay::SaveList(cPlayList *List) {
+  	char filename[60];
+! 	sprintf(filename,&quot;%s/%s&quot;,configDir,List-&gt;GetName());
+  
+  	printf(&quot;Save list as %s\n&quot;,filename);
+--- 463,472 ----
+  };
+  
+! void cSoftPlay::SaveList(cPlayList *List, const char* Name) {
+  	char filename[60];
+! 	if (Name)
+!                 sprintf(filename,&quot;%s/%s.playlist&quot;,configDir,Name);
+! 	else
+!                 sprintf(filename,&quot;%s/%s.playlist&quot;,configDir,List-&gt;GetName());
+  
+  	printf(&quot;Save list as %s\n&quot;,filename);
+***************
+*** 461,473 ****
+  };
+  
+! cPlayList *cSoftPlay::OpenList() {
+!         char filename[60];
+          char line[500];
+! 	sprintf(filename,&quot;%s/%s&quot;,configDir,&quot;Liste 1&quot;);
+! 
+  	printf(&quot;Read list from %s\n&quot;,filename);
+  	FILE *out=fopen(filename,&quot;r&quot;);
+!         if (!out)
+                  return NULL;
+          fgets(line,500,out);
+          
+--- 478,504 ----
+  };
+  
+! cPlayList *cSoftPlay::OpenList(const char *Name) {
+!         char filename[120];
+          char line[500];
+!        
+!         const char *extension=rindex(Name,'.');
+!         if ( !extension || strcmp(&quot;.playlist&quot;,extension ) ) 
+!                 extension=&quot;.playlist&quot;;
+!         else extension=NULL;
+!                 
+!                         
+! 	if (extension)
+!                 snprintf(filename,sizeof(filename),
+! 			&quot;%s/%s%s&quot;,configDir,Name,extension);
+!         else
+!                 snprintf(filename,sizeof(filename),
+!                                 &quot;%s/%s&quot;,configDir,Name);
+!   
+  	printf(&quot;Read list from %s\n&quot;,filename);
+  	FILE *out=fopen(filename,&quot;r&quot;);
+!         if (!out) {
+!                 printf(&quot;could not open %s for reading!\n&quot;,filename);
+                  return NULL;
++         };
+          fgets(line,500,out);
+          
+***************
+*** 478,501 ****
+  };
+  
+  VDRPLUGINCREATOR(cSoftPlay); // Don't touch this!
+  
+  //------------------------------------------------------------------------
+! const int32_t Divisor=0xfda9743d;
+  //const int32_t Divisor=0xfda97431;
+  
+! int32_t SimpleHash( char const* str) {
+          // just used to fast identify strings. 
+          // I guess this can be made much better.
+          // FIXME buggy?
+          //printf(&quot;String: %s&quot;,str);
+          int result=0;
+!         do {
+                  result=((result&lt;&lt;8)+*str) % Divisor;
+!         } while ( *(++str) );
+          //printf(&quot; Hash: 0x%x\n&quot;,result);
+          return result;
+  };
+  
+! void PrintCutDownString(char *str,char *orig,int len) {
+  #define STARTCPY 4 
+  // length of the copy at the beginning
+--- 509,570 ----
+  };
+  
++ void cSoftPlay::ScanForPlaylists() {
++         struct dirent **namelist;
++         int n;
++         char Name[60];
++         char Title[60];
++ 
++ 
++         n = scandir(configDir, &amp;namelist, 0, alphasort);
++         if (n&lt;0) {
++                 printf(&quot;scandir error. Could not scan for playlists\n&quot;);
++                 return;
++         };
++ 
++         for (int i=0; i&lt;n; i++) {
++                 if ( !strcmp(&quot;..&quot;,namelist[i]-&gt;d_name) ||
++                      !strcmp(&quot;.&quot;,namelist[i]-&gt;d_name) ) {
++                         PLUGDEB(&quot;ignore %s\n&quot;,namelist[i]-&gt;d_name);
++                         continue;
++                 };
++ 
++                 char *extension=rindex(namelist[i]-&gt;d_name,'.');
++                 if ( !extension || strcmp(&quot;.playlist&quot;,extension) ) {
++                         PLUGDEB(&quot;%s is not a playlist\n&quot;,namelist[i]-&gt;d_name);
++                         continue;
++                 };
++ 
++                 PLUGDEB(&quot;found playlist %s!\n&quot;,namelist[i]-&gt;d_name);
++                 free(namelist[i]);	  
++         }
++         free(namelist);
++ };
++ 
++ 
++ 
+  VDRPLUGINCREATOR(cSoftPlay); // Don't touch this!
+  
+  //------------------------------------------------------------------------
+! const int Divisor=0xfda9743d;
+  //const int32_t Divisor=0xfda97431;
+  
+! int SimpleHash( char const* str) {
+          // just used to fast identify strings. 
+          // I guess this can be made much better.
+          // FIXME buggy?
++         if (!str)
++                 return 0;
++ 
+          //printf(&quot;String: %s&quot;,str);
+          int result=0;
+!         while ( *(str) ) {
+                  result=((result&lt;&lt;8)+*str) % Divisor;
+!                 str++;
+!         };
+          //printf(&quot; Hash: 0x%x\n&quot;,result);
+          return result;
+  };
+  
+! void PrintCutDownString(char *str, const char *orig, int len) {
+  #define STARTCPY 4 
+  // length of the copy at the beginning
+***************
+*** 532,535 ****
+--- 601,614 ----
+  };
+  
++ bool IsStream( const char * const Filename) {
++         const char * const pos=Filename;
++         printf(&quot;isstream %s: %d\n&quot;,pos,strncmp(pos,&quot;<A HREF="http://">http://</A>&quot;,7));
++         if ( !strncmp(pos,&quot;<A HREF="http://">http://</A>&quot;,7) ) {
++                 return true;
++         };
++ 
++         return false;
++ };
++ 
+  void chomp(const char *const str) {
+          char *pos;
+***************
+*** 541,543 ****
+--- 620,661 ----
+                  *pos=0;
+  };
++ 
++ void stripTrailingSpaces(char *str) {
++         char *pos=str+strlen(str);
++         while ( pos&gt;str &amp;&amp; *pos == ' ')
++                 *pos--=0;
++ };
++ 
++ void stripTrailingNonLetters(char *str) {
++         char *pos=str+strlen(str);
++         //printf(&quot;start at '%c'(0x%x) &quot;,*pos,*pos);
++         while ( pos&gt;str &amp;&amp;
++                  !(*pos &gt;= '!' &amp;&amp; *pos &lt;= '~' ) ) {
++                 //printf(&quot; del '%c'(0x%x) &quot;,*pos,*pos);
++                 *pos--=0;
++         };
++         //printf(&quot;\n&quot;);
++ };
++ 
++ cIndexIdx *FileIndex=NULL;
++ 
++ 
++ const char *ReadQuotedString(char *out, const char *Str) {
++         int len;
++ 	if ( !Str || !*Str)
++ 		return NULL;
++ 
++         // empty string case
++         if ( !strncmp(Str,&quot;\&quot;\&quot;&quot;,2) ) {
++                 out[0]=0;
++                 len=2;
++         } else if ( sscanf(Str,&quot;\&quot;%&quot; TO_STRING(STR_LENGTH) &quot;[^\&quot;]\&quot;%n&quot;,
++                                 out,&amp;len) == 0 ) {
++                 fprintf(stderr,&quot;Could not parse quoted string at position '%s'. Ignoring.\n&quot;,Str);
++                 out[0]=0;
++                 return NULL;
++         };
++         return &amp;Str[len];
++ };
++ 
+  
+
+Index: softplay.h
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/softplay.h,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** softplay.h	15 Aug 2005 07:27:42 -0000	1.3
+--- softplay.h	12 Mar 2006 20:28:52 -0000	1.4
+***************
+*** 11,16 ****
+--- 11,21 ----
+  #include &lt;vdr/plugin.h&gt;
+  
++ #include &quot;Setup.h&quot;
+  
+  class cPlayList;
++ class cIndexIdx;
++ 
++ extern cIndexIdx *FileIndex;
++ 
+  //#define STR_LENGTH  120
+  #define STR_LENGTH  200
+***************
+*** 27,31 ****
+    // Add any member variables or functions you may need here.
+    char start_path[60];
+-   int start_path_len;
+  
+  public:
+--- 32,35 ----
+***************
+*** 43,47 ****
+    char currListName[STR_LENGTH];
+    
+!   const char *configDir;
+   
+  public:
+--- 47,51 ----
+    char currListName[STR_LENGTH];
+    
+!   char configDir[300];
+   
+  public:
+***************
+*** 61,81 ****
+  
+    void SetTmpCurrList(cPlayList *List);
+!   void SaveList(cPlayList *List);
+!   cPlayList *OpenList();
+! 
+    inline cPlayList *GetCurrList() 
+    { return currList; };
+    inline char *MediaPath() {return start_path;};
+!   inline int MediaPathLen() {return start_path_len;};
+  };
+  
+  extern cSoftPlay *Softplay;
+  
+! int32_t SimpleHash( char const* str);
+  
+! void PrintCutDownString(char *str,char *orig,int len);
+  
+  bool IsM3UFile(const char *const Filename);
+  
+  void chomp(const char *const str);
+  #endif
+--- 65,142 ----
+  
+    void SetTmpCurrList(cPlayList *List);
+!   void SaveList(cPlayList *List, const char *Name=NULL);
+!   cPlayList *OpenList(const char *Name);
+!   void ScanForPlaylists();
+!   
+    inline cPlayList *GetCurrList() 
+    { return currList; };
+    inline char *MediaPath() {return start_path;};
+! };
+! // --- cMenuDirectory -------------------------------------------
+! 
+! class cMenuDirectory : public cOsdMenu {
+! private:
+!   char start_path[STR_LENGTH];
+!   struct DirEntry {
+!       char name[STR_LENGTH];
+!       char title[STR_LENGTH];
+!       int type;
+!   } * Entries;
+!   int nEntries;
+!   int keySelNo;
+!   cPlayList *editList;
+!   void PrintItemName(char *Name, const struct DirEntry &amp;Entry,int i);
+!   eOSState SelectEntry(int No, bool play);
+!   
+! public:
+!   bool PrepareDirectory(const char * path);
+!   cMenuDirectory(const char * path, cPlayList *EditList=NULL, const char *ToPos=NULL);
+!   virtual ~cMenuDirectory();
+!   virtual eOSState ProcessKey(eKeys Key);
+!   static cMenuDirectory * OpenLastBrowsedDir();
+  };
+  
+  extern cSoftPlay *Softplay;
+  
+! int SimpleHash( char const* str);
+  
+! void PrintCutDownString(char *str, const char *orig, int len);
+  
+  bool IsM3UFile(const char *const Filename);
++ bool IsStream(const char *const Filename);
+  
+  void chomp(const char *const str);
++ 
++ void stripTrailingSpaces(char *str);
++ void stripTrailingNonLetters(char *str);
++ 
++ 
++ static inline void strlcpy(char *dest, const char *src, size_t n) {
++         while ( *src &amp;&amp; --n )
++                 *(dest++)=*(src++);
++         *(dest)=0;
++ };
++ 
++ static inline void skipSpaces(const char *&amp;pos) {
++ 	while ( *pos==' ' )
++ 		pos++;
++ };
++ 
++ static inline void nextField(const char *&amp;pos) {        
++ 	//skip whitespaces and the comma
++ 	skipSpaces(pos);
++ 
++ 	if ( *pos!=',' ) {
++ 		pos=NULL;
++ 		return;
++ 	} else pos++;
++ 
++ 	skipSpaces(pos);
++ };
++ 
++ const char *ReadQuotedString(char *out, 
++ 		const char *Str);
++ // out should be at least STR_LENGTH large
++ 
++ 
+  #endif
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000304.html">[Softdevice-cvs] softplay FileIndex.c,NONE,1.1 FileIndex.h,NONE,1.1 Receiver.c,NONE,1.1 Receiver.h,NONE,1.1 Setup.c,NONE,1.1 Setup.h,NONE,1.1 SoftHandles.h,NONE,1.1 README,1.5,1.6
+</A></li>
+	<LI>Next message: <A HREF="000306.html">[Softdevice-cvs] softdevice video-xv.h,1.15,1.16 video-xv.c,1.45,1.46
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#305">[ date ]</a>
+              <a href="thread.html#305">[ thread ]</a>
+              <a href="subject.html#305">[ subject ]</a>
+              <a href="author.html#305">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

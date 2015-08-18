@@ -1,0 +1,191 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.135,1.136 video-dfb.c,1.43,1.44 video-dfb.h,1.13,1.14
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.135%2C1.136%20video-dfb.c%2C1.43%2C1.44%20video-dfb.h%2C1.13%2C1.14&In-Reply-To=%3C200601080943.k089hYH26363%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000266.html">
+   <LINK REL="Next"  HREF="000269.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.135,1.136 video-dfb.c,1.43,1.44 video-dfb.h,1.13,1.14</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.135%2C1.136%20video-dfb.c%2C1.43%2C1.44%20video-dfb.h%2C1.13%2C1.14&In-Reply-To=%3C200601080943.k089hYH26363%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.135,1.136 video-dfb.c,1.43,1.44 video-dfb.h,1.13,1.14">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Jan  8 10:43:34 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000266.html">[Softdevice-cvs] softdevice softdevice.c,1.49,1.50
+</A></li>
+        <LI>Next message: <A HREF="000269.html">[Softdevice-cvs] softdevice CHANGELOG,1.136,1.137 SoftOsd.c,1.1,1.2
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#268">[ date ]</a>
+              <a href="thread.html#268">[ thread ]</a>
+              <a href="subject.html#268">[ subject ]</a>
+              <a href="author.html#268">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv23910
+
+Modified Files:
+	CHANGELOG video-dfb.c video-dfb.h 
+Log Message:
+- updated video-dfb for the new OSD. Fix double buffered displays and set
+  OSD mode correctly
+
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.135
+retrieving revision 1.136
+diff -C2 -d -r1.135 -r1.136
+*** CHANGELOG	7 Jan 2006 14:28:39 -0000	1.135
+--- CHANGELOG	8 Jan 2006 09:43:31 -0000	1.136
+***************
+*** 1,3 ****
+--- 1,6 ----
+  Changelog
++ 2006-01-08:
++     - updated video-dfb for the new OSD. Double buffered displays should
++       work now as well and the OSD mode is set properly
+  2006-01-07:
+      - completely rewritten OSD. Supports up- and down-scaleing in MMX
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.43
+retrieving revision 1.44
+diff -C2 -d -r1.43 -r1.44
+*** video-dfb.c	7 Jan 2006 14:28:39 -0000	1.43
+--- video-dfb.c	8 Jan 2006 09:43:32 -0000	1.44
+***************
+*** 1042,1046 ****
+      uint8_t           *dst;
+      IDirectFBSurface  *tmpSurface;
+-     DFBRegion         modArea;
+      DFBRectangle      osdsrc;
+  
+--- 1042,1045 ----
+***************
+*** 1048,1074 ****
+      {
+        bool dirtyLines[Yres];
+        tmpSurface = (useStretchBlit) ? osdSurface : scrSurface;
+        tmpSurface-&gt;Lock(DSLF_WRITE, (void **)&amp;dst, &amp;pitch) ;
+-       //Osd-&gt;SetMode(Bpp,!OSDpseudo_alpha,(isVIAUnichrome) ? true:false);
+        Osd-&gt;CopyToBitmap(dst, pitch,
+                                Xres,Yres,RefreshAll,dirtyLines);
+        tmpSurface-&gt;Unlock();
+  
+!       /* ------------------------------------------------------------------------
+!        * TODO: Have to get area coordinates in screen dimensions from Draw().
+!        *       In case Draw() scales down, bitmap dirty area coordinates
+!        *       could not be transformed the following way.
+!        */
+!       modArea.x1 = 0;
+!       modArea.y1 = 0;
+!       modArea.x2 = Xres;
+!       modArea.y2 = Yres;
+  
+!       tmpSurface-&gt;Flip(&amp;modArea,DSFLIP_WAIT);
+!       osdsrc.x = modArea.x1;
+!       osdsrc.y = modArea.y1;
+!       osdsrc.w = modArea.x2 - modArea.x1 + 1;
+!       osdsrc.h = modArea.y2 - modArea.y1 + 1;
+!       tmpSurface-&gt;Blit(tmpSurface, &amp;osdsrc, modArea.x1, modArea.y1);
+      }
+      catch (DFBException *ex)
+--- 1047,1080 ----
+      {
+        bool dirtyLines[Yres];
++       memset(dirtyLines,false,sizeof(dirtyLines));
++ 
+        tmpSurface = (useStretchBlit) ? osdSurface : scrSurface;
+        tmpSurface-&gt;Lock(DSLF_WRITE, (void **)&amp;dst, &amp;pitch) ;
+        Osd-&gt;CopyToBitmap(dst, pitch,
+                                Xres,Yres,RefreshAll,dirtyLines);
+        tmpSurface-&gt;Unlock();
+  
+!       tmpSurface-&gt;Flip();
+!               
+!       int miny=0;
+!       int maxy=0;
+!       do {
+!               while (!dirtyLines[miny] &amp;&amp; miny &lt;= Yres)
+!                       miny++;
+  
+!               maxy=miny;
+!               while (dirtyLines[maxy] &amp;&amp; maxy&lt;=Yres)
+!                       maxy++;
+!     
+!               osdsrc.x = 0;
+!               osdsrc.y = miny;
+!               osdsrc.w = Xres;
+!               osdsrc.h = maxy-miny + 1;
+!               tmpSurface-&gt;Blit(tmpSurface,&amp;osdsrc,0,miny);
+!               
+!               miny=maxy;
+!              
+!       } while ( miny&lt;=Yres);
+!       
+      }
+      catch (DFBException *ex)
+
+Index: video-dfb.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.h,v
+retrieving revision 1.13
+retrieving revision 1.14
+diff -C2 -d -r1.13 -r1.14
+*** video-dfb.h	7 Jan 2006 14:28:39 -0000	1.13
+--- video-dfb.h	8 Jan 2006 09:43:32 -0000	1.14
+***************
+*** 59,62 ****
+--- 59,66 ----
+  //    virtual void Refresh(cBitmap *Bitmap);
+      virtual void RefreshOSD(cSoftOsd *Osd, bool RefreshAll=false);
++     virtual void GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
++                   bool &amp;IsYUV, uint8_t *&amp;PixelMask) 
++     { Depth=Bpp; HasAlpha=!OSDpseudo_alpha; AlphaInversed=isVIAUnichrome;
++             IsYUV=false;PixelMask=NULL;}
+      virtual void OSDStart();
+      virtual void OSDCommit();
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000266.html">[Softdevice-cvs] softdevice softdevice.c,1.49,1.50
+</A></li>
+	<LI>Next message: <A HREF="000269.html">[Softdevice-cvs] softdevice CHANGELOG,1.136,1.137 SoftOsd.c,1.1,1.2
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#268">[ date ]</a>
+              <a href="thread.html#268">[ thread ]</a>
+              <a href="subject.html#268">[ subject ]</a>
+              <a href="author.html#268">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

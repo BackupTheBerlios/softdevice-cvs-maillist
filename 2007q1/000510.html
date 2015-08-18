@@ -1,0 +1,849 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.295, 1.296 Makefile, 1.36,	1.37 setup-softlog.c, 1.3, 1.4 setup-softlog.h, 1.2,	1.3 video-vidix.c, 1.24, 1.25
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.295%2C%201.296%20Makefile%2C%201.36%2C%0A%091.37%20setup-softlog.c%2C%201.3%2C%201.4%20setup-softlog.h%2C%201.2%2C%0A%091.3%20video-vidix.c%2C%201.24%2C%201.25&In-Reply-To=%3C20070224140548.F2509D85C0%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000509.html">
+   <LINK REL="Next"  HREF="000511.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.295, 1.296 Makefile, 1.36,	1.37 setup-softlog.c, 1.3, 1.4 setup-softlog.h, 1.2,	1.3 video-vidix.c, 1.24, 1.25</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.295%2C%201.296%20Makefile%2C%201.36%2C%0A%091.37%20setup-softlog.c%2C%201.3%2C%201.4%20setup-softlog.h%2C%201.2%2C%0A%091.3%20video-vidix.c%2C%201.24%2C%201.25&In-Reply-To=%3C20070224140548.F2509D85C0%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.295, 1.296 Makefile, 1.36,	1.37 setup-softlog.c, 1.3, 1.4 setup-softlog.h, 1.2,	1.3 video-vidix.c, 1.24, 1.25">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Feb 24 15:05:48 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000509.html">[Softdevice-cvs] softdevice CHANGELOG, 1.294, 1.295 setup-softlog.c,	1.2, 1.3
+</A></li>
+        <LI>Next message: <A HREF="000511.html">[Softdevice-cvs] softdevice setup-softlog.c,1.4,1.5
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#510">[ date ]</a>
+              <a href="thread.html#510">[ thread ]</a>
+              <a href="subject.html#510">[ subject ]</a>
+              <a href="author.html#510">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv21163
+
+Modified Files:
+	CHANGELOG Makefile setup-softlog.c setup-softlog.h 
+	video-vidix.c 
+Log Message:
+Makefile: add --remove-destination , so that &quot;make plugins&quot; does not
+disturb a running vdr.
+softlog: added indicator for priority I(nfo), E(rror), D(ebug), T(race).
+video-vidix: shifted prints via softlog.
+
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.295
+retrieving revision 1.296
+diff -C2 -d -r1.295 -r1.296
+*** CHANGELOG	13 Feb 2007 20:03:59 -0000	1.295
+--- CHANGELOG	24 Feb 2007 14:04:14 -0000	1.296
+***************
+*** 1,3 ****
+--- 1,8 ----
+  Changelog
++ 2007-02-24:
++    - Makefile: add --remove-destination , so that &quot;make plugins&quot; does not
++      disturb a running vdr.
++    - softlog: added indicator for priority I(nfo), E(rror), D(ebug), T(race).
++    - video-vidix: shifted prints via softlog.
+  2007-02-13:
+     - fix gettid compile error on some systems.
+
+Index: Makefile
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/Makefile,v
+retrieving revision 1.36
+retrieving revision 1.37
+diff -C2 -d -r1.36 -r1.37
+*** Makefile	10 Feb 2007 00:02:14 -0000	1.36
+--- Makefile	24 Feb 2007 14:04:14 -0000	1.37
+***************
+*** 28,31 ****
+--- 28,34 ----
+  PLUGINLIBDIR = ./PLUGINS/lib
+  
++ # for older file-utils, option -f had the same effect
++ CPOPTS = --remove-destination
++ 
+  -include config.mak
+  
+***************
+*** 324,328 ****
+  libvdr-$(PLUGIN).so: $(OBJS)
+  	$(CXX) $(CXXFLAGS) -shared $(OBJS) $(LIBS) -o $@
+! 	@cp $@ $(LIBDIR)/$@.$(APIVERSION)
+  
+  ifdef USE_SUBPLUGINS
+--- 327,331 ----
+  libvdr-$(PLUGIN).so: $(OBJS)
+  	$(CXX) $(CXXFLAGS) -shared $(OBJS) $(LIBS) -o $@
+! 	@cp $(CPOTS) $@ $(LIBDIR)/$@.$(APIVERSION)
+  
+  ifdef USE_SUBPLUGINS
+***************
+*** 330,350 ****
+  lib$(PLUGIN)-dfb.so: $(DFB_OBJS)
+  	$(CXX) $(CXXFLAGS) -shared $(DFB_OBJS) $(DFB_LIBS) -o $@
+! 	@cp $@ $(LIBDIR)/$@.$(APIVERSION)
+  
+  lib$(PLUGIN)-fb.so: $(FB_OBJS)
+  	$(CXX) $(CXXFLAGS) -shared $(FB_OBJS) $(FB_LIBS) -o $@
+! 	@cp $@ $(LIBDIR)/$@.$(APIVERSION)
+  
+  lib$(PLUGIN)-xv.so: $(XV_OBJS)
+  	$(CXX) $(CXXFLAGS) -shared $(XV_OBJS) $(XV_LIBS) -o $@
+! 	@cp $@ $(LIBDIR)/$@.$(APIVERSION)
+  
+  lib$(PLUGIN)-vidix.so: $(VIDIX_OBJS)
+  	$(CXX) $(CXXFLAGS) -shared $(VIDIX_OBJS) $(VIDIX_LIBS) -o $@
+! 	@cp $@ $(LIBDIR)/$@.$(APIVERSION)
+  
+  lib$(PLUGIN)-shm.so: $(SHM_OBJS)
+  	$(CXX) $(CXXFLAGS) -shared $(SHM_OBJS) $(SHM_LIBS) -o $@
+! 	@cp $@ $(LIBDIR)/$@.$(APIVERSION)
+  
+  endif
+--- 333,353 ----
+  lib$(PLUGIN)-dfb.so: $(DFB_OBJS)
+  	$(CXX) $(CXXFLAGS) -shared $(DFB_OBJS) $(DFB_LIBS) -o $@
+! 	@cp $(CPOPTS) $@ $(LIBDIR)/$@.$(APIVERSION)
+  
+  lib$(PLUGIN)-fb.so: $(FB_OBJS)
+  	$(CXX) $(CXXFLAGS) -shared $(FB_OBJS) $(FB_LIBS) -o $@
+! 	@cp $(CPOPTS) $@ $(LIBDIR)/$@.$(APIVERSION)
+  
+  lib$(PLUGIN)-xv.so: $(XV_OBJS)
+  	$(CXX) $(CXXFLAGS) -shared $(XV_OBJS) $(XV_LIBS) -o $@
+! 	@cp $(CPOPTS) $@ $(LIBDIR)/$@.$(APIVERSION)
+  
+  lib$(PLUGIN)-vidix.so: $(VIDIX_OBJS)
+  	$(CXX) $(CXXFLAGS) -shared $(VIDIX_OBJS) $(VIDIX_LIBS) -o $@
+! 	@cp $(CPOPTS) $@ $(LIBDIR)/$@.$(APIVERSION)
+  
+  lib$(PLUGIN)-shm.so: $(SHM_OBJS)
+  	$(CXX) $(CXXFLAGS) -shared $(SHM_OBJS) $(SHM_LIBS) -o $@
+! 	@cp $(CPOPTS) $@ $(LIBDIR)/$@.$(APIVERSION)
+  
+  endif
+
+Index: setup-softlog.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softlog.c,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** setup-softlog.c	13 Feb 2007 20:03:59 -0000	1.3
+--- setup-softlog.c	24 Feb 2007 14:04:14 -0000	1.4
+***************
+*** 64,67 ****
+--- 64,82 ----
+  /* ---------------------------------------------------------------------------
+   */
++ char cSetupSoftlog::Priority2Char(int priority)
++ {
++   if (priority &amp; SOFT_LOG_TRACE)
++     return 'T';
++   if (priority &amp; SOFT_LOG_ERROR)
++     return 'E';
++   if (priority &amp; SOFT_LOG_INFO)
++     return 'I';
++   if (priority &amp; SOFT_LOG_DEBUG)
++     return 'D';
++   return '?';
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
+  void cSetupSoftlog::CloseLogFile()
+  {
+***************
+*** 208,213 ****
+      gettimeofday(&amp;now, NULL);
+      tmp = localtime(&amp;now.tv_sec);
+!     snprintf(fmt, sizeof(fmt), &quot;%02d:%02d:%02d.%04d [%ld] %s&quot;,
+               tmp-&gt;tm_hour, tmp-&gt;tm_min, tmp-&gt;tm_sec, (int) now.tv_usec/1000,
+               syscall(__NR_gettid), format);
+      vfprintf(logFile, fmt, argList);
+--- 223,229 ----
+      gettimeofday(&amp;now, NULL);
+      tmp = localtime(&amp;now.tv_sec);
+!     snprintf(fmt, sizeof(fmt), &quot;%02d:%02d:%02d.%04d %c [%ld] %s&quot;,
+               tmp-&gt;tm_hour, tmp-&gt;tm_min, tmp-&gt;tm_sec, (int) now.tv_usec/1000,
++              Priority2Char(currPriority),
+               syscall(__NR_gettid), format);
+      vfprintf(logFile, fmt, argList);
+
+Index: setup-softlog.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softlog.h,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** setup-softlog.h	11 Feb 2007 10:31:27 -0000	1.2
+--- setup-softlog.h	24 Feb 2007 14:04:14 -0000	1.3
+***************
+*** 37,40 ****
+--- 37,41 ----
+      int   IsEnabled(int priority),
+            LogPriority(int priority);
++     char  Priority2Char(int priority);
+      void  CloseLogFile();
+  
+
+Index: video-vidix.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-vidix.c,v
+retrieving revision 1.24
+retrieving revision 1.25
+diff -C2 -d -r1.24 -r1.25
+*** video-vidix.c	11 Nov 2006 08:45:17 -0000	1.24
+--- video-vidix.c	24 Feb 2007 14:04:14 -0000	1.25
+***************
+*** 36,40 ****
+  
+      if ((fbdev = open(fbName, O_RDWR)) == -1) {
+!         esyslog(&quot;[cVidixVideoOut] Can't open framebuffer exiting\n&quot;);
+          free(fbName);
+          exit(1);
+--- 36,41 ----
+  
+      if ((fbdev = open(fbName, O_RDWR)) == -1) {
+!         setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+!                   &quot;[cVidixVideoOut] Can't open framebuffer exiting\n&quot;);
+          free(fbName);
+          exit(1);
+***************
+*** 43,51 ****
+  
+      if (ioctl(fbdev, FBIOGET_VSCREENINFO, &amp;fb_vinfo)) {
+!         esyslog(&quot;[cVidixVideoOut] Can't get VSCREENINFO exiting\n&quot;);
+          exit(1);
+      }
+      if (ioctl(fbdev, FBIOGET_FSCREENINFO, &amp;fb_finfo)) {
+!         esyslog(&quot;[cVidixVideoOut] Can't get FSCREENINFO exiting\n&quot;);
+          exit(1);
+      }
+--- 44,54 ----
+  
+      if (ioctl(fbdev, FBIOGET_VSCREENINFO, &amp;fb_vinfo)) {
+!         setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+!                   &quot;[cVidixVideoOut] Can't get VSCREENINFO exiting\n&quot;);
+          exit(1);
+      }
+      if (ioctl(fbdev, FBIOGET_FSCREENINFO, &amp;fb_finfo)) {
+!         setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+!                   &quot;[cVidixVideoOut] Can't get FSCREENINFO exiting\n&quot;);
+          exit(1);
+      }
+***************
+*** 54,58 ****
+  
+         case FB_VISUAL_TRUECOLOR:
+!            printf(&quot;cVidixVideoOut: Truecolor FB found\n&quot;);
+             break;
+  
+--- 57,62 ----
+  
+         case FB_VISUAL_TRUECOLOR:
+!            setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+!                      &quot;[cVidixVideoOut] Truecolor FB found\n&quot;);
+             break;
+  
+***************
+*** 62,66 ****
+             __u16 red[256], green[256], blue[256];
+  
+!            printf(&quot;cVidixVideoOut: DirectColor FB found\n&quot;);
+  
+             orig_cmaplen = 256;
+--- 66,71 ----
+             __u16 red[256], green[256], blue[256];
+  
+!            setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+!                      &quot;[cVidixVideoOut] DirectColor FB found\n&quot;);
+  
+             orig_cmaplen = 256;
+***************
+*** 68,72 ****
+  
+             if ( orig_cmap == NULL ) {
+!                esyslog(&quot;[cVidixVideoOut] Can't alloc memory for cmap exiting\n&quot;);
+                 exit(1);
+             }
+--- 73,78 ----
+  
+             if ( orig_cmap == NULL ) {
+!                setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+!                          &quot;[cVidixVideoOut] Can't alloc memory for cmap exiting\n&quot;);
+                 exit(1);
+             }
+***************
+*** 79,83 ****
+  
+             if ( ioctl(fbdev, FBIOGETCMAP, &amp;cmap)) {
+!                printf(&quot;cVidixVideoOut: Can't get cmap\n&quot;);
+             }
+  
+--- 85,90 ----
+  
+             if ( ioctl(fbdev, FBIOGETCMAP, &amp;cmap)) {
+!                setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+!                          &quot;[cVidixVideoOut] Can't get cmap\n&quot;);
+             }
+  
+***************
+*** 94,98 ****
+  
+             if ( ioctl(fbdev, FBIOPUTCMAP, &amp;cmap)) {
+!                printf(&quot;cVidixVideoOut: Can't put cmap\n&quot;);
+             }
+  
+--- 101,106 ----
+  
+             if ( ioctl(fbdev, FBIOPUTCMAP, &amp;cmap)) {
+!                setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+!                          &quot;[cVidixVideoOut] Can't put cmap\n&quot;);
+             }
+  
+***************
+*** 100,104 ****
+  
+         default:
+!            printf(&quot;cVidixVideoOut: Unsupported FB. Don't know if it will work.\n&quot;);
+      }
+  
+--- 108,113 ----
+  
+         default:
+!            setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+!                      &quot;[cVidixVideoOut] Unsupported FB. Don't know if it will work.\n&quot;);
+      }
+  
+***************
+*** 121,132 ****
+      SetParValues(displayRatio, displayRatio);
+  
+!     printf(&quot;cVidixVideoOut: xres = %d yres= %d \n&quot;, fb_vinfo.xres, fb_vinfo.yres);
+!     printf(&quot;cVidixVideoOut: line length = %d \n&quot;, fb_line_len);
+!     printf(&quot;cVidixVideoOut: bpp = %d\n&quot;, fb_vinfo.bits_per_pixel);
+  
+      fb = (uint8_t *) mmap(0, fb_finfo.smem_len, PROT_READ | PROT_WRITE, MAP_SHARED, fbdev, 0);
+  
+      if ( fb == (uint8_t *) -1 ) {
+!        esyslog(&quot;[cVidixVideoOut] Can't mmap framebuffer memory exiting\n&quot;);
+         exit(1);
+       }
+--- 130,145 ----
+      SetParValues(displayRatio, displayRatio);
+  
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+!               &quot;[cVidixVideoOut] xres = %d yres= %d \n&quot;, fb_vinfo.xres, fb_vinfo.yres);
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+!               &quot;[cVidixVideoOut] line length = %d \n&quot;, fb_line_len);
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+!               &quot;[cVidixVideoOut] bpp = %d\n&quot;, fb_vinfo.bits_per_pixel);
+  
+      fb = (uint8_t *) mmap(0, fb_finfo.smem_len, PROT_READ | PROT_WRITE, MAP_SHARED, fbdev, 0);
+  
+      if ( fb == (uint8_t *) -1 ) {
+!        setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+!                  &quot;[cVidixVideoOut] Can't mmap framebuffer memory exiting\n&quot;);
+         exit(1);
+       }
+***************
+*** 136,140 ****
+      vidix_version = vdlGetVersion();
+  
+!     printf(&quot;cVidixVideoOut: vidix version: %i\n&quot;, vidix_version);
+  
+      vidix_handler = vdlOpen(VIDIX_DIR, NULL, TYPE_OUTPUT, 0);
+--- 149,154 ----
+      vidix_version = vdlGetVersion();
+  
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+!               &quot;[cVidixVideoOut] vidix version: %i\n&quot;, vidix_version);
+  
+      vidix_handler = vdlOpen(VIDIX_DIR, NULL, TYPE_OUTPUT, 0);
+***************
+*** 142,146 ****
+      if( !vidix_handler )
+      {
+!        esyslog(&quot;[cVidixVideoOut] Couldn't find working VIDIX driver exiting\n&quot;);
+         exit(1);
+      }
+--- 156,161 ----
+      if( !vidix_handler )
+      {
+!        setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+!                  &quot;[cVidixVideoOut] Couldn't find working VIDIX driver exiting\n&quot;);
+         exit(1);
+      }
+***************
+*** 148,156 ****
+      if( (err = vdlGetCapability(vidix_handler,&amp;vidix_cap)) != 0)
+      {
+!        esyslog(&quot;[cVidixVideoOut] Couldn't get capability: %s exiting\n&quot;,
+!                strerror(err) );
+         exit(1);
+      }
+!     printf(&quot;cVidixVideoOut: capabilities:  0x%0x\n&quot;, vidix_cap.flags );
+  
+      OSDpseudo_alpha = true;
+--- 163,173 ----
+      if( (err = vdlGetCapability(vidix_handler,&amp;vidix_cap)) != 0)
+      {
+!        setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+!                  &quot;[cVidixVideoOut] Couldn't get capability: %s exiting\n&quot;,
+!                  strerror(err) );
+         exit(1);
+      }
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+!               &quot;[cVidixVideoOut] capabilities:  0x%0x\n&quot;, vidix_cap.flags );
+  
+      OSDpseudo_alpha = true;
+***************
+*** 170,174 ****
+        if (!MatchPixelFormat())
+        {
+!         esyslog(&quot;[cVidixVideoOut]: no matching pixel format found exiting\n&quot;);
+          exit(1);
+        }
+--- 187,192 ----
+        if (!MatchPixelFormat())
+        {
+!         setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+!                   &quot;[cVidixVideoOut] no matching pixel format found exiting\n&quot;);
+          exit(1);
+        }
+***************
+*** 193,197 ****
+      vidix_play.num_frames   = 2;
+  
+!     printf(&quot;cVidixVideoOut: fourcc.flags:  0x%0x\n&quot;,vidix_fourcc.flags);
+      AllocLayer();
+  
+--- 211,216 ----
+      vidix_play.num_frames   = 2;
+  
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+!               &quot;[cVidixVideoOut] fourcc.flags:  0x%0x\n&quot;,vidix_fourcc.flags);
+      AllocLayer();
+  
+***************
+*** 200,232 ****
+       */
+      vidix_video_eq_t tmpeq;
+!     printf(&quot;cVidixVideoOut: capabilities  &quot;);
+  
+      if(!vdlPlaybackGetEq(vidix_handler, &amp;tmpeq)) {
+          vidix_curr_eq=tmpeq;
+!         printf(&quot;EQ cap: %x: &quot;, vidix_curr_eq.cap);
+          if (vidix_curr_eq.cap &amp; VEQ_CAP_BRIGHTNESS) {
+!             printf(&quot;brightness (%d) &quot;, vidix_curr_eq.brightness);
+              setupStore-&gt;vidCaps |= CAP_BRIGHTNESS;
+          }
+          if (vidix_curr_eq.cap &amp; VEQ_CAP_CONTRAST) {
+!             printf(&quot;contrast (%d) &quot;, vidix_curr_eq.contrast);
+              setupStore-&gt;vidCaps |= CAP_CONTRAST;
+          }
+          if (vidix_curr_eq.cap &amp; VEQ_CAP_SATURATION) {
+!             printf(&quot;saturation (%d) &quot;, vidix_curr_eq.saturation);
+              setupStore-&gt;vidCaps |= CAP_SATURATION;
+          }
+          if (vidix_curr_eq.cap &amp; VEQ_CAP_HUE) {
+!             printf(&quot;hue (%d) &quot;, vidix_curr_eq.hue);
+              setupStore-&gt;vidCaps |= CAP_HUE;
+          }
+          if (vidix_curr_eq.cap &amp; VEQ_CAP_RGB_INTENSITY) {
+!             printf(&quot;RGB-intensity (%d, %d, %d) &quot;,
+!                    vidix_curr_eq.red_intensity,
+!                    vidix_curr_eq.green_intensity,
+!                    vidix_curr_eq.blue_intensity );
+          }
+      } else {
+!        isyslog(&quot;[cVidixVideoOut] Couldn't get EQ capability\n&quot;);
+      }
+  
+--- 219,264 ----
+       */
+      vidix_video_eq_t tmpeq;
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+!               &quot;[cVidixVideoOut] capabilities\n&quot;);
+  
+      if(!vdlPlaybackGetEq(vidix_handler, &amp;tmpeq)) {
+          vidix_curr_eq=tmpeq;
+!         setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+!                   &quot;[cVidixVideoOut] EQ cap: %x:\n&quot;,
+!                   vidix_curr_eq.cap);
+          if (vidix_curr_eq.cap &amp; VEQ_CAP_BRIGHTNESS) {
+!             setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+!                       &quot;[cVidixVideoOut]  brightness (%d)\n&quot;,
+!                       vidix_curr_eq.brightness);
+              setupStore-&gt;vidCaps |= CAP_BRIGHTNESS;
+          }
+          if (vidix_curr_eq.cap &amp; VEQ_CAP_CONTRAST) {
+!             setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+!                       &quot;[cVidixVideoOut]  contrast (%d)\n&quot;,
+!                       vidix_curr_eq.contrast);
+              setupStore-&gt;vidCaps |= CAP_CONTRAST;
+          }
+          if (vidix_curr_eq.cap &amp; VEQ_CAP_SATURATION) {
+!             setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+!                       &quot;[cVidixVideoOut]  saturation (%d)\n&quot;,
+!                       vidix_curr_eq.saturation);
+              setupStore-&gt;vidCaps |= CAP_SATURATION;
+          }
+          if (vidix_curr_eq.cap &amp; VEQ_CAP_HUE) {
+!             setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+!                       &quot;[cVidixVideoOut]  hue (%d)\n&quot;,
+!                       vidix_curr_eq.hue);
+              setupStore-&gt;vidCaps |= CAP_HUE;
+          }
+          if (vidix_curr_eq.cap &amp; VEQ_CAP_RGB_INTENSITY) {
+!             setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+!                       &quot;[cVidixVideoOut]  RGB-intensity (%d, %d, %d)\n&quot;,
+!                       vidix_curr_eq.red_intensity,
+!                       vidix_curr_eq.green_intensity,
+!                       vidix_curr_eq.blue_intensity );
+          }
+      } else {
+!        setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+!                  &quot;[cVidixVideoOut] Couldn't get EQ capability\n&quot;);
+      }
+  
+***************
+*** 238,249 ****
+      if (!vdlPlaybackGetDeint(vidix_handler, &amp;vidix_deint) &amp;&amp;
+          !vdlPlaybackSetDeint(vidix_handler, &amp;vidix_deint)) {
+!         printf(&quot;HW-deinterlace (%x,%x)&quot;,
+!                vidix_deint.flags,
+!                vidix_deint.deinterlace_pattern);
+  
+          setupStore-&gt;vidCaps |= CAP_HWDEINTERLACE;
+      }
+- 
+-     printf(&quot;\n&quot;);
+  }
+  
+--- 270,280 ----
+      if (!vdlPlaybackGetDeint(vidix_handler, &amp;vidix_deint) &amp;&amp;
+          !vdlPlaybackSetDeint(vidix_handler, &amp;vidix_deint)) {
+!         setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+!                   &quot;[cVidixVideoOut]  HW-deinterlace (%x,%x)\n&quot;,
+!                   vidix_deint.flags,
+!                   vidix_deint.deinterlace_pattern);
+  
+          setupStore-&gt;vidCaps |= CAP_HWDEINTERLACE;
+      }
+  }
+  
+***************
+*** 283,294 ****
+      cutBottom = setupStore-&gt;cropBottomLines;
+  
+!     printf(&quot;cVidixVideoOut: Video changed format to %dx%d\n&quot;, fwidth, fheight);
+  
+      if((Xres &gt; fwidth || Yres &gt; fheight) &amp;&amp;
+         (vidix_cap.flags &amp; FLAG_UPSCALER) != FLAG_UPSCALER)
+      {
+!       esyslog(&quot;[cVidixVideoOut] vidix driver can't &quot;
+!               &quot;upscale image (%dx%d -&gt; %dx%d) exiting\n&quot;,
+!               fwidth, fheight, Xres, Yres);
+        exit(1);
+      }
+--- 314,328 ----
+      cutBottom = setupStore-&gt;cropBottomLines;
+  
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+!               &quot;[cVidixVideoOut] Video changed format to %dx%d\n&quot;,
+!               fwidth, fheight);
+  
+      if((Xres &gt; fwidth || Yres &gt; fheight) &amp;&amp;
+         (vidix_cap.flags &amp; FLAG_UPSCALER) != FLAG_UPSCALER)
+      {
+!       setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+!                 &quot;[cVidixVideoOut] vidix driver can't &quot;
+!                 &quot;upscale image (%dx%d -&gt; %dx%d) exiting\n&quot;,
+!                 fwidth, fheight, Xres, Yres);
+        exit(1);
+      }
+***************
+*** 297,303 ****
+         (vidix_cap.flags &amp; FLAG_DOWNSCALER) != FLAG_DOWNSCALER)
+      {
+!       esyslog(&quot;[cVidixVideoOut] vidix driver can't &quot;
+!               &quot;downscale image (%dx%d -&gt; %dx%d) exiting\n&quot;,
+!               fwidth, fheight, Xres, Yres);
+        exit(1);
+      }
+--- 331,338 ----
+         (vidix_cap.flags &amp; FLAG_DOWNSCALER) != FLAG_DOWNSCALER)
+      {
+!       setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+!                 &quot;[cVidixVideoOut] vidix driver can't &quot;
+!                 &quot;downscale image (%dx%d -&gt; %dx%d) exiting\n&quot;,
+!                 fwidth, fheight, Xres, Yres);
+        exit(1);
+      }
+***************
+*** 317,321 ****
+          if (!MatchPixelFormat())
+          {
+!           esyslog(&quot;[cVidixVideoOut]: no matching pixel format found exiting\n&quot;);
+            exit(1);
+          }
+--- 352,358 ----
+          if (!MatchPixelFormat())
+          {
+!           setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+!                     &quot;[cVidixVideoOut]: no matching pixel &quot;
+!                     &quot;format found exiting\n&quot;);
+            exit(1);
+          }
+***************
+*** 368,377 ****
+        vidix_curr_eq.hue != vidix_video_eq.hue ) {
+  
+!       printf(&quot;cVidixVideoOut : set eq values\n&quot;);
+        vidix_curr_eq = vidix_video_eq;
+        if( (err = vdlPlaybackSetEq(vidix_handler, &amp;vidix_curr_eq)) != 0) {
+!           isyslog(&quot;[cVidixVideoOut] Couldn't set EQ capability: %s\n&quot;,
+!                   strerror(err) );
+!           printf(&quot;FAILED!!!\n&quot;);
+        }
+    }
+--- 405,416 ----
+        vidix_curr_eq.hue != vidix_video_eq.hue ) {
+  
+!       setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+!                 &quot;[cVidixVideoOut] set eq values\n&quot;);
+        vidix_curr_eq = vidix_video_eq;
+        if( (err = vdlPlaybackSetEq(vidix_handler, &amp;vidix_curr_eq)) != 0) {
+!           setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+!                     &quot;[cVidixVideoOut] Couldn't set EQ &quot;
+!                     &quot;capability: %s (FAILED)\n&quot;,
+!                     strerror(err) );
+        }
+    }
+***************
+*** 421,427 ****
+        vdlPlaybackSetDeint(vidix_handler, &amp;vidix_deint);
+        vdlPlaybackGetDeint(vidix_handler, &amp;vidix_deint);
+!       printf(&quot;Deinterlacer: %x %x\n&quot;,
+!              vidix_deint.flags,
+!              vidix_deint.deinterlace_pattern);
+    }
+  }
+--- 460,467 ----
+        vdlPlaybackSetDeint(vidix_handler, &amp;vidix_deint);
+        vdlPlaybackGetDeint(vidix_handler, &amp;vidix_deint);
+!       setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+!                 &quot;[cVidixVideoOut] Deinterlacer: %x %x\n&quot;,
+!                 vidix_deint.flags,
+!                 vidix_deint.deinterlace_pattern);
+    }
+  }
+***************
+*** 440,445 ****
+    if ((err = vdlPlaybackOff(vidix_handler)) != 0)
+    {
+!     esyslog(&quot;[cVidixVideoOut] Can't stop playback: %s exiting\n&quot;,
+!             strerror(err));
+      exit(1);
+    }
+--- 480,486 ----
+    if ((err = vdlPlaybackOff(vidix_handler)) != 0)
+    {
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+!               &quot;[cVidixVideoOut] Can't stop playback: %s exiting\n&quot;,
+!               strerror(err));
+      exit(1);
+    }
+***************
+*** 447,452 ****
+    if ((err = vdlConfigPlayback(vidix_handler, &amp;vidix_play)) != 0)
+    {
+!     esyslog(&quot;[cVidixVideoOut] Can't configure playback: %s exiting\n&quot;,
+!             strerror(err));
+      exit(1);
+    }
+--- 488,494 ----
+    if ((err = vdlConfigPlayback(vidix_handler, &amp;vidix_play)) != 0)
+    {
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+!                &quot;[cVidixVideoOut] Can't configure playback: %s exiting\n&quot;,
+!                strerror(err));
+      exit(1);
+    }
+***************
+*** 454,459 ****
+    if ((err = vdlPlaybackOn(vidix_handler)) != 0)
+    {
+!     esyslog(&quot;[cVidixVideoOut] Can't start playback: %s exiting\n&quot;,
+!             strerror(err));
+      exit(1);
+    }
+--- 496,502 ----
+    if ((err = vdlPlaybackOn(vidix_handler)) != 0)
+    {
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+!               &quot;[cVidixVideoOut] Can't start playback: %s exiting\n&quot;,
+!               strerror(err));
+      exit(1);
+    }
+***************
+*** 463,467 ****
+      int res = 0;
+  
+!     printf(&quot;cVidixVideoOut: set colorkey &quot;);
+      vdlGetGrKeys(vidix_handler, &amp;gr_key);
+  
+--- 506,511 ----
+      int res = 0;
+  
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+!               &quot;[cVidixVideoOut] set colorkey\n&quot;);
+      vdlGetGrKeys(vidix_handler, &amp;gr_key);
+  
+***************
+*** 479,491 ****
+      gr_key.ckey.red = gr_key.ckey.green = gr_key.ckey.blue = 0;
+      res = vdlSetGrKeys(vidix_handler, &amp;gr_key);
+!     printf (&quot;vdlSetGrKeys() = %d, &quot;, res);
+  
+      if (res) {
+        gr_key.ckey.op = CKEY_TRUE;
+        res = vdlSetGrKeys(vidix_handler, &amp;gr_key);
+!       printf (&quot; - %d&quot;, res);
+        useVidixAlpha = false;
+      }
+-     printf (&quot;\n&quot;);
+    }
+  
+--- 523,536 ----
+      gr_key.ckey.red = gr_key.ckey.green = gr_key.ckey.blue = 0;
+      res = vdlSetGrKeys(vidix_handler, &amp;gr_key);
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+!               &quot;[cVidixVideoOut] vdlSetGrKeys() = %d\n&quot;, res);
+  
+      if (res) {
+        gr_key.ckey.op = CKEY_TRUE;
+        res = vdlSetGrKeys(vidix_handler, &amp;gr_key);
+!       setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+!                 &quot;[cVidixVideoOut] vdlSetGrKeys() = %d (noAlpha)\n&quot;, res);
+        useVidixAlpha = false;
+      }
+    }
+  
+***************
+*** 750,754 ****
+   */
+  void cVidixVideoOut::GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight,
+!                                      int &amp;xPan, int &amp;yPan) {
+     switch (current_osdMode) {
+        case OSDMODE_PSEUDO :
+--- 795,800 ----
+   */
+  void cVidixVideoOut::GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight,
+!                                      int &amp;xPan, int &amp;yPan)
+! {
+     switch (current_osdMode) {
+        case OSDMODE_PSEUDO :
+***************
+*** 763,768 ****
+                  yPan = syoff;
+               break;
+!     };
+! };
+  
+  
+--- 809,814 ----
+                  yPan = syoff;
+               break;
+!     }
+! }
+  
+  
+***************
+*** 800,808 ****
+      int err;
+  
+!     printf(&quot;cVidixVideoOut : destructor\n&quot;);
+  
+      if(vidix_handler) {
+          if((err = vdlPlaybackOff(vidix_handler)) != 0) {
+!            printf(&quot;cVidixVideoOut : Can't stop playback: %s\n&quot;, strerror(err));
+          }
+          vdlClose(vidix_handler);
+--- 846,857 ----
+      int err;
+  
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_DEBUG, 0,
+!               &quot;[cVidixVideoOut] destructor\n&quot;);
+  
+      if(vidix_handler) {
+          if((err = vdlPlaybackOff(vidix_handler)) != 0) {
+!            setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+!                      &quot;[cVidixVideoOut] Can't stop playback: %s\n&quot;,
+!                      strerror(err));
+          }
+          vdlClose(vidix_handler);
+***************
+*** 823,827 ****
+  
+                 if ( ioctl(fbdev, FBIOPUTCMAP, &amp;cmap)) {
+!                    printf(&quot;cVidixVideoOut : Can't put cmap\n&quot;);
+                 }
+  
+--- 872,877 ----
+  
+                 if ( ioctl(fbdev, FBIOPUTCMAP, &amp;cmap)) {
+!                    setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+!                              &quot;[cVidixVideoOut] Can't put cmap\n&quot;);
+                 }
+  
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000509.html">[Softdevice-cvs] softdevice CHANGELOG, 1.294, 1.295 setup-softlog.c,	1.2, 1.3
+</A></li>
+	<LI>Next message: <A HREF="000511.html">[Softdevice-cvs] softdevice setup-softlog.c,1.4,1.5
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#510">[ date ]</a>
+              <a href="thread.html#510">[ thread ]</a>
+              <a href="subject.html#510">[ subject ]</a>
+              <a href="author.html#510">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

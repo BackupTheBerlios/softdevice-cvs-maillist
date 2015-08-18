@@ -1,0 +1,368 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.90,1.91 setup-softdevice.h,1.17,1.18 softdevice.c,1.34,1.35 softdevice.h,1.4,1.5
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.90%2C1.91%20setup-softdevice.h%2C1.17%2C1.18%20softdevice.c%2C1.34%2C1.35%20softdevice.h%2C1.4%2C1.5&In-Reply-To=%3C200507220825.j6M8P0I07743%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000164.html">
+   <LINK REL="Next"  HREF="000166.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.90,1.91 setup-softdevice.h,1.17,1.18 softdevice.c,1.34,1.35 softdevice.h,1.4,1.5</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.90%2C1.91%20setup-softdevice.h%2C1.17%2C1.18%20softdevice.c%2C1.34%2C1.35%20softdevice.h%2C1.4%2C1.5&In-Reply-To=%3C200507220825.j6M8P0I07743%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.90,1.91 setup-softdevice.h,1.17,1.18 softdevice.c,1.34,1.35 softdevice.h,1.4,1.5">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Jul 22 10:25:00 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000164.html">[Softdevice-cvs] softdevice CHANGELOG,1.89,1.90 mpeg2decoder.c,1.45,1.46 setup-softdevice.c,1.23,1.24 video-dfb.c,1.34,1.35 video-xv.c,1.30,1.31
+</A></li>
+        <LI>Next message: <A HREF="000166.html">[Softdevice-cvs] softdevice CHANGELOG,1.91,1.92 mpeg2decoder.c,1.46,1.47 softdevice.c,1.35,1.36
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#165">[ date ]</a>
+              <a href="thread.html#165">[ thread ]</a>
+              <a href="subject.html#165">[ subject ]</a>
+              <a href="author.html#165">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv8811
+
+Modified Files:
+	CHANGELOG setup-softdevice.h softdevice.c softdevice.h 
+Log Message:
+include patch from Claas Hilbrecht for &quot;-vo dummy:&quot;
+some code reorg for subpluging loader
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.90
+retrieving revision 1.91
+diff -C2 -d -r1.90 -r1.91
+*** CHANGELOG	20 Jul 2005 20:24:10 -0000	1.90
+--- CHANGELOG	22 Jul 2005 08:24:55 -0000	1.91
+***************
+*** 1,4 ****
+  Changelog
+! 2005-07-17:
+      - fix for live view at trick speed
+      - stretchBlit mode for dfb-out is selectable via OSD
+--- 1,7 ----
+  Changelog
+! 2005-07-22:
+!     - include patch from Claas Hilbrecht for &quot;-vo dummy:&quot;
+!     - some code reorg for subpluging loader
+! 2005-07-20:
+      - fix for live view at trick speed
+      - stretchBlit mode for dfb-out is selectable via OSD
+
+Index: setup-softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.h,v
+retrieving revision 1.17
+retrieving revision 1.18
+diff -C2 -d -r1.17 -r1.18
+*** setup-softdevice.h	20 Jul 2005 19:13:36 -0000	1.17
+--- setup-softdevice.h	22 Jul 2005 08:24:56 -0000	1.18
+***************
+*** 14,17 ****
+--- 14,18 ----
+  #define VOUT_DFB      3
+  #define VOUT_VIDIX    4
++ #define VOUT_DUMMY    5
+  
+  #define ALSA_DEVICE_NAME_LENGTH  64
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.34
+retrieving revision 1.35
+diff -C2 -d -r1.34 -r1.35
+*** softdevice.c	29 May 2005 10:13:59 -0000	1.34
+--- softdevice.c	22 Jul 2005 08:24:56 -0000	1.35
+***************
+*** 222,225 ****
+--- 222,227 ----
+  #endif
+  
++ /* ----------------------------------------------------------------------------
++  */
+  cSoftDevice::cSoftDevice(int method,int audioMethod, char *pluginPath)
+  {
+***************
+*** 233,315 ****
+      setupStore.outputMethod = method;
+  #ifdef USE_SUBPLUGINS
+-   {
+-       char  *subPluginFileName = NULL;
+-       char  *outMethodName  = NULL;
+-       int   reconfigureArg  = 0;
+      switch (method) {
+!     case VOUT_XV:
+  #ifdef XV_SUPPORT
+!       outMethodName = &quot;xv&quot;;
+!       reconfigureArg = FOURCC_YV12;
+  #endif
+!       break;
+!     case VOUT_FB:
+  #ifdef FB_SUPPORT
+!       outMethodName = &quot;fb&quot;;
+  #endif
+!       break;
+!     case VOUT_DFB:
+  #ifdef DFB_SUPPORT
+!       outMethodName = &quot;dfb&quot;;
+  #endif
+!       break;
+!     case VOUT_VIDIX:
+  #ifdef VIDIX_SUPPORT
+!       outMethodName = &quot;vidix&quot;;
+  #endif
+!       break;
+!     default:
+!       break;
+!     }
+! 
+!     asprintf (&amp;subPluginFileName,
+!               &quot;%s/%s%s.so.%s&quot;,
+!               pluginPath,
+!               &quot;libvdr-softdevice-&quot;,
+!               outMethodName,
+!               VDRVERSION);
+!     void *handle = dlopen (subPluginFileName, RTLD_NOW);
+!     char *err = dlerror();
+!     if (!err)
+!     {
+!         void  *(*creator)(cSetupStore *store);
+! 
+!       creator = (void *(*)(cSetupStore *))dlsym(handle,
+!                                                 &quot;SubPluginCreator&quot;);
+!       err = dlerror();
+!       if (!err)
+!       {
+!         videoOut = (cVideoOut *) creator (&amp;setupStore);
+!       }
+!       else
+!       {
+!         esyslog(&quot;[softdevice] could not load (%s)[%s] exiting\n&quot;,
+!                 &quot;SubPluginCreator&quot;, err);
+!         esyslog(&quot;[softdevice] Did you use the -L option?\n&quot;);
+!         fprintf(stderr,&quot;[softdevice] could not load (%s)[%s] exiting\n&quot;,
+!                 &quot;SubPluginCreator&quot;, err);
+!         fprintf(stderr,&quot;[softdevice] Did you use the -L option?\n&quot;);
+          exit(1);
+!       }
+!       if (videoOut-&gt;Initialize () &amp;&amp;
+!           videoOut-&gt;Reconfigure (reconfigureArg))
+!       {
+!           printf(&quot;Subplugin successfully opend\n&quot;);
+!           dsyslog(&quot;[softdevice] videoOut OK !\n&quot;);
+!       }
+!       else
+!       {
+!         esyslog(&quot;[softdevice] videoOut failure exiting\n&quot;);
+!         exit (1);
+!       }
+! 
+!     }
+!     else
+!     {
+!       esyslog(&quot;[softdevice] could not load (%s)[%s] exiting\n&quot;,
+!               subPluginFileName, err);
+!       exit(1);
+!     }
+! 
+      }
+  #else
+--- 235,266 ----
+      setupStore.outputMethod = method;
+  #ifdef USE_SUBPLUGINS
+      switch (method) {
+!       case VOUT_XV:
+  #ifdef XV_SUPPORT
+!         LoadSubPlugin (&quot;xv&quot;, FOURCC_YV12, pluginPath);
+  #endif
+!         break;
+!       case VOUT_FB:
+  #ifdef FB_SUPPORT
+!         LoadSubPlugin (&quot;fb&quot;, 0, pluginPath);
+  #endif
+!         break;
+!       case VOUT_DFB:
+  #ifdef DFB_SUPPORT
+!         LoadSubPlugin (&quot;dfb&quot;, 0, pluginPath);
+  #endif
+!         break;
+!       case VOUT_VIDIX:
+  #ifdef VIDIX_SUPPORT
+!         LoadSubPlugin (&quot;vidix&quot;, 0, pluginPath);
+  #endif
+!         break;
+!       case VOUT_DUMMY:
+!         videoOut=new cDummyVideoOut(&amp;setupStore);
+!         break;
+!       default:
+!         esyslog(&quot;[softdevice] NO video out specified exiting\n&quot;);
+          exit(1);
+!         break;
+      }
+  #else
+***************
+*** 342,346 ****
+--- 293,302 ----
+  #endif
+          break;
++       case VOUT_DUMMY:
++         videoOut=new cDummyVideoOut(&amp;setupStore);
++         break;
+        default:
++         esyslog(&quot;[softdevice] NO video out specified exiting\n&quot;);
++         exit(1);
+          break;
+      }
+***************
+*** 368,371 ****
+--- 324,383 ----
+  }
+  
++ /* ----------------------------------------------------------------------------
++  */
++ void cSoftDevice::LoadSubPlugin(char *outMethodName,
++                                 int reconfigureArg,
++                                 char *pluginPath)
++ {
++     char  *subPluginFileName = NULL;
++ 
++   asprintf (&amp;subPluginFileName,
++             &quot;%s/%s%s.so.%s&quot;,
++             pluginPath,
++             &quot;libvdr-softdevice-&quot;,
++             outMethodName,
++             VDRVERSION);
++   void *handle = dlopen (subPluginFileName, RTLD_NOW);
++   char *err = dlerror();
++   if (!err)
++   {
++       void  *(*creator)(cSetupStore *store);
++ 
++     creator = (void *(*)(cSetupStore *))dlsym(handle, &quot;SubPluginCreator&quot;);
++     err = dlerror();
++     if (!err)
++     {
++       videoOut = (cVideoOut *) creator (&amp;setupStore);
++     }
++     else
++     {
++       esyslog(&quot;[softdevice] could not load (%s)[%s] exiting\n&quot;,
++               &quot;SubPluginCreator&quot;, err);
++       esyslog(&quot;[softdevice] Did you use the -L option?\n&quot;);
++       fprintf(stderr,&quot;[softdevice] could not load (%s)[%s] exiting\n&quot;,
++               &quot;SubPluginCreator&quot;, err);
++       fprintf(stderr,&quot;[softdevice] Did you use the -L option?\n&quot;);
++       exit(1);
++     }
++     if (videoOut-&gt;Initialize () &amp;&amp; videoOut-&gt;Reconfigure (reconfigureArg))
++     {
++       fprintf(stderr,&quot;[softdevice] Subplugin successfully opend\n&quot;);
++       dsyslog(&quot;[softdevice] videoOut OK !\n&quot;);
++     }
++     else
++     {
++       esyslog(&quot;[softdevice] videoOut failure exiting\n&quot;);
++       exit (1);
++     }
++ 
++   }
++   else
++   {
++     esyslog(&quot;[softdevice] could not load (%s)[%s] exiting\n&quot;,
++             subPluginFileName, err);
++     exit(1);
++   }
++ }
++ 
+  int64_t cSoftDevice::GetSTC(void) {
+    return decoder-&gt;GetSTC();
+***************
+*** 670,673 ****
+--- 682,686 ----
+    &quot;  -vo vidix:               enable output via vidix driver\n&quot;
+  #endif
++   &quot;  -vo dummy:               enable output to dummy device\n&quot;
+    &quot;  -L &lt;plugin_path_name&gt;    search path for loading subplugins\n&quot;
+    &quot;\n&quot;;
+***************
+*** 765,768 ****
+--- 778,786 ----
+            fprintf(stderr,&quot;[softdevice] vidix support not compiled in\n&quot;);
+  #endif
++         } else if (!strncmp (vo_argv, &quot;dummy:&quot;, 6)) {
++           vo_argv += 6;
++           setupStore.voArgs = vo_argv;
++           voutMethod = VOUT_DUMMY;
++           fprintf(stderr,&quot;[softdevice] using dummy video out\n&quot;);
+          } else {
+                  fprintf(stderr,&quot;[softdevice] ignoring unrecognized option \&quot;%s\&quot;!\n&quot;,argv[i]);
+
+Index: softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.h,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -C2 -d -r1.4 -r1.5
+*** softdevice.h	2 Apr 2005 12:19:06 -0000	1.4
+--- softdevice.h	22 Jul 2005 08:24:56 -0000	1.5
+***************
+*** 67,70 ****
+--- 67,71 ----
+    { if (decoder) decoder-&gt;ClearPacketQueue(); };
+  
++   void LoadSubPlugin(char *outMethodName, int reconfigureArg, char *pluginPath);
+  
+    virtual bool HasDecoder(void) const;
+***************
+*** 96,99 ****
+--- 97,101 ----
+  private:
+    cSpuDecoder *spuDecoder;
++ 
+  public:
+    virtual cSpuDecoder *GetSpuDecoder(void);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000164.html">[Softdevice-cvs] softdevice CHANGELOG,1.89,1.90 mpeg2decoder.c,1.45,1.46 setup-softdevice.c,1.23,1.24 video-dfb.c,1.34,1.35 video-xv.c,1.30,1.31
+</A></li>
+	<LI>Next message: <A HREF="000166.html">[Softdevice-cvs] softdevice CHANGELOG,1.91,1.92 mpeg2decoder.c,1.46,1.47 softdevice.c,1.35,1.36
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#165">[ date ]</a>
+              <a href="thread.html#165">[ thread ]</a>
+              <a href="subject.html#165">[ subject ]</a>
+              <a href="author.html#165">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

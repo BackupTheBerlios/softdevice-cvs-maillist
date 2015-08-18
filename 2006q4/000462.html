@@ -1,0 +1,918 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.256, 1.257 PicBuffer.c,	1.12, 1.13 PicBuffer.h, 1.4, 1.5 mpeg2decoder.c, 1.69, 1.70
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.256%2C%201.257%20PicBuffer.c%2C%0A%091.12%2C%201.13%20PicBuffer.h%2C%201.4%2C%201.5%20mpeg2decoder.c%2C%201.69%2C%201.70&In-Reply-To=%3C20061107190227.C4050A2D1E%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000461.html">
+   <LINK REL="Next"  HREF="000463.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.256, 1.257 PicBuffer.c,	1.12, 1.13 PicBuffer.h, 1.4, 1.5 mpeg2decoder.c, 1.69, 1.70</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.256%2C%201.257%20PicBuffer.c%2C%0A%091.12%2C%201.13%20PicBuffer.h%2C%201.4%2C%201.5%20mpeg2decoder.c%2C%201.69%2C%201.70&In-Reply-To=%3C20061107190227.C4050A2D1E%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.256, 1.257 PicBuffer.c,	1.12, 1.13 PicBuffer.h, 1.4, 1.5 mpeg2decoder.c, 1.69, 1.70">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue Nov  7 20:02:27 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000461.html">[Softdevice-cvs] softdevice audio-alsa.c, 1.3, 1.4 CHANGELOG, 1.255,	1.256
+</A></li>
+        <LI>Next message: <A HREF="000463.html">[Softdevice-cvs] softdevice video.h, 1.44, 1.45 CHANGELOG, 1.257,	1.258
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#462">[ date ]</a>
+              <a href="thread.html#462">[ thread ]</a>
+              <a href="subject.html#462">[ subject ]</a>
+              <a href="author.html#462">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv12705
+
+Modified Files:
+	CHANGELOG PicBuffer.c PicBuffer.h mpeg2decoder.c 
+Log Message:
+- add scaling methods with yuv to rgb conversion
+- add packed pixel format support to ClearPicBuffer()
+- move AllocatePicBuffer(), DeallocatePicBuffer(), GetFormatBPP and
+  GetChromaSubSample() out of cPicBufferManager
+	      
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.256
+retrieving revision 1.257
+diff -C2 -d -r1.256 -r1.257
+*** CHANGELOG	7 Nov 2006 18:16:57 -0000	1.256
+--- CHANGELOG	7 Nov 2006 19:01:37 -0000	1.257
+***************
+*** 3,6 ****
+--- 3,11 ----
+     - add yuv to rgb conversion routines for rgb32, rgb24, bgr24 and rgb16
+     - audio-alsa: restore samplerate after a unsuccessfull change request
++    - add scaling methods with yuv to rgb conversion
++    - add packed pixel format support to ClearPicBuffer()
++    - move AllocatePicBuffer(), DeallocatePicBuffer(), GetFormatBPP and
++      GetChromaSubSample() out of cPicBufferManager
++    - add packed pixel format to PicBuffer
+  2006-11-05: softdevice-0.3.1
+     - xv-out: limit used width &amp; height to screen dimensions.
+
+Index: PicBuffer.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/PicBuffer.c,v
+retrieving revision 1.12
+retrieving revision 1.13
+diff -C2 -d -r1.12 -r1.13
+*** PicBuffer.c	11 Oct 2006 19:57:50 -0000	1.12
+--- PicBuffer.c	7 Nov 2006 19:01:37 -0000	1.13
+***************
+*** 30,33 ****
+--- 30,35 ----
+  
+  void CopyPicBufferContext(sPicBuffer *dest,sPicBuffer *orig){
++     dest-&gt;width=orig-&gt;width;
++     dest-&gt;height=orig-&gt;height;
+      dest-&gt;dtg_active_format=orig-&gt;dtg_active_format;
+      dest-&gt;aspect_ratio=orig-&gt;aspect_ratio;
+***************
+*** 42,47 ****
+--- 44,57 ----
+           PICDEB(&quot;ClearPicBuffer Pic %p pixel[0] %p max_height %d stride[0] %d\n&quot;,
+                          Pic, Pic-&gt;pixel[0], Pic-&gt;max_height, Pic-&gt;stride[0]);
++         int pixel_size=GetFormatBPP(Pic-&gt;format); 
+  
+          switch (Pic-&gt;format) {
++                 case PIX_FMT_RGB32 :
++                 case PIX_FMT_RGB24 :
++                 case PIX_FMT_BGR24 :
++                 case PIX_FMT_RGB555 :
++                         memset(Pic-&gt;pixel[0],0,Pic-&gt;max_height*Pic-&gt;max_width
++                                         *pixel_size);
++                         break;
+                  case PIX_FMT_YUV420P :
+                          memset(Pic-&gt;pixel[0],0,Pic-&gt;max_height*Pic-&gt;stride[0]);
+***************
+*** 95,100 ****
+  
+  void cPicBufferManager::ReleasePicBuffer(int buf_num) {
+-         PICDEB(&quot;ReleasePicBuffer %d pixel[0] %p\n&quot;,buf_num,PicBuffer[buf_num].pixel[0]);
+          sPicBuffer *buf=&amp;PicBuffer[buf_num];
+  
+          for (int i=0; i&lt;4; i++) {
+--- 105,114 ----
+  
+  void cPicBufferManager::ReleasePicBuffer(int buf_num) {
+          sPicBuffer *buf=&amp;PicBuffer[buf_num];
++         DeallocatePicBuffer(buf);
++ };
++ 
++ void DeallocatePicBuffer(sPicBuffer *buf) {
++         PICDEB(&quot;DeallocatePicBuffer %p pixel[0] %p\n&quot;,buf,PicBuffer[buf_num].pixel[0]);
+  
+          for (int i=0; i&lt;4; i++) {
+***************
+*** 106,110 ****
+  };
+  
+! void cPicBufferManager::GetChromaSubSample(PixelFormat pix_fmt,
+                  int &amp;hChromaShift,
+                  int &amp;vChromaShift) {
+--- 120,124 ----
+  };
+  
+! void GetChromaSubSample(PixelFormat pix_fmt,
+                  int &amp;hChromaShift,
+                  int &amp;vChromaShift) {
+***************
+*** 127,131 ****
+  
+  void cPicBufferManager::LockBuffer(sPicBuffer *picture) {
+!         PICDEB(&quot;LockBuffer buf-&gt;pixel[0] %p\n&quot;,picture-&gt;pixel[0]);
+          PicBufMutex.Lock();
+          if (picture)
+--- 141,146 ----
+  
+  void cPicBufferManager::LockBuffer(sPicBuffer *picture) {
+!         PICDEB(&quot;LockBuffer buf-&gt;pixel[0] %p usecount %d \n&quot;,
+!                         picture-&gt;pixel[0], picture-&gt;use_count);
+          PicBufMutex.Lock();
+          if (picture)
+***************
+*** 142,146 ****
+                  return;
+          };
+!         PICDEB(&quot;UnlockBuffer buf %p pixel[0] %p %p\n&quot;,picture,picture-&gt;pixel[0]);
+          PicBufMutex.Lock();
+          if ( picture-&gt;use_count&gt;0 )
+--- 157,162 ----
+                  return;
+          };
+!         PICDEB(&quot;UnlockBuffer buf %p pixel[0] %p use_count %d\n&quot;,
+!                         picture,picture-&gt;pixel[0],picture-&gt;use_count);
+          PicBufMutex.Lock();
+          if ( picture-&gt;use_count&gt;0 )
+***************
+*** 150,153 ****
+--- 166,185 ----
+  };
+  
++ bool isPlanar(PixelFormat fmt) {
++         switch(fmt){
++         case PIX_FMT_RGB555:
++         case PIX_FMT_RGB565:
++         case PIX_FMT_YUV422:
++         case PIX_FMT_RGB24:
++         case PIX_FMT_BGR24:
++         case PIX_FMT_RGBA32:
++                 return false;
++             break;
++         default:
++             return true;
++         }
++         return true;
++ };
++ 
+  // the following methods are based on ffmpeg's get_buffer and release_buffer
+  // with the originial copyright notice
+***************
+*** 159,163 ****
+   *
+  */
+! int cPicBufferManager::GetFormatBPP(PixelFormat fmt) {
+          int pixel_size=1;
+          switch(fmt){
+--- 191,195 ----
+   *
+  */
+! int GetFormatBPP(PixelFormat fmt) {
+          int pixel_size=1;
+          switch(fmt){
+***************
+*** 187,196 ****
+  bool cPicBufferManager::AllocPicBuffer(int buf_num,PixelFormat pix_fmt,
+                  int w, int h)  {
+!         PICDEB(&quot;AllocPicBuffer buf_num %d pix_fmt %d (%d,%d)\n&quot;,
+!                         buf_num,pix_fmt,w,h);
+!         sPicBuffer *buf=&amp;PicBuffer[buf_num];
+          int h_chroma_shift, v_chroma_shift;
+          int pixel_size=GetFormatBPP(pix_fmt);
+  
+          GetChromaSubSample(pix_fmt, h_chroma_shift, v_chroma_shift);
+  
+--- 219,249 ----
+  bool cPicBufferManager::AllocPicBuffer(int buf_num,PixelFormat pix_fmt,
+                  int w, int h)  {
+!         return AllocatePicBuffer(&amp;PicBuffer[buf_num],pix_fmt,w,h);
+! };
+! 
+! bool AllocatePicBuffer(sPicBuffer *buf,PixelFormat pix_fmt,
+!                 int w, int h)  {
+!         PICDEB(&quot;AllocatePicBuffer buf %p pix_fmt %d (%d,%d)\n&quot;,
+!                         buf,pix_fmt,w,h);
+          int h_chroma_shift, v_chroma_shift;
+          int pixel_size=GetFormatBPP(pix_fmt);
++         InitPicBuffer(buf);
++         buf-&gt;max_width=w;
++         buf-&gt;max_height=h;
++         buf-&gt;format=pix_fmt;
+  
++         if ( !isPlanar(pix_fmt) ) {
++                 buf-&gt;stride[0]=ALIGN(pixel_size*w,16);
++                 buf-&gt;pixel[0]=(uint8_t*)malloc((buf-&gt;stride[0]*h)+16);
++                 
++                 if (buf-&gt;pixel[0]==NULL) {
++                     printf(&quot;could not allocate memory for picture buffer!\n&quot;) ;
++                     exit(-1);
++                     return false;
++                 };
++                 return true;
++         };
++                 
++         // planar pixel formats
+          GetChromaSubSample(pix_fmt, h_chroma_shift, v_chroma_shift);
+  
+***************
+*** 214,220 ****
+  
+          }
+-         buf-&gt;max_width=w;
+-         buf-&gt;max_height=h;
+-         buf-&gt;format=pix_fmt;
+          PICDEB(&quot;end AllocPicBuffer buf %p buf-&gt;pixel[0] %p\n&quot;,
+                          buf,buf-&gt;pixel[0]);
+--- 267,270 ----
+***************
+*** 281,284 ****
+--- 331,340 ----
+                      pic,pic-&gt;pixel[0]);
+  
++     if (!pic) {
++             fprintf(stderr,&quot;ReleaseBuffer called PicBuffer==NULL!\n&quot;);
++             return;
++     };
++             
++             
+      int buf_num=0;
+      PicBufMutex.Lock();
+***************
+*** 287,291 ****
+  
+      if (buf_num&gt;=LAST_PICBUF)  {
+!             fprintf(stderr,&quot;ReleaseBuffer din't find corresponding PicBuffer!\n&quot;);
+              exit(-1);
+      };
+--- 343,347 ----
+  
+      if (buf_num&gt;=LAST_PICBUF)  {
+!             fprintf(stderr,&quot;ReleaseBuffer didn't find corresponding PicBuffer!\n&quot;);
+              exit(-1);
+      };
+***************
+*** 302,309 ****
+  /*------------------------------------------------------------------------*/
+  static void CopyPicBuf_YUV420P_YUY2(sPicBuffer *dst, sPicBuffer *src,
+-                 int width, int height,
+                  int cutTop, int cutBottom,
+                  int cutLeft, int cutRight) {
+!         PICDEB(&quot;CopyPicBuf_YUV420P_YUY2 width %d height %d\n&quot;,width,height);
+  
+          dst-&gt;interlaced_frame=src-&gt;interlaced_frame;
+--- 358,365 ----
+  /*------------------------------------------------------------------------*/
+  static void CopyPicBuf_YUV420P_YUY2(sPicBuffer *dst, sPicBuffer *src,
+                  int cutTop, int cutBottom,
+                  int cutLeft, int cutRight) {
+!         PICDEB(&quot;CopyPicBuf_YUV420P_YUY2 width %d height %d\n&quot;,
+!                         dst-&gt;width,dst-&gt;height);
+  
+          dst-&gt;interlaced_frame=src-&gt;interlaced_frame;
+***************
+*** 328,333 ****
+          int chromStride=src-&gt;stride[1];
+  
+!         height -= 2 * (cutTop + cutBottom);
+!         width  -= 2 * (cutLeft + cutRight);
+  
+          if (src-&gt;interlaced_frame) {
+--- 384,389 ----
+          int chromStride=src-&gt;stride[1];
+  
+!         int height = dst-&gt;height - 2 * (cutTop + cutBottom);
+!         int width  = dst-&gt;width - 2 * (cutLeft + cutRight);
+  
+          if (src-&gt;interlaced_frame) {
+***************
+*** 373,382 ****
+  /*------------------------------------------------------------------------*/
+  static void CopyPicBuf_YUV420P(sPicBuffer *dst, sPicBuffer *src,
+-                 int width, int height,
+                  int cutTop, int cutBottom,
+                  int cutLeft, int cutRight) {
+  
+!         int copy_width = width - 2 * (cutLeft + cutRight);
+!         int copy_height = height - 2 *  (cutBottom + cutTop) ;
+  
+          uint8_t *dst_ptr=dst-&gt;pixel[0]+
+--- 429,437 ----
+  /*------------------------------------------------------------------------*/
+  static void CopyPicBuf_YUV420P(sPicBuffer *dst, sPicBuffer *src,
+                  int cutTop, int cutBottom,
+                  int cutLeft, int cutRight) {
+  
+!         int copy_width = dst-&gt;width - 2 * (cutLeft + cutRight);
+!         int copy_height = dst-&gt;height - 2 *  (cutBottom + cutTop) ;
+  
+          uint8_t *dst_ptr=dst-&gt;pixel[0]+
+***************
+*** 396,403 ****
+          src_ptr=src-&gt;pixel[1]+(cutTop+src-&gt;edge_height/2)*src-&gt;stride[1]+
+                  cutLeft+src-&gt;edge_width/2;
+!         copy_width=width / 2 - (cutLeft + cutRight);
+!         copy_height = height /2 - (cutBottom+cutTop);
+          for (int i = copy_height; i--; ) {
+!                 fast_memcpy (dst_ptr,src_ptr,copy_width);
+                  dst_ptr+=dst-&gt;stride[1];
+                  src_ptr+=src-&gt;stride[1];
+--- 451,458 ----
+          src_ptr=src-&gt;pixel[1]+(cutTop+src-&gt;edge_height/2)*src-&gt;stride[1]+
+                  cutLeft+src-&gt;edge_width/2;
+!         copy_width=dst-&gt;width / 2 - (cutLeft + cutRight);
+!         copy_height = dst-&gt;height /2 - (cutBottom+cutTop);
+          for (int i = copy_height; i--; ) {
+!                 fast_memcpy(dst_ptr,src_ptr,copy_width);
+                  dst_ptr+=dst-&gt;stride[1];
+                  src_ptr+=src-&gt;stride[1];
+***************
+*** 409,413 ****
+                  cutLeft+src-&gt;edge_width/2;
+          for (int i = copy_height; i--; ) {
+!                 fast_memcpy (dst_ptr,src_ptr,copy_width);
+                  dst_ptr+=dst-&gt;stride[2];
+                  src_ptr+=src-&gt;stride[2];
+--- 464,468 ----
+                  cutLeft+src-&gt;edge_width/2;
+          for (int i = copy_height; i--; ) {
+!                 fast_memcpy(dst_ptr,src_ptr,copy_width);
+                  dst_ptr+=dst-&gt;stride[2];
+                  src_ptr+=src-&gt;stride[2];
+***************
+*** 419,424 ****
+                  int cutTop, int cutBottom,
+                  int cutLeft, int cutRight) {
+-         int width=0;
+-         int height=0;
+          dst-&gt;edge_width=0;
+          dst-&gt;edge_height=0;
+--- 474,477 ----
+***************
+*** 426,432 ****
+          if ( src-&gt;width+src-&gt;edge_width &lt;= dst-&gt;max_width) {
+                  dst-&gt;edge_width = src-&gt;edge_width;
+!                 width = dst-&gt;width = src-&gt;width;
+          } else {
+!                 width = dst-&gt;width = dst-&gt;max_width;
+                  dst-&gt;edge_width = 0;
+          };
+--- 479,485 ----
+          if ( src-&gt;width+src-&gt;edge_width &lt;= dst-&gt;max_width) {
+                  dst-&gt;edge_width = src-&gt;edge_width;
+!                 dst-&gt;width = src-&gt;width;
+          } else {
+!                 dst-&gt;width = dst-&gt;max_width;
+                  dst-&gt;edge_width = 0;
+          };
+***************
+*** 434,453 ****
+          if ( src-&gt;height+src-&gt;edge_height &lt;= dst-&gt;max_height) {
+                  dst-&gt;edge_height = src-&gt;edge_height;
+!                 dst-&gt;height = height = src-&gt;height;
+          } else {
+!                 height = dst-&gt;height = dst-&gt;max_height;
+                  dst-&gt;edge_height=0;
+          };
+  
+          if ( dst-&gt;format == PIX_FMT_YUV420P )
+!                 CopyPicBuf_YUV420P(dst,src,width,height,
+                                  cutTop,cutBottom,
+                                  cutLeft,cutRight);
+          else if ( dst-&gt;format == PIX_FMT_YUV422 )
+!                 CopyPicBuf_YUV420P_YUY2(dst,src,width,height,
+                                  cutTop,cutBottom,
+                                  cutLeft,cutRight);
+          else fprintf(stderr,&quot;Unsupported format in CopyPicBuf!\n&quot;);
+  }
+  
+  /*------------------------------------------------------------------------*/
+--- 487,881 ----
+          if ( src-&gt;height+src-&gt;edge_height &lt;= dst-&gt;max_height) {
+                  dst-&gt;edge_height = src-&gt;edge_height;
+!                 dst-&gt;height = src-&gt;height;
+          } else {
+!                 dst-&gt;height = dst-&gt;max_height;
+                  dst-&gt;edge_height=0;
+          };
+  
+          if ( dst-&gt;format == PIX_FMT_YUV420P )
+!                 CopyPicBuf_YUV420P(dst,src,
+                                  cutTop,cutBottom,
+                                  cutLeft,cutRight);
+          else if ( dst-&gt;format == PIX_FMT_YUV422 )
+!                 CopyPicBuf_YUV420P_YUY2(dst,src,
+                                  cutTop,cutBottom,
+                                  cutLeft,cutRight);
+          else fprintf(stderr,&quot;Unsupported format in CopyPicBuf!\n&quot;);
+  }
++ 
++ /*------------------------------------------------------------------------*/
++ static void ScaleLine(uint8_t *dst, int dst_length, uint8_t *src, int src_length)
++ {
++         int pos=0;
++         int src_pixel=0;
++         int dst_pixel=0;
++         int pixel_width=(src_length&lt;&lt;8)/dst_length;
++ #ifdef USE_MMX
++         // write four pixels at once
++         dst_length/=4;
++         uint32_t *tmp_dst=(uint32_t *)dst;
++         while ( dst_pixel &lt; dst_length ) {
++                 register int tmp;
++                 tmp=src[src_pixel];
++                 pos+=pixel_width;
++                 src_pixel=pos&gt;&gt;8;
++ 
++                 tmp|=((int)src[src_pixel])&lt;&lt;8;
++                 pos+=pixel_width;
++                 src_pixel=pos&gt;&gt;8;
++ 
++                 tmp|=((int)src[src_pixel])&lt;&lt;16;
++                 pos+=pixel_width;
++                 src_pixel=pos&gt;&gt;8;
++ 
++                 tmp|=((int)src[src_pixel])&lt;&lt;24;
++                 pos+=pixel_width;
++                 src_pixel=pos&gt;&gt;8;   
++                 
++                 tmp_dst[dst_pixel]=tmp;
++                 dst_pixel++;
++         };
++ #else
++         while ( dst_pixel &lt; dst_length ) {
++                 dst[dst_pixel]=src[src_pixel];
++                 pos+=pixel_width;
++                 dst_pixel++;
++                 src_pixel=pos&gt;&gt;8;
++         };
++ #endif
++ };
++                       
++ void CopyScalePicBuf(sPicBuffer *dst, sPicBuffer *src,
++                 int sxoff, int syoff, int src_width, int src_height,
++                 int dxoff, int dyoff, int dst_width, int dst_height,
++                 int cutTop, int cutBottom,
++                 int cutLeft, int cutRight) {
++         PICDEB(&quot;CopyScalePicBuf_YUV420P width %d height %d\n&quot;,
++                         dst-&gt;max_width,dst-&gt;max_height);
++ 
++         if (src_width+sxoff &gt; src-&gt;max_width)
++                 src_width=src-&gt;max_width-sxoff;
++         if (src_height+syoff &gt; src-&gt;max_height)
++                 src_width=src-&gt;max_width-syoff;
++  
++         if (dst_width+dxoff &gt; dst-&gt;max_width)
++                 dst_width=dst-&gt;max_width-dxoff;
++         if (dst_height+dyoff &gt; dst-&gt;max_height)
++                 dst_width=dst-&gt;max_width-dyoff;
++         
++         dst-&gt;width = dst_width;// - 2 * (cutLeft + cutRight);
++         dst-&gt;height = dst_height;// - 2 *  (cutBottom + cutTop) ;
++ /*
++         int src_width = src-&gt;width - 2 * (cutLeft + cutRight);
++         int src_height = src-&gt;height - 2 *  (cutBottom + cutTop) ;
++ */
++         uint8_t *start_src_ptr0=src-&gt;pixel[0]
++                 +(2*cutTop+src-&gt;edge_height+syoff)*src-&gt;stride[0]
++                 +2*cutLeft+syoff+src-&gt;edge_width;
++         uint8_t *start_src_ptr1=src-&gt;pixel[1]
++                 +(cutTop+src-&gt;edge_height/2+syoff/2)*src-&gt;stride[1]
++                 +cutLeft+sxoff/2+src-&gt;edge_width/2;
++         uint8_t *start_src_ptr2=src-&gt;pixel[2]
++                 +(cutTop+src-&gt;edge_height/2+syoff/2)*src-&gt;stride[2]
++                 +cutLeft+sxoff/2+src-&gt;edge_width/2;
++         uint8_t *src_ptr;
++ 
++         uint8_t *dst_ptr0,*dst_ptr1,*dst_ptr2;
++         int dst_stride0=dst-&gt;stride[0];
++         bool do_convert=false;
++         uint8_t *convert_buf=NULL;
++         uint8_t *convert_dst=NULL;
++         int convert_dst_stride=0;
++         void (*yuv_to_rgb)(uint8_t *dst, int dst_stride,
++                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
++                  int pixel)=NULL;
++ 
++ 
++         if ( dst-&gt;format == PIX_FMT_YUV420P ) {
++                 dst_ptr0=dst-&gt;pixel[0]
++                         +(dst-&gt;edge_height+dyoff)*dst-&gt;stride[0]
++                         +dst-&gt;edge_width+dxoff;
++                 dst_ptr1=dst-&gt;pixel[1]
++                         +(dst-&gt;edge_height+dyoff)/2*dst-&gt;stride[1]
++                         +(dst-&gt;edge_width+dxoff)/2;
++                 dst_ptr2=dst-&gt;pixel[2]
++                         +(dst-&gt;edge_height+dyoff)/2*dst-&gt;stride[2]
++                         +(dst-&gt;edge_width+dxoff)/2;
++         } else {
++                 // we have to do format conversions
++                 do_convert=true;
++                 dst_stride0 = 4*(dst_width+15 &amp; ~15);
++                 convert_buf=(uint8_t*)malloc(4*dst_stride0);
++                 dst_ptr0=convert_buf;
++                 dst_ptr1=convert_buf+2*dst_stride0;
++                 dst_ptr2=dst_ptr1+dst_stride0;
++ 
++                 convert_dst=dst-&gt;pixel[0]
++                         +dyoff*dst-&gt;stride[0]
++                         +dxoff*GetFormatBPP(dst-&gt;format);
++                 convert_dst_stride=dst-&gt;stride[0];
++                 switch (dst-&gt;format) {
++                         case PIX_FMT_RGB32:
++                                 yuv_to_rgb=yuv420_to_rgb32;
++                                 break;
++                         case PIX_FMT_BGR24:
++                                 yuv_to_rgb=yuv420_to_bgr24;
++                                 break;
++                         case PIX_FMT_RGB24:
++                                 yuv_to_rgb=yuv420_to_rgb24;
++                                 break;
++                         case PIX_FMT_RGB555:
++                         case PIX_FMT_RGB565:
++                                 yuv_to_rgb=yuv420_to_rgb16;
++                                 break;
++                         default:
++                                 fprintf(stderr,&quot;unsupported format in CopyScalePicBuffer! \n&quot;);
++                                 exit(-1);
++                 };
++         };
++         
++         int last_srcline=-1;
++         int last_uvsrcline=-1;
++         int srcline=0;
++         int pos=0;
++         int pixel_height=(src_height&lt;&lt;8)/dst_height;
++         src_height=((pixel_height*dst_height)&gt;&gt;8) &amp; ~2;
++         while ( srcline &lt; src_height ) {  
++                 // first luma line
++                 if (last_srcline==srcline &amp;&amp; !do_convert) { 
++                         memcpy(dst_ptr0,dst_ptr0-dst-&gt;stride[0],dst_width);
++                 } else {
++                         src_ptr=start_src_ptr0+srcline*src-&gt;stride[0];
++                         ScaleLine(dst_ptr0,dst_width,src_ptr,src_width);
++                 };
++ 
++                 // chroma lines 
++                 if (last_uvsrcline==srcline/2) { 
++                         if (!do_convert) {
++                                 memcpy(dst_ptr1,dst_ptr1-dst-&gt;stride[1],dst_width/2);
++                                 memcpy(dst_ptr2,dst_ptr2-dst-&gt;stride[2],dst_width/2);
++                         };
++                 } else {
++                         src_ptr=start_src_ptr1+srcline/2*src-&gt;stride[1];
++                         ScaleLine(dst_ptr1,dst_width/2,src_ptr,src_width/2);
++                         src_ptr=start_src_ptr2+srcline/2*src-&gt;stride[2];
++                         ScaleLine(dst_ptr2,dst_width/2,src_ptr,src_width/2);
++                 };
++                 last_uvsrcline=srcline/2;
++ 
++                 last_srcline=srcline;
++                 pos+=pixel_height;
++                 srcline=pos&gt;&gt;8;
++                 
++                 // second luma line
++                 if (last_srcline==srcline &amp;&amp; !do_convert) 
++                         memcpy(dst_ptr0,dst_ptr0-dst-&gt;stride[0],dst_width);
++                 else {
++                         src_ptr=start_src_ptr0+srcline*src-&gt;stride[0];
++                         ScaleLine(dst_ptr0+dst_stride0,dst_width,src_ptr,src_width);
++                 };
++                 
++                 last_srcline=srcline;
++                 pos+=pixel_height;
++                 srcline=pos&gt;&gt;8;
++               
++                 if (do_convert) {
++                         // convert yuv to destination format
++                         (*yuv_to_rgb)(convert_dst,convert_dst_stride,
++                         //yuv420_to_rgb24(convert_dst,convert_dst_stride,
++                                         dst_ptr0,dst_ptr0+dst_stride0,
++                                         dst_ptr1,dst_ptr2,dst_width);
++                         convert_dst+=2*convert_dst_stride;
++                 } else {
++                         dst_ptr0+=2*dst-&gt;stride[0];
++                         dst_ptr1+=dst-&gt;stride[1];
++                         dst_ptr2+=dst-&gt;stride[2];
++                 }
++         };
++ 
++         free(convert_buf);
++ };
++ 
++ void CopyScalePicBufAlphaBlend(sPicBuffer *dst, sPicBuffer *src,
++                 int sxoff, int syoff, int src_width, int src_height,
++                 int dxoff, int dyoff, int dst_width, int dst_height,
++                 uint8_t *OsdPy,uint8_t *OsdPu, uint8_t *OsdPv,
++                 uint8_t *OsdPAlphaY, uint8_t *OsdPAlphaUV,int osd_stride,
++                 int cutTop, int cutBottom,
++                 int cutLeft, int cutRight) {
++         PICDEB(&quot;CopyScalePicBufAlphaBlend width %d height %d\n&quot;,
++                         dst-&gt;max_width,dst-&gt;max_height);
++ 
++         if (src_width+sxoff &gt; src-&gt;max_width)
++                 src_width=src-&gt;max_width-sxoff;
++         if (src_height+syoff &gt; src-&gt;max_height)
++                 src_width=src-&gt;max_width-syoff;
++  
++         if (dst_width+dxoff &gt; dst-&gt;max_width)
++                 dst_width=dst-&gt;max_width-dxoff;
++         if (dst_height+dyoff &gt; dst-&gt;max_height)
++                 dst_width=dst-&gt;max_width-dyoff;
++         
++         dst-&gt;width = dst_width;// - 2 * (cutLeft + cutRight);
++         dst-&gt;height = dst_height;// - 2 *  (cutBottom + cutTop) ;
++ /*
++         int src_width = src-&gt;width - 2 * (cutLeft + cutRight);
++         int src_height = src-&gt;height - 2 *  (cutBottom + cutTop) ;
++ */
++         uint8_t *start_src_ptr0=src-&gt;pixel[0]
++                 +(2*cutTop+src-&gt;edge_height+syoff)*src-&gt;stride[0]
++                 +2*cutLeft+syoff+src-&gt;edge_width;
++         uint8_t *start_src_ptr1=src-&gt;pixel[1]
++                 +(cutTop+src-&gt;edge_height/2+syoff/2)*src-&gt;stride[1]
++                 +cutLeft+sxoff/2+src-&gt;edge_width/2;
++         uint8_t *start_src_ptr2=src-&gt;pixel[2]
++                 +(cutTop+src-&gt;edge_height/2+syoff/2)*src-&gt;stride[2]
++                 +cutLeft+sxoff/2+src-&gt;edge_width/2;
++         uint8_t *src_ptr=0;
++ 
++         uint8_t *dst_ptr0,*dst_ptr1,*dst_ptr2;
++         int dst_stride0=dst-&gt;stride[0];
++         bool do_convert=false;
++         uint8_t *convert_buf=NULL;
++         uint8_t *convert_dst=NULL;
++         int convert_dst_stride=0;
++         void (*yuv_to_rgb)(uint8_t *dst, int dst_stride,
++                  uint8_t *py1, uint8_t *py2, uint8_t *pu, uint8_t *pv, 
++                  int pixel)=NULL;
++ 
++         int src_stride0=src-&gt;stride[0];
++         uint8_t *blend_buf=(uint8_t*) malloc(4*src_stride0);
++         uint8_t *tmp_y=blend_buf;
++         uint8_t *tmp_u=tmp_y+2*src_stride0;
++         uint8_t *tmp_v=tmp_u+src_stride0;
++ 
++         uint8_t *osd_py=OsdPy+(2*cutTop+syoff)*osd_stride+2*cutLeft+sxoff;
++         uint8_t *osd_pv=OsdPv+(cutTop+syoff/2)*osd_stride/2+cutLeft+sxoff/2;
++         uint8_t *osd_pu=OsdPu+(cutTop+syoff/2)*osd_stride/2+cutLeft+sxoff/2;
++         uint8_t *alpha_py=OsdPAlphaY+(2*cutTop+syoff)*osd_stride+2*cutLeft+sxoff;
++         uint8_t *alpha_puv=OsdPAlphaUV+(cutTop+syoff/2)*osd_stride/2+cutLeft+sxoff/2;
++         
++         if ( dst-&gt;format == PIX_FMT_YUV420P ) {
++                 dst_ptr0=dst-&gt;pixel[0]
++                         +(dst-&gt;edge_height+dyoff)*dst-&gt;stride[0]
++                         +dst-&gt;edge_width+dxoff;
++                 dst_ptr1=dst-&gt;pixel[1]
++                         +(dst-&gt;edge_height+dyoff)/2*dst-&gt;stride[1]
++                         +(dst-&gt;edge_width+dxoff)/2;
++                 dst_ptr2=dst-&gt;pixel[2]
++                         +(dst-&gt;edge_height+dyoff)/2*dst-&gt;stride[2]
++                         +(dst-&gt;edge_width+dxoff)/2;
++         } else {
++                 // we have to do format conversions
++                 do_convert=true;
++                 dst_stride0 = 4*(dst_width+15 &amp; ~15);
++                 convert_buf=(uint8_t*)malloc(4*dst_stride0);
++                 dst_ptr0=convert_buf;
++                 dst_ptr1=convert_buf+2*dst_stride0;
++                 dst_ptr2=dst_ptr1+dst_stride0;
++ 
++                 convert_dst=dst-&gt;pixel[0]
++                         +dyoff*dst-&gt;stride[0]
++                         +dxoff*GetFormatBPP(dst-&gt;format);
++                 convert_dst_stride=dst-&gt;stride[0];
++ 
++                 switch (dst-&gt;format) {
++                         case PIX_FMT_RGB32:
++                                 yuv_to_rgb=yuv420_to_rgb32;
++                                 break;
++                         case PIX_FMT_RGB24:
++                                 yuv_to_rgb=yuv420_to_rgb24;
++                                 break;
++                         case PIX_FMT_BGR24:
++                                 yuv_to_rgb=yuv420_to_bgr24;
++                                 break;
++                         case PIX_FMT_RGB555:
++                         case PIX_FMT_RGB565:
++                                 yuv_to_rgb=yuv420_to_rgb16;
++                                 break;
++                         default:
++                                 fprintf(stderr,&quot;unsupported format in CopyScalePicBuffer! \n&quot;);
++                                 exit(-1);
++                 };
++         };
++         
++         int last_srcline=-1;
++         int last_uvsrcline=-1;
++         int srcline=0;
++         int pos=0;
++         int pixel_height=(src_height&lt;&lt;8)/dst_height;
++         src_height=((pixel_height*dst_height)&gt;&gt;8) &amp; ~2;
++         while ( srcline &lt; src_height ) {  
++                 // first luma line
++                 if (last_srcline==srcline) {
++                         memcpy(dst_ptr0,dst_ptr0+dst_stride0,dst_width);
++                 } else { 
++                         src_ptr=start_src_ptr0+srcline*src-&gt;stride[0];
++                         int offset=srcline*osd_stride;
++                         AlphaBlend(tmp_y,
++                                         osd_py+offset,
++                                         src_ptr,
++                                         alpha_py+offset,src_width);
++                         ScaleLine(dst_ptr0,dst_width,tmp_y,src_width);
++                 };
++ 
++                 // chroma lines 
++                 if (last_uvsrcline!=srcline/2) { 
++                         src_ptr=start_src_ptr1+srcline/2*src-&gt;stride[1];
++                         int offset=srcline/2*osd_stride/2;
++                         AlphaBlend(tmp_u,
++                                         osd_pu+offset,
++                                         src_ptr,
++                                         alpha_puv+offset,src_width);
++                         
++                         src_ptr=start_src_ptr2+srcline/2*src-&gt;stride[2];
++                         AlphaBlend(tmp_v,
++                                         osd_pv+offset,
++                                         src_ptr,
++                                         alpha_puv+offset,src_width);
++                         
++                         ScaleLine(dst_ptr1,dst_width/2,tmp_u,src_width/2);
++                         ScaleLine(dst_ptr2,dst_width/2,tmp_v,src_width/2);
++                 };
++                 last_uvsrcline=srcline/2;
++ 
++                 last_srcline=srcline;
++                 pos+=pixel_height;
++                 srcline=pos&gt;&gt;8;
++                 
++                 // second luma line
++                 if (last_srcline==srcline) {
++                         memcpy(dst_ptr0+dst_stride0,dst_ptr0,dst_width);
++                 } else { 
++                         src_ptr=start_src_ptr0+srcline*src-&gt;stride[0];
++                         int offset=srcline*osd_stride;
++                         AlphaBlend(tmp_y+src_stride0,
++                                         osd_py+offset,
++                                         src_ptr,
++                                         alpha_py+offset,src_width);
++                         ScaleLine(dst_ptr0+dst_stride0,dst_width,
++                                         tmp_y+src_stride0,src_width);
++                  };
++                 
++                 last_srcline=srcline;
++                 pos+=pixel_height;
++                 srcline=pos&gt;&gt;8;
++               
++                 if (do_convert) {
++                         // convert yuv to destination format
++                         (*yuv_to_rgb)(convert_dst,convert_dst_stride,
++                                         dst_ptr0,dst_ptr0+dst_stride0,
++                                         dst_ptr1,dst_ptr2,dst_width);
++                         convert_dst+=2*convert_dst_stride;
++                 } else {
++                         dst_ptr0+=2*dst-&gt;stride[0];
++                         dst_ptr1+=dst-&gt;stride[1];
++                         dst_ptr2+=dst-&gt;stride[2];
++                 }
++         };
++ 
++         free(blend_buf);
++         free(convert_buf);
++ };
+  
+  /*------------------------------------------------------------------------*/
+
+Index: PicBuffer.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/PicBuffer.h,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -C2 -d -r1.4 -r1.5
+*** PicBuffer.h	1 Oct 2006 12:08:05 -0000	1.4
+--- PicBuffer.h	7 Nov 2006 19:01:37 -0000	1.5
+***************
+*** 52,55 ****
+--- 52,61 ----
+  void ClearPicBuffer(sPicBuffer *Pic);
+  void CopyPicBufferContext(sPicBuffer *dest,sPicBuffer *orig);
++ bool AllocatePicBuffer(sPicBuffer *buf,PixelFormat pix_fmt,int w, int h);
++ void DeallocatePicBuffer(sPicBuffer *buf);
++ int GetFormatBPP(PixelFormat fmt);
++ void GetChromaSubSample(PixelFormat pix_fmt,
++                 int &amp;hChromaShift,
++                 int &amp;vChromaShift);
+  
+  class cPicBufferManager {
+***************
+*** 83,90 ****
+          // don't need it anymore
+          
+-         int GetFormatBPP(PixelFormat fmt);
+-         void GetChromaSubSample(PixelFormat pix_fmt,
+-                 int &amp;hChromaShift,
+-                 int &amp;vChromaShift);
+  
+          virtual bool AllocPicBuffer(int buf_num,PixelFormat pix_fmt,
+--- 89,92 ----
+***************
+*** 98,102 ****
+--- 100,121 ----
+  };
+  
++ // copy the contents of a picture buffer into the other
+  void CopyPicBuf(sPicBuffer *dest, sPicBuffer *src,
++                 int cutTop, int cutBottom, int cutLeft, int cutRight);
++ 
++ // Copy the contents of a picture buffer into the other.
++ // If the dimension of the destination buffer don't match the
++ // dimensions of the source, the image is scaled using a low quality
++ // next neighbour algorithm
++ void CopyScalePicBuf(sPicBuffer *dest, sPicBuffer *src,
++                 int sxoff, int syoff, int swidth, int sheight,
++                 int dxoff, int dyoff, int dwidth, int dheight,
++                 int cutTop, int cutBottom, int cutLeft, int cutRight);
++ 
++ void CopyScalePicBufAlphaBlend(sPicBuffer *dest, sPicBuffer *src,
++                 int sxoff, int syoff, int swidth, int sheight,
++                 int dxoff, int dyoff, int dwidth, int dheight,
++                 uint8_t *OsdPy,uint8_t *OsdPu, uint8_t *OsdPv,
++                 uint8_t *OsdPAlphaY, uint8_t *OsdPAlphaUV,int OsdStride,
+                  int cutTop, int cutBottom, int cutLeft, int cutRight);
+  
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.69
+retrieving revision 1.70
+diff -C2 -d -r1.69 -r1.70
+*** mpeg2decoder.c	3 Oct 2006 19:50:43 -0000	1.69
+--- mpeg2decoder.c	7 Nov 2006 19:01:37 -0000	1.70
+***************
+*** 540,544 ****
+  
+    int h_chroma_shift, v_chroma_shift;
+!   VideoOutPtr-&gt;GetChromaSubSample(c-&gt;pix_fmt, h_chroma_shift, v_chroma_shift);
+  
+    for(int i=0; i&lt;4; i++){
+--- 540,544 ----
+  
+    int h_chroma_shift, v_chroma_shift;
+!   GetChromaSubSample(c-&gt;pix_fmt, h_chroma_shift, v_chroma_shift);
+  
+    for(int i=0; i&lt;4; i++){
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000461.html">[Softdevice-cvs] softdevice audio-alsa.c, 1.3, 1.4 CHANGELOG, 1.255,	1.256
+</A></li>
+	<LI>Next message: <A HREF="000463.html">[Softdevice-cvs] softdevice video.h, 1.44, 1.45 CHANGELOG, 1.257,	1.258
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#462">[ date ]</a>
+              <a href="thread.html#462">[ thread ]</a>
+              <a href="subject.html#462">[ subject ]</a>
+              <a href="author.html#462">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

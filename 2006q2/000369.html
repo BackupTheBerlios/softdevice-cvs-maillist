@@ -1,0 +1,202 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.189,1.190 configure,1.14,1.15
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.189%2C1.190%20configure%2C1.14%2C1.15&In-Reply-To=%3C200605271255.k4RCt4T08829%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000368.html">
+   <LINK REL="Next"  HREF="000371.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.189,1.190 configure,1.14,1.15</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.189%2C1.190%20configure%2C1.14%2C1.15&In-Reply-To=%3C200605271255.k4RCt4T08829%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.189,1.190 configure,1.14,1.15">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat May 27 14:55:04 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000368.html">[Softdevice-cvs] softdevice CHANGELOG,1.188,1.189 configure,1.13,1.14
+</A></li>
+        <LI>Next message: <A HREF="000371.html">[Softdevice-cvs] softdevice VideoFilter.c,NONE,1.1 VideoFilter.h,NONE,1.1 PicBuffer.c,NONE,1.1 PicBuffer.h,NONE,1.1 video.c,1.57,1.58 video.h,1.39,1.40 ShmClient.c,1.13,1.14 mpeg2decoder.c,1.63,1.64 mpeg2decoder.h,1.36,1.37 video-dfb.c,1.61,1.62 video-dfb.h,1.20,1.21 video-dummy.c,1.2,1.3 video-dummy.h,1.2,1.3 video-fb.c,1.14,1.15 video-fb.h,1.7,1.8 video-shm.c,1.7,1.8 video-shm.h,1.4,1.5 video-vidix.c,1.18,1.19 video-vidix.h,1.9,1.10 video-xv.c,1.54,1.55 video-xv.h,1.20,1.21
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#369">[ date ]</a>
+              <a href="thread.html#369">[ thread ]</a>
+              <a href="subject.html#369">[ subject ]</a>
+              <a href="author.html#369">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv16503
+
+Modified Files:
+	CHANGELOG configure 
+Log Message:
+- add tests for older ffmpeg versions to configure
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.189
+retrieving revision 1.190
+diff -C2 -d -r1.189 -r1.190
+*** CHANGELOG	27 May 2006 11:17:48 -0000	1.189
+--- CHANGELOG	27 May 2006 13:00:07 -0000	1.190
+***************
+*** 1,4 ****
+--- 1,5 ----
+  Changelog
+  2006-05-27:
++    - add tests for older ffmpeg versions to configure
+     - add &quot;--disable-mmx&quot; and &quot;--disable-mmx2&quot; to configure
+     - fix possible segfaults in SoftOsd when using a zoom faktor
+
+Index: configure
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/configure,v
+retrieving revision 1.14
+retrieving revision 1.15
+diff -C2 -d -r1.14 -r1.15
+*** configure	27 May 2006 11:17:48 -0000	1.14
+--- configure	27 May 2006 13:00:07 -0000	1.15
+***************
+*** 30,33 ****
+--- 30,34 ----
+  vidix=&quot;yes&quot;
+  vidix_path=&quot;/usr/local&quot;
++ ffmpeg_path=&quot;/usr/local/include/ffmpeg&quot;
+  with_fb=&quot;yes&quot;
+  fb_dev_name=&quot;/dev/fb0&quot;
+***************
+*** 47,50 ****
+--- 48,52 ----
+    echo &quot;  --disable-mmx&quot;
+    echo &quot;  --disable-mmx2&quot;
++   echo &quot;  --with-ffmpeg-path YOUR_FFMPEG_PATH&quot;
+    echo &quot;  --with-vidix-path YOUR_VIDIX_PATH&quot;
+    echo &quot;  --help&quot;
+***************
+*** 62,65 ****
+--- 64,71 ----
+      --disable-mmx) shift; with_mmx=&quot;no&quot;;;
+      --disable-mmx2) shift; with_mmx2=&quot;no&quot;;;
++     --with-ffmpeg-path) shift;
++       ffmpeg_path=$1 ;
++       echo &quot;ffmpeg path set to: $ffmpeg_path&quot; ;
++       shift ;;
+      --with-vidix-path) shift;
+        vidix_path=$1 ;
+***************
+*** 74,77 ****
+--- 80,107 ----
+  # start ffmpeg test
+  #
++ test_ffmpeg() 
++ {
++   ffmpeg=&quot;yes&quot;;
++ cat &gt; ${TMPC} &lt;&lt; EOF
++ #include &lt;stdlib.h&gt;
++ #include &lt;avcodec.h&gt;
++ #include &lt;avformat.h&gt;
++ int main(void) {
++ /*  if ( avcodec_build() != LIBAVCODEC_BUILD ) {
++      fprintf(stderr,&quot;Fatal Error! Libavcodec library build(%d) doesn't match avcodec.h build(%d)!!!\n&quot;,avcodec_build(),LIBAVCODEC_BUILD);
++      fprintf(stderr,&quot;Check your ffmpeg installation / the pathes in the Makefile!!!\n&quot;);
++      exit(-1);
++   };
++ */
++   avcodec_init();
++   avcodec_register_all();
++ 
++  return 0;
++ }
++ EOF
++   $cc $CFLAGS $ffmpeg_cflags $ffmpeg_libs -o $TMPE $TMPC $ffmpeg_libs  &gt; /dev/null 2&gt;&amp;1 || ffmpeg=&quot;no&quot;
++ };
++ 
++ # try to use pkg-config
+  ffmpeg_l1=&quot;libavcodec libavformat&quot;
+  
+***************
+*** 79,89 ****
+  
+  ffmpeg_libs=`pkg-config --libs $ffmpeg_l1` || ffmpeg=&quot;no&quot;
+  
+  if test &quot;${ffmpeg}&quot; = &quot;no&quot; ; then
+!   echo &quot;A more recent (cvs) version of ffmpeg is required to run configure&quot;
+!   exit 8;
+  fi
+  
+- ffmpeg_cflags=`pkg-config --cflags $ffmpeg_l1`
+  
+  #########################################################
+--- 109,142 ----
+  
+  ffmpeg_libs=`pkg-config --libs $ffmpeg_l1` || ffmpeg=&quot;no&quot;
++ ffmpeg_cflags=`pkg-config --cflags $ffmpeg_l1`
++ 
++ # test if it works..
++ test_ffmpeg
+  
+  if test &quot;${ffmpeg}&quot; = &quot;no&quot; ; then
+!   #pkg-config failed, try the default/parameter path 
+!   ffmpeg=&quot;yes&quot;
+!   ffmpeg_libs=&quot;-L${ffmpeg_path}/ -L${ffmpeg_path}/libavcodec/ -L${ffmpeg_path}/libavformat/ -lavformat -lz -lavcodec &quot;
+!   ffmpeg_cflags=&quot;-I${ffmpeg_path}/ -I${ffmpeg_path}/libavcodec/ -I${ffmpeg_path}/libavformat/ &quot;
+! 
+!   test_ffmpeg
+! 
+!   if test &quot;${ffmpeg}&quot; = &quot;no&quot; ; then
+!     #maybe avutils is needed?
+!     echo &quot;checking for avutils...&quot;
+!     ffmpeg_libs=&quot;$ffmpeg_libs -L${ffmpeg_path}/libavutil/ -lavutil&quot;
+!     ffmpeg_cflags=&quot;$ffmpeg_cflags -I${ffmpeg_path}/libavutil/&quot;
+! 
+!     test_ffmpeg
+!   fi    
+! 
+!   if test &quot;${ffmpeg}&quot; = &quot;no&quot; ; then
+!     echo &quot;No usable ffmpeg library found in ${ffmpeg_path}.&quot;
+!     echo &quot;Specify the path to your ffmpeg installation using --with-ffmpeg-path&quot;
+!     echo &quot;or use a more recent (cvs) version of ffmpeg with pkg-config&quot;
+!     exit 8;
+!   fi
+  fi
+  
+  
+  #########################################################
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000368.html">[Softdevice-cvs] softdevice CHANGELOG,1.188,1.189 configure,1.13,1.14
+</A></li>
+	<LI>Next message: <A HREF="000371.html">[Softdevice-cvs] softdevice VideoFilter.c,NONE,1.1 VideoFilter.h,NONE,1.1 PicBuffer.c,NONE,1.1 PicBuffer.h,NONE,1.1 video.c,1.57,1.58 video.h,1.39,1.40 ShmClient.c,1.13,1.14 mpeg2decoder.c,1.63,1.64 mpeg2decoder.h,1.36,1.37 video-dfb.c,1.61,1.62 video-dfb.h,1.20,1.21 video-dummy.c,1.2,1.3 video-dummy.h,1.2,1.3 video-fb.c,1.14,1.15 video-fb.h,1.7,1.8 video-shm.c,1.7,1.8 video-shm.h,1.4,1.5 video-vidix.c,1.18,1.19 video-vidix.h,1.9,1.10 video-xv.c,1.54,1.55 video-xv.h,1.20,1.21
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#369">[ date ]</a>
+              <a href="thread.html#369">[ thread ]</a>
+              <a href="subject.html#369">[ subject ]</a>
+              <a href="author.html#369">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,119 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.228, 1.229 softdevice.c,	1.68, 1.69
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.228%2C%201.229%20softdevice.c%2C%0A%091.68%2C%201.69&In-Reply-To=%3C20060911213051.E4770797BA%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000419.html">
+   <LINK REL="Next"  HREF="000421.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.228, 1.229 softdevice.c,	1.68, 1.69</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.228%2C%201.229%20softdevice.c%2C%0A%091.68%2C%201.69&In-Reply-To=%3C20060911213051.E4770797BA%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.228, 1.229 softdevice.c,	1.68, 1.69">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon Sep 11 23:30:51 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000419.html">[Softdevice-cvs] softdevice CHANGELOG, 1.227, 1.228 SoftOsd.c, 1.16,	1.17
+</A></li>
+        <LI>Next message: <A HREF="000421.html">[Softdevice-cvs] softdevice softdevice.c, 1.69, 1.70 CHANGELOG,	1.229, 1.230
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#420">[ date ]</a>
+              <a href="thread.html#420">[ thread ]</a>
+              <a href="subject.html#420">[ subject ]</a>
+              <a href="author.html#420">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv18730
+
+Modified Files:
+	CHANGELOG softdevice.c 
+Log Message:
+catch unrecognized options for dfb-out (reported by Rolf Ahrenberg)
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.228
+retrieving revision 1.229
+diff -C2 -d -r1.228 -r1.229
+*** CHANGELOG	10 Sep 2006 20:33:29 -0000	1.228
+--- CHANGELOG	11 Sep 2006 21:30:25 -0000	1.229
+***************
+*** 1,8 ****
+  Changelog
+! 2006-09-10:
+!    - fix &quot;NVidia software alpha blending OSD&quot; issue, which turned out
+!      to be a compiler problem with g++-4.1.1. (Many thanks to Prakash 
+!      Punnoor, Matthias Schwarzott, Chris Elsworth and all the others
+!      who helped to fix this)
+  2006-09-09:
+     - video-xv.c: silence some warnings
+--- 1,10 ----
+  Changelog
+! 2006-09-11:
+!    - catch unrecognized options for dfb-out (reported by Rolf Ahrenberg)
+! 2006-09-10:
+!    - fix &quot;NVidia software alpha blending OSD&quot; issue, which turned out
+!      to be a compiler problem with g++-4.1.1. (Many thanks to Prakash
+!      Punnoor, Matthias Schwarzott, Chris Elsworth and all the others
+!      who helped to fix this)
+  2006-09-09:
+     - video-xv.c: silence some warnings
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.68
+retrieving revision 1.69
+diff -C2 -d -r1.68 -r1.69
+*** softdevice.c	8 Sep 2006 17:04:52 -0000	1.68
+--- softdevice.c	11 Sep 2006 21:30:25 -0000	1.69
+***************
+*** 856,859 ****
+--- 856,863 ----
+                vo_argv += 6;
+                fprintf(stderr,&quot;[softdevice] enabling triple buffering\n&quot;);
++             } else {
++               fprintf(stderr,&quot;[softdevice] ignoring unrecognized option \&quot;%s\&quot;!\n&quot;,argv[i]);
++               esyslog(&quot;[softdevice] ignoring unrecognized option \&quot;%s\&quot;\n&quot;,argv[i]);
++               break;
+              }
+            }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000419.html">[Softdevice-cvs] softdevice CHANGELOG, 1.227, 1.228 SoftOsd.c, 1.16,	1.17
+</A></li>
+	<LI>Next message: <A HREF="000421.html">[Softdevice-cvs] softdevice softdevice.c, 1.69, 1.70 CHANGELOG,	1.229, 1.230
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#420">[ date ]</a>
+              <a href="thread.html#420">[ thread ]</a>
+              <a href="subject.html#420">[ subject ]</a>
+              <a href="author.html#420">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

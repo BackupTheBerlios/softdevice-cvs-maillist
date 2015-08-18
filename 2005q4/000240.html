@@ -1,0 +1,174 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.125,1.126 setup-softdevice.c,1.33,1.34
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.125%2C1.126%20setup-softdevice.c%2C1.33%2C1.34&In-Reply-To=%3C200511042052.jA4KqrN21901%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000239.html">
+   <LINK REL="Next"  HREF="000241.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.125,1.126 setup-softdevice.c,1.33,1.34</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.125%2C1.126%20setup-softdevice.c%2C1.33%2C1.34&In-Reply-To=%3C200511042052.jA4KqrN21901%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.125,1.126 setup-softdevice.c,1.33,1.34">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Nov  4 21:52:53 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000239.html">[Softdevice-cvs] softdevice CHANGELOG,1.124,1.125 mpeg2decoder.c,1.57,1.58 setup-softdevice.c,1.32,1.33 setup-softdevice.h,1.21,1.22
+</A></li>
+        <LI>Next message: <A HREF="000241.html">[Softdevice-cvs] softdevice setup-softdevice.c,1.34,1.35
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#240">[ date ]</a>
+              <a href="thread.html#240">[ thread ]</a>
+              <a href="subject.html#240">[ subject ]</a>
+              <a href="author.html#240">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv19318
+
+Modified Files:
+	CHANGELOG setup-softdevice.c 
+Log Message:
+sync timer as default + no translation of empty lines
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.125
+retrieving revision 1.126
+diff -C2 -d -r1.125 -r1.126
+*** CHANGELOG	4 Nov 2005 19:08:16 -0000	1.125
+--- CHANGELOG	4 Nov 2005 20:52:50 -0000	1.126
+***************
+*** 3,6 ****
+--- 3,8 ----
+      - some more finish translations (by Rolf Ahrenberg)
+      - sync timer mode selectable via OSD
++     - removed translations of empty lines (by Rolf Ahrenberg)
++     - made sig timer the default one for new users
+  2005-11-02:
+      - restructured OSD setup
+
+Index: setup-softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.c,v
+retrieving revision 1.33
+retrieving revision 1.34
+diff -C2 -d -r1.33 -r1.34
+*** setup-softdevice.c	4 Nov 2005 19:08:16 -0000	1.33
+--- setup-softdevice.c	4 Nov 2005 20:52:50 -0000	1.34
+***************
+*** 129,133 ****
+    bufferMode    = 0;
+    mainMenu  = 1;
+!   syncTimerMode = 1;
+  
+    /* --------------------------------------------------------------------------
+--- 129,133 ----
+    bufferMode    = 0;
+    mainMenu  = 1;
+!   syncTimerMode = 2;
+  
+    /* --------------------------------------------------------------------------
+***************
+*** 432,436 ****
+    if (data-&gt;outputMethod != VOUT_FB)
+    {
+!     Add(new cOsdItem(tr(&quot; &quot;), osUnknown, false));
+  
+      Add(new cMenuEditIntItem(tr(&quot;Crop lines from top&quot;),
+--- 432,436 ----
+    if (data-&gt;outputMethod != VOUT_FB)
+    {
+!     Add(new cOsdItem(&quot; &quot;, osUnknown, false));
+  
+      Add(new cMenuEditIntItem(tr(&quot;Crop lines from top&quot;),
+***************
+*** 572,576 ****
+    Add(new cOsdItem(tr(&quot;Cropping&quot;)));
+    Add(new cOsdItem(tr(&quot;Post processing&quot;)));
+!   Add(new cOsdItem(tr(&quot; &quot;), osUnknown, false));
+  
+    if (data-&gt;outputMethod == VOUT_XV)
+--- 572,576 ----
+    Add(new cOsdItem(tr(&quot;Cropping&quot;)));
+    Add(new cOsdItem(tr(&quot;Post processing&quot;)));
+!   Add(new cOsdItem(&quot; &quot;, osUnknown, false));
+  
+    if (data-&gt;outputMethod == VOUT_XV)
+***************
+*** 597,601 ****
+                              osdModeNames));
+  
+!   Add(new cOsdItem(tr(&quot; &quot;), osUnknown, false));
+  
+    bufferModes[0] = tr(&quot;save&quot;);
+--- 597,601 ----
+                              osdModeNames));
+  
+!   Add(new cOsdItem(&quot; &quot;, osUnknown, false));
+  
+    bufferModes[0] = tr(&quot;save&quot;);
+***************
+*** 612,616 ****
+                              suspendVideo));
+  
+!   Add(new cOsdItem(tr(&quot; &quot;), osUnknown, false));
+  
+    Add(new cMenuEditIntItem(tr(&quot;A/V Delay&quot;),
+--- 612,616 ----
+                              suspendVideo));
+  
+!   Add(new cOsdItem(&quot; &quot;, osUnknown, false));
+  
+    Add(new cMenuEditIntItem(tr(&quot;A/V Delay&quot;),
+***************
+*** 628,632 ****
+                              syncTimerNames));
+  
+!   Add(new cOsdItem(tr(&quot; &quot;), osUnknown, false));
+  
+    if (data-&gt;outputMethod == VOUT_DFB || data-&gt;outputMethod == VOUT_VIDIX)
+--- 628,632 ----
+                              syncTimerNames));
+  
+!   Add(new cOsdItem(&quot; &quot;, osUnknown, false));
+  
+    if (data-&gt;outputMethod == VOUT_DFB || data-&gt;outputMethod == VOUT_VIDIX)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000239.html">[Softdevice-cvs] softdevice CHANGELOG,1.124,1.125 mpeg2decoder.c,1.57,1.58 setup-softdevice.c,1.32,1.33 setup-softdevice.h,1.21,1.22
+</A></li>
+	<LI>Next message: <A HREF="000241.html">[Softdevice-cvs] softdevice setup-softdevice.c,1.34,1.35
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#240">[ date ]</a>
+              <a href="thread.html#240">[ thread ]</a>
+              <a href="subject.html#240">[ subject ]</a>
+              <a href="author.html#240">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

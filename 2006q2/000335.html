@@ -1,0 +1,117 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice video.h,1.34,1.35
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video.h%2C1.34%2C1.35&In-Reply-To=%3C200604241922.k3OJMjt00924%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000334.html">
+   <LINK REL="Next"  HREF="000336.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice video.h,1.34,1.35</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video.h%2C1.34%2C1.35&In-Reply-To=%3C200604241922.k3OJMjt00924%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice video.h,1.34,1.35">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon Apr 24 21:22:45 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000334.html">[Softdevice-cvs] softdevice video-xv.c,1.52,1.53 video-dfb.c,1.55,1.56
+</A></li>
+        <LI>Next message: <A HREF="000336.html">[Softdevice-cvs] softdevice softdevice.c,1.57,1.58 video-fb.c,1.13,1.14 video-vidix.c,1.17,1.18
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#335">[ date ]</a>
+              <a href="thread.html#335">[ thread ]</a>
+              <a href="subject.html#335">[ subject ]</a>
+              <a href="author.html#335">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv3800
+
+Modified Files:
+	video.h 
+Log Message:
+Initialize(): set videoInitialized
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.34
+retrieving revision 1.35
+diff -C2 -d -r1.34 -r1.35
+*** video.h	23 Apr 2006 19:38:29 -0000	1.34
+--- video.h	24 Apr 2006 19:23:09 -0000	1.35
+***************
+*** 85,89 ****
+            cSoftRemote(const char *Name) : cRemote(Name) {};
+            virtual ~cSoftRemote() {};
+!           virtual bool PutKey(uint64 Code, bool Repeat = false, 
+                            bool Release = false)
+            { return Put(Code,Repeat,Release); };
+--- 85,89 ----
+            cSoftRemote(const char *Name) : cRemote(Name) {};
+            virtual ~cSoftRemote() {};
+!           virtual bool PutKey(uint64 Code, bool Repeat = false,
+                            bool Release = false)
+            { return Put(Code,Repeat,Release); };
+***************
+*** 152,156 ****
+      cVideoOut(cSetupStore *setupStore);
+      virtual ~cVideoOut();
+!      
+      virtual void ProcessEvents ()
+      {};
+--- 152,156 ----
+      cVideoOut(cSetupStore *setupStore);
+      virtual ~cVideoOut();
+! 
+      virtual void ProcessEvents ()
+      {};
+***************
+*** 169,173 ****
+      virtual void DrawStill_420pl (uint8_t *pY, uint8_t *pU, uint8_t *pV,
+                                    int w, int h, int yPitch, int uvPitch);
+!     virtual bool Initialize(void) {return 1;};
+      virtual bool Reconfigure (int format) {return 1;};
+  
+--- 169,173 ----
+      virtual void DrawStill_420pl (uint8_t *pY, uint8_t *pU, uint8_t *pV,
+                                    int w, int h, int yPitch, int uvPitch);
+!     virtual bool Initialize(void) {videoInitialized = true; return 1;};
+      virtual bool Reconfigure (int format) {return 1;};
+  
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000334.html">[Softdevice-cvs] softdevice video-xv.c,1.52,1.53 video-dfb.c,1.55,1.56
+</A></li>
+	<LI>Next message: <A HREF="000336.html">[Softdevice-cvs] softdevice softdevice.c,1.57,1.58 video-fb.c,1.13,1.14 video-vidix.c,1.17,1.18
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#335">[ date ]</a>
+              <a href="thread.html#335">[ thread ]</a>
+              <a href="subject.html#335">[ subject ]</a>
+              <a href="author.html#335">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

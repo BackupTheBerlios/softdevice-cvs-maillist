@@ -1,0 +1,699 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.86,1.87 mpeg2decoder.c,1.44,1.45 mpeg2decoder.h,1.27,1.28
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.86%2C1.87%20mpeg2decoder.c%2C1.44%2C1.45%20mpeg2decoder.h%2C1.27%2C1.28&In-Reply-To=%3C200507170910.j6H9AeI08639%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000158.html">
+   <LINK REL="Next"  HREF="000160.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.86,1.87 mpeg2decoder.c,1.44,1.45 mpeg2decoder.h,1.27,1.28</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.86%2C1.87%20mpeg2decoder.c%2C1.44%2C1.45%20mpeg2decoder.h%2C1.27%2C1.28&In-Reply-To=%3C200507170910.j6H9AeI08639%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.86,1.87 mpeg2decoder.c,1.44,1.45 mpeg2decoder.h,1.27,1.28">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Jul 17 11:10:40 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000158.html">[Softdevice-cvs] softdevice CHANGELOG,1.85,1.86 video-xv.c,1.28,1.29
+</A></li>
+        <LI>Next message: <A HREF="000160.html">[Softdevice-cvs] softdevice mpeg2decoder.h,1.28,1.29
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#159">[ date ]</a>
+              <a href="thread.html#159">[ thread ]</a>
+              <a href="subject.html#159">[ subject ]</a>
+              <a href="author.html#159">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv5974
+
+Modified Files:
+	CHANGELOG mpeg2decoder.c mpeg2decoder.h 
+Log Message:
+-introduce color space conversions (by Malcom Caldwell)
+-fix filters to work with 422 color space as well
+
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.86
+retrieving revision 1.87
+diff -C2 -d -r1.86 -r1.87
+*** CHANGELOG	17 Jul 2005 07:39:50 -0000	1.86
+--- CHANGELOG	17 Jul 2005 09:10:38 -0000	1.87
+***************
+*** 2,5 ****
+--- 2,7 ----
+  2005-07-17:
+      - crop Top/Bottom for xv-out
++     - introduce colour space conversion (by Malcom Caldwell)
++     - make filters work with YUV422 color space
+  2005-07-16:
+      - fix for cropBottom in dfb with YUY2 pixelformat
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.44
+retrieving revision 1.45
+diff -C2 -d -r1.44 -r1.45
+*** mpeg2decoder.c	15 Jul 2005 20:42:16 -0000	1.44
+--- mpeg2decoder.c	17 Jul 2005 09:10:38 -0000	1.45
+***************
+*** 430,434 ****
+  {
+    width = height = -1;
+!   pic_buf_lavc = pic_buf_mirror = pic_buf_pp = NULL;
+    currentMirrorMode  = setupStore.mirror;
+    currentDeintMethod = setupStore.deintMethod;
+--- 430,435 ----
+  {
+    width = height = -1;
+!   pix_fmt = PIX_FMT_NB;
+!   pic_buf_lavc = pic_buf_mirror = pic_buf_pp = pic_buf_convert = NULL;
+    currentMirrorMode  = setupStore.mirror;
+    currentDeintMethod = setupStore.deintMethod;
+***************
+*** 546,551 ****
+      if (setupStore.mirror == 1)
+        Mirror();
+-     else if (pic_buf_mirror)
+-       pic_buf_mirror = freePicBuf(pic_buf_mirror);
+  
+      if (setupStore.deintMethod == 1)
+--- 547,550 ----
+***************
+*** 560,565 ****
+--- 559,571 ----
+  #endif //PP_LIBAVCODEC
+  
++     // do format conversions if necessary
++     if (context-&gt;pix_fmt!=PIX_FMT_YUV420P) 
++       libavcodec_img_convert();
++ 
+      width  = context-&gt;width;
+      height = context-&gt;height;
++     pix_fmt = context-&gt;pix_fmt;
++ 
++    
+      // find decoded pictures pts value
+      int findPTS=(lastPTSidx+1)%NO_PTS_VALUES;
+***************
+*** 681,704 ****
+  }
+  
+- 
+  //------------------------------------ postproc stuff -------------------------
+! uchar *cVideoStreamDecoder::allocatePicBuf(uchar *pic_buf)
+  {
+    // (re)allocate picture buffer for deinterlaced/mirrored picture
+    if (pic_buf == NULL)
+      fprintf(stderr,
+!             &quot;[softdevice] allocating picture buffer for resolution %dx%d\n&quot;,
+!             context-&gt;width, context-&gt;height);
+    else
+      fprintf(stderr,
+!             &quot;[softdevice] resolution changed to %dx%d - &quot;
+              &quot;reallocating picture buffer\n&quot;,
+!             context-&gt;width, context-&gt;height);
+  
+!   pic_buf = (uchar *)realloc(pic_buf,
+!                              context-&gt;width *
+!                               context-&gt;height *
+!                                 sizeof(uchar) *
+!                                   3 / 2);
+  
+    return pic_buf;
+--- 687,707 ----
+  }
+  
+  //------------------------------------ postproc stuff -------------------------
+! uchar *cVideoStreamDecoder::allocatePicBuf(uchar *pic_buf, PixelFormat pix_fmt)
+  {
+    // (re)allocate picture buffer for deinterlaced/mirrored picture
+    if (pic_buf == NULL)
+      fprintf(stderr,
+!             &quot;[softdevice] allocating picture buffer for resolution %dx%d &quot;
+! 	    &quot;format %d\n&quot;,
+!             context-&gt;width, context-&gt;height, pix_fmt);
+    else
+      fprintf(stderr,
+!             &quot;[softdevice] resolution changed to %dx%d, format %d - &quot;
+              &quot;reallocating picture buffer\n&quot;,
+!             context-&gt;width, context-&gt;height, pix_fmt);
+  
+!   pic_buf = (uchar *) realloc(pic_buf,
+!       avpicture_get_size(pix_fmt, context-&gt;width, context-&gt;height));
+  
+    return pic_buf;
+***************
+*** 720,771 ****
+    if (pic_buf_lavc == NULL ||
+        context-&gt;width != width ||
+!       context-&gt;height != height)
+!     pic_buf_lavc = allocatePicBuf(pic_buf_lavc);
+! 
+!   if (pic_buf_lavc)
+!   {
+!     avpic_dest.data[0] = pic_buf_lavc;
+!     avpic_dest.data[1] = avpic_dest.data[0] + context-&gt;width * context-&gt;height;
+!     avpic_dest.data[2] = avpic_dest.data[1] + context-&gt;width * context-&gt;height / 4;
+! 
+!     avpic_dest.linesize[0] = context-&gt;width;
+!     avpic_dest.linesize[1] = context-&gt;width / 2;
+!     avpic_dest.linesize[2] = context-&gt;width / 2;
+! 
+!     avpic_src.data[0]     = picture-&gt;data[0];
+!     avpic_src.data[1]     = picture-&gt;data[1];
+!     avpic_src.data[2]     = picture-&gt;data[2];
+! 
+!     avpic_src.linesize[0] = picture-&gt;linesize[0];
+!     avpic_src.linesize[1] = picture-&gt;linesize[1];
+!     avpic_src.linesize[2] = picture-&gt;linesize[2];
+  
+!     if (avpicture_deinterlace(&amp;avpic_dest, &amp;avpic_src, context-&gt;pix_fmt,
+!                               context-&gt;width, context-&gt;height) &lt; 0)
+!     {
+!       fprintf(stderr,
+!               &quot;[softdevice] error, libavcodec deinterlacer failure\n&quot;
+!               &quot;[softdevice] switching deinterlacing off !\n&quot;);
+!       setupStore.deintMethod = 0;
+!     }
+!     else
+!     {
+!       picture-&gt;data[0]     = avpic_dest.data[0];
+!       picture-&gt;data[1]     = avpic_dest.data[1];
+!       picture-&gt;data[2]     = avpic_dest.data[2];
+  
+!       picture-&gt;linesize[0] = avpic_dest.linesize[0];
+!       picture-&gt;linesize[1] = avpic_dest.linesize[1];
+!       picture-&gt;linesize[2] = avpic_dest.linesize[2];
+!     }
+  
+!   }
+!   else
+    {
+      fprintf(stderr,
+!             &quot;[softdevice] no picture buffer is allocated for deinterlacing !\n&quot;
+              &quot;[softdevice] switching deinterlacing off !\n&quot;);
+      setupStore.deintMethod = 0;
+    }
+  }
+  
+--- 723,790 ----
+    if (pic_buf_lavc == NULL ||
+        context-&gt;width != width ||
+!       context-&gt;height != height ||
+!       context-&gt;pix_fmt != pix_fmt)
+!     pic_buf_lavc = allocatePicBuf(pic_buf_lavc,context-&gt;pix_fmt);
+  
+!   if ( !pic_buf_lavc ) {
+!     fprintf(stderr,
+!             &quot;[softdevice] no picture buffer is allocated for deinterlacing !\n&quot;
+!             &quot;[softdevice] switching deinterlacing off !\n&quot;);
+!     setupStore.deintMethod = 0;
+!     return;
+!   }
+!   
+!   avpicture_fill(&amp;avpic_dest,pic_buf_lavc,
+!                     context-&gt;pix_fmt,context-&gt;width ,context-&gt;height);
+  
+!   memcpy(avpic_src.data,picture-&gt;data,sizeof(avpic_src.data));
+!   memcpy(avpic_src.linesize,picture-&gt;linesize,sizeof(avpic_src.linesize));
+  
+!   if (avpicture_deinterlace(&amp;avpic_dest, &amp;avpic_src, context-&gt;pix_fmt,
+!                               context-&gt;width, context-&gt;height) &lt; 0) 
+    {
+      fprintf(stderr,
+!             &quot;[softdevice] error, libavcodec deinterlacer failure\n&quot;
+              &quot;[softdevice] switching deinterlacing off !\n&quot;);
+      setupStore.deintMethod = 0;
++     return;
++   } 
++     
++   memcpy(picture-&gt;data,avpic_dest.data,sizeof(picture-&gt;data));
++   memcpy(picture-&gt;linesize,avpic_dest.linesize,sizeof(picture-&gt;data));
++ }
++ 
++ void cVideoStreamDecoder::libavcodec_img_convert(void)
++ {
++   if (pic_buf_convert == NULL ||
++       context-&gt;width != width ||
++       context-&gt;height != height) {
++     pic_buf_convert = allocatePicBuf(pic_buf_convert,PIX_FMT_YUV420P);
++     fprintf(stderr,&quot;allocated convert buf\n&quot;);
++   }
++ 
++   if ( !pic_buf_convert ) {
++      fprintf(stderr,
++             &quot;[softdevice] no picture buffer is allocated for img_convert !\n&quot;
++             &quot;[softdevice] switching img_convert off !\n&quot;);
++      return;
+    }
++  
++   avpicture_fill(&amp;avpic_dest,pic_buf_convert,
++                     PIX_FMT_YUV420P,context-&gt;width ,context-&gt;height);
++ 
++   memcpy(avpic_src.data,picture-&gt;data,sizeof(avpic_src.data));
++   memcpy(avpic_src.linesize,picture-&gt;linesize,sizeof(avpic_src.linesize));
++   
++   if (img_convert(&amp;avpic_dest,PIX_FMT_YUV420P,
++ 		  &amp;avpic_src, context-&gt;pix_fmt,
++                               context-&gt;width, context-&gt;height) &lt; 0) {
++      fprintf(stderr,
++               &quot;[softdevice] error, libavcodec img_convert failure\n&quot;);
++      return;
++   } 
++ 
++   memcpy(picture-&gt;data,avpic_dest.data,sizeof(picture-&gt;data));
++   memcpy(picture-&gt;linesize,avpic_dest.linesize,sizeof(picture-&gt;data));
+  }
+  
+***************
+*** 777,835 ****
+    if (pic_buf_mirror == NULL ||
+        context-&gt;width != width ||
+!       context-&gt;height != height)
+!     pic_buf_mirror = allocatePicBuf(pic_buf_mirror);
+! 
+!   if (pic_buf_mirror)
+!   {
+!     avpic_dest.data[0] = pic_buf_mirror;
+!     avpic_dest.data[1] = avpic_dest.data[0] + context-&gt;width * context-&gt;height;
+!     avpic_dest.data[2] = avpic_dest.data[1] + context-&gt;width * context-&gt;height / 4;
+  
+!     // mirror luminance
+!     ptr_src1  = picture-&gt;data[0];
+!     ptr_dest1 = avpic_dest.data[0];
+  
+!     for (int h = 0; h &lt; context-&gt;height; h++)
+!     {
+!       for (int w = context-&gt;width; w &gt; 0; w--)
+!       {
+!         *ptr_dest1 = ptr_src1[h * picture-&gt;linesize[0] + w - 1];
+!         ptr_dest1++;
+!       }
+!     }
+  
+!     // mirror chrominance
+!     ptr_src1  = picture-&gt;data[1];
+!     ptr_src2  = picture-&gt;data[2];
+!     ptr_dest1 = avpic_dest.data[1];
+!     ptr_dest2 = avpic_dest.data[2];
+  
+!     for (int h = 0; h &lt; context-&gt;height / 2; h++)
+      {
+!       for (int w = context-&gt;width / 2; w &gt; 0; w--)
+!       {
+!         *ptr_dest1 = ptr_src1[h * picture-&gt;linesize[0] / 2 + w - 1];
+!         *ptr_dest2 = ptr_src2[h * picture-&gt;linesize[0] / 2 + w - 1];
+!         ptr_dest1++;
+!         ptr_dest2++;
+!       }
+      }
+  
+!     picture-&gt;data[0]     = avpic_dest.data[0];
+!     picture-&gt;data[1]     = avpic_dest.data[1];
+!     picture-&gt;data[2]     = avpic_dest.data[2];
+  
+!     picture-&gt;linesize[0] = context-&gt;width;
+!     picture-&gt;linesize[1] = context-&gt;width / 2;
+!     picture-&gt;linesize[2] = context-&gt;width / 2;
+  
+!   }
+!   else
+    {
+!     fprintf(stderr,
+!             &quot;[softdevice] no picture buffer is allocated for mirroring !\n&quot;
+!             &quot;[softdevice] switching mirroring off !\n&quot;);
+!     setupStore.mirror = 0;
+    }
+  }
+  
+--- 796,855 ----
+    if (pic_buf_mirror == NULL ||
+        context-&gt;width != width ||
+!       context-&gt;height != height ||
+!       context-&gt;pix_fmt != pix_fmt)
+!     pic_buf_mirror = allocatePicBuf(pic_buf_mirror,context-&gt;pix_fmt);
+  
+!   if ( !pic_buf_mirror ) {
+!     fprintf(stderr,
+!             &quot;[softdevice] no picture buffer is allocated for mirroring !\n&quot;
+!             &quot;[softdevice] switching mirroring off !\n&quot;);
+!     setupStore.mirror = 0;
+!     return;
+!   }
+  
+!   avpicture_fill(&amp;avpic_dest,pic_buf_mirror,
+!       context-&gt;pix_fmt,context-&gt;width ,context-&gt;height);
+  
+!   // mirror luminance
+!   ptr_src1  = picture-&gt;data[0];
+!   ptr_dest1 = avpic_dest.data[0];
+  
+!   for (int h = 0; h &lt; context-&gt;height; h++)
+!   {
+!     for (int w = context-&gt;width; w &gt; 0; w--)
+      {
+!       *ptr_dest1 = ptr_src1[h * picture-&gt;linesize[0] + w - 1];
+!       ptr_dest1++;
+      }
++   }
+  
+!   // mirror chrominance
+!   ptr_src1  = picture-&gt;data[1];
+!   ptr_src2  = picture-&gt;data[2];
+!   ptr_dest1 = avpic_dest.data[1];
+!   ptr_dest2 = avpic_dest.data[2];
+  
+!   int h_shift;
+!   int v_shift;
+!   avcodec_get_chroma_sub_sample(context-&gt;pix_fmt,&amp;h_shift,&amp;v_shift);
+  
+!   for (int h = 0; h &lt; context-&gt;height &gt;&gt; v_shift ; h++)
+    {
+!     for (int w = context-&gt;width &gt;&gt; h_shift; w &gt; 0; w--)
+!     {
+!       *ptr_dest1 = ptr_src1[h * picture-&gt;linesize[1] + w - 1];
+!       *ptr_dest2 = ptr_src2[h * picture-&gt;linesize[2] + w - 1];
+!       ptr_dest1++;
+!       ptr_dest2++;
+!     }
+    }
++ 
++   picture-&gt;data[0]     = avpic_dest.data[0];
++   picture-&gt;data[1]     = avpic_dest.data[1];
++   picture-&gt;data[2]     = avpic_dest.data[2];
++ 
++   picture-&gt;linesize[0] = context-&gt;width;
++   picture-&gt;linesize[1] = context-&gt;width &gt;&gt; h_shift ;
++   picture-&gt;linesize[2] = context-&gt;width &gt;&gt; h_shift ;
+  }
+  
+***************
+*** 841,851 ****
+    if (pic_buf_pp == NULL ||
+        context-&gt;width != width ||
+!       context-&gt;height != height)
+!     pic_buf_pp = allocatePicBuf(pic_buf_pp);
+  
+    if (ppcontext == NULL ||
+        context-&gt;width != width ||
+!       context-&gt;height != height)
+!   {
+      if (ppcontext)
+      {
+--- 861,873 ----
+    if (pic_buf_pp == NULL ||
+        context-&gt;width != width ||
+!       context-&gt;height != height ||
+!       context-&gt;pix_fmt != pix_fmt)
+!     pic_buf_pp = allocatePicBuf(pic_buf_pp,context-&gt;pix_fmt);
+  
+    if (ppcontext == NULL ||
+        context-&gt;width != width ||
+!       context-&gt;height != height||
+!       context-&gt;pix_fmt != pix_fmt) {
+!           // reallocate ppcontext if format or size of picture changed
+      if (ppcontext)
+      {
+***************
+*** 857,862 ****
+         PP_CPU_CAPS_MMX, PP_CPU_CAPS_MMX2, PP_CPU_CAPS_3DNOW
+       */
+!     ppcontext = pp_get_context(context-&gt;width, context-&gt;height,
+!         PP_CPU_CAPS_MMX|PP_CPU_CAPS_MMX2);
+    }
+  
+--- 879,897 ----
+         PP_CPU_CAPS_MMX, PP_CPU_CAPS_MMX2, PP_CPU_CAPS_3DNOW
+       */
+!     int flags=0;
+! #ifdef USE_MMX
+!     flags|=PP_CPU_CAPS_MMX;
+! #endif
+! #ifdef USE_MMX2
+!     flags|=PP_CPU_CAPS_MMX2;
+! #endif
+!     if (context-&gt;pix_fmt == PIX_FMT_YUV420P)
+!       flags|=PP_FORMAT_420;
+!     else if (context-&gt;pix_fmt == PIX_FMT_YUV422P)
+!       flags|=PP_FORMAT_422;
+!     else if (context-&gt;pix_fmt == PIX_FMT_YUV444P)
+!       flags|=PP_FORMAT_444;
+! 
+!     ppcontext = pp_get_context(context-&gt;width, context-&gt;height,flags);
+    }
+  
+***************
+*** 864,869 ****
+    if (currentDeintMethod != deintWork || ppmode == NULL 
+        || currentppMethod != setupStore.ppMethod 
+!       || currentppQuality != setupStore.ppQuality )
+!   {
+  
+      if (ppmode)  {
+--- 899,904 ----
+    if (currentDeintMethod != deintWork || ppmode == NULL 
+        || currentppMethod != setupStore.ppMethod 
+!       || currentppQuality != setupStore.ppQuality ) {
+!     // reallocate ppmode if method or quality changed
+  
+      if (ppmode)  {
+***************
+*** 873,885 ****
+      char mode[60]=&quot;&quot;;
+      if (setupStore.getPPdeintValue() &amp;&amp; setupStore.getPPValue())
+!       sprintf(mode,&quot;%s,%s&quot;,setupStore.getPPdeintValue(),setupStore.getPPValue());
+!    else if (setupStore.getPPdeintValue() )
+        sprintf(mode,&quot;%s&quot;,setupStore.getPPdeintValue());
+!    else if (setupStore.getPPValue() )
+        sprintf(mode,&quot;%s&quot;,setupStore.getPPValue());
+!      
+!     ppmode = pp_get_mode_by_name_and_quality(mode, 
+!             setupStore.ppQuality);
+!     //ppmode = pp_get_mode_by_name_and_quality(setupStore.getPPValue(), 6);
+      currentDeintMethod = deintWork;
+      currentppMethod = setupStore.ppMethod;
+--- 908,920 ----
+      char mode[60]=&quot;&quot;;
+      if (setupStore.getPPdeintValue() &amp;&amp; setupStore.getPPValue())
+!       sprintf(mode,&quot;%s,%s&quot;,setupStore.getPPdeintValue(),
+!           setupStore.getPPValue());
+!     else if (setupStore.getPPdeintValue() )
+        sprintf(mode,&quot;%s&quot;,setupStore.getPPdeintValue());
+!     else if (setupStore.getPPValue() )
+        sprintf(mode,&quot;%s&quot;,setupStore.getPPValue());
+! 
+!     ppmode = pp_get_mode_by_name_and_quality(mode, setupStore.ppQuality);
+!     
+      currentDeintMethod = deintWork;
+      currentppMethod = setupStore.ppMethod;
+***************
+*** 887,892 ****
+    }
+  
+!   if (ppmode == NULL || ppcontext == NULL)
+!   {
+      fprintf(stderr,
+              &quot;[softdevice] pp-filter %s couldn't be initialized,\n&quot;
+--- 922,926 ----
+    }
+  
+!   if (ppmode == NULL || ppcontext == NULL) {
+      fprintf(stderr,
+              &quot;[softdevice] pp-filter %s couldn't be initialized,\n&quot;
+***************
+*** 894,942 ****
+              setupStore.getPPValue());
+      setupStore.deintMethod = 0;
+    }
+-   else
+-   {
+-     if (pic_buf_pp)
+-     {
+-       avpic_dest.data[0] = pic_buf_pp;
+-       avpic_dest.data[1] = avpic_dest.data[0] +
+-                             context-&gt;width * context-&gt;height;
+-       avpic_dest.data[2] = avpic_dest.data[1] +
+-                             context-&gt;width * context-&gt;height / 4;
+  
+!       avpic_dest.linesize[0] = context-&gt;width;
+!       avpic_dest.linesize[1] = context-&gt;width / 2;
+!       avpic_dest.linesize[2] = context-&gt;width / 2;
+! 
+!       pp_postprocess(picture-&gt;data,
+!                      picture-&gt;linesize,
+!                      (uchar **)&amp;avpic_dest.data,
+!                      (int *)&amp;avpic_dest.linesize,
+!                      context-&gt;width,
+!                      context-&gt;height,
+!                      picture-&gt;qscale_table,
+!                      picture-&gt;qstride,
+!                      ppmode,
+!                      ppcontext,
+!                      picture-&gt;pict_type);
+  
+!       picture-&gt;data[0]     = avpic_dest.data[0];
+!       picture-&gt;data[1]     = avpic_dest.data[1];
+!       picture-&gt;data[2]     = avpic_dest.data[2];
+  
+!       picture-&gt;linesize[0] = avpic_dest.linesize[0];
+!       picture-&gt;linesize[1] = avpic_dest.linesize[1];
+!       picture-&gt;linesize[2] = avpic_dest.linesize[2];
+!     }
+!     else
+!     {
+!       fprintf(stderr,
+!               &quot;[softdevice] no picture buffer is allocated for postprocessing !\n&quot;
+!               &quot;[softdevice] switching postprocessing off !\n&quot;);
+!       setupStore.deintMethod = 0;
+!     }
+!   }
+  }
+  #endif //PP_LIBAVCODEC
+  //----------------------------- end of postproc stuff ----------------------
+  
+--- 928,963 ----
+              setupStore.getPPValue());
+      setupStore.deintMethod = 0;
++     return;
+    }
+  
+!   
+!   if ( !pic_buf_pp ) {
+!     fprintf(stderr,
+!             &quot;[softdevice] no picture buffer is allocated for postprocessing !\n&quot;
+!             &quot;[softdevice] switching postprocessing off !\n&quot;);
+!     setupStore.deintMethod = 0;
+!     return;
+!   }
+!  
+!   avpicture_fill(&amp;avpic_dest,pic_buf_pp,
+!                     context-&gt;pix_fmt,context-&gt;width ,context-&gt;height);
+  
+!   pp_postprocess(picture-&gt;data,
+!       picture-&gt;linesize,
+!       (uchar **)&amp;avpic_dest.data,
+!       (int *)&amp;avpic_dest.linesize,
+!       context-&gt;width,
+!       context-&gt;height,
+!       picture-&gt;qscale_table,
+!       picture-&gt;qstride,
+!       ppmode,
+!       ppcontext,
+!       picture-&gt;pict_type);
+  
+!   memcpy(picture-&gt;data,avpic_dest.data,sizeof(picture-&gt;data));
+!   memcpy(picture-&gt;linesize,avpic_dest.linesize,sizeof(picture-&gt;data));
+  }
+  #endif //PP_LIBAVCODEC
++ 
+  //----------------------------- end of postproc stuff ----------------------
+  
+***************
+*** 950,953 ****
+--- 971,978 ----
+    if (pic_buf_pp)
+       pic_buf_pp = freePicBuf(pic_buf_pp);
++   if (pic_buf_convert)
++      pic_buf_convert = freePicBuf(pic_buf_convert);
++   if (pic_buf_mirror)
++      pic_buf_mirror = freePicBuf(pic_buf_mirror);
+  
+  }
+
+Index: mpeg2decoder.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.h,v
+retrieving revision 1.27
+retrieving revision 1.28
+diff -C2 -d -r1.27 -r1.28
+*** mpeg2decoder.h	3 Jul 2005 15:58:31 -0000	1.27
+--- mpeg2decoder.h	17 Jul 2005 09:10:38 -0000	1.28
+***************
+*** 10,14 ****
+  #include &lt;avcodec.h&gt;
+  #ifdef PP_LIBAVCODEC
+!   #include &lt;postproc/postprocess.h&gt;
+  #endif //PP_LIBAVCODEC
+  
+--- 10,14 ----
+  #include &lt;avcodec.h&gt;
+  #ifdef PP_LIBAVCODEC
+!   #include &lt;postprocess.h&gt;
+  #endif //PP_LIBAVCODEC
+  
+***************
+*** 213,219 ****
+  
+      int                 width, height;
+      int                 currentDeintMethod, currentMirrorMode;
+      int                 currentppMethod, currentppQuality;
+!     uchar               *pic_buf_lavc, *pic_buf_pp, *pic_buf_mirror;
+  #ifdef PP_LIBAVCODEC
+      pp_mode_t           *ppmode;
+--- 213,220 ----
+  
+      int                 width, height;
++     PixelFormat         pix_fmt;
+      int                 currentDeintMethod, currentMirrorMode;
+      int                 currentppMethod, currentppQuality;
+!     uchar               *pic_buf_lavc, *pic_buf_pp, *pic_buf_mirror, *pic_buf_convert;
+  #ifdef PP_LIBAVCODEC
+      pp_mode_t           *ppmode;
+***************
+*** 232,237 ****
+      {return trickspeed*default_frametime;};
+  
+!     uchar   *allocatePicBuf(uchar *pic_buf);
+      void    deintLibavcodec(void);
+      uchar   *freePicBuf(uchar *pic_buf);
+  #ifdef PP_LIBAVCODEC
+--- 233,239 ----
+      {return trickspeed*default_frametime;};
+  
+!     uchar   *allocatePicBuf(uchar *pic_buf, PixelFormat pix_fmt);
+      void    deintLibavcodec(void);
++     void    libavcodec_img_convert(void);
+      uchar   *freePicBuf(uchar *pic_buf);
+  #ifdef PP_LIBAVCODEC
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000158.html">[Softdevice-cvs] softdevice CHANGELOG,1.85,1.86 video-xv.c,1.28,1.29
+</A></li>
+	<LI>Next message: <A HREF="000160.html">[Softdevice-cvs] softdevice mpeg2decoder.h,1.28,1.29
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#159">[ date ]</a>
+              <a href="thread.html#159">[ thread ]</a>
+              <a href="subject.html#159">[ subject ]</a>
+              <a href="author.html#159">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

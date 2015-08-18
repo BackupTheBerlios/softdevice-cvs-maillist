@@ -1,0 +1,163 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice audio-alsa.c, 1.9, 1.10 audio-alsa.h,	1.5, 1.6
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2008q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20audio-alsa.c%2C%201.9%2C%201.10%20audio-alsa.h%2C%0A%091.5%2C%201.6&In-Reply-To=%3C20080720163248.3F86B142B8F%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000629.html">
+   <LINK REL="Next"  HREF="000631.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice audio-alsa.c, 1.9, 1.10 audio-alsa.h,	1.5, 1.6</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20audio-alsa.c%2C%201.9%2C%201.10%20audio-alsa.h%2C%0A%091.5%2C%201.6&In-Reply-To=%3C20080720163248.3F86B142B8F%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice audio-alsa.c, 1.9, 1.10 audio-alsa.h,	1.5, 1.6">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Jul 20 18:32:48 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000629.html">[Softdevice-cvs] softdevice CHANGELOG, 1.335, 1.336 configure, 1.48,	1.49
+</A></li>
+        <LI>Next message: <A HREF="000631.html">[Softdevice-cvs] softdevice CHANGELOG, 1.336, 1.337 PicBuffer.c,	1.21, 1.22 PicBuffer.h, 1.9, 1.10 mpeg2decoder.c, 1.82,	1.83 setup-softdevice-menu.c, 1.14, 1.15 setup-softdevice.c,	1.55, 1.56 setup-softdevice.h, 1.44, 1.45 video-dfb.c, 1.83,	1.84 video-dfb.h, 1.28, 1.29 video.c, 1.76, 1.77 video.h, 1.55, 1.56
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#630">[ date ]</a>
+              <a href="thread.html#630">[ thread ]</a>
+              <a href="subject.html#630">[ subject ]</a>
+              <a href="author.html#630">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv2289
+
+Modified Files:
+	audio-alsa.c audio-alsa.h 
+Log Message:
+Fix for bug #14039 based upon suggestion by 'earcar'
+
+Index: audio-alsa.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio-alsa.c,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -C2 -d -r1.9 -r1.10
+*** audio-alsa.c	16 Apr 2008 09:06:31 -0000	1.9
+--- audio-alsa.c	20 Jul 2008 16:32:44 -0000	1.10
+***************
+*** 117,124 ****
+    while (size) {
+      while (paused) usleep(1000); // block
+!     AUDIODEB(&quot;pcm_mmap_writei  handle %p Data %p size %d\n&quot;,handle,Data,size);
+!     err = snd_pcm_mmap_writei(handle,Data, size);
+!     AUDIODEB(&quot;pcm_mmap_writeei return value %d Data %p size %d \n&quot;,
+!                    err,Data,size);
+      if (err == -EAGAIN || (err &gt;= 0 &amp;&amp; (size_t)err &lt; size)) {
+        AUDIODEB(&quot;wait \n&quot;);
+--- 117,134 ----
+    while (size) {
+      while (paused) usleep(1000); // block
+! 
+!     AUDIODEB(&quot;pcm%s_writei  handle %p Data %p size %d\n&quot;,
+!              (useMmapWrite) ? &quot;_mmap&quot; : &quot;&quot;,
+!              handle, Data, size);
+! 
+!     if (useMmapWrite)
+!       err = snd_pcm_mmap_writei(handle, Data, size);
+!     else
+!       err = snd_pcm_writei(handle, Data, size);
+! 
+!     AUDIODEB(&quot;pcm%s_writei return value %d Data %p size %d \n&quot;,
+!              (useMmapWrite) ? &quot;_mmap&quot; : &quot;&quot;,
+!              err, Data, size);
+! 
+      if (err == -EAGAIN || (err &gt;= 0 &amp;&amp; (size_t)err &lt; size)) {
+        AUDIODEB(&quot;wait \n&quot;);
+***************
+*** 333,336 ****
+--- 343,347 ----
+      }
+  
++     useMmapWrite = 1;
+      snd_pcm_access_mask_t *mask = (snd_pcm_access_mask_t *)alloca(snd_pcm_access_mask_sizeof());
+      snd_pcm_access_mask_none(mask);
+***************
+*** 340,347 ****
+      err = snd_pcm_hw_params_set_access_mask(handle, params, mask);
+      if (err &lt; 0) {
+!       esyslog(&quot;[softdevice-audio] Access type not available NO AUDIO!&quot;);
+!       handleMutex.Unlock();
+!       Suspend();
+!       return -1;
+      }
+  
+--- 351,364 ----
+      err = snd_pcm_hw_params_set_access_mask(handle, params, mask);
+      if (err &lt; 0) {
+!       snd_pcm_access_mask_none(mask);
+!       snd_pcm_access_mask_set(mask, SND_PCM_ACCESS_RW_INTERLEAVED);
+!       err = snd_pcm_hw_params_set_access_mask(handle, params, mask);
+!       if (err &lt; 0) {
+!         esyslog(&quot;[softdevice-audio] Access type not available NO AUDIO!&quot;);
+!         handleMutex.Unlock();
+!         Suspend();
+!         return -1;
+!       }
+!       useMmapWrite = 0;
+      }
+  
+
+Index: audio-alsa.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio-alsa.h,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -C2 -d -r1.5 -r1.6
+*** audio-alsa.h	27 Sep 2007 18:22:40 -0000	1.5
+--- audio-alsa.h	20 Jul 2008 16:32:44 -0000	1.6
+***************
+*** 31,35 ****
+    volatile bool     paused;
+    bool              ac3PassThrough,
+!                     ac3SpdifPro;
+    SampleContext     oldContext;
+    cAlsaAC3pt        ac3pt;
+--- 31,36 ----
+    volatile bool     paused;
+    bool              ac3PassThrough,
+!                     ac3SpdifPro,
+!                     useMmapWrite;
+    SampleContext     oldContext;
+    cAlsaAC3pt        ac3pt;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000629.html">[Softdevice-cvs] softdevice CHANGELOG, 1.335, 1.336 configure, 1.48,	1.49
+</A></li>
+	<LI>Next message: <A HREF="000631.html">[Softdevice-cvs] softdevice CHANGELOG, 1.336, 1.337 PicBuffer.c,	1.21, 1.22 PicBuffer.h, 1.9, 1.10 mpeg2decoder.c, 1.82,	1.83 setup-softdevice-menu.c, 1.14, 1.15 setup-softdevice.c,	1.55, 1.56 setup-softdevice.h, 1.44, 1.45 video-dfb.c, 1.83,	1.84 video-dfb.h, 1.28, 1.29 video.c, 1.76, 1.77 video.h, 1.55, 1.56
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#630">[ date ]</a>
+              <a href="thread.html#630">[ thread ]</a>
+              <a href="subject.html#630">[ subject ]</a>
+              <a href="author.html#630">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

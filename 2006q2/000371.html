@@ -1,0 +1,2689 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice VideoFilter.c,NONE,1.1 VideoFilter.h,NONE,1.1 PicBuffer.c,NONE,1.1 PicBuffer.h,NONE,1.1 video.c,1.57,1.58 video.h,1.39,1.40 ShmClient.c,1.13,1.14 mpeg2decoder.c,1.63,1.64 mpeg2decoder.h,1.36,1.37 video-dfb.c,1.61,1.62 video-dfb.h,1.20,1.21 video-dummy.c,1.2,1.3 video-dummy.h,1.2,1.3 video-fb.c,1.14,1.15 video-fb.h,1.7,1.8 video-shm.c,1.7,1.8 video-shm.h,1.4,1.5 video-vidix.c,1.18,1.19 video-vidix.h,1.9,1.10 video-xv.c,1.54,1.55 video-xv.h,1.20,1.21
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20VideoFilter.c%2CNONE%2C1.1%20VideoFilter.h%2CNONE%2C1.1%20PicBuffer.c%2CNONE%2C1.1%20PicBuffer.h%2CNONE%2C1.1%20video.c%2C1.57%2C1.58%20video.h%2C1.39%2C1.40%20ShmClient.c%2C1.13%2C1.14%20mpeg2decoder.c%2C1.63%2C1.64%20mpeg2decoder.h%2C1.36%2C1.37%20video-dfb.c%2C1.61%2C1.62%20video-dfb.h%2C1.20%2C1.21%20video-dummy.c%2C1.2%2C1.3%20video-dummy.h%2C1.2%2C1.3%20video-fb.c%2C1.14%2C1.15%20video-fb.h%2C1.7%2C1.8%20video-shm.c%2C1.7%2C1.8%20video-shm.h%2C1.4%2C1.5%20video-vidix.c%2C1.18%2C1.19%20video-vidix.h%2C1.9%2C1.10%20video-xv.c%2C1.54%2C1.55%20video-xv.h%2C1.20%2C1.21&In-Reply-To=%3C200605271907.k4RJ7YT25622%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000369.html">
+   <LINK REL="Next"  HREF="000370.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice VideoFilter.c,NONE,1.1 VideoFilter.h,NONE,1.1 PicBuffer.c,NONE,1.1 PicBuffer.h,NONE,1.1 video.c,1.57,1.58 video.h,1.39,1.40 ShmClient.c,1.13,1.14 mpeg2decoder.c,1.63,1.64 mpeg2decoder.h,1.36,1.37 video-dfb.c,1.61,1.62 video-dfb.h,1.20,1.21 video-dummy.c,1.2,1.3 video-dummy.h,1.2,1.3 video-fb.c,1.14,1.15 video-fb.h,1.7,1.8 video-shm.c,1.7,1.8 video-shm.h,1.4,1.5 video-vidix.c,1.18,1.19 video-vidix.h,1.9,1.10 video-xv.c,1.54,1.55 video-xv.h,1.20,1.21</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20VideoFilter.c%2CNONE%2C1.1%20VideoFilter.h%2CNONE%2C1.1%20PicBuffer.c%2CNONE%2C1.1%20PicBuffer.h%2CNONE%2C1.1%20video.c%2C1.57%2C1.58%20video.h%2C1.39%2C1.40%20ShmClient.c%2C1.13%2C1.14%20mpeg2decoder.c%2C1.63%2C1.64%20mpeg2decoder.h%2C1.36%2C1.37%20video-dfb.c%2C1.61%2C1.62%20video-dfb.h%2C1.20%2C1.21%20video-dummy.c%2C1.2%2C1.3%20video-dummy.h%2C1.2%2C1.3%20video-fb.c%2C1.14%2C1.15%20video-fb.h%2C1.7%2C1.8%20video-shm.c%2C1.7%2C1.8%20video-shm.h%2C1.4%2C1.5%20video-vidix.c%2C1.18%2C1.19%20video-vidix.h%2C1.9%2C1.10%20video-xv.c%2C1.54%2C1.55%20video-xv.h%2C1.20%2C1.21&In-Reply-To=%3C200605271907.k4RJ7YT25622%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice VideoFilter.c,NONE,1.1 VideoFilter.h,NONE,1.1 PicBuffer.c,NONE,1.1 PicBuffer.h,NONE,1.1 video.c,1.57,1.58 video.h,1.39,1.40 ShmClient.c,1.13,1.14 mpeg2decoder.c,1.63,1.64 mpeg2decoder.h,1.36,1.37 video-dfb.c,1.61,1.62 video-dfb.h,1.20,1.21 video-dummy.c,1.2,1.3 video-dummy.h,1.2,1.3 video-fb.c,1.14,1.15 video-fb.h,1.7,1.8 video-shm.c,1.7,1.8 video-shm.h,1.4,1.5 video-vidix.c,1.18,1.19 video-vidix.h,1.9,1.10 video-xv.c,1.54,1.55 video-xv.h,1.20,1.21">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat May 27 21:07:34 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000369.html">[Softdevice-cvs] softdevice CHANGELOG,1.189,1.190 configure,1.14,1.15
+</A></li>
+        <LI>Next message: <A HREF="000370.html">[Softdevice-cvs] softdevice CHANGELOG,1.190,1.191 Makefile,1.28,1.29
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#371">[ date ]</a>
+              <a href="thread.html#371">[ thread ]</a>
+              <a href="subject.html#371">[ subject ]</a>
+              <a href="author.html#371">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv3071
+
+Modified Files:
+	video.c video.h ShmClient.c mpeg2decoder.c mpeg2decoder.h 
+	video-dfb.c video-dfb.h video-dummy.c video-dummy.h video-fb.c 
+	video-fb.h video-shm.c video-shm.h video-vidix.c video-vidix.h 
+	video-xv.c video-xv.h 
+Added Files:
+	VideoFilter.c VideoFilter.h PicBuffer.c PicBuffer.h 
+Log Message:
+- move postproc stuff into VideoFilter.[ch]
+- apply patch to use direct rendering
+   
+
+
+--- NEW FILE: VideoFilter.c ---
+/*
+ * VideoFilter.c: A plugin for the Video Disk Recorder
+ *
+ * See the README file for copyright information and how to reach the author.
+ *
+ * $Id: VideoFilter.c,v 1.1 2006/05/27 19:12:40 wachm Exp $
+ */
+#include &quot;VideoFilter.h&quot;
+
+cVideoFilter::cVideoFilter(cVideoOut *VideoOut)
+        : vout(VideoOut) {
+};
+
+cVideoFilter::~cVideoFilter() {
+};
+
+bool cVideoFilter::AllocateCheckBuffer(sPicBuffer *&amp;dest, sPicBuffer *orig) {
+        if (!orig) {
+                fprintf(stderr,&quot;Error in AllocateCheckBuffer, orig==NULL!\n&quot;);
+                return false;
+        };
+        
+        if (!dest) 
+                return AllocateBuffer(dest, orig);
+        
+        if ( dest-&gt;format != orig-&gt;format ||
+             dest-&gt;max_width != orig-&gt;width ||
+             dest-&gt;max_height != orig-&gt;height ) {
+                fprintf(stderr,&quot;reallocating buffer format %d-%d w: %d-%d h: %d-%d \n&quot;,
+                      dest-&gt;format,orig-&gt;format,
+                      dest-&gt;max_width, orig-&gt;width,
+                      dest-&gt;max_height, orig-&gt;height);
+                vout-&gt;ReleaseBuffer(dest);
+                AllocateBuffer(dest, orig);
+                if (!dest) 
+                        return false;
+        };
+        return true;
+};
+
+bool cVideoFilter::AllocateBuffer(sPicBuffer *&amp;dest, sPicBuffer *orig) {
+        if (!orig) {
+                fprintf(stderr,&quot;Error in AllocateBuffer, orig==NULL!\n&quot;);
+                return false;
+        };
+        
+        dest=vout-&gt;GetBuffer(orig-&gt;format, orig-&gt;width, orig-&gt;height);
+        
+        dest-&gt;width = orig-&gt;width;
+        dest-&gt;height = orig-&gt;height;
+        dest-&gt;pts=orig-&gt;pts;
+        dest-&gt;edge_width=dest-&gt;edge_height=0;
+        dest-&gt;dtg_active_format=orig-&gt;dtg_active_format;
+        dest-&gt;aspect_ratio=orig-&gt;aspect_ratio;
+        dest-&gt;interlaced_frame=orig-&gt;interlaced_frame;
+
+        return (dest!=NULL);
+};
+
+/*--------------------------------------------------------------------------*/
+
+cVideoMirror::cVideoMirror(cVideoOut *vOut) 
+        : cVideoFilter(vOut), outBuf(NULL) {
+};
+
+cVideoMirror::~cVideoMirror() {
+        if (outBuf) {
+                vout-&gt;ReleaseBuffer(outBuf);
+        };
+};
+
+void cVideoMirror::Filter(sPicBuffer *&amp;dest, sPicBuffer *orig) {
+    uchar *ptr_src1, *ptr_src2;
+    uchar *ptr_dest1, *ptr_dest2;
+
+    AllocateCheckBuffer(outBuf, orig);
+    dest=outBuf;
+
+    if ( !outBuf ) {
+            fprintf(stderr,
+                &quot;[softdevice] no picture buffer is allocated for mirroring !\n&quot;
+                &quot;[softdevice] switching mirroring off !\n&quot;);
+            setupStore.mirror = 0;
+            return;
+    }
+
+    // mirror luminance
+    ptr_src1  = orig-&gt;pixel[0] + orig-&gt;edge_height * orig-&gt;stride[0]
+            + orig-&gt;edge_width;
+
+    for (int h = 0; h &lt; dest-&gt;height; h++)
+    {
+            ptr_dest1 = dest-&gt;pixel[0] + h * dest-&gt;stride[0];
+            for (int w = dest-&gt;width-1; w &gt;=0; w--)
+            {
+                    *ptr_dest1 = ptr_src1[h * orig-&gt;stride[0] + w ];
+                    ptr_dest1++;
+            }
+    }
+    
+    // mirror chrominance
+    int h_shift;
+    int v_shift;
+    avcodec_get_chroma_sub_sample(dest-&gt;format,&amp;h_shift,&amp;v_shift);
+
+    ptr_src1  = orig-&gt;pixel[1] + (orig-&gt;edge_height&gt;&gt;v_shift) * orig-&gt;stride[1]
+            + (orig-&gt;edge_width &gt;&gt; h_shift);
+    ptr_src2  = orig-&gt;pixel[2] + (orig-&gt;edge_height&gt;&gt;v_shift) * orig-&gt;stride[2]
+            + (orig-&gt;edge_width &gt;&gt; h_shift);
+
+
+    for (int h = 0; h &lt; dest-&gt;height &gt;&gt; v_shift ; h++) {
+            ptr_dest1 = dest-&gt;pixel[1] + h * dest-&gt;stride[1];
+            ptr_dest2 = dest-&gt;pixel[2] + h * dest-&gt;stride[2];
+            for (int w = (dest-&gt;width &gt;&gt; h_shift) - 1; w &gt;= 0; w--)
+            {
+                    *ptr_dest1 = ptr_src1[h * orig-&gt;stride[1] + w ];
+                    *ptr_dest2 = ptr_src2[h * orig-&gt;stride[2] + w ];
+                    ptr_dest1++;
+                    ptr_dest2++;
+            }
+    };
+
+    CopyPicBufferContext(dest,orig);
+}
+
+/*--------------------------------------------------------------------------*/
+
+cDeintLibav::cDeintLibav(cVideoOut *vOut) 
+        : cVideoFilter(vOut), outBuf(NULL) {
+};
+
+cDeintLibav::~cDeintLibav() {
+        if (outBuf) {
+                vout-&gt;ReleaseBuffer(outBuf);
+        };
+};
+
+void cDeintLibav::Filter(sPicBuffer *&amp;dest, sPicBuffer *orig) {
+    AVPicture           avpic_src, avpic_dest;
+
+    AllocateCheckBuffer(outBuf, orig);
+    dest=outBuf;
+
+    if ( !outBuf ) {
+            fprintf(stderr,
+                &quot;[softdevice] no picture buffer is allocated for deinterlacing!\n&quot;
+                &quot;[softdevice] switching deinterlacing off !\n&quot;);
+            setupStore.mirror = 0;
+            return;
+    }
+
+    int h_shift;
+    int v_shift;
+    avcodec_get_chroma_sub_sample(dest-&gt;format,&amp;h_shift,&amp;v_shift);
+
+    avpic_src.data[0] = orig-&gt;pixel[0] 
+            + orig-&gt;edge_height * orig-&gt;stride[0]
+            + orig-&gt;edge_width;
+    
+    avpic_src.data[1] = orig-&gt;pixel[1] 
+            + (orig-&gt;edge_height &gt;&gt; v_shift) * orig-&gt;stride[1]
+            + (orig-&gt;edge_width &gt;&gt; h_shift);
+    
+    avpic_src.data[2] = orig-&gt;pixel[2] 
+            + (orig-&gt;edge_height &gt;&gt; v_shift) * orig-&gt;stride[2]
+            + (orig-&gt;edge_width &gt;&gt; h_shift);
+
+    memcpy(avpic_src.linesize,orig-&gt;stride,sizeof(avpic_src.linesize));
+    
+    memcpy(avpic_dest.data,dest-&gt;pixel,sizeof(avpic_dest.data));
+    memcpy(avpic_dest.linesize,dest-&gt;stride,sizeof(avpic_dest.linesize));
+
+    if (avpicture_deinterlace(&amp;avpic_dest, &amp;avpic_src, orig-&gt;format,
+                            orig-&gt;width, orig-&gt;height) &lt; 0)
+    {
+            fprintf(stderr,
+                            &quot;[softdevice] error, libavcodec deinterlacer failure\n&quot;
+                            &quot;[softdevice] switching deinterlacing off !\n&quot;);
+            setupStore.deintMethod = 0;
+            return;
+    }
+    CopyPicBufferContext(dest,orig);
+    dest-&gt;interlaced_frame=false;
+}
+
+/*---------------------------cImageConvert---------------------------------*/
+
+cImageConvert::cImageConvert(cVideoOut *vOut) 
+        : cVideoFilter(vOut), outBuf(NULL) {
+};
+
+cImageConvert::~cImageConvert() {
+        if (outBuf) {
+                vout-&gt;ReleaseBuffer(outBuf);
+        };
+};
+
+void cImageConvert::Filter(sPicBuffer *&amp;dest, sPicBuffer *orig) {
+        AVPicture           avpic_src, avpic_dest;
+
+        if ( !outBuf ||
+                        outBuf-&gt;max_width != orig-&gt;width ||
+                        outBuf-&gt;max_height != orig-&gt;height ) {
+
+                if (outBuf)
+                        vout-&gt;ReleaseBuffer(outBuf);
+
+                outBuf=dest=vout-&gt;GetBuffer(PIX_FMT_YUV420P, 
+                                orig-&gt;width, orig-&gt;height);
+
+                dest-&gt;width = orig-&gt;width;
+                dest-&gt;height = orig-&gt;height;
+                dest-&gt;pts=orig-&gt;pts;
+                dest-&gt;edge_width=dest-&gt;edge_height=0;
+                dest-&gt;dtg_active_format=orig-&gt;dtg_active_format;
+                dest-&gt;aspect_ratio=orig-&gt;aspect_ratio;
+                dest-&gt;interlaced_frame=orig-&gt;interlaced_frame;
+        };
+        dest=outBuf;
+
+        if ( !outBuf ) {
+                fprintf(stderr,
+                                &quot;[softdevice] no picture buffer is allocated for image converting!\n&quot;
+                                &quot;[softdevice] switching deinterlacing off !\n&quot;);
+                setupStore.mirror = 0;
+                return;
+        }
+
+        int h_shift;
+        int v_shift;
+        avcodec_get_chroma_sub_sample(orig-&gt;format,&amp;h_shift,&amp;v_shift);
+
+        avpic_src.data[0] = orig-&gt;pixel[0] 
+                + orig-&gt;edge_height * orig-&gt;stride[0]
+                + orig-&gt;edge_width;
+
+        avpic_src.data[1] = orig-&gt;pixel[1] 
+                + (orig-&gt;edge_height &gt;&gt; v_shift) * orig-&gt;stride[1]
+                + (orig-&gt;edge_width &gt;&gt; h_shift);
+
+        avpic_src.data[2] = orig-&gt;pixel[2] 
+                + (orig-&gt;edge_height &gt;&gt; v_shift) * orig-&gt;stride[2]
+                + (orig-&gt;edge_width &gt;&gt; h_shift);
+
+        memcpy(avpic_src.linesize,orig-&gt;stride,sizeof(avpic_src.linesize));
+
+        memcpy(avpic_dest.data,dest-&gt;pixel,sizeof(avpic_dest.data));
+        memcpy(avpic_dest.linesize,dest-&gt;stride,sizeof(avpic_dest.linesize));
+
+        if (img_convert(&amp;avpic_dest,PIX_FMT_YUV420P,
+                                &amp;avpic_src, orig-&gt;format,
+                                orig-&gt;width, orig-&gt;height) &lt; 0) {
+                fprintf(stderr,
+                                &quot;[softdevice] error, libavcodec img_convert failure\n&quot;);
+                return;
+        }
+    CopyPicBufferContext(dest,orig);
+}
+
+/*---------------------------cLibAvPostProc---------------------------------*/
+#ifdef PP_LIBAVCODEC
+cLibAvPostProc::cLibAvPostProc(cVideoOut *vOut) 
+        : cVideoFilter(vOut), width(-1), height(-1), pix_fmt(PIX_FMT_NB),
+          ppmode(NULL), ppcontext(NULL), outBuf(NULL),
+          currentDeintMethod(-1), currentppMethod(-1), currentppQuality(-1) {
+};
+
+cLibAvPostProc::~cLibAvPostProc() {
+        if (ppcontext) {
+                pp_free_context(ppcontext);
+                ppcontext = NULL;
+        }
+        if (ppmode)  {
+                pp_free_mode (ppmode);
+                ppmode = NULL;
+        }
+        if (outBuf) {
+                vout-&gt;ReleaseBuffer(outBuf);
+        };
+};
+
+void cLibAvPostProc::Filter(sPicBuffer *&amp;dest, sPicBuffer *orig) {
+        AVPicture           avpic_src, avpic_dest;
+
+        AllocateCheckBuffer(outBuf, orig);
+        dest=outBuf;
+
+        if ( !outBuf ) {
+                fprintf(stderr,
+                                &quot;[softdevice] no picture buffer is allocated for post processing!\n&quot;
+                                &quot;[softdevice] switching post processing off !\n&quot;);
+                setupStore.mirror = 0;
+                return;
+        }
+
+        if (ppcontext == NULL ||
+                        orig-&gt;width != width ||
+                        orig-&gt;height != height||
+                        orig-&gt;format != pix_fmt) {
+                width=orig-&gt;width;height=orig-&gt;height;
+                pix_fmt=orig-&gt;format;
+                
+                // reallocate ppcontext if format or size of picture changed
+                if (ppcontext)
+                {
+                        pp_free_context(ppcontext);
+                        ppcontext = NULL;
+                }
+                /* set one of this values instead of 0 in pp_get_context for
+                 * processor-independent optimations:
+                 PP_CPU_CAPS_MMX, PP_CPU_CAPS_MMX2, PP_CPU_CAPS_3DNOW
+                 */
+                int flags=0;
+#ifdef USE_MMX
+                flags|=PP_CPU_CAPS_MMX;
+#endif
+#ifdef USE_MMX2
+                flags|=PP_CPU_CAPS_MMX2;
+#endif
+                if (pix_fmt == PIX_FMT_YUV420P)
+                        flags|=PP_FORMAT_420;
+                else if (pix_fmt == PIX_FMT_YUV422P)
+                        flags|=PP_FORMAT_422;
+                else if (pix_fmt == PIX_FMT_YUV444P)
+                        flags|=PP_FORMAT_444;
+
+                ppcontext = pp_get_context(width, height,flags);
+        }
+        
+        if ( ppmode == NULL 
+                        || currentDeintMethod != setupStore.deintMethod 
+                        || currentppMethod != setupStore.ppMethod
+                        || currentppQuality != setupStore.ppQuality ) {
+                // reallocate ppmode if method or quality changed
+                currentDeintMethod = setupStore.deintMethod;
+                currentppMethod = setupStore.ppMethod;
+                currentppQuality = setupStore.ppQuality;
+
+                if (ppmode)  {
+                        pp_free_mode (ppmode);
+                        ppmode = NULL;
+                }
+                char mode[60]=&quot;&quot;;
+                if (setupStore.getPPdeintValue() &amp;&amp; setupStore.getPPValue())
+                        sprintf(mode,&quot;%s,%s&quot;,setupStore.getPPdeintValue(),
+                                        setupStore.getPPValue());
+                else if (setupStore.getPPdeintValue() )
+                        sprintf(mode,&quot;%s&quot;,setupStore.getPPdeintValue());
+                else if (setupStore.getPPValue() )
+                        sprintf(mode,&quot;%s&quot;,setupStore.getPPValue());
+
+                ppmode = pp_get_mode_by_name_and_quality(mode, currentppQuality);
+        }
+        if (ppmode == NULL || ppcontext == NULL) {
+                fprintf(stderr,
+                        &quot;[softdevice] pp-filter %s couldn't be initialized,\n&quot;
+                        &quot;[softdevice] switching postprocessing off !\n&quot;,
+                        setupStore.getPPValue());
+                setupStore.deintMethod = 0;
+                return;
+        }
+
+        int h_shift;
+        int v_shift;
+        avcodec_get_chroma_sub_sample(orig-&gt;format,&amp;h_shift,&amp;v_shift);
+
+        avpic_src.data[0] = orig-&gt;pixel[0] 
+                + orig-&gt;edge_height * orig-&gt;stride[0]
+                + orig-&gt;edge_width;
+
+        avpic_src.data[1] = orig-&gt;pixel[1] 
+                + (orig-&gt;edge_height &gt;&gt; v_shift) * orig-&gt;stride[1]
+                + (orig-&gt;edge_width &gt;&gt; h_shift);
+
+        avpic_src.data[2] = orig-&gt;pixel[2] 
+                + (orig-&gt;edge_height &gt;&gt; v_shift) * orig-&gt;stride[2]
+                + (orig-&gt;edge_width &gt;&gt; h_shift);
+
+        memcpy(avpic_src.linesize,orig-&gt;stride,sizeof(avpic_src.linesize));
+
+        memcpy(avpic_dest.data,dest-&gt;pixel,sizeof(avpic_dest.data));
+        memcpy(avpic_dest.linesize,dest-&gt;stride,sizeof(avpic_dest.linesize));
+
+        pp_postprocess(avpic_src.data,
+                        avpic_src.linesize,
+                        avpic_dest.data,
+                        avpic_dest.linesize,
+                        width,
+                        height,
+                        NULL,//picture-&gt;qscale_table,
+                        0,//picture-&gt;qstride,
+                        ppmode,
+                        ppcontext,
+                        orig-&gt;pict_type);
+        CopyPicBufferContext(dest,orig);
+}
+#endif //PP_LIBAVCODEC
+
+
+--- NEW FILE: VideoFilter.h ---
+/*
+ * VideoFilter.h: A plugin for the Video Disk Recorder
+ *
+ * See the README file for copyright information and how to reach the author.
+ *
+ * $Id: VideoFilter.h,v 1.1 2006/05/27 19:12:41 wachm Exp $
+ */
+#ifndef __VIDEOFILTER_H__
+#define __VIDEOFILTER_H__
+
+#ifdef HAVE_CONFIG
+# include &quot;config.h&quot;
+#endif
+
+#ifdef PP_LIBAVCODEC
+#include &lt;stdint.h&gt; //needed by postproc.h
+  #include &lt;postprocess.h&gt;
+  //#include &lt;postproc/postprocess.h&gt;
+#endif //PP_LIBAVCODEC
+
+#include &quot;video.h&quot;
+
+class cVideoFilter {
+protected:
+        cVideoOut *vout;
+
+public:
+        cVideoFilter(cVideoOut *VideoOut);
+        virtual ~cVideoFilter();
+
+        virtual void Filter(sPicBuffer *&amp;dest, sPicBuffer *orig)
+        {};
+        // Filter a Picture
+
+        bool AllocateCheckBuffer(sPicBuffer *&amp;dest, sPicBuffer *orig);
+        // If dest is NULL or doesn't match the format of *orig
+        // a picture buffer will be (re)allocated
+
+        bool AllocateBuffer(sPicBuffer *&amp;dest, sPicBuffer *orig);
+        // Allocates a picture buffer in dest with the same
+        // picture format and size as orig
+};
+
+class cVideoMirror : public cVideoFilter {
+        sPicBuffer *outBuf;
+public:
+        cVideoMirror(cVideoOut *VideoOut);
+        virtual ~cVideoMirror();
+   
+        virtual void Filter(sPicBuffer *&amp;dest, sPicBuffer *orig);
+};
+
+class cDeintLibav : public cVideoFilter {
+        sPicBuffer *outBuf;
+public:
+        cDeintLibav(cVideoOut *VideoOut);
+        virtual ~cDeintLibav();
+   
+        virtual void Filter(sPicBuffer *&amp;dest, sPicBuffer *orig);
+};
+
+class cImageConvert : public cVideoFilter {
+        sPicBuffer *outBuf;
+public:
+        cImageConvert(cVideoOut *VideoOut);
+        virtual ~cImageConvert();
+   
+        virtual void Filter(sPicBuffer *&amp;dest, sPicBuffer *orig);
+};
+
+#ifdef PP_LIBAVCODEC
+class cLibAvPostProc : public cVideoFilter {
+        int width, height;
+        PixelFormat pix_fmt;
+        pp_mode_t *ppmode;
+        pp_context_t *ppcontext;
+        sPicBuffer *outBuf;
+        int currentDeintMethod,currentppMethod,currentppQuality;
+public:
+        cLibAvPostProc(cVideoOut *VideoOut);
+        virtual ~cLibAvPostProc();
+   
+        virtual void Filter(sPicBuffer *&amp;dest, sPicBuffer *orig);
+};
+#endif //PP_LIBAVCODEC
+
+#endif //__VIDEOFILTER_H__
+
+--- NEW FILE: PicBuffer.c ---
+/*
+ * softdevice plugin for VDR
+ *
+ * Copyright (C) 2005 Martin Wache
+ *
+ * This code is distributed under the terms and conditions of the
+ * GNU GENERAL PUBLIC LICENSE. See the file COPYING for details.
+ *
+ * $Id: PicBuffer.c,v 1.1 2006/05/27 19:12:41 wachm Exp $
+ */
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+
+#include &quot;PicBuffer.h&quot;
+#include &quot;utils.h&quot;
+
+//#define PICDEB(out...) {printf(&quot;vout_pic[%04d]:&quot;,(int)(getTimeMilis() % 10000));printf(out);}
+
+#ifndef PICDEB
+#define PICDEB(out...)
+#endif
+
+void InitPicBuffer(sPicBuffer *Pic) {
+        memset(Pic-&gt;pixel,0,sizeof(Pic-&gt;pixel));
+        Pic-&gt;use_count=0;
+        Pic-&gt;pic_num=-256*256*256*64;
+};
+
+void CopyPicBufferContext(sPicBuffer *dest,sPicBuffer *orig){
+    dest-&gt;dtg_active_format=orig-&gt;dtg_active_format;
+    dest-&gt;aspect_ratio=orig-&gt;aspect_ratio;
+    dest-&gt;pts=orig-&gt;pts;
+    dest-&gt;interlaced_frame=orig-&gt;interlaced_frame;
+    dest-&gt;pict_type=orig-&gt;pict_type;
+};   
+
+cPicBufferManager::cPicBufferManager() {
+  lastPicNum=0;
+  for (int i=0; i&lt; LAST_PICBUF; i++) 
+          InitPicBuffer(&amp;PicBuffer[i]);
+  
+}
+
+cPicBufferManager::~cPicBufferManager() {
+        // FIXME release buffers
+};
+
+void cPicBufferManager::ReleasePicBuffer(int buf_num) {
+        PICDEB(&quot;ReleasePicBuffer %d&quot;,buf_num);
+        sPicBuffer *buf=&amp;PicBuffer[buf_num];
+
+        for (int i=0; i&lt;4; i++) {
+                free(buf-&gt;pixel[i]);
+                buf-&gt;pixel[i]=NULL;
+        };
+        buf-&gt;max_height=0;
+        buf-&gt;max_width=0;
+};
+
+void cPicBufferManager::GetChromaSubSample(PixelFormat pix_fmt,
+                int &amp;hChromaShift,
+                int &amp;vChromaShift) {
+        switch (pix_fmt) {
+                case PIX_FMT_YUV420P:
+                        hChromaShift=vChromaShift=1;
+                        break;
+                case PIX_FMT_YUV422P:
+                        hChromaShift=1;vChromaShift=0;
+                        break;
+                case PIX_FMT_YUV444P:
+                        hChromaShift=0;vChromaShift=0;
+                        break;
+                      
+                default:
+                        fprintf(stderr,&quot;warning unsupported pixel format!\n&quot;);
+                        hChromaShift=vChromaShift=0;
+        };
+};
+
+void cPicBufferManager::LockBuffer(sPicBuffer *picture) {
+        PicBufMutex.Lock();
+        if (picture)
+                picture-&gt;use_count++;
+        PicBufMutex.Unlock();
+};
+
+void cPicBufferManager::UnlockBuffer(sPicBuffer *picture) {
+        PicBufMutex.Lock();
+        if (picture &amp;&amp; picture-&gt;use_count&gt;0)
+                picture-&gt;use_count--;
+        PicBufMutex.Unlock();
+};
+
+// the following methods are based on ffmpeg's get_buffer and release_buffer
+// with the originial copyright notice
+/*
+ * utils for libavcodec
+ * Copyright (c) 2001 Fabrice Bellard.
+ * Copyright (c) 2003 Michel Bardiaux for the av_log API
+ * Copyright (c) 2002-2004 Michael Niedermayer &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">michaelni at gmx.at</A>&gt;
+ *
+*/
+int cPicBufferManager::GetFormatBPP(PixelFormat fmt) {
+        int pixel_size=1;
+        switch(fmt){
+        case PIX_FMT_RGB555:
+        case PIX_FMT_RGB565:
+        case PIX_FMT_YUV422:
+        //case PIX_FMT_UYVY422: // FIXME which ffmpeg version
+            pixel_size=2;
+            break;
+        case PIX_FMT_RGB24:
+        case PIX_FMT_BGR24:
+            pixel_size=3;
+            break;
+        case PIX_FMT_RGBA32:
+            pixel_size=4;
+            break;
+        default:
+            pixel_size=1;
+        }
+        return pixel_size;
+};
+
+#define ALIGN(x, a) (((x)+(a)-1)&amp;~((a)-1))
+#define STRIDE_ALIGN 16
+#define EDGE_WIDTH 16
+
+void cPicBufferManager::AllocPicBuffer(int buf_num,PixelFormat pix_fmt, 
+                int w, int h)  {
+        PICDEB(&quot;AllocPicBuffer buf_num %d pix_fmt %d (%d,%d)\n&quot;,
+                        buf_num,pix_fmt,w,h);
+        sPicBuffer *buf=&amp;PicBuffer[buf_num];
+        int h_chroma_shift, v_chroma_shift;
+        int pixel_size=GetFormatBPP(pix_fmt);
+        
+        GetChromaSubSample(pix_fmt, h_chroma_shift, v_chroma_shift);
+
+        for(int i=0; i&lt;3; i++){
+            const int h_shift= i==0 ? 0 : h_chroma_shift;
+            const int v_shift= i==0 ? 0 : v_chroma_shift;
+
+            //FIXME next ensures that linesize= 2^x uvlinesize, thats needed because some MC code assumes it
+            buf-&gt;stride[i]= ALIGN(pixel_size*w&gt;&gt;h_shift, 
+                            STRIDE_ALIGN&lt;&lt;(h_chroma_shift-h_shift)); 
+
+            buf-&gt;pixel[i]= (uint8_t*)malloc((buf-&gt;stride[i]*h&gt;&gt;v_shift)+16); //FIXME 16
+            
+            if(buf-&gt;pixel[i]==NULL) {
+                    printf(&quot;could not allocate memory for picture buffer!\n&quot;) ;
+                    exit(-1);
+            };
+            
+            memset(buf-&gt;pixel[i], 128, buf-&gt;stride[i]*h&gt;&gt;v_shift);
+       
+        }
+        buf-&gt;max_width=w;
+        buf-&gt;max_height=h;
+        PICDEB(&quot;end AllocPicBuffer buf-&gt;pixel[0] %p\n&quot;,buf-&gt;pixel[0]);
+}
+
+sPicBuffer *cPicBufferManager::GetBuffer(PixelFormat pix_fmt,
+                    int w, int h) {
+    PICDEB(&quot;GetBuffer pix_fmt %d frame %p (%d,%d)\n&quot;,pix_fmt,pic,w,h);
+
+    //assert(pic-&gt;data[0]==NULL);
+
+    PicBufMutex.Lock();
+    int buf_num=0;
+    while (buf_num&lt;LAST_PICBUF &amp;&amp; PicBuffer[buf_num].use_count!=0 ) {
+            PICDEB(&quot;not using buffer %d: use_count=%d\n&quot;,buf_num,
+                            PicBuffer[buf_num].use_count);
+            buf_num++;
+    };
+
+    //assert(buf_num&lt;LAST_PICBUF);
+    if (buf_num&gt;=LAST_PICBUF) {
+            printf(&quot;error finding PicBuffer!\n&quot;);
+            exit(-1);
+    };
+
+    // format change?
+    if (PicBuffer[buf_num].pixel[0] &amp;&amp;
+                    ( PicBuffer[buf_num].format != pix_fmt
+                      || PicBuffer[buf_num].max_width != w
+                      || PicBuffer[buf_num].max_height != h ) ) {
+//                      || PicBuffer[buf_num].max_width &lt; w
+//                      || PicBuffer[buf_num].max_height &lt; h ) ) {
+            PICDEB(&quot;format change relasing old buf_num %d\n&quot;,buf_num);
+            ReleasePicBuffer(buf_num);
+            PicBuffer[buf_num].pixel[0]=NULL;
+    };
+
+    if (!PicBuffer[buf_num].pixel[0]) {
+            PICDEB(&quot;allocating buf_num %d\n&quot;,buf_num);
+            PicBuffer[buf_num].pic_num= -256*256*256*64;
+            AllocPicBuffer(buf_num,pix_fmt,w,h);
+    };
+    
+    // found or allocated a picture buffer
+    lastPicNum++;
+    PicBuffer[buf_num].use_count++;
+    PicBuffer[buf_num].buf_num = buf_num;
+    PicBuffer[buf_num].owner = this;
+    PicBufMutex.Unlock();
+
+    PicBuffer[buf_num].age= lastPicNum - PicBuffer[buf_num].pic_num;
+    PicBuffer[buf_num].pic_num= lastPicNum;
+
+    PICDEB(&quot;end GetBuffer: pic-&gt;data[0] %p buf_num %d\n&quot;,
+                    pic-&gt;data[0],buf_num);
+    return &amp;PicBuffer[buf_num];
+}
+
+void cPicBufferManager::ReleaseBuffer( sPicBuffer *pic ){
+    PICDEB(&quot;ReleaseBuffer frame %p, data[0] %p\n&quot;,
+                    pic,pic-&gt;data[0]);
+
+    int buf_num=0;
+    PicBufMutex.Lock();
+    while (buf_num&lt;LAST_PICBUF &amp;&amp; PicBuffer[buf_num].pixel[0]!=pic-&gt;pixel[0] ) 
+            buf_num++;
+
+    //assert(buf_num&lt;LAST_PICBUF);
+    if (buf_num&gt;=LAST_PICBUF)  {
+            printf(&quot;didn't find corresponding PicBuffer!\n&quot;);
+            exit(-1);
+    };
+    
+    // found PicBuffer
+    PicBuffer[buf_num].use_count--;
+    PicBuffer[buf_num].buf_num=-1;
+    PicBufMutex.Unlock();
+}
+
+// end of code based on ffmpeg
+
+void CopyPicBuf(sPicBuffer *dst, sPicBuffer *src,
+                int width, int height,
+                int cutTop, int cutBottom, 
+                int cutLeft, int cutRight) {
+       
+        //cutTop+=src-&gt;edge_height/2;
+        //cutLeft+=src-&gt;edge_width/2;
+        uint8_t *dst_ptr=dst-&gt;pixel[0];
+        uint8_t *src_ptr=src-&gt;pixel[0]+
+                (2*cutTop+src-&gt;edge_height)*src-&gt;stride[0]+
+                2*cutLeft+src-&gt;edge_width;
+        for (int i = height - (cutBottom+cutTop) * 2; i&gt;=0; i--) {
+                fast_memcpy(dst_ptr,src_ptr,
+                            width - 2 * (cutLeft + cutRight));
+                dst_ptr+=dst-&gt;stride[0];
+                src_ptr+=src-&gt;stride[0];
+        };
+        
+        dst_ptr=dst-&gt;pixel[1];
+        src_ptr=src-&gt;pixel[1]+(cutTop+src-&gt;edge_height/2)*src-&gt;stride[1]+
+                cutLeft+src-&gt;edge_width/2;
+        for (int i = height / 2 - (cutBottom+cutTop); i&gt;=0; i--) {
+                fast_memcpy (dst_ptr,src_ptr,
+                                width / 2 - (cutLeft + cutRight));
+                dst_ptr+=dst-&gt;stride[1];
+                src_ptr+=src-&gt;stride[1];
+        };
+
+        dst_ptr=dst-&gt;pixel[2];
+        src_ptr=src-&gt;pixel[2]+(cutTop+src-&gt;edge_height/2)*src-&gt;stride[2]+
+                cutLeft+src-&gt;edge_width/2;
+        for (int i = height / 2 - (cutBottom+cutTop); i&gt;=0; i--) {
+                fast_memcpy (dst_ptr,src_ptr,
+                                width / 2 - (cutLeft + cutRight));
+                dst_ptr+=dst-&gt;stride[2];
+                src_ptr+=src-&gt;stride[2];
+        };
+};
+
+void CopyPicBufAlphaBlend(sPicBuffer *dst, sPicBuffer *src,
+                uint8_t *OsdPy,
+                uint8_t *OsdPu, 
+                uint8_t *OsdPv,
+                uint8_t *OsdPAlphaY,
+                uint8_t *OsdPAlphaUV,
+                int OsdStride,
+                int width, int height,
+                int cutTop, int cutBottom, 
+                int cutLeft, int cutRight) {
+       
+        //cutTop+=src-&gt;edge_height/2;
+        //cutLeft+=src-&gt;edge_width/2;
+        uint8_t *dst_ptr=dst-&gt;pixel[0];
+        uint8_t *src_ptr=src-&gt;pixel[0]+
+                (2*cutTop+src-&gt;edge_height)*src-&gt;stride[0]+
+                2*cutLeft+src-&gt;edge_width;
+        uint8_t *osd_ptr=OsdPy+2*cutTop*OsdStride+2*cutLeft;
+        uint8_t *alpha_ptr=OsdPAlphaY+2*cutTop*OsdStride+2*cutLeft;
+        for (int i = height - (cutBottom+cutTop) * 2; i&gt;=0; i--) {
+                AlphaBlend(dst_ptr,osd_ptr,src_ptr,alpha_ptr,
+                            width - 2 * (cutLeft + cutRight));
+                dst_ptr+=dst-&gt;stride[0];
+                src_ptr+=src-&gt;stride[0];
+                osd_ptr+=OsdStride;
+                alpha_ptr+=OsdStride;
+        };
+        
+        dst_ptr=dst-&gt;pixel[1];
+        src_ptr=src-&gt;pixel[1]+(cutTop+src-&gt;edge_height/2)*src-&gt;stride[1]+
+                cutLeft+src-&gt;edge_width/2;
+        osd_ptr=OsdPu+cutTop*OsdStride/2+cutLeft;
+        alpha_ptr=OsdPAlphaUV+cutTop*OsdStride/2+cutLeft;
+        for (int i = height / 2 - (cutBottom+cutTop); i&gt;=0; i--) {
+                AlphaBlend(dst_ptr,osd_ptr,src_ptr,alpha_ptr,
+                                width / 2 - (cutLeft + cutRight));
+                dst_ptr+=dst-&gt;stride[1];
+                src_ptr+=src-&gt;stride[1];
+                osd_ptr+=OsdStride/2;
+                alpha_ptr+=OsdStride/2;
+        };
+
+        dst_ptr=dst-&gt;pixel[2];
+        src_ptr=src-&gt;pixel[2]+(cutTop+src-&gt;edge_height/2)*src-&gt;stride[2]+
+                cutLeft+src-&gt;edge_width/2;
+        osd_ptr=OsdPv+cutTop*OsdStride/2+cutLeft;
+        alpha_ptr=OsdPAlphaUV+cutTop*OsdStride/2+cutLeft;
+        for (int i = height / 2 - (cutBottom+cutTop); i&gt;=0; i--) {
+                AlphaBlend(dst_ptr,osd_ptr,src_ptr,alpha_ptr,
+                                width / 2 - (cutLeft + cutRight));
+                dst_ptr+=dst-&gt;stride[2];
+                src_ptr+=src-&gt;stride[2];
+                osd_ptr+=OsdStride/2;
+                alpha_ptr+=OsdStride/2;
+       };
+       /*
+        for (int i = cutTop; i &lt; fheight / 2 - cutBottom; i++)
+                fast_memcpy (pixels [2] + i * xvWidth / 2 + cutLeft,
+                                Pu + i * UVstride + cutLeft,
+                                fwidth / 2 - (cutLeft + cutRight));
+                                */
+};
+
+
+--- NEW FILE: PicBuffer.h ---
+/*
+ * softdevice plugin for VDR
+ *
+ * Copyright (C) 2005 Martin Wache
+ *
+ * This code is distributed under the terms and conditions of the
+ * GNU GENERAL PUBLIC LICENSE. See the file COPYING for details.
+ *
+ * $Id: PicBuffer.h,v 1.1 2006/05/27 19:12:41 wachm Exp $
+ */
+#ifndef __PIC_BUFFER_H__
+#define __PIC_BUFFER_H__
+
+#include &lt;avcodec.h&gt;
+
+#ifndef STAND_ALONE
+#include &lt;vdr/plugin.h&gt;
+#include &lt;vdr/remote.h&gt;
+#else
+#include &quot;VdrReplacements.h&quot;
+#endif
+
+class cPicBufferManager;
+
+typedef struct sPicBuffer {
+    PixelFormat format;
+    uint8_t *pixel[4];
+    int stride[4];
+    unsigned int use_count;
+    int buf_num;
+    int max_width; // maximal size of the picture edge + picture
+    int max_height;
+    
+    int edge_width; // size of edges (needed by some ffmpeg codecs)
+    int edge_height;
+    int width;  // size of the actual picture (without edges)
+    int height;
+    int dtg_active_format;
+    float aspect_ratio;
+    uint64_t pts;
+    bool interlaced_frame;
+    int pict_type;
+   
+    cPicBufferManager *owner;
+ 
+    int pic_num;
+    int age;
+    void *priv_data;
+};
+
+void InitPicBuffer(sPicBuffer *Pic);
+void CopyPicBufferContext(sPicBuffer *dest,sPicBuffer *orig);
+
+class cPicBufferManager {
+public:
+        cPicBufferManager();
+
+        virtual ~cPicBufferManager();
+      
+        int lastPicNum;
+#define LAST_PICBUF 10
+        struct sPicBuffer PicBuffer[LAST_PICBUF];
+        cMutex PicBufMutex;
+
+        sPicBuffer *GetBuffer(PixelFormat pix_fmt,int width, int height);
+        void ReleaseBuffer(sPicBuffer *pic);
+
+        void LockBuffer(sPicBuffer *picture);
+        void UnlockBuffer(sPicBuffer *picture);
+        
+        int GetFormatBPP(PixelFormat fmt);
+        void GetChromaSubSample(PixelFormat pix_fmt,
+                int &amp;hChromaShift,
+                int &amp;vChromaShift);
+        virtual void ReleasePicBuffer(int buf_num);
+        virtual void AllocPicBuffer(int buf_num,PixelFormat pix_fmt,
+                        int w, int h);
+
+};
+
+void CopyPicBuf(sPicBuffer *dest, sPicBuffer *src,
+                int width, int height,
+                int cutTop, int cutBottom, int cutLeft, int cutRight);
+
+void CopyPicBufAlphaBlend(sPicBuffer *dst, 
+                sPicBuffer *src,
+                uint8_t *OsdPy,uint8_t *OsdPu, 
+                uint8_t *OsdPv,uint8_t *OsdPAlphaY,
+                uint8_t *OsdPAlphaUV,int width, int height,
+                int cutTop, int cutBottom,int cutLeft, int cutRight); 
+ 
+#endif
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.57
+retrieving revision 1.58
+diff -C2 -d -r1.57 -r1.58
+*** video.c	23 May 2006 21:11:37 -0000	1.57
+--- video.c	27 May 2006 19:12:41 -0000	1.58
+***************
+*** 13,16 ****
+--- 13,17 ----
+  #include &lt;unistd.h&gt;
+  #include &lt;stdlib.h&gt;
++ #include &lt;math.h&gt;
+  
+  //#include &lt;vdr/plugin.h&gt;
+***************
+*** 33,38 ****
+  #endif
+    // set some reasonable defaults
+!   old_width = fwidth = lwidth = old_dwidth = dwidth = swidth = 720;
+!   old_height = fheight = lheight = old_dheight = dheight = sheight = 536;
+    sxoff = syoff = lxoff = lyoff = 0;
+    cutTop = cutBottom = cutLeft = cutRight = 0;
+--- 34,39 ----
+  #endif
+    // set some reasonable defaults
+!   fwidth = lwidth = old_dwidth = dwidth = swidth = 720;
+!   fheight = lheight = old_dheight = dheight = sheight = 536;
+    sxoff = syoff = lxoff = lyoff = 0;
+    cutTop = cutBottom = cutLeft = cutRight = 0;
+***************
+*** 114,131 ****
+        {
+          OSDDEB(&quot;redrawing old_picture\n&quot;);
+!         DrawStill_420pl (old_picture-&gt;data[0],
+!                          old_picture-&gt;data[1],
+!                          old_picture-&gt;data[2],
+!                          old_width, old_height,
+!                          old_picture-&gt;linesize[0],
+!                          old_picture-&gt;linesize[1]);
+        }
+        else
+        {
+          OSDDEB(&quot;drawing osd_layer\n&quot;);
+!         DrawStill_420pl (OsdPy,OsdPu, OsdPv,
+!                         OsdWidth,OsdHeight,
+!                         //OSD_FULL_WIDTH, OSD_FULL_HEIGHT,
+!                          OSD_FULL_WIDTH, OSD_FULL_WIDTH/2);
+        }
+        osdMutex.Unlock();
+--- 115,135 ----
+        {
+          OSDDEB(&quot;redrawing old_picture\n&quot;);
+!         DrawStill_420pl(old_picture);
+        }
+        else
+        {
++         sPicBuffer tmpBuf;
++         tmpBuf.pixel[0]=OsdPy;
++         tmpBuf.pixel[1]=OsdPu;
++         tmpBuf.pixel[2]=OsdPv;
++         tmpBuf.stride[0]=OSD_FULL_WIDTH;
++         tmpBuf.stride[1]=tmpBuf.stride[2]=OSD_FULL_WIDTH/2;
++         tmpBuf.width=OSD_FULL_WIDTH;
++         tmpBuf.height=OSD_FULL_HEIGHT;
++         tmpBuf.aspect_ratio=((float)OSD_FULL_HEIGHT)/((float)OSD_FULL_WIDTH);
++         tmpBuf.aspect_ratio=((float)OSD_FULL_WIDTH)/((float)OSD_FULL_HEIGHT);
++         tmpBuf.dtg_active_format=0;
+          OSDDEB(&quot;drawing osd_layer\n&quot;);
+!         DrawStill_420pl(&amp;tmpBuf);
+        }
+        osdMutex.Unlock();
+***************
+*** 137,155 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cVideoOut::InvalidateOldPicture(void)
+! {
+!   areaMutex.Lock();
+!   old_picture = NULL;
+!   areaMutex.Unlock();
+! }
+! 
+! /* ---------------------------------------------------------------------------
+!  */
+! void cVideoOut::SetOldPicture(AVFrame *picture, int width, int height)
+  {
+    //osdMutex.Lock(); //protected by areaMutex osdMutex will cause deadlocks!
+!   old_picture = picture;
+!   old_width = width;
+!   old_height = height;
+    //osdMutex.Unlock();
+  }
+--- 141,154 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void cVideoOut::SetOldPicture(sPicBuffer *picture)
+  {
+    //osdMutex.Lock(); //protected by areaMutex osdMutex will cause deadlocks!
+!   //PICDEB(&quot;SetOldPicture pic-&gt;buf_num %d\n&quot;,picture-&gt;buf_num);
+!   UnlockBuffer(old_picture);
+!   if (picture &amp;&amp; picture-&gt;owner==this) {
+!      LockBuffer(picture);
+!      old_picture=picture;
+!   } else old_picture = NULL;
+!   
+    //osdMutex.Unlock();
+  }
+***************
+*** 363,427 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cVideoOut::CheckAspectDimensions(AVFrame *picture,
+!                                         AVCodecContext *context)
+  {
+-     volatile double new_asp;
+- 
+    /* --------------------------------------------------------------------------
+     * check and handle changes of dimensions first
+     */
+!   if (fwidth != context-&gt;width || fheight != context-&gt;height)
+    {
+      dsyslog(&quot;[VideoOut]: resolution changed: W(%d -&gt; %d); H(%d -&gt;%d)\n&quot;,
+!              fwidth, context-&gt;width, fheight, context-&gt;height);
+!     fwidth = context-&gt;width; fheight = context-&gt;height;
+      current_aspect = -1;
+    }
+! 
+!   if (interlaceMode != picture-&gt;interlaced_frame)
+    {
+      //dsyslog(&quot;[VideoOut]: interlaced mode now: %sinterlaced&quot;,
+        //      (picture-&gt;interlaced_frame) ? &quot;&quot; : &quot;non-&quot;);
+!     interlaceMode = picture-&gt;interlaced_frame;
+!   }
+! #if LIBAVCODEC_BUILD &gt; 4686
+!   /* --------------------------------------------------------------------------
+!    * removed aspect ratio calculation based on picture-&gt;pan_scan-&gt;width
+!    * as this value seems to be wrong on some dvds.
+!    * reverted this removal as effect from above it is not reproducable.
+!    */
+!   if (!context-&gt;sample_aspect_ratio.num)
+!   {
+!     new_asp = (double) (context-&gt;width) / (double) (context-&gt;height);
+!   }
+!   else if (picture-&gt;pan_scan &amp;&amp; picture-&gt;pan_scan-&gt;width)
+!   {
+!     new_asp = (double) (picture-&gt;pan_scan-&gt;width *
+!                          context-&gt;sample_aspect_ratio.num) /
+!                 (double) (picture-&gt;pan_scan-&gt;height *
+!                            context-&gt;sample_aspect_ratio.den);
+!   }
+!   else
+!   {
+!     new_asp = (double) (context-&gt;width * context-&gt;sample_aspect_ratio.num) /
+!                (double) (context-&gt;height * context-&gt;sample_aspect_ratio.den);
+    }
+- #else
+-   new_asp = context-&gt;aspect_ratio;
+- #endif
+  
+!   /* --------------------------------------------------------------------------
+!    * aspect_F and new_asp are now static volatile float. Due to above
+!    * code removal, gcc-3.3.1 from suse compiles comparison wrong.
+!    * it compares the 32bit float value with it's temprary new_asp value
+!    * from above calculation which has even a higher precision than double :-( ,
+!    * and would result not_equal every time.
+!    */
+!   if (aspect_I != context-&gt;dtg_active_format ||
+!       aspect_F != new_asp)
+    {
+      dsyslog(&quot;[VideoOut]: aspect changed (%d -&gt; %d ; %f -&gt; %f)&quot;,
+!              aspect_I,context-&gt;dtg_active_format,
+!              aspect_F,new_asp);
+  #if LIBAVCODEC_BUILD &gt; 4686
+      if (picture-&gt;pan_scan &amp;&amp; picture-&gt;pan_scan-&gt;width) {
+--- 362,391 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void cVideoOut::CheckAspectDimensions(sPicBuffer *pic)
+  {
+    /* --------------------------------------------------------------------------
+     * check and handle changes of dimensions first
+     */
+!   if (fwidth != pic-&gt;width || fheight != pic-&gt;height)
+    {
+      dsyslog(&quot;[VideoOut]: resolution changed: W(%d -&gt; %d); H(%d -&gt;%d)\n&quot;,
+!              fwidth, pic-&gt;width, fheight, pic-&gt;height);
+!     fwidth = pic-&gt;width; fheight = pic-&gt;height;
+      current_aspect = -1;
+    }
+!   if (interlaceMode != pic-&gt;interlaced_frame)
+    {
+      //dsyslog(&quot;[VideoOut]: interlaced mode now: %sinterlaced&quot;,
+        //      (picture-&gt;interlaced_frame) ? &quot;&quot; : &quot;non-&quot;);
+!     interlaceMode = pic-&gt;interlaced_frame;
+    }
+  
+!   if (aspect_I != pic-&gt;dtg_active_format ||
+!       fabs(aspect_F - pic-&gt;aspect_ratio ) &gt; 0.0001 )
+    {
+      dsyslog(&quot;[VideoOut]: aspect changed (%d -&gt; %d ; %f -&gt; %f)&quot;,
+!              aspect_I,pic-&gt;dtg_active_format,
+!              aspect_F,pic-&gt;aspect_ratio);
+! #if 0
+  #if LIBAVCODEC_BUILD &gt; 4686
+      if (picture-&gt;pan_scan &amp;&amp; picture-&gt;pan_scan-&gt;width) {
+***************
+*** 440,446 ****
+      }
+  #endif
+  
+!     aspect_I = context-&gt;dtg_active_format;
+!     aspect_F = new_asp;
+    }
+  
+--- 404,411 ----
+      }
+  #endif
++ #endif
+  
+!     aspect_I = pic-&gt;dtg_active_format;
+!     aspect_F = pic-&gt;aspect_ratio;
+    }
+  
+***************
+*** 475,496 ****
+   */
+  void cVideoOut::DrawVideo_420pl(cSyncTimer *syncTimer, int *delay,
+!                                 AVFrame *picture, AVCodecContext *context)
+  {
+    areaMutex. Lock();
+    OsdRefreshCounter=0;
+    Osd_changed=0;
+!   CheckAspectDimensions(picture,context);
+!   SetOldPicture(picture,context-&gt;width,context-&gt;height);
+    Sync(syncTimer, delay);
+!   // display picture
+!   YUV(picture-&gt;data[0], picture-&gt;data[1],picture-&gt;data[2],
+!       context-&gt;width,context-&gt;height,
+!       picture-&gt;linesize[0],picture-&gt;linesize[1]);
+  
+-   /* --------------------------------------------------------------------------
+-    * Unlocking could be done a bit earlier in YUV(), after video is displayed
+-    * and before event processing starts. For now it is easier to do it here.
+-    * Same applies for DrawStill_420pl() below.
+-    */
+    areaMutex. Unlock();
+    ProcessEvents();
+--- 440,455 ----
+   */
+  void cVideoOut::DrawVideo_420pl(cSyncTimer *syncTimer, int *delay,
+!                                 sPicBuffer *pic)
+  {
+    areaMutex. Lock();
+    OsdRefreshCounter=0;
+    Osd_changed=0;
+!   CheckAspectDimensions(pic);
+    Sync(syncTimer, delay);
+!   
+!   // display picture 
+!   YUV(pic);
+!   SetOldPicture(pic);
+  
+    areaMutex. Unlock();
+    ProcessEvents();
+***************
+*** 499,513 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cVideoOut::DrawStill_420pl(uint8_t *pY, uint8_t *pU, uint8_t *pV,
+!                                 int w, int h, int yPitch, int uvPitch,
+!                                 int new_afd,double new_asp)
+  {
+    areaMutex. Lock();
+    OsdRefreshCounter=0;
+    Osd_changed=0;
+!   CheckArea(w, h);
+!   CheckAspect(new_afd==-1?current_afd:new_afd, new_asp==0?aspect_F:new_asp);
+    // display picture
+!   YUV (pY, pU, pV, w, h, yPitch, uvPitch);
+    areaMutex. Unlock();
+    ProcessEvents();
+--- 458,470 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void cVideoOut::DrawStill_420pl(sPicBuffer *buf)
+  {
+    areaMutex. Lock();
+    OsdRefreshCounter=0;
+    Osd_changed=0;
+!   CheckArea(buf-&gt;width, buf-&gt;height);
+!   CheckAspect(buf-&gt;dtg_active_format,buf-&gt;aspect_ratio);
+    // display picture
+!   YUV (buf);
+    areaMutex. Unlock();
+    ProcessEvents();
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.39
+retrieving revision 1.40
+diff -C2 -d -r1.39 -r1.40
+*** video.h	23 May 2006 21:11:37 -0000	1.39
+--- video.h	27 May 2006 19:12:41 -0000	1.40
+***************
+*** 23,29 ****
+  #include &quot;setup-softdevice.h&quot;
+  #include &quot;sync-timer.h&quot;
+! 
+! 
+! #include &lt;avcodec.h&gt;
+  
+  #define DV_FORMAT_UNKNOWN -1
+--- 23,27 ----
+  #include &quot;setup-softdevice.h&quot;
+  #include &quot;sync-timer.h&quot;
+! #include &quot;PicBuffer.h&quot;
+  
+  #define DV_FORMAT_UNKNOWN -1
+***************
+*** 66,70 ****
+  #endif
+  
+! class cVideoOut: public cThread {
+  private:
+      int     aspect_I;
+--- 64,68 ----
+  #endif
+  
+! class cVideoOut: public cPicBufferManager, public cThread {
+  private:
+      int     aspect_I;
+***************
+*** 113,121 ****
+      double  parValues[SETUP_VIDEOASPECTNAMES_COUNT];
+  
+      bool    videoInitialized;
+  
+-     AVFrame *old_picture;
+-     int     old_width, old_height;
+- 
+      cSetupStore *setupStore;
+  
+--- 111,117 ----
+      double  parValues[SETUP_VIDEOASPECTNAMES_COUNT];
+  
++     sPicBuffer *old_picture;
+      bool    videoInitialized;
+  
+      cSetupStore *setupStore;
+  
+***************
+*** 137,152 ****
+  
+      virtual void Sync(cSyncTimer *syncTimer, int *delay);
+!     virtual void YUV(uint8_t *Py, uint8_t *Pu, uint8_t *Pv, int Width, int Height, int Ystride, int UVstride) { return; };
+      virtual void Pause(void) {return;};
+      virtual void SetParValues(double displayAspect, double displayRatio);
+      virtual void CheckAspect(int new_afd, double new_asp);
+!     virtual void CheckAspectDimensions (AVFrame *picture, AVCodecContext *context);
+      virtual void CheckArea(int w, int h);
+!     virtual void DrawVideo_420pl (cSyncTimer *syncTimer, int *delay,
+!                                   AVFrame *picture, AVCodecContext *context);
+!     virtual void DrawStill_420pl (uint8_t *pY, uint8_t *pU, uint8_t *pV,
+!                                   int w, int h, int yPitch, int uvPitch,
+!                                   int new_afd=-1,
+!                                   double new_asp=0.0);
+      virtual bool Initialize(void) {videoInitialized = true; return 1;};
+      virtual bool Reconfigure (int format) {return 1;};
+--- 133,146 ----
+  
+      virtual void Sync(cSyncTimer *syncTimer, int *delay);
+!     virtual void YUV(sPicBuffer *buf) { return; };
+!     //virtual void YUV(uint8_t *Py, uint8_t *Pu, uint8_t *Pv, int Width, int Height, int Ystride, int UVstride) { return; };
+      virtual void Pause(void) {return;};
+      virtual void SetParValues(double displayAspect, double displayRatio);
+      virtual void CheckAspect(int new_afd, double new_asp);
+!     virtual void CheckAspectDimensions (sPicBuffer *pic);
+      virtual void CheckArea(int w, int h);
+!     virtual void DrawVideo_420pl(cSyncTimer *syncTimer, int *delay,
+!                                   sPicBuffer *pic);
+!     virtual void DrawStill_420pl(sPicBuffer *buf);
+      virtual bool Initialize(void) {videoInitialized = true; return 1;};
+      virtual bool Reconfigure (int format) {return 1;};
+***************
+*** 163,168 ****
+      // time
+  
+!     virtual void InvalidateOldPicture(void);
+!     virtual void SetOldPicture(AVFrame *picture, int width, int height);
+  
+      uint8_t *PixelMask;
+--- 157,161 ----
+      // time
+  
+!     virtual void SetOldPicture(sPicBuffer *pic);
+  
+      uint8_t *PixelMask;
+
+Index: ShmClient.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/ShmClient.c,v
+retrieving revision 1.13
+retrieving revision 1.14
+diff -C2 -d -r1.13 -r1.14
+*** ShmClient.c	29 Apr 2006 06:23:28 -0000	1.13
+--- ShmClient.c	27 May 2006 19:12:41 -0000	1.14
+***************
+*** 80,84 ****
+          uint8_t *curr_pict=0;
+          uint8_t *curr_osd=0;
+!         uint8_t *pixel[4];
+  
+          if ((ctl_shmid = shmget(ctl_key, sizeof( ShmCtlBlock ), 0666)) &lt; 0) {
+--- 80,85 ----
+          uint8_t *curr_pict=0;
+          uint8_t *curr_osd=0;
+!         sPicBuffer picture;
+!         //uint8_t *pixel[4];
+  
+          if ((ctl_shmid = shmget(ctl_key, sizeof( ShmCtlBlock ), 0666)) &lt; 0) {
+***************
+*** 105,108 ****
+--- 106,114 ----
+                  ctl-&gt;stride1=vout-&gt;xv_image-&gt;pitches[1];
+                  ctl-&gt;stride2=vout-&gt;xv_image-&gt;pitches[2];
++                 picture.pixel[0]=picture.pixel[1]=picture.pixel[2]=NULL;
++                 picture.stride[0]=ctl-&gt;stride0;
++                 picture.stride[1]=ctl-&gt;stride1;
++                 picture.stride[2]=ctl-&gt;stride1;
++                 picture.edge_width=picture.edge_height=0;
+          } else {
+                  // create a picture in shm
+***************
+*** 129,135 ****
+                          shmctl (ctl-&gt;pict_shmid, IPC_RMID, 0);
+  
+!                 pixel[0]=curr_pict;
+!                 pixel[1]=curr_pict+ctl-&gt;max_height*ctl-&gt;stride0;
+!                 pixel[2]=pixel[1]+ctl-&gt;max_height/2*ctl-&gt;stride1;
+          }
+          ctl-&gt;attached=1;
+--- 135,145 ----
+                          shmctl (ctl-&gt;pict_shmid, IPC_RMID, 0);
+  
+!                 picture.stride[0]=ctl-&gt;stride0;
+!                 picture.stride[1]=ctl-&gt;stride1;
+!                 picture.stride[2]=ctl-&gt;stride1;
+!                 picture.pixel[0]=curr_pict;
+!                 picture.pixel[1]=curr_pict+ctl-&gt;max_height*ctl-&gt;stride0;
+!                 picture.pixel[2]=picture.pixel[1]+ctl-&gt;max_height/2*ctl-&gt;stride1;
+!                 picture.edge_width=picture.edge_height=0;
+          }
+          ctl-&gt;attached=1;
+***************
+*** 180,195 ****
+                                  ctl-&gt;max_height:ctl-&gt;height;
+  
+                          vout-&gt;CheckArea(width,height);
+                          //vout-&gt;CheckAspect(ctl-&gt;new_afd,ctl-&gt;new_asp);
+                          if ( vout-&gt;useShm ) {
+!                                 vout-&gt;DrawStill_420pl(NULL,NULL,NULL,
+!                                                 width,height,
+!                                                 ctl-&gt;stride0,ctl-&gt;stride1,
+!                                                 ctl-&gt;new_afd,ctl-&gt;new_asp);
+                          } else {
+!                                 vout-&gt;DrawStill_420pl(pixel[0],pixel[2],pixel[1],
+!                                         width,height,
+!                                         ctl-&gt;stride0,ctl-&gt;stride1,
+!                                         ctl-&gt;new_afd,ctl-&gt;new_asp);
+                          };
+                          ctl-&gt;new_pict=0;
+--- 190,204 ----
+                                  ctl-&gt;max_height:ctl-&gt;height;
+  
++                         picture.width=ctl-&gt;width;
++                         picture.height=ctl-&gt;height;
++                         picture.dtg_active_format=ctl-&gt;new_afd;
++                         picture.aspect_ratio=ctl-&gt;new_asp;
++ 
+                          vout-&gt;CheckArea(width,height);
+                          //vout-&gt;CheckAspect(ctl-&gt;new_afd,ctl-&gt;new_asp);
+                          if ( vout-&gt;useShm ) {
+!                                 vout-&gt;DrawStill_420pl(&amp;picture);
+                          } else {
+!                                 vout-&gt;DrawStill_420pl(&amp;picture);
+                          };
+                          ctl-&gt;new_pict=0;
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.63
+retrieving revision 1.64
+diff -C2 -d -r1.63 -r1.64
+*** mpeg2decoder.c	14 Apr 2006 21:25:44 -0000	1.63
+--- mpeg2decoder.c	27 May 2006 19:12:41 -0000	1.64
+***************
+*** 41,44 ****
+--- 41,46 ----
+  
+  //#define AV_STATS
++ 
++ 
+  //------------------------------------cPacketBuffer------------------------
+  
+***************
+*** 498,521 ****
+  // --- VIDEO ------------------------------------------------------------------
+  
+  cVideoStreamDecoder::cVideoStreamDecoder(AVCodecContext *Context,
+                                           cVideoOut *VideoOut, cClock *Clock,
+                                           int Trickspeed,
+                                           bool packetMode)
+!                                          : cStreamDecoder(Context, packetMode)
+  {
+-   width = height = -1;
+-   pix_fmt = PIX_FMT_NB;
+-   pic_buf_lavc = pic_buf_mirror = pic_buf_pp = pic_buf_convert = NULL;
+-   currentMirrorMode  = setupStore.mirror;
+-   currentDeintMethod = setupStore.deintMethod;
+-   currentppMethod = setupStore.ppMethod;
+-   currentppQuality = setupStore.ppQuality;
+- 
+    memset(pts_values,-1,sizeof(pts_values));
+    lastPTSidx=lastPTS=0;
+    lastCodedPictNo=-1;
+- #ifdef PP_LIBAVCODEC
+-   ppmode = ppcontext = NULL;
+- #endif //PP_LIBAVCODEC
+    videoOut=VideoOut;
+    clock = Clock;
+--- 500,590 ----
+  // --- VIDEO ------------------------------------------------------------------
+  
++ int GetBuffer(struct AVCodecContext *c, AVFrame *pic) {
++   int w=c-&gt;width;
++   int h=c-&gt;height;
++ 
++ #if LIBAVCODEC_BUILD &gt;  4737
++   if(avcodec_check_dimensions(c,w,h))
++     return -1;
++ #endif
++ 
++ #if LIBAVCODEC_BUILD &gt;  4713
++   avcodec_align_dimensions(c, &amp;w, &amp;h);
++ #endif
++   
++ #define EDGE_WIDTH 16
++   bool EmuEdge=c-&gt;flags&amp;CODEC_FLAG_EMU_EDGE;
++   if(!EmuEdge){
++     w+= EDGE_WIDTH*2;
++     h+= EDGE_WIDTH*2;
++   }
++   sPicBuffer *buf;
++ 
++   cVideoOut *VideoOutPtr=(cVideoOut *)c-&gt;opaque;
++   if (!VideoOutPtr) {
++     fprintf(stderr,&quot;VideoOutPtr null!\n&quot;);
++     return 0;
++   };
++ 
++   buf=VideoOutPtr-&gt;GetBuffer(c-&gt;pix_fmt,w,h);
++   if (!buf || !buf-&gt;pixel[0]) {
++     fprintf(stderr,&quot;buf or buf-&gt;pixel[0] null!\n&quot;);
++     return 0;
++   };
++   
++   pic-&gt;type= FF_BUFFER_TYPE_USER;
++   pic-&gt;opaque = (void*) buf;
++ 
++   int h_chroma_shift, v_chroma_shift;
++   VideoOutPtr-&gt;GetChromaSubSample(c-&gt;pix_fmt, h_chroma_shift, v_chroma_shift);
++ 
++   for(int i=0; i&lt;4; i++){
++     const int h_shift= i==0 ? 0 : h_chroma_shift;
++     const int v_shift= i==0 ? 0 : v_chroma_shift;
++ 
++     pic-&gt;base[i]= buf-&gt;pixel[i];
++     if(EmuEdge) {
++       pic-&gt;data[i] = buf-&gt;pixel[i];
++       buf-&gt;edge_width=buf-&gt;edge_height=0;
++     } else {
++       buf-&gt;edge_width=buf-&gt;edge_height=EDGE_WIDTH;
++       pic-&gt;data[i] = buf-&gt;pixel[i] + (buf-&gt;stride[i]*
++           EDGE_WIDTH&gt;&gt;v_shift) + (EDGE_WIDTH&gt;&gt;h_shift);
++       //pic-&gt;data[i] = buf-&gt;pixel[i] + ALIGN((buf-&gt;stride[i]*
++       //              EDGE_WIDTH&gt;&gt;v_shift) + (EDGE_WIDTH&gt;&gt;h_shift),
++       //              STRIDE_ALIGN);
++     };
++     pic-&gt;linesize[i]= buf-&gt;stride[i];
++   }
++   pic-&gt;age=buf-&gt;age;
++ 
++   return 1;
++ };
++ 
++ void ReleaseBuffer(struct AVCodecContext *c, AVFrame *pic) {
++   cVideoOut *VideoOutPtr=(cVideoOut *)c-&gt;opaque;
++   if (!VideoOutPtr)
++     return;
++   
++   VideoOutPtr-&gt;ReleaseBuffer((sPicBuffer *)pic-&gt;opaque);
++   for(int i=0; i&lt;3; i++){
++     pic-&gt;data[i]=NULL;
++   }
++   pic-&gt;opaque = (void*) NULL;
++ };
++ 
+  cVideoStreamDecoder::cVideoStreamDecoder(AVCodecContext *Context,
+                                           cVideoOut *VideoOut, cClock *Clock,
+                                           int Trickspeed,
+                                           bool packetMode)
+!      : cStreamDecoder(Context, packetMode), Mirror(VideoOut),
+!        DeintLibav(VideoOut)
+! #ifdef PP_LIBAVCODEC
+!        ,LibAvPostProc(VideoOut)
+! #endif
+  {
+    memset(pts_values,-1,sizeof(pts_values));
+    lastPTSidx=lastPTS=0;
+    lastCodedPictNo=-1;
+    videoOut=VideoOut;
+    clock = Clock;
+***************
+*** 532,535 ****
+--- 601,613 ----
+  
+    picture=avcodec_alloc_frame();
++ 
++   if (codec-&gt;capabilities&amp;CODEC_CAP_DR1) {
++           context-&gt;get_buffer=GetBuffer;
++           context-&gt;release_buffer=ReleaseBuffer;
++           context-&gt;opaque=(void*)videoOut;
++   } else {
++           context-&gt;opaque=NULL;
++           printf(&quot;not using direct rendering\n&quot;);
++   };
+  }
+  
+***************
+*** 550,557 ****
+--- 628,760 ----
+  }
+  
++ int cVideoStreamDecoder::DecodePicture_avcodec(sPicBuffer *&amp;pic, int &amp;got_picture,
++                               uint8_t *data, int length, int64_t pkt_pts) {
++   int len=0;
++   
++   if ( context-&gt;width  &gt; 2048 || context-&gt;height  &gt; 2048 ) {
++     fprintf(stderr,&quot;Invalid width (%d) or height (%d), most likely a broken stream\n&quot;,
++         context-&gt;width,context-&gt;height);
++     context-&gt;width=0;
++     context-&gt;height=0;
++     return -1;
++   };
++ 
++   len = avcodec_decode_video(context, picture, &amp;got_picture,data, length);
++   if (len &lt; 0)
++     return len;
++ 
++   // save coded picture number together with corresponding pts
++   if (context-&gt;coded_frame  &amp;&amp;
++       context-&gt;coded_frame-&gt;coded_picture_number!=lastCodedPictNo
++       &amp;&amp; lastPTS != (int64_t) AV_NOPTS_VALUE ) {
++   //  (*(sPicBuffer *)context-&gt;coded_frame-&gt;opaque).pts=lastPTS;
++     pts_values[lastPTSidx].pts = lastPTS;
++     pts_values[lastPTSidx].duration = lastDuration;
++     pts_values[lastPTSidx].coded_frame_no =
++       context-&gt;coded_frame-&gt;coded_picture_number;
++     lastPTSidx = (lastPTSidx+1)%NO_PTS_VALUES;
++     lastCodedPictNo = context-&gt;coded_frame-&gt;coded_picture_number;
++     MPGDEB(&quot;Got pts: pictno %d  pts: %lld lastIdx %d \n&quot;,
++         context-&gt;coded_frame-&gt;coded_picture_number,
++         lastPTS,
++         lastPTSidx);
++     lastPTS = AV_NOPTS_VALUE;
++   }
++ 
++   if (pkt_pts != (int64_t)AV_NOPTS_VALUE) {
++           lastPTS = pkt_pts;
++           // FIXME duration?
++   };
++ 
++   if (!got_picture)
++     return len;
++ 
++   // we got a picture
++   if ( picture-&gt;opaque &amp;&amp; context-&gt;opaque ) {
++           pic=(sPicBuffer *) picture-&gt;opaque;
++   } else {
++           // no direct rendering
++           pic=&privBuffer;
++           pic-&gt;edge_width=pic-&gt;edge_height=0;
++           for (int i=0; i&lt;4; i++) {
++                   pic-&gt;pixel[i]=picture-&gt;data[i];
++                   pic-&gt;stride[i]=picture-&gt;linesize[i];
++           };
++           pic-&gt;owner=NULL;
++           pic-&gt;format=context-&gt;pix_fmt;
++   };      
++           
++   pic-&gt;pts=AV_NOPTS_VALUE;
++   // find decoded pictures pts value
++   int findPTS=(lastPTSidx+1)%NO_PTS_VALUES;
++   while ( picture-&gt;coded_picture_number !=
++       pts_values[findPTS].coded_frame_no &amp;&amp;
++       findPTS != lastPTSidx)
++     findPTS=(findPTS+1)%NO_PTS_VALUES;
++ 
++   // found corresponding pts value
++   if (picture-&gt;coded_picture_number==pts_values[findPTS].coded_frame_no) {
++      MPGDEB(&quot;video pts: %lld, values.pkt : %lld pts - valid PTS: %lld pictno: %d idx: %d\n&quot;,
++         pts,pts_values[findPTS].pts,(int) pts - pts_values[findPTS].pts,
++         picture-&gt;coded_picture_number,findPTS);
++      pic-&gt;pts = pts_values[findPTS].pts;
++   }
++ 
++   /* ------------------------------------------------------------------------
++    * DV read via dv1394 seems to have
++    * context-&gt;coded_frame-&gt;coded_picture_number
++    * always set to zero. Therefor lets do the following guess upon current
++    * PTS value. Don't know if there are other codecs which deliver
++    * codec_picture_number as zero.
++    * Hopefully noone else will see '#' chars printed.
++    */
++   if (!pic-&gt;pts &amp;&amp; lastPTS != (int64_t) AV_NOPTS_VALUE)
++   {
++     fprintf(stderr,&quot;#&quot;);
++     pic-&gt;pts = lastPTS;
++   }
++ 
++   // save the picture's properties
++ #if LIBAVCODEC_BUILD &gt; 4684
++   pic-&gt;interlaced_frame=picture-&gt;interlaced_frame;
++ #endif
++   pic-&gt;width=context-&gt;width;
++   pic-&gt;height=context-&gt;height;
++ #if LIBAVCODEC_BUILD &gt; 4686
++   /* --------------------------------------------------------------------------
++    * removed aspect ratio calculation based on picture-&gt;pan_scan-&gt;width
++    * as this value seems to be wrong on some dvds.
++    * reverted this removal as effect from above it is not reproducable.
++    */
++   if (!context-&gt;sample_aspect_ratio.num)
++   {
++     pic-&gt;aspect_ratio = (float) (context-&gt;width) / (float) (context-&gt;height);
++   }
++   else if (picture-&gt;pan_scan &amp;&amp; picture-&gt;pan_scan-&gt;width)
++   {
++     pic-&gt;aspect_ratio = (float) (picture-&gt;pan_scan-&gt;width *
++         context-&gt;sample_aspect_ratio.num) /
++       (float) (picture-&gt;pan_scan-&gt;height *
++                 context-&gt;sample_aspect_ratio.den);
++   }
++   else
++   {
++     pic-&gt;aspect_ratio =(float) (context-&gt;width * 
++         context-&gt;sample_aspect_ratio.num) /
++       (float) (context-&gt;height * 
++                 context-&gt;sample_aspect_ratio.den);
++   }
++ #else
++   pic-&gt;aspect_ratio = context-&gt;aspect_ratio;
++ #endif
++   pic-&gt;dtg_active_format= context-&gt;dtg_active_format;
++   return len;
++ };
++ 
+  int cVideoStreamDecoder::DecodePacket(AVPacket *pkt)
+  {
+    int len=0;
+    int got_picture=0;
++   sPicBuffer *pic;
+  
+    uint8_t *data=pkt-&gt;data;
+***************
+*** 559,572 ****
+    //MPGDEB(&quot;got video packet\n&quot;);
+    while ( size &gt; 0 ) {
+-     if ( context-&gt;width  &gt; 2048 || context-&gt;height  &gt; 2048 ) {
+-       fprintf(stderr,&quot;Invalid width (%d) or height (%d), most likely a broken stream\n&quot;,
+-           context-&gt;width,context-&gt;height);
+-       resetCodec();
+-       return len;
+-     };
+- 
+      BUFDEB(&quot;start decode video stream %d data: %p size: %d \n&quot;,
+          pkt-&gt;stream_index,data,size);
+!     len = avcodec_decode_video(context, picture, &amp;got_picture,data, size);
+      BUFDEB(&quot;end decode video got_picture %d, data %p, size %d\n&quot;,
+          got_picture,data,size);
+--- 762,770 ----
+    //MPGDEB(&quot;got video packet\n&quot;);
+    while ( size &gt; 0 ) {
+      BUFDEB(&quot;start decode video stream %d data: %p size: %d \n&quot;,
+          pkt-&gt;stream_index,data,size);
+!     len = DecodePicture_avcodec(pic, got_picture,
+!                                 data, size, pkt-&gt;pts)
+!       //avcodec_decode_video(context, picture, &amp;got_picture,data, size);
+      BUFDEB(&quot;end decode video got_picture %d, data %p, size %d\n&quot;,
+          got_picture,data,size);
+***************
+*** 579,601 ****
+      data+=len;
+  
+-     // save coded picture number together with corresponding pts
+-     if (context-&gt;coded_frame  &amp;&amp;
+-         context-&gt;coded_frame-&gt;coded_picture_number!=lastCodedPictNo
+-         &amp;&amp; lastPTS != (int64_t) AV_NOPTS_VALUE ) {
+-       pts_values[lastPTSidx].pts = lastPTS;
+-       pts_values[lastPTSidx].duration = lastDuration;
+-       pts_values[lastPTSidx].coded_frame_no =
+-         context-&gt;coded_frame-&gt;coded_picture_number;
+-       lastPTSidx = (lastPTSidx+1)%NO_PTS_VALUES;
+-       lastCodedPictNo = context-&gt;coded_frame-&gt;coded_picture_number;
+-       MPGDEB(&quot;Got pts: pictno %d  pts: %lld lastIdx %d \n&quot;,
+-         context-&gt;coded_frame-&gt;coded_picture_number,
+-         lastPTS,
+-         lastPTSidx);
+-       lastPTS = AV_NOPTS_VALUE;
+-     }
+  
+      if (pkt-&gt;pts != (int64_t) AV_NOPTS_VALUE) {
+-          lastPTS=pkt-&gt;pts;
+           lastDuration=pkt-&gt;duration;
+  
+--- 777,783 ----
+      data+=len;
+  
+  
++     // FIXME check this again...
+      if (pkt-&gt;pts != (int64_t) AV_NOPTS_VALUE) {
+           lastDuration=pkt-&gt;duration;
+  
+***************
+*** 623,630 ****
+      // postproc stuff....
+      if (setupStore.mirror == 1)
+!       Mirror();
+! 
+      if (setupStore.deintMethod == 1)
+!       deintLibavcodec();
+  #ifdef PP_LIBAVCODEC
+  #ifdef FB_SUPPORT
+--- 805,813 ----
+      // postproc stuff....
+      if (setupStore.mirror == 1)
+!       Mirror.Filter(pic,pic);
+!    
+      if (setupStore.deintMethod == 1)
+!       DeintLibav.Filter(pic,pic);
+! 
+  #ifdef PP_LIBAVCODEC
+  #ifdef FB_SUPPORT
+***************
+*** 633,679 ****
+      if (setupStore.deintMethod &gt; 1 || setupStore.ppMethod!=0 )
+  #endif //FB_SUPPORT
+!       ppLibavcodec();
+  #endif //PP_LIBAVCODEC
+! 
+!     // do format conversions if necessary
+!     if (context-&gt;pix_fmt!=PIX_FMT_YUV420P)
+!       libavcodec_img_convert();
+! 
+!     width  = context-&gt;width;
+!     height = context-&gt;height;
+!     pix_fmt = context-&gt;pix_fmt;
+! 
+!     // find decoded pictures pts value
+!     int findPTS=(lastPTSidx+1)%NO_PTS_VALUES;
+!     while ( picture-&gt;coded_picture_number !=
+!                 pts_values[findPTS].coded_frame_no &amp;&amp;
+!                 findPTS != lastPTSidx)
+!          findPTS=(findPTS+1)%NO_PTS_VALUES;
+! 
+!     // found corresponding pts value
+!     if (picture-&gt;coded_picture_number==pts_values[findPTS].coded_frame_no) {
+!       MPGDEB(&quot;video pts: %lld, values.pkt : %lld pts - valid PTS: %lld pictno: %d idx: %d\n&quot;,
+!              pts,pts_values[findPTS].pts,(int) pts - pts_values[findPTS].pts,
+!              picture-&gt;coded_picture_number,findPTS);
+!       pts = pts_values[findPTS].pts;
+!     }
+! 
+!     /* ------------------------------------------------------------------------
+!      * DV read via dv1394 seems to have
+!      * context-&gt;coded_frame-&gt;coded_picture_number
+!      * always set to zero. Therefor lets do the following guess upon current
+!      * PTS value. Don't know if there are other codecs which deliver
+!      * codec_picture_number as zero.
+!      * Hopefully noone else will see '#' chars printed.
+!      */
+!     if (!pts &amp;&amp; lastPTS != (int64_t) AV_NOPTS_VALUE)
+!     {
+!        fprintf(stderr,&quot;#&quot;);
+!        pts = lastPTS;
+!     }
+  
+    if (!hurry_up || frame % 2 ) {
+      MPGDEB(&quot;DrawVideo...delay : %d\n&quot;,delay);
+!     videoOut-&gt;DrawVideo_420pl(syncTimer, &amp;delay, picture,context);
+      MPGDEB(&quot;end DrawVideo\n&quot;);
+    } else
+--- 816,828 ----
+      if (setupStore.deintMethod &gt; 1 || setupStore.ppMethod!=0 )
+  #endif //FB_SUPPORT
+!       LibAvPostProc.Filter(pic,pic);
+  #endif //PP_LIBAVCODEC
+!     
+!   if (pic-&gt;pts != AV_NOPTS_VALUE )
+!           pts=pic-&gt;pts;
+  
+    if (!hurry_up || frame % 2 ) {
+      MPGDEB(&quot;DrawVideo...delay : %d\n&quot;,delay);
+!     videoOut-&gt;DrawVideo_420pl(syncTimer, &amp;delay, pic);
+      MPGDEB(&quot;end DrawVideo\n&quot;);
+    } else
+***************
+*** 771,1076 ****
+  }
+  
+- //------------------------------------ postproc stuff -------------------------
+- uchar *cVideoStreamDecoder::allocatePicBuf(uchar *pic_buf, PixelFormat pix_fmt)
+- {
+-   // (re)allocate picture buffer for deinterlaced/mirrored picture
+-   if (pic_buf == NULL)
+-     fprintf(stderr,
+-             &quot;[softdevice] allocating picture buffer for resolution %dx%d &quot;
+- 	    &quot;format %d\n&quot;,
+-             context-&gt;width, context-&gt;height, pix_fmt);
+-   else
+-     fprintf(stderr,
+-             &quot;[softdevice] resolution changed to %dx%d, format %d - &quot;
+-             &quot;reallocating picture buffer\n&quot;,
+-             context-&gt;width, context-&gt;height, pix_fmt);
+- 
+-   pic_buf = (uchar *) realloc(pic_buf,
+-       avpicture_get_size(pix_fmt, context-&gt;width, context-&gt;height));
+- 
+-   return pic_buf;
+- }
+- 
+- uchar *cVideoStreamDecoder::freePicBuf(uchar *pic_buf)
+- {
+-   if (pic_buf)
+-   {
+-     free (pic_buf);
+-     fprintf(stderr,&quot;[softdevice] picture buffer released\n&quot;);
+-   }
+- 
+-   return NULL;
+- }
+- 
+- void cVideoStreamDecoder::deintLibavcodec(void)
+- {
+-   if (pic_buf_lavc == NULL ||
+-       context-&gt;width != width ||
+-       context-&gt;height != height ||
+-       context-&gt;pix_fmt != pix_fmt)
+-     pic_buf_lavc = allocatePicBuf(pic_buf_lavc,context-&gt;pix_fmt);
+- 
+-   if ( !pic_buf_lavc ) {
+-     fprintf(stderr,
+-             &quot;[softdevice] no picture buffer is allocated for deinterlacing !\n&quot;
+-             &quot;[softdevice] switching deinterlacing off !\n&quot;);
+-     setupStore.deintMethod = 0;
+-     return;
+-   }
+- 
+-   avpicture_fill(&amp;avpic_dest,pic_buf_lavc,
+-                     context-&gt;pix_fmt,context-&gt;width ,context-&gt;height);
+- 
+-   memcpy(avpic_src.data,picture-&gt;data,sizeof(avpic_src.data));
+-   memcpy(avpic_src.linesize,picture-&gt;linesize,sizeof(avpic_src.linesize));
+- 
+-   if (avpicture_deinterlace(&amp;avpic_dest, &amp;avpic_src, context-&gt;pix_fmt,
+-                               context-&gt;width, context-&gt;height) &lt; 0)
+-   {
+-     fprintf(stderr,
+-             &quot;[softdevice] error, libavcodec deinterlacer failure\n&quot;
+-             &quot;[softdevice] switching deinterlacing off !\n&quot;);
+-     setupStore.deintMethod = 0;
+-     return;
+-   }
+- 
+-   memcpy(picture-&gt;data,avpic_dest.data,sizeof(picture-&gt;data));
+-   memcpy(picture-&gt;linesize,avpic_dest.linesize,sizeof(picture-&gt;data));
+- }
+- 
+- void cVideoStreamDecoder::libavcodec_img_convert(void)
+- {
+-   if (pic_buf_convert == NULL ||
+-       context-&gt;width != width ||
+-       context-&gt;height != height) {
+-     pic_buf_convert = allocatePicBuf(pic_buf_convert,PIX_FMT_YUV420P);
+-     fprintf(stderr,&quot;allocated convert buf\n&quot;);
+-   }
+- 
+-   if ( !pic_buf_convert ) {
+-      fprintf(stderr,
+-             &quot;[softdevice] no picture buffer is allocated for img_convert !\n&quot;
+-             &quot;[softdevice] switching img_convert off !\n&quot;);
+-      return;
+-   }
+- 
+-   avpicture_fill(&amp;avpic_dest,pic_buf_convert,
+-                     PIX_FMT_YUV420P,context-&gt;width ,context-&gt;height);
+- 
+-   memcpy(avpic_src.data,picture-&gt;data,sizeof(avpic_src.data));
+-   memcpy(avpic_src.linesize,picture-&gt;linesize,sizeof(avpic_src.linesize));
+- 
+-   if (img_convert(&amp;avpic_dest,PIX_FMT_YUV420P,
+- 		  &amp;avpic_src, context-&gt;pix_fmt,
+-                               context-&gt;width, context-&gt;height) &lt; 0) {
+-      fprintf(stderr,
+-               &quot;[softdevice] error, libavcodec img_convert failure\n&quot;);
+-      return;
+-   }
+- 
+-   memcpy(picture-&gt;data,avpic_dest.data,sizeof(picture-&gt;data));
+-   memcpy(picture-&gt;linesize,avpic_dest.linesize,sizeof(picture-&gt;data));
+- }
+- 
+- void cVideoStreamDecoder::Mirror(void)
+- {
+-     uchar *ptr_src1, *ptr_src2;
+-     uchar *ptr_dest1, *ptr_dest2;
+- 
+-   if (pic_buf_mirror == NULL ||
+-       context-&gt;width != width ||
+-       context-&gt;height != height ||
+-       context-&gt;pix_fmt != pix_fmt)
+-     pic_buf_mirror = allocatePicBuf(pic_buf_mirror,context-&gt;pix_fmt);
+- 
+-   if ( !pic_buf_mirror ) {
+-     fprintf(stderr,
+-             &quot;[softdevice] no picture buffer is allocated for mirroring !\n&quot;
+-             &quot;[softdevice] switching mirroring off !\n&quot;);
+-     setupStore.mirror = 0;
+-     return;
+-   }
+- 
+-   avpicture_fill(&amp;avpic_dest,pic_buf_mirror,
+-       context-&gt;pix_fmt,context-&gt;width ,context-&gt;height);
+- 
+-   // mirror luminance
+-   ptr_src1  = picture-&gt;data[0];
+-   ptr_dest1 = avpic_dest.data[0];
+- 
+-   for (int h = 0; h &lt; context-&gt;height; h++)
+-   {
+-     for (int w = context-&gt;width; w &gt; 0; w--)
+-     {
+-       *ptr_dest1 = ptr_src1[h * picture-&gt;linesize[0] + w - 1];
+-       ptr_dest1++;
+-     }
+-   }
+- 
+-   // mirror chrominance
+-   ptr_src1  = picture-&gt;data[1];
+-   ptr_src2  = picture-&gt;data[2];
+-   ptr_dest1 = avpic_dest.data[1];
+-   ptr_dest2 = avpic_dest.data[2];
+- 
+-   int h_shift;
+-   int v_shift;
+-   avcodec_get_chroma_sub_sample(context-&gt;pix_fmt,&amp;h_shift,&amp;v_shift);
+- 
+-   for (int h = 0; h &lt; context-&gt;height &gt;&gt; v_shift ; h++)
+-   {
+-     for (int w = context-&gt;width &gt;&gt; h_shift; w &gt; 0; w--)
+-     {
+-       *ptr_dest1 = ptr_src1[h * picture-&gt;linesize[1] + w - 1];
+-       *ptr_dest2 = ptr_src2[h * picture-&gt;linesize[2] + w - 1];
+-       ptr_dest1++;
+-       ptr_dest2++;
+-     }
+-   }
+- 
+-   picture-&gt;data[0]     = avpic_dest.data[0];
+-   picture-&gt;data[1]     = avpic_dest.data[1];
+-   picture-&gt;data[2]     = avpic_dest.data[2];
+- 
+-   picture-&gt;linesize[0] = context-&gt;width;
+-   picture-&gt;linesize[1] = context-&gt;width &gt;&gt; h_shift ;
+-   picture-&gt;linesize[2] = context-&gt;width &gt;&gt; h_shift ;
+- }
+- 
+- #ifdef PP_LIBAVCODEC
+- void cVideoStreamDecoder::ppLibavcodec(void)
+- {
+-     int deintWork;
+- 
+-   if (pic_buf_pp == NULL ||
+-       context-&gt;width != width ||
+-       context-&gt;height != height ||
+-       context-&gt;pix_fmt != pix_fmt)
+-     pic_buf_pp = allocatePicBuf(pic_buf_pp,context-&gt;pix_fmt);
+- 
+-   if (ppcontext == NULL ||
+-       context-&gt;width != width ||
+-       context-&gt;height != height||
+-       context-&gt;pix_fmt != pix_fmt) {
+-           // reallocate ppcontext if format or size of picture changed
+-     if (ppcontext)
+-     {
+-       pp_free_context(ppcontext);
+-       ppcontext = NULL;
+-     }
+-     /* set one of this values instead of 0 in pp_get_context for
+-      * processor-independent optimations:
+-        PP_CPU_CAPS_MMX, PP_CPU_CAPS_MMX2, PP_CPU_CAPS_3DNOW
+-      */
+-     int flags=0;
+- #ifdef USE_MMX
+-     flags|=PP_CPU_CAPS_MMX;
+- #endif
+- #ifdef USE_MMX2
+-     flags|=PP_CPU_CAPS_MMX2;
+- #endif
+-     if (context-&gt;pix_fmt == PIX_FMT_YUV420P)
+-       flags|=PP_FORMAT_420;
+-     else if (context-&gt;pix_fmt == PIX_FMT_YUV422P)
+-       flags|=PP_FORMAT_422;
+-     else if (context-&gt;pix_fmt == PIX_FMT_YUV444P)
+-       flags|=PP_FORMAT_444;
+- 
+-     ppcontext = pp_get_context(context-&gt;width, context-&gt;height,flags);
+-   }
+- 
+-   deintWork = setupStore.deintMethod;
+-   if (currentDeintMethod != deintWork || ppmode == NULL
+-       || currentppMethod != setupStore.ppMethod
+-       || currentppQuality != setupStore.ppQuality ) {
+-     // reallocate ppmode if method or quality changed
+- 
+-     if (ppmode)  {
+-       pp_free_mode (ppmode);
+-       ppmode = NULL;
+-     }
+-     char mode[60]=&quot;&quot;;
+-     if (setupStore.getPPdeintValue() &amp;&amp; setupStore.getPPValue())
+-       sprintf(mode,&quot;%s,%s&quot;,setupStore.getPPdeintValue(),
+-           setupStore.getPPValue());
+-     else if (setupStore.getPPdeintValue() )
+-       sprintf(mode,&quot;%s&quot;,setupStore.getPPdeintValue());
+-     else if (setupStore.getPPValue() )
+-       sprintf(mode,&quot;%s&quot;,setupStore.getPPValue());
+- 
+-     ppmode = pp_get_mode_by_name_and_quality(mode, setupStore.ppQuality);
+- 
+-     currentDeintMethod = deintWork;
+-     currentppMethod = setupStore.ppMethod;
+-     currentppQuality = setupStore.ppQuality;
+-   }
+- 
+-   if (ppmode == NULL || ppcontext == NULL) {
+-     fprintf(stderr,
+-             &quot;[softdevice] pp-filter %s couldn't be initialized,\n&quot;
+-             &quot;[softdevice] switching postprocessing off !\n&quot;,
+-             setupStore.getPPValue());
+-     setupStore.deintMethod = 0;
+-     return;
+-   }
+- 
+- 
+-   if ( !pic_buf_pp ) {
+-     fprintf(stderr,
+-             &quot;[softdevice] no picture buffer is allocated for postprocessing !\n&quot;
+-             &quot;[softdevice] switching postprocessing off !\n&quot;);
+-     setupStore.deintMethod = 0;
+-     return;
+-   }
+- 
+-   avpicture_fill(&amp;avpic_dest,pic_buf_pp,
+-                     context-&gt;pix_fmt,context-&gt;width ,context-&gt;height);
+- 
+-   pp_postprocess(picture-&gt;data,
+-       picture-&gt;linesize,
+-       (uchar **)&amp;avpic_dest.data,
+-       (int *)&amp;avpic_dest.linesize,
+-       context-&gt;width,
+-       context-&gt;height,
+-       picture-&gt;qscale_table,
+-       picture-&gt;qstride,
+-       ppmode,
+-       ppcontext,
+-       picture-&gt;pict_type);
+- 
+-   memcpy(picture-&gt;data,avpic_dest.data,sizeof(picture-&gt;data));
+-   memcpy(picture-&gt;linesize,avpic_dest.linesize,sizeof(picture-&gt;data));
+- }
+- #endif //PP_LIBAVCODEC
+- 
+- //----------------------------- end of postproc stuff ----------------------
+- 
+  cVideoStreamDecoder::~cVideoStreamDecoder()
+  {
+    cClock::AdjustVideoPTS(0);
+-   videoOut-&gt;InvalidateOldPicture();
+    delete(syncTimer);
+    syncTimer=NULL;
+    free(picture);
+-   if (pic_buf_lavc)
+-      pic_buf_lavc = freePicBuf(pic_buf_lavc);
+-   if (pic_buf_pp)
+-      pic_buf_pp = freePicBuf(pic_buf_pp);
+-   if (pic_buf_convert)
+-      pic_buf_convert = freePicBuf(pic_buf_convert);
+-   if (pic_buf_mirror)
+-      pic_buf_mirror = freePicBuf(pic_buf_mirror);
+- 
+- #ifdef PP_LIBAVCODEC
+-   if (ppcontext) {
+-      pp_free_context(ppcontext);
+-      ppcontext = NULL;
+-   }
+- 
+-   if (ppmode)  {
+-       pp_free_mode (ppmode);
+-       ppmode = NULL;
+-   }
+- #endif
+  }
+  
+--- 920,929 ----
+
+Index: mpeg2decoder.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.h,v
+retrieving revision 1.36
+retrieving revision 1.37
+diff -C2 -d -r1.36 -r1.37
+*** mpeg2decoder.h	14 Apr 2006 21:25:44 -0000	1.36
+--- mpeg2decoder.h	27 May 2006 19:12:41 -0000	1.37
+***************
+*** 13,30 ****
+  #endif
+  
+  #include &lt;avcodec.h&gt;
+  
+! #ifdef PP_LIBAVCODEC
+!   #include &lt;postproc/postprocess.h&gt;
+! #endif //PP_LIBAVCODEC
+  
+  #include &quot;sync-timer.h&quot;
+  #include &quot;video.h&quot;
+  #include &quot;audio.h&quot;
+! 
+! #include &lt;avformat.h&gt;
+! #include &lt;sys/time.h&gt;
+! #include &lt;vdr/plugin.h&gt;
+! #include &lt;vdr/ringbuffer.h&gt;
+  
+  #define DEFAULT_FRAMETIME 400   // for PAL in 0.1ms
+--- 13,27 ----
+  #endif
+  
++ #include &lt;sys/time.h&gt;
+  #include &lt;avcodec.h&gt;
++ #include &lt;avformat.h&gt;
+  
+! #include &lt;vdr/plugin.h&gt;
+! #include &lt;vdr/ringbuffer.h&gt;
+  
+  #include &quot;sync-timer.h&quot;
+  #include &quot;video.h&quot;
+  #include &quot;audio.h&quot;
+! #include &quot;VideoFilter.h&quot;
+  
+  #define DEFAULT_FRAMETIME 400   // for PAL in 0.1ms
+***************
+*** 230,243 ****
+      int lastDuration;
+      AVFrame             *picture;
+!     AVPicture           avpic_src, avpic_dest;
+  
+!     int                 width, height;
+!     PixelFormat         pix_fmt;
+!     int                 currentDeintMethod, currentMirrorMode;
+!     int                 currentppMethod, currentppQuality;
+!     uchar               *pic_buf_lavc, *pic_buf_pp, *pic_buf_mirror, *pic_buf_convert;
+  #ifdef PP_LIBAVCODEC
+!     pp_mode_t           *ppmode;
+!     pp_context_t        *ppcontext;
+  #endif //PP_LIBAVCODEC
+  
+--- 227,236 ----
+      int lastDuration;
+      AVFrame             *picture;
+!     sPicBuffer          privBuffer;
+  
+!     cVideoMirror        Mirror;
+!     cDeintLibav         DeintLibav;
+  #ifdef PP_LIBAVCODEC
+!     cLibAvPostProc      LibAvPostProc;
+  #endif //PP_LIBAVCODEC
+  
+***************
+*** 253,265 ****
+      {return trickspeed*default_frametime;};
+  
+-     uchar   *allocatePicBuf(uchar *pic_buf, PixelFormat pix_fmt);
+-     void    deintLibavcodec(void);
+-     void    libavcodec_img_convert(void);
+-     uchar   *freePicBuf(uchar *pic_buf);
+- #ifdef PP_LIBAVCODEC
+-     void    ppLibavcodec(void);
+- #endif //PP_LIBAVCODEC
+-     void    Mirror(void);
+- 
+    public:
+      cVideoStreamDecoder(AVCodecContext *Context, cVideoOut *VideoOut,
+--- 246,249 ----
+***************
+*** 267,270 ****
+--- 251,256 ----
+      ~cVideoStreamDecoder();
+  
++     int DecodePicture_avcodec(sPicBuffer *&amp;pic, int &amp;got_picture,
++                               uint8_t *data, int length, int64_t pts);
+      virtual void      Freeze(bool freeze=true);
+      virtual void      Play(void);
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.61
+retrieving revision 1.62
+diff -C2 -d -r1.61 -r1.62
+*** video-dfb.c	23 May 2006 21:28:54 -0000	1.61
+--- video-dfb.c	27 May 2006 19:12:41 -0000	1.62
+***************
+*** 1287,1297 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cDFBVideoOut::YUV(uint8_t *Py, uint8_t *Pu, uint8_t *Pv,
+!                        int Width, int Height, int Ystride, int UVstride)
+  {
+!     uint8_t *dst;
+!     int pitch;
+!     int hi;
+! 
+    if (!videoInitialized)
+      return;
+--- 1287,1307 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void cDFBVideoOut::YUV(sPicBuffer *buf)
+  {
+!   uint8_t *dst;
+!   int pitch;
+!   int hi;
+!   uint8_t *Py=buf-&gt;pixel[0]
+!                 +(buf-&gt;edge_height)*buf-&gt;stride[0]
+!                 +buf-&gt;edge_width;
+!   uint8_t *Pu=buf-&gt;pixel[1]+(buf-&gt;edge_height/2)*buf-&gt;stride[1]
+!                 +buf-&gt;edge_width/2;
+!   uint8_t *Pv=buf-&gt;pixel[2]+(buf-&gt;edge_height/2)*buf-&gt;stride[2]
+!                 +buf-&gt;edge_width/2;
+!   int Ystride=buf-&gt;stride[0];
+!   int UVstride=buf-&gt;stride[1];
+!   int Width=buf-&gt;width;
+!   int Height=buf-&gt;height;
+!   
+    if (!videoInitialized)
+      return;
+
+Index: video-dfb.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.h,v
+retrieving revision 1.20
+retrieving revision 1.21
+diff -C2 -d -r1.20 -r1.21
+*** video-dfb.h	23 May 2006 21:28:54 -0000	1.20
+--- video-dfb.h	27 May 2006 19:12:41 -0000	1.21
+***************
+*** 75,80 ****
+  #endif
+  
+!     virtual void YUV(uint8_t *Py, uint8_t *Pu, uint8_t *Pv,
+!                      int Width, int Height, int Ystride, int UVstride);
+      virtual void Pause(void);
+      virtual void CloseOSD();
+--- 75,79 ----
+  #endif
+  
+!     virtual void YUV(sPicBuffer *Pic);
+      virtual void Pause(void);
+      virtual void CloseOSD();
+
+Index: video-dummy.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dummy.c,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** video-dummy.c	24 Feb 2005 22:35:51 -0000	1.2
+--- video-dummy.c	27 May 2006 19:12:41 -0000	1.3
+***************
+*** 33,37 ****
+  #endif
+  
+! void cDummyVideoOut::YUV(uint8_t *Py, uint8_t *Pu, uint8_t *Pv, int Width, int Height, int Ystride, int UVstride)
+  {
+  }
+--- 33,37 ----
+  #endif
+  
+! void cDummyVideoOut::YUV(sPicBuffer *buf)
+  {
+  }
+
+Index: video-dummy.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dummy.h,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** video-dummy.h	24 Feb 2005 22:35:51 -0000	1.2
+--- video-dummy.h	27 May 2006 19:12:41 -0000	1.3
+***************
+*** 23,27 ****
+  #endif
+  
+!   virtual void YUV(uint8_t *Py, uint8_t *Pu, uint8_t *Pv, int Width, int Height, int Ystride, int UVstride);
+    virtual void Pause(void);
+  };
+--- 23,27 ----
+  #endif
+  
+!   virtual void YUV(sPicBuffer *buf);
+    virtual void Pause(void);
+  };
+
+Index: video-fb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-fb.c,v
+retrieving revision 1.14
+retrieving revision 1.15
+diff -C2 -d -r1.14 -r1.15
+*** video-fb.c	24 Apr 2006 20:36:21 -0000	1.14
+--- video-fb.c	27 May 2006 19:12:41 -0000	1.15
+***************
+*** 238,243 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cFBVideoOut::YUV(uint8_t *Py, uint8_t *Pu, uint8_t *Pv, int Width, int Height, int Ystride, int UVstride)
+  {
+    if (!videoInitialized)
+      return;
+--- 238,255 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void cFBVideoOut::YUV(sPicBuffer *buf)
+  {
++   uint8_t *Py=buf-&gt;pixel[0]
++                 +(buf-&gt;edge_height)*buf-&gt;stride[0]
++                 +buf-&gt;edge_width;
++   uint8_t *Pu=buf-&gt;pixel[1]+(buf-&gt;edge_height/2)*buf-&gt;stride[1]
++                 +buf-&gt;edge_width/2;
++   uint8_t *Pv=buf-&gt;pixel[2]+(buf-&gt;edge_height/2)*buf-&gt;stride[2]
++                 +buf-&gt;edge_width/2;
++   int Ystride=buf-&gt;stride[0];
++   int UVstride=buf-&gt;stride[1];
++   int Width=buf-&gt;width;
++   int Height=buf-&gt;height;
++  
+    if (!videoInitialized)
+      return;
+
+Index: video-fb.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-fb.h,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -C2 -d -r1.7 -r1.8
+*** video-fb.h	18 Feb 2006 22:20:29 -0000	1.7
+--- video-fb.h	27 May 2006 19:12:41 -0000	1.8
+***************
+*** 43,47 ****
+    virtual void Refresh();
+  #endif
+!   virtual void YUV(uint8_t *Py, uint8_t *Pu, uint8_t *Pv, int Width, int Height, int Ystride, int UVstride);
+    virtual void Pause(void);
+  };
+--- 43,47 ----
+    virtual void Refresh();
+  #endif
+!   virtual void YUV(sPicBuffer *Pic);
+    virtual void Pause(void);
+  };
+
+Index: video-shm.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-shm.c,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -C2 -d -r1.7 -r1.8
+*** video-shm.c	23 Apr 2006 19:55:53 -0000	1.7
+--- video-shm.c	27 May 2006 19:12:41 -0000	1.8
+***************
+*** 252,258 ****
+  };
+  
+! void cShmVideoOut::YUV(uint8_t *Py, uint8_t *Pu, uint8_t *Pv,
+!                      int Width, int Height, int Ystride, int UVstride) {
+! 
+          if (!ctl-&gt;attached) {
+                  setupStore-&gt;shouldSuspend=1;
+--- 252,267 ----
+  };
+  
+! void cShmVideoOut::YUV(sPicBuffer *buf) {
+!         uint8_t *Py=buf-&gt;pixel[0]+(buf-&gt;edge_height)*buf-&gt;stride[0]
+!                 +buf-&gt;edge_width;
+!         uint8_t *Pu=buf-&gt;pixel[1]+(buf-&gt;edge_height/2)*buf-&gt;stride[1]
+!                 +buf-&gt;edge_width/2;
+!         uint8_t *Pv=buf-&gt;pixel[2]+(buf-&gt;edge_height/2)*buf-&gt;stride[2]
+!                 +buf-&gt;edge_width/2;
+!         int Ystride=buf-&gt;stride[0];
+!         int UVstride=buf-&gt;stride[1];
+!         int Width=buf-&gt;width;
+!         int Height=buf-&gt;height;
+!   
+          if (!ctl-&gt;attached) {
+                  setupStore-&gt;shouldSuspend=1;
+
+Index: video-shm.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-shm.h,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -C2 -d -r1.4 -r1.5
+*** video-shm.h	19 Feb 2006 18:40:28 -0000	1.4
+--- video-shm.h	27 May 2006 19:12:41 -0000	1.5
+***************
+*** 52,57 ****
+                      bool &amp;IsYUV, uint8_t *&amp;PixelMask);
+  
+!         virtual void YUV(uint8_t *Py, uint8_t *Pu, uint8_t *Pv,
+!                      int Width, int Height, int Ystride, int UVstride);
+          virtual void GetLockOsdSurface(uint8_t *&amp;osd, int &amp;stride,
+                          bool *&amp;dirtyLines);
+--- 52,56 ----
+                      bool &amp;IsYUV, uint8_t *&amp;PixelMask);
+  
+!         virtual void YUV(sPicBuffer* buf);
+          virtual void GetLockOsdSurface(uint8_t *&amp;osd, int &amp;stride,
+                          bool *&amp;dirtyLines);
+
+Index: video-vidix.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-vidix.c,v
+retrieving revision 1.18
+retrieving revision 1.19
+diff -C2 -d -r1.18 -r1.19
+*** video-vidix.c	24 Apr 2006 20:36:21 -0000	1.18
+--- video-vidix.c	27 May 2006 19:12:41 -0000	1.19
+***************
+*** 395,404 ****
+  /* ----------------------------------------------------------------------------
+   */
+! void cVidixVideoOut::YUV(uint8_t *Py, uint8_t *Pu, uint8_t *Pv,
+!                          int Width, int Height,
+!                          int Ystride, int UVstride)
+  {
+!     uint8_t *dst;
+!     int hi, wi;
+  
+    if (!videoInitialized)
+--- 395,413 ----
+  /* ----------------------------------------------------------------------------
+   */
+! void cVidixVideoOut::YUV(sPicBuffer *buf)
+  {
+!   uint8_t *dst;
+!   int hi, wi;
+!   uint8_t *Py=buf-&gt;pixel[0]
+!                 +(buf-&gt;edge_height)*buf-&gt;stride[0]
+!                 +buf-&gt;edge_width;
+!   uint8_t *Pu=buf-&gt;pixel[1]+(buf-&gt;edge_height/2)*buf-&gt;stride[1]
+!                 +buf-&gt;edge_width/2;
+!   uint8_t *Pv=buf-&gt;pixel[2]+(buf-&gt;edge_height/2)*buf-&gt;stride[2]
+!                 +buf-&gt;edge_width/2;
+!   int Ystride=buf-&gt;stride[0];
+!   int UVstride=buf-&gt;stride[1];
+!   int Width=buf-&gt;width;
+!   int Height=buf-&gt;height;
+  
+    if (!videoInitialized)
+
+Index: video-vidix.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-vidix.h,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -C2 -d -r1.9 -r1.10
+*** video-vidix.h	18 Feb 2006 22:20:30 -0000	1.9
+--- video-vidix.h	27 May 2006 19:12:41 -0000	1.10
+***************
+*** 63,67 ****
+    virtual void CloseOSD();
+  //  virtual void OpenOSD();  
+!   virtual void YUV(uint8_t *Py, uint8_t *Pu, uint8_t *Pv, int Width, int Height, int Ystride, int UVstride);
+    virtual void Pause(void);
+  
+--- 63,67 ----
+    virtual void CloseOSD();
+  //  virtual void OpenOSD();  
+!   virtual void YUV(sPicBuffer *buf);
+    virtual void Pause(void);
+  
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.54
+retrieving revision 1.55
+diff -C2 -d -r1.54 -r1.55
+*** video-xv.c	24 Apr 2006 22:56:47 -0000	1.54
+--- video-xv.c	27 May 2006 19:12:42 -0000	1.55
+***************
+*** 1585,1591 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cXvVideoOut::YUV(uint8_t *Py, uint8_t *Pu, uint8_t *Pv,
+!                       int Width, int Height,
+!                       int Ystride, int UVstride)
+  {
+    if (!videoInitialized || !xv_initialized)
+--- 1585,1589 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void cXvVideoOut::YUV(sPicBuffer *buf)
+  {
+    if (!videoInitialized || !xv_initialized)
+***************
+*** 1608,1612 ****
+      ClearXvArea (0, 128, 128);
+    }
+! 
+    if ( Py &amp;&amp; Pu &amp;&amp; Pv ) {
+  #if VDRVERSNUM &gt;= 10307
+--- 1606,1621 ----
+      ClearXvArea (0, 128, 128);
+    }
+!   uint8_t *Py=buf-&gt;pixel[0]
+!                 +(buf-&gt;edge_height)*buf-&gt;stride[0]
+!                 +buf-&gt;edge_width;
+!   uint8_t *Pu=buf-&gt;pixel[1]+(buf-&gt;edge_height/2)*buf-&gt;stride[1]
+!                 +buf-&gt;edge_width/2;
+!   uint8_t *Pv=buf-&gt;pixel[2]+(buf-&gt;edge_height/2)*buf-&gt;stride[2]
+!                 +buf-&gt;edge_width/2;
+!   int Ystride=buf-&gt;stride[0];
+!   int UVstride=buf-&gt;stride[1];
+!   int Width=buf-&gt;width;
+!   int Height=buf-&gt;height;
+!   
+    if ( Py &amp;&amp; Pu &amp;&amp; Pv ) {
+  #if VDRVERSNUM &gt;= 10307
+
+Index: video-xv.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.h,v
+retrieving revision 1.20
+retrieving revision 1.21
+diff -C2 -d -r1.20 -r1.21
+*** video-xv.h	23 Apr 2006 19:38:29 -0000	1.20
+--- video-xv.h	27 May 2006 19:12:42 -0000	1.21
+***************
+*** 187,191 ****
+                    XShmSegmentInfo &amp;shminfo,int format, int &amp;width, int &amp;height);
+    int PutXvImage();
+!   virtual void YUV(uint8_t *Py, uint8_t *Pu, uint8_t *Pv, int Width, int Height, int Ystride, int UVstride);
+    virtual void Pause(void);
+  
+--- 187,191 ----
+                    XShmSegmentInfo &amp;shminfo,int format, int &amp;width, int &amp;height);
+    int PutXvImage();
+!   virtual void YUV(sPicBuffer *buf);
+    virtual void Pause(void);
+  
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000369.html">[Softdevice-cvs] softdevice CHANGELOG,1.189,1.190 configure,1.14,1.15
+</A></li>
+	<LI>Next message: <A HREF="000370.html">[Softdevice-cvs] softdevice CHANGELOG,1.190,1.191 Makefile,1.28,1.29
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#371">[ date ]</a>
+              <a href="thread.html#371">[ thread ]</a>
+              <a href="subject.html#371">[ subject ]</a>
+              <a href="author.html#371">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,524 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.162,1.163 video-xv.c,1.46,1.47 video-xv.h,1.16,1.17
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.162%2C1.163%20video-xv.c%2C1.46%2C1.47%20video-xv.h%2C1.16%2C1.17&In-Reply-To=%3C200603311921.k2VJLAt26996%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000309.html">
+   <LINK REL="Next"  HREF="000311.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.162,1.163 video-xv.c,1.46,1.47 video-xv.h,1.16,1.17</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.162%2C1.163%20video-xv.c%2C1.46%2C1.47%20video-xv.h%2C1.16%2C1.17&In-Reply-To=%3C200603311921.k2VJLAt26996%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.162,1.163 video-xv.c,1.46,1.47 video-xv.h,1.16,1.17">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Mar 31 21:21:10 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000309.html">[Softdevice-cvs] softdevice configure,1.9,1.10
+</A></li>
+        <LI>Next message: <A HREF="000311.html">[Softdevice-cvs] softdevice CHANGELOG,1.163,1.164 video-xv.c,1.47,1.48
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#310">[ date ]</a>
+              <a href="thread.html#310">[ thread ]</a>
+              <a href="subject.html#310">[ subject ]</a>
+              <a href="author.html#310">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv9576
+
+Modified Files:
+	CHANGELOG video-xv.c video-xv.h 
+Log Message:
+Xinerama support
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.162
+retrieving revision 1.163
+diff -C2 -d -r1.162 -r1.163
+*** CHANGELOG	21 Mar 2006 18:45:14 -0000	1.162
+--- CHANGELOG	31 Mar 2006 19:21:32 -0000	1.163
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2006-03-31:
++    - Xinerama support (detection and build requires to run configure).
+  2005-03-21:
+     - remove the image copy overhead from the ShmClient
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.46
+retrieving revision 1.47
+diff -C2 -d -r1.46 -r1.47
+*** video-xv.c	21 Mar 2006 18:34:53 -0000	1.46
+--- video-xv.c	31 Mar 2006 19:21:32 -0000	1.47
+***************
+*** 408,414 ****
+      old_dheight = dheight;
+  
+!     x = y = 0;
+!     w = DisplayWidth(dpy,DefaultScreen(dpy));
+!     h = DisplayHeight(dpy,DefaultScreen(dpy));
+    }
+    else
+--- 408,427 ----
+      old_dheight = dheight;
+  
+!     if (xin_mode)
+!     {
+!         int i;
+! 
+!       i = (xin_screen != -1) ? xin_screen : 0;
+!       x = xin_screen_info[i]. x_org;
+!       y = xin_screen_info[i]. y_org;
+!       w = xin_screen_info[i]. width;
+!       h = xin_screen_info[i]. height;
+!     }
+!     else
+!     {
+!       x = y = 0;
+!       w = DisplayWidth(dpy,DefaultScreen(dpy));
+!       h = DisplayHeight(dpy,DefaultScreen(dpy));
+!     }
+    }
+    else
+***************
+*** 468,471 ****
+--- 481,574 ----
+  }
+  
++ /* ---------------------------------------------------------------------------
++  */
++ void cXvVideoOut::AdjustDisplayRatio()
++ {
++     double              displayAspect, displayRatio;
++ 
++   /* --------------------------------------------------------------------------
++    * set PAR values
++    */
++   displayAspect = (double) DisplayWidthMM(dpy, DefaultScreen(dpy)) /
++                     (double) DisplayHeightMM(dpy, DefaultScreen(dpy));
++   if (xin_mode)
++     displayRatio  = (double) GetScreenWidth() / (double) GetScreenHeight();
++   else
++     displayRatio  = (double) DisplayWidth(dpy, DefaultScreen(dpy)) /
++                       (double) DisplayHeight(dpy, DefaultScreen(dpy));
++ 
++   SetParValues(displayAspect, displayRatio);
++ 
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ void cXvVideoOut::AdjustXineramaScreen()
++ {
++ #if XINERAMA_SUPPORT
++     XineramaScreenInfo  *new_screen_info;
++     int                 new_num_screens;
++ 
++   if (!xin_mode)
++     return;
++ 
++   new_screen_info = XineramaQueryScreens (dpy, &amp;new_num_screens);
++   if (new_screen_info)
++   {
++     if (xin_screen_info)
++       XFree(xin_screen_info);
++ 
++     xin_screen_info = new_screen_info;
++     xin_num_screens = new_num_screens;
++   }
++ 
++   for (int i = 0; i &lt; xin_num_screens; ++i)
++   {
++     if (dx &gt;= xin_screen_info[i]. x_org &amp;&amp;
++         dx &lt;= (xin_screen_info[i]. x_org +
++                 xin_screen_info[i]. width) &amp;&amp;
++         dy &gt;= xin_screen_info[i]. y_org &amp;&amp;
++         dy &lt;= (xin_screen_info[i]. y_org +
++                 xin_screen_info[i]. height))
++     {
++       if (i != xin_screen)
++       {
++         fprintf(stderr,
++                 &quot;[XvVideoOut]: Xinerama-Screen changed to %d\n&quot;, i);
++         xin_screen = i;
++       }
++       break;
++     }
++   }
++ 
++   AdjustDisplayRatio();
++ 
++ #endif
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ int cXvVideoOut::GetScreenWidth()
++ {
++ #if XINERAMA_SUPPORT
++   if (xin_mode)
++     return xin_screen_info[(xin_screen != -1) ? xin_screen : 0]. width;
++ #endif
++ 
++   return DisplayWidth(dpy,DefaultScreen(dpy));
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ int cXvVideoOut::GetScreenHeight()
++ {
++ #if XINERAMA_SUPPORT
++   if (xin_mode)
++     return xin_screen_info[(xin_screen != -1) ? xin_screen : 0]. height;
++ #endif
++ 
++   return DisplayHeight(dpy,DefaultScreen(dpy));
++ }
++ 
+  //#define EVDEB(out...) {printf(&quot;EVDEB:&quot;);printf(out);}
+  #define EVDEB(out...)
+***************
+*** 516,525 ****
+          dwidth = event.xconfigure.width;
+          dheight = event.xconfigure.height;
+          RecalculateAspect();
+  
+          if (toggleInProgress &amp;&amp;
+              ((fullScreen &amp;&amp;
+!                dwidth == DisplayWidth(dpy,DefaultScreen(dpy)) &amp;&amp;
+!                dheight == DisplayHeight(dpy,DefaultScreen(dpy))) ||
+                (!fullScreen &amp;&amp;
+                 dwidth == old_dwidth &amp;&amp;
+--- 619,629 ----
+          dwidth = event.xconfigure.width;
+          dheight = event.xconfigure.height;
++         AdjustXineramaScreen();
+          RecalculateAspect();
+  
+          if (toggleInProgress &amp;&amp;
+              ((fullScreen &amp;&amp;
+!                dwidth == GetScreenWidth() &amp;&amp;
+!                dheight == GetScreenHeight()) ||
+                (!fullScreen &amp;&amp;
+                 dwidth == old_dwidth &amp;&amp;
+***************
+*** 694,697 ****
+--- 798,808 ----
+    Yres=height;
+  
++   xin_mode = false;
++   xin_screen = -1;
++ 
++ #if XINERAMA_SUPPORT
++   xin_screen_info = NULL;
++ #endif
++ 
+    /*
+     * default settings: source, destination and logical widht/height
+***************
+*** 719,723 ****
+      XTextProperty       x_wname, x_iname;
+      struct timeval      current_time;
+-     double              displayAspect, displayRatio;
+      int                 retry = 0;
+  
+--- 830,833 ----
+***************
+*** 725,729 ****
+  
+    if(!(dpy = XOpenDisplay(NULL))) {
+! 	fprintf(stderr, &quot;[XvVideoOut]: Could not connect to X-server&quot;);
+      dsyslog(&quot;[XvVideoOut]: Could not connect to X-server&quot;);
+      return false;
+--- 835,839 ----
+  
+    if(!(dpy = XOpenDisplay(NULL))) {
+!     fprintf(stderr, &quot;[XvVideoOut]: Could not connect to X-server&quot;);
+      dsyslog(&quot;[XvVideoOut]: Could not connect to X-server&quot;);
+      return false;
+***************
+*** 733,737 ****
+--- 843,873 ----
+    scn_id = DefaultScreen(dpy);
+  
++   /* -------------------------------------------------------------------------
++    * Check if xinerama is active
++    */
++ #if XINERAMA_SUPPORT
++   if (XineramaIsActive(dpy))
++   {
++       int                 i;
+  
++     xin_screen_info = XineramaQueryScreens (dpy, &amp;xin_num_screens);
++     if (xin_screen_info)
++     {
++       for (i = 0; i &lt; xin_num_screens; ++i)
++       {
++         fprintf(stderr,
++                 &quot;[XvVideoOut]: Xinerama Screen %d: %d,%d  %dx%d\n&quot;,
++                 i,
++                 xin_screen_info[i]. x_org,
++                 xin_screen_info[i]. y_org,
++                 xin_screen_info[i]. width,
++                 xin_screen_info[i]. height);
++       }
++       xin_mode = xin_num_screens &gt; 0;
++     } else {
++       fprintf (stderr, &quot;[XvVideoOut]: NO Xinerama Screens present\n&quot;);
++     }
++   }
++ #endif
+    /* -------------------------------------------------------------------------
+     * default settings which allow arbitraray resizing of the window
+***************
+*** 752,768 ****
+    XStringListToTextProperty(&amp;i_name, 1 ,&amp;x_iname);
+  
+!   /* --------------------------------------------------------------------------
+!    * set PAR values
+!    */
+!   displayAspect = (double) DisplayWidthMM(dpy, scn_id) /
+!                     (double) DisplayHeightMM(dpy, scn_id);
+!   displayRatio  = (double) DisplayWidth(dpy, scn_id) /
+!                     (double) DisplayHeight(dpy, scn_id);
+! 
+!   SetParValues(displayAspect, displayRatio);
+! 
+!   fprintf(stderr,
+!           &quot;[XvVideoOut]: displayAspect = %f, displayRatio = %f, PAR = %f\n&quot;,
+!           displayAspect, displayRatio, parValues[0]);
+  
+    if (flags &amp; XV_FORMAT_MASK) {
+--- 888,892 ----
+    XStringListToTextProperty(&amp;i_name, 1 ,&amp;x_iname);
+  
+!   AdjustDisplayRatio();
+  
+    if (flags &amp; XV_FORMAT_MASK) {
+***************
+*** 802,808 ****
+    Pixmap cursor_mask;
+    XColor dummy_col;
+!   
+    const char cursor_data[] = { 0x0 };
+!   
+    cursor_mask = XCreateBitmapFromData(dpy, win, cursor_data, 1, 1);
+    hidden_cursor = XCreatePixmapCursor(dpy, cursor_mask, cursor_mask,
+--- 926,932 ----
+    Pixmap cursor_mask;
+    XColor dummy_col;
+! 
+    const char cursor_data[] = { 0x0 };
+! 
+    cursor_mask = XCreateBitmapFromData(dpy, win, cursor_data, 1, 1);
+    hidden_cursor = XCreatePixmapCursor(dpy, cursor_mask, cursor_mask,
+***************
+*** 834,839 ****
+  
+    old_handler = XSetErrorHandler(XvError_Handler);
+!   
+! init_osd: 
+    if (useShm) {
+  
+--- 958,963 ----
+  
+    old_handler = XSetErrorHandler(XvError_Handler);
+! 
+! init_osd:
+    if (useShm) {
+  
+***************
+*** 843,847 ****
+                            ZPixmap,NULL,
+                            &amp;osd_shminfo,
+! 			  osd_max_width,osd_max_height);
+                            //width, height);
+            if (osd_image) {
+--- 967,971 ----
+                            ZPixmap,NULL,
+                            &amp;osd_shminfo,
+!                           osd_max_width,osd_max_height);
+                            //width, height);
+            if (osd_image) {
+***************
+*** 1089,1095 ****
+    int retry=0;
+    old_handler = XSetErrorHandler(XvError_Handler);
+! retry_image: 
+    CreateXvImage(dpy,port,xv_image,shminfo,
+!                   format,xvWidth, xvHeight); 
+  
+    pixels[0] = (uint8_t *) (xv_image-&gt;data + xv_image-&gt;offsets[0]);
+--- 1213,1219 ----
+    int retry=0;
+    old_handler = XSetErrorHandler(XvError_Handler);
+! retry_image:
+    CreateXvImage(dpy,port,xv_image,shminfo,
+!                   format,xvWidth, xvHeight);
+  
+    pixels[0] = (uint8_t *) (xv_image-&gt;data + xv_image-&gt;offsets[0]);
+***************
+*** 1102,1108 ****
+  
+    rc = PutXvImage();
+!   
+    rc = XClearArea (dpy, win, 0, 0, 0, 0, True);
+!    
+    rc = XSync(dpy, False);
+  
+--- 1226,1232 ----
+  
+    rc = PutXvImage();
+! 
+    rc = XClearArea (dpy, win, 0, 0, 0, 0, True);
+! 
+    rc = XSync(dpy, False);
+  
+***************
+*** 1124,1128 ****
+    };
+  
+!   
+    pthread_mutex_unlock(&amp;xv_mutex);
+  
+--- 1248,1252 ----
+    };
+  
+! 
+    pthread_mutex_unlock(&amp;xv_mutex);
+  
+***************
+*** 1600,1604 ****
+        shminfo.shmid = -1;
+      }
+!   
+      if (xv_image)
+      {
+--- 1724,1728 ----
+        shminfo.shmid = -1;
+      }
+! 
+      if (xv_image)
+      {
+***************
+*** 1616,1619 ****
+--- 1740,1746 ----
+  
+  
++ #if XINERAMA_SUPPORT
++   XFree(xin_screen_info);
++ #endif
+    if (osd_image)
+    {
+
+Index: video-xv.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.h,v
+retrieving revision 1.16
+retrieving revision 1.17
+diff -C2 -d -r1.16 -r1.17
+*** video-xv.h	21 Mar 2006 18:34:53 -0000	1.16
+--- video-xv.h	31 Mar 2006 19:21:32 -0000	1.17
+***************
+*** 35,38 ****
+--- 35,42 ----
+  #include &lt;X11/extensions/Xvlib.h&gt;
+  
++ #if XINERAMA_SUPPORT
++ # include &lt;X11/extensions/Xinerama.h&gt;
++ #endif
++ 
+  #define FOURCC_YV12       0x32315659   /* 4:2:0 Planar: Y + V + U  (3 planes) */
+  #define FOURCC_YUY2       0x32595559   /* 4:2:2 Packed: Y0+U0+Y1+V0 (1 plane) */
+***************
+*** 112,120 ****
+                      xv_initialized,
+                      /* -------------------------------------------------------
+!                      * could be specified via argv or parameters
+!                      */
+                      xvWidth, xvHeight,
+                      width, height,
+                      format;
+  
+    GC                gc;
+--- 116,133 ----
+                      xv_initialized,
+                      /* -------------------------------------------------------
+!                         * could be specified via argv or parameters
+!                         */
+                      xvWidth, xvHeight,
+                      width, height,
+                      format;
++   /* -------------------------------------------------------------------------
++    * Xinerama specific members (not all depend on Xinerame available)
++    */
++   int               xin_screen,
++                     xin_num_screens;
++   bool              xin_mode;
++ #if XINERAMA_SUPPORT
++   XineramaScreenInfo  *xin_screen_info;
++ #endif
+  
+    GC                gc;
+***************
+*** 136,141 ****
+  
+    bool              fullScreen;
+-   void toggleFullScreen(void);
+  
+  
+  public:
+--- 149,158 ----
+  
+    bool              fullScreen;
+  
++   void  toggleFullScreen(void),
++         AdjustDisplayRatio(void),
++         AdjustXineramaScreen(void);
++   int   GetScreenWidth(void),
++         GetScreenHeight();
+  
+  public:
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000309.html">[Softdevice-cvs] softdevice configure,1.9,1.10
+</A></li>
+	<LI>Next message: <A HREF="000311.html">[Softdevice-cvs] softdevice CHANGELOG,1.163,1.164 video-xv.c,1.47,1.48
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#310">[ date ]</a>
+              <a href="thread.html#310">[ thread ]</a>
+              <a href="subject.html#310">[ subject ]</a>
+              <a href="author.html#310">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

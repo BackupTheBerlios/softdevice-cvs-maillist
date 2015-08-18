@@ -1,0 +1,175 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice video-xv.c, 1.75, 1.76 video-xv.h, 1.29,	1.30
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2009q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-xv.c%2C%201.75%2C%201.76%20video-xv.h%2C%201.29%2C%0A%091.30&In-Reply-To=%3C20090614182413.B8F02136EF%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000656.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice video-xv.c, 1.75, 1.76 video-xv.h, 1.29,	1.30</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-xv.c%2C%201.75%2C%201.76%20video-xv.h%2C%201.29%2C%0A%091.30&In-Reply-To=%3C20090614182413.B8F02136EF%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice video-xv.c, 1.75, 1.76 video-xv.h, 1.29,	1.30">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Jun 14 20:24:13 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000656.html">[Softdevice-cvs] softdevice audio-ac3pt.c, 1.4, 1.5 audio-alsa.c,	1.10, 1.11
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#657">[ date ]</a>
+              <a href="thread.html#657">[ thread ]</a>
+              <a href="subject.html#657">[ subject ]</a>
+              <a href="author.html#657">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv12871
+
+Modified Files:
+	video-xv.c video-xv.h 
+Log Message:
+Fix compiler warnings
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.75
+retrieving revision 1.76
+diff -C2 -d -r1.75 -r1.76
+*** video-xv.c	14 Jul 2008 17:00:59 -0000	1.75
+--- video-xv.c	14 Jun 2009 18:24:11 -0000	1.76
+***************
+*** 118,122 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cXvPortAttributeStore::SetValue(char *name, int value)
+  {
+    for (int i = 0; i &lt; portAttributeCount; ++i)
+--- 118,122 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void cXvPortAttributeStore::SetValue(const char *name, int value)
+  {
+    for (int i = 0; i &lt; portAttributeCount; ++i)
+***************
+*** 152,156 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cXvPortAttributeStore::SetValuePercent(char *name, int value)
+  {
+    for (int i = 0; i &lt; portAttributeCount; ++i)
+--- 152,156 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void cXvPortAttributeStore::SetValuePercent(const char *name, int value)
+  {
+    for (int i = 0; i &lt; portAttributeCount; ++i)
+***************
+*** 190,194 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cXvPortAttributeStore::Increment(char *name)
+  {
+    for (int i = 0; i &lt; portAttributeCount; ++i)
+--- 190,194 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void cXvPortAttributeStore::Increment(const char *name)
+  {
+    for (int i = 0; i &lt; portAttributeCount; ++i)
+***************
+*** 208,212 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cXvPortAttributeStore::Decrement(char *name)
+  {
+    for (int i = 0; i &lt; portAttributeCount; ++i)
+--- 208,212 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void cXvPortAttributeStore::Decrement(const char *name)
+  {
+    for (int i = 0; i &lt; portAttributeCount; ++i)
+***************
+*** 779,784 ****
+    format = FOURCC_YV12;
+    use_xv_port = 0;
+!   w_name = &quot;vdr&quot;;
+!   i_name = &quot;vdr&quot;;
+  
+    Xres=width;
+--- 779,784 ----
+    format = FOURCC_YV12;
+    use_xv_port = 0;
+!   w_name = strdup (&quot;vdr&quot;);
+!   i_name = strdup (&quot;vdr&quot;);
+  
+    Xres=width;
+
+Index: video-xv.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.h,v
+retrieving revision 1.29
+retrieving revision 1.30
+diff -C2 -d -r1.29 -r1.30
+*** video-xv.h	11 Jul 2007 20:08:35 -0000	1.29
+--- video-xv.h	14 Jun 2009 18:24:11 -0000	1.30
+***************
+*** 90,99 ****
+    ~cXvPortAttributeStore();
+    void SetXInfo(Display *dpy, XvPortID port, cSetupStore *setupStore);
+!   void SetValue(char *name, int value);
+!   void SetValuePercent(char *name, int value);
+    int GetValuePercent(int index);
+    void SetColorkey(int value);
+!   void Increment(char *name);
+!   void Decrement(char *name);
+    void Save();
+    bool HasAttribute(char *name);
+--- 90,99 ----
+    ~cXvPortAttributeStore();
+    void SetXInfo(Display *dpy, XvPortID port, cSetupStore *setupStore);
+!   void SetValue(const char *name, int value);
+!   void SetValuePercent(const char *name, int value);
+    int GetValuePercent(int index);
+    void SetColorkey(int value);
+!   void Increment(const char *name);
+!   void Decrement(const char *name);
+    void Save();
+    bool HasAttribute(char *name);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000656.html">[Softdevice-cvs] softdevice audio-ac3pt.c, 1.4, 1.5 audio-alsa.c,	1.10, 1.11
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#657">[ date ]</a>
+              <a href="thread.html#657">[ thread ]</a>
+              <a href="subject.html#657">[ subject ]</a>
+              <a href="author.html#657">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

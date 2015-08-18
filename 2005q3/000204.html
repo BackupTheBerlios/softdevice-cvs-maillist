@@ -1,0 +1,296 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.106,1.107 mpeg2decoder.c,1.53,1.54 video.c,1.29,1.30 video.h,1.20,1.21
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.106%2C1.107%20mpeg2decoder.c%2C1.53%2C1.54%20video.c%2C1.29%2C1.30%20video.h%2C1.20%2C1.21&In-Reply-To=%3C200509110922.j8B9MW107136%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000203.html">
+   <LINK REL="Next"  HREF="000205.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.106,1.107 mpeg2decoder.c,1.53,1.54 video.c,1.29,1.30 video.h,1.20,1.21</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.106%2C1.107%20mpeg2decoder.c%2C1.53%2C1.54%20video.c%2C1.29%2C1.30%20video.h%2C1.20%2C1.21&In-Reply-To=%3C200509110922.j8B9MW107136%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.106,1.107 mpeg2decoder.c,1.53,1.54 video.c,1.29,1.30 video.h,1.20,1.21">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Sep 11 11:22:32 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000203.html">[Softdevice-cvs] softdevice configure,1.1,1.2
+</A></li>
+        <LI>Next message: <A HREF="000205.html">[Softdevice-cvs] softieee1394 .cvsignore,NONE,1.1
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#204">[ date ]</a>
+              <a href="thread.html#204">[ thread ]</a>
+              <a href="subject.html#204">[ subject ]</a>
+              <a href="author.html#204">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv3239
+
+Modified Files:
+	CHANGELOG mpeg2decoder.c video.c video.h 
+Log Message:
+fix for segfaults with some OSD activity
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.106
+retrieving revision 1.107
+diff -C2 -d -r1.106 -r1.107
+*** CHANGELOG	6 Sep 2005 21:55:27 -0000	1.106
+--- CHANGELOG	11 Sep 2005 09:22:30 -0000	1.107
+***************
+*** 1,3 ****
+--- 1,6 ----
+  Changelog
++ 2005-09-11:
++     - fix for segfaults with some OSD activity
++     - introduced configure script: try ./configure --help
+  2005-09-06:
+      - video-out (all methods): fix for missing actions upon aspect ratio change
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.53
+retrieving revision 1.54
+diff -C2 -d -r1.53 -r1.54
+*** mpeg2decoder.c	6 Sep 2005 21:55:27 -0000	1.53
+--- mpeg2decoder.c	11 Sep 2005 09:22:30 -0000	1.54
+***************
+*** 577,581 ****
+  
+      // do format conversions if necessary
+!     if (context-&gt;pix_fmt!=PIX_FMT_YUV420P) 
+        libavcodec_img_convert();
+  
+--- 577,581 ----
+  
+      // do format conversions if necessary
+!     if (context-&gt;pix_fmt!=PIX_FMT_YUV420P)
+        libavcodec_img_convert();
+  
+***************
+*** 584,588 ****
+      pix_fmt = context-&gt;pix_fmt;
+  
+!    
+      // find decoded pictures pts value
+      int findPTS=(lastPTSidx+1)%NO_PTS_VALUES;
+--- 584,588 ----
+      pix_fmt = context-&gt;pix_fmt;
+  
+! 
+      // find decoded pictures pts value
+      int findPTS=(lastPTSidx+1)%NO_PTS_VALUES;
+***************
+*** 599,618 ****
+            pts = pts_values[findPTS].pts;
+       };
+-   
+-   if (!hurry_up || frame % 2 ) {
+-     // prepare picture for display
+-     videoOut-&gt;CheckAspectDimensions(picture,context);
+-     videoOut-&gt;SetOldPicture(picture,context-&gt;width,context-&gt;height);
+  
+!     // sleep ....
+!     delay-=syncTimer-&gt;GetRelTime();
+!     MPGDEB(&quot;Frame# %-5d  aPTS: %lld offset: %d delay %d \n&quot;,frame,clock-&gt;GetPTS(),offset,delay );
+! 
+!     videoOut-&gt;Sync(syncTimer, &amp;delay);
+!     // display picture
+!     videoOut-&gt;YUV(picture-&gt;data[0], picture-&gt;data[1],picture-&gt;data[2],
+!         context-&gt;width,context-&gt;height,
+!         picture-&gt;linesize[0],picture-&gt;linesize[1]);
+!   } else fprintf(stderr,&quot;+&quot;);
+    // we just displayed a frame, now it's the right time to
+    // measure the A-V offset
+--- 599,607 ----
+            pts = pts_values[findPTS].pts;
+       };
+  
+!   if (!hurry_up || frame % 2 )
+!     videoOut-&gt;DrawVideo_420pl(syncTimer, &amp;delay, picture,context);
+!   else
+!     fprintf(stderr,&quot;+&quot;);
+    // we just displayed a frame, now it's the right time to
+    // measure the A-V offset
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.29
+retrieving revision 1.30
+diff -C2 -d -r1.29 -r1.30
+*** video.c	19 Aug 2005 09:02:05 -0000	1.29
+--- video.c	11 Sep 2005 09:22:30 -0000	1.30
+***************
+*** 95,110 ****
+           OsdRefreshCounter&gt;10 &amp;&amp; Osd_changed))
+      {
+-       osdMutex.Lock();
+        if (old_picture)
+        {
+!         YUV(old_picture-&gt;data[0], old_picture-&gt;data[1], old_picture-&gt;data[2],
+!             old_width,old_height,
+!             old_picture-&gt;linesize[0],old_picture-&gt;linesize[1]);
+        }
+        else
+        {
+!         YUV(OsdPy,OsdPu, OsdPv, OsdWidth, OsdHeight,
+!             OSD_FULL_WIDTH, OSD_FULL_WIDTH/2);
+        }
+        Osd_changed=0;
+        osdMutex.Unlock();
+--- 95,113 ----
+           OsdRefreshCounter&gt;10 &amp;&amp; Osd_changed))
+      {
+        if (old_picture)
+        {
+!         DrawStill_420pl (old_picture-&gt;data[0],
+!                          old_picture-&gt;data[1],
+!                          old_picture-&gt;data[2],
+!                          old_width, old_height,
+!                          old_picture-&gt;linesize[0],
+!                          old_picture-&gt;linesize[1]);
+        }
+        else
+        {
+!         DrawStill_420pl (OsdPy,OsdPu, OsdPv, OsdWidth, OsdHeight,
+!                          OSD_FULL_WIDTH, OSD_FULL_WIDTH/2);
+        }
++       osdMutex.Lock();
+        Osd_changed=0;
+        osdMutex.Unlock();
+***************
+*** 359,366 ****
+--- 362,418 ----
+  /* ---------------------------------------------------------------------------
+   */
++ void cVideoOut::CheckArea(int w, int h)
++ {
++   if (fwidth != w || fheight != h)
++   {
++     dsyslog(&quot;[VideoOut]: resolution changed: W(%d -&gt; %d); H(%d -&gt;%d)\n&quot;,
++              fwidth, w, fheight, h);
++     fwidth = w;
++     fheight = h;
++     aspect_changed = 1;
++   }
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
+  void cVideoOut::Sync(cSyncTimer *syncTimer, int *delay)
+  {
++   *delay-=syncTimer-&gt;GetRelTime();
+    syncTimer-&gt;Sleep(delay,displayTimeUS);
+    *delay -= syncTimer-&gt;GetRelTime();
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ void cVideoOut::DrawVideo_420pl(cSyncTimer *syncTimer, int *delay,
++                                 AVFrame *picture, AVCodecContext *context)
++ {
++   areaMutex. Lock();
++   CheckAspectDimensions(picture,context);
++   SetOldPicture(picture,context-&gt;width,context-&gt;height);
++   Sync(syncTimer, delay);
++   // display picture
++   YUV(picture-&gt;data[0], picture-&gt;data[1],picture-&gt;data[2],
++       context-&gt;width,context-&gt;height,
++       picture-&gt;linesize[0],picture-&gt;linesize[1]);
++ 
++   /* --------------------------------------------------------------------------
++    * Unlocking could be done a bit earlier in YUV(), after video is displayed
++    * and before event processing starts. For now it is easier to do it here.
++    * Same applies for DrawStill_420pl() below.
++    */
++   areaMutex. Unlock();
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ void cVideoOut::DrawStill_420pl(uint8_t *pY, uint8_t *pU, uint8_t *pV,
++                                 int w, int h, int yPitch, int uvPitch)
++ {
++   areaMutex. Lock();
++   CheckArea(w, h);
++   // display picture
++   YUV (pY, pU, pV, w, h, yPitch, uvPitch);
++   areaMutex. Unlock();
+  }
+  
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.20
+retrieving revision 1.21
+diff -C2 -d -r1.20 -r1.21
+*** video.h	10 Sep 2005 19:43:21 -0000	1.20
+--- video.h	11 Sep 2005 09:22:30 -0000	1.21
+***************
+*** 80,84 ****
+  private:
+  protected:
+!     cMutex  osdMutex;
+      int     OSDxOfs, OSDyOfs,
+              OSDw, OSDh;
+--- 80,85 ----
+  private:
+  protected:
+!     cMutex  osdMutex,
+!             areaMutex;
+      int     OSDxOfs, OSDyOfs,
+              OSDw, OSDh;
+***************
+*** 130,133 ****
+--- 131,139 ----
+      virtual void CheckAspect(int new_afd, float new_asp);
+      virtual void CheckAspectDimensions (AVFrame *picture, AVCodecContext *context);
++     virtual void CheckArea(int w, int h);
++     virtual void DrawVideo_420pl (cSyncTimer *syncTimer, int *delay,
++                                   AVFrame *picture, AVCodecContext *context);
++     virtual void DrawStill_420pl (uint8_t *pY, uint8_t *pU, uint8_t *pV,
++                                   int w, int h, int yPitch, int uvPitch);
+      virtual bool Initialize(void) {return 1;};
+      virtual bool Reconfigure (int format) {return 1;};
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000203.html">[Softdevice-cvs] softdevice configure,1.1,1.2
+</A></li>
+	<LI>Next message: <A HREF="000205.html">[Softdevice-cvs] softieee1394 .cvsignore,NONE,1.1
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#204">[ date ]</a>
+              <a href="thread.html#204">[ thread ]</a>
+              <a href="subject.html#204">[ subject ]</a>
+              <a href="author.html#204">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

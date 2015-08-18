@@ -1,0 +1,289 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice xscreensaver.c,NONE,1.1 xscreensaver.h,NONE,1.1
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2004q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20xscreensaver.c%2CNONE%2C1.1%20xscreensaver.h%2CNONE%2C1.1&In-Reply-To=%3C200410180328.i9I3SdB07015%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000006.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice xscreensaver.c,NONE,1.1 xscreensaver.h,NONE,1.1</H1>
+    <B>iampivot</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20xscreensaver.c%2CNONE%2C1.1%20xscreensaver.h%2CNONE%2C1.1&In-Reply-To=%3C200410180328.i9I3SdB07015%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice xscreensaver.c,NONE,1.1 xscreensaver.h,NONE,1.1">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon Oct 18 05:28:39 CEST 2004</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000006.html">[Softdevice-cvs] softdevice video-dfb.c,1.3,1.4
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#5">[ date ]</a>
+              <a href="thread.html#5">[ thread ]</a>
+              <a href="subject.html#5">[ subject ]</a>
+              <a href="author.html#5">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv1342
+
+Added Files:
+	xscreensaver.c xscreensaver.h 
+Log Message:
+Initial revision
+
+
+--- NEW FILE: xscreensaver.c ---
+/*
+ * xscreensaver.c: A plugin for the Video Disk Recorder
+ *
+ * See the README file for copyright information and how to reach the author.
+ *
+ * Code adapted by Torgeir Veimo from jwz' xscreensaver remote control code
+ * (simplified similar to Gerd Knorr's xawtv) which carries the following 
+ * copyright notice:
+ *
+ * xscreensaver-command, Copyright (c) 1991-1998
+ * by Jamie Zawinski &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">jwz at jwz.org</A>&gt;
+ *
+ * Permission to use, copy, modify, distribute, and sell this software and its
+ * documentation for any purpose is hereby granted without fee, provided that
+ * the above copyright notice appear in all copies and that both that
+ * copyright notice and this permission notice appear in supporting
+ * documentation.  No representations are made about the suitability of this
+ * software for any purpose.  It is provided &quot;as is&quot; without express or 
+ * implied warranty.
+ * 
+ * $Id: xscreensaver.c,v 1.1 2004/10/18 03:28:37 iampivot Exp $
+ */
+
+#include &lt;vdr/plugin.h&gt;
+#include &quot;xscreensaver.h&quot;
+#include &quot;utils.h&quot;
+
+static XErrorHandler old_handler = 0;
+static Bool got_badwindow = False;
+
+static int BadWindow_ehandler(Display *dpy, XErrorEvent *error) {
+  if (error-&gt;error_code == BadWindow) {
+    got_badwindow = True;
+    return 0;
+  } else {
+    if (!old_handler)
+      printf(&quot;[softdevice-xscreensaver]: old handler not found!\n&quot;);
+    return(*old_handler) (dpy, error);
+  }
+}
+
+cScreensaver::~cScreensaver() {
+#ifdef LIBXDPMS_SUPPORT
+  if (disabled &amp;&amp; (DPMSQueryExtension(dpy, &amp;dpms_dummy, &amp;dpms_dummy)) &amp;&amp; DPMSCapable(dpy)) &amp;&amp; (dpms_on)) {
+    DPMSEnable(dpy);
+  }
+#endif
+}
+
+cScreensaver::cScreensaver(Display *dpy) {
+  this-&gt;dpy = dpy;
+
+  XA_SCREENSAVER_VERSION = XInternAtom(dpy, &quot;_SCREENSAVER_VERSION&quot;, False);
+  XA_SCREENSAVER = XInternAtom(dpy, &quot;SCREENSAVER&quot;, False);
+  XA_DEACTIVATE = XInternAtom(dpy, &quot;DEACTIVATE&quot;, False);
+
+  window = FindWindow();
+  if (window) {
+    printf(&quot;[softdevice-xscreensaver]: window is 0x%lx\n&quot;, window);
+  } else {
+    printf(&quot;[softdevice-xscreensaver]: xscreensaver not running\n&quot;);
+  }
+  disabled = false; // don't disable screensaver until asked to
+  last = 0;
+}
+
+void cScreensaver::DisableScreensaver(bool disable) {
+  struct timeval current;
+  gettimeofday(&amp;current, NULL);
+  last = current.tv_sec;
+  this-&gt;disabled = disable;
+
+#ifdef LIBXDPMS_SUPPORT
+  if ((DPMSQueryExtension(dpy, &amp;dpms_dummy, &amp;dpms_dummy)) &amp;&amp; (DPMSCapable(dpy))) {
+    Status stat;
+    if (disable) {
+      printf(&quot;[softdevice-xscreensaver]: disabling DPMS\n&quot;);
+      DPMSInfo(dpy, &amp;dpms_state, &amp;dpms_on);
+      stat = DPMSDisable(dpy);
+      printf(&quot;[softdevice-xscreensaver]: disabling DPMS stat: %d\n&quot;, stat);
+    } else {
+      printf(&quot;[softdevice-xscreensaver]: reenabling DPMS\n&quot;);
+      if (!DPMSEnable(dpy)) {
+        printf(&quot;[softdevice-xscreensaver]: DPMS not available?\n&quot;);
+      } else {
+        // According to mplayer sources: DPMS does not seem to be enabled unless we call DPMSInfo
+        DPMSForceLevel(dpy, DPMSModeOn);
+        DPMSInfo(dpy, &amp;dpms_state, &amp;dpms_on);
+        if (onoff) {
+          printf(&quot;[softdevice-xscreensaver]: Successfully enabled DPMS\n&quot;);
+        } else {
+          printf(&quot;[softdevice-xscreensaver]: Could not enable DPMS\n&quot;);
+        }
+      }
+    }
+  }
+#endif
+}
+
+void cScreensaver::MaybeSendDeactivate(void) {
+  if (window &amp;&amp; disabled) {
+    struct timeval current;
+    gettimeofday(&amp;current, NULL);
+    if (current.tv_sec - last &gt; INTERVAL) {
+      last = current.tv_sec;
+      printf(&quot;[softdevice-xscreensaver]: sending xscreensaver deactivation command DPMS\n&quot;);
+
+      XEvent event;
+      event.xany.type = ClientMessage;
+      event.xclient.display = dpy;
+      event.xclient.window = window;
+      event.xclient.message_type = XA_SCREENSAVER;
+      event.xclient.format = 32;
+      memset(&amp;event.xclient.data, 0, sizeof(event.xclient.data));
+      event.xclient.data.l[0] = XA_DEACTIVATE;
+      if (!XSendEvent (dpy, window, False, 0L, &amp;event)) {
+        printf(&quot;[softdevice-xscreensaver]: failed to send deactivation command\n&quot;);
+        return;
+      }
+      XSync (dpy, 0);
+    }
+  }
+}
+
+int cScreensaver::FindWindow() {
+  unsigned int i;
+  Window root = RootWindowOfScreen (DefaultScreenOfDisplay (dpy));
+  Window root2, parent, *kids;
+  unsigned int nkids;
+   
+  if (! XQueryTree (dpy, root, &amp;root2, &amp;parent, &amp;kids, &amp;nkids))
+    printf(&quot;[softdevice-xscreensaver]: unexpected error looking up xscreensaver window\n&quot;);
+  if (root != root2)
+    printf(&quot;[softdevice-xscreensaver]: unexpected error looking up xscreensaver window\n&quot;);
+  if (parent)
+    printf(&quot;[softdevice-xscreensaver]: unexpected error looking up xscreensaver window\n&quot;);
+  if (! (kids &amp;&amp; nkids))
+    return 0;
+  for (i = 0; i &lt; nkids; i++) {
+    Atom type;
+    int format;
+    unsigned long nitems, bytesafter;
+    unsigned char *v;
+    int status;
+
+/* We're walking the list of root-level windows and trying to find
+   the one that has a particular property on it.  We need to trap
+   BadWindows errors while doing this, because it's possible that
+   some random window might get deleted in the meantime.  (That
+   window won't have been the one we're looking for.)
+*/
+    XSync (dpy, False);
+    if (old_handler)
+      printf(&quot;[softdevice-xscreensaver]: unexpected error looking up xscreensaver window\n&quot;);
+    got_badwindow = False;
+    old_handler = XSetErrorHandler (BadWindow_ehandler);
+    status = XGetWindowProperty(dpy, kids[i], XA_SCREENSAVER_VERSION,
+      0, 200, False, XA_STRING, &amp;type, &amp;format, &amp;nitems, &amp;bytesafter, (unsigned char **) &amp;v);
+    XSync (dpy, False);
+    XSetErrorHandler (old_handler);
+    old_handler = 0;
+
+    if (got_badwindow) {
+      status = BadWindow;
+      got_badwindow = False;
+    }
+
+    if (status == Success &amp;&amp; type != None) {
+      return kids[i];
+    }
+  }
+  return 0;
+}
+
+--- NEW FILE: xscreensaver.h ---
+/*
+ * xscreensaver.h: A plugin for the Video Disk Recorder
+ *
+ * See the README file for copyright information and how to reach the author.
+ *
+ * $Id: xscreensaver.h,v 1.1 2004/10/18 03:28:37 iampivot Exp $
+ */
+#ifndef XSCREENSAVER_H
+#define XSCREENSAVER_H
+
+#include &lt;X11/Xproto.h&gt;
+#include &lt;X11/Xlib.h&gt;
+#include &lt;X11/Xatom.h&gt;
+
+#ifdef LIBXDPMS_SUPPORT
+#include &lt;X11/extensions/dpms.h&gt;
+#endif
+
+#define INTERVAL 50 // number of seconds between each time we ping xscreensaver
+
+// Our xscreensaver handler class
+class cScreensaver {
+private:
+  Display *dpy;
+  Window window;
+  bool disabled;
+  int last;
+  Atom XA_SCREENSAVER_VERSION;
+  Atom XA_SCREENSAVER;
+  Atom XA_DEACTIVATE;
+#ifdef LIBXDPMS_SUPPORT
+  static BOOL dpms_on;
+  CARD16 dpms_state;
+  int dpms_dummy;
+#endif
+  int FindWindow();
+public:
+  cScreensaver(Display *dpy);
+  ~cScreensaver();
+  void MaybeSendDeactivate();
+  void DisableScreensaver(bool disable);
+};
+
+#endif
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000006.html">[Softdevice-cvs] softdevice video-dfb.c,1.3,1.4
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#5">[ date ]</a>
+              <a href="thread.html#5">[ thread ]</a>
+              <a href="subject.html#5">[ subject ]</a>
+              <a href="author.html#5">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice setup-softdevice.c,1.35,1.36
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20setup-softdevice.c%2C1.35%2C1.36&In-Reply-To=%3C200511042232.jA4MW4N24990%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000241.html">
+   <LINK REL="Next"  HREF="000243.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice setup-softdevice.c,1.35,1.36</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20setup-softdevice.c%2C1.35%2C1.36&In-Reply-To=%3C200511042232.jA4MW4N24990%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice setup-softdevice.c,1.35,1.36">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Nov  4 23:32:04 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000241.html">[Softdevice-cvs] softdevice setup-softdevice.c,1.34,1.35
+</A></li>
+        <LI>Next message: <A HREF="000243.html">[Softdevice-cvs] softdevice i18n.c,1.11,1.12
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#242">[ date ]</a>
+              <a href="thread.html#242">[ thread ]</a>
+              <a href="subject.html#242">[ subject ]</a>
+              <a href="author.html#242">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv26072
+
+Modified Files:
+	setup-softdevice.c 
+Log Message:
+compile fix for older vdr versions
+
+Index: setup-softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.c,v
+retrieving revision 1.35
+retrieving revision 1.36
+diff -C2 -d -r1.35 -r1.36
+*** setup-softdevice.c	4 Nov 2005 21:36:12 -0000	1.35
+--- setup-softdevice.c	4 Nov 2005 22:32:02 -0000	1.36
+***************
+*** 432,436 ****
+--- 432,440 ----
+    if (data-&gt;outputMethod != VOUT_FB)
+    {
++ #if VDRVERSNUM &gt;= 10334
+      Add(new cOsdItem(&quot; &quot;, osUnknown, false));
++ #else
++     Add(new cOsdItem(&quot; &quot;, osUnknown));
++ #endif
+  
+      Add(new cMenuEditIntItem(tr(&quot;Crop lines from top&quot;),
+***************
+*** 572,576 ****
+--- 576,584 ----
+    Add(new cOsdItem(tr(&quot;Cropping&quot;)));
+    Add(new cOsdItem(tr(&quot;Post processing&quot;)));
++ #if VDRVERSNUM &gt;= 10334
+    Add(new cOsdItem(&quot; &quot;, osUnknown, false));
++ #else
++   Add(new cOsdItem(&quot; &quot;, osUnknown));
++ #endif
+  
+    if (data-&gt;outputMethod == VOUT_XV)
+***************
+*** 597,601 ****
+--- 605,613 ----
+                              osdModeNames));
+  
++ #if VDRVERSNUM &gt;= 10334
+    Add(new cOsdItem(&quot; &quot;, osUnknown, false));
++ #else
++   Add(new cOsdItem(&quot; &quot;, osUnknown));
++ #endif
+  
+    bufferModes[0] = tr(&quot;save&quot;);
+***************
+*** 612,616 ****
+--- 624,632 ----
+                              suspendVideo));
+  
++ #if VDRVERSNUM &gt;= 10334
+    Add(new cOsdItem(&quot; &quot;, osUnknown, false));
++ #else
++   Add(new cOsdItem(&quot; &quot;, osUnknown));
++ #endif
+  
+    Add(new cMenuEditIntItem(tr(&quot;A/V Delay&quot;),
+***************
+*** 628,632 ****
+--- 644,652 ----
+                              syncTimerNames));
+  
++ #if VDRVERSNUM &gt;= 10334
+    Add(new cOsdItem(&quot; &quot;, osUnknown, false));
++ #else
++   Add(new cOsdItem(&quot; &quot;, osUnknown));
++ #endif
+  
+    if (data-&gt;outputMethod == VOUT_DFB || data-&gt;outputMethod == VOUT_VIDIX)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000241.html">[Softdevice-cvs] softdevice setup-softdevice.c,1.34,1.35
+</A></li>
+	<LI>Next message: <A HREF="000243.html">[Softdevice-cvs] softdevice i18n.c,1.11,1.12
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#242">[ date ]</a>
+              <a href="thread.html#242">[ thread ]</a>
+              <a href="subject.html#242">[ subject ]</a>
+              <a href="author.html#242">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

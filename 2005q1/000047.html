@@ -1,0 +1,191 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice mpeg2decoder.c,1.11,1.12 mpeg2decoder.h,1.9,1.10 softdevice.c,1.10,1.11
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20mpeg2decoder.c%2C1.11%2C1.12%20mpeg2decoder.h%2C1.9%2C1.10%20softdevice.c%2C1.10%2C1.11&In-Reply-To=%3C200501132031.j0DKVBE06687%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000046.html">
+   <LINK REL="Next"  HREF="000048.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice mpeg2decoder.c,1.11,1.12 mpeg2decoder.h,1.9,1.10 softdevice.c,1.10,1.11</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20mpeg2decoder.c%2C1.11%2C1.12%20mpeg2decoder.h%2C1.9%2C1.10%20softdevice.c%2C1.10%2C1.11&In-Reply-To=%3C200501132031.j0DKVBE06687%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice mpeg2decoder.c,1.11,1.12 mpeg2decoder.h,1.9,1.10 softdevice.c,1.10,1.11">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Thu Jan 13 21:31:11 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000046.html">[Softdevice-cvs] softdevice video.c,1.5,1.6 CHANGELOG,1.26,1.27
+</A></li>
+        <LI>Next message: <A HREF="000048.html">[Softdevice-cvs] softdevice CHANGELOG,1.27,1.28 setup-softdevice.c,1.6,1.7 video-dfb.c,1.13,1.14
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#47">[ date ]</a>
+              <a href="thread.html#47">[ thread ]</a>
+              <a href="subject.html#47">[ subject ]</a>
+              <a href="author.html#47">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv25870
+
+Modified Files:
+	mpeg2decoder.c mpeg2decoder.h softdevice.c 
+Log Message:
+compatibility fix for vdr-1.3.18
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -C2 -d -r1.11 -r1.12
+*** mpeg2decoder.c	21 Dec 2004 05:55:42 -0000	1.11
+--- mpeg2decoder.c	13 Jan 2005 20:31:08 -0000	1.12
+***************
+*** 1084,1088 ****
+  /* ----------------------------------------------------------------------------
+   */
+! void cMpeg2Decoder::PlayAudio(const uchar *Data, int Length)
+  {
+      const uchar *p;
+--- 1084,1088 ----
+  /* ----------------------------------------------------------------------------
+   */
+! int cMpeg2Decoder::PlayAudio(const uchar *Data, int Length)
+  {
+      const uchar *p;
+***************
+*** 1153,1156 ****
+--- 1153,1160 ----
+               ((*p)&amp;1)+1, sampleRates[((*p)&amp;3)&gt;&gt;4]);
+    }
++ #if VDRVERSNUM &gt;= 10318
++   aout-&gt;Write((uchar *)Data,Length);
++ #endif
++   return Length;
+  }
+  
+***************
+*** 1206,1212 ****
+--- 1210,1218 ----
+            vout-&gt;Write(header,6);
+          }
++ #if VDRVERSNUM &lt; 10318
+          if (streamtype &gt;= 0xC0 &amp;&amp; streamtype &lt;= 0xCF) {
+            aout-&gt;Write(header,6);
+          }
++ #endif
+          state=PAYLOADDATA;
+          break;
+***************
+*** 1215,1220 ****
+--- 1221,1228 ----
+          if (streamtype == 0xE0)
+            vout-&gt;Write(inbuf_ptr,streamlen);
++ #if VDRVERSNUM &lt; 10318
+          if (streamtype == 0xC0)
+            aout-&gt;Write(inbuf_ptr,streamlen);
++ #endif
+          payload-=streamlen;
+          len = streamlen;
+
+Index: mpeg2decoder.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.h,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -C2 -d -r1.9 -r1.10
+*** mpeg2decoder.h	21 Dec 2004 05:55:42 -0000	1.9
+--- mpeg2decoder.h	13 Jan 2005 20:31:08 -0000	1.10
+***************
+*** 181,185 ****
+      cMpeg2Decoder(cAudioOut *AudioOut, cVideoOut *VideoOut);
+      ~cMpeg2Decoder();
+!     void PlayAudio(const uchar *Data, int Length);
+      int Decode(const uchar *Data, int Length);
+      int StillPicture(uchar *Data, int Length);
+--- 181,185 ----
+      cMpeg2Decoder(cAudioOut *AudioOut, cVideoOut *VideoOut);
+      ~cMpeg2Decoder();
+!     int PlayAudio(const uchar *Data, int Length);
+      int Decode(const uchar *Data, int Length);
+      int StillPicture(uchar *Data, int Length);
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -C2 -d -r1.10 -r1.11
+*** softdevice.c	4 Jan 2005 19:00:01 -0000	1.10
+--- softdevice.c	13 Jan 2005 20:31:08 -0000	1.11
+***************
+*** 276,280 ****
+--- 276,284 ----
+    virtual int64_t GetSTC(void);
+    virtual int PlayVideo(const uchar *Data, int Length);
++ #if VDRVERSNUM &lt; 10318
+    virtual void PlayAudio(const uchar *Data, int Length);
++ #else
++   virtual int  PlayAudio(const uchar *Data, int Length);
++ #endif
+  #if VDRVERSNUM &gt;= 10307
+    virtual int ProvidesCa(const cChannel *Channel) const;
+***************
+*** 473,476 ****
+--- 477,481 ----
+  }
+  
++ #if VDRVERSNUM &lt; 10318
+  /* ----------------------------------------------------------------------------
+   */
+***************
+*** 479,482 ****
+--- 484,495 ----
+    decoder-&gt;PlayAudio(Data, Length);
+  }
++ #else
++ /* ----------------------------------------------------------------------------
++  */
++ int cSoftDevice::PlayAudio(const uchar *Data, int Length)
++ {
++   return decoder-&gt;PlayAudio(Data, Length);
++ }
++ #endif
+  
+  /* ----------------------------------------------------------------------------
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000046.html">[Softdevice-cvs] softdevice video.c,1.5,1.6 CHANGELOG,1.26,1.27
+</A></li>
+	<LI>Next message: <A HREF="000048.html">[Softdevice-cvs] softdevice CHANGELOG,1.27,1.28 setup-softdevice.c,1.6,1.7 video-dfb.c,1.13,1.14
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#47">[ date ]</a>
+              <a href="thread.html#47">[ thread ]</a>
+              <a href="subject.html#47">[ subject ]</a>
+              <a href="author.html#47">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,173 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice video-dfb.c,1.1.1.1,1.2
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2004q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-dfb.c%2C1.1.1.1%2C1.2&In-Reply-To=%3C200408082028.i78KSM601215%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000000.html">
+   <LINK REL="Next"  HREF="000002.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice video-dfb.c,1.1.1.1,1.2</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-dfb.c%2C1.1.1.1%2C1.2&In-Reply-To=%3C200408082028.i78KSM601215%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice video-dfb.c,1.1.1.1,1.2">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Aug  8 22:28:22 CEST 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000000.html">[Softdevice-cvs] softdevice mpeg2decoder.c,1.1.1.1,1.2
+</A></li>
+        <LI>Next message: <A HREF="000002.html">[Softdevice-cvs] softdevice CHANGELOG,1.3,1.4 video-xv.c,1.1.1.1,1.2 video-xv.h,1.1.1.1,1.2
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1">[ date ]</a>
+              <a href="thread.html#1">[ thread ]</a>
+              <a href="subject.html#1">[ subject ]</a>
+              <a href="author.html#1">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv14737
+
+Modified Files:
+	video-dfb.c 
+Log Message:
+fix dfb calling sequence (sig 6 fix)
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1.1.1 -r1.2
+*** video-dfb.c	1 Aug 2004 05:07:06 -0000	1.1.1.1
+--- video-dfb.c	8 Aug 2004 20:28:19 -0000	1.2
+***************
+*** 450,462 ****
+  #if HAVE_SetSourceLocation
+        /* ----------------------------------------------------------------------
+!        * this should be the settings if SetSourceLocation is working for
+         * all drivers.
+         */
+        dlc.width   = fwidth;
+        dlc.height  = fheight;
+-       if (!useStretchBlit)
+-       {
+-         videoLayer-&gt;SetSourceRectangle (sxoff, syoff, swidth, sheight);
+-       }
+  #else
+        /* ----------------------------------------------------------------------
+--- 450,459 ----
+  #if HAVE_SetSourceLocation
+        /* ----------------------------------------------------------------------
+!        * this should be the settings if SetSourceRectangle is working for
+         * all drivers.
++        * SetSourceRectangle() moved, after layer is reconfigured
+         */
+        dlc.width   = fwidth;
+        dlc.height  = fheight;
+  #else
+        /* ----------------------------------------------------------------------
+***************
+*** 495,509 ****
+          videoSurface = NULL;
+  
+-         if (desc.caps &amp; DLCAPS_SCREEN_LOCATION)
+-         {
+-           videoLayer-&gt;SetScreenLocation((float) lxoff / (float) dwidth,
+-                                         (float) lyoff / (float) dheight,
+-                                         (float) lwidth / (float) dwidth,
+-                                         (float) lheight / (float) dheight);
+-         }
+-         else
+-         {
+-           fprintf(stderr,&quot;Can't configure ScreenLocation. Hope it is Fullscreen\n&quot;);
+-         }
+          /* --------------------------------------------------------------------
+           * set the default options to none
+--- 492,495 ----
+***************
+*** 539,542 ****
+--- 525,529 ----
+            }
+          }
++ 
+          /* --------------------------------------------------------------------
+           * OK, try to set the video layer configuration
+***************
+*** 548,555 ****
+          catch (DFBException *ex)
+          {
+!           fprintf(stderr,&quot;Caught: %s&quot;, ex);
+            exit(1);
+          }
+  
+          /* --------------------------------------------------------------------
+           * set colorkey now. some driver accepct that _after_ configuration
+--- 535,566 ----
+          catch (DFBException *ex)
+          {
+!           fprintf (stderr,&quot;Caught: action=%s, result=%s\n&quot;,
+!                    ex-&gt;GetAction(), ex-&gt;GetResult());
+            exit(1);
+          }
+  
++ #if HAVE_SetSourceLocation
++         try
++         {
++           videoLayer-&gt;SetSourceRectangle (sxoff, syoff, swidth, sheight);
++         }
++         catch (DFBException *ex)
++         {
++           fprintf (stderr,&quot;Caught: action=%s, result=%s\n&quot;,
++                    ex-&gt;GetAction(), ex-&gt;GetResult());
++         }
++ #endif
++ 
++         if (desc.caps &amp; DLCAPS_SCREEN_LOCATION)
++         {
++           videoLayer-&gt;SetScreenLocation((float) lxoff / (float) dwidth,
++                                         (float) lyoff / (float) dheight,
++                                         (float) lwidth / (float) dwidth,
++                                         (float) lheight / (float) dheight);
++         }
++         else
++         {
++           fprintf(stderr,&quot;Can't configure ScreenLocation. Hope it is Fullscreen\n&quot;);
++         }
+          /* --------------------------------------------------------------------
+           * set colorkey now. some driver accepct that _after_ configuration
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000000.html">[Softdevice-cvs] softdevice mpeg2decoder.c,1.1.1.1,1.2
+</A></li>
+	<LI>Next message: <A HREF="000002.html">[Softdevice-cvs] softdevice CHANGELOG,1.3,1.4 video-xv.c,1.1.1.1,1.2 video-xv.h,1.1.1.1,1.2
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1">[ date ]</a>
+              <a href="thread.html#1">[ thread ]</a>
+              <a href="subject.html#1">[ subject ]</a>
+              <a href="author.html#1">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

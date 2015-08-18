@@ -1,0 +1,299 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.89,1.90 mpeg2decoder.c,1.45,1.46 setup-softdevice.c,1.23,1.24 video-dfb.c,1.34,1.35 video-xv.c,1.30,1.31
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.89%2C1.90%20mpeg2decoder.c%2C1.45%2C1.46%20setup-softdevice.c%2C1.23%2C1.24%20video-dfb.c%2C1.34%2C1.35%20video-xv.c%2C1.30%2C1.31&In-Reply-To=%3C200507202024.j6KKOCI07444%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000163.html">
+   <LINK REL="Next"  HREF="000165.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.89,1.90 mpeg2decoder.c,1.45,1.46 setup-softdevice.c,1.23,1.24 video-dfb.c,1.34,1.35 video-xv.c,1.30,1.31</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.89%2C1.90%20mpeg2decoder.c%2C1.45%2C1.46%20setup-softdevice.c%2C1.23%2C1.24%20video-dfb.c%2C1.34%2C1.35%20video-xv.c%2C1.30%2C1.31&In-Reply-To=%3C200507202024.j6KKOCI07444%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.89,1.90 mpeg2decoder.c,1.45,1.46 setup-softdevice.c,1.23,1.24 video-dfb.c,1.34,1.35 video-xv.c,1.30,1.31">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Wed Jul 20 22:24:12 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000163.html">[Softdevice-cvs] softdevice CHANGELOG,1.88,1.89 setup-softdevice.c,1.22,1.23 setup-softdevice.h,1.16,1.17 video-dfb.c,1.33,1.34
+</A></li>
+        <LI>Next message: <A HREF="000165.html">[Softdevice-cvs] softdevice CHANGELOG,1.90,1.91 setup-softdevice.h,1.17,1.18 softdevice.c,1.34,1.35 softdevice.h,1.4,1.5
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#164">[ date ]</a>
+              <a href="thread.html#164">[ thread ]</a>
+              <a href="subject.html#164">[ subject ]</a>
+              <a href="author.html#164">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv30842
+
+Modified Files:
+	CHANGELOG mpeg2decoder.c setup-softdevice.c video-dfb.c 
+	video-xv.c 
+Log Message:
+crop left/right now for dfb-out too
+fix for live view at trick speed
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.89
+retrieving revision 1.90
+diff -C2 -d -r1.89 -r1.90
+*** CHANGELOG	20 Jul 2005 19:13:36 -0000	1.89
+--- CHANGELOG	20 Jul 2005 20:24:10 -0000	1.90
+***************
+*** 1,6 ****
+  Changelog
+  2005-07-17:
+      - stretchBlit mode for dfb-out is selectable via OSD
+!     - cropLeft/Right for xv-out
+      - exclude cropTop/Bottom OSD from fb-out
+      - adjusted vidix-out call of yv12_to_yuy2() to dfb-out
+--- 1,7 ----
+  Changelog
+  2005-07-17:
++     - fix for live view at trick speed
+      - stretchBlit mode for dfb-out is selectable via OSD
+!     - cropLeft/Right for xv-out and dfb-out
+      - exclude cropTop/Bottom OSD from fb-out
+      - adjusted vidix-out call of yv12_to_yuy2() to dfb-out
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.45
+retrieving revision 1.46
+diff -C2 -d -r1.45 -r1.46
+*** mpeg2decoder.c	17 Jul 2005 09:10:38 -0000	1.45
+--- mpeg2decoder.c	20 Jul 2005 20:24:10 -0000	1.46
+***************
+*** 1385,1388 ****
+--- 1385,1389 ----
+    };
+  
++   Speed = 1;
+    CMDDEB(&quot;Stop finished\n&quot;);
+    if (GetMutex)
+
+Index: setup-softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.c,v
+retrieving revision 1.23
+retrieving revision 1.24
+diff -C2 -d -r1.23 -r1.24
+*** setup-softdevice.c	20 Jul 2005 19:13:36 -0000	1.23
+--- setup-softdevice.c	20 Jul 2005 20:24:10 -0000	1.24
+***************
+*** 413,417 ****
+    }                            
+  
+!   if (data-&gt;outputMethod == VOUT_XV)
+    {
+      Add(new cMenuEditIntItem(tr(&quot;Crop columns from left&quot;),
+--- 413,417 ----
+    }                            
+  
+!   if (data-&gt;outputMethod == VOUT_XV || data-&gt;outputMethod == VOUT_DFB)
+    {
+      Add(new cMenuEditIntItem(tr(&quot;Crop columns from left&quot;),
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.34
+retrieving revision 1.35
+diff -C2 -d -r1.34 -r1.35
+*** video-dfb.c	20 Jul 2005 19:13:36 -0000	1.34
+--- video-dfb.c	20 Jul 2005 20:24:10 -0000	1.35
+***************
+*** 613,616 ****
+--- 613,618 ----
+          cutTop != setupStore-&gt;cropTopLines ||
+          cutBottom != setupStore-&gt;cropBottomLines ||
++         cutLeft != setupStore-&gt;cropLeftCols ||
++         cutRight != setupStore-&gt;cropRightCols ||
+          useStretchBlit != setupStore-&gt;useStretchBlit )
+      {
+***************
+*** 618,621 ****
+--- 620,625 ----
+        cutTop    = setupStore-&gt;cropTopLines;
+        cutBottom = setupStore-&gt;cropBottomLines;
++       cutLeft   = setupStore-&gt;cropLeftCols;
++       cutRight  = setupStore-&gt;cropRightCols;
+  
+        fprintf(stderr,
+***************
+*** 1072,1083 ****
+    {
+  #if HAVE_SetSourceLocation
+!     Py += Ystride  * cutTop * 2;
+!     Pv += UVstride * cutTop;
+!     Pu += UVstride * cutTop;
+  
+      dst += pitch * cutTop * 2;
+  
+      for(hi=cutTop*2; hi &lt; Height-cutBottom*2; hi++){
+!       memcpy(dst, Py, Width);
+        Py  += Ystride;
+        dst += pitch;
+--- 1076,1087 ----
+    {
+  #if HAVE_SetSourceLocation
+!     Py += Ystride  * cutTop * 2 + cutLeft * 2;
+!     Pv += UVstride * cutTop + cutLeft;
+!     Pu += UVstride * cutTop + cutLeft;
+  
+      dst += pitch * cutTop * 2;
+  
+      for(hi=cutTop*2; hi &lt; Height-cutBottom*2; hi++){
+!       memcpy(dst + cutLeft * 2, Py, Width - (cutLeft + cutRight) * 2);
+        Py  += Ystride;
+        dst += pitch;
+***************
+*** 1087,1091 ****
+  
+      for(hi=cutTop; hi &lt; Height/2-cutBottom; hi++) {
+!       memcpy(dst, Pu, Width/2);
+        Pu  += UVstride;
+        dst += pitch / 2;
+--- 1091,1095 ----
+  
+      for(hi=cutTop; hi &lt; Height/2-cutBottom; hi++) {
+!       memcpy(dst + cutLeft, Pu, Width/2 - (cutLeft + cutRight));
+        Pu  += UVstride;
+        dst += pitch / 2;
+***************
+*** 1095,1099 ****
+  
+      for(hi=cutTop; hi &lt; Height/2-cutBottom; hi++) {
+!       memcpy(dst, Pv, Width/2);
+        Pv  += UVstride;
+        dst += pitch / 2;
+--- 1099,1103 ----
+  
+      for(hi=cutTop; hi &lt; Height/2-cutBottom; hi++) {
+!       memcpy(dst + cutLeft, Pv, Width/2 - (cutLeft + cutRight));
+        Pv  += UVstride;
+        dst += pitch / 2;
+***************
+*** 1107,1111 ****
+  
+      for(hi=cutTop*2; hi &lt; sheight-cutBottom*2; hi++){
+!       memcpy(dst, Py+sxoff, swidth);
+        Py  += Ystride;
+        dst += pitch;
+--- 1111,1115 ----
+  
+      for(hi=cutTop*2; hi &lt; sheight-cutBottom*2; hi++){
+!       memcpy(dst+cutLeft*2, Py+sxoff+cutLeft*2, swidth-(cutLeft+cutRight)*2);
+        Py  += Ystride;
+        dst += pitch;
+***************
+*** 1115,1119 ****
+  
+      for(hi=cutTop; hi &lt; sheight/2-cutBottom; hi++) {
+!       memcpy(dst, Pu+sxoff/2, swidth/2);
+        Pu  += UVstride;
+        dst += pitch / 2;
+--- 1119,1123 ----
+  
+      for(hi=cutTop; hi &lt; sheight/2-cutBottom; hi++) {
+!       memcpy(dst+cutLeft, Pu+sxoff/2+cutLeft, swidth/2-(cutLeft+cutRight));
+        Pu  += UVstride;
+        dst += pitch / 2;
+***************
+*** 1123,1127 ****
+  
+      for(hi=cutTop; hi &lt; sheight/2-cutBottom; hi++) {
+!       memcpy(dst, Pv+sxoff/2, swidth/2);
+        Pv  += UVstride;
+        dst += pitch / 2;
+--- 1127,1131 ----
+  
+      for(hi=cutTop; hi &lt; sheight/2-cutBottom; hi++) {
+!       memcpy(dst+cutLeft, Pv+sxoff/2+cutLeft, swidth/2-(cutLeft+cutRight));
+        Pv  += UVstride;
+        dst += pitch / 2;
+***************
+*** 1130,1138 ****
+    } else if (pixelformat == DSPF_YUY2) {
+  
+!     yv12_to_yuy2(Py + Ystride  * cutTop * 2,
+!                  Pu + UVstride * cutTop,
+!                  Pv + UVstride * cutTop,
+!                  dst + pitch * cutTop * 2,
+!                  Width, Height - 2 * (cutTop + cutBottom),
+                   Ystride, UVstride, pitch);
+    }
+--- 1134,1143 ----
+    } else if (pixelformat == DSPF_YUY2) {
+  
+!     yv12_to_yuy2(Py + Ystride  * cutTop * 2 + cutLeft * 2,
+!                  Pu + UVstride * cutTop + cutLeft,
+!                  Pv + UVstride * cutTop + cutLeft,
+!                  dst + pitch * cutTop * 2 + cutLeft * 4,
+!                  Width - 2 * (cutLeft + cutRight),
+!                  Height - 2 * (cutTop + cutBottom),
+                   Ystride, UVstride, pitch);
+    }
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.30
+retrieving revision 1.31
+diff -C2 -d -r1.30 -r1.31
+*** video-xv.c	20 Jul 2005 18:58:52 -0000	1.30
+--- video-xv.c	20 Jul 2005 20:24:10 -0000	1.31
+***************
+*** 29,33 ****
+  #include &quot;setup-softdevice.h&quot;
+  
+! #define PATCH_VERSION &quot;2005-03-10&quot;
+  
+  static pthread_mutex_t  xv_mutex = PTHREAD_MUTEX_INITIALIZER;
+--- 29,33 ----
+  #include &quot;setup-softdevice.h&quot;
+  
+! #define PATCH_VERSION &quot;2005-07-20&quot;
+  
+  static pthread_mutex_t  xv_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000163.html">[Softdevice-cvs] softdevice CHANGELOG,1.88,1.89 setup-softdevice.c,1.22,1.23 setup-softdevice.h,1.16,1.17 video-dfb.c,1.33,1.34
+</A></li>
+	<LI>Next message: <A HREF="000165.html">[Softdevice-cvs] softdevice CHANGELOG,1.90,1.91 setup-softdevice.h,1.17,1.18 softdevice.c,1.34,1.35 softdevice.h,1.4,1.5
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#164">[ date ]</a>
+              <a href="thread.html#164">[ thread ]</a>
+              <a href="subject.html#164">[ subject ]</a>
+              <a href="author.html#164">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

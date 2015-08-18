@@ -1,0 +1,666 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.42,1.43 audio.c,1.7,1.8 audio.h,1.3,1.4 setup-softdevice.c,1.12,1.13 setup-softdevice.h,1.8,1.9 softdevice.c,1.18,1.19 video-xv.c,1.17,1.18 video-xv.h,1.6,1.7
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.42%2C1.43%20audio.c%2C1.7%2C1.8%20audio.h%2C1.3%2C1.4%20setup-softdevice.c%2C1.12%2C1.13%20setup-softdevice.h%2C1.8%2C1.9%20softdevice.c%2C1.18%2C1.19%20video-xv.c%2C1.17%2C1.18%20video-xv.h%2C1.6%2C1.7&In-Reply-To=%3C200503102105.j2AL5xN32027%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000069.html">
+   <LINK REL="Next"  HREF="000071.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.42,1.43 audio.c,1.7,1.8 audio.h,1.3,1.4 setup-softdevice.c,1.12,1.13 setup-softdevice.h,1.8,1.9 softdevice.c,1.18,1.19 video-xv.c,1.17,1.18 video-xv.h,1.6,1.7</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.42%2C1.43%20audio.c%2C1.7%2C1.8%20audio.h%2C1.3%2C1.4%20setup-softdevice.c%2C1.12%2C1.13%20setup-softdevice.h%2C1.8%2C1.9%20softdevice.c%2C1.18%2C1.19%20video-xv.c%2C1.17%2C1.18%20video-xv.h%2C1.6%2C1.7&In-Reply-To=%3C200503102105.j2AL5xN32027%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.42,1.43 audio.c,1.7,1.8 audio.h,1.3,1.4 setup-softdevice.c,1.12,1.13 setup-softdevice.h,1.8,1.9 softdevice.c,1.18,1.19 video-xv.c,1.17,1.18 video-xv.h,1.6,1.7">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Thu Mar 10 22:05:59 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000069.html">[Softdevice-cvs] softdevice CHANGELOG,1.41,1.42 softdevice.c,1.17,1.18
+</A></li>
+        <LI>Next message: <A HREF="000071.html">[Softdevice-cvs] softdevice CHANGELOG,1.43,1.44 video-xv.c,1.18,1.19 video.c,1.12,1.13
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#70">[ date ]</a>
+              <a href="thread.html#70">[ thread ]</a>
+              <a href="subject.html#70">[ subject ]</a>
+              <a href="author.html#70">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv29702
+
+Modified Files:
+	CHANGELOG audio.c audio.h setup-softdevice.c 
+	setup-softdevice.h softdevice.c video-xv.c video-xv.h 
+Log Message:
+- xv-out: support max available area (pre for hdtv spport)
+- audio-out: new dummy device (-ao dummy:)
+             audio device constructor gets pointer to setup-store like video-out
+- save options when called via main menu
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.42
+retrieving revision 1.43
+diff -C2 -d -r1.42 -r1.43
+*** CHANGELOG	8 Mar 2005 17:27:33 -0000	1.42
+--- CHANGELOG	10 Mar 2005 21:05:56 -0000	1.43
+***************
+*** 1,3 ****
+--- 1,8 ----
+  Changelog
++  2005-03-10:
++     - xv-out: support max available area (pre for hdtv spport)
++     - audio-out: new dummy device (-ao dummy:)
++                  audio device constructor gets pointer to setup-store like video-out
++     - save options when called via main menu
+   2005-03-08: softdevice-0.1.0
+   2005-03-05:
+
+Index: audio.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio.c,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -C2 -d -r1.7 -r1.8
+*** audio.c	23 Jan 2005 14:56:08 -0000	1.7
+--- audio.c	10 Mar 2005 21:05:56 -0000	1.8
+***************
+*** 23,31 ****
+  }
+  
+! cAlsaAudioOut::cAlsaAudioOut(char *alsaDevice) {
+!     if (strlen(alsaDevice) == 0)
+!       strcpy (alsaDevice, &quot;default&quot;);
+!     dsyslog(&quot;[softdevice-audio] Opening alsa device %s&quot;,alsaDevice);
+!     device = alsaDevice;
+      int err;
+      paused=false;
+--- 23,31 ----
+  }
+  
+! cAlsaAudioOut::cAlsaAudioOut(cSetupStore *setupStore) {
+!     if (strlen(setupStore-&gt;alsaDevice) == 0)
+!       strcpy (setupStore-&gt;alsaDevice, &quot;default&quot;);
+!     dsyslog(&quot;[softdevice-audio] Opening alsa device %s&quot;,setupStore-&gt;alsaDevice);
+!     device = setupStore-&gt;alsaDevice;
+      int err;
+      paused=false;
+***************
+*** 290,291 ****
+--- 290,343 ----
+    snd_mixer_close(mHandle);
+  }
++ 
++ cDummyAudioOut::cDummyAudioOut(cSetupStore *setupStore)
++ {
++   paused=false;
++   rate = chn=0;
++   dsyslog(&quot;[softdevice-audio-dummy] Device opened! Ready to play&quot;);
++ }
++ 
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ void cDummyAudioOut::Write(uchar *Data, int Length)
++ {
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ void cDummyAudioOut::Pause(void)
++ {
++   dsyslog(&quot;[softdevice-audio-dummy]: Should pause now&quot;);
++   paused=true;
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ void cDummyAudioOut::Play(void)
++ {
++   paused=false;
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ int cDummyAudioOut::GetDelay(void)
++ {
++   return 0;
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ int cDummyAudioOut::SetParams(int channels, unsigned int samplerate)
++ {
++   if ((chn == channels) &amp;&amp; (rate == samplerate))
++     return 0;
++ 
++   dsyslog (&quot;[softdevice-audio-dummy] samplerate: %dHz, channels: #%d&quot;,
++            samplerate, channels);
++   rate=samplerate;
++   chn=channels;
++ 
++   return 0;
++ }
++ 
+
+Index: audio.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio.h,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** audio.h	23 Jan 2005 14:56:08 -0000	1.3
+--- audio.h	10 Mar 2005 21:05:56 -0000	1.4
+***************
+*** 13,19 ****
+  #include &lt;alsa/asoundlib.h&gt;
+  #include &lt;vdr/plugin.h&gt;
+  
+! 
+! // Abstract class for an audio device
+  class cAudioOut  {
+  private:
+--- 13,21 ----
+  #include &lt;alsa/asoundlib.h&gt;
+  #include &lt;vdr/plugin.h&gt;
++ #include &quot;setup-softdevice.h&quot;
+  
+! /* ---------------------------------------------------------------------------
+!  * Abstract class for an audio device
+!  */
+  class cAudioOut  {
+  private:
+***************
+*** 35,38 ****
+--- 37,42 ----
+  
+  
++ /* ---------------------------------------------------------------------------
++  */
+  class cAlsaAudioOut : public cAudioOut  {
+  private:
+***************
+*** 47,51 ****
+  protected:
+  public:
+!   cAlsaAudioOut(char *device);
+    virtual ~cAlsaAudioOut();
+    virtual void Write(uchar *Data, int Length);
+--- 51,55 ----
+  protected:
+  public:
+!   cAlsaAudioOut(cSetupStore *setupStore);
+    virtual ~cAlsaAudioOut();
+    virtual void Write(uchar *Data, int Length);
+***************
+*** 57,60 ****
+--- 61,82 ----
+    virtual void Suspend(void);
+    virtual bool Resume(void);
++ };
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ class cDummyAudioOut : public cAudioOut  {
++ private:
++   unsigned int rate;
++   int chn;
++   volatile bool paused;
++ public:
++   cDummyAudioOut(cSetupStore *setupStore);
++   virtual ~cDummyAudioOut() { return; };
++   virtual void Write(uchar *Data, int Length);
++   virtual int SetParams(int channels, unsigned int samplerate);
++   virtual int GetDelay(void);
++   virtual void Pause(void);
++   virtual void Play(void);
++   virtual void SetVolume(int vol) { return; };
+  };
+  #endif
+
+Index: setup-softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.c,v
+retrieving revision 1.12
+retrieving revision 1.13
+diff -C2 -d -r1.12 -r1.13
+*** setup-softdevice.c	4 Mar 2005 20:04:20 -0000	1.12
+--- setup-softdevice.c	10 Mar 2005 21:05:56 -0000	1.13
+***************
+*** 227,232 ****
+  /* ---------------------------------------------------------------------------
+   */
+! cMenuSetupSoftdevice::cMenuSetupSoftdevice(void)
+  {
+    copyData = setupStore;
+    data = &setupStore;
+--- 227,235 ----
+  /* ---------------------------------------------------------------------------
+   */
+! cMenuSetupSoftdevice::cMenuSetupSoftdevice(cPlugin *plugin)
+  {
++   if (plugin)
++     SetPlugin(plugin);
++     
+    copyData = setupStore;
+    data = &setupStore;
+
+Index: setup-softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.h,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -C2 -d -r1.8 -r1.9
+*** setup-softdevice.h	27 Feb 2005 08:52:33 -0000	1.8
+--- setup-softdevice.h	10 Mar 2005 21:05:56 -0000	1.9
+***************
+*** 55,59 ****
+      virtual void Store(void);
+    public:
+!     cMenuSetupSoftdevice(void);
+  };
+  
+--- 55,59 ----
+      virtual void Store(void);
+    public:
+!     cMenuSetupSoftdevice(cPlugin *plugin = NULL);
+  };
+  
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.18
+retrieving revision 1.19
+diff -C2 -d -r1.18 -r1.19
+*** softdevice.c	8 Mar 2005 17:27:33 -0000	1.18
+--- softdevice.c	10 Mar 2005 21:05:56 -0000	1.19
+***************
+*** 81,84 ****
+--- 81,87 ----
+  #define INBUF_SIZE 4096
+  
++ #define AOUT_ALSA   1
++ #define AOUT_DUMMY  2
++ 
+  #if VDRVERSNUM &gt;= 10307
+  
+***************
+*** 226,230 ****
+  class cPluginSoftDevice : public cPlugin {
+  private:
+!   int   voutMethod;
+    char  *pluginPath;
+  
+--- 229,233 ----
+  class cPluginSoftDevice : public cPlugin {
+  private:
+!   int   voutMethod, aoutMethod;
+    char  *pluginPath;
+  
+***************
+*** 267,271 ****
+  
+  public:
+!   cSoftDevice(int method, char *pluginPath);
+    ~cSoftDevice();
+    virtual bool HasDecoder(void) const;
+--- 270,274 ----
+  
+  public:
+!   cSoftDevice(int method, int audioMethod, char *pluginPath);
+    ~cSoftDevice();
+    virtual bool HasDecoder(void) const;
+***************
+*** 302,306 ****
+  };
+  
+! cSoftDevice::cSoftDevice(int method,char *pluginPath)
+  {
+      freezeModeEnabled = false;
+--- 305,309 ----
+  };
+  
+! cSoftDevice::cSoftDevice(int method,int audioMethod, char *pluginPath)
+  {
+      freezeModeEnabled = false;
+***************
+*** 422,426 ****
+      fprintf(stderr,&quot;[softdevice] Video Out seems to be OK\n&quot;);
+      fprintf(stderr,&quot;[softdevice] Initializing Audio Out\n&quot;);
+!     audioOut=new cAlsaAudioOut(setupStore.alsaDevice);
+      fprintf(stderr,&quot;[softdevice] Audio out seems to be OK\n&quot;);
+      fprintf(stderr,&quot;[softdevice] A/V devices initialized, now initializing MPEG2 Decoder\n&quot;);
+--- 425,436 ----
+      fprintf(stderr,&quot;[softdevice] Video Out seems to be OK\n&quot;);
+      fprintf(stderr,&quot;[softdevice] Initializing Audio Out\n&quot;);
+!     switch (audioMethod) {
+!       case AOUT_ALSA:
+!         audioOut=new cAlsaAudioOut(&amp;setupStore);
+!         break;
+!       case AOUT_DUMMY:
+!         audioOut=new cDummyAudioOut(&amp;setupStore);
+!         break;
+!     }
+      fprintf(stderr,&quot;[softdevice] Audio out seems to be OK\n&quot;);
+      fprintf(stderr,&quot;[softdevice] A/V devices initialized, now initializing MPEG2 Decoder\n&quot;);
+***************
+*** 467,473 ****
+  #endif
+  
+- 
+- 
+- 
+  bool cSoftDevice::HasDecoder(void) const
+  {
+--- 477,480 ----
+***************
+*** 632,635 ****
+--- 639,643 ----
+    voutMethod = 0;
+  #endif
++   aoutMethod = AOUT_ALSA;
+    pluginPath = PLUGINLIBDIR;
+  }
+***************
+*** 645,648 ****
+--- 653,657 ----
+    return
+    &quot;  -ao alsa:devicename      alsa output device\n&quot;
++   &quot;  -ao dummy:               dummy output device\n&quot;
+  #ifdef XV_SUPPORT
+    &quot;  -vo xv:                  enable output via X11-Xv\n&quot;
+***************
+*** 738,743 ****
+--- 747,757 ----
+            ao_argv += 5;
+            setupStore.aoArgs = ao_argv;
++           aoutMethod = AOUT_ALSA;
+            fprintf(stderr, &quot;[softdevice] using alsa device %s\n&quot;, ao_argv);
+            strncpy(setupStore.alsaDevice, ao_argv, ALSA_DEVICE_NAME_LENGTH);
++         } else if (!strncmp(ao_argv, &quot;dummy:&quot;, 6)) {
++           ao_argv += 6;
++           setupStore.aoArgs = ao_argv;
++           aoutMethod = AOUT_DUMMY;
+          }
+        }
+***************
+*** 765,769 ****
+    // Start any background activities the plugin shall perform.
+    fprintf(stderr,&quot;[softdevice] initializing Plugin\n&quot;);
+!   new cSoftDevice(voutMethod,pluginPath);
+    return true;
+  }
+--- 779,783 ----
+    // Start any background activities the plugin shall perform.
+    fprintf(stderr,&quot;[softdevice] initializing Plugin\n&quot;);
+!   new cSoftDevice(voutMethod,aoutMethod,pluginPath);
+    return true;
+  }
+***************
+*** 778,782 ****
+    // Perform the action when selected from the main VDR menu.
+    fprintf (stderr, &quot;[MainMenuAction]\n&quot;);
+!   return new cMenuSetupSoftdevice;
+  //  return NULL;
+  }
+--- 792,796 ----
+    // Perform the action when selected from the main VDR menu.
+    fprintf (stderr, &quot;[MainMenuAction]\n&quot;);
+!   return new cMenuSetupSoftdevice(this);
+  //  return NULL;
+  }
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.17
+retrieving revision 1.18
+diff -C2 -d -r1.17 -r1.18
+*** video-xv.c	4 Mar 2005 20:04:20 -0000	1.17
+--- video-xv.c	10 Mar 2005 21:05:56 -0000	1.18
+***************
+*** 29,33 ****
+  #include &quot;setup-softdevice.h&quot;
+  
+! #define PATCH_VERSION &quot;010_pre_1&quot;
+  
+  static pthread_mutex_t  xv_mutex = PTHREAD_MUTEX_INITIALIZER;
+--- 29,33 ----
+  #include &quot;setup-softdevice.h&quot;
+  
+! #define PATCH_VERSION &quot;2005-03-10&quot;
+  
+  static pthread_mutex_t  xv_mutex = PTHREAD_MUTEX_INITIALIZER;
+***************
+*** 479,483 ****
+                attributeStore.Increment(&quot;XV_SATURATION&quot;);
+              break;
+- #if 1
+            case 'o':
+              if (xv_initialized)
+--- 479,482 ----
+***************
+*** 504,509 ****
+                attributeStore.Increment(&quot;XV_ALPHA_MODE&quot;);
+              break;
+! #endif
+! #ifdef SUSPEND_BY_KEY 
+            case 'r':
+            case 'R':
+--- 503,507 ----
+                attributeStore.Increment(&quot;XV_ALPHA_MODE&quot;);
+              break;
+! #ifdef SUSPEND_BY_KEY
+            case 'r':
+            case 'R':
+***************
+*** 588,593 ****
+    scale_size = 0;
+    screenPixelAspect = -1;
+!   width = XV_SRC_WIDTH;
+!   height = XV_SRC_HEIGHT;
+  
+    format = FOURCC_YV12;
+--- 586,591 ----
+    scale_size = 0;
+    screenPixelAspect = -1;
+!   xvWidth  = width  = XV_SRC_WIDTH;
+!   xvHeight = height = XV_SRC_HEIGHT;
+  
+    format = FOURCC_YV12;
+***************
+*** 860,865 ****
+--- 858,888 ----
+            continue;
+          if(!XvGrabPort(dpy, port, CurrentTime)) {
++             unsigned int    encodingCount, n;
++             XvEncodingInfo  *encodingInfo;
++ 
+            dsyslog(&quot;[XvVideoOut]: grabbed port %ld&quot;, port);
+            got_port = True;
++           XvQueryEncodings(dpy,ad_info[i].base_id,&amp;encodingCount,&amp;encodingInfo);
++           for (n = 0; n &lt; encodingCount; ++n)
++           {
++             if (!strcmp(encodingInfo[n].name, &quot;XV_IMAGE&quot;))
++             {
++               fprintf(stderr, &quot;[XvVideoOut]: max area size %d x %d\n&quot;,
++                       encodingInfo[n].width, encodingInfo[n].height);
++               dsyslog(&quot;[XvVideoOut]: max area size %lu x %lu&quot;,
++                       encodingInfo[n].width, encodingInfo[n].height);
++               /* --------------------------------------------------------------
++                * adjust width to 8 byte boundary and height to an even
++                * number of lines.
++                */
++               xvWidth  = (encodingInfo[n].width &amp; ~7);
++               xvHeight = (encodingInfo[n].height &amp; ~1);
++               fprintf(stderr, &quot;[XvVideoOut]: using area size %d x %d\n&quot;,
++                       xvWidth, xvHeight);
++               dsyslog(&quot;[XvVideoOut]: using area size %d x %d&quot;,
++                       xvWidth, xvHeight);
++               len = xvWidth * xvHeight * 2;
++             }
++           }
+            break;
+          } /* if */
+***************
+*** 893,897 ****
+    xv_image = XvShmCreateImage(dpy, port,
+                                format, (char *) outbuffer,
+!                               width, height,
+                                &amp;shminfo);
+  
+--- 916,920 ----
+    xv_image = XvShmCreateImage(dpy, port,
+                                format, (char *) outbuffer,
+!                               xvWidth, xvHeight,
+                                &amp;shminfo);
+  
+***************
+*** 926,931 ****
+  
+    pixels [0] = outbuffer;
+!   pixels [1] = outbuffer + width * height;
+!   pixels [2] = pixels [1] + width * height / 4;
+    rc = XShmAttach(dpy, &amp;shminfo);
+    dsyslog(&quot;[XvVideoOut]: XShmAttach    rc = %d %s&quot;,
+--- 949,954 ----
+  
+    pixels [0] = outbuffer;
+!   pixels [1] = outbuffer + xvWidth * xvHeight;
+!   pixels [2] = pixels [1] + xvWidth * xvHeight / 4;
+    rc = XShmAttach(dpy, &amp;shminfo);
+    dsyslog(&quot;[XvVideoOut]: XShmAttach    rc = %d %s&quot;,
+***************
+*** 935,941 ****
+      shmctl (shminfo. shmid, IPC_RMID, 0);
+  
+!   memset (pixels [0], 0, width*height);
+!   memset (pixels [1], 128, width*height/4);
+!   memset (pixels [2], 128, width*height/4);
+  //    dv_display_event(dv_dpy);
+    rc = XvShmPutImage(dpy, port,
+--- 958,964 ----
+      shmctl (shminfo. shmid, IPC_RMID, 0);
+  
+!   memset (pixels [0], 0, xvWidth*xvHeight);
+!   memset (pixels [1], 128, xvWidth*xvHeight/4);
+!   memset (pixels [2], 128, xvWidth*xvHeight/4);
+  //    dv_display_event(dv_dpy);
+    rc = XvShmPutImage(dpy, port,
+***************
+*** 1211,1215 ****
+          for (int i = 0; i &lt; fheight; i++)
+          {
+!           AlphaBlend(pixels[0]+i*width,OsdPy+i*OSD_FULL_WIDTH,
+              Py + i * Ystride,
+              OsdPAlphaY+i*OSD_FULL_WIDTH,fwidth);
+--- 1234,1238 ----
+          for (int i = 0; i &lt; fheight; i++)
+          {
+!           AlphaBlend(pixels[0]+i*xvWidth,OsdPy+i*OSD_FULL_WIDTH,
+              Py + i * Ystride,
+              OsdPAlphaY+i*OSD_FULL_WIDTH,fwidth);
+***************
+*** 1218,1222 ****
+          for (int i = 0; i &lt; fheight / 2; i++)
+          {
+!           AlphaBlend(pixels[1]+i*width/2,
+              OsdPv+i*OSD_FULL_WIDTH/2,Pv+ i * UVstride,
+              OsdPAlphaUV+i*OSD_FULL_WIDTH/2,fwidth/2);
+--- 1241,1245 ----
+          for (int i = 0; i &lt; fheight / 2; i++)
+          {
+!           AlphaBlend(pixels[1]+i*xvWidth/2,
+              OsdPv+i*OSD_FULL_WIDTH/2,Pv+ i * UVstride,
+              OsdPAlphaUV+i*OSD_FULL_WIDTH/2,fwidth/2);
+***************
+*** 1225,1229 ****
+          for (int i = 0; i &lt; fheight / 2; i++)
+          {
+!           AlphaBlend(pixels[2]+i*width/2,
+              OsdPu+i*OSD_FULL_WIDTH/2,Pu+i*UVstride,
+              OsdPAlphaUV+i*OSD_FULL_WIDTH/2,fwidth/2);
+--- 1248,1252 ----
+          for (int i = 0; i &lt; fheight / 2; i++)
+          {
+!           AlphaBlend(pixels[2]+i*xvWidth/2,
+              OsdPu+i*OSD_FULL_WIDTH/2,Pu+i*UVstride,
+              OsdPAlphaUV+i*OSD_FULL_WIDTH/2,fwidth/2);
+***************
+*** 1248,1257 ****
+   {
+            for (int i = 0; i &lt; fheight; i++)
+!              memcpy (pixels [0] + i * width, Py + i * Ystride, fwidth);
+!           for (int i = 0; i &lt; fheight / 2; i++) 
+!              memcpy (pixels [1] + i * width / 2, Pv + i * UVstride, fwidth / 2);
+            for (int i = 0; i &lt; fheight / 2; i++)
+!              memcpy (pixels [2] + i * width / 2, Pu + i * UVstride, fwidth / 2);
+!    
+            pthread_mutex_lock(&amp;xv_mutex);
+            XvShmPutImage(dpy, port,
+--- 1271,1280 ----
+   {
+            for (int i = 0; i &lt; fheight; i++)
+!              memcpy (pixels [0] + i * xvWidth, Py + i * Ystride, fwidth);
+            for (int i = 0; i &lt; fheight / 2; i++)
+!              memcpy (pixels [1] + i * xvWidth / 2, Pv + i * UVstride, fwidth / 2);
+!           for (int i = 0; i &lt; fheight / 2; i++)
+!              memcpy (pixels [2] + i * xvWidth / 2, Pu + i * UVstride, fwidth / 2);
+! 
+            pthread_mutex_lock(&amp;xv_mutex);
+            XvShmPutImage(dpy, port,
+
+Index: video-xv.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.h,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -C2 -d -r1.6 -r1.7
+*** video-xv.h	24 Feb 2005 22:35:51 -0000	1.6
+--- video-xv.h	10 Mar 2005 21:05:56 -0000	1.7
+***************
+*** 110,113 ****
+--- 110,114 ----
+                       * could be specified via argv or parameters
+                       */
++                     xvWidth, xvHeight,
+                      width, height,
+                      attr,
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000069.html">[Softdevice-cvs] softdevice CHANGELOG,1.41,1.42 softdevice.c,1.17,1.18
+</A></li>
+	<LI>Next message: <A HREF="000071.html">[Softdevice-cvs] softdevice CHANGELOG,1.43,1.44 video-xv.c,1.18,1.19 video.c,1.12,1.13
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#70">[ date ]</a>
+              <a href="thread.html#70">[ thread ]</a>
+              <a href="subject.html#70">[ subject ]</a>
+              <a href="author.html#70">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

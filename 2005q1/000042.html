@@ -1,0 +1,136 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice video-dfb.c,1.11,1.12
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-dfb.c%2C1.11%2C1.12&In-Reply-To=%3C200501011518.j01FI2n31764%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000041.html">
+   <LINK REL="Next"  HREF="000043.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice video-dfb.c,1.11,1.12</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-dfb.c%2C1.11%2C1.12&In-Reply-To=%3C200501011518.j01FI2n31764%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice video-dfb.c,1.11,1.12">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Jan  1 16:18:02 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000041.html">[Softdevice-cvs] softdevice video-dfb.c,1.10,1.11
+</A></li>
+        <LI>Next message: <A HREF="000043.html">[Softdevice-cvs] softdevice CHANGELOG,1.23,1.24
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#42">[ date ]</a>
+              <a href="thread.html#42">[ thread ]</a>
+              <a href="subject.html#42">[ subject ]</a>
+              <a href="author.html#42">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv9099
+
+Modified Files:
+	video-dfb.c 
+Log Message:
+support old and new matrox crtc2 layer names
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -C2 -d -r1.11 -r1.12
+*** video-dfb.c	1 Jan 2005 14:28:00 -0000	1.11
+--- video-dfb.c	1 Jan 2005 15:18:00 -0000	1.12
+***************
+*** 38,50 ****
+  } tLayerSelectItem;
+  
+! #define BES_LAYER   0
+! #define CRTC2_LAYER 1
+! #define SPIC_LAYER  2
+! #define ANY_LAYER   3
+  
+! tLayerSelectItem  layerList [4] =
+    {
+      {&quot;bes&quot;,   &quot;Matrox Backend Scaler&quot;,    NULL, DFB_UNSUPPORTED},
+      {&quot;crtc2&quot;, &quot;Matrox CRTC2&quot;,             NULL, DFB_UNSUPPORTED},
+      {&quot;spic&quot;,  &quot;Matrox CRTC2 Sub-Picture&quot;, NULL, DFB_UNSUPPORTED},
+      {NULL,    NULL,                       NULL, DFB_UNSUPPORTED}
+--- 38,52 ----
+  } tLayerSelectItem;
+  
+! #define BES_LAYER       0
+! #define CRTC2_LAYER_OLD 1
+! #define CRTC2_LAYER_NEW 2
+! #define SPIC_LAYER      3
+! #define ANY_LAYER       4
+  
+! tLayerSelectItem  layerList [5] =
+    {
+      {&quot;bes&quot;,   &quot;Matrox Backend Scaler&quot;,    NULL, DFB_UNSUPPORTED},
+      {&quot;crtc2&quot;, &quot;Matrox CRTC2&quot;,             NULL, DFB_UNSUPPORTED},
++     {&quot;crtc2&quot;, &quot;Matrox CRTC2 Layer&quot;,       NULL, DFB_UNSUPPORTED},
+      {&quot;spic&quot;,  &quot;Matrox CRTC2 Sub-Picture&quot;, NULL, DFB_UNSUPPORTED},
+      {NULL,    NULL,                       NULL, DFB_UNSUPPORTED}
+***************
+*** 272,280 ****
+    layerInfo = &amp;layerList [ANY_LAYER];
+    if (setupStore.useMGAtv)
+!     layerInfo = &amp;layerList [CRTC2_LAYER];
+  
+    dfb-&gt;EnumDisplayLayers(EnumCallBack, layerInfo);
+- 
+    videoLayer = layerInfo-&gt;layer;
+  
+    scrDsc.flags = (DFBSurfaceDescriptionFlags) (DSDESC_CAPS |
+--- 274,288 ----
+    layerInfo = &amp;layerList [ANY_LAYER];
+    if (setupStore.useMGAtv)
+!     layerInfo = &amp;layerList [CRTC2_LAYER_NEW];
+  
+    dfb-&gt;EnumDisplayLayers(EnumCallBack, layerInfo);
+    videoLayer = layerInfo-&gt;layer;
++ 
++   if (setupStore.useMGAtv &amp;&amp; !videoLayer) {
++     layerInfo = &amp;layerList [CRTC2_LAYER_OLD];
++     fprintf(stderr, &quot;[dfb] New layer name allocation failed. Trying old (dfb-0.9.20) layer name\n&quot;);
++     dfb-&gt;EnumDisplayLayers(EnumCallBack, layerInfo);
++     videoLayer = layerInfo-&gt;layer;
++   }
+  
+    scrDsc.flags = (DFBSurfaceDescriptionFlags) (DSDESC_CAPS |
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000041.html">[Softdevice-cvs] softdevice video-dfb.c,1.10,1.11
+</A></li>
+	<LI>Next message: <A HREF="000043.html">[Softdevice-cvs] softdevice CHANGELOG,1.23,1.24
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#42">[ date ]</a>
+              <a href="thread.html#42">[ thread ]</a>
+              <a href="subject.html#42">[ subject ]</a>
+              <a href="author.html#42">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

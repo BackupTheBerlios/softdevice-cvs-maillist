@@ -1,0 +1,154 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice video-dfb.c,1.8,1.9
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2004q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-dfb.c%2C1.8%2C1.9&In-Reply-To=%3C200411092148.iA9LmuB02166%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000028.html">
+   <LINK REL="Next"  HREF="000030.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice video-dfb.c,1.8,1.9</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-dfb.c%2C1.8%2C1.9&In-Reply-To=%3C200411092148.iA9LmuB02166%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice video-dfb.c,1.8,1.9">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue Nov  9 22:48:56 CET 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000028.html">[Softdevice-cvs] softdevice mpeg2decoder.c,1.6,1.7
+</A></li>
+        <LI>Next message: <A HREF="000030.html">[Softdevice-cvs] softdevice softdevice.c,1.6,1.7 mpeg2decoder.c,1.7,1.8 mpeg2decoder.h,1.3,1.4
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#29">[ date ]</a>
+              <a href="thread.html#29">[ thread ]</a>
+              <a href="subject.html#29">[ subject ]</a>
+              <a href="author.html#29">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv24016
+
+Modified Files:
+	video-dfb.c 
+Log Message:
+radeon doesn't need pseudo alpha. ..
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -C2 -d -r1.8 -r1.9
+*** video-dfb.c	24 Oct 2004 11:27:27 -0000	1.8
+--- video-dfb.c	9 Nov 2004 21:48:53 -0000	1.9
+***************
+*** 250,254 ****
+    if (videoLayer) {
+      videoLayer-&gt;SetCooperativeLevel(DLSCL_ADMINISTRATIVE);
+!     videoLayer-&gt;SetDstColorKey(COLORKEY);
+  
+      videoSurface=videoLayer-&gt;GetSurface();
+--- 250,254 ----
+    if (videoLayer) {
+      videoLayer-&gt;SetCooperativeLevel(DLSCL_ADMINISTRATIVE);
+!     //videoLayer-&gt;SetDstColorKey(COLORKEY); // no need to do that now
+  
+      videoSurface=videoLayer-&gt;GetSurface();
+***************
+*** 295,298 ****
+--- 295,306 ----
+        Yres = 576;
+  #endif
++ 
++     /* ------------------------------------------------------------------------
++      * clear screen surface at startup
++      */
++     scrSurface-&gt;Clear(0,0,0,0);
++     scrSurface-&gt;Flip();
++     scrSurface-&gt;Clear(0,0,0,0);
++ 
+      osdDsc.flags = (DFBSurfaceDescriptionFlags) (DSDESC_CAPS |
+                                                   DSDESC_WIDTH |
+***************
+*** 520,526 ****
+          {
+            /* ------------------------------------------------------------------
+!            * use alpha channel if it is supported
+!           */
+            dlc.options = (DFBDisplayLayerOptions)((int)dlc.options|DLOP_ALPHACHANNEL);
+          }
+          else
+--- 528,535 ----
+          {
+            /* ------------------------------------------------------------------
+!            * use alpha channel if it is supported and disable pseudo alpha mode
+!            */
+            dlc.options = (DFBDisplayLayerOptions)((int)dlc.options|DLOP_ALPHACHANNEL);
++           OSDpseudo_alpha = false;
+          }
+          else
+***************
+*** 576,582 ****
+          /* --------------------------------------------------------------------
+           * set colorkey now. some driver accepct that _after_ configuration
+!          * has been set !
+           */
+!         videoLayer-&gt;SetDstColorKey(COLORKEY);
+  
+          videoSurface=videoLayer-&gt;GetSurface();
+--- 585,592 ----
+          /* --------------------------------------------------------------------
+           * set colorkey now. some driver accepct that _after_ configuration
+!          * has been set ! But check that color keying is supported.
+           */
+!         if (desc.caps &amp; DLCAPS_DST_COLORKEY)
+!           videoLayer-&gt;SetDstColorKey(COLORKEY);
+  
+          videoSurface=videoLayer-&gt;GetSurface();
+***************
+*** 627,630 ****
+--- 637,645 ----
+    tmpSurface = (useStretchBlit) ? osdSurface : scrSurface;
+  
++   /* --------------------------------------------------------------------------
++    * ?? if that clear is removed, radeon OSD does not flicker
++    * any more. but it has some other negative effects on mga.
++    * ??
++    */
+    tmpSurface-&gt;Clear(0,0,0,0);
+    tmpSurface-&gt;Lock(DSLF_WRITE, (void **)&amp;dst, &amp;pitch) ;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000028.html">[Softdevice-cvs] softdevice mpeg2decoder.c,1.6,1.7
+</A></li>
+	<LI>Next message: <A HREF="000030.html">[Softdevice-cvs] softdevice softdevice.c,1.6,1.7 mpeg2decoder.c,1.7,1.8 mpeg2decoder.h,1.3,1.4
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#29">[ date ]</a>
+              <a href="thread.html#29">[ thread ]</a>
+              <a href="subject.html#29">[ subject ]</a>
+              <a href="author.html#29">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,350 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.20,1.21 mpeg2decoder.c,1.9,1.10 mpeg2decoder.h,1.7,1.8 softdevice.c,1.7,1.8
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2004q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.20%2C1.21%20mpeg2decoder.c%2C1.9%2C1.10%20mpeg2decoder.h%2C1.7%2C1.8%20softdevice.c%2C1.7%2C1.8&In-Reply-To=%3C200412121849.iBCIneB12486%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000035.html">
+   <LINK REL="Next"  HREF="000037.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.20,1.21 mpeg2decoder.c,1.9,1.10 mpeg2decoder.h,1.7,1.8 softdevice.c,1.7,1.8</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.20%2C1.21%20mpeg2decoder.c%2C1.9%2C1.10%20mpeg2decoder.h%2C1.7%2C1.8%20softdevice.c%2C1.7%2C1.8&In-Reply-To=%3C200412121849.iBCIneB12486%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.20,1.21 mpeg2decoder.c,1.9,1.10 mpeg2decoder.h,1.7,1.8 softdevice.c,1.7,1.8">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Dec 12 19:49:40 CET 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000035.html">[Softdevice-cvs] softdevice mpeg2decoder.c,1.8,1.9 mpeg2decoder.h,1.6,1.7 CHANGELOG,1.19,1.20
+</A></li>
+        <LI>Next message: <A HREF="000037.html">[Softdevice-cvs] softdevice video-xv.c,1.9,1.10
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#36">[ date ]</a>
+              <a href="thread.html#36">[ thread ]</a>
+              <a href="subject.html#36">[ subject ]</a>
+              <a href="author.html#36">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv1528
+
+Modified Files:
+	CHANGELOG mpeg2decoder.c mpeg2decoder.h softdevice.c 
+Log Message:
+Added reporting of AC3 stream info (with help from plugin femon).
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.20
+retrieving revision 1.21
+diff -C2 -d -r1.20 -r1.21
+*** CHANGELOG	12 Dec 2004 07:09:13 -0000	1.20
+--- CHANGELOG	12 Dec 2004 18:49:37 -0000	1.21
+***************
+*** 1,4 ****
+--- 1,5 ----
+  Changelog
+    2004-12-12:
++    - Added reporting of AC3 stream info (with help from plugin femon).
+     - Changed A/V sync point by 4 frames. Sync is now ok for streams with PTS
+       value for each frame and for streams with PTS values for I-Frames only.
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -C2 -d -r1.9 -r1.10
+*** mpeg2decoder.c	12 Dec 2004 07:09:13 -0000	1.9
+--- mpeg2decoder.c	12 Dec 2004 18:49:37 -0000	1.10
+***************
+*** 67,70 ****
+--- 67,71 ----
+    historyPTSIndex = 0;
+    validPTS=false;
++ 
+    ringBuffer=new cSoftRingBufferLinear(DVB_BUF_SIZE,1024,true);
+    //ringBuffer-&gt;SetTimeouts(100,10);
+***************
+*** 568,572 ****
+                 pts, historyPTS[(historyPTSIndex+PTS_COUNT-4)%PTS_COUNT],
+                 historyPTS[(historyPTSIndex+PTS_COUNT-4)%PTS_COUNT]-pts);
+! #endif               
+        pts = historyPTS[(historyPTSIndex+PTS_COUNT-4)%PTS_COUNT];
+        //fprintf (stderr, &quot;* using PTS value (%lld)\n&quot;, pts);
+--- 569,573 ----
+                 pts, historyPTS[(historyPTSIndex+PTS_COUNT-4)%PTS_COUNT],
+                 historyPTS[(historyPTSIndex+PTS_COUNT-4)%PTS_COUNT]-pts);
+! #endif
+        pts = historyPTS[(historyPTSIndex+PTS_COUNT-4)%PTS_COUNT];
+        //fprintf (stderr, &quot;* using PTS value (%lld)\n&quot;, pts);
+***************
+*** 990,993 ****
+--- 991,997 ----
+    videoOut=VideoOut;
+    aout=vout=0;
++ 
++   ac3Mode = ac3Parm = 0;
++ 
+    running=false;
+    decoding=false;
+***************
+*** 1009,1012 ****
+--- 1013,1017 ----
+    // schon so gemacht, das 2 Threads gestartet werden.
+    // Audio is the master, Video syncs on Audio
++   ac3Mode = ac3Parm = 0;
+    aout = new cAudioStreamDecoder( 0x000001C0, audioOut );
+    vout = new cVideoStreamDecoder( 0x000001E0, videoOut,(cAudioStreamDecoder *) aout);
+***************
+*** 1075,1078 ****
+--- 1080,1139 ----
+  }
+  
++ /* ----------------------------------------------------------------------------
++  */
++ void cMpeg2Decoder::PlayAudio(const uchar *Data, int Length)
++ {
++     const uchar *p;
++     int         ac3ModeNew, ac3ParmNew;
++ 
++   ac3ModeNew = ac3Mode;
++   ac3ParmNew = ac3Parm;
++ 
++   p = Data;
++   /* -------------------------------------------------------------------------
++    * 1st check enshure that this is private stream
++    */
++   if (p[0] == 0x00 &amp;&amp; p[1] == 0x00 &amp;&amp; p[2] == 0x01 &amp;&amp; p[3] == 0xbd)
++   {
++     p += 4 + 2 + 2;   // skip: stream id, length, ??
++     p += *p;
++     p++;
++ 
++     /* ------------------------------------------------------------------------
++      * check for ac3 sync word
++      */
++     if (p[0] == 0x0b &amp;&amp; p[1] == 0x77)
++     {
++       p += 2 + 2 + 1;   // skip: sync word, crc, bitrate &amp; frequency
++       ac3ModeNew = (p[1] &amp; 0xe0) &gt;&gt; 5;
++       ac3ParmNew = ((p[1] &amp; 0x01) &lt;&lt; 1) | ((p[2] &amp; 0x80) &gt;&gt; 7);
++     }
++   }
++ 
++   if (ac3ModeNew != ac3Mode || ac3ParmNew != ac3Parm)
++   {
++       char *info = NULL;
++ 
++     fprintf (stderr,
++              &quot;[Softdevice] AC3 changed Mode(%d -&gt; %d) Parm(%d -&gt; %d)\n&quot;,
++              ac3Mode, ac3ModeNew, ac3Parm, ac3ParmNew);
++     ac3Mode = ac3ModeNew;
++     ac3Parm = ac3ParmNew;
++ 
++     if (ac3Mode == 0x02)
++     {
++       info = &quot;2.0 Stereo&quot;;
++       if (ac3Parm == 0x02)
++         info = &quot;2.0 Stereo Dolby Surround&quot;;
++     } else if (ac3Mode == 0x07)
++       info = &quot;5.1 Dolby Digital&quot;;
++ 
++     if (info)
++       dsyslog (&quot;[Mpeg2Decoder]: AC3 info: %s&quot;, info);
++   }
++ }
++ 
++ /* ----------------------------------------------------------------------------
++  */
+  int cMpeg2Decoder::Decode(const uchar *Data, int Length)
+  {
+
+Index: mpeg2decoder.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.h,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -C2 -d -r1.7 -r1.8
+*** mpeg2decoder.h	12 Dec 2004 07:09:13 -0000	1.7
+--- mpeg2decoder.h	12 Dec 2004 18:49:37 -0000	1.8
+***************
+*** 172,178 ****
+      unsigned char header[6];     
+      unsigned int syncword;
+!     cStreamDecoder *vout, *aout;
+!     cAudioOut *audioOut;
+!     cVideoOut *videoOut;
+      bool running;
+      bool decoding;
+--- 172,179 ----
+      unsigned char header[6];     
+      unsigned int syncword;
+!     cStreamDecoder  *vout, *aout;
+!     cAudioOut       *audioOut;
+!     cVideoOut       *videoOut;
+!     int             ac3Mode, ac3Parm;
+      bool running;
+      bool decoding;
+***************
+*** 180,183 ****
+--- 181,185 ----
+      cMpeg2Decoder(cAudioOut *AudioOut, cVideoOut *VideoOut);
+      ~cMpeg2Decoder();
++     void PlayAudio(const uchar *Data, int Length);
+      int Decode(const uchar *Data, int Length);
+      int StillPicture(uchar *Data, int Length);
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -C2 -d -r1.7 -r1.8
+*** softdevice.c	14 Nov 2004 16:24:38 -0000	1.7
+--- softdevice.c	12 Dec 2004 18:49:37 -0000	1.8
+***************
+*** 81,84 ****
+--- 81,87 ----
+  
+  // --- cSoftOsd -----------------------------------------------
++ 
++ /* ---------------------------------------------------------------------------
++  */
+  class cSoftOsd : public cOsd {
+  private:
+***************
+*** 92,109 ****
+  };
+  
+  cSoftOsd::cSoftOsd(cVideoOut *VideoOut, int X, int Y) : cOsd(X, Y)
+  {
+!     videoOut = VideoOut;
+!     videoOut-&gt;OpenOSD(X, Y);
+  }
+  
+  cSoftOsd::~cSoftOsd()
+  {
+!     if (videoOut) {
+! 	videoOut-&gt;CloseOSD();
+! 	videoOut=0;
+!     }
+  }
+  
+  eOsdError cSoftOsd::CanHandleAreas(const tArea *Areas, int NumAreas)
+  {
+--- 95,119 ----
+  };
+  
++ /* ---------------------------------------------------------------------------
++  */
+  cSoftOsd::cSoftOsd(cVideoOut *VideoOut, int X, int Y) : cOsd(X, Y)
+  {
+!   videoOut = VideoOut;
+!   videoOut-&gt;OpenOSD(X, Y);
+  }
+  
++ /* ---------------------------------------------------------------------------
++  */
+  cSoftOsd::~cSoftOsd()
+  {
+!   if (videoOut)
+!   {
+!     videoOut-&gt;CloseOSD();
+!     videoOut=0;
+!   }
+  }
+  
++ /* ---------------------------------------------------------------------------
++  */
+  eOsdError cSoftOsd::CanHandleAreas(const tArea *Areas, int NumAreas)
+  {
+***************
+*** 113,124 ****
+  }
+  
+  void cSoftOsd::Flush(void)
+  {
+      cBitmap *Bitmap;
+  
+!     for (int i = 0; (Bitmap = GetBitmap(i)) != NULL; i++)
+!     {
+! 	videoOut-&gt;Refresh(Bitmap);
+!     }
+  }
+  
+--- 123,136 ----
+  }
+  
++ /* ---------------------------------------------------------------------------
++  */
+  void cSoftOsd::Flush(void)
+  {
+      cBitmap *Bitmap;
+  
+!   for (int i = 0; (Bitmap = GetBitmap(i)) != NULL; i++)
+!   {
+!     videoOut-&gt;Refresh(Bitmap);
+!   }
+  }
+  
+***************
+*** 261,264 ****
+--- 273,277 ----
+    virtual int64_t GetSTC(void);
+    virtual int PlayVideo(const uchar *Data, int Length);
++   virtual void PlayAudio(const uchar *Data, int Length);
+  #if VDRVERSNUM &gt;= 10307
+    virtual int ProvidesCa(const cChannel *Channel) const;
+***************
+*** 457,461 ****
+--- 470,482 ----
+  }
+  
++ /* ----------------------------------------------------------------------------
++  */
++ void cSoftDevice::PlayAudio(const uchar *Data, int Length)
++ {
++   decoder-&gt;PlayAudio(Data, Length);
++ }
+  
++ /* ----------------------------------------------------------------------------
++  */
+  int cSoftDevice::PlayVideo(const uchar *Data, int Length)
+  {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000035.html">[Softdevice-cvs] softdevice mpeg2decoder.c,1.8,1.9 mpeg2decoder.h,1.6,1.7 CHANGELOG,1.19,1.20
+</A></li>
+	<LI>Next message: <A HREF="000037.html">[Softdevice-cvs] softdevice video-xv.c,1.9,1.10
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#36">[ date ]</a>
+              <a href="thread.html#36">[ thread ]</a>
+              <a href="subject.html#36">[ subject ]</a>
+              <a href="author.html#36">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

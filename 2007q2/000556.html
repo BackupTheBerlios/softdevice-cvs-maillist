@@ -1,0 +1,2459 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.311, 1.312 ShmClient.c,	1.24, 1.25 audio-alsa.c, 1.5, 1.6 audio-alsa.h, 1.3,	1.4 audio-macos.c, 1.1, 1.2 audio-macos.h, 1.1,	1.2 audio-oss.c, 1.3, 1.4 audio-oss.h, 1.2, 1.3 audio.c, 1.27,	1.28 audio.h, 1.14, 1.15 setup-softdevice.c, 1.53,	1.54 setup-softdevice.h, 1.41, 1.42 setup-softlog-menu.c, 1.3,	1.4 softdevice.c, 1.82, 1.83 video-dfb.c, 1.80,	1.81 video-dfb.h, 1.26, 1.27 video-dummy.c, 1.4,	1.5 video-dummy.h, 1.4, 1.5 video-fb.c, 1.18, 1.19 video-fb.h,	1.10, 1.11 video-quartz.c, 1.1, 1.2 video-quartz.h, 1.1,	1.2 video-shm.c, 1.17, 1.18 video-shm.h, 1.9,	1.10 video-vidix.c, 1.25, 1.26 video-vidix.h, 1.12,	1.13 video-xv.c, 1.69, 1.70 video-xv.h, 1.26, 1.27 video.c,	1.74, 1.75 video.h, 1.52, 1.53
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.311%2C%201.312%20ShmClient.c%2C%0A%091.24%2C%201.25%20audio-alsa.c%2C%201.5%2C%201.6%20audio-alsa.h%2C%201.3%2C%0A%091.4%20audio-macos.c%2C%201.1%2C%201.2%20audio-macos.h%2C%201.1%2C%0A%091.2%20audio-oss.c%2C%201.3%2C%201.4%20audio-oss.h%2C%201.2%2C%201.3%20audio.c%2C%201.27%2C%0A%091.28%20audio.h%2C%201.14%2C%201.15%20setup-softdevice.c%2C%201.53%2C%0A%091.54%20setup-softdevice.h%2C%201.41%2C%201.42%20setup-softlog-menu.c%2C%201.3%2C%0A%091.4%20softdevice.c%2C%201.82%2C%201.83%20video-dfb.c%2C%201.80%2C%0A%091.81%20video-dfb.h%2C%201.26%2C%201.27%20video-dummy.c%2C%201.4%2C%0A%091.5%20video-dummy.h%2C%201.4%2C%201.5%20video-fb.c%2C%201.18%2C%201.19%20video-fb.h%2C%0A%091.10%2C%201.11%20video-quartz.c%2C%201.1%2C%201.2%20video-quartz.h%2C%201.1%2C%0A%091.2%20video-shm.c%2C%201.17%2C%201.18%20video-shm.h%2C%201.9%2C%0A%091.10%20video-vidix.c%2C%201.25%2C%201.26%20video-vidix.h%2C%201.12%2C%0A%091.13%20video-xv.c%2C%201.69%2C%201.70%20video-xv.h%2C%201.26%2C%201.27%20video.c%2C%0A%091.74%2C%201.75%20video.h%2C%201.52%2C%201.53&In-Reply-To=%3C20070510195653.0FCDE21572%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000555.html">
+   <LINK REL="Next"  HREF="000554.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.311, 1.312 ShmClient.c,	1.24, 1.25 audio-alsa.c, 1.5, 1.6 audio-alsa.h, 1.3,	1.4 audio-macos.c, 1.1, 1.2 audio-macos.h, 1.1,	1.2 audio-oss.c, 1.3, 1.4 audio-oss.h, 1.2, 1.3 audio.c, 1.27,	1.28 audio.h, 1.14, 1.15 setup-softdevice.c, 1.53,	1.54 setup-softdevice.h, 1.41, 1.42 setup-softlog-menu.c, 1.3,	1.4 softdevice.c, 1.82, 1.83 video-dfb.c, 1.80,	1.81 video-dfb.h, 1.26, 1.27 video-dummy.c, 1.4,	1.5 video-dummy.h, 1.4, 1.5 video-fb.c, 1.18, 1.19 video-fb.h,	1.10, 1.11 video-quartz.c, 1.1, 1.2 video-quartz.h, 1.1,	1.2 video-shm.c, 1.17, 1.18 video-shm.h, 1.9,	1.10 video-vidix.c, 1.25, 1.26 video-vidix.h, 1.12,	1.13 video-xv.c, 1.69, 1.70 video-xv.h, 1.26, 1.27 video.c,	1.74, 1.75 video.h, 1.52, 1.53</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.311%2C%201.312%20ShmClient.c%2C%0A%091.24%2C%201.25%20audio-alsa.c%2C%201.5%2C%201.6%20audio-alsa.h%2C%201.3%2C%0A%091.4%20audio-macos.c%2C%201.1%2C%201.2%20audio-macos.h%2C%201.1%2C%0A%091.2%20audio-oss.c%2C%201.3%2C%201.4%20audio-oss.h%2C%201.2%2C%201.3%20audio.c%2C%201.27%2C%0A%091.28%20audio.h%2C%201.14%2C%201.15%20setup-softdevice.c%2C%201.53%2C%0A%091.54%20setup-softdevice.h%2C%201.41%2C%201.42%20setup-softlog-menu.c%2C%201.3%2C%0A%091.4%20softdevice.c%2C%201.82%2C%201.83%20video-dfb.c%2C%201.80%2C%0A%091.81%20video-dfb.h%2C%201.26%2C%201.27%20video-dummy.c%2C%201.4%2C%0A%091.5%20video-dummy.h%2C%201.4%2C%201.5%20video-fb.c%2C%201.18%2C%201.19%20video-fb.h%2C%0A%091.10%2C%201.11%20video-quartz.c%2C%201.1%2C%201.2%20video-quartz.h%2C%201.1%2C%0A%091.2%20video-shm.c%2C%201.17%2C%201.18%20video-shm.h%2C%201.9%2C%0A%091.10%20video-vidix.c%2C%201.25%2C%201.26%20video-vidix.h%2C%201.12%2C%0A%091.13%20video-xv.c%2C%201.69%2C%201.70%20video-xv.h%2C%201.26%2C%201.27%20video.c%2C%0A%091.74%2C%201.75%20video.h%2C%201.52%2C%201.53&In-Reply-To=%3C20070510195653.0FCDE21572%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.311, 1.312 ShmClient.c,	1.24, 1.25 audio-alsa.c, 1.5, 1.6 audio-alsa.h, 1.3,	1.4 audio-macos.c, 1.1, 1.2 audio-macos.h, 1.1,	1.2 audio-oss.c, 1.3, 1.4 audio-oss.h, 1.2, 1.3 audio.c, 1.27,	1.28 audio.h, 1.14, 1.15 setup-softdevice.c, 1.53,	1.54 setup-softdevice.h, 1.41, 1.42 setup-softlog-menu.c, 1.3,	1.4 softdevice.c, 1.82, 1.83 video-dfb.c, 1.80,	1.81 video-dfb.h, 1.26, 1.27 video-dummy.c, 1.4,	1.5 video-dummy.h, 1.4, 1.5 video-fb.c, 1.18, 1.19 video-fb.h,	1.10, 1.11 video-quartz.c, 1.1, 1.2 video-quartz.h, 1.1,	1.2 video-shm.c, 1.17, 1.18 video-shm.h, 1.9,	1.10 video-vidix.c, 1.25, 1.26 video-vidix.h, 1.12,	1.13 video-xv.c, 1.69, 1.70 video-xv.h, 1.26, 1.27 video.c,	1.74, 1.75 video.h, 1.52, 1.53">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Thu May 10 21:56:53 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000555.html">[Softdevice-cvs] softdevice CHANGELOG, 1.310, 1.311 ShmClient.c,	1.23, 1.24 VideoFilter.c, 1.4, 1.5 mpeg2decoder.c, 1.74,	1.75 setup-softdevice-menu.c, 1.12, 1.13 setup-softdevice.c,	1.52, 1.53 setup-softdevice.h, 1.40, 1.41 setup-softlog-menu.c,	1.2, 1.3 shm-common.h, 1.8, 1.9 softdevice.c, 1.81,	1.82 utils.c, 1.25, 1.26 utils.h, 1.16, 1.17 video-dfb.c, 1.79,	1.80 video-xv.c, 1.68, 1.69
+</A></li>
+        <LI>Next message: <A HREF="000554.html">[Softdevice-cvs] softdevice MacVdrClient.c,1.1,1.2
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#556">[ date ]</a>
+              <a href="thread.html#556">[ thread ]</a>
+              <a href="subject.html#556">[ subject ]</a>
+              <a href="author.html#556">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv18050
+
+Modified Files:
+	CHANGELOG ShmClient.c audio-alsa.c audio-alsa.h audio-macos.c 
+	audio-macos.h audio-oss.c audio-oss.h audio.c audio.h 
+	setup-softdevice.c setup-softdevice.h setup-softlog-menu.c 
+	softdevice.c video-dfb.c video-dfb.h video-dummy.c 
+	video-dummy.h video-fb.c video-fb.h video-quartz.c 
+	video-quartz.h video-shm.c video-shm.h video-vidix.c 
+	video-vidix.h video-xv.c video-xv.h video.c video.h 
+Log Message:
+- remove softlog from setupStore. Pointers aren't valid in a shared memory
+  block.
+- remove private variable setupStore from audio out methods. They can 
+  access the global variable.
+
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.311
+retrieving revision 1.312
+diff -C2 -d -r1.311 -r1.312
+*** CHANGELOG	10 May 2007 19:49:51 -0000	1.311
+--- CHANGELOG	10 May 2007 19:54:44 -0000	1.312
+***************
+*** 1,4 ****
+--- 1,8 ----
+  Changelog
+  2007-05-10:
++    - remove softlog from setupStore. Pointers aren't valid in a shared memory
++      block.
++    - remove private variable setupStore from audio out methods. They can 
++      access the global variable.
+     - move setupStore into a shared memory block. This allows ShmClient to
+       have acces to the setupStore.
+
+Index: ShmClient.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/ShmClient.c,v
+retrieving revision 1.24
+retrieving revision 1.25
+diff -C2 -d -r1.24 -r1.25
+*** ShmClient.c	10 May 2007 19:49:51 -0000	1.24
+--- ShmClient.c	10 May 2007 19:54:44 -0000	1.25
+***************
+*** 82,85 ****
+--- 82,86 ----
+  int main(int argc, char **argv) {
+          cSetupStore *SetupStore=NULL;
++         cSetupSoftlog *softlog=new cSetupSoftlog();
+  
+          signal(SIGINT,sig_handler);
+***************
+*** 115,119 ****
+          };
+  
+!         cXvVideoOut *vout=new cXvVideoOut(SetupStore);
+          xvRemote= new cShmRemote(&quot;softdevice-xv&quot;);
+          //SetupStore.InitSetupStore();
+--- 116,120 ----
+          };
+  
+!         cXvVideoOut *vout=new cXvVideoOut(SetupStore, softlog);
+          xvRemote= new cShmRemote(&quot;softdevice-xv&quot;);
+          //SetupStore.InitSetupStore();
+
+Index: audio-alsa.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio-alsa.c,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -C2 -d -r1.5 -r1.6
+*** audio-alsa.c	10 Feb 2007 00:05:45 -0000	1.5
+--- audio-alsa.c	10 May 2007 19:54:44 -0000	1.6
+***************
+*** 23,27 ****
+  /*--------------------------------------------------------------------------
+  */
+! cAlsaAudioOut::cAlsaAudioOut(cSetupStore *setupStore) {
+      int err;
+  
+--- 23,27 ----
+  /*--------------------------------------------------------------------------
+  */
+! cAlsaAudioOut::cAlsaAudioOut() {
+      int err;
+  
+***************
+*** 50,54 ****
+      dsyslog(&quot;[softdevice-audio] Device opened! Ready to play&quot;);
+      scale_Factor=0x7FFF;
+-     this-&gt;setupStore = setupStore;
+  }
+  
+--- 50,53 ----
+***************
+*** 255,259 ****
+      snd_pcm_status_get_trigger_tstamp(status, &amp;tstamp);
+      timersub(&amp;now, &amp;tstamp, &amp;diff);
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_DEBUG, 0,
+                               &quot;[softdevice-audio]: Xrun (at least %.3f ms long)\n&quot;,
+                               diff.tv_sec * 1000 + diff.tv_usec / 1000.0);
+--- 254,258 ----
+      snd_pcm_status_get_trigger_tstamp(status, &amp;tstamp);
+      timersub(&amp;now, &amp;tstamp, &amp;diff);
+!     softlog-&gt;Log(SOFT_LOG_DEBUG, 0,
+                               &quot;[softdevice-audio]: Xrun (at least %.3f ms long)\n&quot;,
+                               diff.tv_sec * 1000 + diff.tv_usec / 1000.0);
+
+Index: audio-alsa.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio-alsa.h,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** audio-alsa.h	10 Feb 2007 00:05:45 -0000	1.3
+--- audio-alsa.h	10 May 2007 19:54:44 -0000	1.4
+***************
+*** 33,37 ****
+    SampleContext     oldContext;
+    cAlsaAC3pt        ac3pt;
+-   cSetupStore       *setupStore;
+  
+    bool  SetAC3PassThroughMode(bool on);
+--- 33,36 ----
+***************
+*** 41,45 ****
+  protected:
+  public:
+!   cAlsaAudioOut(cSetupStore *setupStore);
+    virtual ~cAlsaAudioOut();
+  
+--- 40,44 ----
+  protected:
+  public:
+!   cAlsaAudioOut();
+    virtual ~cAlsaAudioOut();
+  
+
+Index: audio-macos.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio-macos.c,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1 -r1.2
+*** audio-macos.c	3 Apr 2007 20:21:04 -0000	1.1
+--- audio-macos.c	10 May 2007 19:54:44 -0000	1.2
+***************
+*** 118,122 ****
+  }
+  
+! cMacOsAudioOut::cMacOsAudioOut(cSetupStore *store) : cAudioOut() {
+          ComponentDescription desc; 
+          Component comp; 
+--- 118,122 ----
+  }
+  
+! cMacOsAudioOut::cMacOsAudioOut() : cAudioOut() {
+          ComponentDescription desc; 
+          Component comp; 
+
+Index: audio-macos.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio-macos.h,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1 -r1.2
+*** audio-macos.h	3 Apr 2007 20:21:04 -0000	1.1
+--- audio-macos.h	10 May 2007 19:54:44 -0000	1.2
+***************
+*** 49,53 ****
+  
+          public:
+!                 cMacOsAudioOut(cSetupStore *setupStore);
+                  virtual ~cMacOsAudioOut();
+                  OSStatus Render(UInt32 inNumFrames, AudioBufferList *ioData); 
+--- 49,53 ----
+  
+          public:
+!                 cMacOsAudioOut();
+                  virtual ~cMacOsAudioOut();
+                  OSStatus Render(UInt32 inNumFrames, AudioBufferList *ioData); 
+
+Index: audio-oss.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio-oss.c,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** audio-oss.c	12 Mar 2007 20:10:54 -0000	1.3
+--- audio-oss.c	10 May 2007 19:54:44 -0000	1.4
+***************
+*** 18,25 ****
+  #define MIXER_DEVICE &quot;/dev/mixer&quot;
+  
+! cOSSAudioOut::cOSSAudioOut(cSetupStore *SetupStore)
+  {
+      struct stat file_info;
+-     setupStore=SetupStore;
+  
+      if (-1 == stat(DSP_DEVICE, &amp;file_info))
+--- 18,24 ----
+  #define MIXER_DEVICE &quot;/dev/mixer&quot;
+  
+! cOSSAudioOut::cOSSAudioOut()
+  {
+      struct stat file_info;
+  
+      if (-1 == stat(DSP_DEVICE, &amp;file_info))
+
+Index: audio-oss.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio-oss.h,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** audio-oss.h	12 Mar 2007 20:10:54 -0000	1.2
+--- audio-oss.h	10 May 2007 19:54:44 -0000	1.3
+***************
+*** 20,26 ****
+      int fdMixer;
+      int scale_Factor;
+-     cSetupStore *setupStore;
+  public:
+!     cOSSAudioOut(cSetupStore *setupStore);
+      virtual ~cOSSAudioOut();
+      virtual void Write(uchar *Data, int Length);
+--- 20,25 ----
+      int fdMixer;
+      int scale_Factor;
+  public:
+!     cOSSAudioOut();
+      virtual ~cOSSAudioOut();
+      virtual void Write(uchar *Data, int Length);
+
+Index: audio.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio.c,v
+retrieving revision 1.27
+retrieving revision 1.28
+diff -C2 -d -r1.27 -r1.28
+*** audio.c	12 Mar 2007 20:27:03 -0000	1.27
+--- audio.c	10 May 2007 19:54:44 -0000	1.28
+***************
+*** 42,46 ****
+  /* ---------------------------------------------------------------------------
+   */
+! cDummyAudioOut::cDummyAudioOut(cSetupStore *setupStore)
+  {
+    paused=false;
+--- 42,46 ----
+  /* ---------------------------------------------------------------------------
+   */
+! cDummyAudioOut::cDummyAudioOut()
+  {
+    paused=false;
+
+Index: audio.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio.h,v
+retrieving revision 1.14
+retrieving revision 1.15
+diff -C2 -d -r1.14 -r1.15
+*** audio.h	12 Mar 2007 20:27:03 -0000	1.14
+--- audio.h	10 May 2007 19:54:44 -0000	1.15
+***************
+*** 60,64 ****
+    volatile bool paused;
+  public:
+!   cDummyAudioOut(cSetupStore *setupStore);
+    virtual ~cDummyAudioOut() { return; };
+    virtual void Write(uchar *Data, int Length);
+--- 60,64 ----
+    volatile bool paused;
+  public:
+!   cDummyAudioOut();
+    virtual ~cDummyAudioOut() { return; };
+    virtual void Write(uchar *Data, int Length);
+
+Index: setup-softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.c,v
+retrieving revision 1.53
+retrieving revision 1.54
+diff -C2 -d -r1.53 -r1.54
+*** setup-softdevice.c	10 May 2007 19:49:51 -0000	1.53
+--- setup-softdevice.c	10 May 2007 19:54:44 -0000	1.54
+***************
+*** 76,79 ****
+--- 76,80 ----
+   */
+  cSetupStore *setupStore=NULL;
++ cSetupSoftlog *softlog=NULL;
+  int setupStoreShmId=-1;
+  
+***************
+*** 198,203 ****
+    syncTimerNames[2] = &quot;sig&quot;;
+    syncTimerNames[3] = NULL;
+- 
+-   softlog = new cSetupSoftlog();
+  }
+  
+--- 199,202 ----
+
+Index: setup-softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.h,v
+retrieving revision 1.41
+retrieving revision 1.42
+diff -C2 -d -r1.41 -r1.42
+*** setup-softdevice.h	10 May 2007 19:49:51 -0000	1.41
+--- setup-softdevice.h	10 May 2007 19:54:44 -0000	1.42
+***************
+*** 176,181 ****
+      char  alsaDevice [ALSA_DEVICE_NAME_LENGTH];
+      char  alsaAC3Device [ALSA_DEVICE_NAME_LENGTH];
+- 
+-     cSetupSoftlog *softlog;
+  };
+  
+--- 176,179 ----
+***************
+*** 194,197 ****
+--- 192,196 ----
+  }
+  
++ extern cSetupSoftlog *softlog;
+  extern cSetupStore *setupStore;
+  extern int setupStoreShmId;
+
+Index: setup-softlog-menu.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softlog-menu.c,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** setup-softlog-menu.c	10 May 2007 19:49:51 -0000	1.3
+--- setup-softlog-menu.c	10 May 2007 19:54:44 -0000	1.4
+***************
+*** 16,22 ****
+      SetPlugin(plugin);
+  
+!   strncpy(newLogFileName, setupStore-&gt;softlog-&gt;GetLogFileName(), 256);
+!   newLogPriorities = setupStore-&gt;softlog-&gt;GetLogPriorities();
+!   newAppendMode = setupStore-&gt;softlog-&gt;GetAppendMode();
+  
+    Add(new cMenuEditBitItem(tr(&quot;Info Messages&quot;),
+--- 16,22 ----
+      SetPlugin(plugin);
+  
+!   strncpy(newLogFileName, softlog-&gt;GetLogFileName(), 256);
+!   newLogPriorities = softlog-&gt;GetLogPriorities();
+!   newAppendMode = softlog-&gt;GetAppendMode();
+  
+    Add(new cMenuEditBitItem(tr(&quot;Info Messages&quot;),
+***************
+*** 77,90 ****
+  void cMenuSetupSoftlog::Store(void)
+  {
+!   if (strcmp(newLogFileName, setupStore-&gt;softlog-&gt;GetLogFileName()))
+!     setupStore-&gt;softlog-&gt;SetLogFile(newLogFileName);
+!   SetupStore (&quot;softlog-file&quot;,       setupStore-&gt;softlog-&gt;GetLogFileName());
+  
+!   setupStore-&gt;softlog-&gt;SetAppendMode(newAppendMode);
+!   SetupStore (&quot;softlog-appendpid&quot;,  setupStore-&gt;softlog-&gt;GetAppendMode());
+  
+!   if (newLogPriorities != setupStore-&gt;softlog-&gt;GetLogPriorities())
+!     setupStore-&gt;softlog-&gt;SetLogPriorities(newLogPriorities);
+!   SetupStore (&quot;softlog-priorities&quot;, setupStore-&gt;softlog-&gt;GetLogPriorities());
+  
+  }
+--- 77,90 ----
+  void cMenuSetupSoftlog::Store(void)
+  {
+!   if (strcmp(newLogFileName, softlog-&gt;GetLogFileName()))
+!     softlog-&gt;SetLogFile(newLogFileName);
+!   SetupStore (&quot;softlog-file&quot;,       softlog-&gt;GetLogFileName());
+  
+!   softlog-&gt;SetAppendMode(newAppendMode);
+!   SetupStore (&quot;softlog-appendpid&quot;,  softlog-&gt;GetAppendMode());
+  
+!   if (newLogPriorities != softlog-&gt;GetLogPriorities())
+!     softlog-&gt;SetLogPriorities(newLogPriorities);
+!   SetupStore (&quot;softlog-priorities&quot;, softlog-&gt;GetLogPriorities());
+  
+  }
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.82
+retrieving revision 1.83
+diff -C2 -d -r1.82 -r1.83
+*** softdevice.c	10 May 2007 19:49:51 -0000	1.82
+--- softdevice.c	10 May 2007 19:54:44 -0000	1.83
+***************
+*** 183,187 ****
+          break;
+        case VOUT_DUMMY:
+!         videoOut=new cDummyVideoOut(setupStore);
+          break;
+        default:
+--- 183,187 ----
+          break;
+        case VOUT_DUMMY:
+!         videoOut=new cDummyVideoOut(setupStore,softlog);
+          break;
+        default:
+***************
+*** 194,198 ****
+        case VOUT_XV:
+  #ifdef XV_SUPPORT
+!         videoOut = new cXvVideoOut(setupStore);
+          if ( videoOut-&gt;Initialize() ) {
+  
+--- 194,198 ----
+        case VOUT_XV:
+  #ifdef XV_SUPPORT
+!         videoOut = new cXvVideoOut(setupStore,softlog);
+          if ( videoOut-&gt;Initialize() ) {
+  
+***************
+*** 217,221 ****
+        case VOUT_FB:
+  #ifdef FB_SUPPORT
+!         videoOut=new cFBVideoOut(setupStore);
+          videoOut-&gt;Initialize();
+  #endif
+--- 217,221 ----
+        case VOUT_FB:
+  #ifdef FB_SUPPORT
+!         videoOut=new cFBVideoOut(setupStore,softlog);
+          videoOut-&gt;Initialize();
+  #endif
+***************
+*** 223,227 ****
+        case VOUT_SHM:
+  #ifdef SHM_SUPPORT
+!         videoOut=new cShmVideoOut(setupStore);
+          videoOut-&gt;Initialize();
+  #endif
+--- 223,227 ----
+        case VOUT_SHM:
+  #ifdef SHM_SUPPORT
+!         videoOut=new cShmVideoOut(setupStore,softlog);
+          videoOut-&gt;Initialize();
+  #endif
+***************
+*** 229,233 ****
+        case VOUT_DFB:
+  #ifdef DFB_SUPPORT
+!         videoOut=new cDFBVideoOut(setupStore);
+          videoOut-&gt;Initialize();
+  #endif
+--- 229,233 ----
+        case VOUT_DFB:
+  #ifdef DFB_SUPPORT
+!         videoOut=new cDFBVideoOut(setupStore,softlog);
+          videoOut-&gt;Initialize();
+  #endif
+***************
+*** 235,249 ****
+        case VOUT_VIDIX:
+  #ifdef VIDIX_SUPPORT
+!         videoOut=new cVidixVideoOut(setupStore);
+          videoOut-&gt;Initialize();
+  #endif
+        case VOUT_QUARTZ:
+  #ifdef QUARTZ_SUPPORT
+!         videoOut=new cQuartzVideoOut(setupStore);
+          videoOut-&gt;Initialize();
+  #endif
+          break;
+        case VOUT_DUMMY:
+!         videoOut=new cDummyVideoOut(setupStore);
+          videoOut-&gt;Initialize();
+          break;
+--- 235,249 ----
+        case VOUT_VIDIX:
+  #ifdef VIDIX_SUPPORT
+!         videoOut=new cVidixVideoOut(setupStore,softlog);
+          videoOut-&gt;Initialize();
+  #endif
+        case VOUT_QUARTZ:
+  #ifdef QUARTZ_SUPPORT
+!         videoOut=new cQuartzVideoOut(setupStore,softlog);
+          videoOut-&gt;Initialize();
+  #endif
+          break;
+        case VOUT_DUMMY:
+!         videoOut=new cDummyVideoOut(setupStore,softlog);
+          videoOut-&gt;Initialize();
+          break;
+***************
+*** 262,266 ****
+        case AOUT_ALSA:
+  #ifdef ALSA_SUPPORT
+!         audioOut=new cAlsaAudioOut(setupStore);
+          break;
+  #else
+--- 262,266 ----
+        case AOUT_ALSA:
+  #ifdef ALSA_SUPPORT
+!         audioOut=new cAlsaAudioOut();
+          break;
+  #else
+***************
+*** 269,273 ****
+        case AOUT_MACOS:
+  #ifdef MACOSAO_SUPPORT
+!         audioOut=new cMacOsAudioOut(setupStore);
+          break;
+  #else
+--- 269,273 ----
+        case AOUT_MACOS:
+  #ifdef MACOSAO_SUPPORT
+!         audioOut=new cMacOsAudioOut();
+          break;
+  #else
+***************
+*** 276,280 ****
+        case AOUT_OSS:
+  #ifdef OSS_SUPPORT
+!         audioOut=new cOSSAudioOut(setupStore);
+          break;
+  #else
+--- 276,280 ----
+        case AOUT_OSS:
+  #ifdef OSS_SUPPORT
+!         audioOut=new cOSSAudioOut();
+          break;
+  #else
+***************
+*** 282,286 ****
+  #endif
+        case AOUT_DUMMY:
+!         audioOut=new cDummyAudioOut(setupStore);
+          break;
+      }
+--- 282,286 ----
+  #endif
+        case AOUT_DUMMY:
+!         audioOut=new cDummyAudioOut();
+          break;
+      }
+***************
+*** 327,337 ****
+    if (!err)
+    {
+!       void  *(*creator)(cSetupStore *store);
+  
+!     creator = (void *(*)(cSetupStore *))dlsym(handle, &quot;SubPluginCreator&quot;);
+      err = dlerror();
+      if (!err)
+      {
+!       videoOut = (cVideoOut *) creator(setupStore);
+      }
+      else
+--- 327,337 ----
+    if (!err)
+    {
+!       void  *(*creator)(cSetupStore *store, cSetupSoftlog *log);
+  
+!     creator = (void *(*)(cSetupStore *, cSetupSoftlog *log))dlsym(handle, &quot;SubPluginCreator&quot;);
+      err = dlerror();
+      if (!err)
+      {
+!       videoOut = (cVideoOut *) creator(setupStore, softlog);
+      }
+      else
+***************
+*** 786,789 ****
+--- 786,790 ----
+    runtimePluginPath = GetLibPath();
+  
++   softlog = new cSetupSoftlog();
+  #ifndef VOUT_SHM 
+    setupStore = (cSetupStore *) malloc( sizeof(cSetupStore) );
+***************
+*** 838,844 ****
+            if (ctl&gt;0)
+                    ctl-&gt;setup_shmid=setupStoreShmId;
+!                           // request removing after detaching
+            if ( setupStoreShmId &gt; 0)
+                          shmctl(setupStoreShmId, IPC_RMID, 0);
+  
+    };
+--- 839,847 ----
+            if (ctl&gt;0)
+                    ctl-&gt;setup_shmid=setupStoreShmId;
+! #ifndef __APPLE__
+! 	  // request removing after detaching
+            if ( setupStoreShmId &gt; 0)
+                          shmctl(setupStoreShmId, IPC_RMID, 0);
++ #endif
+  
+    };
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.80
+retrieving revision 1.81
+diff -C2 -d -r1.80 -r1.81
+*** video-dfb.c	10 May 2007 19:49:51 -0000	1.80
+--- video-dfb.c	10 May 2007 19:54:44 -0000	1.81
+***************
+*** 183,192 ****
+  /* ---------------------------------------------------------------------------
+   */
+! cDFBVideoOut::cDFBVideoOut(cSetupStore *setupStore)
+!               : cVideoOut(setupStore)
+  {
+      tLayerSelectItem              *layerInfo;
+  
+!   setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0, &quot;[dfb] init\n&quot;);
+    /* --------------------------------------------------------------------------
+     * default settings: source, destination and logical widht/height
+--- 183,192 ----
+  /* ---------------------------------------------------------------------------
+   */
+! cDFBVideoOut::cDFBVideoOut(cSetupStore *setupStore, cSetupSoftlog *softlog)
+!               : cVideoOut(setupStore, softlog)
+  {
+      tLayerSelectItem              *layerInfo;
+  
+!   softlog-&gt;Log(SOFT_LOG_INFO, 0, &quot;[dfb] init\n&quot;);
+    /* --------------------------------------------------------------------------
+     * default settings: source, destination and logical widht/height
+***************
+*** 229,233 ****
+      reportCardInfo (dfb);
+  
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                &quot;[dfb] Supported video Modes are:\n&quot;);
+      dfb-&gt;EnumVideoModes(EnumVideoModeCallback, NULL);
+--- 229,233 ----
+      reportCardInfo (dfb);
+  
+!     softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                &quot;[dfb] Supported video Modes are:\n&quot;);
+      dfb-&gt;EnumVideoModes(EnumVideoModeCallback, NULL);
+***************
+*** 238,247 ****
+       */
+      DFBWrapper=dfb;
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                &quot;[dfb] Enumerating display Layers\n&quot;);
+  
+      osdLayer=dfb-&gt;GetDisplayLayer(DLID_PRIMARY);
+      if (!osdLayer) {
+!       setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                  &quot;[dfb] no OSD layer exiting\n&quot;);
+        exit(EXIT_FAILURE);
+--- 238,247 ----
+       */
+      DFBWrapper=dfb;
+!     softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                &quot;[dfb] Enumerating display Layers\n&quot;);
+  
+      osdLayer=dfb-&gt;GetDisplayLayer(DLID_PRIMARY);
+      if (!osdLayer) {
+!       softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                  &quot;[dfb] no OSD layer exiting\n&quot;);
+        exit(EXIT_FAILURE);
+***************
+*** 250,254 ****
+      if (!setupStore-&gt;useMGAtv)
+      {
+!       setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                  &quot;[dfb] Configuring CooperativeLevel for OSD\n&quot;);
+        osdLayer-&gt;SetCooperativeLevel(DLSCL_ADMINISTRATIVE);
+--- 250,254 ----
+      if (!setupStore-&gt;useMGAtv)
+      {
+!       softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                  &quot;[dfb] Configuring CooperativeLevel for OSD\n&quot;);
+        osdLayer-&gt;SetCooperativeLevel(DLSCL_ADMINISTRATIVE);
+***************
+*** 278,282 ****
+      if (setupStore-&gt;useMGAtv &amp;&amp; !videoLayer) {
+        layerInfo = &amp;layerList [CRTC2_LAYER_OLD];
+!       setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                  &quot;[dfb] New layer name allocation failed. Trying old (dfb-0.9.20) layer name\n&quot;);
+        dfb-&gt;EnumDisplayLayers(EnumCallBack, layerInfo);
+--- 278,282 ----
+      if (setupStore-&gt;useMGAtv &amp;&amp; !videoLayer) {
+        layerInfo = &amp;layerList [CRTC2_LAYER_OLD];
+!       softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                  &quot;[dfb] New layer name allocation failed. Trying old (dfb-0.9.20) layer name\n&quot;);
+        dfb-&gt;EnumDisplayLayers(EnumCallBack, layerInfo);
+***************
+*** 286,290 ****
+      if (!videoLayer)
+      {
+!       setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                  &quot;[dfb]: could not find suitable videolayer\n&quot;);
+        exit(EXIT_FAILURE);
+--- 286,290 ----
+      if (!videoLayer)
+      {
+!       softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                  &quot;[dfb]: could not find suitable videolayer\n&quot;);
+        exit(EXIT_FAILURE);
+***************
+*** 308,312 ****
+  #ifdef HAVE_CLE266_MPEG_DECODER
+          setupStore-&gt;cle266HWdecode = false;
+!         setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                    &quot;[dfb] disabling hw-decode support for this layer\n&quot;);
+  #endif
+--- 308,312 ----
+  #ifdef HAVE_CLE266_MPEG_DECODER
+          setupStore-&gt;cle266HWdecode = false;
+!         softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                    &quot;[dfb] disabling hw-decode support for this layer\n&quot;);
+  #endif
+***************
+*** 320,324 ****
+        else if (setupStore-&gt;cle266HWdecode) {
+            if (!SetupCle266Buffers(swidth, sheight)) {
+!               setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                          &quot;[dfb] Error allocating hardware buffers for &quot;
+                          &quot;CLE266 decoding: reverting to software decoding\n&quot;);
+--- 320,324 ----
+        else if (setupStore-&gt;cle266HWdecode) {
+            if (!SetupCle266Buffers(swidth, sheight)) {
+!               softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                          &quot;[dfb] Error allocating hardware buffers for &quot;
+                          &quot;CLE266 decoding: reverting to software decoding\n&quot;);
+***************
+*** 339,348 ****
+      ReportLayerInfo(osdLayer, &quot;osdLayer&quot;);
+      if (osdLayerDescription.caps &amp; DLCAPS_ALPHACHANNEL) {
+!       setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                  &quot;[dfb] osdLayer has alpha channel\n&quot;);
+        osdLayerConfiguration.options = DLOP_ALPHACHANNEL;
+        videoLayerLevel = -1;
+      } else {
+!       setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                  &quot;[dfb] osdLayer without !! alpha channel\n&quot;);
+      }
+--- 339,348 ----
+      ReportLayerInfo(osdLayer, &quot;osdLayer&quot;);
+      if (osdLayerDescription.caps &amp; DLCAPS_ALPHACHANNEL) {
+!       softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                  &quot;[dfb] osdLayer has alpha channel\n&quot;);
+        osdLayerConfiguration.options = DLOP_ALPHACHANNEL;
+        videoLayerLevel = -1;
+      } else {
+!       softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                  &quot;[dfb] osdLayer without !! alpha channel\n&quot;);
+      }
+***************
+*** 366,370 ****
+  
+        scrSurface-&gt;GetSize(&amp;Xres,&amp;Yres);
+!       setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                  &quot;[dfb] width = %d, height = %d\n&quot;,
+                  Xres, Yres);
+--- 366,370 ----
+  
+        scrSurface-&gt;GetSize(&amp;Xres,&amp;Yres);
+!       softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                  &quot;[dfb] width = %d, height = %d\n&quot;,
+                  Xres, Yres);
+***************
+*** 376,380 ****
+  
+        fmt = scrSurface-&gt;GetPixelFormat();
+!       setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                  &quot;[dfb] got fmt = 0x%08x bpp = %d\n&quot;,
+                  fmt, DFB_BITS_PER_PIXEL(fmt));
+--- 376,380 ----
+  
+        fmt = scrSurface-&gt;GetPixelFormat();
+!       softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                  &quot;[dfb] got fmt = 0x%08x bpp = %d\n&quot;,
+                  fmt, DFB_BITS_PER_PIXEL(fmt));
+***************
+*** 432,436 ****
+        osdSurface-&gt;Clear(0,0,0,clearAlpha); //clear and
+  
+!       setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                  &quot;[dfb] Using this layer for OSD: (%s - [%dx%d])\n&quot;,
+                  osdLayerDescription.name,
+--- 432,436 ----
+        osdSurface-&gt;Clear(0,0,0,clearAlpha); //clear and
+  
+!       softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                  &quot;[dfb] Using this layer for OSD: (%s - [%dx%d])\n&quot;,
+                  osdLayerDescription.name,
+***************
+*** 450,454 ****
+        if (!setupStore-&gt;useMGAtv)
+        {
+!         setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                    &quot;[dfb] Configuring CooperativeLevel for Overlay\n&quot;);
+          videoLayer-&gt;SetCooperativeLevel(DLSCL_ADMINISTRATIVE);
+--- 450,454 ----
+        if (!setupStore-&gt;useMGAtv)
+        {
+!         softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                    &quot;[dfb] Configuring CooperativeLevel for Overlay\n&quot;);
+          videoLayer-&gt;SetCooperativeLevel(DLSCL_ADMINISTRATIVE);
+***************
+*** 474,481 ****
+        ReportSurfaceCapabilities (videoSurface, &quot;videoSurface&quot;);
+  
+!       setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                  &quot;[dfb] Using this layer for OSD:        %s\n&quot;,
+                  osdLayerDescription.name);
+!       setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                  &quot;[dfb] Using this layer for Video out:  %s\n&quot;,
+                  videoLayerDescription.name);
+--- 474,481 ----
+        ReportSurfaceCapabilities (videoSurface, &quot;videoSurface&quot;);
+  
+!       softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                  &quot;[dfb] Using this layer for OSD:        %s\n&quot;,
+                  osdLayerDescription.name);
+!       softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                  &quot;[dfb] Using this layer for Video out:  %s\n&quot;,
+                  videoLayerDescription.name);
+***************
+*** 489,493 ****
+    catch (DFBException *ex)
+    {
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                &quot;[dfb] init EXITING:action=%s, result=%s\n&quot;,
+                ex-&gt;GetAction(), ex-&gt;GetResult());
+--- 489,493 ----
+    catch (DFBException *ex)
+    {
+!     softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                &quot;[dfb] init EXITING:action=%s, result=%s\n&quot;,
+                ex-&gt;GetAction(), ex-&gt;GetResult());
+***************
+*** 505,509 ****
+  
+    scaps = surf-&gt;GetCapabilities();
+!   setupStore-&gt;softlog-&gt;Log(SOFT_LOG_DEBUG, 0,
+              &quot;[dfb] surface capabilities for (%s): &quot;
+              &quot;%s%s%s%s%s%s%s%s%s%s%sPixelFormat = 0x%08x\n&quot;,
+--- 505,509 ----
+  
+    scaps = surf-&gt;GetCapabilities();
+!   softlog-&gt;Log(SOFT_LOG_DEBUG, 0,
+              &quot;[dfb] surface capabilities for (%s): &quot;
+              &quot;%s%s%s%s%s%s%s%s%s%s%sPixelFormat = 0x%08x\n&quot;,
+***************
+*** 539,543 ****
+      catch (DFBException *ex)
+      {
+!       setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                  &quot;[dfb] BES-%s: action=%s, result=%s\n&quot;,
+                  (state) ? &quot;ON&quot; : &quot;OFF&quot;,
+--- 539,543 ----
+      catch (DFBException *ex)
+      {
+!       softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                  &quot;[dfb] BES-%s: action=%s, result=%s\n&quot;,
+                  (state) ? &quot;ON&quot; : &quot;OFF&quot;,
+***************
+*** 556,560 ****
+    if (!layer)
+    {
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                &quot;[dfb] no layer info. layer == NULL\n&quot;);
+      return;
+--- 556,560 ----
+    if (!layer)
+    {
+!     softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                &quot;[dfb] no layer info. layer == NULL\n&quot;);
+      return;
+***************
+*** 563,567 ****
+    layer-&gt;GetConfiguration(&amp;layerConfiguration);
+    {
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+              &quot;[dfb] (%s): flags, options, pixelformat: %08x, %08x %08x\n&quot;,
+              name,
+--- 563,567 ----
+    layer-&gt;GetConfiguration(&amp;layerConfiguration);
+    {
+!     softlog-&gt;Log(SOFT_LOG_INFO, 0,
+              &quot;[dfb] (%s): flags, options, pixelformat: %08x, %08x %08x\n&quot;,
+              name,
+***************
+*** 569,573 ****
+              layerConfiguration.options,
+              layerConfiguration.pixelformat);
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+              &quot;[dfb] (%s): width, height:               %d %d\n&quot;,
+              name,
+--- 569,573 ----
+              layerConfiguration.options,
+              layerConfiguration.pixelformat);
+!     softlog-&gt;Log(SOFT_LOG_INFO, 0,
+              &quot;[dfb] (%s): width, height:               %d %d\n&quot;,
+              name,
+***************
+*** 589,593 ****
+                  (DLCONF_PIXELFORMAT | DLCONF_BUFFERMODE | DLCONF_OPTIONS);
+    dlc.buffermode = DLBM_TRIPLE;
+!   setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+              &quot;[dfb] Set DLBM_TRIPLE for layer [%s]\n&quot;, desc.name);
+  
+--- 589,593 ----
+                  (DLCONF_PIXELFORMAT | DLCONF_BUFFERMODE | DLCONF_OPTIONS);
+    dlc.buffermode = DLBM_TRIPLE;
+!   softlog-&gt;Log(SOFT_LOG_INFO, 0,
+              &quot;[dfb] Set DLBM_TRIPLE for layer [%s]\n&quot;, desc.name);
+  
+***************
+*** 598,602 ****
+    {
+      dlc.options = DLOP_FIELD_PARITY;
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                &quot;[dfb] DLOP_FIELD_PARITY supported by layer [%s]\n&quot;,
+                desc.name);
+--- 598,602 ----
+    {
+      dlc.options = DLOP_FIELD_PARITY;
+!     softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                &quot;[dfb] DLOP_FIELD_PARITY supported by layer [%s]\n&quot;,
+                desc.name);
+***************
+*** 605,609 ****
+    {
+      dlc.options = DLOP_NONE;
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                &quot;[dfb] DLOP_FIELD_PARITY not supported by layer [%s]\n&quot;,
+                desc.name);
+--- 605,609 ----
+    {
+      dlc.options = DLOP_NONE;
+!     softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                &quot;[dfb] DLOP_FIELD_PARITY not supported by layer [%s]\n&quot;,
+                desc.name);
+***************
+*** 620,624 ****
+    catch(DFBException *ex)
+    {
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                &quot;[dfb] EnableFieldParity: action=%s, result=%s\n&quot;,
+                ex-&gt;GetAction(), ex-&gt;GetResult());
+--- 620,624 ----
+    catch(DFBException *ex)
+    {
+!     softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                &quot;[dfb] EnableFieldParity: action=%s, result=%s\n&quot;,
+                ex-&gt;GetAction(), ex-&gt;GetResult());
+***************
+*** 645,649 ****
+      catch (DFBException *ex)
+      {
+!       setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                  &quot;[dfb] GetDisplayFrameTime: action=%s, result=%s\n&quot;,
+                  ex-&gt;GetAction(), ex-&gt;GetResult());
+--- 645,649 ----
+      catch (DFBException *ex)
+      {
+!       softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                  &quot;[dfb] GetDisplayFrameTime: action=%s, result=%s\n&quot;,
+                  ex-&gt;GetAction(), ex-&gt;GetResult());
+***************
+*** 653,657 ****
+      t1 = (tv1.tv_sec &amp; 1) * 1000000 + tv1.tv_usec;
+      t2 = (tv2.tv_sec &amp; 1) * 1000000 + tv2.tv_usec;
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                &quot;[dfb] Display frame time is %d microseconds\n&quot;, t2 - t1);
+      displayTimeUS = t2 - t1;
+--- 653,657 ----
+      t1 = (tv1.tv_sec &amp; 1) * 1000000 + tv1.tv_usec;
+      t2 = (tv2.tv_sec &amp; 1) * 1000000 + tv2.tv_usec;
+!     softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                &quot;[dfb] Display frame time is %d microseconds\n&quot;, t2 - t1);
+      displayTimeUS = t2 - t1;
+***************
+*** 740,744 ****
+        cutRight  = setupStore-&gt;cropRightCols;
+  
+!       setupStore-&gt;softlog-&gt;Log(SOFT_LOG_DEBUG, 0,
+                  &quot;[dfb] (re)configuring Videolayer to %d x %d (%dx%d)\n&quot;,
+                  fwidth,fheight,swidth,sheight);
+--- 740,744 ----
+        cutRight  = setupStore-&gt;cropRightCols;
+  
+!       softlog-&gt;Log(SOFT_LOG_DEBUG, 0,
+                  &quot;[dfb] (re)configuring Videolayer to %d x %d (%dx%d)\n&quot;,
+                  fwidth,fheight,swidth,sheight);
+***************
+*** 836,840 ****
+            catch (DFBException *ex)
+            {
+!             setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                        &quot;[dfb] SetParams: action=%s, result=%s Failed: SetLevel()\n&quot;,
+                        ex-&gt;GetAction(), ex-&gt;GetResult());
+--- 836,840 ----
+            catch (DFBException *ex)
+            {
+!             softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                        &quot;[dfb] SetParams: action=%s, result=%s Failed: SetLevel()\n&quot;,
+                        ex-&gt;GetAction(), ex-&gt;GetResult());
+***************
+*** 865,869 ****
+            dlc.options = (DFBDisplayLayerOptions)((int)dlc.options|
+                                                   DLOP_FIELD_PARITY);
+!           setupStore-&gt;softlog-&gt;Log(SOFT_LOG_DEBUG, 0,
+                      &quot;[dfb] SetParams: Enabling DLOP_FIELD_PARITY\n&quot;);
+          }
+--- 865,869 ----
+            dlc.options = (DFBDisplayLayerOptions)((int)dlc.options|
+                                                   DLOP_FIELD_PARITY);
+!           softlog-&gt;Log(SOFT_LOG_DEBUG, 0,
+                      &quot;[dfb] SetParams: Enabling DLOP_FIELD_PARITY\n&quot;);
+          }
+***************
+*** 888,892 ****
+              if (failed &amp; DLCONF_BUFFERMODE)
+              {
+!               setupStore-&gt;softlog-&gt;Log(SOFT_LOG_DEBUG, 0,
+                          &quot;[dfb]: SetParms (): failed to set buffermode &quot;
+                          &quot;to triple, will try back video\n&quot;);
+--- 888,892 ----
+              if (failed &amp; DLCONF_BUFFERMODE)
+              {
+!               softlog-&gt;Log(SOFT_LOG_DEBUG, 0,
+                          &quot;[dfb]: SetParms (): failed to set buffermode &quot;
+                          &quot;to triple, will try back video\n&quot;);
+***************
+*** 907,916 ****
+              if (failed &amp; DLCONF_BUFFERMODE)
+              {
+!               setupStore-&gt;softlog-&gt;Log(SOFT_LOG_DEBUG, 0,
+                        &quot;[dfb]: SetParams: failed to set buffermode &quot;
+                        &quot;to back video, reverting to normal\n&quot;);
+                dlc.buffermode = DLBM_FRONTONLY;
+              } else {
+!               setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                          &quot;[dfb]: Testconfiguration failed flags: %08x &quot;
+                          &quot;(disabling failed flags)\n&quot;,
+--- 907,916 ----
+              if (failed &amp; DLCONF_BUFFERMODE)
+              {
+!               softlog-&gt;Log(SOFT_LOG_DEBUG, 0,
+                        &quot;[dfb]: SetParams: failed to set buffermode &quot;
+                        &quot;to back video, reverting to normal\n&quot;);
+                dlc.buffermode = DLBM_FRONTONLY;
+              } else {
+!               softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                          &quot;[dfb]: Testconfiguration failed flags: %08x &quot;
+                          &quot;(disabling failed flags)\n&quot;,
+***************
+*** 935,939 ****
+          catch (DFBException *ex)
+          {
+!           setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                      &quot;[dfb] SetParams: action=%s, result=%s\n&quot;,
+                      ex-&gt;GetAction(), ex-&gt;GetResult());
+--- 935,939 ----
+          catch (DFBException *ex)
+          {
+!           softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                      &quot;[dfb] SetParams: action=%s, result=%s\n&quot;,
+                      ex-&gt;GetAction(), ex-&gt;GetResult());
+***************
+*** 956,960 ****
+            catch (DFBException *ex)
+            {
+!             setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                        &quot;[dfb] SetParams() SetScreenLocation(): &quot;
+                        &quot;action=%s, result=%s\n&quot;,
+--- 956,960 ----
+            catch (DFBException *ex)
+            {
+!             softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                        &quot;[dfb] SetParams() SetScreenLocation(): &quot;
+                        &quot;action=%s, result=%s\n&quot;,
+***************
+*** 965,969 ****
+          else
+          {
+!           setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                      &quot;Can't configure ScreenLocation. Hope it is Fullscreen\n&quot;);
+          }
+--- 965,969 ----
+          else
+          {
+!           softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                      &quot;Can't configure ScreenLocation. Hope it is Fullscreen\n&quot;);
+          }
+***************
+*** 983,987 ****
+          catch (DFBException *ex)
+          {
+!           setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                      &quot;[dfb] SetParams (a) EXITING: action=%s, result=%s\n&quot;,
+                      ex-&gt;GetAction(), ex-&gt;GetResult());
+--- 983,987 ----
+          catch (DFBException *ex)
+          {
+!           softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                      &quot;[dfb] SetParams (a) EXITING: action=%s, result=%s\n&quot;,
+                      ex-&gt;GetAction(), ex-&gt;GetResult());
+***************
+*** 992,996 ****
+        else
+        {
+!         setupStore-&gt;softlog-&gt;Log(SOFT_LOG_DEBUG, 0,
+                    &quot;[dfb] creating new surface (stretchBlit)\n&quot;);
+          try
+--- 992,996 ----
+        else
+        {
+!         softlog-&gt;Log(SOFT_LOG_DEBUG, 0,
+                    &quot;[dfb] creating new surface (stretchBlit)\n&quot;);
+          try
+***************
+*** 1035,1039 ****
+          catch (DFBException *ex)
+          {
+!           setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                      &quot;[dfb] SetParams (b) EXITING: action=%s, result=%s\n&quot;,
+                      ex-&gt;GetAction(), ex-&gt;GetResult());
+--- 1035,1039 ----
+          catch (DFBException *ex)
+          {
+!           softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                      &quot;[dfb] SetParams (b) EXITING: action=%s, result=%s\n&quot;,
+                      ex-&gt;GetAction(), ex-&gt;GetResult());
+***************
+*** 1044,1048 ****
+        ReportSurfaceCapabilities (videoSurface, &quot;videoSurface&quot;);
+  
+!       setupStore-&gt;softlog-&gt;Log(SOFT_LOG_DEBUG, 0,
+                  &quot;[dfb] (re)configured 0x%08x\n&quot;,pixelformat);
+      }
+--- 1044,1048 ----
+        ReportSurfaceCapabilities (videoSurface, &quot;videoSurface&quot;);
+  
+!       softlog-&gt;Log(SOFT_LOG_DEBUG, 0,
+                  &quot;[dfb] (re)configured 0x%08x\n&quot;,pixelformat);
+      }
+***************
+*** 1050,1054 ****
+    else
+    {
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                &quot;No Videolayer available. Exiting...\n&quot;);
+      exit(EXIT_FAILURE);
+--- 1050,1054 ----
+    else
+    {
+!     softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                &quot;No Videolayer available. Exiting...\n&quot;);
+      exit(EXIT_FAILURE);
+***************
+*** 1081,1085 ****
+    catch (DFBException *ex)
+    {
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                &quot;[dfb] OpenOSD: action=%s, result=%s\n&quot;,
+                ex-&gt;GetAction(), ex-&gt;GetResult());
+--- 1081,1085 ----
+    catch (DFBException *ex)
+    {
+!     softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                &quot;[dfb] OpenOSD: action=%s, result=%s\n&quot;,
+                ex-&gt;GetAction(), ex-&gt;GetResult());
+***************
+*** 1104,1108 ****
+    catch (DFBException *ex)
+    {
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                &quot;[dfb] OSDStart: action=%s, result=%s\n&quot;,
+                ex-&gt;GetAction(), ex-&gt;GetResult());
+--- 1104,1108 ----
+    catch (DFBException *ex)
+    {
+!     softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                &quot;[dfb] OSDStart: action=%s, result=%s\n&quot;,
+                ex-&gt;GetAction(), ex-&gt;GetResult());
+***************
+*** 1139,1143 ****
+    catch (DFBException *ex)
+    {
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                &quot;[dfb] Refresh: action=%s, result=%s\n&quot;,
+                ex-&gt;GetAction(), ex-&gt;GetResult());
+--- 1139,1143 ----
+    catch (DFBException *ex)
+    {
+!     softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                &quot;[dfb] Refresh: action=%s, result=%s\n&quot;,
+                ex-&gt;GetAction(), ex-&gt;GetResult());
+***************
+*** 1188,1192 ****
+    catch (DFBException *ex)
+    {
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                &quot;[dfb] Refresh: action=%s, result=%s\n&quot;,
+                ex-&gt;GetAction(), ex-&gt;GetResult());
+--- 1188,1192 ----
+    catch (DFBException *ex)
+    {
+!     softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                &quot;[dfb] Refresh: action=%s, result=%s\n&quot;,
+                ex-&gt;GetAction(), ex-&gt;GetResult());
+***************
+*** 1262,1266 ****
+    catch (DFBException *ex)
+    {
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                &quot;[dfb] CloseOSD: action=%s, result=%s\n&quot;,
+                ex-&gt;GetAction(), ex-&gt;GetResult());
+--- 1262,1266 ----
+    catch (DFBException *ex)
+    {
+!     softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                &quot;[dfb] CloseOSD: action=%s, result=%s\n&quot;,
+                ex-&gt;GetAction(), ex-&gt;GetResult());
+***************
+*** 1483,1487 ****
+    }
+    catch (DFBException *ex) {
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                &quot;[dfb] YUV: action=%s, result=%s\n&quot;,
+                ex-&gt;GetAction(), ex-&gt;GetResult());
+--- 1483,1487 ----
+    }
+    catch (DFBException *ex) {
+!     softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                &quot;[dfb] YUV: action=%s, result=%s\n&quot;,
+                ex-&gt;GetAction(), ex-&gt;GetResult());
+***************
+*** 1501,1505 ****
+  
+    if (!CLE266MPEGInitialise(fbName)) {
+!       setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                  &quot;Initialising CLE266 decoder (%s): failed!\n&quot;, fbName);
+        free(fbName);
+--- 1501,1505 ----
+  
+    if (!CLE266MPEGInitialise(fbName)) {
+!       softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                  &quot;Initialising CLE266 decoder (%s): failed!\n&quot;, fbName);
+        free(fbName);
+***************
+*** 1507,1511 ****
+    } else {
+        free(fbName);
+!       setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                  &quot;Initialising CLE266 decoder (%s): success!\n&quot;, fbName);
+    }
+--- 1507,1511 ----
+    } else {
+        free(fbName);
+!       softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                  &quot;Initialising CLE266 decoder (%s): success!\n&quot;, fbName);
+    }
+***************
+*** 1522,1526 ****
+  
+  /* Create the 4 MPEG buffers for decoding */
+!   setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+              &quot;CLE266: Creating buffers for decoder\n&quot;);
+    for (int j=0; j &lt; LAST_PICBUF; j++)
+--- 1522,1526 ----
+  
+  /* Create the 4 MPEG buffers for decoding */
+!   softlog-&gt;Log(SOFT_LOG_INFO, 0,
+              &quot;CLE266: Creating buffers for decoder\n&quot;);
+    for (int j=0; j &lt; LAST_PICBUF; j++)
+***************
+*** 1529,1533 ****
+    try {
+      for (i = 0; i &lt; 4; i++) {
+!       setupStore-&gt;softlog-&gt;Log(SOFT_LOG_DEBUG, 0,
+                  &quot;CLE266: Creating buffer number %i\n&quot;, i);
+        mpegfb[i] = dfb-&gt;CreateSurface(dsc);
+--- 1529,1533 ----
+    try {
+      for (i = 0; i &lt; 4; i++) {
+!       softlog-&gt;Log(SOFT_LOG_DEBUG, 0,
+                  &quot;CLE266: Creating buffer number %i\n&quot;, i);
+        mpegfb[i] = dfb-&gt;CreateSurface(dsc);
+***************
+*** 1539,1543 ****
+        if ( PicBuffer[i].use_count&gt;0 ||
+             PicBuffer[i].max_width&gt;0 || PicBuffer[i].max_height&gt;0) {
+!               setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                          &quot;Fatal error setting up CLE266 buffers!\n&quot;);
+                exit(-1);
+--- 1539,1543 ----
+        if ( PicBuffer[i].use_count&gt;0 ||
+             PicBuffer[i].max_width&gt;0 || PicBuffer[i].max_height&gt;0) {
+!               softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                          &quot;Fatal error setting up CLE266 buffers!\n&quot;);
+                exit(-1);
+***************
+*** 1560,1564 ****
+    catch (DFBException *ex)
+    {
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                &quot;CLE266: Error creating buffer: action=%s, result=%s\n&quot;,
+                    ex-&gt;GetAction(), ex-&gt;GetResult());
+--- 1560,1564 ----
+    catch (DFBException *ex)
+    {
+!     softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                &quot;CLE266: Error creating buffer: action=%s, result=%s\n&quot;,
+                    ex-&gt;GetAction(), ex-&gt;GetResult());
+***************
+*** 1568,1572 ****
+  
+    /* Pass info to the decoder...*/
+!   setupStore-&gt;softlog-&gt;Log(SOFT_LOG_DEBUG, 0,
+              &quot;CLE266: passing mpegfb_stride\n&quot;);
+    CLE266MPEGSetStride(mpegfb_stride, mpegfb_stride &gt;&gt; 1 );
+--- 1568,1572 ----
+  
+    /* Pass info to the decoder...*/
+!   softlog-&gt;Log(SOFT_LOG_DEBUG, 0,
+              &quot;CLE266: passing mpegfb_stride\n&quot;);
+    CLE266MPEGSetStride(mpegfb_stride, mpegfb_stride &gt;&gt; 1 );
+***************
+*** 1575,1579 ****
+    width  = (width  + 15) &amp; ~15;
+  
+!   setupStore-&gt;softlog-&gt;Log(SOFT_LOG_DEBUG, 0,
+              &quot;CLE266: passing buffers to decoder\n&quot;);
+    for (i = 0; i &lt; 4; i++) {
+--- 1575,1579 ----
+    width  = (width  + 15) &amp; ~15;
+  
+!   softlog-&gt;Log(SOFT_LOG_DEBUG, 0,
+              &quot;CLE266: passing buffers to decoder\n&quot;);
+    for (i = 0; i &lt; 4; i++) {
+***************
+*** 1591,1595 ****
+  cDFBVideoOut::~cDFBVideoOut()
+  {
+!   setupStore-&gt;softlog-&gt;Log(SOFT_LOG_DEBUG, 0, &quot;Releasing DFB\n&quot;);
+  
+    setupStore-&gt;osdMode = prevOsdMode;
+--- 1591,1595 ----
+  cDFBVideoOut::~cDFBVideoOut()
+  {
+!   softlog-&gt;Log(SOFT_LOG_DEBUG, 0, &quot;Releasing DFB\n&quot;);
+  
+    setupStore-&gt;osdMode = prevOsdMode;
+***************
+*** 1620,1626 ****
+   */
+  extern &quot;C&quot; void *
+! SubPluginCreator(cSetupStore *s)
+  {
+!   return new cDFBVideoOut(s);
+  }
+  #endif
+--- 1620,1626 ----
+   */
+  extern &quot;C&quot; void *
+! SubPluginCreator(cSetupStore *s, cSetupSoftlog *log)
+  {
+!   return new cDFBVideoOut(s,log);
+  }
+  #endif
+
+Index: video-dfb.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.h,v
+retrieving revision 1.26
+retrieving revision 1.27
+diff -C2 -d -r1.26 -r1.27
+*** video-dfb.h	4 Mar 2007 17:45:38 -0000	1.26
+--- video-dfb.h	10 May 2007 19:54:44 -0000	1.27
+***************
+*** 68,72 ****
+    public:
+      IDirectFB	*dfb;
+!     cDFBVideoOut(cSetupStore *setupStore);
+      virtual ~cDFBVideoOut();
+      void ProcessEvents ();
+--- 68,72 ----
+    public:
+      IDirectFB	*dfb;
+!     cDFBVideoOut(cSetupStore *setupStore, cSetupSoftlog *Softlog);
+      virtual ~cDFBVideoOut();
+      void ProcessEvents ();
+
+Index: video-dummy.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dummy.c,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -C2 -d -r1.4 -r1.5
+*** video-dummy.c	11 Nov 2006 08:45:17 -0000	1.4
+--- video-dummy.c	10 May 2007 19:54:44 -0000	1.5
+***************
+*** 13,18 ****
+  
+  
+! cDummyVideoOut::cDummyVideoOut(cSetupStore *setupStore)
+!                 : cVideoOut(setupStore)
+  {
+      printf(&quot;[video-dummy] Initializing Driver, no output supported. You have to configure a driver IN the Makefile\n&quot;);
+--- 13,18 ----
+  
+  
+! cDummyVideoOut::cDummyVideoOut(cSetupStore *setupStore, cSetupSoftlog *Softlog)
+!                 : cVideoOut(setupStore,Softlog)
+  {
+      printf(&quot;[video-dummy] Initializing Driver, no output supported. You have to configure a driver IN the Makefile\n&quot;);
+
+Index: video-dummy.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dummy.h,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -C2 -d -r1.4 -r1.5
+*** video-dummy.h	11 Nov 2006 08:45:17 -0000	1.4
+--- video-dummy.h	10 May 2007 19:54:44 -0000	1.5
+***************
+*** 14,18 ****
+  private:
+  public:
+!   cDummyVideoOut(cSetupStore *setupStore);
+    virtual ~cDummyVideoOut();
+  
+--- 14,18 ----
+  private:
+  public:
+!   cDummyVideoOut(cSetupStore *setupStore, cSetupSoftlog *Softlog);
+    virtual ~cDummyVideoOut();
+  
+
+Index: video-fb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-fb.c,v
+retrieving revision 1.18
+retrieving revision 1.19
+diff -C2 -d -r1.18 -r1.19
+*** video-fb.c	25 Mar 2007 09:08:22 -0000	1.18
+--- video-fb.c	10 May 2007 19:54:44 -0000	1.19
+***************
+*** 21,26 ****
+  static  pthread_mutex_t fb_mutex = PTHREAD_MUTEX_INITIALIZER;
+  // --- cFrameBuffer --------------------------------------------------------
+! cFBVideoOut::cFBVideoOut(cSetupStore *setupStore)
+!               : cVideoOut(setupStore)
+  {
+      char    *fbName = getFBName();
+--- 21,26 ----
+  static  pthread_mutex_t fb_mutex = PTHREAD_MUTEX_INITIALIZER;
+  // --- cFrameBuffer --------------------------------------------------------
+! cFBVideoOut::cFBVideoOut(cSetupStore *setupStore, cSetupSoftlog *Softlog)
+!               : cVideoOut(setupStore, Softlog)
+  {
+      char    *fbName = getFBName();
+***************
+*** 226,232 ****
+   */
+  extern &quot;C&quot; void *
+! SubPluginCreator(cSetupStore *s)
+  {
+!   return new cFBVideoOut(s);
+  }
+  #endif
+--- 226,232 ----
+   */
+  extern &quot;C&quot; void *
+! SubPluginCreator(cSetupStore *s, cSetupSoftlog *log)
+  {
+!   return new cFBVideoOut(s,log);
+  }
+  #endif
+
+Index: video-fb.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-fb.h,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -C2 -d -r1.10 -r1.11
+*** video-fb.h	25 Mar 2007 09:08:22 -0000	1.10
+--- video-fb.h	10 May 2007 19:54:44 -0000	1.11
+***************
+*** 27,31 ****
+    sPicBuffer privBuf;
+  public:
+!   cFBVideoOut(cSetupStore *setupStore);
+    virtual ~cFBVideoOut();
+    virtual void GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+--- 27,31 ----
+    sPicBuffer privBuf;
+  public:
+!   cFBVideoOut(cSetupStore *setupStore, cSetupSoftlog *Softlog);
+    virtual ~cFBVideoOut();
+    virtual void GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+
+Index: video-quartz.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-quartz.c,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1 -r1.2
+*** video-quartz.c	3 Apr 2007 20:21:04 -0000	1.1
+--- video-quartz.c	10 May 2007 19:54:44 -0000	1.2
+***************
+*** 484,488 ****
+  
+  
+! cQuartzVideoOut::cQuartzVideoOut(cSetupStore *store) : cVideoOut(store),
+          theWindow(NULL), winGroup(NULL), winLevel(1) {
+          QDEB(&quot;cQuartVideoOut\n&quot;);
+--- 484,489 ----
+  
+  
+! cQuartzVideoOut::cQuartzVideoOut(cSetupStore *store, cSetupSoftlog* Softlog) 
+! 		: cVideoOut(store, Softlog),
+          theWindow(NULL), winGroup(NULL), winLevel(1) {
+          QDEB(&quot;cQuartVideoOut\n&quot;);
+
+Index: video-quartz.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-quartz.h,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1 -r1.2
+*** video-quartz.h	3 Apr 2007 20:21:04 -0000	1.1
+--- video-quartz.h	10 May 2007 19:54:44 -0000	1.2
+***************
+*** 73,77 ****
+          int osd_shm_id;
+          int pic_shm_id;
+!         cQuartzVideoOut(cSetupStore *setupStore);
+          virtual ~cQuartzVideoOut();
+  
+--- 73,77 ----
+          int osd_shm_id;
+          int pic_shm_id;
+!         cQuartzVideoOut(cSetupStore *setupStore, cSetupSoftlog *Softlog);
+          virtual ~cQuartzVideoOut();
+  
+
+Index: video-shm.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-shm.c,v
+retrieving revision 1.17
+retrieving revision 1.18
+diff -C2 -d -r1.17 -r1.18
+*** video-shm.c	3 Apr 2007 20:21:04 -0000	1.17
+--- video-shm.c	10 May 2007 19:54:44 -0000	1.18
+***************
+*** 61,66 ****
+  
+  /*----------------------------------------------------------------------------*/
+! cShmVideoOut::cShmVideoOut(cSetupStore *setupStore) 
+!         : cVideoOut(setupStore) {
+          ctl_key = CTL_KEY;
+          bool Clear_Ctl=false;
+--- 61,66 ----
+  
+  /*----------------------------------------------------------------------------*/
+! cShmVideoOut::cShmVideoOut(cSetupStore *setupStore, cSetupSoftlog *Softlog) 
+!         : cVideoOut(setupStore, Softlog) {
+          ctl_key = CTL_KEY;
+          bool Clear_Ctl=false;
+***************
+*** 423,429 ****
+   */
+  extern &quot;C&quot; void *
+! SubPluginCreator(cSetupStore *s)
+  {
+!   return new cShmVideoOut(s);
+  }
+  #endif
+--- 423,429 ----
+   */
+  extern &quot;C&quot; void *
+! SubPluginCreator(cSetupStore *s, cSetupSoftlog *log)
+  {
+!   return new cShmVideoOut(s,log);
+  }
+  #endif
+
+Index: video-shm.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-shm.h,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -C2 -d -r1.9 -r1.10
+*** video-shm.h	26 Nov 2006 19:00:17 -0000	1.9
+--- video-shm.h	10 May 2007 19:54:44 -0000	1.10
+***************
+*** 41,45 ****
+  
+          public:
+!         cShmVideoOut(cSetupStore *setupStore);
+          ~cShmVideoOut();
+          
+--- 41,45 ----
+  
+          public:
+!         cShmVideoOut(cSetupStore *setupStore, cSetupSoftlog *softlog);
+          ~cShmVideoOut();
+          
+
+Index: video-vidix.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-vidix.c,v
+retrieving revision 1.25
+retrieving revision 1.26
+diff -C2 -d -r1.25 -r1.26
+*** video-vidix.c	24 Feb 2007 14:04:14 -0000	1.25
+--- video-vidix.c	10 May 2007 19:54:44 -0000	1.26
+***************
+*** 28,33 ****
+  /* ---------------------------------------------------------------------------
+   */
+! cVidixVideoOut::cVidixVideoOut(cSetupStore *setupStore)
+!                   : cVideoOut(setupStore)
+  {
+      int     err;
+--- 28,33 ----
+  /* ---------------------------------------------------------------------------
+   */
+! cVidixVideoOut::cVidixVideoOut(cSetupStore *setupStore, cSetupSoftlog *Softlog)
+!                   : cVideoOut(setupStore,Softlog)
+  {
+      int     err;
+***************
+*** 36,40 ****
+  
+      if ((fbdev = open(fbName, O_RDWR)) == -1) {
+!         setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                    &quot;[cVidixVideoOut] Can't open framebuffer exiting\n&quot;);
+          free(fbName);
+--- 36,40 ----
+  
+      if ((fbdev = open(fbName, O_RDWR)) == -1) {
+!         softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                    &quot;[cVidixVideoOut] Can't open framebuffer exiting\n&quot;);
+          free(fbName);
+***************
+*** 44,53 ****
+  
+      if (ioctl(fbdev, FBIOGET_VSCREENINFO, &amp;fb_vinfo)) {
+!         setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                    &quot;[cVidixVideoOut] Can't get VSCREENINFO exiting\n&quot;);
+          exit(1);
+      }
+      if (ioctl(fbdev, FBIOGET_FSCREENINFO, &amp;fb_finfo)) {
+!         setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                    &quot;[cVidixVideoOut] Can't get FSCREENINFO exiting\n&quot;);
+          exit(1);
+--- 44,53 ----
+  
+      if (ioctl(fbdev, FBIOGET_VSCREENINFO, &amp;fb_vinfo)) {
+!         softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                    &quot;[cVidixVideoOut] Can't get VSCREENINFO exiting\n&quot;);
+          exit(1);
+      }
+      if (ioctl(fbdev, FBIOGET_FSCREENINFO, &amp;fb_finfo)) {
+!         softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                    &quot;[cVidixVideoOut] Can't get FSCREENINFO exiting\n&quot;);
+          exit(1);
+***************
+*** 57,61 ****
+  
+         case FB_VISUAL_TRUECOLOR:
+!            setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                       &quot;[cVidixVideoOut] Truecolor FB found\n&quot;);
+             break;
+--- 57,61 ----
+  
+         case FB_VISUAL_TRUECOLOR:
+!            softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                       &quot;[cVidixVideoOut] Truecolor FB found\n&quot;);
+             break;
+***************
+*** 66,70 ****
+             __u16 red[256], green[256], blue[256];
+  
+!            setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                       &quot;[cVidixVideoOut] DirectColor FB found\n&quot;);
+  
+--- 66,70 ----
+             __u16 red[256], green[256], blue[256];
+  
+!            softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                       &quot;[cVidixVideoOut] DirectColor FB found\n&quot;);
+  
+***************
+*** 73,77 ****
+  
+             if ( orig_cmap == NULL ) {
+!                setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                           &quot;[cVidixVideoOut] Can't alloc memory for cmap exiting\n&quot;);
+                 exit(1);
+--- 73,77 ----
+  
+             if ( orig_cmap == NULL ) {
+!                softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                           &quot;[cVidixVideoOut] Can't alloc memory for cmap exiting\n&quot;);
+                 exit(1);
+***************
+*** 85,89 ****
+  
+             if ( ioctl(fbdev, FBIOGETCMAP, &amp;cmap)) {
+!                setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                           &quot;[cVidixVideoOut] Can't get cmap\n&quot;);
+             }
+--- 85,89 ----
+  
+             if ( ioctl(fbdev, FBIOGETCMAP, &amp;cmap)) {
+!                softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                           &quot;[cVidixVideoOut] Can't get cmap\n&quot;);
+             }
+***************
+*** 101,105 ****
+  
+             if ( ioctl(fbdev, FBIOPUTCMAP, &amp;cmap)) {
+!                setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                           &quot;[cVidixVideoOut] Can't put cmap\n&quot;);
+             }
+--- 101,105 ----
+  
+             if ( ioctl(fbdev, FBIOPUTCMAP, &amp;cmap)) {
+!                softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                           &quot;[cVidixVideoOut] Can't put cmap\n&quot;);
+             }
+***************
+*** 108,112 ****
+  
+         default:
+!            setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                       &quot;[cVidixVideoOut] Unsupported FB. Don't know if it will work.\n&quot;);
+      }
+--- 108,112 ----
+  
+         default:
+!            softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                       &quot;[cVidixVideoOut] Unsupported FB. Don't know if it will work.\n&quot;);
+      }
+***************
+*** 130,138 ****
+      SetParValues(displayRatio, displayRatio);
+  
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                &quot;[cVidixVideoOut] xres = %d yres= %d \n&quot;, fb_vinfo.xres, fb_vinfo.yres);
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                &quot;[cVidixVideoOut] line length = %d \n&quot;, fb_line_len);
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                &quot;[cVidixVideoOut] bpp = %d\n&quot;, fb_vinfo.bits_per_pixel);
+  
+--- 130,138 ----
+      SetParValues(displayRatio, displayRatio);
+  
+!     softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                &quot;[cVidixVideoOut] xres = %d yres= %d \n&quot;, fb_vinfo.xres, fb_vinfo.yres);
+!     softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                &quot;[cVidixVideoOut] line length = %d \n&quot;, fb_line_len);
+!     softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                &quot;[cVidixVideoOut] bpp = %d\n&quot;, fb_vinfo.bits_per_pixel);
+  
+***************
+*** 140,144 ****
+  
+      if ( fb == (uint8_t *) -1 ) {
+!        setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                   &quot;[cVidixVideoOut] Can't mmap framebuffer memory exiting\n&quot;);
+         exit(1);
+--- 140,144 ----
+  
+      if ( fb == (uint8_t *) -1 ) {
+!        softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                   &quot;[cVidixVideoOut] Can't mmap framebuffer memory exiting\n&quot;);
+         exit(1);
+***************
+*** 149,153 ****
+      vidix_version = vdlGetVersion();
+  
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                &quot;[cVidixVideoOut] vidix version: %i\n&quot;, vidix_version);
+  
+--- 149,153 ----
+      vidix_version = vdlGetVersion();
+  
+!     softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                &quot;[cVidixVideoOut] vidix version: %i\n&quot;, vidix_version);
+  
+***************
+*** 156,160 ****
+      if( !vidix_handler )
+      {
+!        setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                   &quot;[cVidixVideoOut] Couldn't find working VIDIX driver exiting\n&quot;);
+         exit(1);
+--- 156,160 ----
+      if( !vidix_handler )
+      {
+!        softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                   &quot;[cVidixVideoOut] Couldn't find working VIDIX driver exiting\n&quot;);
+         exit(1);
+***************
+*** 163,172 ****
+      if( (err = vdlGetCapability(vidix_handler,&amp;vidix_cap)) != 0)
+      {
+!        setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                   &quot;[cVidixVideoOut] Couldn't get capability: %s exiting\n&quot;,
+                   strerror(err) );
+         exit(1);
+      }
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                &quot;[cVidixVideoOut] capabilities:  0x%0x\n&quot;, vidix_cap.flags );
+  
+--- 163,172 ----
+      if( (err = vdlGetCapability(vidix_handler,&amp;vidix_cap)) != 0)
+      {
+!        softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                   &quot;[cVidixVideoOut] Couldn't get capability: %s exiting\n&quot;,
+                   strerror(err) );
+         exit(1);
+      }
+!     softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                &quot;[cVidixVideoOut] capabilities:  0x%0x\n&quot;, vidix_cap.flags );
+  
+***************
+*** 187,191 ****
+        if (!MatchPixelFormat())
+        {
+!         setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                    &quot;[cVidixVideoOut] no matching pixel format found exiting\n&quot;);
+          exit(1);
+--- 187,191 ----
+        if (!MatchPixelFormat())
+        {
+!         softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                    &quot;[cVidixVideoOut] no matching pixel format found exiting\n&quot;);
+          exit(1);
+***************
+*** 211,215 ****
+      vidix_play.num_frames   = 2;
+  
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                &quot;[cVidixVideoOut] fourcc.flags:  0x%0x\n&quot;,vidix_fourcc.flags);
+      AllocLayer();
+--- 211,215 ----
+      vidix_play.num_frames   = 2;
+  
+!     softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                &quot;[cVidixVideoOut] fourcc.flags:  0x%0x\n&quot;,vidix_fourcc.flags);
+      AllocLayer();
+***************
+*** 219,232 ****
+       */
+      vidix_video_eq_t tmpeq;
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                &quot;[cVidixVideoOut] capabilities\n&quot;);
+  
+      if(!vdlPlaybackGetEq(vidix_handler, &amp;tmpeq)) {
+          vidix_curr_eq=tmpeq;
+!         setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                    &quot;[cVidixVideoOut] EQ cap: %x:\n&quot;,
+                    vidix_curr_eq.cap);
+          if (vidix_curr_eq.cap &amp; VEQ_CAP_BRIGHTNESS) {
+!             setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                        &quot;[cVidixVideoOut]  brightness (%d)\n&quot;,
+                        vidix_curr_eq.brightness);
+--- 219,232 ----
+       */
+      vidix_video_eq_t tmpeq;
+!     softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                &quot;[cVidixVideoOut] capabilities\n&quot;);
+  
+      if(!vdlPlaybackGetEq(vidix_handler, &amp;tmpeq)) {
+          vidix_curr_eq=tmpeq;
+!         softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                    &quot;[cVidixVideoOut] EQ cap: %x:\n&quot;,
+                    vidix_curr_eq.cap);
+          if (vidix_curr_eq.cap &amp; VEQ_CAP_BRIGHTNESS) {
+!             softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                        &quot;[cVidixVideoOut]  brightness (%d)\n&quot;,
+                        vidix_curr_eq.brightness);
+***************
+*** 234,238 ****
+          }
+          if (vidix_curr_eq.cap &amp; VEQ_CAP_CONTRAST) {
+!             setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                        &quot;[cVidixVideoOut]  contrast (%d)\n&quot;,
+                        vidix_curr_eq.contrast);
+--- 234,238 ----
+          }
+          if (vidix_curr_eq.cap &amp; VEQ_CAP_CONTRAST) {
+!             softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                        &quot;[cVidixVideoOut]  contrast (%d)\n&quot;,
+                        vidix_curr_eq.contrast);
+***************
+*** 240,244 ****
+          }
+          if (vidix_curr_eq.cap &amp; VEQ_CAP_SATURATION) {
+!             setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                        &quot;[cVidixVideoOut]  saturation (%d)\n&quot;,
+                        vidix_curr_eq.saturation);
+--- 240,244 ----
+          }
+          if (vidix_curr_eq.cap &amp; VEQ_CAP_SATURATION) {
+!             softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                        &quot;[cVidixVideoOut]  saturation (%d)\n&quot;,
+                        vidix_curr_eq.saturation);
+***************
+*** 246,250 ****
+          }
+          if (vidix_curr_eq.cap &amp; VEQ_CAP_HUE) {
+!             setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                        &quot;[cVidixVideoOut]  hue (%d)\n&quot;,
+                        vidix_curr_eq.hue);
+--- 246,250 ----
+          }
+          if (vidix_curr_eq.cap &amp; VEQ_CAP_HUE) {
+!             softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                        &quot;[cVidixVideoOut]  hue (%d)\n&quot;,
+                        vidix_curr_eq.hue);
+***************
+*** 252,256 ****
+          }
+          if (vidix_curr_eq.cap &amp; VEQ_CAP_RGB_INTENSITY) {
+!             setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                        &quot;[cVidixVideoOut]  RGB-intensity (%d, %d, %d)\n&quot;,
+                        vidix_curr_eq.red_intensity,
+--- 252,256 ----
+          }
+          if (vidix_curr_eq.cap &amp; VEQ_CAP_RGB_INTENSITY) {
+!             softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                        &quot;[cVidixVideoOut]  RGB-intensity (%d, %d, %d)\n&quot;,
+                        vidix_curr_eq.red_intensity,
+***************
+*** 259,263 ****
+          }
+      } else {
+!        setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                   &quot;[cVidixVideoOut] Couldn't get EQ capability\n&quot;);
+      }
+--- 259,263 ----
+          }
+      } else {
+!        softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                   &quot;[cVidixVideoOut] Couldn't get EQ capability\n&quot;);
+      }
+***************
+*** 270,274 ****
+      if (!vdlPlaybackGetDeint(vidix_handler, &amp;vidix_deint) &amp;&amp;
+          !vdlPlaybackSetDeint(vidix_handler, &amp;vidix_deint)) {
+!         setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                    &quot;[cVidixVideoOut]  HW-deinterlace (%x,%x)\n&quot;,
+                    vidix_deint.flags,
+--- 270,274 ----
+      if (!vdlPlaybackGetDeint(vidix_handler, &amp;vidix_deint) &amp;&amp;
+          !vdlPlaybackSetDeint(vidix_handler, &amp;vidix_deint)) {
+!         softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                    &quot;[cVidixVideoOut]  HW-deinterlace (%x,%x)\n&quot;,
+                    vidix_deint.flags,
+***************
+*** 314,318 ****
+      cutBottom = setupStore-&gt;cropBottomLines;
+  
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                &quot;[cVidixVideoOut] Video changed format to %dx%d\n&quot;,
+                fwidth, fheight);
+--- 314,318 ----
+      cutBottom = setupStore-&gt;cropBottomLines;
+  
+!     softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                &quot;[cVidixVideoOut] Video changed format to %dx%d\n&quot;,
+                fwidth, fheight);
+***************
+*** 321,325 ****
+         (vidix_cap.flags &amp; FLAG_UPSCALER) != FLAG_UPSCALER)
+      {
+!       setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                  &quot;[cVidixVideoOut] vidix driver can't &quot;
+                  &quot;upscale image (%dx%d -&gt; %dx%d) exiting\n&quot;,
+--- 321,325 ----
+         (vidix_cap.flags &amp; FLAG_UPSCALER) != FLAG_UPSCALER)
+      {
+!       softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                  &quot;[cVidixVideoOut] vidix driver can't &quot;
+                  &quot;upscale image (%dx%d -&gt; %dx%d) exiting\n&quot;,
+***************
+*** 331,335 ****
+         (vidix_cap.flags &amp; FLAG_DOWNSCALER) != FLAG_DOWNSCALER)
+      {
+!       setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                  &quot;[cVidixVideoOut] vidix driver can't &quot;
+                  &quot;downscale image (%dx%d -&gt; %dx%d) exiting\n&quot;,
+--- 331,335 ----
+         (vidix_cap.flags &amp; FLAG_DOWNSCALER) != FLAG_DOWNSCALER)
+      {
+!       softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                  &quot;[cVidixVideoOut] vidix driver can't &quot;
+                  &quot;downscale image (%dx%d -&gt; %dx%d) exiting\n&quot;,
+***************
+*** 352,356 ****
+          if (!MatchPixelFormat())
+          {
+!           setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                      &quot;[cVidixVideoOut]: no matching pixel &quot;
+                      &quot;format found exiting\n&quot;);
+--- 352,356 ----
+          if (!MatchPixelFormat())
+          {
+!           softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                      &quot;[cVidixVideoOut]: no matching pixel &quot;
+                      &quot;format found exiting\n&quot;);
+***************
+*** 405,413 ****
+        vidix_curr_eq.hue != vidix_video_eq.hue ) {
+  
+!       setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                  &quot;[cVidixVideoOut] set eq values\n&quot;);
+        vidix_curr_eq = vidix_video_eq;
+        if( (err = vdlPlaybackSetEq(vidix_handler, &amp;vidix_curr_eq)) != 0) {
+!           setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                      &quot;[cVidixVideoOut] Couldn't set EQ &quot;
+                      &quot;capability: %s (FAILED)\n&quot;,
+--- 405,413 ----
+        vidix_curr_eq.hue != vidix_video_eq.hue ) {
+  
+!       softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                  &quot;[cVidixVideoOut] set eq values\n&quot;);
+        vidix_curr_eq = vidix_video_eq;
+        if( (err = vdlPlaybackSetEq(vidix_handler, &amp;vidix_curr_eq)) != 0) {
+!           softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                      &quot;[cVidixVideoOut] Couldn't set EQ &quot;
+                      &quot;capability: %s (FAILED)\n&quot;,
+***************
+*** 460,464 ****
+        vdlPlaybackSetDeint(vidix_handler, &amp;vidix_deint);
+        vdlPlaybackGetDeint(vidix_handler, &amp;vidix_deint);
+!       setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                  &quot;[cVidixVideoOut] Deinterlacer: %x %x\n&quot;,
+                  vidix_deint.flags,
+--- 460,464 ----
+        vdlPlaybackSetDeint(vidix_handler, &amp;vidix_deint);
+        vdlPlaybackGetDeint(vidix_handler, &amp;vidix_deint);
+!       softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                  &quot;[cVidixVideoOut] Deinterlacer: %x %x\n&quot;,
+                  vidix_deint.flags,
+***************
+*** 480,484 ****
+    if ((err = vdlPlaybackOff(vidix_handler)) != 0)
+    {
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                &quot;[cVidixVideoOut] Can't stop playback: %s exiting\n&quot;,
+                strerror(err));
+--- 480,484 ----
+    if ((err = vdlPlaybackOff(vidix_handler)) != 0)
+    {
+!     softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                &quot;[cVidixVideoOut] Can't stop playback: %s exiting\n&quot;,
+                strerror(err));
+***************
+*** 488,492 ****
+    if ((err = vdlConfigPlayback(vidix_handler, &amp;vidix_play)) != 0)
+    {
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                 &quot;[cVidixVideoOut] Can't configure playback: %s exiting\n&quot;,
+                 strerror(err));
+--- 488,492 ----
+    if ((err = vdlConfigPlayback(vidix_handler, &amp;vidix_play)) != 0)
+    {
+!     softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                 &quot;[cVidixVideoOut] Can't configure playback: %s exiting\n&quot;,
+                 strerror(err));
+***************
+*** 496,500 ****
+    if ((err = vdlPlaybackOn(vidix_handler)) != 0)
+    {
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                &quot;[cVidixVideoOut] Can't start playback: %s exiting\n&quot;,
+                strerror(err));
+--- 496,500 ----
+    if ((err = vdlPlaybackOn(vidix_handler)) != 0)
+    {
+!     softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                &quot;[cVidixVideoOut] Can't start playback: %s exiting\n&quot;,
+                strerror(err));
+***************
+*** 506,510 ****
+      int res = 0;
+  
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                &quot;[cVidixVideoOut] set colorkey\n&quot;);
+      vdlGetGrKeys(vidix_handler, &amp;gr_key);
+--- 506,510 ----
+      int res = 0;
+  
+!     softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                &quot;[cVidixVideoOut] set colorkey\n&quot;);
+      vdlGetGrKeys(vidix_handler, &amp;gr_key);
+***************
+*** 523,527 ****
+      gr_key.ckey.red = gr_key.ckey.green = gr_key.ckey.blue = 0;
+      res = vdlSetGrKeys(vidix_handler, &amp;gr_key);
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                &quot;[cVidixVideoOut] vdlSetGrKeys() = %d\n&quot;, res);
+  
+--- 523,527 ----
+      gr_key.ckey.red = gr_key.ckey.green = gr_key.ckey.blue = 0;
+      res = vdlSetGrKeys(vidix_handler, &amp;gr_key);
+!     softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                &quot;[cVidixVideoOut] vdlSetGrKeys() = %d\n&quot;, res);
+  
+***************
+*** 529,533 ****
+        gr_key.ckey.op = CKEY_TRUE;
+        res = vdlSetGrKeys(vidix_handler, &amp;gr_key);
+!       setupStore-&gt;softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                  &quot;[cVidixVideoOut] vdlSetGrKeys() = %d (noAlpha)\n&quot;, res);
+        useVidixAlpha = false;
+--- 529,533 ----
+        gr_key.ckey.op = CKEY_TRUE;
+        res = vdlSetGrKeys(vidix_handler, &amp;gr_key);
+!       softlog-&gt;Log(SOFT_LOG_INFO, 0,
+                  &quot;[cVidixVideoOut] vdlSetGrKeys() = %d (noAlpha)\n&quot;, res);
+        useVidixAlpha = false;
+***************
+*** 846,855 ****
+      int err;
+  
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_DEBUG, 0,
+                &quot;[cVidixVideoOut] destructor\n&quot;);
+  
+      if(vidix_handler) {
+          if((err = vdlPlaybackOff(vidix_handler)) != 0) {
+!            setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                       &quot;[cVidixVideoOut] Can't stop playback: %s\n&quot;,
+                       strerror(err));
+--- 846,855 ----
+      int err;
+  
+!     softlog-&gt;Log(SOFT_LOG_DEBUG, 0,
+                &quot;[cVidixVideoOut] destructor\n&quot;);
+  
+      if(vidix_handler) {
+          if((err = vdlPlaybackOff(vidix_handler)) != 0) {
+!            softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                       &quot;[cVidixVideoOut] Can't stop playback: %s\n&quot;,
+                       strerror(err));
+***************
+*** 872,876 ****
+  
+                 if ( ioctl(fbdev, FBIOPUTCMAP, &amp;cmap)) {
+!                    setupStore-&gt;softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                               &quot;[cVidixVideoOut] Can't put cmap\n&quot;);
+                 }
+--- 872,876 ----
+  
+                 if ( ioctl(fbdev, FBIOPUTCMAP, &amp;cmap)) {
+!                    softlog-&gt;Log(SOFT_LOG_ERROR, 0,
+                               &quot;[cVidixVideoOut] Can't put cmap\n&quot;);
+                 }
+***************
+*** 890,896 ****
+   */
+  extern &quot;C&quot; void *
+! SubPluginCreator(cSetupStore *s)
+  {
+!   return new cVidixVideoOut(s);
+  }
+  #endif
+--- 890,896 ----
+   */
+  extern &quot;C&quot; void *
+! SubPluginCreator(cSetupStore *s, cSetupSoftlog *log)
+  {
+!   return new cVidixVideoOut(s,log);
+  }
+  #endif
+
+Index: video-vidix.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-vidix.h,v
+retrieving revision 1.12
+retrieving revision 1.13
+diff -C2 -d -r1.12 -r1.13
+*** video-vidix.h	11 Nov 2006 08:45:17 -0000	1.12
+--- video-vidix.h	10 May 2007 19:54:44 -0000	1.13
+***************
+*** 43,47 ****
+  
+  public:
+!   cVidixVideoOut(cSetupStore *setupStore);
+    virtual ~cVidixVideoOut();
+  
+--- 43,47 ----
+  
+  public:
+!   cVidixVideoOut(cSetupStore *setupStore, cSetupSoftlog *Softlog);
+    virtual ~cVidixVideoOut();
+  
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.69
+retrieving revision 1.70
+diff -C2 -d -r1.69 -r1.70
+*** video-xv.c	10 May 2007 19:49:51 -0000	1.69
+--- video-xv.c	10 May 2007 19:54:44 -0000	1.70
+***************
+*** 761,766 ****
+  /* ---------------------------------------------------------------------------
+   */
+! cXvVideoOut::cXvVideoOut(cSetupStore *setupStore)
+!               : cVideoOut(setupStore)
+  {
+    OSDpresent = false;
+--- 761,766 ----
+  /* ---------------------------------------------------------------------------
+   */
+! cXvVideoOut::cXvVideoOut(cSetupStore *setupStore, cSetupSoftlog *Softlog)
+!               : cVideoOut(setupStore, Softlog)
+  {
+    OSDpresent = false;
+***************
+*** 1902,1908 ****
+   */
+  extern &quot;C&quot; void *
+! SubPluginCreator(cSetupStore *s)
+  {
+!   return new cXvVideoOut(s);
+  }
+  #endif
+--- 1902,1908 ----
+   */
+  extern &quot;C&quot; void *
+! SubPluginCreator(cSetupStore *s, cSetupSoftlog *log)
+  {
+!   return new cXvVideoOut(s,log);
+  }
+  #endif
+
+Index: video-xv.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.h,v
+retrieving revision 1.26
+retrieving revision 1.27
+diff -C2 -d -r1.26 -r1.27
+*** video-xv.h	26 Nov 2006 19:00:17 -0000	1.26
+--- video-xv.h	10 May 2007 19:54:44 -0000	1.27
+***************
+*** 170,174 ****
+  
+  public:
+!   cXvVideoOut(cSetupStore *setupStore);
+    virtual ~cXvVideoOut();
+    virtual void ProcessEvents ();
+--- 170,174 ----
+  
+  public:
+!   cXvVideoOut(cSetupStore *setupStore, cSetupSoftlog *softlog);
+    virtual ~cXvVideoOut();
+    virtual void ProcessEvents ();
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.74
+retrieving revision 1.75
+diff -C2 -d -r1.74 -r1.75
+*** video.c	25 Mar 2007 09:00:11 -0000	1.74
+--- video.c	10 May 2007 19:54:44 -0000	1.75
+***************
+*** 27,31 ****
+  /* ---------------------------------------------------------------------------
+   */
+! cVideoOut::cVideoOut(cSetupStore *setupStore)
+  {
+    OsdWidth=OSD_FULL_WIDTH;
+--- 27,31 ----
+  /* ---------------------------------------------------------------------------
+   */
+! cVideoOut::cVideoOut(cSetupStore *setupStore, cSetupSoftlog *Softlog)
+  {
+    OsdWidth=OSD_FULL_WIDTH;
+***************
+*** 49,52 ****
+--- 49,53 ----
+    displayTimeUS = 0;
+    this-&gt;setupStore=setupStore;
++   softlog=Softlog;
+    freezeMode=false;
+    videoInitialized = false;
+***************
+*** 540,544 ****
+    offsetIndex %= AVRG_OFF_CNT;
+  
+!   setupStore-&gt;softlog-&gt;Log(SOFT_LOG_TRACE, 0,
+                    &quot;[VideoOut] A/V (%d - %d) off = %d avoff = %d\n&quot;,
+                    aPTS, pts, offset, offsetAverage);
+--- 541,545 ----
+    offsetIndex %= AVRG_OFF_CNT;
+  
+!   softlog-&gt;Log(SOFT_LOG_TRACE, 0,
+                    &quot;[VideoOut] A/V (%d - %d) off = %d avoff = %d\n&quot;,
+                    aPTS, pts, offset, offsetAverage);
+***************
+*** 581,585 ****
+  
+    if (frame &lt; 100) {
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_TRACE, 0,
+                    &quot;[VideoOut] %d %d %d \n&quot;,
+                    frame, offset, offsetAverage);
+--- 582,586 ----
+  
+    if (frame &lt; 100) {
+!     softlog-&gt;Log(SOFT_LOG_TRACE, 0,
+                    &quot;[VideoOut] %d %d %d \n&quot;,
+                    frame, offset, offsetAverage);
+***************
+*** 590,594 ****
+        if (abs(offset) &lt; frametime) {
+          offsetInHold = true;
+!         setupStore-&gt;softlog-&gt;Log(SOFT_LOG_DEBUG, 0,
+                    &quot;[VideoOut] video now synced (%d - %d)\n&quot;,
+                    frame, offset);
+--- 591,595 ----
+        if (abs(offset) &lt; frametime) {
+          offsetInHold = true;
+!         softlog-&gt;Log(SOFT_LOG_DEBUG, 0,
+                    &quot;[VideoOut] video now synced (%d - %d)\n&quot;,
+                    frame, offset);
+***************
+*** 597,601 ****
+    }
+    if (frame &amp;&amp; !(frame % 7500)) {
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_DEBUG, 0,
+                &quot;[VideoOut] sync info: repF = %d, drpF = %d, totF = %d\n&quot;,
+                repeatedFrames, droppedFrames, frame);
+--- 598,602 ----
+    }
+    if (frame &amp;&amp; !(frame % 7500)) {
+!     softlog-&gt;Log(SOFT_LOG_DEBUG, 0,
+                &quot;[VideoOut] sync info: repF = %d, drpF = %d, totF = %d\n&quot;,
+                repeatedFrames, droppedFrames, frame);
+***************
+*** 614,618 ****
+    memset (offsetHistory, 0, sizeof(offsetHistory));
+  
+!   setupStore-&gt;softlog-&gt;Log(SOFT_LOG_DEBUG, 0,
+              &quot;[VideoOut] reset: sync info: repF = %d, drpF = %d, totF = %d\n&quot;,
+              repeatedFrames, droppedFrames, frame);
+--- 615,619 ----
+    memset (offsetHistory, 0, sizeof(offsetHistory));
+  
+!   softlog-&gt;Log(SOFT_LOG_DEBUG, 0,
+              &quot;[VideoOut] reset: sync info: repF = %d, drpF = %d, totF = %d\n&quot;,
+              repeatedFrames, droppedFrames, frame);
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.52
+retrieving revision 1.53
+diff -C2 -d -r1.52 -r1.53
+*** video.h	25 Mar 2007 09:05:56 -0000	1.52
+--- video.h	10 May 2007 19:54:44 -0000	1.53
+***************
+*** 108,111 ****
+--- 108,112 ----
+  
+      cSetupStore *setupStore;
++     cSetupSoftlog *softlog;
+  
+      bool active;
+***************
+*** 146,150 ****
+  
+  public:
+!     cVideoOut(cSetupStore *setupStore);
+      virtual ~cVideoOut();
+  
+--- 147,151 ----
+  
+  public:
+!     cVideoOut(cSetupStore *setupStore, cSetupSoftlog *Softlog);
+      virtual ~cVideoOut();
+  
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000555.html">[Softdevice-cvs] softdevice CHANGELOG, 1.310, 1.311 ShmClient.c,	1.23, 1.24 VideoFilter.c, 1.4, 1.5 mpeg2decoder.c, 1.74,	1.75 setup-softdevice-menu.c, 1.12, 1.13 setup-softdevice.c,	1.52, 1.53 setup-softdevice.h, 1.40, 1.41 setup-softlog-menu.c,	1.2, 1.3 shm-common.h, 1.8, 1.9 softdevice.c, 1.81,	1.82 utils.c, 1.25, 1.26 utils.h, 1.16, 1.17 video-dfb.c, 1.79,	1.80 video-xv.c, 1.68, 1.69
+</A></li>
+	<LI>Next message: <A HREF="000554.html">[Softdevice-cvs] softdevice MacVdrClient.c,1.1,1.2
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#556">[ date ]</a>
+              <a href="thread.html#556">[ thread ]</a>
+              <a href="subject.html#556">[ subject ]</a>
+              <a href="author.html#556">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

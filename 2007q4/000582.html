@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softplay SoftPlayer.c,1.16,1.17
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softplay%20SoftPlayer.c%2C1.16%2C1.17&In-Reply-To=%3C20071013103027.C87D510F9E2%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000583.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softplay SoftPlayer.c,1.16,1.17</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softplay%20SoftPlayer.c%2C1.16%2C1.17&In-Reply-To=%3C20071013103027.C87D510F9E2%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softplay SoftPlayer.c,1.16,1.17">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Oct 13 12:30:27 CEST 2007</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000583.html">[Softdevice-cvs] softdevice CHANGELOG, 1.318,	1.319 setup-softdevice.h, 1.42, 1.43 softdevice.c, 1.87,	1.88 video-shm.c, 1.19, 1.20
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#582">[ date ]</a>
+              <a href="thread.html#582">[ thread ]</a>
+              <a href="subject.html#582">[ subject ]</a>
+              <a href="author.html#582">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softplay
+In directory sheep:/tmp/cvs-serv1489
+
+Modified Files:
+	SoftPlayer.c 
+Log Message:
+fix bug #12090 by a workaround of softdevice behaviour of setting AVFMT_NOFILE flag
+
+Index: SoftPlayer.c
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/SoftPlayer.c,v
+retrieving revision 1.16
+retrieving revision 1.17
+diff -C2 -d -r1.16 -r1.17
+*** SoftPlayer.c	12 Mar 2007 21:32:03 -0000	1.16
+--- SoftPlayer.c	13 Oct 2007 10:29:43 -0000	1.17
+***************
+*** 446,449 ****
+--- 446,460 ----
+  		
+          printf(&quot;open file '%s'\n&quot;,filename);
++ /* ---------------------------------------------------------------------------
++  * As a workaround for softdevice behaviour of setting AVFMT_NOFILE flag
++  * for input format &quot;mpeg&quot; we temporarily clear this here now and restore
++  * flags later.
++  * For this reason, this change does not fit indentation rules.
++  */
++ AVInputFormat *fmt;
++ int           oldFlags;
++ fmt=av_find_input_format(&quot;mpeg&quot;);
++ oldFlags = fmt-&gt;flags;
++ fmt-&gt;flags &amp;= ~AVFMT_NOFILE;
+          char str[60];
+          if ( (ret=av_open_input_file( &amp;ic, filename, NULL, 0, NULL)) ) {
+***************
+*** 452,457 ****
+--- 463,470 ----
+                  printf(&quot;could not open file. Return value %d\n&quot;,ret);
+                  ic=0;
++ fmt-&gt;flags = oldFlags;
+                  return;
+          };
++ fmt-&gt;flags = oldFlags;
+  
+          if ( av_find_stream_info( ic ) ) {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000583.html">[Softdevice-cvs] softdevice CHANGELOG, 1.318,	1.319 setup-softdevice.h, 1.42, 1.43 softdevice.c, 1.87,	1.88 video-shm.c, 1.19, 1.20
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#582">[ date ]</a>
+              <a href="thread.html#582">[ thread ]</a>
+              <a href="subject.html#582">[ subject ]</a>
+              <a href="author.html#582">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

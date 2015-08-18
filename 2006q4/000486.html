@@ -1,0 +1,123 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice PicBuffer.c, 1.16, 1.17 CHANGELOG, 1.277,	1.278
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20PicBuffer.c%2C%201.16%2C%201.17%20CHANGELOG%2C%201.277%2C%0A%091.278&In-Reply-To=%3C20061214223534.B4DF1C8C69%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000485.html">
+   <LINK REL="Next"  HREF="000487.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice PicBuffer.c, 1.16, 1.17 CHANGELOG, 1.277,	1.278</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20PicBuffer.c%2C%201.16%2C%201.17%20CHANGELOG%2C%201.277%2C%0A%091.278&In-Reply-To=%3C20061214223534.B4DF1C8C69%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice PicBuffer.c, 1.16, 1.17 CHANGELOG, 1.277,	1.278">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Thu Dec 14 23:35:34 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000485.html">[Softdevice-cvs] softdevice video-shm.c,1.15,1.16
+</A></li>
+        <LI>Next message: <A HREF="000487.html">[Softdevice-cvs] softdevice xscreensaver.c, 1.5, 1.6 CHANGELOG,	1.278, 1.279
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#486">[ date ]</a>
+              <a href="thread.html#486">[ thread ]</a>
+              <a href="subject.html#486">[ subject ]</a>
+              <a href="author.html#486">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv13344
+
+Modified Files:
+	PicBuffer.c CHANGELOG 
+Log Message:
+- fix possible division by zero.
+
+
+Index: PicBuffer.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/PicBuffer.c,v
+retrieving revision 1.16
+retrieving revision 1.17
+diff -C2 -d -r1.16 -r1.17
+*** PicBuffer.c	3 Dec 2006 19:25:08 -0000	1.16
+--- PicBuffer.c	14 Dec 2006 22:34:30 -0000	1.17
+***************
+*** 635,639 ****
+          PICDEB(&quot;CopyScalePicBuf_YUV420P width %d height %d\n&quot;,
+                          dst-&gt;max_width,dst-&gt;max_height);
+! 
+          if (src_width+sxoff &gt; src-&gt;max_width)
+                  src_width=src-&gt;max_width-sxoff;
+--- 635,642 ----
+          PICDEB(&quot;CopyScalePicBuf_YUV420P width %d height %d\n&quot;,
+                          dst-&gt;max_width,dst-&gt;max_height);
+!         
+!         if ( dst_height == 0 || dst_width == 0)
+!                 return;
+!         
+          if (src_width+sxoff &gt; src-&gt;max_width)
+                  src_width=src-&gt;max_width-sxoff;
+***************
+*** 770,773 ****
+--- 773,779 ----
+          PICDEB(&quot;CopyScalePicBufAlphaBlend width %d height %d\n&quot;,
+                          dst-&gt;max_width,dst-&gt;max_height);
++ 
++         if ( dst_height == 0 || dst_width == 0)
++                 return;
+  
+          if (src_width+sxoff &gt; src-&gt;max_width)
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.277
+retrieving revision 1.278
+diff -C2 -d -r1.277 -r1.278
+*** CHANGELOG	14 Dec 2006 22:31:57 -0000	1.277
+--- CHANGELOG	14 Dec 2006 22:34:30 -0000	1.278
+***************
+*** 3,6 ****
+--- 3,8 ----
+     - don't undefine X cursur on keypresses, to prevent the fake shift key
+       press from producing flickering of the mouse cursor.
++    - fix possible segfault.
++    - fix possible division by zero.
+  2006-12-03:
+     - applied patch from Matthias Schwarzott for vdr uint64 change.
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000485.html">[Softdevice-cvs] softdevice video-shm.c,1.15,1.16
+</A></li>
+	<LI>Next message: <A HREF="000487.html">[Softdevice-cvs] softdevice xscreensaver.c, 1.5, 1.6 CHANGELOG,	1.278, 1.279
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#486">[ date ]</a>
+              <a href="thread.html#486">[ thread ]</a>
+              <a href="subject.html#486">[ subject ]</a>
+              <a href="author.html#486">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

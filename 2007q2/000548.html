@@ -1,0 +1,119 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice configure,1.39,1.40
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20configure%2C1.39%2C1.40&In-Reply-To=%3C20070412080019.CD677D6DEE%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000547.html">
+   <LINK REL="Next"  HREF="000549.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice configure,1.39,1.40</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20configure%2C1.39%2C1.40&In-Reply-To=%3C20070412080019.CD677D6DEE%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice configure,1.39,1.40">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Thu Apr 12 10:00:19 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000547.html">[Softdevice-cvs] softdevice CHANGELOG, 1.307, 1.308 README, 1.23,	1.24 softdevice.c, 1.80, 1.81
+</A></li>
+        <LI>Next message: <A HREF="000549.html">[Softdevice-cvs] softdevice configure,1.40,1.41
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#548">[ date ]</a>
+              <a href="thread.html#548">[ thread ]</a>
+              <a href="subject.html#548">[ subject ]</a>
+              <a href="author.html#548">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv4153
+
+Modified Files:
+	configure 
+Log Message:
+fix typo (yaepg), rm .dependencies in case of changes
+
+Index: configure
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/configure,v
+retrieving revision 1.39
+retrieving revision 1.40
+diff -C2 -d -r1.39 -r1.40
+*** configure	11 Apr 2007 08:15:36 -0000	1.39
+--- configure	12 Apr 2007 07:58:18 -0000	1.40
+***************
+*** 62,66 ****
+    echo &quot;  --disable-oss&quot;
+    echo &quot;  --disable-suspendkey&quot;
+!   echo &quot;  --disable-yaepg / --enable-yapg (yaepg patch support)&quot;
+    echo &quot;  --with-ffmpeg-path YOUR_FFMPEG_PATH&quot;
+    echo &quot;  --with-vidix-path YOUR_VIDIX_PATH&quot;
+--- 62,66 ----
+    echo &quot;  --disable-oss&quot;
+    echo &quot;  --disable-suspendkey&quot;
+!   echo &quot;  --disable-yaepg / --enable-yaepg (yaepg patch support)&quot;
+    echo &quot;  --with-ffmpeg-path YOUR_FFMPEG_PATH&quot;
+    echo &quot;  --with-vidix-path YOUR_VIDIX_PATH&quot;
+***************
+*** 743,749 ****
+--- 743,752 ----
+  # checking for differences to previous results
+  #
++ clean_dep_file=&quot;no&quot;
++ 
+  diff $TMPH config.h &gt;/dev/null 2&gt;&amp;1
+  if test $? -ne 0 ; then
+    mv -f $TMPH config.h
++   clean_dep_file=&quot;yes&quot;
+    echo &quot;updated config.h&quot;
+  else
+***************
+*** 754,760 ****
+--- 757,768 ----
+  if test $? -ne 0 ; then
+    mv -f $TMPM config.mak
++   clean_dep_file=&quot;yes&quot;
+    echo &quot;updated config.mak&quot;
+  else
+    echo &quot;config.mak is unchanged&quot;
++ fi
++ 
++ if test &quot;${clean_dep_file}&quot; = &quot;yes&quot; ; then
++   rm -f .dependencies
+  fi
+  
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000547.html">[Softdevice-cvs] softdevice CHANGELOG, 1.307, 1.308 README, 1.23,	1.24 softdevice.c, 1.80, 1.81
+</A></li>
+	<LI>Next message: <A HREF="000549.html">[Softdevice-cvs] softdevice configure,1.40,1.41
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#548">[ date ]</a>
+              <a href="thread.html#548">[ thread ]</a>
+              <a href="subject.html#548">[ subject ]</a>
+              <a href="author.html#548">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

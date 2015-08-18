@@ -1,0 +1,252 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.187,1.188 SoftOsd.c,1.13,1.14
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.187%2C1.188%20SoftOsd.c%2C1.13%2C1.14&In-Reply-To=%3C200605270801.k4R81UT29856%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000366.html">
+   <LINK REL="Next"  HREF="000368.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.187,1.188 SoftOsd.c,1.13,1.14</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.187%2C1.188%20SoftOsd.c%2C1.13%2C1.14&In-Reply-To=%3C200605270801.k4R81UT29856%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.187,1.188 SoftOsd.c,1.13,1.14">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat May 27 10:01:30 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000366.html">[Softdevice-cvs] softieee1394/patches libavc1394-0.5.3-read-mic-00.diff,1.1,1.2
+</A></li>
+        <LI>Next message: <A HREF="000368.html">[Softdevice-cvs] softdevice CHANGELOG,1.188,1.189 configure,1.13,1.14
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#367">[ date ]</a>
+              <a href="thread.html#367">[ thread ]</a>
+              <a href="subject.html#367">[ subject ]</a>
+              <a href="author.html#367">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv4408
+
+Modified Files:
+	CHANGELOG SoftOsd.c 
+Log Message:
+- fix possible segfaults in SoftOsd when using a zoom faktor
+
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.187
+retrieving revision 1.188
+diff -C2 -d -r1.187 -r1.188
+*** CHANGELOG	23 May 2006 21:28:54 -0000	1.187
+--- CHANGELOG	27 May 2006 08:06:34 -0000	1.188
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2006-05-27:
++    - fix possible segfaults in SoftOsd when using a zoom faktor
+  2006-05-23:
+     - fix VIA OSD transparency for newer DirectFB cvs versions
+
+Index: SoftOsd.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.c,v
+retrieving revision 1.13
+retrieving revision 1.14
+diff -C2 -d -r1.13 -r1.14
+*** SoftOsd.c	23 Apr 2006 20:35:53 -0000	1.13
+--- SoftOsd.c	27 May 2006 08:06:34 -0000	1.14
+***************
+*** 29,32 ****
+--- 29,33 ----
+  
+  
++ //#undef USE_MMX2
+  /* ---------------------------------------------------------------------------
+   */
+***************
+*** 38,42 ****
+          pixelMask=NULL;
+  	bitmap_Format=PF_None; // forces a clear after first SetMode
+!         OSD_Bitmap=new uint32_t[OSD_STRIDE*(OSD_HEIGHT+2)];
+  
+          videoOut = VideoOut;
+--- 39,43 ----
+          pixelMask=NULL;
+  	bitmap_Format=PF_None; // forces a clear after first SetMode
+!         OSD_Bitmap=new uint32_t[OSD_STRIDE*(OSD_HEIGHT+4)];
+  
+          videoOut = VideoOut;
+***************
+*** 827,834 ****
+                      int dest_Width, int dest_Height, bool RefreshAll) {
+          OSDDEB(&quot;CopyToBitmap destsize: %d,%d\n&quot;,dest_Width,dest_Height);
+          if (dest_Height &amp; 0x1 !=0) {
+!                 printf(&quot;warning dest_Height not even!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n&quot;);
+                  dest_Height &amp;= ~0x1;
+          };
+          if (dest_Height==OSD_HEIGHT)
+                  NoVScaleCopyToBitmap(PY,PU,PV,PAlphaY,PAlphaUV,Ystride,UVstride,
+--- 828,839 ----
+                      int dest_Width, int dest_Height, bool RefreshAll) {
+          OSDDEB(&quot;CopyToBitmap destsize: %d,%d\n&quot;,dest_Width,dest_Height);
++         if (dest_Height &lt; 40 || dest_Width &lt; 40)
++                 return;
++ 
+          if (dest_Height &amp; 0x1 !=0) {
+!                 //printf(&quot;warning dest_Height not even!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n&quot;);
+                  dest_Height &amp;= ~0x1;
+          };
++ 
+          if (dest_Height==OSD_HEIGHT)
+                  NoVScaleCopyToBitmap(PY,PU,PV,PAlphaY,PAlphaUV,Ystride,UVstride,
+***************
+*** 899,903 ****
+                      int dest_Width, int dest_Height, bool RefreshAll) {
+  
+!         OSDDEB(&quot;CopyToBitmap YUV down\n&quot;);
+          // upscaleing is not supported for YUV modes
+          if (dest_Width&gt;OSD_WIDTH)
+--- 904,908 ----
+                      int dest_Width, int dest_Height, bool RefreshAll) {
+  
+!         OSDDEB(&quot;CopyToBitmap YUV down %d,%d\n&quot;,dest_Width,dest_Height);
+          // upscaleing is not supported for YUV modes
+          if (dest_Width&gt;OSD_WIDTH)
+***************
+*** 922,926 ****
+          const int ScaleFactor=1&lt;&lt;6;
+          uint32_t new_pixel_height=(OSD_HEIGHT*ScaleFactor)/dest_Height;
+!         int lines_count=(new_pixel_height/ScaleFactor*2+2);
+          color scaleH_pixmap[lines_count*OSD_STRIDE];
+          color *scaleH_Reference[lines_count];
+--- 927,931 ----
+          const int ScaleFactor=1&lt;&lt;6;
+          uint32_t new_pixel_height=(OSD_HEIGHT*ScaleFactor)/dest_Height;
+!         int lines_count=(new_pixel_height/ScaleFactor*2+4);
+          color scaleH_pixmap[lines_count*OSD_STRIDE];
+          color *scaleH_Reference[lines_count];
+***************
+*** 928,931 ****
+--- 933,939 ----
+          int scaleH_strtIdx=0;
+          memset(scaleH_lines,-1,sizeof(scaleH_lines));
++         memset(scaleH_Reference,0,sizeof(scaleH_Reference));
++         OSDDEB(&quot;new_pixel_height %d lines_count %d\n&quot;,
++                         new_pixel_height,lines_count);
+          
+          for (int y=0; y&lt;dest_Height; y+=2) {
+***************
+*** 951,963 ****
+                          }
+                  };
+!                 /*
+                     printf(&quot;strt_Idx %d scaleH_lines: &quot;,scaleH_strtIdx);
+                     for (int i=0; i&lt;lines_count; i++)
+                     printf(&quot;%d &quot;,scaleH_lines[i]);
+!                    printf(&quot;\n&quot;);
+!                    */
+                  ScaleDownVert_MMX((uint8_t*) tmp_pixmap,0,
+  				new_pixel_height,start_pos,
+!                                 scaleH_Reference,OSD_WIDTH-1);
+                  int new_start_row=new_pixel_height*(y+1)/ScaleFactor;
+                  int start_row_idx=new_start_row-start_row;
+--- 959,973 ----
+                          }
+                  };
+!                /* 
+                     printf(&quot;strt_Idx %d scaleH_lines: &quot;,scaleH_strtIdx);
+                     for (int i=0; i&lt;lines_count; i++)
+                     printf(&quot;%d &quot;,scaleH_lines[i]);
+!                    printf(&quot;\n&quot;);fflush(stdout);
+!                  */ 
+!                 OSDDEB(&quot;start_pos %d start_row %d\n&quot;,start_pos,start_row);
+                  ScaleDownVert_MMX((uint8_t*) tmp_pixmap,0,
+  				new_pixel_height,start_pos,
+!                                 scaleH_Reference,dest_Width);
+!                                 //scaleH_Reference,OSD_WIDTH-1);
+                  int new_start_row=new_pixel_height*(y+1)/ScaleFactor;
+                  int start_row_idx=new_start_row-start_row;
+***************
+*** 970,977 ****
+                                          scaleH_lines[SCALEH_IDX(start_row_idx)]);
+                  
+                  ScaleDownVert_MMX((uint8_t*) &amp;tmp_pixmap[OSD_STRIDE],0,
+  				new_pixel_height,start_pos,
+                                  &amp;scaleH_Reference[start_row_idx],
+!                                 OSD_WIDTH-1);
+  
+                  // convert and copy to video out OSD layer
+--- 980,989 ----
+                                          scaleH_lines[SCALEH_IDX(start_row_idx)]);
+                  
++                 OSDDEB(&quot;start_pos %d new_start_row %d\n&quot;,start_pos,new_start_row);
+                  ScaleDownVert_MMX((uint8_t*) &amp;tmp_pixmap[OSD_STRIDE],0,
+  				new_pixel_height,start_pos,
+                                  &amp;scaleH_Reference[start_row_idx],
+!                                 dest_Width);
+!                                 //OSD_WIDTH-1);
+  
+                  // convert and copy to video out OSD layer
+***************
+*** 996,999 ****
+--- 1008,1014 ----
+                  int dest_Width, int dest_Height, bool RefreshAll,
+                  bool *dirtyLines) {
++         if (dest_Height &lt; 40 || dest_Width &lt; 40)
++                 return;
++ 
+  	if (dest_Height&gt;=OSD_HEIGHT)
+  		ScaleVUpCopyToBitmap(dest,linesize,dest_Width,dest_Height,
+***************
+*** 1186,1190 ****
+  //------------------------ lowlevel scaling functions ------------------------
+  //#define SCALEDEBV(out...) printf(out) 
+! #define SCALEDEBV(out...)
+  
+  void cSoftOsd::ScaleDownVert_MMX(uint8_t * dest, int linesize,
+--- 1201,1205 ----
+  //------------------------ lowlevel scaling functions ------------------------
+  //#define SCALEDEBV(out...) printf(out) 
+! #define SCALEDEBV(out...) 
+  
+  void cSoftOsd::ScaleDownVert_MMX(uint8_t * dest, int linesize,
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000366.html">[Softdevice-cvs] softieee1394/patches libavc1394-0.5.3-read-mic-00.diff,1.1,1.2
+</A></li>
+	<LI>Next message: <A HREF="000368.html">[Softdevice-cvs] softdevice CHANGELOG,1.188,1.189 configure,1.13,1.14
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#367">[ date ]</a>
+              <a href="thread.html#367">[ thread ]</a>
+              <a href="subject.html#367">[ subject ]</a>
+              <a href="author.html#367">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

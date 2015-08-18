@@ -1,0 +1,1210 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.167,1.168 README,1.15,1.16 i18n.c,1.17,1.18 setup-softdevice-menu.c,1.1,1.2 setup-softdevice.c,1.40,1.41 setup-softdevice.h,1.25,1.26 softdevice.c,1.54,1.55 video-dfb.c,1.51,1.52 video.c,1.47,1.48 video.h,1.31,1.32
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.167%2C1.168%20README%2C1.15%2C1.16%20i18n.c%2C1.17%2C1.18%20setup-softdevice-menu.c%2C1.1%2C1.2%20setup-softdevice.c%2C1.40%2C1.41%20setup-softdevice.h%2C1.25%2C1.26%20softdevice.c%2C1.54%2C1.55%20video-dfb.c%2C1.51%2C1.52%20video.c%2C1.47%2C1.48%20video.h%2C1.31%2C1.32&In-Reply-To=%3C200604141856.k3EIuAt29110%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000317.html">
+   <LINK REL="Next"  HREF="000319.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.167,1.168 README,1.15,1.16 i18n.c,1.17,1.18 setup-softdevice-menu.c,1.1,1.2 setup-softdevice.c,1.40,1.41 setup-softdevice.h,1.25,1.26 softdevice.c,1.54,1.55 video-dfb.c,1.51,1.52 video.c,1.47,1.48 video.h,1.31,1.32</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.167%2C1.168%20README%2C1.15%2C1.16%20i18n.c%2C1.17%2C1.18%20setup-softdevice-menu.c%2C1.1%2C1.2%20setup-softdevice.c%2C1.40%2C1.41%20setup-softdevice.h%2C1.25%2C1.26%20softdevice.c%2C1.54%2C1.55%20video-dfb.c%2C1.51%2C1.52%20video.c%2C1.47%2C1.48%20video.h%2C1.31%2C1.32&In-Reply-To=%3C200604141856.k3EIuAt29110%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.167,1.168 README,1.15,1.16 i18n.c,1.17,1.18 setup-softdevice-menu.c,1.1,1.2 setup-softdevice.c,1.40,1.41 setup-softdevice.h,1.25,1.26 softdevice.c,1.54,1.55 video-dfb.c,1.51,1.52 video.c,1.47,1.48 video.h,1.31,1.32">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Apr 14 20:56:10 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000317.html">[Softdevice-cvs] softdevice video-xv.h,1.17,1.18 video-xv.c,1.49,1.50
+</A></li>
+        <LI>Next message: <A HREF="000319.html">[Softdevice-cvs] softdevice CHANGELOG,1.168,1.169 mpeg2decoder.c,1.62,1.63 mpeg2decoder.h,1.35,1.36
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#318">[ date ]</a>
+              <a href="thread.html#318">[ thread ]</a>
+              <a href="subject.html#318">[ subject ]</a>
+              <a href="author.html#318">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv4817
+
+Modified Files:
+	CHANGELOG README i18n.c setup-softdevice-menu.c 
+	setup-softdevice.c setup-softdevice.h softdevice.c video-dfb.c 
+	video.c video.h 
+Log Message:
+Expand top/bottom line and left/right coloumns (from vdr-portal).
+Zoom feature, zoomed area may be shifted around.
+remember interlaced mode of current frame.
+Restricted OSD alpha blend option to XV and VIDIX out.
+started some documentation of our various OSD options.
+
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.167
+retrieving revision 1.168
+diff -C2 -d -r1.167 -r1.168
+*** CHANGELOG	1 Apr 2006 09:33:41 -0000	1.167
+--- CHANGELOG	14 Apr 2006 18:56:34 -0000	1.168
+***************
+*** 1,3 ****
+--- 1,11 ----
+  Changelog
++ 2006-04-14:
++    - Expand top/bottom line and left/right coloumns (from vdr-portal).
++    - Zoom feature, zoomed area may be shifted around.
++    - yv12 -&gt; yuy2 converter for field based chroma.
++    - remember interlaced mode of current frame.
++    - some preparations for some more XvImage formats (not yet selectable).
++    - Restricted OSD alpha blend option to XV and VIDIX out.
++    - started some documentation of our various OSD options.
+  2006-04-01:
+     - applied Makefile patch from Antti Sepp&#228;l&#228;
+
+Index: README
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/README,v
+retrieving revision 1.15
+retrieving revision 1.16
+diff -C2 -d -r1.15 -r1.16
+*** README	1 Apr 2006 09:33:41 -0000	1.15
+--- README	14 Apr 2006 18:56:34 -0000	1.16
+***************
+*** 130,133 ****
+--- 130,182 ----
+  are not available.
+  
++ OSD setup options:
++ ------------------
++   Cropping:
++   Post processing:
++   Video out:
++ 
++   XV startup aspect
++     Possible values: 4:3 normal, 16:9 wide
++ 
++   Screen aspect
++     Possible values: default, 5:4, 4:3, 16:9, 16:10
++ 
++   OSD alpha blending
++     Possible values: pseudo, software
++ 
++   Buffer mode
++     Possible values: safe, good seeking, HDTV
++ 
++   Playback
++     Possible values: playing, suspended
++ 
++   A/V Delay
++     Possible values: 0 .. 250
++ 
++   AC3 Mode
++     Possible values: Stereo (2CH), 5.1 S/P-DIF,
++                      5.1 Analog (4CH), 5.1 Analog (6CH)
++     This specifies what should be done when we get AC3 audio frames.
++     When set to 5.1 S/P-DIF no software decoding is used. AC3 frames
++     are passed directly from your sound card to your audio processing
++     equipment.
++     If you choose any of (xCH) modes, it depends on the capabilities of
++     the decoding libary for getting any output. We request a 2, 4 or 6
++     channel downmix of the AC3 data. If your libary (ffmpeg) does not
++     support downmixing, you'll get silence. In such a situation you'll
++     have to select an other audio track/channel of your selected source.
++ 
++   Sync Mode
++     Possible values: usleep, rtc, sig
++     The method for syncing video output to audio output is determined by
++     this option.
++ 
++   Hide main menu entry
++     Possible values: yes, no .
++     When set to yes, softdevice setup menu is not shown in vdr's main
++     menu. Softdevice developers usually set this to no, normal end user
++     tend to set this to yes. If softdevice setup menu is hidden, it is
++     still accessible via vdr -&gt; setup -&gt; plugins -&gt; softdevice .
++ 
+  Problems/todo:
+  --------------
+
+Index: i18n.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/i18n.c,v
+retrieving revision 1.17
+retrieving revision 1.18
+diff -C2 -d -r1.17 -r1.18
+*** i18n.c	19 Feb 2006 10:38:30 -0000	1.17
+--- i18n.c	14 Apr 2006 18:56:34 -0000	1.18
+***************
+*** 37,41 ****
+      &quot;&quot;,             //  3 TODO
+      &quot;&quot;,             //  4 TODO
+!     &quot;&quot;,             //  5 TODO   
+      &quot;&quot;,             //  6 TODO
+      &quot;Affichage vid&#233;o sur carte graphique&quot;, //  7
+--- 37,41 ----
+      &quot;&quot;,             //  3 TODO
+      &quot;&quot;,             //  4 TODO
+!     &quot;&quot;,             //  5 TODO
+      &quot;&quot;,             //  6 TODO
+      &quot;Affichage vid&#233;o sur carte graphique&quot;, //  7
+***************
+*** 43,48 ****
+      &quot;Ohjelmistopohjainen n&#228;ytt&#246;laite&quot;,  //  9
+      &quot;&quot;,             // 10 TODO
+!     &quot;&quot;,             // 11 TODO   
+!     &quot;&quot;,             // 12 TODO   
+      &quot;&quot;,             // 13 TODO
+      &quot;&quot;,             // 14 TODO
+--- 43,48 ----
+      &quot;Ohjelmistopohjainen n&#228;ytt&#246;laite&quot;,  //  9
+      &quot;&quot;,             // 10 TODO
+!     &quot;&quot;,             // 11 TODO
+!     &quot;&quot;,             // 12 TODO
+      &quot;&quot;,             // 13 TODO
+      &quot;&quot;,             // 14 TODO
+***************
+*** 53,57 ****
+      &quot;&quot;,             // 18 TODO
+      &quot;&quot;,             // 19 TODO
+!     &quot;&quot;,             // 20 TODO   
+  #endif
+    },
+--- 53,57 ----
+      &quot;&quot;,             // 18 TODO
+      &quot;&quot;,             // 19 TODO
+!     &quot;&quot;,             // 20 TODO
+  #endif
+    },
+***************
+*** 349,353 ****
+      &quot;&quot;,             // 16 TODO
+  #if VDRVERSNUM &gt;= 10316
+!     &quot;&quot;,             // 17 TODO 
+      &quot;&quot;,             // 18 TODO
+      &quot;&quot;,             // 19 TODO
+--- 349,353 ----
+      &quot;&quot;,             // 16 TODO
+  #if VDRVERSNUM &gt;= 10316
+!     &quot;&quot;,             // 17 TODO
+      &quot;&quot;,             // 18 TODO
+      &quot;&quot;,             // 19 TODO
+***************
+*** 487,491 ****
+      &quot;&quot;,             // 16 TODO
+  #if VDRVERSNUM &gt;= 10316
+!     &quot;&quot;,             // 17 TODO   
+      &quot;&quot;,             // 18 TODO
+      &quot;&quot;,             // 19 TODO
+--- 487,491 ----
+      &quot;&quot;,             // 16 TODO
+  #if VDRVERSNUM &gt;= 10316
+!     &quot;&quot;,             // 17 TODO
+      &quot;&quot;,             // 18 TODO
+      &quot;&quot;,             // 19 TODO
+***************
+*** 867,871 ****
+      &quot;&quot;,             //  5 TODO
+      &quot;&quot;,             //  6 TODO
+!     &quot;&quot;,             //  7 TODO                                                              
+      &quot;&quot;,             //  8 TODO
+      &quot;Kuvan j&#228;lkik&#228;sittely&quot;, //  9
+--- 867,871 ----
+      &quot;&quot;,             //  5 TODO
+      &quot;&quot;,             //  6 TODO
+!     &quot;&quot;,             //  7 TODO
+      &quot;&quot;,             //  8 TODO
+      &quot;Kuvan j&#228;lkik&#228;sittely&quot;, //  9
+***************
+*** 1008,1011 ****
+--- 1008,1126 ----
+      &quot;&quot;,             //  8 TODO
+      &quot;V&#228;rikyll&#228;isyys&quot;,//  9
++     &quot;&quot;,             // 10 TODO
++     &quot;&quot;,             // 11 TODO
++     &quot;&quot;,             // 12 TODO
++     &quot;&quot;,             // 13 TODO
++     &quot;&quot;,             // 14 TODO
++     &quot;&quot;,             // 15 TODO
++     &quot;&quot;,             // 16 TODO
++ #if VDRVERSNUM &gt;= 10316
++     &quot;&quot;,             // 17 TODO
++     &quot;&quot;,             // 18 TODO
++     &quot;&quot;,             // 19 TODO
++     &quot;&quot;,             // 20 TODO
++ #endif
++   },
++   { &quot;Zoom factor&quot;,   //  1
++     &quot;Zoomfaktor&quot;,    //  2
++     &quot;&quot;,             //  3 TODO
++     &quot;&quot;,             //  4 TODO
++     &quot;&quot;,             //  5 TODO
++     &quot;&quot;,             //  6 TODO
++     &quot;&quot;,             //  7 TODO
++     &quot;&quot;,             //  8 TODO
++     &quot;&quot;,//  9
++     &quot;&quot;,             // 10 TODO
++     &quot;&quot;,             // 11 TODO
++     &quot;&quot;,             // 12 TODO
++     &quot;&quot;,             // 13 TODO
++     &quot;&quot;,             // 14 TODO
++     &quot;&quot;,             // 15 TODO
++     &quot;&quot;,             // 16 TODO
++ #if VDRVERSNUM &gt;= 10316
++     &quot;&quot;,             // 17 TODO
++     &quot;&quot;,             // 18 TODO
++     &quot;&quot;,             // 19 TODO
++     &quot;&quot;,             // 20 TODO
++ #endif
++   },
++   { &quot;Zoom area shift (left/right)&quot;,   //  1
++     &quot;Zoomausschnitt (links/rechts)&quot;,  //  2
++     &quot;&quot;,             //  3 TODO
++     &quot;&quot;,             //  4 TODO
++     &quot;&quot;,             //  5 TODO
++     &quot;&quot;,             //  6 TODO
++     &quot;&quot;,             //  7 TODO
++     &quot;&quot;,             //  8 TODO
++     &quot;&quot;,//  9
++     &quot;&quot;,             // 10 TODO
++     &quot;&quot;,             // 11 TODO
++     &quot;&quot;,             // 12 TODO
++     &quot;&quot;,             // 13 TODO
++     &quot;&quot;,             // 14 TODO
++     &quot;&quot;,             // 15 TODO
++     &quot;&quot;,             // 16 TODO
++ #if VDRVERSNUM &gt;= 10316
++     &quot;&quot;,             // 17 TODO
++     &quot;&quot;,             // 18 TODO
++     &quot;&quot;,             // 19 TODO
++     &quot;&quot;,             // 20 TODO
++ #endif
++   },
++   { &quot;Zoom area shift (up/down)&quot;,   //  1
++     &quot;Zoomausschnitt (oben/unten)&quot;, //  2
++     &quot;&quot;,             //  3 TODO
++     &quot;&quot;,             //  4 TODO
++     &quot;&quot;,             //  5 TODO
++     &quot;&quot;,             //  6 TODO
++     &quot;&quot;,             //  7 TODO
++     &quot;&quot;,             //  8 TODO
++     &quot;&quot;,//  9
++     &quot;&quot;,             // 10 TODO
++     &quot;&quot;,             // 11 TODO
++     &quot;&quot;,             // 12 TODO
++     &quot;&quot;,             // 13 TODO
++     &quot;&quot;,             // 14 TODO
++     &quot;&quot;,             // 15 TODO
++     &quot;&quot;,             // 16 TODO
++ #if VDRVERSNUM &gt;= 10316
++     &quot;&quot;,             // 17 TODO
++     &quot;&quot;,             // 18 TODO
++     &quot;&quot;,             // 19 TODO
++     &quot;&quot;,             // 20 TODO
++ #endif
++   },
++   { &quot;Expand top/bottom lines&quot;,   //  1
++     &quot;&quot;,             //  2 TODO
++     &quot;&quot;,             //  3 TODO
++     &quot;&quot;,             //  4 TODO
++     &quot;&quot;,             //  5 TODO
++     &quot;&quot;,             //  6 TODO
++     &quot;&quot;,             //  7 TODO
++     &quot;&quot;,             //  8 TODO
++     &quot;&quot;,//  9
++     &quot;&quot;,             // 10 TODO
++     &quot;&quot;,             // 11 TODO
++     &quot;&quot;,             // 12 TODO
++     &quot;&quot;,             // 13 TODO
++     &quot;&quot;,             // 14 TODO
++     &quot;&quot;,             // 15 TODO
++     &quot;&quot;,             // 16 TODO
++ #if VDRVERSNUM &gt;= 10316
++     &quot;&quot;,             // 17 TODO
++     &quot;&quot;,             // 18 TODO
++     &quot;&quot;,             // 19 TODO
++     &quot;&quot;,             // 20 TODO
++ #endif
++   },
++   { &quot;Expand left/right columns&quot;,   //  1
++     &quot;&quot;,             //  2 TODO
++     &quot;&quot;,             //  3 TODO
++     &quot;&quot;,             //  4 TODO
++     &quot;&quot;,             //  5 TODO
++     &quot;&quot;,             //  6 TODO
++     &quot;&quot;,             //  7 TODO
++     &quot;&quot;,             //  8 TODO
++     &quot;&quot;,//  9
+      &quot;&quot;,             // 10 TODO
+      &quot;&quot;,             // 11 TODO
+
+Index: setup-softdevice-menu.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice-menu.c,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1 -r1.2
+*** setup-softdevice-menu.c	17 Jan 2006 20:45:46 -0000	1.1
+--- setup-softdevice-menu.c	14 Apr 2006 18:56:34 -0000	1.2
+***************
+*** 94,97 ****
+--- 94,115 ----
+                              userKeyUsage));
+  
++ #if VDRVERSNUM &gt;= 10334
++   Add(new cOsdItem(&quot; &quot;, osUnknown, false));
++ #else
++   Add(new cOsdItem(&quot; &quot;, osUnknown));
++ #endif
++   Add(new cMenuEditIntItem(tr(&quot;Zoom factor&quot;),
++                            &amp;data-&gt;zoomFactor,
++                            0,
++                            128));
++   Add(new cMenuEditIntItem(tr(&quot;Zoom area shift (left/right)&quot;),
++                            &amp;data-&gt;zoomCenterX,
++                            -100,
++                            100));
++   Add(new cMenuEditIntItem(tr(&quot;Zoom area shift (up/down)&quot;),
++                            &amp;data-&gt;zoomCenterY,
++                            -100,
++                            100));
++ 
+    if (data-&gt;outputMethod != VOUT_FB)
+    {
+***************
+*** 124,127 ****
+--- 142,160 ----
+                               MAX_CROP_COLS));
+    }
++ 
++ #if VDRVERSNUM &gt;= 10334
++   Add(new cOsdItem(&quot; &quot;, osUnknown, false));
++ #else
++   Add(new cOsdItem(&quot; &quot;, osUnknown));
++ #endif
++ 
++   Add(new cMenuEditIntItem(tr(&quot;Expand top/bottom lines&quot;),
++                            &amp;data-&gt;expandTopBottomLines,
++                            0,
++                            MAX_CROP_LINES/2));
++   Add(new cMenuEditIntItem(tr(&quot;Expand left/right columns&quot;),
++                            &amp;data-&gt;expandLeftRightCols,
++                            0,
++                            MAX_CROP_COLS/2));
+  }
+  
+***************
+*** 268,277 ****
+                              videoAspectNames));
+  
+!   osdModeNames[0] = tr(&quot;pseudo&quot;);
+!   osdModeNames[1] = tr(&quot;software&quot;);
+!   Add(new cMenuEditStraItem(tr(&quot;OSD alpha blending&quot;),
+!                             &amp;data-&gt;osdMode,
+!                             (SETUP_OSDMODES-1),
+!                             osdModeNames));
+  
+  #if VDRVERSNUM &gt;= 10334
+--- 301,313 ----
+                              videoAspectNames));
+  
+!   if (data-&gt;outputMethod == VOUT_XV || data-&gt;outputMethod == VOUT_VIDIX)
+!   {
+!     osdModeNames[0] = tr(&quot;pseudo&quot;);
+!     osdModeNames[1] = tr(&quot;software&quot;);
+!     Add(new cMenuEditStraItem(tr(&quot;OSD alpha blending&quot;),
+!                               &amp;data-&gt;osdMode,
+!                               (SETUP_OSDMODES-1),
+!                               osdModeNames));
+!   }
+  
+  #if VDRVERSNUM &gt;= 10334
+
+Index: setup-softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.c,v
+retrieving revision 1.40
+retrieving revision 1.41
+diff -C2 -d -r1.40 -r1.41
+*** setup-softdevice.c	17 Jan 2006 20:45:46 -0000	1.40
+--- setup-softdevice.c	14 Apr 2006 18:56:34 -0000	1.41
+***************
+*** 24,28 ****
+  #ifdef FB_SUPPORT
+          &quot;FB-intern&quot;, // no need to translate
+! #endif        
+  #ifdef PP_LIBAVCODEC
+          &quot;linblend&quot;,  // no need to translate
+--- 24,28 ----
+  #ifdef FB_SUPPORT
+          &quot;FB-intern&quot;, // no need to translate
+! #endif
+  #ifdef PP_LIBAVCODEC
+          &quot;linblend&quot;,  // no need to translate
+***************
+*** 100,103 ****
+--- 100,105 ----
+    cropLeftCols      = 0;
+    cropRightCols     = 0;
++   expandTopBottomLines = 0;
++   expandLeftRightCols = 0;
+    deintMethod   = 0;
+    ppMethod   = 0;
+***************
+*** 122,125 ****
+--- 124,131 ----
+     */
+    screenPixelAspect   = 0;
++   zoom                = 0;
++   zoomFactor          = 0;
++   zoomCenterX         = 0;
++   zoomCenterY         = 0;
+  
+    strcpy (alsaDevice, &quot;&quot;);
+***************
+*** 219,226 ****
+  #ifdef PP_LIBAVCODEC
+    else if (!strcasecmp(Name,&quot;Postprocess Method&quot;)) {
+!             ppMethod=atoi(Value); 
+              ppMethod=clamp(0,ppMethod,2);
+    }  else if (!strcasecmp(Name,&quot;Postprocess Quality&quot;)) {
+!             ppQuality=atoi(Value); 
+              ppQuality=clamp(0,ppQuality,6);
+    }
+--- 225,232 ----
+  #ifdef PP_LIBAVCODEC
+    else if (!strcasecmp(Name,&quot;Postprocess Method&quot;)) {
+!             ppMethod=atoi(Value);
+              ppMethod=clamp(0,ppMethod,2);
+    }  else if (!strcasecmp(Name,&quot;Postprocess Quality&quot;)) {
+!             ppQuality=atoi(Value);
+              ppQuality=clamp(0,ppQuality,6);
+    }
+***************
+*** 263,266 ****
+--- 269,282 ----
+      fprintf(stderr,&quot;[setup-softdevice] Cropping %d columns from right\n&quot;,
+              cropRightCols);
++   } else if(!strcasecmp(Name,&quot;ExpandTopBottomLines&quot;)) {
++     expandTopBottomLines = atoi(Value);
++     expandTopBottomLines = clamp (0, expandTopBottomLines, MAX_CROP_LINES/2);
++     fprintf(stderr,&quot;[setup-softdevice] Expanding %d columns at top and bottom\n&quot;,
++             expandTopBottomLines);
++   } else if(!strcasecmp(Name,&quot;ExpandLeftRightCols&quot;)) {
++     expandLeftRightCols = atoi(Value);
++     expandLeftRightCols = clamp (0, expandLeftRightCols, MAX_CROP_COLS/2);
++     fprintf(stderr,&quot;[setup-softdevice] Expanding %d columns at left and right\n&quot;,
++             expandLeftRightCols);
+    } else if (!strcasecmp(Name,&quot;PixelFormat&quot;)) {
+      pixelFormat = atoi(Value);
+
+Index: setup-softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.h,v
+retrieving revision 1.25
+retrieving revision 1.26
+diff -C2 -d -r1.25 -r1.26
+*** setup-softdevice.h	17 Jan 2006 20:45:46 -0000	1.25
+--- setup-softdevice.h	14 Apr 2006 18:56:34 -0000	1.26
+***************
+*** 119,122 ****
+--- 119,124 ----
+      int   cropLeftCols;
+      int   cropRightCols;
++     int   expandTopBottomLines;
++     int   expandLeftRightCols;
+      int   deintMethod;
+      int   ppMethod;
+***************
+*** 126,129 ****
+--- 128,135 ----
+      int   avOffset;
+      int   screenPixelAspect;
++     int   zoom;
++     int   zoomFactor;
++     int   zoomCenterX;
++     int   zoomCenterY;
+      int   useMGAtv;
+      int   viaTv;
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.54
+retrieving revision 1.55
+diff -C2 -d -r1.54 -r1.55
+*** softdevice.c	12 Feb 2006 17:59:12 -0000	1.54
+--- softdevice.c	14 Apr 2006 18:56:34 -0000	1.55
+***************
+*** 193,196 ****
+--- 193,197 ----
+  #ifdef XV_SUPPORT
+          LoadSubPlugin (&quot;xv&quot;, FOURCC_YV12, pluginPath);
++         //LoadSubPlugin (&quot;xv&quot;, FOURCC_YUY2, pluginPath);
+  #endif
+          break;
+***************
+*** 229,232 ****
+--- 230,234 ----
+          videoOut = new cXvVideoOut (&amp;setupStore);
+          if (videoOut-&gt;Initialize () &amp;&amp; videoOut-&gt;Reconfigure (FOURCC_YV12)) {
++         //if (videoOut-&gt;Initialize () &amp;&amp; videoOut-&gt;Reconfigure (FOURCC_YUY2)) {
+            fprintf (stderr, &quot;[softdevice] Xv out OK !\n&quot;);
+          } else {
+***************
+*** 363,367 ****
+  }
+  
+! cSpuDecoder *cSoftDevice::GetSpuDecoder(void) 
+  {
+    //printf(&quot;GetSpuDecoder %x\n&quot;,spuDecoder);
+--- 365,369 ----
+  }
+  
+! cSpuDecoder *cSoftDevice::GetSpuDecoder(void)
+  {
+    //printf(&quot;GetSpuDecoder %x\n&quot;,spuDecoder);
+***************
+*** 399,403 ****
+      if (!decoder)
+         return false;
+!     
+      packetMode=PlayMode &lt; 0;
+      PlayMode=(ePlayMode) abs(PlayMode);
+--- 401,405 ----
+      if (!decoder)
+         return false;
+! 
+      packetMode=PlayMode &lt; 0;
+      PlayMode=(ePlayMode) abs(PlayMode);
+***************
+*** 441,445 ****
+      if ( ! decoder )
+        return;
+!       
+      if ( !packetMode ) {
+        cDevice::Clear();
+--- 443,447 ----
+      if ( ! decoder )
+        return;
+! 
+      if ( !packetMode ) {
+        cDevice::Clear();
+***************
+*** 494,503 ****
+       cRelTimer Timer;
+       Timer.Reset();
+!   
+       while ( TimeoutUs &gt; 0 ) {
+         usleep(10000);
+         TimeoutUs-=Timer.GetRelTime();
+       };
+!      
+       return decoder-&gt;BufferFill() &lt; 99;
+    }
+--- 496,505 ----
+       cRelTimer Timer;
+       Timer.Reset();
+! 
+       while ( TimeoutUs &gt; 0 ) {
+         usleep(10000);
+         TimeoutUs-=Timer.GetRelTime();
+       };
+! 
+       return decoder-&gt;BufferFill() &lt; 99;
+    }
+***************
+*** 511,520 ****
+    cRelTimer Timer;
+    Timer.Reset();
+!   
+    while ( TimeoutUs &gt; 0 &amp;&amp; decoder-&gt;BufferFill() &gt; 0 ) {
+         usleep(10000);
+         TimeoutUs-=Timer.GetRelTime();
+    };
+!       
+    return  decoder-&gt;BufferFill() == 0;
+  };
+--- 513,522 ----
+    cRelTimer Timer;
+    Timer.Reset();
+! 
+    while ( TimeoutUs &gt; 0 &amp;&amp; decoder-&gt;BufferFill() &gt; 0 ) {
+         usleep(10000);
+         TimeoutUs-=Timer.GetRelTime();
+    };
+! 
+    return  decoder-&gt;BufferFill() == 0;
+  };
+***************
+*** 629,636 ****
+  }
+  
+! const char *cPluginSoftDevice::Version(void) 
+  { return VERSION; }
+  
+! const char *cPluginSoftDevice::Description(void) 
+  { return tr(DESCRIPTION); }
+  
+--- 631,638 ----
+  }
+  
+! const char *cPluginSoftDevice::Version(void)
+  { return VERSION; }
+  
+! const char *cPluginSoftDevice::Description(void)
+  { return tr(DESCRIPTION); }
+  
+***************
+*** 730,734 ****
+                         &quot;[ProcessArgs] xv: start up fullscreen\n&quot;);
+                vo_argv += 4;
+!             } else {  
+                      fprintf(stderr,&quot;[softdevice] ignoring unrecognized option \&quot;%s\&quot;!\n&quot;,argv[i]);
+                      esyslog(&quot;[softdevice] ignoring unrecognized option \&quot;%s\&quot;\n&quot;,argv[i]);
+--- 732,736 ----
+                         &quot;[ProcessArgs] xv: start up fullscreen\n&quot;);
+                vo_argv += 4;
+!             } else {
+                      fprintf(stderr,&quot;[softdevice] ignoring unrecognized option \&quot;%s\&quot;!\n&quot;,argv[i]);
+                      esyslog(&quot;[softdevice] ignoring unrecognized option \&quot;%s\&quot;\n&quot;,argv[i]);
+***************
+*** 904,908 ****
+          return 0;
+  };
+!  
+  bool cPluginSoftDevice::Service(const char *Id, void *Data ) {
+          printf(&quot;Service '%s'\n&quot;,Id);
+--- 906,910 ----
+          return 0;
+  };
+! 
+  bool cPluginSoftDevice::Service(const char *Id, void *Data ) {
+          printf(&quot;Service '%s'\n&quot;,Id);
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.51
+retrieving revision 1.52
+diff -C2 -d -r1.51 -r1.52
+*** video-dfb.c	12 Mar 2006 09:43:28 -0000	1.51
+--- video-dfb.c	14 Apr 2006 18:56:34 -0000	1.52
+***************
+*** 1146,1150 ****
+  
+        tmpSurface-&gt;Flip();
+!               
+        int miny=0;
+        int maxy=0;
+--- 1146,1150 ----
+  
+        tmpSurface-&gt;Flip();
+! 
+        int miny=0;
+        int maxy=0;
+***************
+*** 1159,1163 ****
+                while (dirtyLines[maxy] &amp;&amp; maxy &lt; Yres)
+                        maxy++;
+! 	      
+                osdsrc.x = 0;
+                osdsrc.y = miny;
+--- 1159,1163 ----
+                while (dirtyLines[maxy] &amp;&amp; maxy &lt; Yres)
+                        maxy++;
+! 
+                osdsrc.x = 0;
+                osdsrc.y = miny;
+***************
+*** 1165,1173 ****
+                osdsrc.h = maxy-miny + 1;
+                tmpSurface-&gt;Blit(tmpSurface,&amp;osdsrc,0,miny);
+!               
+                miny=maxy;
+!              
+        } while ( miny&lt;Yres);
+!       
+      }
+      catch (DFBException *ex)
+--- 1165,1173 ----
+                osdsrc.h = maxy-miny + 1;
+                tmpSurface-&gt;Blit(tmpSurface,&amp;osdsrc,0,miny);
+! 
+                miny=maxy;
+! 
+        } while ( miny&lt;Yres);
+! 
+      }
+      catch (DFBException *ex)
+***************
+*** 1427,1430 ****
+--- 1427,1431 ----
+  
+        yv12_to_yuy2(Py + Ystride  * cutTop * 2 + cutLeft * 2,
++       //yv12_to_yuy2_il_c(Py + Ystride  * cutTop * 2 + cutLeft * 2,
+                     Pu + UVstride * cutTop + cutLeft,
+                     Pv + UVstride * cutTop + cutLeft,
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.47
+retrieving revision 1.48
+diff -C2 -d -r1.47 -r1.48
+*** video.c	12 Mar 2006 09:43:28 -0000	1.47
+--- video.c	14 Apr 2006 18:56:34 -0000	1.48
+***************
+*** 39,42 ****
+--- 39,45 ----
+    aspect_I = 0;
+    current_aspect = -1;
++   interlaceMode = -1;
++   prevZoomFactor = 0;
++   realZoomFactor = 1.0;
+    PixelMask=NULL;
+    OsdRefreshCounter=0;
+***************
+*** 69,73 ****
+      if (!OsdPy)
+         OsdPy=(uint8_t*)malloc(Ysize+8);
+!     if (!OsdPAlphaY) 
+      {
+         OsdPAlphaY=(uint8_t*)malloc(Ysize+8);
+--- 72,76 ----
+      if (!OsdPy)
+         OsdPy=(uint8_t*)malloc(Ysize+8);
+!     if (!OsdPAlphaY)
+      {
+         OsdPAlphaY=(uint8_t*)malloc(Ysize+8);
+***************
+*** 157,164 ****
+  /* ---------------------------------------------------------------------------
+   */
+  void cVideoOut::CheckAspect(int new_afd, double new_asp)
+  {
+!     int           new_aspect;
+!     double        d_asp, afd_asp, p_asp;
+  
+    /* -------------------------------------------------------------------------
+--- 160,273 ----
+  /* ---------------------------------------------------------------------------
+   */
++ void cVideoOut::AdjustToZoomFactor(int *tw, int *th)
++ {
++   if (prevZoomFactor != setupStore-&gt;zoomFactor ||
++       zoomCenterX != setupStore-&gt;zoomCenterX ||
++       zoomCenterY != setupStore-&gt;zoomCenterY ||
++       expandTopBottom != setupStore-&gt;expandTopBottomLines ||
++       expandLeftRight != setupStore-&gt;expandLeftRightCols)
++   {
++     prevZoomFactor = setupStore-&gt;zoomFactor;
++     zoomCenterX = setupStore-&gt;zoomCenterX;
++     zoomCenterY = setupStore-&gt;zoomCenterY;
++     realZoomFactor = (1.0 +
++                       (((double) prevZoomFactor * (double) prevZoomFactor) / 2)
++                         / 512.0);
++     expandTopBottom = setupStore-&gt;expandTopBottomLines;
++     expandLeftRight = setupStore-&gt;expandLeftRightCols;
++     /* -----------------------------------------------------------------------
++      * force recalculation for aspect ration handling
++      */
++     current_aspect = -1;
++   }
++ 
++   *th = (int) ((double) fheight / realZoomFactor);
++   *tw = (int) ((double) fwidth / realZoomFactor);
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ void cVideoOut::AdjustSourceArea(int tw, int th)
++ {
++     int dx, dy;
++ 
++   sxoff = (fwidth - swidth) / 2;
++   syoff = (fheight - sheight) / 2;
++ 
++   sxoff += (int) ((double) sxoff * ((double) zoomCenterX / 100.0));
++   syoff += (int) ((double) syoff * ((double) zoomCenterY / 100.0));
++ 
++   /* -------------------------------------------------------------------------
++    * handle user selected row/coloumn expansion
++    */
++   if ((dy = expandTopBottom * 2 - syoff) &gt; 0) {
++     syoff += dy;
++     sheight -= 2 * dy;
++   }
++   if ((dx = expandLeftRight * 2 - sxoff) &gt; 0) {
++     sxoff += dx;
++     swidth -= 2 * dx;
++   }
++ 
++   /* --------------------------------------------------------------------------
++    * adjust possible rounding errors. as we are in YV12 or similar mode,
++    * line offsets and coloumn offsets must be even.
++    */
++   if (syoff &amp; 1) {
++     syoff--;
++     if ((th - sheight) &gt; 1)
++       sheight += 2;
++   }
++ 
++   if (sxoff &amp; 1) {
++     sxoff--;
++     if ((tw - swidth) &gt; 1)
++       swidth += 2;
++   }
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ void cVideoOut::AdjustToDisplayGeometry(double afd_aspect)
++ {
++     double        d_asp, p_asp;
++ 
++   /* --------------------------------------------------------------------------
++    * handle screen aspect support now
++    */
++   p_asp = parValues [screenPixelAspect];
++   d_asp = (double) dwidth / (double) dheight;
++ 
++   if ((d_asp * p_asp) &gt; afd_aspect) {
++     /* ------------------------------------------------------------------------
++      * display aspect is wider than frame aspect
++      * so we have to pillar-box
++      */
++     lheight = dheight;
++     lwidth = (int) (0.5 + ((double) dheight * afd_aspect / p_asp));
++   } else {
++     /* ------------------------------------------------------------------------
++      * display aspect is taller or equal than frame aspect
++      * so we have to letter-box
++      */
++     lwidth = dwidth;
++     lheight = (int) (0.5 + ((double) dwidth * p_asp / afd_aspect));
++   }
++ 
++   /* -------------------------------------------------------------------------
++    * center result on display
++    */
++   lxoff = (dwidth - lwidth) / 2;
++   lyoff = (dheight - lheight) / 2;
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
+  void cVideoOut::CheckAspect(int new_afd, double new_asp)
+  {
+!     int           new_aspect,
+!                   tmpWidth,
+!                   tmpHeight;
+!     double        afd_asp;
+  
+    /* -------------------------------------------------------------------------
+***************
+*** 188,191 ****
+--- 297,302 ----
+    }
+  
++   AdjustToZoomFactor(&amp;tmpWidth, &amp;tmpHeight);
++ 
+    if (new_aspect == current_aspect &amp;&amp; new_afd == current_afd )
+    {
+***************
+*** 196,200 ****
+    aspect_changed = 1;
+  
+-   d_asp = (double) dwidth / (double) dheight;
+    switch (new_afd) {
+    /* --------------------------------------------------------------------------
+--- 307,310 ----
+***************
+*** 213,265 ****
+    }
+  
+!   sheight = fheight;
+!   swidth = fwidth;
+!   if (afd_asp &lt;= new_asp) {
+!     swidth = (int) (0.5 + ((double) fwidth * afd_asp / new_asp));
+!   } else {
+!     sheight = (int) (0.5 + ((double) fheight * new_asp / afd_asp));
+!   }
+!   sxoff = (fwidth - swidth) / 2;
+!   syoff = (fheight - sheight) / 2;
+! 
+!   /* --------------------------------------------------------------------------
+!    * adjust possible rounding errors. as we are in YV12 or similar mode,
+!    * line offsets and coloumn offsets must be even.
+!    */
+!   if (syoff &amp; 1) {
+!     syoff--;
+!     if ((fheight - sheight) &gt; 1)
+!       sheight += 2;
+!   }
+! 
+!   if (sxoff &amp; 1) {
+!     sxoff--;
+!     if ((fwidth - swidth) &gt; 1)
+!       swidth += 2;
+!   }
+! 
+!   /* --------------------------------------------------------------------------
+!    * handle screen aspect support now
+!    */
+!   p_asp = parValues [screenPixelAspect];
+  
+!   if ((d_asp * p_asp) &gt; afd_asp) {
+!     /* ------------------------------------------------------------------------
+!      * display aspect is wider than frame aspect
+!      * so we have to pillar-box
+!      */
+!     lheight = dheight;
+!     lwidth = (int) (0.5 + ((double) dheight * afd_asp / p_asp));
+    } else {
+!     /* ------------------------------------------------------------------------
+!      * display aspect is taller or equal than frame aspect
+!      * so we have to letter-box
+!      */
+!     lwidth = dwidth;
+!     lheight = (int) (0.5 + ((double) dwidth * p_asp / afd_asp));
+    }
+  
+!   lxoff = (dwidth - lwidth) / 2;
+!   lyoff = (dheight - lheight) / 2;
+  
+    dsyslog(&quot;[VideoOut]: %dx%d [%d,%d %dx%d] -&gt; %dx%d [%d,%d %dx%d]&quot;,
+--- 323,337 ----
+    }
+  
+!   sheight = tmpHeight;
+!   swidth = tmpWidth;
+  
+!   if (afd_asp &lt;= new_asp) {
+!     swidth = (int) (0.5 + ((double) tmpWidth * afd_asp / new_asp));
+    } else {
+!     sheight = (int) (0.5 + ((double) tmpHeight * new_asp / afd_asp));
+    }
+  
+!   AdjustSourceArea (tmpWidth, tmpHeight);
+!   AdjustToDisplayGeometry (afd_asp);
+  
+    dsyslog(&quot;[VideoOut]: %dx%d [%d,%d %dx%d] -&gt; %dx%d [%d,%d %dx%d]&quot;,
+***************
+*** 298,301 ****
+--- 370,379 ----
+    }
+  
++   if (interlaceMode != picture-&gt;interlaced_frame)
++   {
++     dsyslog(&quot;[VideoOut]: interlaced mode now: %sinterlaced&quot;,
++             (picture-&gt;interlaced_frame) ? &quot;&quot; : &quot;non-&quot;);
++     interlaceMode = picture-&gt;interlaced_frame;
++   }
+  #if LIBAVCODEC_BUILD &gt; 4686
+    /* --------------------------------------------------------------------------
+***************
+*** 472,476 ****
+            uint8_t *alpha,uint16_t count) {
+       // printf(&quot;%x %x %x \n&quot;,P1,P2,alpha);
+!  
+  #ifdef USE_MMX
+          __asm__(&quot; pxor %%mm3,%%mm3\n&quot;
+--- 550,554 ----
+            uint8_t *alpha,uint16_t count) {
+       // printf(&quot;%x %x %x \n&quot;,P1,P2,alpha);
+! 
+  #ifdef USE_MMX
+          __asm__(&quot; pxor %%mm3,%%mm3\n&quot;
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.31
+retrieving revision 1.32
+diff -C2 -d -r1.31 -r1.32
+*** video.h	12 Mar 2006 09:43:28 -0000	1.31
+--- video.h	14 Apr 2006 18:56:34 -0000	1.32
+***************
+*** 80,83 ****
+--- 80,88 ----
+      int     aspect_I;
+      double  aspect_F;
++ 
++     void    AdjustToZoomFactor(int *tw, int *th),
++             AdjustSourceArea(int tw, int th),
++             AdjustToDisplayGeometry(double afd_aspect);
++ 
+  protected:
+      inline double GetAspect_F()
+***************
+*** 91,98 ****
+      int     current_osdMode;
+      int     Xres, Yres, Bpp; // the child class MUST set these params (for OSD Drawing)
+!     int     dx, dy, 
+              dwidth, dheight,
+              old_x, old_y, old_dwidth, old_dheight,
+!             screenPixelAspect;
+      volatile int        fwidth, fheight;
+      int     swidth, sheight,
+--- 96,107 ----
+      int     current_osdMode;
+      int     Xres, Yres, Bpp; // the child class MUST set these params (for OSD Drawing)
+!     int     dx, dy,
+              dwidth, dheight,
+              old_x, old_y, old_dwidth, old_dheight,
+!             screenPixelAspect,
+!             prevZoomFactor,
+!             zoomCenterX,
+!             zoomCenterY;
+!     double  realZoomFactor;
+      volatile int        fwidth, fheight;
+      int     swidth, sheight,
+***************
+*** 106,111 ****
+--- 115,123 ----
+              cutTop, cutBottom,
+              cutLeft, cutRight,
++             expandTopBottom,
++             expandLeftRight,
+              aspect_changed,
+              current_afd,
++             interlaceMode,
+              displayTimeUS;
+      double  parValues[MAX_PAR];
+***************
+*** 123,127 ****
+      cVideoOut(cSetupStore *setupStore);
+      virtual ~cVideoOut();
+!     
+      virtual void Sync(cSyncTimer *syncTimer, int *delay);
+      virtual void YUV(uint8_t *Py, uint8_t *Pu, uint8_t *Pv, int Width, int Height, int Ystride, int UVstride) { return; };
+--- 135,139 ----
+      cVideoOut(cSetupStore *setupStore);
+      virtual ~cVideoOut();
+! 
+      virtual void Sync(cSyncTimer *syncTimer, int *delay);
+      virtual void YUV(uint8_t *Py, uint8_t *Pu, uint8_t *Pv, int Width, int Height, int Ystride, int UVstride) { return; };
+***************
+*** 154,164 ****
+      uint8_t *PixelMask;
+      uint8_t *OsdPy;
+!     uint8_t *OsdPu; 
+      uint8_t *OsdPv;
+!     uint8_t *OsdPAlphaY; 
+      uint8_t *OsdPAlphaUV;
+!     // buffers for software osd alpha blending 
+      void init_OsdBuffers();
+!     
+      int OsdHeight;
+      int OsdWidth;
+--- 166,176 ----
+      uint8_t *PixelMask;
+      uint8_t *OsdPy;
+!     uint8_t *OsdPu;
+      uint8_t *OsdPv;
+!     uint8_t *OsdPAlphaY;
+      uint8_t *OsdPAlphaUV;
+!     // buffers for software osd alpha blending
+      void init_OsdBuffers();
+! 
+      int OsdHeight;
+      int OsdWidth;
+***************
+*** 166,173 ****
+  private:
+      int     Osd_changed;
+!    
+      uint16_t OsdRefreshCounter;
+!     // should be setted to null everytime OSD is shown 
+!     // (software alpha blending mode).  
+  public:
+      virtual void ClearOSD();
+--- 178,185 ----
+  private:
+      int     Osd_changed;
+! 
+      uint16_t OsdRefreshCounter;
+!     // should be setted to null everytime OSD is shown
+!     // (software alpha blending mode).
+  public:
+      virtual void ClearOSD();
+***************
+*** 186,198 ****
+      // for scaling, if -1,-1 is returned no scaling is done.
+      { OsdWidth=-1;OsdHeight=-1; xPan = yPan = 0;};
+!      
+!     virtual void GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed, 
+                      bool &amp;IsYUV, uint8_t *&amp;PixelMask)
+!     { Depth=32; HasAlpha=true; AlphaInversed=false; IsYUV=false; 
+              PixelMask=NULL;};
+      // should be implemented by all video out method to set the OSD pixel mode
+  
+      // RGB modes
+!     virtual void GetLockOsdSurface(uint8_t *&amp;osd, int &amp;stride, 
+                      bool *&amp;dirtyLines)
+      { osd=NULL; stride=0; dirtyLines=NULL;};
+--- 198,210 ----
+      // for scaling, if -1,-1 is returned no scaling is done.
+      { OsdWidth=-1;OsdHeight=-1; xPan = yPan = 0;};
+! 
+!     virtual void GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+                      bool &amp;IsYUV, uint8_t *&amp;PixelMask)
+!     { Depth=32; HasAlpha=true; AlphaInversed=false; IsYUV=false;
+              PixelMask=NULL;};
+      // should be implemented by all video out method to set the OSD pixel mode
+  
+      // RGB modes
+!     virtual void GetLockOsdSurface(uint8_t *&amp;osd, int &amp;stride,
+                      bool *&amp;dirtyLines)
+      { osd=NULL; stride=0; dirtyLines=NULL;};
+***************
+*** 211,215 ****
+      virtual void CommitUnlockSoftOsdSurface( int osdwidth, int osdheight)
+      { OSDpresent=true; OsdWidth=osdwidth; OsdHeight=osdheight; Osd_changed=1;};
+!       
+     void AlphaBlend(uint8_t *dest,uint8_t *P1,uint8_t *P2,
+         uint8_t *alpha,uint16_t count);
+--- 223,227 ----
+      virtual void CommitUnlockSoftOsdSurface( int osdwidth, int osdheight)
+      { OSDpresent=true; OsdWidth=osdwidth; OsdHeight=osdheight; Osd_changed=1;};
+! 
+     void AlphaBlend(uint8_t *dest,uint8_t *P1,uint8_t *P2,
+         uint8_t *alpha,uint16_t count);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000317.html">[Softdevice-cvs] softdevice video-xv.h,1.17,1.18 video-xv.c,1.49,1.50
+</A></li>
+	<LI>Next message: <A HREF="000319.html">[Softdevice-cvs] softdevice CHANGELOG,1.168,1.169 mpeg2decoder.c,1.62,1.63 mpeg2decoder.h,1.35,1.36
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#318">[ date ]</a>
+              <a href="thread.html#318">[ thread ]</a>
+              <a href="subject.html#318">[ subject ]</a>
+              <a href="author.html#318">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

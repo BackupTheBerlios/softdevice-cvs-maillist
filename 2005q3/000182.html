@@ -1,0 +1,163 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice mpeg2decoder.c,1.50,1.51 mpeg2decoder.h,1.30,1.31
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20mpeg2decoder.c%2C1.50%2C1.51%20mpeg2decoder.h%2C1.30%2C1.31&In-Reply-To=%3C200508081025.j78AP5J07027%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000181.html">
+   <LINK REL="Next"  HREF="000183.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice mpeg2decoder.c,1.50,1.51 mpeg2decoder.h,1.30,1.31</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20mpeg2decoder.c%2C1.50%2C1.51%20mpeg2decoder.h%2C1.30%2C1.31&In-Reply-To=%3C200508081025.j78AP5J07027%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice mpeg2decoder.c,1.50,1.51 mpeg2decoder.h,1.30,1.31">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon Aug  8 12:25:05 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000181.html">[Softdevice-cvs] softplay README,1.4,1.5
+</A></li>
+        <LI>Next message: <A HREF="000183.html">[Softdevice-cvs] softdevice CHANGELOG,1.100,1.101 softdevice.c,1.38,1.39 video-dfb.c,1.36,1.37
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#182">[ date ]</a>
+              <a href="thread.html#182">[ thread ]</a>
+              <a href="subject.html#182">[ subject ]</a>
+              <a href="author.html#182">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv2845
+
+Modified Files:
+	mpeg2decoder.c mpeg2decoder.h 
+Log Message:
+- stop the clock in pause mode (for Softplay)
+
+
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.50
+retrieving revision 1.51
+diff -C2 -d -r1.50 -r1.51
+*** mpeg2decoder.c	31 Jul 2005 08:38:41 -0000	1.50
+--- mpeg2decoder.c	8 Aug 2005 10:25:03 -0000	1.51
+***************
+*** 118,128 ****
+  int64_t cClock::videoOffset=0;
+  int64_t cClock::videoPTS=0;
+  
+  int64_t  cClock::GetPTS() {
+    //MPGDEB(&quot;audioOffset %lld time %lld\n&quot;,audioOffset,GetTime());
+    if ( audioOffset )
+!      return GetTime()+audioOffset;
+    else if ( videoOffset )
+!      return GetTime()+videoOffset;
+    else return 0;
+  };
+--- 118,129 ----
+  int64_t cClock::videoOffset=0;
+  int64_t cClock::videoPTS=0;
++ bool cClock::freezeMode=true;
+  
+  int64_t  cClock::GetPTS() {
+    //MPGDEB(&quot;audioOffset %lld time %lld\n&quot;,audioOffset,GetTime());
+    if ( audioOffset )
+!      return freezeMode ? audioPTS : GetTime()+audioOffset;
+    else if ( videoOffset )
+!      return freezeMode ? videoPTS : GetTime()+videoOffset;
+    else return 0;
+  };
+***************
+*** 1349,1352 ****
+--- 1350,1355 ----
+      if (vout)
+        vout-&gt;Play();
++ 
++     cClock::SetFreezeMode(false);
+    };
+  };
+***************
+*** 1386,1389 ****
+--- 1389,1394 ----
+      if (vout)
+        vout-&gt;Freeze();
++ 
++     cClock::SetFreezeMode(true);
+    };
+  };
+
+Index: mpeg2decoder.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.h,v
+retrieving revision 1.30
+retrieving revision 1.31
+diff -C2 -d -r1.30 -r1.31
+*** mpeg2decoder.h	31 Jul 2005 08:38:41 -0000	1.30
+--- mpeg2decoder.h	8 Aug 2005 10:25:03 -0000	1.31
+***************
+*** 52,58 ****
+      static int64_t videoOffset;
+      static int64_t videoPTS;
+  
+  public:
+!     cClock() {audioOffset=0;videoOffset=0;};
+      virtual ~cClock() {};
+  
+--- 52,60 ----
+      static int64_t videoOffset;
+      static int64_t videoPTS;
++     static bool freezeMode;
+  
+  public:
+!     cClock() {audioOffset=0;videoOffset=0;audioPTS=0;videoPTS=0;
+!         freezeMode=true;};
+      virtual ~cClock() {};
+  
+***************
+*** 79,82 ****
+--- 81,88 ----
+      };
+     
++     static inline void SetFreezeMode(bool FreezeMode) {
++       freezeMode=FreezeMode;
++     };
++ 
+      int64_t GetPTS();
+  };	
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000181.html">[Softdevice-cvs] softplay README,1.4,1.5
+</A></li>
+	<LI>Next message: <A HREF="000183.html">[Softdevice-cvs] softdevice CHANGELOG,1.100,1.101 softdevice.c,1.38,1.39 video-dfb.c,1.36,1.37
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#182">[ date ]</a>
+              <a href="thread.html#182">[ thread ]</a>
+              <a href="subject.html#182">[ subject ]</a>
+              <a href="author.html#182">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

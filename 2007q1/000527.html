@@ -1,0 +1,425 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice video-fb.c, 1.17, 1.18 video-fb.h, 1.9,	1.10 CHANGELOG, 1.300, 1.301
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-fb.c%2C%201.17%2C%201.18%20video-fb.h%2C%201.9%2C%0A%091.10%20CHANGELOG%2C%201.300%2C%201.301&In-Reply-To=%3C20070325091009.93B81DE8F3%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000526.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice video-fb.c, 1.17, 1.18 video-fb.h, 1.9,	1.10 CHANGELOG, 1.300, 1.301</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-fb.c%2C%201.17%2C%201.18%20video-fb.h%2C%201.9%2C%0A%091.10%20CHANGELOG%2C%201.300%2C%201.301&In-Reply-To=%3C20070325091009.93B81DE8F3%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice video-fb.c, 1.17, 1.18 video-fb.h, 1.9,	1.10 CHANGELOG, 1.300, 1.301">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Mar 25 11:10:09 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000526.html">[Softdevice-cvs] softdevice video.h,1.51,1.52
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#527">[ date ]</a>
+              <a href="thread.html#527">[ thread ]</a>
+              <a href="subject.html#527">[ subject ]</a>
+              <a href="author.html#527">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv18227
+
+Modified Files:
+	video-fb.c video-fb.h CHANGELOG 
+Log Message:
+- almost complete rewrite of video-fb. Supported are now 15,16,24 and 32 bit
+   depth framebuffers. The osd is rendered with software alpha blending,
+   and it is even faster :-)
+
+
+
+Index: video-fb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-fb.c,v
+retrieving revision 1.17
+retrieving revision 1.18
+diff -C2 -d -r1.17 -r1.18
+*** video-fb.c	11 Nov 2006 08:45:17 -0000	1.17
+--- video-fb.c	25 Mar 2007 09:08:22 -0000	1.18
+***************
+*** 46,51 ****
+      fb_orig_vinfo = fb_vinfo;
+  
+!     switch (fb_finfo.visual) {
+  
+         case FB_VISUAL_TRUECOLOR:
+             printf(&quot;[video-fb] Truecolor FB found\n&quot;);
+--- 46,78 ----
+      fb_orig_vinfo = fb_vinfo;
+  
+!     size = fb_finfo.smem_len;
+!     line_len = fb_finfo.line_length;
+!     if ((fb = (unsigned char *) mmap(0, size, PROT_READ | PROT_WRITE, MAP_SHARED, fbdev, 0)) == (unsigned char *) -1) {
+!         printf(&quot;[video-fb] Can't mmap\n&quot;);
+!         exit(1);
+!     }
+  
++     // set up picture buffer;
++     privBuf.pixel[0]=fb;
++     privBuf.stride[0]=line_len;
++     if (fb_vinfo.red.length==5 &amp;&amp; fb_vinfo.green.length==5
++          &amp;&amp; fb_vinfo.blue.length==5 ) 
++             Bpp=15;
++     else Bpp=fb_vinfo.bits_per_pixel;
++     switch (Bpp) {
++             case 32 : privBuf.format=PIX_FMT_RGBA32;
++                       break;
++             case 24 : privBuf.format=PIX_FMT_RGB24;
++                       break;
++             case 16 : 
++                       privBuf.format=PIX_FMT_RGB565;
++                       break;
++             default:
++                       privBuf.format=PIX_FMT_RGB555;
++     };
++     privBuf.max_width=dwidth=fb_vinfo.xres;
++     privBuf.max_height=dheight=fb_vinfo.yres;
++ 
++     switch (fb_finfo.visual) {
+         case FB_VISUAL_TRUECOLOR:
+             printf(&quot;[video-fb] Truecolor FB found\n&quot;);
+***************
+*** 59,63 ****
+             printf(&quot;[video-fb] DirectColor FB found\n&quot;);
+  
+!            orig_cmaplen = 32;
+             orig_cmap = (__u16 *) malloc ( 3 * orig_cmaplen * sizeof(*orig_cmap) );
+  
+--- 86,90 ----
+             printf(&quot;[video-fb] DirectColor FB found\n&quot;);
+  
+!            orig_cmaplen = 1&lt;&lt;fb_vinfo.green.length;
+             orig_cmap = (__u16 *) malloc ( 3 * orig_cmaplen * sizeof(*orig_cmap) );
+  
+***************
+*** 82,86 ****
+                 green[i] = (65535/(orig_cmaplen+1))*i;
+                 blue[i] =  (65535/(orig_cmaplen+1))*i;
+-                //(i&lt;&lt;8)|i;
+             }
+  
+--- 109,112 ----
+***************
+*** 100,210 ****
+  
+         default:
+!            printf(&quot;cFBVideoOut: Unsupported FB. Don't know if it will work.\n&quot;);
+!     }
+! 
+! 
+!     // currently we support only 16 bit FB's
+! 
+!     size = fb_finfo.smem_len;
+!     line_len = fb_finfo.line_length;
+!     if ((fb = (unsigned char *) mmap(0, size, PROT_READ | PROT_WRITE, MAP_SHARED, fbdev, 0)) == (unsigned char *) -1) {
+!         printf(&quot;[video-fb] Can't mmap\n&quot;);
+!         exit(1);
+!     }
+! 
+!     Xres=fb_vinfo.xres;
+!     Yres=fb_vinfo.yres;
+!     Bpp = fb_vinfo.bits_per_pixel;
+!     if (Bpp != 16 &amp;&amp; Bpp != 15) {
+!         printf (&quot;[video-fb] In software-mode only 15/16 bit Framebuffer supported\n&quot;);
+!         exit(1);
+      }
+  
+-     // set rgb unpack method
+-     mmx_unpack=mmx_unpack_16rgb;
+-     if (fb_vinfo.red.length==5 &amp;&amp; fb_vinfo.green.length==5
+-          &amp;&amp; fb_vinfo.blue.length==5 ) {
+-       mmx_unpack=mmx_unpack_15rgb;
+-       printf(&quot;[video-fb] Using mmx_unpack_15rgb\n&quot;);
+-     };
+- 
+-     int OsdYres=Yres&gt;OSD_FULL_HEIGHT?Yres:OSD_FULL_HEIGHT;
+-     PixelMask = (unsigned char *)malloc(OsdYres*line_len / ((Bpp+7) / 8) / 8); // where the Video window should be transparent
+- 
+-     OSDpresent=false;
+- 
+      printf(&quot;[video-fb] init %d x %d (Size: %zu Bytes LineLen %d) Bpp: %d\n&quot;,fb_vinfo.xres, fb_vinfo.yres, size, line_len, fb_vinfo.bits_per_pixel);
+      // clear screens
+      printf(&quot;[video-fb] Clearing the FB\n&quot;);
+-     unsigned char * fbinit;
+-     fbinit=fb;
+-     for (int i = 0; i &lt;Yres*line_len; i++) {
+-         *fbinit=0;
+-         fbinit++;
+-     }
+-     screenPixelAspect = -1;
+- }
+  
+! /* ---------------------------------------------------------------------------
+!  */
+! void cFBVideoOut::Pause(void)
+! {
+! }
+  
+! /* ---------------------------------------------------------------------------
+!  */
+! void cFBVideoOut::OpenOSD()
+! {
+!   cVideoOut::OpenOSD();
+!   //OSDxOfs = X &amp; ~7;
+!   //OSDyOfs = Y &amp; ~1;
+  }
+  
+  /* ---------------------------------------------------------------------------
+   */
+- void cFBVideoOut::ClearOSD()
+- {
+-   cVideoOut::ClearOSD();
+-   if (videoInitialized &amp;&amp; PixelMask)
+-     memset(PixelMask, 0, Xres * Yres/8);
+- };
+- 
+- /* ---------------------------------------------------------------------------
+-  */
+  void cFBVideoOut::GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight,
+!                                   int &amp;xPan, int &amp;yPan) {
+!    switch (current_osdMode) {
+!       case OSDMODE_PSEUDO :
+!                 OsdWidth=Xres;
+!                 OsdHeight=Yres;
+!                 xPan = yPan = 0;
+!              break;
+!     }
+! }
+! 
+! /* ---------------------------------------------------------------------------
+!  */
+! void cFBVideoOut::GetLockOsdSurface(uint8_t *&amp;osd, int &amp;stride,
+!                   bool *&amp;dirtyLines)
+! {
+!   pthread_mutex_lock(&amp;fb_mutex);
+! 
+!   osd = NULL;
+!   stride = 0;
+!   if (!videoInitialized)
+!     return;
+! 
+!   osd=fb;
+!   stride=line_len;
+!   dirtyLines=NULL;
+! }
+! 
+! /* ---------------------------------------------------------------------------
+!  */
+! void cFBVideoOut::CommitUnlockOsdSurface()
+! {
+!   pthread_mutex_unlock(&amp;fb_mutex);
+!   cVideoOut::CommitUnlockOsdSurface();
+! }
+  
+  /* ---------------------------------------------------------------------------
+--- 126,150 ----
+  
+         default:
+!            printf(&quot;cFBVideoOut: Unsupported FB(%d). Don't know if it will work.\n&quot;,fb_finfo.visual);
+      }
+  
+      printf(&quot;[video-fb] init %d x %d (Size: %zu Bytes LineLen %d) Bpp: %d\n&quot;,fb_vinfo.xres, fb_vinfo.yres, size, line_len, fb_vinfo.bits_per_pixel);
+      // clear screens
+      printf(&quot;[video-fb] Clearing the FB\n&quot;);
+  
+!     ClearPicBuffer(&amp;privBuf);
+  
+!     screenPixelAspect = -1;
+  }
+  
+  /* ---------------------------------------------------------------------------
+   */
+  void cFBVideoOut::GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight,
+!                 int &amp;xPan, int &amp;yPan) {
+!   OsdWidth=swidth;
+!   OsdHeight=sheight;
+!   xPan = sxoff;
+!   yPan = syoff;
+! };
+  
+  /* ---------------------------------------------------------------------------
+***************
+*** 212,226 ****
+  void cFBVideoOut::YUV(sPicBuffer *buf)
+  {
+-   uint8_t *Py=buf-&gt;pixel[0]
+-                 +(buf-&gt;edge_height)*buf-&gt;stride[0]
+-                 +buf-&gt;edge_width;
+-   uint8_t *Pu=buf-&gt;pixel[1]+(buf-&gt;edge_height/2)*buf-&gt;stride[1]
+-                 +buf-&gt;edge_width/2;
+-   uint8_t *Pv=buf-&gt;pixel[2]+(buf-&gt;edge_height/2)*buf-&gt;stride[2]
+-                 +buf-&gt;edge_width/2;
+-   int Ystride=buf-&gt;stride[0];
+-   int UVstride=buf-&gt;stride[1];
+-   int Width=buf-&gt;width;
+-   int Height=buf-&gt;height;
+  
+    if (!videoInitialized)
+--- 152,155 ----
+***************
+*** 228,244 ****
+  
+    pthread_mutex_lock(&amp;fb_mutex);
+!   if (OSDpresent) {
+!     yuv_to_rgb (fb, Py, Pu, Pv,
+!                 Width, Height, line_len,
+!                 Ystride,UVstride,
+!                 Xres,Yres,
+!                 Bpp, PixelMask, setupStore-&gt;deintMethod);
+!   } else {
+!     yuv_to_rgb (fb, Py, Pu, Pv,
+!                 Width, Height, line_len,
+!                 Ystride,UVstride,
+!                 Xres,Yres,
+!                 Bpp, NULL, setupStore-&gt;deintMethod);
+    }
+    pthread_mutex_unlock(&amp;fb_mutex);
+  }
+--- 157,190 ----
+  
+    pthread_mutex_lock(&amp;fb_mutex);
+!   if (aspect_changed ||
+!       cutTop != setupStore-&gt;cropTopLines ||
+!       cutBottom != setupStore-&gt;cropBottomLines ||
+!       cutLeft != setupStore-&gt;cropLeftCols ||
+!       cutRight != setupStore-&gt;cropRightCols)
+!   {
+!     aspect_changed = 0;
+!     cutTop = setupStore-&gt;cropTopLines;
+!     cutBottom = setupStore-&gt;cropBottomLines;
+!     cutLeft = setupStore-&gt;cropLeftCols;
+!     cutRight = setupStore-&gt;cropRightCols;
+!     ClearPicBuffer(&amp;privBuf);
+    }
++   if ( OSDpresent ) {
++     CopyScalePicBufAlphaBlend(&amp;privBuf,buf,
++         sxoff, syoff,
++         swidth, sheight,
++         lxoff,  lyoff,
++         lwidth, lheight,
++         OsdPy,OsdPu,OsdPv,
++         OsdPAlphaY,OsdPAlphaUV,OSD_FULL_WIDTH,
++         cutTop,cutBottom,cutLeft,cutRight);
++   } else {
++     CopyScalePicBuf(&amp;privBuf, buf,                   
++         sxoff, syoff,
++         swidth, sheight,
++         lxoff,  lyoff,    
++         lwidth, lheight,
++         cutTop,cutBottom,cutLeft,cutRight);
++   };
+    pthread_mutex_unlock(&amp;fb_mutex);
+  }
+
+Index: video-fb.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-fb.h,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -C2 -d -r1.9 -r1.10
+*** video-fb.h	11 Nov 2006 08:45:17 -0000	1.9
+--- video-fb.h	25 Mar 2007 09:08:22 -0000	1.10
+***************
+*** 22,44 ****
+    __u16 * orig_cmap;
+  
+-   uint8_t *PixelMask;
+    size_t size;
+    int line_len;
+    unsigned char * fb;	// Framebuffer memory
+  public:
+    cFBVideoOut(cSetupStore *setupStore);
+    virtual ~cFBVideoOut();
+-   virtual void OpenOSD();
+-   virtual void ClearOSD();
+    virtual void GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+  		  bool &amp;IsYUV, uint8_t *&amp;pixelmask)
+!   { Depth=16;HasAlpha=false;IsYUV=false;pixelmask=PixelMask; };
+!   virtual void GetLockOsdSurface(uint8_t *&amp;osd, int &amp;stride,
+!                   bool *&amp;dirtyLines);
+!   virtual void CommitUnlockOsdSurface();
+    virtual void GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight,
+                                 int &amp;xPan, int &amp;yPan);
+    virtual void YUV(sPicBuffer *Pic);
+-   virtual void Pause(void);
+  };
+  
+--- 22,38 ----
+    __u16 * orig_cmap;
+  
+    size_t size;
+    int line_len;
+    unsigned char * fb;	// Framebuffer memory
++   sPicBuffer privBuf;
+  public:
+    cFBVideoOut(cSetupStore *setupStore);
+    virtual ~cFBVideoOut();
+    virtual void GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+  		  bool &amp;IsYUV, uint8_t *&amp;pixelmask)
+!   { IsYUV=true;};
+    virtual void GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight,
+                                 int &amp;xPan, int &amp;yPan);
+    virtual void YUV(sPicBuffer *Pic);
+  };
+  
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.300
+retrieving revision 1.301
+diff -C2 -d -r1.300 -r1.301
+*** CHANGELOG	25 Mar 2007 09:00:11 -0000	1.300
+--- CHANGELOG	25 Mar 2007 09:08:22 -0000	1.301
+***************
+*** 3,6 ****
+--- 3,9 ----
+     - fix types in GetTime().
+     - pts values are stored in uint64_t
++    - almost complete rewrite of video-fb. Supported are now 15,16,24 and 32 bit
++      depth framebuffers. The osd is rendered with software alpha blending,
++      and it is even faster :-)
+  2007-03-12:
+     - compile fix for recent ffmpeg SVN
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000526.html">[Softdevice-cvs] softdevice video.h,1.51,1.52
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#527">[ date ]</a>
+              <a href="thread.html#527">[ thread ]</a>
+              <a href="subject.html#527">[ subject ]</a>
+              <a href="author.html#527">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

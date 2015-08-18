@@ -1,0 +1,232 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice mpeg2decoder.c,1.33,1.34 mpeg2decoder.h,1.21,1.22
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20mpeg2decoder.c%2C1.33%2C1.34%20mpeg2decoder.h%2C1.21%2C1.22&In-Reply-To=%3C200505161554.j4GFsom00823%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000111.html">
+   <LINK REL="Next"  HREF="000114.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice mpeg2decoder.c,1.33,1.34 mpeg2decoder.h,1.21,1.22</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20mpeg2decoder.c%2C1.33%2C1.34%20mpeg2decoder.h%2C1.21%2C1.22&In-Reply-To=%3C200505161554.j4GFsom00823%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice mpeg2decoder.c,1.33,1.34 mpeg2decoder.h,1.21,1.22">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon May 16 17:54:50 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000111.html">[Softdevice-cvs] softdevice video-dfb.c,1.25,1.26 video-vidix.c,1.6,1.7 video-xv.c,1.22,1.23 video.c,1.16,1.17 video.h,1.10,1.11
+</A></li>
+        <LI>Next message: <A HREF="000114.html">[Softdevice-cvs] softplay PlayList.c,1.2,1.3 PlayList.h,1.2,1.3 SoftPlayer.c,1.4,1.5 SoftPlayer.h,1.4,1.5 softplay.c,1.4,1.5 softplay.h,1.1,1.2
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#112">[ date ]</a>
+              <a href="thread.html#112">[ thread ]</a>
+              <a href="subject.html#112">[ subject ]</a>
+              <a href="author.html#112">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv29922
+
+Modified Files:
+	mpeg2decoder.c mpeg2decoder.h 
+Log Message:
+- use duration for frametime if provided by avpacket
+
+
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.33
+retrieving revision 1.34
+diff -C2 -d -r1.33 -r1.34
+*** mpeg2decoder.c	8 May 2005 21:39:39 -0000	1.33
+--- mpeg2decoder.c	16 May 2005 15:54:48 -0000	1.34
+***************
+*** 397,401 ****
+  
+    // init A-V syncing variables
+-   frametime=DEFAULT_FRAMETIME;
+    syncOnAudio=1;
+    offset=0;
+--- 397,400 ----
+***************
+*** 405,409 ****
+    syncTimer-&gt;Reset();
+  
+!   frametime = DEFAULT_FRAMETIME * Trickspeed;
+    syncOnAudio = ( Trickspeed == 1);
+  
+--- 404,409 ----
+    syncTimer-&gt;Reset();
+  
+!   default_frametime = DEFAULT_FRAMETIME;
+!   trickspeed = Trickspeed;
+    syncOnAudio = ( Trickspeed == 1);
+  
+***************
+*** 445,448 ****
+--- 445,449 ----
+          &amp;&amp; lastPTS != (int64_t) AV_NOPTS_VALUE ) {
+        pts_values[lastPTSidx].pts = lastPTS;
++       pts_values[lastPTSidx].duration = lastDuration;
+        pts_values[lastPTSidx].coded_frame_no = 
+          context-&gt;coded_frame-&gt;coded_picture_number;
+***************
+*** 456,461 ****
+      };
+      
+!     if (pkt-&gt;pts != (int64_t) AV_NOPTS_VALUE)
+           lastPTS=pkt-&gt;pts;
+  
+      if (!got_picture)
+--- 457,467 ----
+      };
+      
+!     if (pkt-&gt;pts != (int64_t) AV_NOPTS_VALUE) {
+           lastPTS=pkt-&gt;pts;
++ 	 lastDuration=pkt-&gt;duration;
++ 	 if (lastDuration)
++ 	 	default_frametime=lastDuration/1000;
++ 		
++     };
+  
+      if (!got_picture)
+***************
+*** 560,583 ****
+    // calculate pts correction. Max. correction is 1/10 frametime.
+    pts_corr = offset * 10;
+!   if (pts_corr &gt; frametime*100*2 )
+!     pts_corr = frametime*100*2;
+!   else if (pts_corr &lt; -frametime*100*2)
+!     pts_corr =-frametime*100*2;
+  
+    // calculate delay
+!   delay += ( frametime *1000 - pts_corr ) ;
+    // update video pts 
+!   pts += frametime*10;
+    // so that pts - delay/1000 is always the current PTS
+   
+!   if (delay &gt; 2*frametime*1000)
+!     delay = 2*frametime*1000;
+!   else if (delay &lt; -2*frametime*1000)
+!     delay = -2*frametime*1000;    
+  
+  
+!   if (offset &gt;  8*frametime*10)
+       hurry_up=1;
+!   else if ( (offset &lt; 2*frametime*10) &amp;&amp; (hurry_up &gt; 0) )
+       hurry_up=0;
+  
+--- 566,589 ----
+    // calculate pts correction. Max. correction is 1/10 frametime.
+    pts_corr = offset * 10;
+!   if (pts_corr &gt; frametime()*100*2 )
+!     pts_corr = frametime()*100*2;
+!   else if (pts_corr &lt; -frametime()*100*2)
+!     pts_corr =-frametime()*100*2;
+  
+    // calculate delay
+!   delay += ( frametime() *1000 - pts_corr ) ;
+    // update video pts 
+!   pts += frametime()*10;
+    // so that pts - delay/1000 is always the current PTS
+   
+!   if (delay &gt; 2*frametime()*1000)
+!     delay = 2*frametime()*1000;
+!   else if (delay &lt; -2*frametime()*1000)
+!     delay = -2*frametime()*1000;    
+  
+  
+!   if (offset &gt;  8*frametime()*10)
+       hurry_up=1;
+!   else if ( (offset &lt; 2*frametime()*10) &amp;&amp; (hurry_up &gt; 0) )
+       hurry_up=0;
+  
+***************
+*** 630,634 ****
+  void cVideoStreamDecoder::TrickSpeed(int Speed)
+  {
+!   frametime = DEFAULT_FRAMETIME * Speed;
+    syncOnAudio = ( Speed == 1);
+  }
+--- 636,640 ----
+  void cVideoStreamDecoder::TrickSpeed(int Speed)
+  {
+!   trickspeed = Speed;
+    syncOnAudio = ( Speed == 1);
+  }
+
+Index: mpeg2decoder.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.h,v
+retrieving revision 1.21
+retrieving revision 1.22
+diff -C2 -d -r1.21 -r1.22
+*** mpeg2decoder.h	1 May 2005 10:24:02 -0000	1.21
+--- mpeg2decoder.h	16 May 2005 15:54:48 -0000	1.22
+***************
+*** 167,174 ****
+--- 167,176 ----
+         int coded_frame_no;
+         int64_t pts;
++        int duration;
+      } pts_values[NO_PTS_VALUES];
+      int lastPTSidx;
+      int lastCodedPictNo;
+      int64_t lastPTS;
++     int lastDuration;
+      AVFrame             *picture;
+      AVPicture           avpic_src, avpic_dest;
+***************
+*** 190,194 ****
+      int                offset;
+      int                delay;
+!     int                frametime;
+  
+      uchar   *allocatePicBuf(uchar *pic_buf);
+--- 192,199 ----
+      int                offset;
+      int                delay;
+!     int                trickspeed;
+!     int                default_frametime;
+!     inline int frametime() 
+!     {return trickspeed*default_frametime;};
+  
+      uchar   *allocatePicBuf(uchar *pic_buf);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000111.html">[Softdevice-cvs] softdevice video-dfb.c,1.25,1.26 video-vidix.c,1.6,1.7 video-xv.c,1.22,1.23 video.c,1.16,1.17 video.h,1.10,1.11
+</A></li>
+	<LI>Next message: <A HREF="000114.html">[Softdevice-cvs] softplay PlayList.c,1.2,1.3 PlayList.h,1.2,1.3 SoftPlayer.c,1.4,1.5 SoftPlayer.h,1.4,1.5 softplay.c,1.4,1.5 softplay.h,1.1,1.2
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#112">[ date ]</a>
+              <a href="thread.html#112">[ thread ]</a>
+              <a href="subject.html#112">[ subject ]</a>
+              <a href="author.html#112">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

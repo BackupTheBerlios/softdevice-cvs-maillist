@@ -1,0 +1,388 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice video-xv.h,1.17,1.18 video-xv.c,1.49,1.50
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-xv.h%2C1.17%2C1.18%20video-xv.c%2C1.49%2C1.50&In-Reply-To=%3C200604141555.k3EFtrt21259%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000316.html">
+   <LINK REL="Next"  HREF="000318.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice video-xv.h,1.17,1.18 video-xv.c,1.49,1.50</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-xv.h%2C1.17%2C1.18%20video-xv.c%2C1.49%2C1.50&In-Reply-To=%3C200604141555.k3EFtrt21259%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice video-xv.h,1.17,1.18 video-xv.c,1.49,1.50">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Apr 14 17:55:53 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000316.html">[Softdevice-cvs] softdevice utils.h,1.5,1.6 utils.c,1.10,1.11
+</A></li>
+        <LI>Next message: <A HREF="000318.html">[Softdevice-cvs] softdevice CHANGELOG,1.167,1.168 README,1.15,1.16 i18n.c,1.17,1.18 setup-softdevice-menu.c,1.1,1.2 setup-softdevice.c,1.40,1.41 setup-softdevice.h,1.25,1.26 softdevice.c,1.54,1.55 video-dfb.c,1.51,1.52 video.c,1.47,1.48 video.h,1.31,1.32
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#317">[ date ]</a>
+              <a href="thread.html#317">[ thread ]</a>
+              <a href="subject.html#317">[ subject ]</a>
+              <a href="author.html#317">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv26336
+
+Modified Files:
+	video-xv.h video-xv.c 
+Log Message:
+some preparations for some more XvImage formats (not yet selectable)
+
+Index: video-xv.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.h,v
+retrieving revision 1.17
+retrieving revision 1.18
+diff -C2 -d -r1.17 -r1.18
+*** video-xv.h	31 Mar 2006 19:21:32 -0000	1.17
+--- video-xv.h	14 Apr 2006 15:56:17 -0000	1.18
+***************
+*** 40,43 ****
+--- 40,44 ----
+  
+  #define FOURCC_YV12       0x32315659   /* 4:2:0 Planar: Y + V + U  (3 planes) */
++ #define FOURCC_I420       0x30323449   /* 4:2:0 Planar: Y + U + V  (3 planes) */
+  #define FOURCC_YUY2       0x32595559   /* 4:2:2 Packed: Y0+U0+Y1+V0 (1 plane) */
+  
+***************
+*** 155,158 ****
+--- 156,160 ----
+    int   GetScreenWidth(void),
+          GetScreenHeight();
++   void  ClearXvArea(uint8_t y, uint8_t u, uint8_t v);
+  
+  public:
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.49
+retrieving revision 1.50
+diff -C2 -d -r1.49 -r1.50
+*** video-xv.c	1 Apr 2006 08:45:35 -0000	1.49
+--- video-xv.c	14 Apr 2006 15:56:17 -0000	1.50
+***************
+*** 1023,1027 ****
+                            osd_max_width, osd_max_height,
+                            osd_image-&gt;bytes_per_line);
+!   }; 
+    rc = XClearArea (dpy, win, 0, 0, 0, 0, True);
+  
+--- 1023,1027 ----
+                            osd_max_width, osd_max_height,
+                            osd_image-&gt;bytes_per_line);
+!   };
+    rc = XClearArea (dpy, win, 0, 0, 0, 0, True);
+  
+***************
+*** 1064,1068 ****
+    dsyslog(&quot;[XvVideoOut]: initialized OK&quot;);
+  
+!   if (setupStore-&gt;xvFullscreen) 
+    {
+      toggleFullScreen();
+--- 1064,1068 ----
+    dsyslog(&quot;[XvVideoOut]: initialized OK&quot;);
+  
+!   if (setupStore-&gt;xvFullscreen)
+    {
+      toggleFullScreen();
+***************
+*** 1219,1234 ****
+                    format,xvWidth, xvHeight);
+  
+!   pixels[0] = (uint8_t *) (xv_image-&gt;data + xv_image-&gt;offsets[0]);
+!   pixels[1] = (uint8_t *) (xv_image-&gt;data + xv_image-&gt;offsets[1]);
+!   pixels[2] = (uint8_t *) (xv_image-&gt;data + xv_image-&gt;offsets[2]);
+  
+!   memset (pixels [0], 0, xvWidth*xvHeight);
+!   memset (pixels [1], 128, xvWidth*xvHeight/4);
+!   memset (pixels [2], 128, xvWidth*xvHeight/4);
+  
+    rc = PutXvImage();
+- 
+    rc = XClearArea (dpy, win, 0, 0, 0, 0, True);
+- 
+    rc = XSync(dpy, False);
+  
+--- 1219,1241 ----
+                    format,xvWidth, xvHeight);
+  
+!   switch (format) {
+!     case FOURCC_YV12:
+!     case FOURCC_I420:
+!       pixels[0] = (uint8_t *) (xv_image-&gt;data + xv_image-&gt;offsets[0]);
+!       pixels[1] = (uint8_t *) (xv_image-&gt;data + xv_image-&gt;offsets[1]);
+!       pixels[2] = (uint8_t *) (xv_image-&gt;data + xv_image-&gt;offsets[2]);
+!       break;
+!     case FOURCC_YUY2:
+!       pixels[0] = (uint8_t *) (xv_image-&gt;data + xv_image-&gt;offsets[0]);
+!       break;
+!     default:
+!       break;
+!   }
+  
+!   this-&gt;format = format;
+  
++   ClearXvArea (0, 128, 128);
+    rc = PutXvImage();
+    rc = XClearArea (dpy, win, 0, 0, 0, 0, True);
+    rc = XSync(dpy, False);
+  
+***************
+*** 1253,1257 ****
+    pthread_mutex_unlock(&amp;xv_mutex);
+  
+-   this-&gt;format = format;
+    initialized = 1;
+    xv_initialized = 1;
+--- 1260,1263 ----
+***************
+*** 1259,1262 ****
+--- 1265,1304 ----
+  }
+  
++ /* ---------------------------------------------------------------------------
++  */
++ void cXvVideoOut::ClearXvArea(uint8_t y, uint8_t u, uint8_t v)
++ {
++     uint8_t   tu;
++     uint32_t  tyuy2, *pyuy2;
++ 
++   switch (format) {
++     case FOURCC_I420:
++       tu = u;
++       u = v;
++       v = tu;
++     case FOURCC_YV12:
++       memset (pixels [0], y, xvWidth*xvHeight);
++       memset (pixels [1], u, xvWidth*xvHeight/4);
++       memset (pixels [2], v, xvWidth*xvHeight/4);
++       break;
++     case FOURCC_YUY2:
++       tyuy2 = y + (u &lt;&lt; 8) + (y &lt;&lt; 16) + (v &lt;&lt; 24);
++       pyuy2 = (uint32_t *) pixels[0];
++ 
++       for (int i = 0; i &lt; xvWidth / 2; ++i)
++         *pyuy2++ = tyuy2;
++ 
++       for (int i = 1; i &lt; xvHeight; ++i, pyuy2 += xvWidth / 2)
++         fast_memcpy(pyuy2, pixels[0], xvWidth*2);
++ 
++       break;
++     default:
++       break;
++   }
++ 
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
+  void cXvVideoOut::CreateXvImage(Display *dpy,XvPortID port,
+                    XvImage *&amp;xv_image,
+***************
+*** 1306,1310 ****
+      if (shminfo. shmid &gt; 0)
+        shmctl (shminfo. shmid, IPC_RMID, 0);
+!   }else 
+    {
+      xv_image = XvCreateImage(dpy, port,format, NULL,
+--- 1348,1352 ----
+      if (shminfo. shmid &gt; 0)
+        shmctl (shminfo. shmid, IPC_RMID, 0);
+!   }else
+    {
+      xv_image = XvCreateImage(dpy, port,format, NULL,
+***************
+*** 1314,1318 ****
+        exit(-1);
+      };
+!       
+      xv_image-&gt;data = (char*)malloc(xv_image-&gt;data_size);
+      if (!xv_image-&gt;data) {
+--- 1356,1360 ----
+        exit(-1);
+      };
+! 
+      xv_image-&gt;data = (char*)malloc(xv_image-&gt;data_size);
+      if (!xv_image-&gt;data) {
+***************
+*** 1336,1340 ****
+                       lwidth, lheight,   /* dw, dh */
+                       False);
+!   else 
+      return XvPutImage(dpy, port,
+                       win, gc,
+--- 1378,1382 ----
+                       lwidth, lheight,   /* dw, dh */
+                       False);
+!   else
+      return XvPutImage(dpy, port,
+                       win, gc,
+***************
+*** 1364,1368 ****
+    XvStopVideo(dpy, port, win);
+    XvUngrabPort(dpy, port, CurrentTime);
+!   
+  
+    if (xv_image-&gt;data) {
+--- 1406,1410 ----
+    XvStopVideo(dpy, port, win);
+    XvUngrabPort(dpy, port, CurrentTime);
+! 
+  
+    if (xv_image-&gt;data) {
+***************
+*** 1385,1389 ****
+      xv_image = NULL;
+    }
+!   
+    xv_initialized = 0;
+  }
+--- 1427,1431 ----
+      xv_image = NULL;
+    }
+! 
+    xv_initialized = 0;
+  }
+***************
+*** 1482,1486 ****
+          HasAlpha=false;
+          PixelMask=NULL;
+! };       
+  
+  /* ---------------------------------------------------------------------------
+--- 1524,1528 ----
+          HasAlpha=false;
+          PixelMask=NULL;
+! };
+  
+  /* ---------------------------------------------------------------------------
+***************
+*** 1521,1525 ****
+  			    OsdWidth,OsdHeight,RefreshAll);
+  	    break;
+!  
+      }
+      pthread_mutex_lock(&amp;xv_mutex);
+--- 1563,1567 ----
+  			    OsdWidth,OsdHeight,RefreshAll);
+  	    break;
+! 
+      }
+      pthread_mutex_lock(&amp;xv_mutex);
+***************
+*** 1638,1644 ****
+      cutLeft = setupStore-&gt;cropLeftCols;
+      cutRight = setupStore-&gt;cropRightCols;
+!     memset (pixels [0], 0, xvWidth*xvHeight);
+!     memset (pixels [1], 128, xvWidth*xvHeight/4);
+!     memset (pixels [2], 128, xvWidth*xvHeight/4);
+    }
+  
+--- 1680,1684 ----
+      cutLeft = setupStore-&gt;cropLeftCols;
+      cutRight = setupStore-&gt;cropRightCols;
+!     ClearXvArea (0, 128, 128);
+    }
+  
+***************
+*** 1682,1689 ****
+  
+    }
+!   else
+  #endif
+!  {
+  
+            for (int i = cutTop * 2; i &lt; fheight - cutBottom * 2; i++)
+               fast_memcpy(pixels [0] + i * xvWidth + 2 * cutLeft,
+--- 1722,1732 ----
+  
+    }
+!     else
+  #endif
+!     {
+  
++       switch (format) {
++         case FOURCC_YV12:
++         case FOURCC_I420:
+            for (int i = cutTop * 2; i &lt; fheight - cutBottom * 2; i++)
+               fast_memcpy(pixels [0] + i * xvWidth + 2 * cutLeft,
+***************
+*** 1698,1702 ****
+                            Pu + i * UVstride + cutLeft,
+                            fwidth / 2 - (cutLeft + cutRight));
+!   }
+    }
+    PutXvImage();
+--- 1741,1757 ----
+                            Pu + i * UVstride + cutLeft,
+                            fwidth / 2 - (cutLeft + cutRight));
+!           break;
+!         case FOURCC_YUY2:
+!           //yv12_to_yuy2_il_c(Py + Ystride  * cutTop * 2 + cutLeft * 2,
+!           yv12_to_yuy2(Py + Ystride  * cutTop * 2 + cutLeft * 2,
+!                        Pu + UVstride * cutTop + cutLeft,
+!                        Pv + UVstride * cutTop + cutLeft,
+!                        pixels[0] + 2*xvWidth * cutTop * 2 + cutLeft * 4,
+!                        Width - 2 * (cutLeft + cutRight),
+!                        Height - 2 * (cutTop + cutBottom),
+!                        Ystride, UVstride, 2*xvWidth);
+!           break;
+!       }
+!     }
+    }
+    PutXvImage();
+***************
+*** 1712,1716 ****
+      return;
+  
+!   if (xv_initialized) 
+    {
+      pthread_mutex_lock(&amp;xv_mutex);
+--- 1767,1771 ----
+      return;
+  
+!   if (xv_initialized)
+    {
+      pthread_mutex_lock(&amp;xv_mutex);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000316.html">[Softdevice-cvs] softdevice utils.h,1.5,1.6 utils.c,1.10,1.11
+</A></li>
+	<LI>Next message: <A HREF="000318.html">[Softdevice-cvs] softdevice CHANGELOG,1.167,1.168 README,1.15,1.16 i18n.c,1.17,1.18 setup-softdevice-menu.c,1.1,1.2 setup-softdevice.c,1.40,1.41 setup-softdevice.h,1.25,1.26 softdevice.c,1.54,1.55 video-dfb.c,1.51,1.52 video.c,1.47,1.48 video.h,1.31,1.32
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#317">[ date ]</a>
+              <a href="thread.html#317">[ thread ]</a>
+              <a href="subject.html#317">[ subject ]</a>
+              <a href="author.html#317">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

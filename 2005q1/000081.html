@@ -1,0 +1,536 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.49,1.50 softdevice.h,1.2,1.3 softdevice.c,1.22,1.23 mpeg2decoder.h,1.16,1.17 mpeg2decoder.c,1.24,1.25
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.49%2C1.50%20softdevice.h%2C1.2%2C1.3%20softdevice.c%2C1.22%2C1.23%20mpeg2decoder.h%2C1.16%2C1.17%20mpeg2decoder.c%2C1.24%2C1.25&In-Reply-To=%3C200503251342.j2PDgXh04803%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000080.html">
+   <LINK REL="Next"  HREF="000082.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.49,1.50 softdevice.h,1.2,1.3 softdevice.c,1.22,1.23 mpeg2decoder.h,1.16,1.17 mpeg2decoder.c,1.24,1.25</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.49%2C1.50%20softdevice.h%2C1.2%2C1.3%20softdevice.c%2C1.22%2C1.23%20mpeg2decoder.h%2C1.16%2C1.17%20mpeg2decoder.c%2C1.24%2C1.25&In-Reply-To=%3C200503251342.j2PDgXh04803%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.49,1.50 softdevice.h,1.2,1.3 softdevice.c,1.22,1.23 mpeg2decoder.h,1.16,1.17 mpeg2decoder.c,1.24,1.25">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Mar 25 14:42:33 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000080.html">[Softdevice-cvs] softdevice mpeg2decoder.c,1.23,1.24
+</A></li>
+        <LI>Next message: <A HREF="000082.html">[Softdevice-cvs] softdevice CHANGELOG,1.50,1.51 video-dfb.c,1.19,1.20 video-dfb.h,1.5,1.6
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#81">[ date ]</a>
+              <a href="thread.html#81">[ thread ]</a>
+              <a href="subject.html#81">[ subject ]</a>
+              <a href="author.html#81">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv24447
+
+Modified Files:
+	CHANGELOG softdevice.h softdevice.c mpeg2decoder.h 
+	mpeg2decoder.c 
+Log Message:
+- respect play mode
+- disable WaitForSync in video only mode
+- removed unused code
+
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.49
+retrieving revision 1.50
+diff -C2 -d -r1.49 -r1.50
+*** CHANGELOG	20 Mar 2005 15:46:49 -0000	1.49
+--- CHANGELOG	25 Mar 2005 13:42:30 -0000	1.50
+***************
+*** 1,3 ****
+--- 1,7 ----
+  Changelog
++ 2005-03-25:
++     - respect replay mode
++     - disable WaitForSync in video only mode (trickspeed mode)
++     - removed unused code
+  2005-03-20:
+      - video.c, Draw(): set rgb to zero (colorkey) if alpha is zero.
+
+Index: softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.h,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** softdevice.h	20 Mar 2005 12:21:27 -0000	1.2
+--- softdevice.h	25 Mar 2005 13:42:30 -0000	1.3
+***************
+*** 55,62 ****
+    int       outMethod;
+  
+-   bool      freezeModeEnabled;
+-   cMutex    playMutex;
+-   cCondVar  readyForPlayCondVar;
+- 
+  public:
+    cSoftDevice(int method, int audioMethod, char *pluginPath);
+--- 55,58 ----
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.22
+retrieving revision 1.23
+diff -C2 -d -r1.22 -r1.23
+*** softdevice.c	20 Mar 2005 12:21:27 -0000	1.22
+--- softdevice.c	25 Mar 2005 13:42:30 -0000	1.23
+***************
+*** 191,196 ****
+  cSoftOsd::~cSoftOsd() {
+      if (videoOut) {
+! 	videoOut-&gt;CloseOSD();
+! 	videoOut=0;
+      }
+      fprintf(stderr,&quot;[softdevice] OSD is off now\n&quot;);
+--- 191,196 ----
+  cSoftOsd::~cSoftOsd() {
+      if (videoOut) {
+!       videoOut-&gt;CloseOSD();
+!       videoOut=0;
+      }
+      fprintf(stderr,&quot;[softdevice] OSD is off now\n&quot;);
+***************
+*** 224,228 ****
+  cSoftDevice::cSoftDevice(int method,int audioMethod, char *pluginPath)
+  {
+-     freezeModeEnabled = false;
+  #if VDRVERSNUM &gt;= 10307
+      spuDecoder = NULL;
+--- 224,227 ----
+***************
+*** 420,435 ****
+        // FIXME - Implement audio or video only Playmode (is this really needed?)
+        case pmAudioVideo:
+            decoder-&gt;Start();
+!           playMutex.Lock();
+!           freezeModeEnabled = false;
+!           playMutex.Unlock();
+! 	    break;
+! 	default:
+! 	    printf(&quot;playmode not implemented... %d\n&quot;,PlayMode);
+! 	    decoder-&gt;Stop();
+! 	    break;
+! 
+      }
+- //    printf(&quot;setting Playmode not implemented yet... %d\n&quot;,PlayMode);
+      return true;
+  }
+--- 419,442 ----
+        // FIXME - Implement audio or video only Playmode (is this really needed?)
+        case pmAudioVideo:
++           decoder-&gt;SetPlayMode(cMpeg2Decoder::PmAudioVideo);
+            decoder-&gt;Start();
+!           break;
+!       case pmAudioOnly:
+!       case pmAudioOnlyBlack:
+!           decoder-&gt;SetPlayMode(cMpeg2Decoder::PmAudioOnly);
+!           decoder-&gt;Start();
+!           break;
+!       case pmVideoOnly:
+!           decoder-&gt;SetPlayMode(cMpeg2Decoder::PmVideoOnly);
+!           decoder-&gt;Start();
+!           break;
+!       case pmNone:
+!           decoder-&gt;Stop();
+!           break;
+!       default:
+!           printf(&quot;playmode not implemented... %d\n&quot;,PlayMode);
+!           decoder-&gt;Stop();
+!           break;
+      }
+      return true;
+  }
+***************
+*** 452,459 ****
+      decoder-&gt;TrickSpeed(1);
+      decoder-&gt;Play();
+-     playMutex.Lock();
+-     freezeModeEnabled = false;
+-     playMutex.Unlock();
+-     readyForPlayCondVar.Broadcast();
+  }
+  
+--- 459,462 ----
+***************
+*** 463,469 ****
+      cDevice::Freeze();
+      decoder-&gt;Freeze();
+-     playMutex.Lock();
+-     freezeModeEnabled = true;
+-     playMutex.Unlock();
+  }
+  
+--- 466,469 ----
+***************
+*** 477,481 ****
+  {
+    //fprintf (stderr, &quot;[softdevice] should set volume to %d\n&quot;, Volume);
+!   audioOut-&gt;SetVolume(Volume);
+  }
+  
+--- 477,481 ----
+  {
+    //fprintf (stderr, &quot;[softdevice] should set volume to %d\n&quot;, Volume);
+!   //audioOut-&gt;SetVolume(Volume);
+  }
+  
+***************
+*** 489,496 ****
+  {
+    // fprintf(stderr,&quot;[softdevice] Poll TimeoutMs: %d ....\n&quot;,TimeoutMs);
+-   playMutex.Lock();
+-   if (freezeModeEnabled)
+-     readyForPlayCondVar.TimedWait(playMutex,TimeoutMs);
+-   playMutex.Unlock();
+  
+    if ( decoder-&gt;BufferFill() &gt; 90 ) {
+--- 489,492 ----
+***************
+*** 577,589 ****
+  int cSoftDevice::PlayVideo(const uchar *Data, int Length)
+  {
+-     bool freezeMode;
+- 
+-     playMutex.Lock();
+-     freezeMode = freezeModeEnabled;
+-     playMutex.Unlock();
+- 
+-     if (freezeMode)
+-       return 0;
+- 
+      int result=decoder-&gt;Decode(Data, Length);
+      // restart the decoder
+--- 573,576 ----
+
+Index: mpeg2decoder.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.h,v
+retrieving revision 1.16
+retrieving revision 1.17
+diff -C2 -d -r1.16 -r1.17
+*** mpeg2decoder.h	20 Mar 2005 12:21:27 -0000	1.16
+--- mpeg2decoder.h	25 Mar 2005 13:42:30 -0000	1.17
+***************
+*** 33,46 ****
+      static cVideoStreamDecoder *videoClock;
+  
+  public:
+      cClock() {audioClock=NULL;videoClock=NULL;};
+      virtual ~cClock() {};
+      static void SetAudioClock(cAudioStreamDecoder *AudioClock)
+      {audioClock=AudioClock;};
+      static void SetVideoClock(cVideoStreamDecoder *VideoClock)
+      {videoClock=VideoClock;};
+      uint64_t GetPTS();
+      static bool ReadyForPlay()
+!     { return audioClock &amp;&amp; videoClock; };
+  };	
+  
+--- 33,54 ----
+      static cVideoStreamDecoder *videoClock;
+  
++     static bool waitForSync;
+  public:
+      cClock() {audioClock=NULL;videoClock=NULL;};
+      virtual ~cClock() {};
++     
+      static void SetAudioClock(cAudioStreamDecoder *AudioClock)
+      {audioClock=AudioClock;};
++     
+      static void SetVideoClock(cVideoStreamDecoder *VideoClock)
+      {videoClock=VideoClock;};
++     
+      uint64_t GetPTS();
++     
+      static bool ReadyForPlay()
+!     { return (waitForSync ? (audioClock &amp;&amp; videoClock) : 1 ); };
+! 
+!     void SetWaitForSync(bool WaitForSync)
+!     { waitForSync=WaitForSync; };
+  };	
+  
+***************
+*** 133,137 ****
+      virtual void Stop();
+      virtual void TrickSpeed(int Speed) {return;};
+-     virtual int StillPicture(uchar *Data, int Length) {return 0;};
+      virtual int BufferFill(void);
+      bool    initCodec(void);
+--- 141,144 ----
+***************
+*** 197,204 ****
+      int                offset;
+      int                delay;
+-     int                timePassed;
+      int                rtc_fd; 
+      int                frametime;
+-     int32_t GetRelTime();
+     
+      uchar   *allocatePicBuf(uchar *pic_buf);
+--- 204,209 ----
+***************
+*** 216,220 ****
+  
+      virtual int DecodePacket(AVPacket *pkt);
+-     virtual int StillPicture(uchar *Data, int Length);
+      virtual void TrickSpeed(int Speed);
+      virtual uint64_t GetPTS();
+--- 221,224 ----
+***************
+*** 247,250 ****
+--- 251,264 ----
+  
+      int audioMode;
++ 
++ public:
++     enum softPlayMode {
++       PmNoChange=-1,
++       PmAudioVideo,
++       PmVideoOnly,
++       PmAudioOnly,
++     };
++ private:
++     softPlayMode curPlayMode;
+  public:
+      int read_packet(uint8_t *buf, int buf_size);
+***************
+*** 267,272 ****
+      void Resume(void);
+      void TrickSpeed(int Speed);
+!     
+!     void PlayAudioVideo(bool playVideo,bool playAudio)
+      { AudioIdx=playAudio?NO_STREAM:DONT_PLAY;
+        VideoIdx=playVideo?NO_STREAM:DONT_PLAY;}
+--- 281,287 ----
+      void Resume(void);
+      void TrickSpeed(int Speed);
+!    
+!     void SetPlayMode(softPlayMode playMode);
+!     void PlayAudioVideo(bool playAudio,bool playVideo)
+      { AudioIdx=playAudio?NO_STREAM:DONT_PLAY;
+        VideoIdx=playVideo?NO_STREAM:DONT_PLAY;}
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.24
+retrieving revision 1.25
+diff -C2 -d -r1.24 -r1.25
+*** mpeg2decoder.c	21 Mar 2005 19:07:15 -0000	1.24
+--- mpeg2decoder.c	25 Mar 2005 13:42:30 -0000	1.25
+***************
+*** 86,89 ****
+--- 86,90 ----
+  cAudioStreamDecoder *cClock::audioClock=NULL;
+  cVideoStreamDecoder *cClock::videoClock=NULL;
++ bool                 cClock::waitForSync=false;
+  
+  uint64_t  cClock::GetPTS() {
+***************
+*** 432,447 ****
+  }
+  
+- int cVideoStreamDecoder::StillPicture(uchar *Data, int Length)
+- {
+-   mutex.Lock();
+-   //ringBuffer-&gt;Clear();
+-   avcodec_flush_buffers(context);
+-   mutex.Unlock();
+-   //for (int i = 0;i &lt; 4;++i)
+-    //(Data,Length,0x000001E0,0x000001EF);
+- 
+-   return Length;
+- }
+- 
+  uint64_t cVideoStreamDecoder::GetPTS() {
+    return pts - (delay + Timer.TimePassed())/100;
+--- 433,436 ----
+***************
+*** 1076,1081 ****
+  
+    int nStreams=0;
+-   AudioIdx=NO_STREAM;
+-   VideoIdx=NO_STREAM;
+    
+    while(ThreadActive) {
+--- 1065,1068 ----
+***************
+*** 1136,1140 ****
+        AudioIdx != pkt.stream_index) {
+     
+!     BUFDEB(&quot;new Audio stream index..\n&quot;);
+      AudioIdx = pkt.stream_index;
+      if (aout) {
+--- 1123,1128 ----
+        AudioIdx != pkt.stream_index) {
+     
+!     CMDDEB(&quot;new Audio stream index.. old %d new %d\n&quot;,
+!       AudioIdx,pkt.stream_index);
+      AudioIdx = pkt.stream_index;
+      if (aout) {
+***************
+*** 1150,1154 ****
+        VideoIdx!=pkt.stream_index) {
+    
+!     BUFDEB(&quot;new Video stream index..\n&quot;);
+      VideoIdx=pkt.stream_index;
+      if (vout) {
+--- 1138,1143 ----
+        VideoIdx!=pkt.stream_index) {
+    
+!     CMDDEB(&quot;new Video stream index.. old %d new %d\n&quot;,
+!       VideoIdx,pkt.stream_index);
+      VideoIdx=pkt.stream_index;
+      if (vout) {
+***************
+*** 1193,1198 ****
+--- 1182,1190 ----
+    StreamBuffer-&gt;Clear();
+    initStream();
++   clock.SetWaitForSync(curPlayMode==PmAudioVideo);
+    ThreadActive=true;
+    freezeMode=false;
++   AudioIdx=NO_STREAM;
++   VideoIdx=NO_STREAM;
+    cThread::Start();
+    running=true;
+***************
+*** 1247,1250 ****
+--- 1239,1264 ----
+  };
+  
++ void cMpeg2Decoder::SetPlayMode(softPlayMode playMode)
++ {
++   curPlayMode=playMode;
++   clock.SetWaitForSync(curPlayMode==PmAudioVideo);
++   switch (curPlayMode) {
++     case PmAudioVideo: 
++       CMDDEB(&quot;SetPlayMode PmAudioVideo\n&quot;);
++       PlayAudioVideo(true,true);
++       break;
++     case PmVideoOnly:
++       CMDDEB(&quot;SetPlayMode PmVideoOnly\n&quot;);
++       PlayAudioVideo(false,true);
++       break;
++     case PmAudioOnly:
++       CMDDEB(&quot;SetPlayMode PmAudioOnly\n&quot;);
++       PlayAudioVideo(true,false);
++       break;
++     default:
++       break;
++   };
++ };
++       
+  void cMpeg2Decoder::Freeze(void)
+  {
+***************
+*** 1269,1274 ****
+    CMDDEB(&quot;Stop\n&quot;);
+    // can't stop properly in freeze mode
+! //  Freeze();
+    freezeMode=false;
+    if (running)
+    {
+--- 1283,1289 ----
+    CMDDEB(&quot;Stop\n&quot;);
+    // can't stop properly in freeze mode
+!   //  Freeze();
+    freezeMode=false;
++   clock.SetWaitForSync(false);
+    if (running)
+    {
+***************
+*** 1304,1308 ****
+    mutex.Lock();
+    CMDDEB(&quot;StillPicture \n&quot;);
+!  
+    for (int i=0; 4&gt;i;i++) {
+      int P;
+--- 1319,1326 ----
+    mutex.Lock();
+    CMDDEB(&quot;StillPicture \n&quot;);
+!   // we have only video, so no syncing should be done
+!   clock.SetWaitForSync(false); 
+!   // XXX hack to ingore audio junk sent by vdr in the still picture
+!   AudioIdx=DONT_PLAY;
+    for (int i=0; 4&gt;i;i++) {
+      int P;
+***************
+*** 1337,1340 ****
+--- 1355,1362 ----
+  {
+    CMDDEB(&quot;TrickSpeed %d\n&quot;,Speed);
++   if ( Speed!=1 )
++     clock.SetWaitForSync(false);
++   else clock.SetWaitForSync(curPlayMode==PmAudioVideo);
++ 
+    if (running)
+    {
+***************
+*** 1349,1356 ****
+   */
+  int64_t cMpeg2Decoder::GetSTC(void) {
+!   //return -1;
+!   if (running &amp;&amp; vout)
+!     return vout-&gt;GetPTS()*9;
+!   else return -1;
+  };
+  
+--- 1371,1381 ----
+   */
+  int64_t cMpeg2Decoder::GetSTC(void) {
+!   if (running) {
+!     if (vout)
+!       return vout-&gt;GetPTS()*9;
+!     if (aout)
+!       return aout-&gt;GetPTS()*9;
+!   }
+!   return -1;
+  };
+  
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000080.html">[Softdevice-cvs] softdevice mpeg2decoder.c,1.23,1.24
+</A></li>
+	<LI>Next message: <A HREF="000082.html">[Softdevice-cvs] softdevice CHANGELOG,1.50,1.51 video-dfb.c,1.19,1.20 video-dfb.h,1.5,1.6
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#81">[ date ]</a>
+              <a href="thread.html#81">[ thread ]</a>
+              <a href="subject.html#81">[ subject ]</a>
+              <a href="author.html#81">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

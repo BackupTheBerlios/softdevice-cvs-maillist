@@ -1,0 +1,144 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.130,1.131 utils.c,1.8,1.9
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.130%2C1.131%20utils.c%2C1.8%2C1.9&In-Reply-To=%3C200511301826.jAUIQaN19329%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000260.html">
+   <LINK REL="Next"  HREF="000262.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.130,1.131 utils.c,1.8,1.9</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.130%2C1.131%20utils.c%2C1.8%2C1.9&In-Reply-To=%3C200511301826.jAUIQaN19329%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.130,1.131 utils.c,1.8,1.9">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Wed Nov 30 19:26:36 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000260.html">[Softdevice-cvs] softdevice setup-softdevice.c,1.38,1.39
+</A></li>
+        <LI>Next message: <A HREF="000262.html">[Softdevice-cvs] softdevice CHANGELOG,1.131,1.132 video-dfb.c,1.41,1.42
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#261">[ date ]</a>
+              <a href="thread.html#261">[ thread ]</a>
+              <a href="subject.html#261">[ subject ]</a>
+              <a href="author.html#261">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv10674
+
+Modified Files:
+	CHANGELOG utils.c 
+Log Message:
+- g++-2.95 complaints about &quot;::&quot; in inline asm and wants &quot;: :&quot; instead.
+
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.130
+retrieving revision 1.131
+diff -C2 -d -r1.130 -r1.131
+*** CHANGELOG	12 Nov 2005 15:50:41 -0000	1.130
+--- CHANGELOG	30 Nov 2005 18:26:32 -0000	1.131
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2005-11-30:
++     - g++-2.95 complaints about &quot;::&quot; in inline asm and wants &quot;: :&quot; instead.
+  2005-11-12: softdevice-0.2.1
+      - speed up moving of cutmarks by a factor of about 100. I forgot to signal
+
+Index: utils.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/utils.c,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -C2 -d -r1.8 -r1.9
+*** utils.c	25 Aug 2005 18:39:45 -0000	1.8
+--- utils.c	30 Nov 2005 18:26:33 -0000	1.9
+***************
+*** 489,493 ****
+  		MOVNTQ&quot; %%mm6, 48(%1)\n&quot;
+  		MOVNTQ&quot; %%mm7, 56(%1)\n&quot;
+! 		:: &quot;r&quot; (from), &quot;r&quot; (to) : &quot;memory&quot;);
+  		from=((const unsigned char *)from)+64;
+  		to=((unsigned char *)to)+64;
+--- 489,493 ----
+  		MOVNTQ&quot; %%mm6, 48(%1)\n&quot;
+  		MOVNTQ&quot; %%mm7, 56(%1)\n&quot;
+! 		: : &quot;r&quot; (from), &quot;r&quot; (to) : &quot;memory&quot;);
+  		from=((const unsigned char *)from)+64;
+  		to=((unsigned char *)to)+64;
+***************
+*** 582,586 ****
+  		MOVNTQ&quot; %%mm6, 48(%1)\n&quot;
+  		MOVNTQ&quot; %%mm7, 56(%1)\n&quot;
+! 		:: &quot;r&quot; (from), &quot;r&quot; (to) : &quot;memory&quot;);
+  		from=((const unsigned char *)from)+64;
+  		to=((unsigned char *)to)+64;
+--- 582,586 ----
+  		MOVNTQ&quot; %%mm6, 48(%1)\n&quot;
+  		MOVNTQ&quot; %%mm7, 56(%1)\n&quot;
+! 		: : &quot;r&quot; (from), &quot;r&quot; (to) : &quot;memory&quot;);
+  		from=((const unsigned char *)from)+64;
+  		to=((unsigned char *)to)+64;
+***************
+*** 590,598 ****
+                  /* since movntq is weakly-ordered, a &quot;sfence&quot;
+  		 * is needed to become ordered again. */
+! 		__asm__ __volatile__ (&quot;sfence&quot;:::&quot;memory&quot;);
+  #endif
+  #ifdef USE_MMX
+  		/* enables to use FPU */
+! 		__asm__ __volatile__ (EMMS:::&quot;memory&quot;);
+  #endif
+  	}
+--- 590,598 ----
+                  /* since movntq is weakly-ordered, a &quot;sfence&quot;
+  		 * is needed to become ordered again. */
+! 		__asm__ __volatile__ (&quot;sfence&quot; : : : &quot;memory&quot;);
+  #endif
+  #ifdef USE_MMX
+  		/* enables to use FPU */
+! 		__asm__ __volatile__ (EMMS : : :&quot;memory&quot;);
+  #endif
+  	}
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000260.html">[Softdevice-cvs] softdevice setup-softdevice.c,1.38,1.39
+</A></li>
+	<LI>Next message: <A HREF="000262.html">[Softdevice-cvs] softdevice CHANGELOG,1.131,1.132 video-dfb.c,1.41,1.42
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#261">[ date ]</a>
+              <a href="thread.html#261">[ thread ]</a>
+              <a href="subject.html#261">[ subject ]</a>
+              <a href="author.html#261">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

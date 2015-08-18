@@ -1,0 +1,475 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.230, 1.231 configure, 1.24,	1.25 mpeg2decoder.c, 1.66, 1.67 video-dfb.c, 1.70,	1.71 softdevice.c, 1.70, 1.71
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.230%2C%201.231%20configure%2C%201.24%2C%0A%091.25%20mpeg2decoder.c%2C%201.66%2C%201.67%20video-dfb.c%2C%201.70%2C%0A%091.71%20softdevice.c%2C%201.70%2C%201.71&In-Reply-To=%3C20060916093056.EFE077CE40%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000421.html">
+   <LINK REL="Next"  HREF="000423.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.230, 1.231 configure, 1.24,	1.25 mpeg2decoder.c, 1.66, 1.67 video-dfb.c, 1.70,	1.71 softdevice.c, 1.70, 1.71</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.230%2C%201.231%20configure%2C%201.24%2C%0A%091.25%20mpeg2decoder.c%2C%201.66%2C%201.67%20video-dfb.c%2C%201.70%2C%0A%091.71%20softdevice.c%2C%201.70%2C%201.71&In-Reply-To=%3C20060916093056.EFE077CE40%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.230, 1.231 configure, 1.24,	1.25 mpeg2decoder.c, 1.66, 1.67 video-dfb.c, 1.70,	1.71 softdevice.c, 1.70, 1.71">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Sep 16 11:30:56 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000421.html">[Softdevice-cvs] softdevice softdevice.c, 1.69, 1.70 CHANGELOG,	1.229, 1.230
+</A></li>
+        <LI>Next message: <A HREF="000423.html">[Softdevice-cvs] softdevice CHANGELOG, 1.231, 1.232 configure, 1.25,	1.26 mpeg2decoder.c, 1.67, 1.68
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#422">[ date ]</a>
+              <a href="thread.html#422">[ thread ]</a>
+              <a href="subject.html#422">[ subject ]</a>
+              <a href="author.html#422">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv2992
+
+Modified Files:
+	CHANGELOG configure mpeg2decoder.c video-dfb.c softdevice.c 
+Log Message:
+- added -vo shm: to help option
+- added support new fields from libcle266mpegdec-0.4
+- video-dfb: removed check and support for DSBLIT_INTERLACED as DirectFB
+             has buildin support for this now.
+- disable cle266 support if DirectFB is not patched for this
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.230
+retrieving revision 1.231
+diff -C2 -d -r1.230 -r1.231
+*** CHANGELOG	12 Sep 2006 05:44:59 -0000	1.230
+--- CHANGELOG	16 Sep 2006 09:30:19 -0000	1.231
+***************
+*** 1,3 ****
+--- 1,9 ----
+  Changelog
++ 2006-09-xx:
++    - added -vo shm: to help option
++    - added support new fields from libcle266mpegdec-0.4
++    - video-dfb: removed check and support for DSBLIT_INTERLACED as DirectFB
++                 has buildin support for this now.
++    - disable cle266 support if DirectFB is not patched for this
+  2006-09-12:
+     - don't continue on argument errors
+
+Index: configure
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/configure,v
+retrieving revision 1.24
+retrieving revision 1.25
+diff -C2 -d -r1.24 -r1.25
+*** configure	27 Aug 2006 12:48:46 -0000	1.24
+--- configure	16 Sep 2006 09:30:19 -0000	1.25
+***************
+*** 46,49 ****
+--- 46,50 ----
+    echo &quot;  --disable-fb&quot;
+    echo &quot;  --disable-dfb&quot;
++   echo &quot;  --disable-cle266&quot;
+    echo &quot;  --disable-xv&quot;
+    echo &quot;  --disable-shm&quot;
+***************
+*** 66,69 ****
+--- 67,71 ----
+      --disable-fb) shift; with_fb=&quot;no&quot; ;;
+      --disable-dfb) shift; dfb=&quot;no&quot; ;;
++     --disable-cle266) shift; cle266=&quot;no&quot; ;;
+      --disable-xv) shift; xv=&quot;no&quot; ;;
+      --disable-shm) shift; with_shm=&quot;no&quot; ;;
+***************
+*** 92,98 ****
+    echo -n &quot;Checking for pkg-config... &quot;
+    echo  &quot;Checking for pkg-config.-------------------------------&quot; &gt;&gt; config.log
+!         
+    pkg-config --version &gt;&gt; config.log 2&gt;&amp;1 || use_pkgconfig=&quot;no&quot;;
+!   
+    if test &quot;${use_pkgconfig}&quot; = &quot;no&quot; ; then
+      echo &quot;Not found.&quot;
+--- 94,100 ----
+    echo -n &quot;Checking for pkg-config... &quot;
+    echo  &quot;Checking for pkg-config.-------------------------------&quot; &gt;&gt; config.log
+! 
+    pkg-config --version &gt;&gt; config.log 2&gt;&amp;1 || use_pkgconfig=&quot;no&quot;;
+! 
+    if test &quot;${use_pkgconfig}&quot; = &quot;no&quot; ; then
+      echo &quot;Not found.&quot;
+***************
+*** 133,137 ****
+  };
+  
+! ffmpeg=&quot;no&quot; # = not yet configured 
+  if test &quot;${use_pkgconfig}&quot; = &quot;yes&quot; ; then
+    if test &quot;${ffmpeg_use_path}&quot; = &quot;no&quot; ; then
+--- 135,139 ----
+  };
+  
+! ffmpeg=&quot;no&quot; # = not yet configured
+  if test &quot;${use_pkgconfig}&quot; = &quot;yes&quot; ; then
+    if test &quot;${ffmpeg_use_path}&quot; = &quot;no&quot; ; then
+***************
+*** 193,197 ****
+    snd_pcm_t         *handle;
+    char device[]=&quot;hw:0,1&quot;;
+!   snd_pcm_open(&amp;handle, device, SND_PCM_STREAM_PLAYBACK, 0); 
+    return 0;
+  }
+--- 195,199 ----
+    snd_pcm_t         *handle;
+    char device[]=&quot;hw:0,1&quot;;
+!   snd_pcm_open(&amp;handle, device, SND_PCM_STREAM_PLAYBACK, 0);
+    return 0;
+  }
+***************
+*** 224,228 ****
+  dfb_dscaps_double=&quot;yes&quot;
+  dfb_dief_repeat=&quot;yes&quot;
+- dfb_blit_interlaced=&quot;yes&quot;
+  
+  cat &gt; ${TMPC} &lt;&lt; EOF
+--- 226,229 ----
+***************
+*** 281,289 ****
+  #include &lt;directfb.h&gt;
+  int main(void) {
+!     DFBSurfaceBlittingFlags   flags = DSBLIT_INTERLACED;
+    return 0;
+  }
+  EOF
+! $cc $CFLAGS $dfb_opts -o $TMPE $TMPC &gt;&gt; config.log 2&gt;&amp;1 || dfb_blit_interlaced=&quot;no&quot;
+  
+    fi
+--- 282,292 ----
+  #include &lt;directfb.h&gt;
+  int main(void) {
+!   IDirectFBSurface  *surf;
+!   int               i;
+!   surf-&gt;GetFramebufferOffset(&amp;i);
+    return 0;
+  }
+  EOF
+! $cc $CFLAGS $dfb_opts -o $TMPE $TMPC &gt;&gt; config.log 2&gt;&amp;1 || cle266=&quot;no&quot;
+  
+    fi
+***************
+*** 338,342 ****
+      echo &quot;Enabled cle266 hardware decoding.&quot;
+    else
+!     echo &quot;Not found.&quot;
+    fi
+  else
+--- 341,345 ----
+      echo &quot;Enabled cle266 hardware decoding.&quot;
+    else
+!     echo &quot;Not found, not supported by DirectFB or disabled by argument.&quot;
+    fi
+  else
+***************
+*** 517,525 ****
+    fi
+  
+-   if test &quot;${dfb_blit_interlaced}&quot; = &quot;yes&quot; ; then
+-     echo &quot;#define HAVE_DSBLIT_INTERLACED          1&quot; &gt;&gt; $TMPH
+-   else
+-     echo &quot;#define HAVE_DSBLIT_INTERLACED          0&quot; &gt;&gt; $TMPH
+-   fi
+  fi
+  
+--- 520,523 ----
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.66
+retrieving revision 1.67
+diff -C2 -d -r1.66 -r1.67
+*** mpeg2decoder.c	17 Jun 2006 16:27:34 -0000	1.66
+--- mpeg2decoder.c	16 Sep 2006 09:30:19 -0000	1.67
+***************
+*** 515,519 ****
+    avcodec_align_dimensions(c, &amp;w, &amp;h);
+  #endif
+!   
+  #define EDGE_WIDTH 16
+    bool EmuEdge=c-&gt;flags&amp;CODEC_FLAG_EMU_EDGE;
+--- 515,519 ----
+    avcodec_align_dimensions(c, &amp;w, &amp;h);
+  #endif
+! 
+  #define EDGE_WIDTH 16
+    bool EmuEdge=c-&gt;flags&amp;CODEC_FLAG_EMU_EDGE;
+***************
+*** 535,539 ****
+      return 0;
+    };
+!   
+    pic-&gt;type= FF_BUFFER_TYPE_USER;
+    pic-&gt;opaque = (void*) buf;
+--- 535,539 ----
+      return 0;
+    };
+! 
+    pic-&gt;type= FF_BUFFER_TYPE_USER;
+    pic-&gt;opaque = (void*) buf;
+***************
+*** 569,573 ****
+    if (!VideoOutPtr)
+      return;
+!   
+    VideoOutPtr-&gt;ReleaseBuffer((sPicBuffer *)pic-&gt;opaque);
+    for(int i=0; i&lt;3; i++){
+--- 569,573 ----
+    if (!VideoOutPtr)
+      return;
+! 
+    VideoOutPtr-&gt;ReleaseBuffer((sPicBuffer *)pic-&gt;opaque);
+    for(int i=0; i&lt;3; i++){
+***************
+*** 634,638 ****
+                                uint8_t *data, int length, int64_t pkt_pts) {
+    int len=0;
+!   
+    if ( context-&gt;width  &gt; 2048 || context-&gt;height  &gt; 2048 ) {
+      fprintf(stderr,&quot;Invalid width (%d) or height (%d), most likely a broken stream\n&quot;,
+--- 634,638 ----
+                                uint8_t *data, int length, int64_t pkt_pts) {
+    int len=0;
+! 
+    if ( context-&gt;width  &gt; 2048 || context-&gt;height  &gt; 2048 ) {
+      fprintf(stderr,&quot;Invalid width (%d) or height (%d), most likely a broken stream\n&quot;,
+***************
+*** 686,691 ****
+            pic-&gt;owner=NULL;
+            pic-&gt;format=context-&gt;pix_fmt;
+!   };      
+!           
+    pic-&gt;pts=AV_NOPTS_VALUE;
+    // find decoded pictures pts value
+--- 686,691 ----
+            pic-&gt;owner=NULL;
+            pic-&gt;format=context-&gt;pix_fmt;
+!   };
+! 
+    pic-&gt;pts=AV_NOPTS_VALUE;
+    // find decoded pictures pts value
+***************
+*** 745,751 ****
+    else
+    {
+!     pic-&gt;aspect_ratio =(float) (context-&gt;width * 
+          context-&gt;sample_aspect_ratio.num) /
+!       (float) (context-&gt;height * 
+                  context-&gt;sample_aspect_ratio.den);
+    }
+--- 745,751 ----
+    else
+    {
+!     pic-&gt;aspect_ratio =(float) (context-&gt;width *
+          context-&gt;sample_aspect_ratio.num) /
+!       (float) (context-&gt;height *
+                  context-&gt;sample_aspect_ratio.den);
+    }
+***************
+*** 760,764 ****
+  float aspect_ratio_values[5]={1.0, 1.0, 4.0/3.0, 16.0/9.0, 221.0/110 };
+  
+! int cVideoStreamDecoder::DecodePicture_cle266(sPicBuffer *&amp;pic, 
+                  int &amp;got_picture,uint8_t *data, int length, int64_t pkt_pts) {
+    int cle266CurrentFB;
+--- 760,764 ----
+  float aspect_ratio_values[5]={1.0, 1.0, 4.0/3.0, 16.0/9.0, 221.0/110 };
+  
+! int cVideoStreamDecoder::DecodePicture_cle266(sPicBuffer *&amp;pic,
+                  int &amp;got_picture,uint8_t *data, int length, int64_t pkt_pts) {
+    int cle266CurrentFB;
+***************
+*** 772,776 ****
+    cle266CurrentFB = CLE266MPEGDecodeData(data, &amp;length, &amp;pkt_pts);
+  
+!   if ( cle266CurrentFB == -1 ) 
+      // no new picture
+      return length;
+--- 772,776 ----
+    cle266CurrentFB = CLE266MPEGDecodeData(data, &amp;length, &amp;pkt_pts);
+  
+!   if ( cle266CurrentFB == -1 )
+      // no new picture
+      return length;
+***************
+*** 792,798 ****
+    pic-&gt;pts = pkt_pts;
+    pic-&gt;edge_width=pic-&gt;edge_height=0;
+    pic-&gt;dtg_active_format = 0; // currently not parsed
+    pic-&gt;interlaced_frame = true; // FIXME Do we have that information?
+!   pic-&gt;aspect_ratio = ( decoder.aspect_ratio_info &gt;= 0 
+      &amp;&amp; decoder.aspect_ratio_info &lt; 5 ) ?
+      aspect_ratio_values[decoder.aspect_ratio_info] : 1.0;
+--- 792,803 ----
+    pic-&gt;pts = pkt_pts;
+    pic-&gt;edge_width=pic-&gt;edge_height=0;
++ #if LIBCLE266MPEGDEC_VERSION_INT &gt;= 4
++   pic-&gt;dtg_active_format = decoder.dtg_active_format;
++   pic-&gt;interlaced_frame = decoder.progressive_frame ? false : true;
++ #else
+    pic-&gt;dtg_active_format = 0; // currently not parsed
+    pic-&gt;interlaced_frame = true; // FIXME Do we have that information?
+! #endif
+!   pic-&gt;aspect_ratio = ( decoder.aspect_ratio_info &gt;= 0
+      &amp;&amp; decoder.aspect_ratio_info &lt; 5 ) ?
+      aspect_ratio_values[decoder.aspect_ratio_info] : 1.0;
+***************
+*** 862,866 ****
+      if (setupStore.mirror == 1)
+        Mirror.Filter(pic,pic);
+!    
+      if (setupStore.deintMethod == 1)
+        DeintLibav.Filter(pic,pic);
+--- 867,871 ----
+      if (setupStore.mirror == 1)
+        Mirror.Filter(pic,pic);
+! 
+      if (setupStore.deintMethod == 1)
+        DeintLibav.Filter(pic,pic);
+***************
+*** 874,878 ****
+        LibAvPostProc.Filter(pic,pic);
+  #endif //PP_LIBAVCODEC
+!     
+    if (pic-&gt;pts != AV_NOPTS_VALUE )
+            pts=pic-&gt;pts;
+--- 879,883 ----
+        LibAvPostProc.Filter(pic,pic);
+  #endif //PP_LIBAVCODEC
+! 
+    if (pic-&gt;pts != AV_NOPTS_VALUE )
+            pts=pic-&gt;pts;
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.70
+retrieving revision 1.71
+diff -C2 -d -r1.70 -r1.71
+*** video-dfb.c	5 Aug 2006 17:51:25 -0000	1.70
+--- video-dfb.c	16 Sep 2006 09:30:19 -0000	1.71
+***************
+*** 19,23 ****
+  #else
+  # define HAVE_SetSourceLocation 0
+- # define HAVE_DSBLIT_INTERLACED 0
+  # if (DIRECTFB_MAJOR_VERSION == 0) &amp;&amp; (DIRECTFB_MINOR_VERSION == 9) &amp;&amp; (DIRECTFB_MICRO_VERSION &lt; 23)
+  #   define HAVE_GraphicsDeviceDescription 0
+--- 19,22 ----
+***************
+*** 170,176 ****
+    if (caps.blitting_flags &amp; DSBLIT_DEMULTIPLY ) fprintf(stderr,&quot;Demultiply &quot;);
+    if (caps.blitting_flags &amp; DSBLIT_DEINTERLACE ) fprintf(stderr,&quot;Deinterlace &quot;);
+- #if HAVE_DSBLIT_INTERLACED
+-   if (caps.blitting_flags &amp; DSBLIT_INTERLACED ) fprintf(stderr,&quot;Interlaced &quot;);
+- #endif
+    fprintf(stderr,&quot;\n&quot;);
+  }
+--- 169,172 ----
+***************
+*** 1279,1297 ****
+        }
+  
+- #if HAVE_DSBLIT_INTERLACED
+-       if (setupStore-&gt;useMGAtv)
+-       {
+-         scrSurface-&gt;SetBlittingFlags(DSBLIT_INTERLACED);
+-         scrSurface-&gt;StretchBlit(videoSurface, &amp;src, &amp;dst);
+-       }
+-       else
+-       {
+-         scrSurface-&gt;SetBlittingFlags(DSBLIT_NOFX);
+-         scrSurface-&gt;StretchBlit(videoSurface, &amp;src, &amp;dst);
+-       }
+- #else
+        scrSurface-&gt;SetBlittingFlags(DSBLIT_NOFX);
+        scrSurface-&gt;StretchBlit(videoSurface, &amp;src, &amp;dst);
+- #endif
+        if (OSDpresent)
+        {
+--- 1275,1280 ----
+***************
+*** 1466,1482 ****
+        osdMutex.Unlock();
+  
+- #if HAVE_DSBLIT_INTERLACED
+-       if (setupStore-&gt;useMGAtv)
+-       {
+-         scrSurface-&gt;SetBlittingFlags(DSBLIT_INTERLACED);
+-         scrSurface-&gt;StretchBlit(videoSurface, &amp;src, &amp;dst);
+-       } else {
+-         scrSurface-&gt;SetBlittingFlags(DSBLIT_NOFX);
+-         scrSurface-&gt;StretchBlit(videoSurface, &amp;src, &amp;dst);
+-       }
+- #else
+        scrSurface-&gt;SetBlittingFlags(DSBLIT_NOFX);
+        scrSurface-&gt;StretchBlit(videoSurface, &amp;src, &amp;dst);
+- #endif
+  
+        if (OSDpresent)
+--- 1449,1454 ----
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.70
+retrieving revision 1.71
+diff -C2 -d -r1.70 -r1.71
+*** softdevice.c	12 Sep 2006 05:44:59 -0000	1.70
+--- softdevice.c	16 Sep 2006 09:30:19 -0000	1.71
+***************
+*** 739,742 ****
+--- 739,746 ----
+    &quot;  -vo vidix:               enable output via vidix driver\n&quot;
+  #endif
++ #ifdef SHM_SUPPORT
++   &quot;  -vo shm:                 enable output via sharde memory.\n&quot;
++   &quot;                           Use ShmClient for displaying\n&quot;
++ #endif
+    &quot;  -vo dummy:               enable output to dummy device\n&quot;
+    &quot;\n&quot;;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000421.html">[Softdevice-cvs] softdevice softdevice.c, 1.69, 1.70 CHANGELOG,	1.229, 1.230
+</A></li>
+	<LI>Next message: <A HREF="000423.html">[Softdevice-cvs] softdevice CHANGELOG, 1.231, 1.232 configure, 1.25,	1.26 mpeg2decoder.c, 1.67, 1.68
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#422">[ date ]</a>
+              <a href="thread.html#422">[ thread ]</a>
+              <a href="subject.html#422">[ subject ]</a>
+              <a href="author.html#422">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

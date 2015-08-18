@@ -1,0 +1,319 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice video-xv.c,1.33,1.34 video-xv.h,1.9,1.10
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-xv.c%2C1.33%2C1.34%20video-xv.h%2C1.9%2C1.10&In-Reply-To=%3C200511060729.jA67TLN17525%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000244.html">
+   <LINK REL="Next"  HREF="000246.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice video-xv.c,1.33,1.34 video-xv.h,1.9,1.10</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-xv.c%2C1.33%2C1.34%20video-xv.h%2C1.9%2C1.10&In-Reply-To=%3C200511060729.jA67TLN17525%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice video-xv.c,1.33,1.34 video-xv.h,1.9,1.10">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Nov  6 08:29:21 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000244.html">[Softdevice-cvs] softdevice setup-softdevice.c,1.36,1.37 setup-softdevice.h,1.22,1.23
+</A></li>
+        <LI>Next message: <A HREF="000246.html">[Softdevice-cvs] softdevice CHANGELOG,1.126,1.127 README,1.10,1.11 setup-softdevice.c,1.37,1.38 setup-softdevice.h,1.23,1.24 softdevice.c,1.46,1.47 video-dfb.c,1.40,1.41 video-dfb.h,1.11,1.12
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#245">[ date ]</a>
+              <a href="thread.html#245">[ thread ]</a>
+              <a href="subject.html#245">[ subject ]</a>
+              <a href="author.html#245">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv13650
+
+Modified Files:
+	video-xv.c video-xv.h 
+Log Message:
+some attributes changeable via OSD
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.33
+retrieving revision 1.34
+diff -C2 -d -r1.33 -r1.34
+*** video-xv.c	25 Oct 2005 19:35:25 -0000	1.33
+--- video-xv.c	6 Nov 2005 07:29:16 -0000	1.34
+***************
+*** 29,33 ****
+  #include &quot;setup-softdevice.h&quot;
+  
+! #define PATCH_VERSION &quot;2005-07-20&quot;
+  
+  static pthread_mutex_t  xv_mutex = PTHREAD_MUTEX_INITIALIZER;
+--- 29,33 ----
+  #include &quot;setup-softdevice.h&quot;
+  
+! #define PATCH_VERSION &quot;2005-11-06&quot;
+  
+  static pthread_mutex_t  xv_mutex = PTHREAD_MUTEX_INITIALIZER;
+***************
+*** 46,49 ****
+--- 46,50 ----
+    portAttributeAtoms = NULL;
+    portAttributeCount = 0;
++   currBrightness = currContrast = currHue = currSaturation = 0;
+  }
+  
+***************
+*** 80,87 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cXvPortAttributeStore::SetXInfo(Display *dpy, XvPortID port)
+  {
+    this-&gt;dpy = dpy;
+    this-&gt;port = port;
+  }
+  
+--- 81,91 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void cXvPortAttributeStore::SetXInfo(Display      *dpy,
+!                                      XvPortID     port,
+!                                      cSetupStore  *setupStore)
+  {
+    this-&gt;dpy = dpy;
+    this-&gt;port = port;
++   this-&gt;setupStore = setupStore;
+  }
+  
+***************
+*** 107,110 ****
+--- 111,138 ----
+  /* ---------------------------------------------------------------------------
+   */
++ void cXvPortAttributeStore::SetValuePercent(char *name, int value)
++ {
++   for (int i = 0; i &lt; portAttributeCount; ++i)
++   {
++     if (!strcmp(name,portAttributes[i].name))
++     {
++       value = (int) ((double) portAttributes[i].min_value +
++                       ((double) portAttributes[i].max_value -
++                         (double) portAttributes[i].min_value) *
++                       (double) value / 100.0);
++       if (value &lt;= portAttributes[i].max_value &amp;&amp;
++           value &gt;= portAttributes[i].min_value)
++       {
++ fprintf(stderr, &quot; - (%s) new val [%d]\n&quot;,name, value);
++         portAttributeCurrentValues[i] = value;
++         XvSetPortAttribute(dpy,port,portAttributeAtoms[i],portAttributeCurrentValues[i]);
++       }
++       return;
++     }
++   }
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
+  void cXvPortAttributeStore::SetColorkey(int value)
+  {
+***************
+*** 174,177 ****
+--- 202,214 ----
+          portAttributeCurrentValues[i] = portAttributeSaveValues[i];
+        }
++       if (!strcmp(portAttributes[i].name, &quot;XV_BRIGHTNESS&quot;))
++         setupStore-&gt;vidCaps |= CAP_BRIGHTNESS;
++       if (!strcmp(portAttributes[i].name, &quot;XV_CONTRAST&quot;))
++         setupStore-&gt;vidCaps |= CAP_CONTRAST;
++       if (!strcmp(portAttributes[i].name, &quot;XV_HUE&quot;))
++         setupStore-&gt;vidCaps |= CAP_HUE;
++       if (!strcmp(portAttributes[i].name, &quot;XV_SATURATION&quot;))
++         setupStore-&gt;vidCaps |= CAP_SATURATION;
++ 
+        dsyslog(&quot;[XvVideoOut]:&quot;
+                &quot;   %-25s %-4sXvGettable %-4sXvSettable &quot;
+***************
+*** 193,196 ****
+--- 230,281 ----
+  /* ---------------------------------------------------------------------------
+   */
++ bool cXvPortAttributeStore::HasAttribute(char *name)
++ {
++   for (int i = 0; i &lt; portAttributeCount; ++i)
++   {
++     if (!strcmp(name,portAttributes[i].name))
++     {
++       return true;
++     }
++   }
++   return false;
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ void cXvPortAttributeStore::CheckVideoParmChange()
++ {
++     int changed = 0;
++ 
++   if (currBrightness != setupStore-&gt;vidBrightness)
++   {
++     changed++;
++     currBrightness = setupStore-&gt;vidBrightness;
++     SetValuePercent(&quot;XV_BRIGHTNESS&quot;, currBrightness);
++   }
++   if (currContrast != setupStore-&gt;vidContrast)
++   {
++     changed++;
++     currContrast = setupStore-&gt;vidContrast;
++     SetValuePercent(&quot;XV_CONTRAST&quot;, currContrast);
++   }
++   if (currHue != setupStore-&gt;vidHue)
++   {
++     changed++;
++     currHue = setupStore-&gt;vidHue;
++     SetValuePercent(&quot;XV_HUE&quot;, currHue);
++   }
++   if (currSaturation != setupStore-&gt;vidSaturation)
++   {
++     changed++;
++     currSaturation = setupStore-&gt;vidSaturation;
++     SetValuePercent(&quot;XV_SATURATION&quot;, currSaturation);
++   }
++   if (changed)
++     XSync(dpy, False);
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
+  void cXvPortAttributeStore::Restore()
+  {
+***************
+*** 560,574 ****
+    }
+  
+!   if (xv_initialized &amp;&amp; map_count) {
+!     XClearArea (dpy, win, 0, 0, 0, 0, True);
+!     XvShmPutImage(dpy, port,
+!                   win, gc,
+!                   xv_image,
+!                   sxoff, syoff,      /* sx, sy */
+!                   swidth, sheight,   /* sw, sh */
+!                   lxoff,  lyoff,     /* dx, dy */
+!                   lwidth, lheight,   /* dw, dh */
+!                   False);
+!     XSync(dpy, False);
+    }
+  
+--- 645,662 ----
+    }
+  
+!   if (xv_initialized) {
+!     if (map_count) {
+!       XClearArea (dpy, win, 0, 0, 0, 0, True);
+!       XvShmPutImage(dpy, port,
+!                     win, gc,
+!                     xv_image,
+!                     sxoff, syoff,      /* sx, sy */
+!                     swidth, sheight,   /* sw, sh */
+!                     lxoff,  lyoff,     /* dx, dy */
+!                     lwidth, lheight,   /* dw, dh */
+!                     False);
+!       XSync(dpy, False);
+!     }
+!     attributeStore.CheckVideoParmChange();
+    }
+  
+***************
+*** 965,969 ****
+    }
+  
+!   attributeStore.SetXInfo(dpy,port);
+    attributeStore.Save();
+    attributeStore.SetColorkey(0x00000000);
+--- 1053,1057 ----
+    }
+  
+!   attributeStore.SetXInfo(dpy,port,setupStore);
+    attributeStore.Save();
+    attributeStore.SetColorkey(0x00000000);
+
+Index: video-xv.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.h,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -C2 -d -r1.9 -r1.10
+*** video-xv.h	16 Aug 2005 08:59:36 -0000	1.9
+--- video-xv.h	6 Nov 2005 07:29:16 -0000	1.10
+***************
+*** 69,72 ****
+--- 69,77 ----
+                  *portAttributeCurrentValues;
+    Atom          *portAttributeAtoms;
++   cSetupStore   *setupStore;
++   int           currBrightness,
++                 currContrast,
++                 currHue,
++                 currSaturation;
+  
+    void Restore();
+***************
+*** 75,84 ****
+    cXvPortAttributeStore();
+    ~cXvPortAttributeStore();
+!   void SetXInfo(Display *dpy, XvPortID port);
+    void SetValue(char *name, int value);
+    void SetColorkey(int value);
+    void Increment(char *name);
+    void Decrement(char *name);
+    void Save();
+  };
+  
+--- 80,92 ----
+    cXvPortAttributeStore();
+    ~cXvPortAttributeStore();
+!   void SetXInfo(Display *dpy, XvPortID port, cSetupStore *setupStore);
+    void SetValue(char *name, int value);
++   void SetValuePercent(char *name, int value);
+    void SetColorkey(int value);
+    void Increment(char *name);
+    void Decrement(char *name);
+    void Save();
++   bool HasAttribute(char *name);
++   void CheckVideoParmChange();
+  };
+  
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000244.html">[Softdevice-cvs] softdevice setup-softdevice.c,1.36,1.37 setup-softdevice.h,1.22,1.23
+</A></li>
+	<LI>Next message: <A HREF="000246.html">[Softdevice-cvs] softdevice CHANGELOG,1.126,1.127 README,1.10,1.11 setup-softdevice.c,1.37,1.38 setup-softdevice.h,1.23,1.24 softdevice.c,1.46,1.47 video-dfb.c,1.40,1.41 video-dfb.h,1.11,1.12
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#245">[ date ]</a>
+              <a href="thread.html#245">[ thread ]</a>
+              <a href="subject.html#245">[ subject ]</a>
+              <a href="author.html#245">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

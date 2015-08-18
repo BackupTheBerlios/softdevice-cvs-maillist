@@ -1,0 +1,102 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice configure,1.4,1.5
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20configure%2C1.4%2C1.5&In-Reply-To=%3C200510031604.j93G4w907433%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000217.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice configure,1.4,1.5</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20configure%2C1.4%2C1.5&In-Reply-To=%3C200510031604.j93G4w907433%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice configure,1.4,1.5">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon Oct  3 18:04:58 CEST 2005</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000217.html">[Softdevice-cvs] softdevice Makefile,1.17,1.18
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#216">[ date ]</a>
+              <a href="thread.html#216">[ thread ]</a>
+              <a href="subject.html#216">[ subject ]</a>
+              <a href="author.html#216">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv4359
+
+Modified Files:
+	configure 
+Log Message:
+DFB: fix check of DIEF_REPEAT
+
+Index: configure
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/configure,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -C2 -d -r1.4 -r1.5
+*** configure	17 Sep 2005 16:17:15 -0000	1.4
+--- configure	3 Oct 2005 16:04:55 -0000	1.5
+***************
+*** 125,129 ****
+  int main(void) {
+      DFBInputEvent event;
+!   event.flags |= DIEF_REPEAT;
+    return 0;
+  }
+--- 125,129 ----
+  int main(void) {
+      DFBInputEvent event;
+!   event.flags = DIEF_REPEAT;
+    return 0;
+  }
+***************
+*** 244,248 ****
+    fi
+  
+!   if test &quot;${dfb_dfb_dief_repeat}&quot; = &quot;yes&quot; ; then
+      echo &quot;#define HAVE_DIEF_REPEAT                1&quot; &gt;&gt; $TMPH
+    else
+--- 244,248 ----
+    fi
+  
+!   if test &quot;${dfb_dief_repeat}&quot; = &quot;yes&quot; ; then
+      echo &quot;#define HAVE_DIEF_REPEAT                1&quot; &gt;&gt; $TMPH
+    else
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000217.html">[Softdevice-cvs] softdevice Makefile,1.17,1.18
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#216">[ date ]</a>
+              <a href="thread.html#216">[ thread ]</a>
+              <a href="subject.html#216">[ subject ]</a>
+              <a href="author.html#216">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

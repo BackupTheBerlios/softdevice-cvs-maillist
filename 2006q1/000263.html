@@ -1,0 +1,110 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice audio.c,1.22,1.23 CHANGELOG,1.132,1.133
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20audio.c%2C1.22%2C1.23%20CHANGELOG%2C1.132%2C1.133&In-Reply-To=%3C200601071320.k07DKbH16134%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000264.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice audio.c,1.22,1.23 CHANGELOG,1.132,1.133</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20audio.c%2C1.22%2C1.23%20CHANGELOG%2C1.132%2C1.133&In-Reply-To=%3C200601071320.k07DKbH16134%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice audio.c,1.22,1.23 CHANGELOG,1.132,1.133">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Jan  7 14:20:37 CET 2006</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000264.html">[Softdevice-cvs] softdevice utils.c,1.9,1.10 CHANGELOG,1.133,1.134
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#263">[ date ]</a>
+              <a href="thread.html#263">[ thread ]</a>
+              <a href="subject.html#263">[ subject ]</a>
+              <a href="author.html#263">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv31192
+
+Modified Files:
+	audio.c CHANGELOG 
+Log Message:
+- on resume try to open audio-out in non-blocking mode
+
+
+
+Index: audio.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio.c,v
+retrieving revision 1.22
+retrieving revision 1.23
+diff -C2 -d -r1.22 -r1.23
+*** audio.c	6 Oct 2005 21:28:11 -0000	1.22
+--- audio.c	7 Jan 2006 13:20:24 -0000	1.23
+***************
+*** 80,85 ****
+     int err;
+     printf(&quot;Device %s\n&quot;,device);
+!    if ((err = snd_pcm_open(&amp;handle, device, SND_PCM_STREAM_PLAYBACK, 0)) &lt; 0) {
+!      esyslog(&quot;[softdevice-audio] Playback open error: %s, %s FATAL&quot;,
+               device, snd_strerror(err));
+       return false;
+--- 80,85 ----
+     int err;
+     printf(&quot;Device %s\n&quot;,device);
+!    if ((err = snd_pcm_open(&amp;handle, device, SND_PCM_STREAM_PLAYBACK,SND_PCM_NONBLOCK )) &lt; 0) {
+!      esyslog(&quot;[softdevice-audio] Playback open error: %s, %s &quot;,
+               device, snd_strerror(err));
+       return false;
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.132
+retrieving revision 1.133
+diff -C2 -d -r1.132 -r1.133
+*** CHANGELOG	15 Dec 2005 20:12:38 -0000	1.132
+--- CHANGELOG	7 Jan 2006 13:20:24 -0000	1.133
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2006-01-07:
++     - on resume try to open audio-out in non-blocking mode
+  2005-12-15:
+      - use fast_memcpy in dfb out
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000264.html">[Softdevice-cvs] softdevice utils.c,1.9,1.10 CHANGELOG,1.133,1.134
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#263">[ date ]</a>
+              <a href="thread.html#263">[ thread ]</a>
+              <a href="subject.html#263">[ subject ]</a>
+              <a href="author.html#263">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

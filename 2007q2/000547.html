@@ -1,0 +1,144 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.307, 1.308 README, 1.23,	1.24 softdevice.c, 1.80, 1.81
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.307%2C%201.308%20README%2C%201.23%2C%0A%091.24%20softdevice.c%2C%201.80%2C%201.81&In-Reply-To=%3C20070411083753.EF136DC93A%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000546.html">
+   <LINK REL="Next"  HREF="000548.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.307, 1.308 README, 1.23,	1.24 softdevice.c, 1.80, 1.81</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.307%2C%201.308%20README%2C%201.23%2C%0A%091.24%20softdevice.c%2C%201.80%2C%201.81&In-Reply-To=%3C20070411083753.EF136DC93A%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.307, 1.308 README, 1.23,	1.24 softdevice.c, 1.80, 1.81">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Wed Apr 11 10:37:53 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000546.html">[Softdevice-cvs] softdevice setup-softdevice-menu.c,1.11,1.12
+</A></li>
+        <LI>Next message: <A HREF="000548.html">[Softdevice-cvs] softdevice configure,1.39,1.40
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#547">[ date ]</a>
+              <a href="thread.html#547">[ thread ]</a>
+              <a href="subject.html#547">[ subject ]</a>
+              <a href="author.html#547">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv24524
+
+Modified Files:
+	CHANGELOG README softdevice.c 
+Log Message:
+softdevice-0.4.0
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.307
+retrieving revision 1.308
+diff -C2 -d -r1.307 -r1.308
+*** CHANGELOG	3 Apr 2007 21:00:40 -0000	1.307
+--- CHANGELOG	11 Apr 2007 08:35:57 -0000	1.308
+***************
+*** 1,3 ****
+--- 1,7 ----
+  Changelog
++ 2007-04-11: softdevice-0.4.0
++    - xv-out: activate suspend/resume key (r/R) via configure (by Artur Skawina).
++    - i18n: some german translations.
++    - osd: moved aspect detection entry to &quot;Cropping&quot; sub menu.
+  2007-04-03:
+     - add automatic border detection, based on a patch by Roland Praml.
+***************
+*** 6,12 ****
+     - make flag for shared linking a variable
+     - add BGRA32 mode to SoftOsd
+!    - compile linux RTC syncing mode support only on Linux.
+!    - detect cpu endianness and define CPU_BIGENDIAN if necessary.
+!    - add video-quartz and audio-macos for Mac Os X support
+  2007-03-25:
+     - fix types in GetTime().
+--- 10,16 ----
+     - make flag for shared linking a variable
+     - add BGRA32 mode to SoftOsd
+!    - compile linux RTC syncing mode support only on Linux.
+!    - detect cpu endianness and define CPU_BIGENDIAN if necessary.
+!    - add video-quartz and audio-macos for Mac Os X support
+  2007-03-25:
+     - fix types in GetTime().
+
+Index: README
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/README,v
+retrieving revision 1.23
+retrieving revision 1.24
+diff -C2 -d -r1.23 -r1.24
+*** README	11 Nov 2006 08:50:21 -0000	1.23
+--- README	11 Apr 2007 08:35:57 -0000	1.24
+***************
+*** 311,314 ****
+--- 311,315 ----
+  - Andre Neumann
+  - Antti Sepp&#228;l&#228;
++ - Artur Skawina
+  - Chris Elsworth
+  - Colin Paton
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.80
+retrieving revision 1.81
+diff -C2 -d -r1.80 -r1.81
+*** softdevice.c	3 Apr 2007 20:21:04 -0000	1.80
+--- softdevice.c	11 Apr 2007 08:35:57 -0000	1.81
+***************
+*** 95,99 ****
+  #include &quot;setup-softdevice-menu.h&quot;
+  
+! static const char *VERSION        = &quot;0.3.1&quot;;
+  static const char *DESCRIPTION    = &quot;A software emulated MPEG2 device&quot;;
+  static const char *MAINMENUENTRY  = &quot;Softdevice&quot;;
+--- 95,99 ----
+  #include &quot;setup-softdevice-menu.h&quot;
+  
+! static const char *VERSION        = &quot;0.4.0&quot;;
+  static const char *DESCRIPTION    = &quot;A software emulated MPEG2 device&quot;;
+  static const char *MAINMENUENTRY  = &quot;Softdevice&quot;;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000546.html">[Softdevice-cvs] softdevice setup-softdevice-menu.c,1.11,1.12
+</A></li>
+	<LI>Next message: <A HREF="000548.html">[Softdevice-cvs] softdevice configure,1.39,1.40
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#547">[ date ]</a>
+              <a href="thread.html#547">[ thread ]</a>
+              <a href="subject.html#547">[ subject ]</a>
+              <a href="author.html#547">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

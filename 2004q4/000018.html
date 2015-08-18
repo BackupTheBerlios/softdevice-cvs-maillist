@@ -1,0 +1,329 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.10,1.11 video-dfb.c,1.7,1.8 video-dfb.h,1.2,1.3
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2004q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.10%2C1.11%20video-dfb.c%2C1.7%2C1.8%20video-dfb.h%2C1.2%2C1.3&In-Reply-To=%3C200410241127.i9OBRVB15494%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000017.html">
+   <LINK REL="Next"  HREF="000019.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.10,1.11 video-dfb.c,1.7,1.8 video-dfb.h,1.2,1.3</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.10%2C1.11%20video-dfb.c%2C1.7%2C1.8%20video-dfb.h%2C1.2%2C1.3&In-Reply-To=%3C200410241127.i9OBRVB15494%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.10,1.11 video-dfb.c,1.7,1.8 video-dfb.h,1.2,1.3">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Oct 24 13:27:31 CEST 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000017.html">[Softdevice-cvs] softdevice video-dfb.c,1.6,1.7 video-dfb.h,1.1.1.1,1.2
+</A></li>
+        <LI>Next message: <A HREF="000019.html">[Softdevice-cvs] softdevice xscreensaver.c,1.1,1.2
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#18">[ date ]</a>
+              <a href="thread.html#18">[ thread ]</a>
+              <a href="subject.html#18">[ subject ]</a>
+              <a href="author.html#18">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv5029
+
+Modified Files:
+	CHANGELOG video-dfb.c video-dfb.h 
+Log Message:
+fix for DFB-out OSD not shown while paused in YUY2 mode
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -C2 -d -r1.10 -r1.11
+*** CHANGELOG	23 Oct 2004 21:33:26 -0000	1.10
+--- CHANGELOG	24 Oct 2004 11:27:27 -0000	1.11
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++   2004-10-24:
++    - fix for DFB-out OSD not shown while paused in YUY2 mode (bug: #002266)
+    2004-10-23:
+     - some fixes upon deinterlacing selection (bug: #002267)
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -C2 -d -r1.7 -r1.8
+*** video-dfb.c	24 Oct 2004 08:07:42 -0000	1.7
+--- video-dfb.c	24 Oct 2004 11:27:27 -0000	1.8
+***************
+*** 30,33 ****
+--- 30,35 ----
+       }
+  
++ static int              events_not_done = 0;
++ 
+  // --- cDFBRemote ---------------------------------------------------
+  /* ---------------------------------------------------------------------------
+***************
+*** 36,41 ****
+  {
+    video_out = vout;
+-   /* create an event buffer with all devices attached */
+-   events = vout-&gt;dfb-&gt;CreateInputEventBuffer( DICAPS_ALL );
+  }
+  
+--- 38,41 ----
+***************
+*** 59,75 ****
+  void cDFBRemote::Action(void)
+  {
+-     DFBInputEvent event;
+- 
+    dsyslog(&quot;DFB remote control thread started (pid=%d)&quot;, getpid());
+    active = true;
+    while (active)
+    {
+!     //usleep (25000);
+!     events-&gt;WaitForEvent();
+! 
+!     /* handle all events, exit if HandleEvent() returns true */
+!     while (events-&gt;GetEvent( DFB_EVENT(&amp;event) ))
+!       video_out-&gt;ProcessEvents (event);
+! 
+    }
+    dsyslog(&quot;DFB remote control thread ended (pid=%d)&quot;, getpid());
+--- 59,74 ----
+  void cDFBRemote::Action(void)
+  {
+    dsyslog(&quot;DFB remote control thread started (pid=%d)&quot;, getpid());
+    active = true;
+    while (active)
+    {
+!     usleep (25000);
+!     if (events_not_done &gt; 1) {
+!       video_out-&gt;ProcessEvents ();
+!       video_out-&gt;ShowOSD ();
+!       events_not_done = 0;
+!     } else {
+!       events_not_done++;
+!     }
+    }
+    dsyslog(&quot;DFB remote control thread ended (pid=%d)&quot;, getpid());
+***************
+*** 373,376 ****
+--- 372,378 ----
+  
+    }
++   
++   /* create an event buffer with all devices attached */
++   events = dfb-&gt;CreateInputEventBuffer( DICAPS_ALL );
+  }
+  
+***************
+*** 398,421 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cDFBVideoOut::ProcessEvents (DFBInputEvent &amp;event)
+  {
+!   switch (event.type)
+    {
+!     case DIET_KEYPRESS:
+!       if (dfbRemote)
+!       {
+!         switch (event.key_symbol)
+          {
+!           case DIKS_SHIFT: case DIKS_CONTROL: case DIKS_ALT:
+!           case DIKS_ALTGR: case DIKS_META: case DIKS_SUPER: case DIKS_HYPER:
+!             break;
+!           default:
+!             dfbRemote-&gt;PutKey(event.key_symbol);
+!             break;
+          }
+!       }
+!       break;
+!     default:
+!       break;
+    }
+  }
+--- 400,428 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void cDFBVideoOut::ProcessEvents ()
+  {
+!     DFBInputEvent event;
+! 
+!   while (events-&gt;GetEvent( DFB_EVENT(&amp;event) ))
+    {
+!     switch (event.type)
+!     {
+!       case DIET_KEYPRESS:
+!         if (dfbRemote)
+          {
+!           switch (event.key_symbol)
+!           {
+!             case DIKS_SHIFT: case DIKS_CONTROL: case DIKS_ALT:
+!             case DIKS_ALTGR: case DIKS_META: case DIKS_SUPER: case DIKS_HYPER:
+!               break;
+!             default:
+!               dfbRemote-&gt;PutKey(event.key_symbol);
+!               break;
+!           }
+          }
+!         break;
+!       default:
+!         break;
+!     }
+    }
+  }
+***************
+*** 674,677 ****
+--- 681,685 ----
+      OSDpresent  = false;
+      osdClrBack = true;
++     tmpSurface-&gt;Clear(COLORKEY,0); //clear and
+      osdMutex.Unlock();
+    }
+***************
+*** 683,686 ****
+--- 691,744 ----
+      tmpSurface-&gt;Flip(); // Flip the field
+    }
++ 
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ void cDFBVideoOut::ShowOSD ()
++ {
++   if (useStretchBlit &amp;&amp; (OSDpresent || osdClrBack)) {
++     // do image and OSD mix here
++       DFBRectangle  src, dst, osdsrc;
++ 
++     src.x = sxoff;
++     src.y = syoff;
++     src.w = swidth;
++     src.h = sheight;
++     dst.x = lxoff;
++     dst.y = lyoff;
++     dst.w = lwidth;
++     dst.h = lheight;
++ 
++     osdMutex.Lock();
++     try {
++       if (osdClrBack) {
++         scrSurface-&gt;Clear(0,0,0,0);
++         osdSurface-&gt;Clear(0,0,0,0);
++         osdSurface-&gt;Flip();
++       }
++ 
++       scrSurface-&gt;SetBlittingFlags(DSBLIT_NOFX);
++       scrSurface-&gt;StretchBlit(videoSurface, &amp;src, &amp;dst);
++ 
++       osdsrc.x = osdsrc.y = 0;
++       osdsrc.w = Xres;osdsrc.h=Yres;
++       scrSurface-&gt;SetBlittingFlags(DSBLIT_BLEND_ALPHACHANNEL);
++       scrSurface-&gt;Blit(osdSurface, &amp;osdsrc, 0, 0);
++ 
++       scrSurface-&gt;Flip(NULL, DSFLIP_ONSYNC);
++ 
++       if (osdClrBack) {
++         scrSurface-&gt;Clear(0,0,0,0);
++         osdSurface-&gt;Clear(0,0,0,0);
++         osdSurface-&gt;Flip();
++       }
++ 
++     } catch (DFBException *ex){
++       fprintf(stderr,&quot;--- OSD refresh failed failed\n&quot;);
++     }
++     osdClrBack = false;
++     osdMutex.Unlock();
++   }
+  }
+  
+***************
+*** 845,848 ****
+--- 903,908 ----
+      fprintf(stderr,&quot;Flip failed\n&quot;);
+    }
++   ProcessEvents ();
++   events_not_done = 0;
+  }
+  
+
+Index: video-dfb.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.h,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** video-dfb.h	24 Oct 2004 08:07:42 -0000	1.2
+--- video-dfb.h	24 Oct 2004 11:27:27 -0000	1.3
+***************
+*** 31,34 ****
+--- 31,36 ----
+      cDFBRemote            *dfbRemote;
+  
++     IDirectFBEventBuffer  *events;
++ 
+      bool deinterlace;
+      bool alphablend;
+***************
+*** 41,45 ****
+      cDFBVideoOut();
+      virtual ~cDFBVideoOut();
+!     void ProcessEvents (DFBInputEvent &amp;event);
+  
+  #if VDRVERSNUM &gt;= 10307
+--- 43,48 ----
+      cDFBVideoOut();
+      virtual ~cDFBVideoOut();
+!     void ProcessEvents ();
+!     void ShowOSD ();
+  
+  #if VDRVERSNUM &gt;= 10307
+***************
+*** 61,65 ****
+    private:
+      bool                  active;
+-     IDirectFBEventBuffer  *events;
+      cDFBVideoOut          *video_out;
+  
+--- 64,67 ----
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000017.html">[Softdevice-cvs] softdevice video-dfb.c,1.6,1.7 video-dfb.h,1.1.1.1,1.2
+</A></li>
+	<LI>Next message: <A HREF="000019.html">[Softdevice-cvs] softdevice xscreensaver.c,1.1,1.2
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#18">[ date ]</a>
+              <a href="thread.html#18">[ thread ]</a>
+              <a href="subject.html#18">[ subject ]</a>
+              <a href="author.html#18">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

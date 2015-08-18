@@ -1,0 +1,5290 @@
+From nobody at sheep.berlios.de  Mon Oct 18 05:28:39 2004
+From: nobody at sheep.berlios.de (iampivot)
+Date: Mon, 18 Oct 2004 05:28:39 +0200
+Subject: [Softdevice-cvs] softdevice xscreensaver.c,NONE,1.1 xscreensaver.h,NONE,1.1
+Message-ID: <200410180328.i9I3SdB07015@bat.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv1342
+
+Added Files:
+	xscreensaver.c xscreensaver.h 
+Log Message:
+Initial revision
+
+
+--- NEW FILE: xscreensaver.c ---
+/*
+ * xscreensaver.c: A plugin for the Video Disk Recorder
+ *
+ * See the README file for copyright information and how to reach the author.
+ *
+ * Code adapted by Torgeir Veimo from jwz' xscreensaver remote control code
+ * (simplified similar to Gerd Knorr's xawtv) which carries the following 
+ * copyright notice:
+ *
+ * xscreensaver-command, Copyright (c) 1991-1998
+ * by Jamie Zawinski <jwz at jwz.org>
+ *
+ * Permission to use, copy, modify, distribute, and sell this software and its
+ * documentation for any purpose is hereby granted without fee, provided that
+ * the above copyright notice appear in all copies and that both that
+ * copyright notice and this permission notice appear in supporting
+ * documentation.  No representations are made about the suitability of this
+ * software for any purpose.  It is provided "as is" without express or 
+ * implied warranty.
+ * 
+ * $Id: xscreensaver.c,v 1.1 2004/10/18 03:28:37 iampivot Exp $
+ */
+
+#include <vdr/plugin.h>
+#include "xscreensaver.h"
+#include "utils.h"
+
+static XErrorHandler old_handler = 0;
+static Bool got_badwindow = False;
+
+static int BadWindow_ehandler(Display *dpy, XErrorEvent *error) {
+  if (error->error_code == BadWindow) {
+    got_badwindow = True;
+    return 0;
+  } else {
+    if (!old_handler)
+      printf("[softdevice-xscreensaver]: old handler not found!\n");
+    return(*old_handler) (dpy, error);
+  }
+}
+
+cScreensaver::~cScreensaver() {
+#ifdef LIBXDPMS_SUPPORT
+  if (disabled && (DPMSQueryExtension(dpy, &dpms_dummy, &dpms_dummy)) && DPMSCapable(dpy)) && (dpms_on)) {
+    DPMSEnable(dpy);
+  }
+#endif
+}
+
+cScreensaver::cScreensaver(Display *dpy) {
+  this->dpy = dpy;
+
+  XA_SCREENSAVER_VERSION = XInternAtom(dpy, "_SCREENSAVER_VERSION", False);
+  XA_SCREENSAVER = XInternAtom(dpy, "SCREENSAVER", False);
+  XA_DEACTIVATE = XInternAtom(dpy, "DEACTIVATE", False);
+
+  window = FindWindow();
+  if (window) {
+    printf("[softdevice-xscreensaver]: window is 0x%lx\n", window);
+  } else {
+    printf("[softdevice-xscreensaver]: xscreensaver not running\n");
+  }
+  disabled = false; // don't disable screensaver until asked to
+  last = 0;
+}
+
+void cScreensaver::DisableScreensaver(bool disable) {
+  struct timeval current;
+  gettimeofday(&current, NULL);
+  last = current.tv_sec;
+  this->disabled = disable;
+
+#ifdef LIBXDPMS_SUPPORT
+  if ((DPMSQueryExtension(dpy, &dpms_dummy, &dpms_dummy)) && (DPMSCapable(dpy))) {
+    Status stat;
+    if (disable) {
+      printf("[softdevice-xscreensaver]: disabling DPMS\n");
+      DPMSInfo(dpy, &dpms_state, &dpms_on);
+      stat = DPMSDisable(dpy);
+      printf("[softdevice-xscreensaver]: disabling DPMS stat: %d\n", stat);
+    } else {
+      printf("[softdevice-xscreensaver]: reenabling DPMS\n");
+      if (!DPMSEnable(dpy)) {
+        printf("[softdevice-xscreensaver]: DPMS not available?\n");
+      } else {
+        // According to mplayer sources: DPMS does not seem to be enabled unless we call DPMSInfo
+        DPMSForceLevel(dpy, DPMSModeOn);
+        DPMSInfo(dpy, &dpms_state, &dpms_on);
+        if (onoff) {
+          printf("[softdevice-xscreensaver]: Successfully enabled DPMS\n");
+        } else {
+          printf("[softdevice-xscreensaver]: Could not enable DPMS\n");
+        }
+      }
+    }
+  }
+#endif
+}
+
+void cScreensaver::MaybeSendDeactivate(void) {
+  if (window && disabled) {
+    struct timeval current;
+    gettimeofday(&current, NULL);
+    if (current.tv_sec - last > INTERVAL) {
+      last = current.tv_sec;
+      printf("[softdevice-xscreensaver]: sending xscreensaver deactivation command DPMS\n");
+
+      XEvent event;
+      event.xany.type = ClientMessage;
+      event.xclient.display = dpy;
+      event.xclient.window = window;
+      event.xclient.message_type = XA_SCREENSAVER;
+      event.xclient.format = 32;
+      memset(&event.xclient.data, 0, sizeof(event.xclient.data));
+      event.xclient.data.l[0] = XA_DEACTIVATE;
+      if (!XSendEvent (dpy, window, False, 0L, &event)) {
+        printf("[softdevice-xscreensaver]: failed to send deactivation command\n");
+        return;
+      }
+      XSync (dpy, 0);
+    }
+  }
+}
+
+int cScreensaver::FindWindow() {
+  unsigned int i;
+  Window root = RootWindowOfScreen (DefaultScreenOfDisplay (dpy));
+  Window root2, parent, *kids;
+  unsigned int nkids;
+   
+  if (! XQueryTree (dpy, root, &root2, &parent, &kids, &nkids))
+    printf("[softdevice-xscreensaver]: unexpected error looking up xscreensaver window\n");
+  if (root != root2)
+    printf("[softdevice-xscreensaver]: unexpected error looking up xscreensaver window\n");
+  if (parent)
+    printf("[softdevice-xscreensaver]: unexpected error looking up xscreensaver window\n");
+  if (! (kids && nkids))
+    return 0;
+  for (i = 0; i < nkids; i++) {
+    Atom type;
+    int format;
+    unsigned long nitems, bytesafter;
+    unsigned char *v;
+    int status;
+
+/* We're walking the list of root-level windows and trying to find
+   the one that has a particular property on it.  We need to trap
+   BadWindows errors while doing this, because it's possible that
+   some random window might get deleted in the meantime.  (That
+   window won't have been the one we're looking for.)
+*/
+    XSync (dpy, False);
+    if (old_handler)
+      printf("[softdevice-xscreensaver]: unexpected error looking up xscreensaver window\n");
+    got_badwindow = False;
+    old_handler = XSetErrorHandler (BadWindow_ehandler);
+    status = XGetWindowProperty(dpy, kids[i], XA_SCREENSAVER_VERSION,
+      0, 200, False, XA_STRING, &type, &format, &nitems, &bytesafter, (unsigned char **) &v);
+    XSync (dpy, False);
+    XSetErrorHandler (old_handler);
+    old_handler = 0;
+
+    if (got_badwindow) {
+      status = BadWindow;
+      got_badwindow = False;
+    }
+
+    if (status == Success && type != None) {
+      return kids[i];
+    }
+  }
+  return 0;
+}
+
+--- NEW FILE: xscreensaver.h ---
+/*
+ * xscreensaver.h: A plugin for the Video Disk Recorder
+ *
+ * See the README file for copyright information and how to reach the author.
+ *
+ * $Id: xscreensaver.h,v 1.1 2004/10/18 03:28:37 iampivot Exp $
+ */
+#ifndef XSCREENSAVER_H
+#define XSCREENSAVER_H
+
+#include <X11/Xproto.h>
+#include <X11/Xlib.h>
+#include <X11/Xatom.h>
+
+#ifdef LIBXDPMS_SUPPORT
+#include <X11/extensions/dpms.h>
+#endif
+
+#define INTERVAL 50 // number of seconds between each time we ping xscreensaver
+
+// Our xscreensaver handler class
+class cScreensaver {
+private:
+  Display *dpy;
+  Window window;
+  bool disabled;
+  int last;
+  Atom XA_SCREENSAVER_VERSION;
+  Atom XA_SCREENSAVER;
+  Atom XA_DEACTIVATE;
+#ifdef LIBXDPMS_SUPPORT
+  static BOOL dpms_on;
+  CARD16 dpms_state;
+  int dpms_dummy;
+#endif
+  int FindWindow();
+public:
+  cScreensaver(Display *dpy);
+  ~cScreensaver();
+  void MaybeSendDeactivate();
+  void DisableScreensaver(bool disable);
+};
+
+#endif
+
+
+
+From nobody at sheep.berlios.de  Mon Oct 18 05:29:38 2004
+From: nobody at sheep.berlios.de (iampivot)
+Date: Mon, 18 Oct 2004 05:29:38 +0200
+Subject: [Softdevice-cvs] softdevice video-dfb.c,1.3,1.4
+Message-ID: <200410180329.i9I3TcB07031@bat.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv1371
+
+Modified Files:
+	video-dfb.c 
+Log Message:
+compare DFXL_NONE using equals instead of ORing
+
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** video-dfb.c	9 Aug 2004 18:45:49 -0000	1.3
+--- video-dfb.c	18 Oct 2004 03:29:36 -0000	1.4
+***************
+*** 142,146 ****
+  
+    fprintf(stderr,"[dfb] Accellerated Functions: ");
+!   if (caps.acceleration_mask & DFXL_NONE) fprintf(stderr,"none ");
+    if (caps.acceleration_mask & DFXL_FILLRECTANGLE) fprintf(stderr,"FillRectange ");
+    if (caps.acceleration_mask & DFXL_DRAWRECTANGLE) fprintf(stderr,"DrawRectange ");
+--- 142,146 ----
+  
+    fprintf(stderr,"[dfb] Accellerated Functions: ");
+!   if (caps.acceleration_mask == DFXL_NONE) fprintf(stderr,"none ");
+    if (caps.acceleration_mask & DFXL_FILLRECTANGLE) fprintf(stderr,"FillRectange ");
+    if (caps.acceleration_mask & DFXL_DRAWRECTANGLE) fprintf(stderr,"DrawRectange ");
+***************
+*** 249,256 ****
+    videoLayer = NULL;
+    dfb->EnumDisplayLayers(EnumCallBack, &videoLayer);
+      videoLayer->SetCooperativeLevel(DLSCL_ADMINISTRATIVE);
+      videoLayer->SetDstColorKey(COLORKEY);
+  
+-   if (videoLayer) {
+      videoSurface=videoLayer->GetSurface();
+      videoSurface->Clear(COLORKEY,0); //clear and
+--- 249,256 ----
+    videoLayer = NULL;
+    dfb->EnumDisplayLayers(EnumCallBack, &videoLayer);
++   if (videoLayer) {
+      videoLayer->SetCooperativeLevel(DLSCL_ADMINISTRATIVE);
+      videoLayer->SetDstColorKey(COLORKEY);
+  
+      videoSurface=videoLayer->GetSurface();
+      videoSurface->Clear(COLORKEY,0); //clear and
+
+
+
+From nobody at sheep.berlios.de  Mon Oct 18 05:32:40 2004
+From: nobody at sheep.berlios.de (iampivot)
+Date: Mon, 18 Oct 2004 05:32:40 +0200
+Subject: [Softdevice-cvs] softdevice Makefile,1.1.1.1,1.2 video-xv.c,1.2,1.3
+Message-ID: <200410180332.i9I3WeB07089@bat.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv1485
+
+Modified Files:
+	Makefile video-xv.c 
+Log Message:
+support disabling screensaver when in full screen mode
+
+
+Index: Makefile
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/Makefile,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1.1.1 -r1.2
+*** Makefile	1 Aug 2004 05:07:03 -0000	1.1.1.1
+--- Makefile	18 Oct 2004 03:32:37 -0000	1.2
+***************
+*** 34,37 ****
+--- 34,40 ----
+  VIDIX_SUPPORT=1
+  
++ # Set this if you want to use DPMS
++ LIBXDPMS_SUPPORT = 1
++ 
+  # Enable the usage from some deinterlacing pp-filters of libavcodec
+  # ffmpeg must be compiled with the options --enable-pp --enable-gpl
+***************
+*** 156,160 ****
+  
+  ifdef XV_SUPPORT
+! OBJS 	+= video-xv.o
+  DEFINES += -DXV_SUPPORT
+  LIBS 	+= -L/usr/X11R6/lib -lXi -lXext -lX11 -lm -lXv
+--- 159,163 ----
+  
+  ifdef XV_SUPPORT
+! OBJS 	+= video-xv.o xscreensaver.o
+  DEFINES += -DXV_SUPPORT
+  LIBS 	+= -L/usr/X11R6/lib -lXi -lXext -lX11 -lm -lXv
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** video-xv.c	8 Aug 2004 20:55:59 -0000	1.2
+--- video-xv.c	18 Oct 2004 03:32:37 -0000	1.3
+***************
+*** 25,28 ****
+--- 25,29 ----
+  #include <vdr/plugin.h>
+  #include "video-xv.h"
++ #include "xscreensaver.h"
+  #include "utils.h"
+  
+***************
+*** 31,34 ****
+--- 32,36 ----
+  static pthread_mutex_t  xv_mutex = PTHREAD_MUTEX_INITIALIZER;
+  static cXvRemote        *xvRemote = NULL;
++ static cScreensaver     *xScreensaver = NULL;
+  static int              events_not_done = 0;
+  
+***************
+*** 293,296 ****
+--- 295,300 ----
+    e.xclient.data.l[1] = _NET_WM_STATE_FULLSCREEN;
+    XSendEvent(dpy, DefaultRootWindow(dpy), False, SubstructureRedirectMask, &e);
++ 
++   xScreensaver->DisableScreensaver(fullScreen); // enable of disable based on fullScreen state
+  }
+  
+***************
+*** 444,447 ****
+--- 448,452 ----
+      }
+    }
++   xScreensaver->MaybeSendDeactivate();
+  }
+  
+***************
+*** 641,644 ****
+--- 646,653 ----
+      xvRemote->SetX11Info(dpy,win);
+      xvRemote->XvRemoteStart();
++   }
++   if (!xScreensaver)
++   {
++     xScreensaver = new cScreensaver(dpy);
+    }
+    initialized = 1;
+
+
+
+From nobody at sheep.berlios.de  Mon Oct 18 05:33:40 2004
+From: nobody at sheep.berlios.de (iampivot)
+Date: Mon, 18 Oct 2004 05:33:40 +0200
+Subject: [Softdevice-cvs] softdevice mpeg2decoder.c,1.3,1.4 mpeg2decoder.h,1.1.1.1,1.2 setup-softdevice.c,1.2,1.3 setup-softdevice.h,1.1.1.1,1.2
+Message-ID: <200410180333.i9I3XeB07102@bat.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv1535
+
+Modified Files:
+	mpeg2decoder.c mpeg2decoder.h setup-softdevice.c 
+	setup-softdevice.h 
+Log Message:
+enable adjustable audio / video offset
+
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** mpeg2decoder.c	9 Aug 2004 19:42:50 -0000	1.3
+--- mpeg2decoder.c	18 Oct 2004 03:33:37 -0000	1.4
+***************
+*** 145,148 ****
+--- 145,149 ----
+    audioOut=AudioOut;
+    cPTS=commonPTS;
++   avOffset = setupStore.avOffset;
+    codec = avcodec_find_decoder(CODEC_ID_MP2);
+    if (!codec)
+***************
+*** 186,190 ****
+      audioOut->Write(audiosamples,audio_size);
+      int delay = audioOut->GetDelay();
+!     if (delay < 20)// if we have less than 20 ms in buffer we double frames
+        audioOut->Write(audiosamples,audio_size);
+  
+--- 187,191 ----
+      audioOut->Write(audiosamples,audio_size);
+      int delay = audioOut->GetDelay();
+!     if (delay + avOffset < 20)// if we have less than 20 ms in buffer we double frames
+        audioOut->Write(audiosamples,audio_size);
+  
+***************
+*** 192,196 ****
+  
+      //  printf("Audiodelay: %d \n",delay);
+!     *cPTS = pts - delay; // Das ist die Master-PTS die wird an den video Teil ?bergeben,
+      // damit Video syncronisieren kann
+      if (validPTS)
+--- 193,197 ----
+  
+      //  printf("Audiodelay: %d \n",delay);
+!     *cPTS = pts - delay + avOffset; // Das ist die Master-PTS die wird an den video Teil ?bergeben,
+      // damit Video syncronisieren kann
+      if (validPTS)
+***************
+*** 779,783 ****
+          {
+            state=PAYLOAD;
+!           streamtype=syncword & 0x000000FF;
+          }
+          else if ( (syncword >= 0x000001C0) && (syncword <= 0x000001CF) )
+--- 780,785 ----
+          {
+            state=PAYLOAD;
+!           //streamtype=syncword & 0x000000FF;
+!           streamtype=0xE0;
+          }
+          else if ( (syncword >= 0x000001C0) && (syncword <= 0x000001CF) )
+
+Index: mpeg2decoder.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.h,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1.1.1 -r1.2
+*** mpeg2decoder.h	1 Aug 2004 05:07:03 -0000	1.1.1.1
+--- mpeg2decoder.h	18 Oct 2004 03:33:37 -0000	1.2
+***************
+*** 52,55 ****
+--- 52,56 ----
+      uint8_t * audiosamples;
+      cAudioOut *audioOut;
++     int       avOffset;
+  protected:
+  public:
+
+Index: setup-softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.c,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** setup-softdevice.c	1 Aug 2004 16:23:30 -0000	1.2
+--- setup-softdevice.c	18 Oct 2004 03:33:37 -0000	1.3
+***************
+*** 11,14 ****
+--- 11,17 ----
+  #include "mpeg2decoder.h"
+  
++ #define MINAVOFFSET (-250)
++ #define MAXAVOFFSET (250)
++ 
+  /* ----------------------------------------------------------------------------
+   * index to this array correspond to AFD values
+***************
+*** 84,87 ****
+--- 87,91 ----
+    deintMethod   = 0;
+    syncOnFrames  = 0;
++   avOffset      = 0;
+  }
+  
+***************
+*** 138,141 ****
+--- 142,150 ----
+      syncOnFrames = atoi(Value);
+      syncOnFrames = clamp (0, syncOnFrames, 1);
++   } else if (!strcasecmp(Name, "avOffset")) {
++     avOffset = atoi(Value);
++     avOffset = clamp (MINAVOFFSET, avOffset, MAXAVOFFSET);
++     fprintf(stderr,"[setup-softdevice] A/V Offset set to (%d)\n",
++             avOffset);
+    } else return false;
+  
+***************
+*** 213,216 ****
+--- 222,228 ----
+                              2,
+                              syncOnFramesStr));
++   Add(new cMenuEditIntItem(tr("A/V Offset"),
++                            &data->avOffset,
++                            MINAVOFFSET, MAXAVOFFSET));
+  }
+  
+***************
+*** 262,264 ****
+--- 274,277 ----
+    SetupStore ("Picture mirroring",  setupStore.mirror);
+    SetupStore ("SyncAllFrames",      setupStore.syncOnFrames);
++   SetupStore ("avOffset",           setupStore.avOffset);
+  }
+
+Index: setup-softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.h,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1.1.1 -r1.2
+*** setup-softdevice.h	1 Aug 2004 05:07:04 -0000	1.1.1.1
+--- setup-softdevice.h	18 Oct 2004 03:33:37 -0000	1.2
+***************
+*** 29,32 ****
+--- 29,33 ----
+      int   mirror;
+      int   syncOnFrames;
++     int   avOffset;
+  };
+  
+
+
+
+From nobody at sheep.berlios.de  Tue Oct 19 14:37:40 2004
+From: nobody at sheep.berlios.de (iampivot)
+Date: Tue, 19 Oct 2004 14:37:40 +0200
+Subject: [Softdevice-cvs] softdevice CHANGELOG,1.6,1.7
+Message-ID: <200410191237.i9JCbeB07403@bat.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv2985
+
+Modified Files:
+	CHANGELOG 
+Log Message:
+added entries for last changes dated 2004-10-18
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -C2 -d -r1.6 -r1.7
+*** CHANGELOG	9 Aug 2004 19:42:50 -0000	1.6
+--- CHANGELOG	19 Oct 2004 12:37:37 -0000	1.7
+***************
+*** 1,3 ****
+--- 1,7 ----
+  Changelog
++   2004-10-18:
++    - xv-out: allow disabling screensaver when in full screen mode (Torgeir Veimo)
++    - mpeg2decoder: enable adjustable audio / video offset (Torgeir Veimo)
++    - DFB: fix compare DFXL_NONE using equals (Torgeir Veimo)
+    2004-08-09:
+     - DFB+vidix: fix wrong colors in crop mode
+
+
+
+From nobody at sheep.berlios.de  Fri Oct 22 17:07:17 2004
+From: nobody at sheep.berlios.de (wachm)
+Date: Fri, 22 Oct 2004 17:07:17 +0200
+Subject: [Softdevice-cvs] softdevice audio.c,1.2,1.3
+Message-ID: <200410221507.i9MF7HB21902@bat.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv10408
+
+Modified Files:
+	audio.c 
+Log Message:
+set alsa sound buffer size
+
+
+Index: audio.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio.c,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** audio.c	1 Aug 2004 16:05:26 -0000	1.2
+--- audio.c	22 Oct 2004 15:07:15 -0000	1.3
+***************
+*** 176,179 ****
+--- 176,194 ----
+      }
+  
++     // set period size
++     periodSize = 4608 / 4;
++     err = snd_pcm_hw_params_set_period_size_near(handle, params, &periodSize, 0);
++     if ( err < 0)  {
++       dsyslog("[softdevice-audio] Failed to set period size!");
++       exit(1);
++     }
++     
++     snd_pcm_uframes_t buffersize = 2 * 4608; 
++     err = snd_pcm_hw_params_set_buffer_size_near(handle, params, &buffersize);
++     if ( err < 0 ) {
++       dsyslog("[softdevice-audio] Failed to set buffer size!");
++       exit(1);
++     }
++ 
+      err = snd_pcm_hw_params(handle, params);
+      if (err < 0) {
+
+
+
+From nobody at sheep.berlios.de  Fri Oct 22 23:46:49 2004
+From: nobody at sheep.berlios.de (lucke)
+Date: Fri, 22 Oct 2004 23:46:49 +0200
+Subject: [Softdevice-cvs] softdevice mpeg2decoder.c,1.4,1.5
+Message-ID: <200410222146.i9MLknB31047@bat.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv13269
+
+Modified Files:
+	mpeg2decoder.c 
+Log Message:
+fix for segfaults when switching deinterlacer and FB-out is not compiled in
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -C2 -d -r1.4 -r1.5
+*** mpeg2decoder.c	18 Oct 2004 03:33:37 -0000	1.4
+--- mpeg2decoder.c	22 Oct 2004 21:46:46 -0000	1.5
+***************
+*** 636,640 ****
+      fprintf(stderr,
+              "[softdevice] pp-filter %s couldn't be initialized,\n"
+!             "[softdevice] switching postprocessing off !\n");
+      setupStore.deintMethod = 0;
+    }
+--- 636,641 ----
+      fprintf(stderr,
+              "[softdevice] pp-filter %s couldn't be initialized,\n"
+!             "[softdevice] switching postprocessing off !\n",
+!             setupStore.getPPValue());
+      setupStore.deintMethod = 0;
+    }
+
+
+
+From nobody at sheep.berlios.de  Fri Oct 22 23:51:49 2004
+From: nobody at sheep.berlios.de (lucke)
+Date: Fri, 22 Oct 2004 23:51:49 +0200
+Subject: [Softdevice-cvs] softdevice setup-softdevice.c,1.3,1.4
+Message-ID: <200410222151.i9MLpnB31149@bat.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv13605
+
+Modified Files:
+	setup-softdevice.c 
+Log Message:
+don't offer 'FB-intern' deinterlace method when FB-out is not compiled in
+
+Index: setup-softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.c,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** setup-softdevice.c	18 Oct 2004 03:33:37 -0000	1.3
+--- setup-softdevice.c	22 Oct 2004 21:51:46 -0000	1.4
+***************
+*** 27,31 ****
+--- 27,33 ----
+          "none",
+          "lavc",
++ #ifdef FB_SUPPORT
+          "FB-intern",
++ #endif        
+  #ifdef PP_LIBAVCODEC
+          "linblend",
+
+
+
+From nobody at sheep.berlios.de  Fri Oct 22 23:55:24 2004
+From: nobody at sheep.berlios.de (lucke)
+Date: Fri, 22 Oct 2004 23:55:24 +0200
+Subject: [Softdevice-cvs] softdevice CHANGELOG,1.7,1.8
+Message-ID: <200410222155.i9MLtOB31223@bat.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv13730
+
+Modified Files:
+	CHANGELOG 
+Log Message:
+update changelog
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -C2 -d -r1.7 -r1.8
+*** CHANGELOG	19 Oct 2004 12:37:37 -0000	1.7
+--- CHANGELOG	22 Oct 2004 21:55:21 -0000	1.8
+***************
+*** 1,4 ****
+--- 1,6 ----
+  Changelog
+    2004-10-18:
++    - some fixes upon deinterlacing selection (bug: #002267)
++   2004-10-18:
+     - xv-out: allow disabling screensaver when in full screen mode (Torgeir Veimo)
+     - mpeg2decoder: enable adjustable audio / video offset (Torgeir Veimo)
+
+
+
+From nobody at sheep.berlios.de  Sat Oct 23 00:05:46 2004
+From: nobody at sheep.berlios.de (lucke)
+Date: Sat, 23 Oct 2004 00:05:46 +0200
+Subject: [Softdevice-cvs] softdevice CHANGELOG,1.8,1.9
+Message-ID: <200410222205.i9MM5kB31434@bat.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv14372
+
+Modified Files:
+	CHANGELOG 
+Log Message:
+autsch today is 2004-10-23
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -C2 -d -r1.8 -r1.9
+*** CHANGELOG	22 Oct 2004 21:55:21 -0000	1.8
+--- CHANGELOG	22 Oct 2004 22:05:43 -0000	1.9
+***************
+*** 1,4 ****
+  Changelog
+!   2004-10-18:
+     - some fixes upon deinterlacing selection (bug: #002267)
+    2004-10-18:
+--- 1,4 ----
+  Changelog
+!   2004-10-23:
+     - some fixes upon deinterlacing selection (bug: #002267)
+    2004-10-18:
+
+
+
+From nobody at sheep.berlios.de  Sat Oct 23 23:33:29 2004
+From: nobody at sheep.berlios.de (lucke)
+Date: Sat, 23 Oct 2004 23:33:29 +0200
+Subject: [Softdevice-cvs] softdevice CHANGELOG,1.9,1.10 video-dfb.c,1.4,1.5 video-vidix.c,1.2,1.3 video-xv.c,1.3,1.4 video.c,1.1.1.1,1.2 video.h,1.1.1.1,1.2
+Message-ID: <200410232133.i9NLXSB31038@bat.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv28492
+
+Modified Files:
+	CHANGELOG video-dfb.c video-vidix.c video-xv.c video.c video.h 
+Log Message:
+added pseudo alpha OSD background
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -C2 -d -r1.9 -r1.10
+*** CHANGELOG	22 Oct 2004 22:05:43 -0000	1.9
+--- CHANGELOG	23 Oct 2004 21:33:26 -0000	1.10
+***************
+*** 2,5 ****
+--- 2,6 ----
+    2004-10-23:
+     - some fixes upon deinterlacing selection (bug: #002267)
++    - added pseudo alpha OSD background upon an idea of Torgeir Veimo
+    2004-10-18:
+     - xv-out: allow disabling screensaver when in full screen mode (Torgeir Veimo)
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -C2 -d -r1.4 -r1.5
+*** video-dfb.c	18 Oct 2004 03:29:36 -0000	1.4
+--- video-dfb.c	23 Oct 2004 21:33:26 -0000	1.5
+***************
+*** 308,311 ****
+--- 308,312 ----
+  
+      useStretchBlit = false;
++     OSDpseudo_alpha = true;
+      if (setupStore.pixelFormat == 0)
+        vidDsc.pixelformat = DSPF_I420;
+***************
+*** 316,319 ****
+--- 317,321 ----
+        vidDsc.pixelformat = DSPF_YUY2;
+        useStretchBlit = true;
++       OSDpseudo_alpha = false;
+      }
+  
+***************
+*** 438,441 ****
+--- 440,444 ----
+  
+        useStretchBlit = false;
++       OSDpseudo_alpha = true;
+        if (setupStore.pixelFormat == 0)
+          dlc.pixelformat = DSPF_I420;
+***************
+*** 446,449 ****
+--- 449,453 ----
+          dlc.pixelformat = DSPF_YUY2;
+          useStretchBlit = true;
++         OSDpseudo_alpha = false;
+        }
+  
+
+Index: video-vidix.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-vidix.c,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** video-vidix.c	9 Aug 2004 18:45:49 -0000	1.2
+--- video-vidix.c	23 Oct 2004 21:33:26 -0000	1.3
+***************
+*** 140,143 ****
+--- 140,145 ----
+      }
+  
++     OSDpseudo_alpha = true;
++ 
+      if (setupStore.pixelFormat == 0)
+        vidix_fourcc.fourcc = IMGFMT_I420;
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** video-xv.c	18 Oct 2004 03:32:37 -0000	1.3
+--- video-xv.c	23 Oct 2004 21:33:26 -0000	1.4
+***************
+*** 456,459 ****
+--- 456,460 ----
+  {
+    OSDpresent = false;
++   OSDpseudo_alpha = true;
+    initialized = 0;
+    /* -------------------------------------------------------------------------
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1.1.1 -r1.2
+*** video.c	1 Aug 2004 05:07:05 -0000	1.1.1.1
+--- video.c	23 Oct 2004 21:33:26 -0000	1.2
+***************
+*** 165,168 ****
+--- 165,172 ----
+  }
+  
++ #define OPACITY_THRESHOLD 0x8F
++ #define TRANSPARENT_THRESHOLD 0x0F
++ #define IS_BACKGROUND(a) (((a) < OPACITY_THRESHOLD) && (a > TRANSPARENT_THRESHOLD))
++ 
+  #if VDRVERSNUM >= 10307
+  
+***************
+*** 183,186 ****
+--- 187,191 ----
+      int           depth = (Bpp + 7) / 8;
+      int           a, r, g, b;
++     bool          prev_pix = false, do_dither;
+      tColor        c;
+      tIndex        *buf;
+***************
+*** 192,198 ****
+--- 197,206 ----
+              linelen * ( OSDyOfs + y ) +
+              OSDxOfs * depth;
++     prev_pix = false;
+  
+      for (int x = 0; x < Bitmap->Width(); x++)
+      {
++       do_dither = ((x % 2 == 1 && y % 2 == 1) ||
++                     x % 2 == 0 && y % 2 == 0 || prev_pix);
+        adr = Bitmap->Data(x, y);
+        c = Bitmap->Color(*adr);
+***************
+*** 203,207 ****
+        switch (depth) {
+          case 4:
+!           if (a == 255 && r == 0 && g == 0 && b == 0)
+            {
+              buf[0] = 1; buf[1] = 1; buf[2] = 1; buf[3] = 255;
+--- 211,216 ----
+        switch (depth) {
+          case 4:
+!           if ((do_dither && IS_BACKGROUND(a) && OSDpseudo_alpha) ||
+!               (a == 255 && r == 0 && g == 0 && b == 0))
+            {
+              buf[0] = 1; buf[1] = 1; buf[2] = 1; buf[3] = 255;
+***************
+*** 212,219 ****
+              buf[3] = a;
+            }
+            buf += 4;
+            break;
+          case 3:
+!           if (a == 255 && r == 0 && g == 0 && b == 0)
+            {
+              buf[0] = 1; buf[1] = 1; buf[2] = 1;
+--- 221,230 ----
+              buf[3] = a;
+            }
++ 
+            buf += 4;
+            break;
+          case 3:
+!           if ((do_dither && IS_BACKGROUND(a)) ||
+!               (a == 255 && r == 0 && g == 0 && b == 0))
+            {
+              buf[0] = 1; buf[1] = 1; buf[2] = 1;
+***************
+*** 223,230 ****
+              buf[2] = r;
+            }
+            buf += 3;
+            break;
+          case 2:
+!           if (a == 255 && r == 0 && g == 0 && b == 0)
+            {
+                buf[0] = 0x21; buf[1] = 0x08;
+--- 234,243 ----
+              buf[2] = r;
+            }
++ 
+            buf += 3;
+            break;
+          case 2:
+!           if ((do_dither && IS_BACKGROUND(a)) ||
+!               (a == 255 && r == 0 && g == 0 && b == 0))
+            {
+                buf[0] = 0x21; buf[1] = 0x08;
+***************
+*** 233,236 ****
+--- 246,250 ----
+              buf[1] = (r & 0xF8) | (g >> 5);
+            }
++ 
+            buf += 2;
+            break;
+***************
+*** 240,243 ****
+--- 254,258 ----
+            break;
+        }
++       prev_pix = !IS_BACKGROUND(a);
+      }
+    }
+***************
+*** 364,378 ****
+      int depth = (bpp + 7) / 8;
+      int dx = linelen - width * depth;
+      buf += top * linelen + left * depth; // upper left corner
+      for (int y = top; y < top+height; y++) {
+  	for (int x = left; x < left+width; x++) {
+  	   if ( (im[3] != 0)
+  		&& (x >= 0) && (x < xres)
+  		&& (y >= 0) && (y < yres))  { // Alpha != 0 and in the screen
+  
+  		//if (keymap) keymap[(x+y*linelen / depth) / 8] |= (1 << (x % 8));
+  		switch (depth) {
+  		    case 4:
+!           if (im[3] == 255 && im[0] == 0 && im[1] == 0 && im[2] == 0) {
+              *buf++ = 1; *buf++ = 1; *buf++ = 1; *buf++ = 255;
+            } else {
+--- 379,400 ----
+      int depth = (bpp + 7) / 8;
+      int dx = linelen - width * depth;
++     bool          prev_pix = false, do_dither;
++ 
+      buf += top * linelen + left * depth; // upper left corner
+      for (int y = top; y < top+height; y++) {
++       prev_pix = false;
++ 
+  	for (int x = left; x < left+width; x++) {
+  	   if ( (im[3] != 0)
+  		&& (x >= 0) && (x < xres)
+  		&& (y >= 0) && (y < yres))  { // Alpha != 0 and in the screen
++       do_dither = ((x % 2 == 1 && y % 2 == 1) ||
++                     x % 2 == 0 && y % 2 == 0 || prev_pix);
+  
+  		//if (keymap) keymap[(x+y*linelen / depth) / 8] |= (1 << (x % 8));
+  		switch (depth) {
+  		    case 4:
+!           if ((do_dither && IS_BACKGROUND(im[3]) && OSDpseudo_alpha) ||
+!               (im[3] == 255 && im[0] == 0 && im[1] == 0 && im[2] == 0)) {
+              *buf++ = 1; *buf++ = 1; *buf++ = 1; *buf++ = 255;
+            } else {
+***************
+*** 385,389 ****
+  			break;
+  		    case 3:
+!           if (im[3] == 255 && im[0] == 0 && im[1] == 0 && im[2] == 0) {
+              *buf++ = 1; *buf++ = 1; *buf++ = 1;
+            } else {
+--- 407,412 ----
+  			break;
+  		    case 3:
+!           if ((do_dither && IS_BACKGROUND(im[3])) ||
+!               (im[3] == 255 && im[0] == 0 && im[1] == 0 && im[2] == 0)) {
+              *buf++ = 1; *buf++ = 1; *buf++ = 1;
+            } else {
+***************
+*** 394,398 ****
+  			break;
+  		    case 2: // 565 RGB
+!           if (im[3] == 255 && im[0] == 0 && im[1] == 0 && im[2] == 0) {
+              *buf++ = 0x21; *buf++ = 0x08;
+            } else {
+--- 417,422 ----
+  			break;
+  		    case 2: // 565 RGB
+!           if ((do_dither && IS_BACKGROUND(im[3])) ||
+!               (im[3] == 255 && im[0] == 0 && im[1] == 0 && im[2] == 0)) {
+              *buf++ = 0x21; *buf++ = 0x08;
+            } else {
+***************
+*** 405,408 ****
+--- 429,434 ----
+  			exit(1);
+      		}
++         prev_pix = !IS_BACKGROUND(a);
++ 
+  
+  	    } else  {
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1.1.1 -r1.2
+*** video.h	1 Aug 2004 05:07:05 -0000	1.1.1.1
+--- video.h	23 Oct 2004 21:33:26 -0000	1.2
+***************
+*** 41,45 ****
+      cMutex  osdMutex;
+      int     OSDxOfs, OSDyOfs;
+!     bool    OSDpresent;
+      int     Xres, Yres, Bpp; // the child class MUST set these params (for OSD Drawing)
+      int     dwidth, dheight,
+--- 41,46 ----
+      cMutex  osdMutex;
+      int     OSDxOfs, OSDyOfs;
+!     bool    OSDpresent,
+!             OSDpseudo_alpha;
+      int     Xres, Yres, Bpp; // the child class MUST set these params (for OSD Drawing)
+      int     dwidth, dheight,
+
+
+
+From nobody at sheep.berlios.de  Sun Oct 24 09:50:27 2004
+From: nobody at sheep.berlios.de (lucke)
+Date: Sun, 24 Oct 2004 09:50:27 +0200
+Subject: [Softdevice-cvs] softdevice video-dfb.c,1.5,1.6
+Message-ID: <200410240750.i9O7oRB10708@bat.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv21239
+
+Modified Files:
+	video-dfb.c 
+Log Message:
+avoid messed screen when aspect ratio changed
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -C2 -d -r1.5 -r1.6
+*** video-dfb.c	23 Oct 2004 21:33:26 -0000	1.5
+--- video-dfb.c	24 Oct 2004 07:50:25 -0000	1.6
+***************
+*** 579,584 ****
+        {
+          fprintf (stderr, "[dfb] creating new surface\n");
+!         if (videoSurface)
+            videoSurface->Release();
+          videoSurface=NULL;
+          videoSurface=dfb->CreateSurface(vidDsc);
+--- 579,591 ----
+        {
+          fprintf (stderr, "[dfb] creating new surface\n");
+!         if (videoSurface) {
+!           /* ------------------------------------------------------------------
+!            * clear previous used surface. there where some troubles when we
+!            * started in I420 mode, switched to YUY2 and video format changed
+!            * from 4:3 to 16:9 .
+!            */
+!           videoSurface->Clear(COLORKEY,0); //clear and
+            videoSurface->Release();
++         }
+          videoSurface=NULL;
+          videoSurface=dfb->CreateSurface(vidDsc);
+
+
+
+From nobody at sheep.berlios.de  Sun Oct 24 10:07:44 2004
+From: nobody at sheep.berlios.de (lucke)
+Date: Sun, 24 Oct 2004 10:07:44 +0200
+Subject: [Softdevice-cvs] softdevice video-dfb.c,1.6,1.7 video-dfb.h,1.1.1.1,1.2
+Message-ID: <200410240807.i9O87iB10922@bat.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv21575
+
+Modified Files:
+	video-dfb.c video-dfb.h 
+Log Message:
+use flag from parent class
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -C2 -d -r1.6 -r1.7
+*** video-dfb.c	24 Oct 2004 07:50:25 -0000	1.6
+--- video-dfb.c	24 Oct 2004 08:07:42 -0000	1.7
+***************
+*** 224,228 ****
+    currentPixelFormat = setupStore.pixelFormat;
+  
+!   osdActive = false;
+  
+    DirectFB::Init();
+--- 224,228 ----
+    currentPixelFormat = setupStore.pixelFormat;
+  
+!   OSDpresent = false;
+  
+    DirectFB::Init();
+***************
+*** 627,631 ****
+    if (useStretchBlit)
+    {
+!     osdActive = true;
+      //tmpSurface->Flip();
+    }
+--- 627,631 ----
+    if (useStretchBlit)
+    {
+!     OSDpresent = true;
+      //tmpSurface->Flip();
+    }
+***************
+*** 655,659 ****
+  
+    if (useStretchBlit)
+!     osdActive = true;
+  
+    tmpSurface->Flip();
+--- 655,659 ----
+  
+    if (useStretchBlit)
+!     OSDpresent = true;
+  
+    tmpSurface->Flip();
+***************
+*** 672,676 ****
+    {
+      osdMutex.Lock();
+!     osdActive  = false;
+      osdClrBack = true;
+      osdMutex.Unlock();
+--- 672,676 ----
+    {
+      osdMutex.Lock();
+!     OSDpresent  = false;
+      osdClrBack = true;
+      osdMutex.Unlock();
+***************
+*** 821,825 ****
+        scrSurface->StretchBlit(videoSurface, &src, &dst);
+  
+!       if (osdActive)
+        {
+            DFBRectangle  osdsrc;
+--- 821,825 ----
+        scrSurface->StretchBlit(videoSurface, &src, &dst);
+  
+!       if (OSDpresent)
+        {
+            DFBRectangle  osdsrc;
+
+Index: video-dfb.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.h,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1.1.1 -r1.2
+*** video-dfb.h	1 Aug 2004 05:07:06 -0000	1.1.1.1
+--- video-dfb.h	24 Oct 2004 08:07:42 -0000	1.2
+***************
+*** 34,38 ****
+      bool alphablend;
+      bool useStretchBlit;
+!     bool osdActive, osdClrBack;
+      void SetParams();
+  
+--- 34,38 ----
+      bool alphablend;
+      bool useStretchBlit;
+!     bool osdClrBack;
+      void SetParams();
+  
+
+
+
+From nobody at sheep.berlios.de  Sun Oct 24 13:27:31 2004
+From: nobody at sheep.berlios.de (lucke)
+Date: Sun, 24 Oct 2004 13:27:31 +0200
+Subject: [Softdevice-cvs] softdevice CHANGELOG,1.10,1.11 video-dfb.c,1.7,1.8 video-dfb.h,1.2,1.3
+Message-ID: <200410241127.i9OBRVB15494@bat.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv5029
+
+Modified Files:
+	CHANGELOG video-dfb.c video-dfb.h 
+Log Message:
+fix for DFB-out OSD not shown while paused in YUY2 mode
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -C2 -d -r1.10 -r1.11
+*** CHANGELOG	23 Oct 2004 21:33:26 -0000	1.10
+--- CHANGELOG	24 Oct 2004 11:27:27 -0000	1.11
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++   2004-10-24:
++    - fix for DFB-out OSD not shown while paused in YUY2 mode (bug: #002266)
+    2004-10-23:
+     - some fixes upon deinterlacing selection (bug: #002267)
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -C2 -d -r1.7 -r1.8
+*** video-dfb.c	24 Oct 2004 08:07:42 -0000	1.7
+--- video-dfb.c	24 Oct 2004 11:27:27 -0000	1.8
+***************
+*** 30,33 ****
+--- 30,35 ----
+       }
+  
++ static int              events_not_done = 0;
++ 
+  // --- cDFBRemote ---------------------------------------------------
+  /* ---------------------------------------------------------------------------
+***************
+*** 36,41 ****
+  {
+    video_out = vout;
+-   /* create an event buffer with all devices attached */
+-   events = vout->dfb->CreateInputEventBuffer( DICAPS_ALL );
+  }
+  
+--- 38,41 ----
+***************
+*** 59,75 ****
+  void cDFBRemote::Action(void)
+  {
+-     DFBInputEvent event;
+- 
+    dsyslog("DFB remote control thread started (pid=%d)", getpid());
+    active = true;
+    while (active)
+    {
+!     //usleep (25000);
+!     events->WaitForEvent();
+! 
+!     /* handle all events, exit if HandleEvent() returns true */
+!     while (events->GetEvent( DFB_EVENT(&event) ))
+!       video_out->ProcessEvents (event);
+! 
+    }
+    dsyslog("DFB remote control thread ended (pid=%d)", getpid());
+--- 59,74 ----
+  void cDFBRemote::Action(void)
+  {
+    dsyslog("DFB remote control thread started (pid=%d)", getpid());
+    active = true;
+    while (active)
+    {
+!     usleep (25000);
+!     if (events_not_done > 1) {
+!       video_out->ProcessEvents ();
+!       video_out->ShowOSD ();
+!       events_not_done = 0;
+!     } else {
+!       events_not_done++;
+!     }
+    }
+    dsyslog("DFB remote control thread ended (pid=%d)", getpid());
+***************
+*** 373,376 ****
+--- 372,378 ----
+  
+    }
++   
++   /* create an event buffer with all devices attached */
++   events = dfb->CreateInputEventBuffer( DICAPS_ALL );
+  }
+  
+***************
+*** 398,421 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cDFBVideoOut::ProcessEvents (DFBInputEvent &event)
+  {
+!   switch (event.type)
+    {
+!     case DIET_KEYPRESS:
+!       if (dfbRemote)
+!       {
+!         switch (event.key_symbol)
+          {
+!           case DIKS_SHIFT: case DIKS_CONTROL: case DIKS_ALT:
+!           case DIKS_ALTGR: case DIKS_META: case DIKS_SUPER: case DIKS_HYPER:
+!             break;
+!           default:
+!             dfbRemote->PutKey(event.key_symbol);
+!             break;
+          }
+!       }
+!       break;
+!     default:
+!       break;
+    }
+  }
+--- 400,428 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void cDFBVideoOut::ProcessEvents ()
+  {
+!     DFBInputEvent event;
+! 
+!   while (events->GetEvent( DFB_EVENT(&event) ))
+    {
+!     switch (event.type)
+!     {
+!       case DIET_KEYPRESS:
+!         if (dfbRemote)
+          {
+!           switch (event.key_symbol)
+!           {
+!             case DIKS_SHIFT: case DIKS_CONTROL: case DIKS_ALT:
+!             case DIKS_ALTGR: case DIKS_META: case DIKS_SUPER: case DIKS_HYPER:
+!               break;
+!             default:
+!               dfbRemote->PutKey(event.key_symbol);
+!               break;
+!           }
+          }
+!         break;
+!       default:
+!         break;
+!     }
+    }
+  }
+***************
+*** 674,677 ****
+--- 681,685 ----
+      OSDpresent  = false;
+      osdClrBack = true;
++     tmpSurface->Clear(COLORKEY,0); //clear and
+      osdMutex.Unlock();
+    }
+***************
+*** 683,686 ****
+--- 691,744 ----
+      tmpSurface->Flip(); // Flip the field
+    }
++ 
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ void cDFBVideoOut::ShowOSD ()
++ {
++   if (useStretchBlit && (OSDpresent || osdClrBack)) {
++     // do image and OSD mix here
++       DFBRectangle  src, dst, osdsrc;
++ 
++     src.x = sxoff;
++     src.y = syoff;
++     src.w = swidth;
++     src.h = sheight;
++     dst.x = lxoff;
++     dst.y = lyoff;
++     dst.w = lwidth;
++     dst.h = lheight;
++ 
++     osdMutex.Lock();
++     try {
++       if (osdClrBack) {
++         scrSurface->Clear(0,0,0,0);
++         osdSurface->Clear(0,0,0,0);
++         osdSurface->Flip();
++       }
++ 
++       scrSurface->SetBlittingFlags(DSBLIT_NOFX);
++       scrSurface->StretchBlit(videoSurface, &src, &dst);
++ 
++       osdsrc.x = osdsrc.y = 0;
++       osdsrc.w = Xres;osdsrc.h=Yres;
++       scrSurface->SetBlittingFlags(DSBLIT_BLEND_ALPHACHANNEL);
++       scrSurface->Blit(osdSurface, &osdsrc, 0, 0);
++ 
++       scrSurface->Flip(NULL, DSFLIP_ONSYNC);
++ 
++       if (osdClrBack) {
++         scrSurface->Clear(0,0,0,0);
++         osdSurface->Clear(0,0,0,0);
++         osdSurface->Flip();
++       }
++ 
++     } catch (DFBException *ex){
++       fprintf(stderr,"--- OSD refresh failed failed\n");
++     }
++     osdClrBack = false;
++     osdMutex.Unlock();
++   }
+  }
+  
+***************
+*** 845,848 ****
+--- 903,908 ----
+      fprintf(stderr,"Flip failed\n");
+    }
++   ProcessEvents ();
++   events_not_done = 0;
+  }
+  
+
+Index: video-dfb.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.h,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** video-dfb.h	24 Oct 2004 08:07:42 -0000	1.2
+--- video-dfb.h	24 Oct 2004 11:27:27 -0000	1.3
+***************
+*** 31,34 ****
+--- 31,36 ----
+      cDFBRemote            *dfbRemote;
+  
++     IDirectFBEventBuffer  *events;
++ 
+      bool deinterlace;
+      bool alphablend;
+***************
+*** 41,45 ****
+      cDFBVideoOut();
+      virtual ~cDFBVideoOut();
+!     void ProcessEvents (DFBInputEvent &event);
+  
+  #if VDRVERSNUM >= 10307
+--- 43,48 ----
+      cDFBVideoOut();
+      virtual ~cDFBVideoOut();
+!     void ProcessEvents ();
+!     void ShowOSD ();
+  
+  #if VDRVERSNUM >= 10307
+***************
+*** 61,65 ****
+    private:
+      bool                  active;
+-     IDirectFBEventBuffer  *events;
+      cDFBVideoOut          *video_out;
+  
+--- 64,67 ----
+
+
+
+From nobody at sheep.berlios.de  Sun Oct 24 19:28:31 2004
+From: nobody at sheep.berlios.de (iampivot)
+Date: Sun, 24 Oct 2004 19:28:31 +0200
+Subject: [Softdevice-cvs] softdevice xscreensaver.c,1.1,1.2
+Message-ID: <200410241728.i9OHSVB24179@bat.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv26881
+
+Modified Files:
+	xscreensaver.c 
+Log Message:
+changed printf -> dsyslog
+
+
+Index: xscreensaver.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/xscreensaver.c,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1 -r1.2
+*** xscreensaver.c	18 Oct 2004 03:28:37 -0000	1.1
+--- xscreensaver.c	24 Oct 2004 17:28:29 -0000	1.2
+***************
+*** 35,39 ****
+    } else {
+      if (!old_handler)
+!       printf("[softdevice-xscreensaver]: old handler not found!\n");
+      return(*old_handler) (dpy, error);
+    }
+--- 35,39 ----
+    } else {
+      if (!old_handler)
+!       isyslog("[softdevice-xscreensaver]: old handler not found!\n");
+      return(*old_handler) (dpy, error);
+    }
+***************
+*** 57,63 ****
+    window = FindWindow();
+    if (window) {
+!     printf("[softdevice-xscreensaver]: window is 0x%lx\n", window);
+    } else {
+!     printf("[softdevice-xscreensaver]: xscreensaver not running\n");
+    }
+    disabled = false; // don't disable screensaver until asked to
+--- 57,63 ----
+    window = FindWindow();
+    if (window) {
+!     dsyslog("[softdevice-xscreensaver]: window is 0x%lx\n", window);
+    } else {
+!     dsyslog("[softdevice-xscreensaver]: xscreensaver not running\n");
+    }
+    disabled = false; // don't disable screensaver until asked to
+***************
+*** 75,86 ****
+      Status stat;
+      if (disable) {
+!       printf("[softdevice-xscreensaver]: disabling DPMS\n");
+        DPMSInfo(dpy, &dpms_state, &dpms_on);
+        stat = DPMSDisable(dpy);
+!       printf("[softdevice-xscreensaver]: disabling DPMS stat: %d\n", stat);
+      } else {
+!       printf("[softdevice-xscreensaver]: reenabling DPMS\n");
+        if (!DPMSEnable(dpy)) {
+!         printf("[softdevice-xscreensaver]: DPMS not available?\n");
+        } else {
+          // According to mplayer sources: DPMS does not seem to be enabled unless we call DPMSInfo
+--- 75,86 ----
+      Status stat;
+      if (disable) {
+!       dsyslog("[softdevice-xscreensaver]: disabling DPMS\n");
+        DPMSInfo(dpy, &dpms_state, &dpms_on);
+        stat = DPMSDisable(dpy);
+!       dsyslog("[softdevice-xscreensaver]: disabling DPMS stat: %d\n", stat);
+      } else {
+!       dsyslog("[softdevice-xscreensaver]: reenabling DPMS\n");
+        if (!DPMSEnable(dpy)) {
+!         dsyslog("[softdevice-xscreensaver]: DPMS not available?\n");
+        } else {
+          // According to mplayer sources: DPMS does not seem to be enabled unless we call DPMSInfo
+***************
+*** 88,94 ****
+          DPMSInfo(dpy, &dpms_state, &dpms_on);
+          if (onoff) {
+!           printf("[softdevice-xscreensaver]: Successfully enabled DPMS\n");
+          } else {
+!           printf("[softdevice-xscreensaver]: Could not enable DPMS\n");
+          }
+        }
+--- 88,94 ----
+          DPMSInfo(dpy, &dpms_state, &dpms_on);
+          if (onoff) {
+!           dsyslog("[softdevice-xscreensaver]: Successfully enabled DPMS\n");
+          } else {
+!           dsyslog("[softdevice-xscreensaver]: Could not enable DPMS\n");
+          }
+        }
+***************
+*** 104,108 ****
+      if (current.tv_sec - last > INTERVAL) {
+        last = current.tv_sec;
+!       printf("[softdevice-xscreensaver]: sending xscreensaver deactivation command DPMS\n");
+  
+        XEvent event;
+--- 104,108 ----
+      if (current.tv_sec - last > INTERVAL) {
+        last = current.tv_sec;
+!       //dsyslog("[softdevice-xscreensaver]: sending xscreensaver deactivation command DPMS\n");
+  
+        XEvent event;
+***************
+*** 115,119 ****
+        event.xclient.data.l[0] = XA_DEACTIVATE;
+        if (!XSendEvent (dpy, window, False, 0L, &event)) {
+!         printf("[softdevice-xscreensaver]: failed to send deactivation command\n");
+          return;
+        }
+--- 115,119 ----
+        event.xclient.data.l[0] = XA_DEACTIVATE;
+        if (!XSendEvent (dpy, window, False, 0L, &event)) {
+!         esyslog("[softdevice-xscreensaver]: failed to send deactivation command\n");
+          return;
+        }
+***************
+*** 130,138 ****
+     
+    if (! XQueryTree (dpy, root, &root2, &parent, &kids, &nkids))
+!     printf("[softdevice-xscreensaver]: unexpected error looking up xscreensaver window\n");
+    if (root != root2)
+!     printf("[softdevice-xscreensaver]: unexpected error looking up xscreensaver window\n");
+    if (parent)
+!     printf("[softdevice-xscreensaver]: unexpected error looking up xscreensaver window\n");
+    if (! (kids && nkids))
+      return 0;
+--- 130,138 ----
+     
+    if (! XQueryTree (dpy, root, &root2, &parent, &kids, &nkids))
+!     esyslog("[softdevice-xscreensaver]: unexpected error looking up xscreensaver window\n");
+    if (root != root2)
+!     esyslog("[softdevice-xscreensaver]: unexpected error looking up xscreensaver window\n");
+    if (parent)
+!     esyslog("[softdevice-xscreensaver]: unexpected error looking up xscreensaver window\n");
+    if (! (kids && nkids))
+      return 0;
+***************
+*** 152,156 ****
+      XSync (dpy, False);
+      if (old_handler)
+!       printf("[softdevice-xscreensaver]: unexpected error looking up xscreensaver window\n");
+      got_badwindow = False;
+      old_handler = XSetErrorHandler (BadWindow_ehandler);
+--- 152,156 ----
+      XSync (dpy, False);
+      if (old_handler)
+!       esyslog("[softdevice-xscreensaver]: unexpected error looking up xscreensaver window\n");
+      got_badwindow = False;
+      old_handler = XSetErrorHandler (BadWindow_ehandler);
+
+
+
+From nobody at sheep.berlios.de  Mon Oct 25 04:36:21 2004
+From: nobody at sheep.berlios.de (lucke)
+Date: Mon, 25 Oct 2004 04:36:21 +0200
+Subject: [Softdevice-cvs] softdevice Makefile,1.2,1.3 xscreensaver.c,1.2,1.3 xscreensaver.h,1.1,1.2
+Message-ID: <200410250236.i9P2aLB01621@bat.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv2607
+
+Modified Files:
+	Makefile xscreensaver.c xscreensaver.h 
+Log Message:
+fix compile issues with X11 dpms headers
+
+Index: Makefile
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/Makefile,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** Makefile	18 Oct 2004 03:32:37 -0000	1.2
+--- Makefile	25 Oct 2004 02:36:18 -0000	1.3
+***************
+*** 161,164 ****
+--- 161,167 ----
+  OBJS 	+= video-xv.o xscreensaver.o
+  DEFINES += -DXV_SUPPORT
++ ifdef LIBXDPMS_SUPPORT
++ DEFINES += -DLIBXDPMS_SUPPORT
++ endif
+  LIBS 	+= -L/usr/X11R6/lib -lXi -lXext -lX11 -lm -lXv
+  endif
+
+Index: xscreensaver.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/xscreensaver.c,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** xscreensaver.c	24 Oct 2004 17:28:29 -0000	1.2
+--- xscreensaver.c	25 Oct 2004 02:36:18 -0000	1.3
+***************
+*** 28,31 ****
+--- 28,32 ----
+  static XErrorHandler old_handler = 0;
+  static Bool got_badwindow = False;
++ static BOOL dpms_on;
+  
+  static int BadWindow_ehandler(Display *dpy, XErrorEvent *error) {
+***************
+*** 42,46 ****
+  cScreensaver::~cScreensaver() {
+  #ifdef LIBXDPMS_SUPPORT
+!   if (disabled && (DPMSQueryExtension(dpy, &dpms_dummy, &dpms_dummy)) && DPMSCapable(dpy)) && (dpms_on)) {
+      DPMSEnable(dpy);
+    }
+--- 43,50 ----
+  cScreensaver::~cScreensaver() {
+  #ifdef LIBXDPMS_SUPPORT
+!   if (disabled &&
+!       DPMSQueryExtension(dpy, &dpms_dummy, &dpms_dummy) &&
+!       DPMSCapable(dpy) &&
+!       dpms_on) {
+      DPMSEnable(dpy);
+    }
+***************
+*** 87,91 ****
+          DPMSForceLevel(dpy, DPMSModeOn);
+          DPMSInfo(dpy, &dpms_state, &dpms_on);
+!         if (onoff) {
+            dsyslog("[softdevice-xscreensaver]: Successfully enabled DPMS\n");
+          } else {
+--- 91,95 ----
+          DPMSForceLevel(dpy, DPMSModeOn);
+          DPMSInfo(dpy, &dpms_state, &dpms_on);
+!         if (dpms_on) {
+            dsyslog("[softdevice-xscreensaver]: Successfully enabled DPMS\n");
+          } else {
+
+Index: xscreensaver.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/xscreensaver.h,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1 -r1.2
+*** xscreensaver.h	18 Oct 2004 03:28:37 -0000	1.1
+--- xscreensaver.h	25 Oct 2004 02:36:18 -0000	1.2
+***************
+*** 14,18 ****
+--- 14,51 ----
+  
+  #ifdef LIBXDPMS_SUPPORT
++ 
++ /* ----------------------------------------------------------------------------
++  * X11 headers are buggy (won't compile C++). As long as this is true
++  * we have to caryy a local copy of them ;-) .
++  */
++ #if 0
+  #include <X11/extensions/dpms.h>
++ #else
++ 
++ #define DPMSModeOn      0
++ #define DPMSModeStandby 1
++ #define DPMSModeSuspend 2
++ #define DPMSModeOff     3
++ 
++ #ifndef DPMS_SERVER
++ 
++ #include <X11/X.h>
++ #include <X11/Xmd.h>
++ 
++ extern "C" {
++ extern Bool DPMSQueryExtension(Display *, int *, int *);
++ extern Status DPMSGetVersion(Display *, int *, int *);
++ extern Bool DPMSCapable(Display *);
++ extern Status DPMSSetTimeouts(Display *, CARD16, CARD16, CARD16);
++ extern Bool DPMSGetTimeouts(Display *, CARD16 *, CARD16 *, CARD16 *);
++ extern Status DPMSEnable(Display *);
++ extern Status DPMSDisable(Display *);
++ extern Status DPMSForceLevel(Display *, CARD16);
++ extern Status DPMSInfo(Display *, CARD16 *, BOOL *);
++ }
++ #endif
++ 
++ #endif
++ 
+  #endif
+  
+***************
+*** 29,37 ****
+    Atom XA_SCREENSAVER;
+    Atom XA_DEACTIVATE;
+- #ifdef LIBXDPMS_SUPPORT
+-   static BOOL dpms_on;
+    CARD16 dpms_state;
+    int dpms_dummy;
+- #endif
+    int FindWindow();
+  public:
+--- 62,67 ----
+
+
+
+From nobody at sheep.berlios.de  Mon Oct 25 04:54:41 2004
+From: nobody at sheep.berlios.de (lucke)
+Date: Mon, 25 Oct 2004 04:54:41 +0200
+Subject: [Softdevice-cvs] softdevice CHANGELOG,1.11,1.12 softdevice.c,1.1.1.1,1.2 video-xv.c,1.4,1.5
+Message-ID: <200410250254.i9P2sfB01877@bat.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv4587
+
+Modified Files:
+	CHANGELOG softdevice.c video-xv.c 
+Log Message:
+new prerelease
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -C2 -d -r1.11 -r1.12
+*** CHANGELOG	24 Oct 2004 11:27:27 -0000	1.11
+--- CHANGELOG	25 Oct 2004 02:54:39 -0000	1.12
+***************
+*** 1,3 ****
+--- 1,7 ----
+  Changelog
++   2004-10-25:
++    - fix compile issues with X11 dpms headers. they are not usable for
++      C++ code. see: http://freedesktop.org/bugzilla/show_bug.cgi?id=830 .
++    - bumped level to 0.0.7pre3 .
+    2004-10-24:
+     - fix for DFB-out OSD not shown while paused in YUY2 mode (bug: #002266)
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1.1.1 -r1.2
+*** softdevice.c	1 Aug 2004 05:07:04 -0000	1.1.1.1
+--- softdevice.c	25 Oct 2004 02:54:39 -0000	1.2
+***************
+*** 70,74 ****
+  #include "mpeg2decoder.h"
+  #include "utils.h"
+! static const char *VERSION        = "0.0.7pre2";
+  static const char *DESCRIPTION    = "A software emulated MPEG2 device";
+  static const char *MAINMENUENTRY  = "Softdevice";
+--- 70,74 ----
+  #include "mpeg2decoder.h"
+  #include "utils.h"
+! static const char *VERSION        = "0.0.7pre3";
+  static const char *DESCRIPTION    = "A software emulated MPEG2 device";
+  static const char *MAINMENUENTRY  = "Softdevice";
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -C2 -d -r1.4 -r1.5
+*** video-xv.c	23 Oct 2004 21:33:26 -0000	1.4
+--- video-xv.c	25 Oct 2004 02:54:39 -0000	1.5
+***************
+*** 28,32 ****
+  #include "utils.h"
+  
+! #define PATCH_VERSION "007_pre_2+"
+  
+  static pthread_mutex_t  xv_mutex = PTHREAD_MUTEX_INITIALIZER;
+--- 28,32 ----
+  #include "utils.h"
+  
+! #define PATCH_VERSION "007_pre_3"
+  
+  static pthread_mutex_t  xv_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+
+
+From nobody at sheep.berlios.de  Mon Oct 25 19:59:01 2004
+From: nobody at sheep.berlios.de (lucke)
+Date: Mon, 25 Oct 2004 19:59:01 +0200
+Subject: [Softdevice-cvs] softdevice CHANGELOG,1.12,1.13 video.c,1.2,1.3 video.h,1.2,1.3
+Message-ID: <200410251759.i9PHx1B23078@bat.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv20023
+
+Modified Files:
+	CHANGELOG video.c video.h 
+Log Message:
+compile fix for older vdr versions
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.12
+retrieving revision 1.13
+diff -C2 -d -r1.12 -r1.13
+*** CHANGELOG	25 Oct 2004 02:54:39 -0000	1.12
+--- CHANGELOG	25 Oct 2004 17:58:59 -0000	1.13
+***************
+*** 1,7 ****
+  Changelog
+    2004-10-25:
+     - fix compile issues with X11 dpms headers. they are not usable for
+       C++ code. see: http://freedesktop.org/bugzilla/show_bug.cgi?id=830 .
+-    - bumped level to 0.0.7pre3 .
+    2004-10-24:
+     - fix for DFB-out OSD not shown while paused in YUY2 mode (bug: #002266)
+--- 1,8 ----
+  Changelog
+    2004-10-25:
++    - compile fix for older vdr versions. tested with 1.2.1 .
++    - bumped level to 0.0.7pre3 .
+     - fix compile issues with X11 dpms headers. they are not usable for
+       C++ code. see: http://freedesktop.org/bugzilla/show_bug.cgi?id=830 .
+    2004-10-24:
+     - fix for DFB-out OSD not shown while paused in YUY2 mode (bug: #002266)
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** video.c	23 Oct 2004 21:33:26 -0000	1.2
+--- video.c	25 Oct 2004 17:58:59 -0000	1.3
+***************
+*** 267,271 ****
+                                                Window->Height(),
+                                                Bpp,
+!                                               Xres, Yres);
+      return true;
+  }
+--- 267,271 ----
+                                                Window->Height(),
+                                                Bpp,
+!                                               Xres, Yres, OSDpseudo_alpha);
+      return true;
+  }
+***************
+*** 328,332 ****
+  
+  // --- cWindowLayer --------------------------------------------------
+! cWindowLayer::cWindowLayer(int X, int Y, int W, int H, int Bpp, int Xres, int Yres) {
+      left=X;
+      top=Y;
+--- 328,333 ----
+  
+  // --- cWindowLayer --------------------------------------------------
+! cWindowLayer::cWindowLayer(int X, int Y, int W, int H, int Bpp,
+!                            int Xres, int Yres, bool alpha) {
+      left=X;
+      top=Y;
+***************
+*** 337,340 ****
+--- 338,342 ----
+      yres=Yres;
+      visible=false;
++     OSDpseudo_alpha = alpha;
+      imagedata=(unsigned char *)malloc(W*H*4); // RGBA Screen memory
+      printf("[video] Creating WindowLayer at %d x %d, (%d x %d)\n",X,Y,W,H);
+***************
+*** 429,433 ****
+  			exit(1);
+      		}
+!         prev_pix = !IS_BACKGROUND(a);
+  
+  
+--- 431,435 ----
+  			exit(1);
+      		}
+!         prev_pix = !IS_BACKGROUND(im[3]);
+  
+  
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** video.h	23 Oct 2004 21:33:26 -0000	1.2
+--- video.h	25 Oct 2004 17:58:59 -0000	1.3
+***************
+*** 24,29 ****
+      int width, height, bpp, xres, yres;
+      unsigned char *imagedata;
+    public:
+!     cWindowLayer(int X, int Y, int W, int H, int Bpp, int Xres, int Yres);
+      ~cWindowLayer();
+      void Render(cWindow *Window);
+--- 24,31 ----
+      int width, height, bpp, xres, yres;
+      unsigned char *imagedata;
++     bool          OSDpseudo_alpha;
+    public:
+!     cWindowLayer(int X, int Y, int W, int H, int Bpp,
+!                  int Xres, int Yres, bool alpha);
+      ~cWindowLayer();
+      void Render(cWindow *Window);
+
+
+
+From nobody at sheep.berlios.de  Fri Oct 29 18:41:41 2004
+From: nobody at sheep.berlios.de (iampivot)
+Date: Fri, 29 Oct 2004 18:41:41 +0200
+Subject: [Softdevice-cvs] softdevice CHANGELOG,1.13,1.14 audio.c,1.3,1.4 audio.h,1.1.1.1,1.2 mpeg2decoder.c,1.5,1.6 mpeg2decoder.h,1.2,1.3 setup-softdevice.c,1.4,1.5 setup-softdevice.h,1.2,1.3 softdevice.c,1.2,1.3
+Message-ID: <200410291641.i9TGffB18176@bat.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv1824
+
+Modified Files:
+	CHANGELOG audio.c audio.h mpeg2decoder.c mpeg2decoder.h 
+	setup-softdevice.c setup-softdevice.h softdevice.c 
+Log Message:
+Allow setting alsa output device in setup.conf or by command line argument.
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.13
+retrieving revision 1.14
+diff -C2 -d -r1.13 -r1.14
+*** CHANGELOG	25 Oct 2004 17:58:59 -0000	1.13
+--- CHANGELOG	29 Oct 2004 16:41:39 -0000	1.14
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++   2004-10-29:
++    - allow setting alsa device with command line parameter or in setup.conf
+    2004-10-25:
+     - compile fix for older vdr versions. tested with 1.2.1 .
+
+Index: audio.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio.c,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** audio.c	22 Oct 2004 15:07:15 -0000	1.3
+--- audio.c	29 Oct 2004 16:41:39 -0000	1.4
+***************
+*** 18,22 ****
+  
+  
+- char *device = "plughw:0,0";
+  #define PCM_FMT SND_PCM_FORMAT_S16_LE
+  
+--- 18,21 ----
+***************
+*** 24,29 ****
+  }
+  
+! cAlsaAudioOut::cAlsaAudioOut() {
+!     dsyslog("[softdevice-audio] Opening alsa device %s",device);
+      int err;
+      paused=false;
+--- 23,31 ----
+  }
+  
+! cAlsaAudioOut::cAlsaAudioOut(char *alsaDevice) {
+!     if (strlen(alsaDevice) == 0)
+!       strcpy (alsaDevice, "default");
+!     dsyslog("[softdevice-audio] Opening alsa device %s",alsaDevice);
+!     device = alsaDevice;
+      int err;
+      paused=false;
+
+Index: audio.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio.h,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1.1.1 -r1.2
+*** audio.h	1 Aug 2004 05:07:05 -0000	1.1.1.1
+--- audio.h	29 Oct 2004 16:41:39 -0000	1.2
+***************
+*** 39,46 ****
+    snd_pcm_uframes_t periodSize;
+    snd_pcm_t *handle;
+    volatile bool paused;
+  protected:
+  public:
+!   cAlsaAudioOut();
+    virtual ~cAlsaAudioOut();
+    virtual void Write(uchar *Data, int Length);
+--- 39,47 ----
+    snd_pcm_uframes_t periodSize;
+    snd_pcm_t *handle;
++   char *device;
+    volatile bool paused;
+  protected:
+  public:
+!   cAlsaAudioOut(char *device);
+    virtual ~cAlsaAudioOut();
+    virtual void Write(uchar *Data, int Length);
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -C2 -d -r1.5 -r1.6
+*** mpeg2decoder.c	22 Oct 2004 21:46:46 -0000	1.5
+--- mpeg2decoder.c	29 Oct 2004 16:41:39 -0000	1.6
+***************
+*** 145,149 ****
+    audioOut=AudioOut;
+    cPTS=commonPTS;
+-   avOffset = setupStore.avOffset;
+    codec = avcodec_find_decoder(CODEC_ID_MP2);
+    if (!codec)
+--- 145,148 ----
+***************
+*** 187,191 ****
+      audioOut->Write(audiosamples,audio_size);
+      int delay = audioOut->GetDelay();
+!     if (delay + avOffset < 20)// if we have less than 20 ms in buffer we double frames
+        audioOut->Write(audiosamples,audio_size);
+  
+--- 186,190 ----
+      audioOut->Write(audiosamples,audio_size);
+      int delay = audioOut->GetDelay();
+!     if (delay < 20)// if we have less than 20 ms in buffer we double frames
+        audioOut->Write(audiosamples,audio_size);
+  
+***************
+*** 193,197 ****
+  
+      //  printf("Audiodelay: %d \n",delay);
+!     *cPTS = pts - delay + avOffset; // Das ist die Master-PTS die wird an den video Teil ?bergeben,
+      // damit Video syncronisieren kann
+      if (validPTS)
+--- 192,196 ----
+  
+      //  printf("Audiodelay: %d \n",delay);
+!     *cPTS = pts - delay + setupStore.avOffset; // Das ist die Master-PTS die wird an den video Teil ?bergeben,
+      // damit Video syncronisieren kann
+      if (validPTS)
+
+Index: mpeg2decoder.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.h,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** mpeg2decoder.h	18 Oct 2004 03:33:37 -0000	1.2
+--- mpeg2decoder.h	29 Oct 2004 16:41:39 -0000	1.3
+***************
+*** 52,56 ****
+      uint8_t * audiosamples;
+      cAudioOut *audioOut;
+-     int       avOffset;
+  protected:
+  public:
+--- 52,55 ----
+
+Index: setup-softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.c,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -C2 -d -r1.4 -r1.5
+*** setup-softdevice.c	22 Oct 2004 21:51:46 -0000	1.4
+--- setup-softdevice.c	29 Oct 2004 16:41:39 -0000	1.5
+***************
+*** 90,93 ****
+--- 90,94 ----
+    syncOnFrames  = 0;
+    avOffset      = 0;
++   strcpy (alsaDevice, "");
+  }
+  
+***************
+*** 149,152 ****
+--- 150,157 ----
+      fprintf(stderr,"[setup-softdevice] A/V Offset set to (%d)\n",
+              avOffset);
++   } else if (!strcasecmp(Name, "AlsaDevice") && strlen(alsaDevice) == 0) {
++     strncpy(alsaDevice, Value, ALSA_DEVICE_NAME_LENGTH);
++     alsaDevice [ALSA_DEVICE_NAME_LENGTH-1] = 0;
++     fprintf(stderr, "[setup-softdevice] alsa device set to: %s\n", alsaDevice);
+    } else return false;
+  
+***************
+*** 277,279 ****
+--- 282,285 ----
+    SetupStore ("SyncAllFrames",      setupStore.syncOnFrames);
+    SetupStore ("avOffset",           setupStore.avOffset);
++   SetupStore ("AlsaDevice",         setupStore.alsaDevice);
+  }
+
+Index: setup-softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.h,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** setup-softdevice.h	18 Oct 2004 03:33:37 -0000	1.2
+--- setup-softdevice.h	29 Oct 2004 16:41:39 -0000	1.3
+***************
+*** 15,18 ****
+--- 15,20 ----
+  #define VOUT_VIDIX    4
+  
++ #define ALSA_DEVICE_NAME_LENGTH  64
++ 
+  /* ---------------------------------------------------------------------------
+   */
+***************
+*** 30,33 ****
+--- 32,36 ----
+      int   syncOnFrames;
+      int   avOffset;
++     char  alsaDevice [ALSA_DEVICE_NAME_LENGTH];
+  };
+  
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** softdevice.c	25 Oct 2004 02:54:39 -0000	1.2
+--- softdevice.c	29 Oct 2004 16:41:39 -0000	1.3
+***************
+*** 310,314 ****
+      fprintf(stderr,"[softdevice] Video Out seems to be OK\n");
+      fprintf(stderr,"[softdevice] Initializing Audio Out\n");
+!     audioOut=new cAlsaAudioOut();
+      fprintf(stderr,"[softdevice] Audio out seems to be OK\n");
+      fprintf(stderr,"[softdevice] A/V devices initialized, now initializing MPEG2 Decoder\n");
+--- 310,314 ----
+      fprintf(stderr,"[softdevice] Video Out seems to be OK\n");
+      fprintf(stderr,"[softdevice] Initializing Audio Out\n");
+!     audioOut=new cAlsaAudioOut(setupStore.alsaDevice);
+      fprintf(stderr,"[softdevice] Audio out seems to be OK\n");
+      fprintf(stderr,"[softdevice] A/V devices initialized, now initializing MPEG2 Decoder\n");
+***************
+*** 476,479 ****
+--- 476,480 ----
+    // Return a string that describes all known command line options.
+    return
++   "  -ao alsa:devicename      alsa output device\n"
+  #ifdef XV_SUPPORT
+    "  -vo xv:                  enable output via X11-Xv\n"
+***************
+*** 557,560 ****
+--- 558,567 ----
+        ++i; --argc;
+        if (argc > 0) {
++           char *ao_argv = argv[i];
++         if (!strncmp(ao_argv, "alsa:", 5)) {
++           ao_argv += 5;
++           fprintf(stderr, "[softdevice] using alsa device %s\n", ao_argv);
++           strncpy(setupStore.alsaDevice, ao_argv, ALSA_DEVICE_NAME_LENGTH);
++         }
+        }
+      }
+
+
+
+From nobody at sheep.berlios.de  Fri Oct 29 19:54:24 2004
+From: nobody at sheep.berlios.de (lucke)
+Date: Fri, 29 Oct 2004 19:54:24 +0200
+Subject: [Softdevice-cvs] softdevice CHANGELOG,1.14,1.15 softdevice.c,1.3,1.4 video-xv.c,1.5,1.6
+Message-ID: <200410291754.i9THsOB19980@bat.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv20263
+
+Modified Files:
+	CHANGELOG softdevice.c video-xv.c 
+Log Message:
+xv-out: fix possible race condition causing segfault during init (bug: #2699)
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.14
+retrieving revision 1.15
+diff -C2 -d -r1.14 -r1.15
+*** CHANGELOG	29 Oct 2004 16:41:39 -0000	1.14
+--- CHANGELOG	29 Oct 2004 17:54:22 -0000	1.15
+***************
+*** 1,4 ****
+--- 1,5 ----
+  Changelog
+    2004-10-29:
++    - xv-out: fix possible race condition causing segfault during init (bug: #2699)
+     - allow setting alsa device with command line parameter or in setup.conf
+    2004-10-25:
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** softdevice.c	29 Oct 2004 16:41:39 -0000	1.3
+--- softdevice.c	29 Oct 2004 17:54:22 -0000	1.4
+***************
+*** 282,289 ****
+  #ifdef XV_SUPPORT
+          videoOut = new cXvVideoOut (setupStore. xvAspect);
+!         if (videoOut->Initialize ()) {
+!           videoOut->Reconfigure (FOURCC_YV12);
+          } else {
+            fprintf (stderr, "[softdevice] Xv out failure !\n");
+          }
+  #endif
+--- 282,290 ----
+  #ifdef XV_SUPPORT
+          videoOut = new cXvVideoOut (setupStore. xvAspect);
+!         if (videoOut->Initialize () && videoOut->Reconfigure (FOURCC_YV12)) {
+!           fprintf (stderr, "[softdevice] Xv out OK !\n");
+          } else {
+            fprintf (stderr, "[softdevice] Xv out failure !\n");
++           exit (1);
+          }
+  #endif
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -C2 -d -r1.5 -r1.6
+*** video-xv.c	25 Oct 2004 02:54:39 -0000	1.5
+--- video-xv.c	29 Oct 2004 17:54:22 -0000	1.6
+***************
+*** 420,432 ****
+  
+        case MapNotify:
+!         XvShmPutImage(dpy, port,
+!                       win, gc,
+!                       xv_image,
+!                       sxoff, syoff,      /* sx, sy */
+!                       swidth, sheight,   /* sw, sh */
+!                       lxoff,  lyoff,     /* dx, dy */
+!                       lwidth, lheight,   /* dw, dh */
+!                       False);
+!           XSync(dpy, False);
+          break;
+        case UnmapNotify:
+--- 420,434 ----
+  
+        case MapNotify:
+!         if (initialized) {
+!           XvShmPutImage(dpy, port,
+!                         win, gc,
+!                         xv_image,
+!                         sxoff, syoff,      /* sx, sy */
+!                         swidth, sheight,   /* sw, sh */
+!                         lxoff,  lyoff,     /* dx, dy */
+!                         lwidth, lheight,   /* dw, dh */
+!                         False);
+!             XSync(dpy, False);
+!           }
+          break;
+        case UnmapNotify:
+***************
+*** 639,642 ****
+--- 641,649 ----
+      shmctl (osd_shminfo. shmid, IPC_RMID, 0);
+  
++   if (!xScreensaver)
++   {
++     xScreensaver = new cScreensaver(dpy);
++   }
++ 
+    /* -------------------------------------------------------------------------
+     * get up our remote running
+***************
+*** 648,656 ****
+      xvRemote->XvRemoteStart();
+    }
+!   if (!xScreensaver)
+!   {
+!     xScreensaver = new cScreensaver(dpy);
+!   }
+!   initialized = 1;
+    dsyslog("[XvVideoOut]: initialized OK");
+  
+--- 655,659 ----
+      xvRemote->XvRemoteStart();
+    }
+! 
+    dsyslog("[XvVideoOut]: initialized OK");
+  
+***************
+*** 819,822 ****
+--- 822,826 ----
+  
+    this->format = format;
++   initialized = 1;
+    return true;
+  }
+
+
+
+From nobody at sheep.berlios.de  Fri Oct 29 22:36:09 2004
+From: nobody at sheep.berlios.de (lucke)
+Date: Fri, 29 Oct 2004 22:36:09 +0200
+Subject: [Softdevice-cvs] softdevice CHANGELOG,1.15,1.16 video-xv.c,1.6,1.7 video-xv.h,1.2,1.3 video.h,1.3,1.4
+Message-ID: <200410292036.i9TKa9B23405@bat.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv27251
+
+Modified Files:
+	CHANGELOG video-xv.c video-xv.h video.h 
+Log Message:
+changed fullscreen mode. works now with more wms
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.15
+retrieving revision 1.16
+diff -C2 -d -r1.15 -r1.16
+*** CHANGELOG	29 Oct 2004 17:54:22 -0000	1.15
+--- CHANGELOG	29 Oct 2004 20:36:07 -0000	1.16
+***************
+*** 1,4 ****
+--- 1,5 ----
+  Changelog
+    2004-10-29:
++    - xv-out: changed fullscreen mode. works now with more wms (bug: #2265)
+     - xv-out: fix possible race condition causing segfault during init (bug: #2699)
+     - allow setting alsa device with command line parameter or in setup.conf
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -C2 -d -r1.6 -r1.7
+*** video-xv.c	29 Oct 2004 17:54:22 -0000	1.6
+--- video-xv.c	29 Oct 2004 20:36:07 -0000	1.7
+***************
+*** 28,32 ****
+  #include "utils.h"
+  
+! #define PATCH_VERSION "007_pre_3"
+  
+  static pthread_mutex_t  xv_mutex = PTHREAD_MUTEX_INITIALIZER;
+--- 28,32 ----
+  #include "utils.h"
+  
+! #define PATCH_VERSION "007_pre_3+"
+  
+  static pthread_mutex_t  xv_mutex = PTHREAD_MUTEX_INITIALIZER;
+***************
+*** 283,299 ****
+  void cXvVideoOut::toggleFullScreen(void)
+  {
+    fullScreen = !fullScreen;
+!   XEvent e;
+  
+    memset(&e,0,sizeof(e));
+    e.xclient.type = ClientMessage;
+!   e.xclient.message_type = _NET_WM_STATE;
+    e.xclient.display = dpy;
+    e.xclient.window = win;
+    e.xclient.format = 32;
+!   e.xclient.data.l[0] = fullScreen ? 1 : 0;
+!   e.xclient.data.l[1] = _NET_WM_STATE_FULLSCREEN;
+    XSendEvent(dpy, DefaultRootWindow(dpy), False, SubstructureRedirectMask, &e);
+  
+    xScreensaver->DisableScreensaver(fullScreen); // enable of disable based on fullScreen state
+  }
+--- 283,374 ----
+  void cXvVideoOut::toggleFullScreen(void)
+  {
++     XEvent      e;
++     XSizeHints  wmHints;
++     Atom        wmAtom;
++     int         x, y, w, h;
++ 
+    fullScreen = !fullScreen;
+! 
+!   if (fullScreen)
+!   {
+!       XWindowAttributes winAttr;
+!       Window            dummyWin;
+! 
+! 
+!     if (XGetWindowAttributes(dpy, win, &winAttr))
+!     {
+!         XVisualInfo vistemp, *vinfo;
+!         int         dummy;
+! 
+!       vinfo = XGetVisualInfo(dpy, VisualIDMask, &vistemp, &dummy);
+!       XTranslateCoordinates (dpy, win, winAttr.root,
+!                              -winAttr.border_width,
+!                              -winAttr.border_width,
+!                              &old_x, &old_y, &dummyWin);
+!     }
+!     else
+!     {
+!       old_x       = dx;
+!       old_y       = dy;
+!     }
+!     old_dwidth  = dwidth;
+!     old_dheight = dheight;
+! 
+!     x = y = 0;
+!     w = DisplayWidth(dpy,DefaultScreen(dpy));
+!     h = DisplayHeight(dpy,DefaultScreen(dpy));
+!   }
+!   else
+!   {
+!     x = old_x;
+!     y = old_y;
+!     w = old_dwidth;
+!     h = old_dheight;
+!   }
+! 
+!   wmHints.flags = PSize | PPosition | PWinGravity;
+!   wmHints.win_gravity = StaticGravity;
+!   wmHints.x = x;
+!   wmHints.y = y;
+!   wmHints.width  = w;
+!   wmHints.height = h;
+!   wmHints.max_width  = 0;
+!   wmHints.max_height = 0;
+! 
+!   if ((wmAtom = XInternAtom (dpy, "_MOTIF_WM_HINTS", False)))
+!   {
+!       int         mwmHints [5];
+! 
+!     mwmHints [0] = 2;
+!     mwmHints [2] = (fullScreen) ? 0 : 1;
+!     mwmHints [1] = mwmHints [3] = mwmHints [4] = 0;
+!     XChangeProperty (dpy, win, wmAtom, wmAtom,
+!                      32, PropModeReplace, (unsigned char *) mwmHints, 5);
+!   }
+! 
+!   XSetWMNormalHints(dpy, win, &wmHints);
+  
+    memset(&e,0,sizeof(e));
+    e.xclient.type = ClientMessage;
+!   e.xclient.message_type = net_wm_STATE;
+    e.xclient.display = dpy;
+    e.xclient.window = win;
+    e.xclient.format = 32;
+!   e.xclient.data.l[0] = (fullScreen) ? 1 : 0;
+!   if (net_wm_STATE_ABOVE)
+!     e.xclient.data.l[1] = net_wm_STATE_ABOVE;
+!   else if (net_wm_STATE_FULLSCREEN)
+!     e.xclient.data.l[1] = net_wm_STATE_FULLSCREEN;
+!   else //if (net_wm_STATE_STAYS_ON_TOP)
+!     e.xclient.data.l[1] = net_wm_STATE_STAYS_ON_TOP;
+    XSendEvent(dpy, DefaultRootWindow(dpy), False, SubstructureRedirectMask, &e);
+  
++   XReparentWindow (dpy, win, DefaultRootWindow(dpy), x, y);
++   XMoveResizeWindow (dpy, win, x, y, w, h);
++ 
++   //XMapRaised (dpy, win);
++   //XRaiseWindow (dpy, win);
++ 
++   XFlush (dpy);
+    xScreensaver->DisableScreensaver(fullScreen); // enable of disable based on fullScreen state
+  }
+***************
+*** 306,310 ****
+      float           old_aspect;
+      char            buffer [80];
+!     int             len;
+      XComposeStatus  compose;
+      KeySym          keysym;
+--- 381,386 ----
+      float           old_aspect;
+      char            buffer [80];
+!     int             len,
+!                     map_count = 0;
+      XComposeStatus  compose;
+      KeySym          keysym;
+***************
+*** 338,341 ****
+--- 414,419 ----
+          break;
+        case ConfigureNotify:
++         dx = event.xconfigure.x;
++         dy = event.xconfigure.y;
+          dwidth = event.xconfigure.width;
+          dheight = event.xconfigure.height;
+***************
+*** 420,434 ****
+  
+        case MapNotify:
+          if (initialized) {
+!           XvShmPutImage(dpy, port,
+!                         win, gc,
+!                         xv_image,
+!                         sxoff, syoff,      /* sx, sy */
+!                         swidth, sheight,   /* sw, sh */
+!                         lxoff,  lyoff,     /* dx, dy */
+!                         lwidth, lheight,   /* dw, dh */
+!                         False);
+              XSync(dpy, False);
+            }
+          break;
+        case UnmapNotify:
+--- 498,520 ----
+  
+        case MapNotify:
++         map_count++;
+          if (initialized) {
+!           XSetInputFocus(dpy,
+!                    win,
+!                    RevertToParent,
+!                    CurrentTime);
+!           if (map_count > 2) {
+!             XvShmPutImage(dpy, port,
+!                           win, gc,
+!                           xv_image,
+!                           sxoff, syoff,      /* sx, sy */
+!                           swidth, sheight,   /* sw, sh */
+!                           lxoff,  lyoff,     /* dx, dy */
+!                           lwidth, lheight,   /* dw, dh */
+!                           False);
+              XSync(dpy, False);
++             map_count = 0;
+            }
++         }
+          break;
+        case UnmapNotify:
+***************
+*** 443,446 ****
+--- 529,545 ----
+      }
+    }
++ 
++   if (initialized && map_count) {
++     XvShmPutImage(dpy, port,
++                   win, gc,
++                   xv_image,
++                   sxoff, syoff,      /* sx, sy */
++                   swidth, sheight,   /* sw, sh */
++                   lxoff,  lyoff,     /* dx, dy */
++                   lwidth, lheight,   /* dw, dh */
++                   False);
++     XSync(dpy, False);
++   }
++ 
+    if(cursor_visible == True) {
+      gettimeofday(&current_time, NULL);
+***************
+*** 588,593 ****
+    button_time = motion_time = current_time.tv_sec;
+  
+!   _NET_WM_STATE_FULLSCREEN = XInternAtom(dpy, "_NET_WM_STATE_FULLSCREEN", False);
+!   _NET_WM_STATE = XInternAtom(dpy, "_NET_WM_STATE", False);
+    fullScreen = false;
+  
+--- 687,694 ----
+    button_time = motion_time = current_time.tv_sec;
+  
+!   net_wm_STATE_FULLSCREEN = XInternAtom(dpy, "_NET_WM_STATE_FULLSCREEN", False);
+!   net_wm_STATE_STAYS_ON_TOP = XInternAtom(dpy, "_NET_WM_STATE_STAYS_ON_TOP", False);
+!   net_wm_STATE_ABOVE = XInternAtom(dpy, "_NET_WM_STATE_ABOVE", False);
+!   net_wm_STATE = XInternAtom(dpy, "_NET_WM_STATE", False);
+    fullScreen = false;
+  
+
+Index: video-xv.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.h,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** video-xv.h	8 Aug 2004 20:55:59 -0000	1.2
+--- video-xv.h	29 Oct 2004 20:36:07 -0000	1.3
+***************
+*** 95,99 ****
+    Bool              cursor_visible;
+    long              motion_time, button_time;
+!   Atom              _NET_WM_STATE_FULLSCREEN, _NET_WM_STATE;
+    int               initialized,
+                      osd_refresh_counter,
+--- 95,102 ----
+    Bool              cursor_visible;
+    long              motion_time, button_time;
+!   Atom              net_wm_STATE_FULLSCREEN,
+!                     net_wm_STATE_STAYS_ON_TOP,
+!                     net_wm_STATE_ABOVE,
+!                     net_wm_STATE;
+    int               initialized,
+                      osd_refresh_counter,
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** video.h	25 Oct 2004 17:58:59 -0000	1.3
+--- video.h	29 Oct 2004 20:36:07 -0000	1.4
+***************
+*** 46,50 ****
+              OSDpseudo_alpha;
+      int     Xres, Yres, Bpp; // the child class MUST set these params (for OSD Drawing)
+!     int     dwidth, dheight,
+              fwidth, fheight,
+              swidth, sheight,
+--- 46,51 ----
+              OSDpseudo_alpha;
+      int     Xres, Yres, Bpp; // the child class MUST set these params (for OSD Drawing)
+!     int     dx, dy, dwidth, dheight,
+!             old_x, old_y, old_dwidth, old_dheight,
+              fwidth, fheight,
+              swidth, sheight,
+
+
+
+From nobody at sheep.berlios.de  Sat Oct 30 14:37:36 2004
+From: nobody at sheep.berlios.de (lucke)
+Date: Sat, 30 Oct 2004 14:37:36 +0200
+Subject: [Softdevice-cvs] softdevice CHANGELOG,1.16,1.17 softdevice.c,1.4,1.5 video-xv.c,1.7,1.8
+Message-ID: <200410301237.i9UCbaB09884@bat.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv1303
+
+Modified Files:
+	CHANGELOG softdevice.c video-xv.c 
+Log Message:
+new prerelease
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.16
+retrieving revision 1.17
+diff -C2 -d -r1.16 -r1.17
+*** CHANGELOG	29 Oct 2004 20:36:07 -0000	1.16
+--- CHANGELOG	30 Oct 2004 12:37:33 -0000	1.17
+***************
+*** 1,3 ****
+--- 1,4 ----
+  Changelog
++   2004-10-30: softdevice-0.0.7pre4 
+    2004-10-29:
+     - xv-out: changed fullscreen mode. works now with more wms (bug: #2265)
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -C2 -d -r1.4 -r1.5
+*** softdevice.c	29 Oct 2004 17:54:22 -0000	1.4
+--- softdevice.c	30 Oct 2004 12:37:33 -0000	1.5
+***************
+*** 70,74 ****
+  #include "mpeg2decoder.h"
+  #include "utils.h"
+! static const char *VERSION        = "0.0.7pre3";
+  static const char *DESCRIPTION    = "A software emulated MPEG2 device";
+  static const char *MAINMENUENTRY  = "Softdevice";
+--- 70,74 ----
+  #include "mpeg2decoder.h"
+  #include "utils.h"
+! static const char *VERSION        = "0.0.7pre4";
+  static const char *DESCRIPTION    = "A software emulated MPEG2 device";
+  static const char *MAINMENUENTRY  = "Softdevice";
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -C2 -d -r1.7 -r1.8
+*** video-xv.c	29 Oct 2004 20:36:07 -0000	1.7
+--- video-xv.c	30 Oct 2004 12:37:33 -0000	1.8
+***************
+*** 28,32 ****
+  #include "utils.h"
+  
+! #define PATCH_VERSION "007_pre_3+"
+  
+  static pthread_mutex_t  xv_mutex = PTHREAD_MUTEX_INITIALIZER;
+--- 28,32 ----
+  #include "utils.h"
+  
+! #define PATCH_VERSION "007_pre_4"
+  
+  static pthread_mutex_t  xv_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+
+
+From nobody at sheep.berlios.de  Thu Nov  4 08:01:55 2004
+From: nobody at sheep.berlios.de (lucke)
+Date: Thu, 4 Nov 2004 08:01:55 +0100
+Subject: [Softdevice-cvs] softdevice CHANGELOG,1.17,1.18 audio.c,1.4,1.5 softdevice.c,1.5,1.6
+Message-ID: <200411040701.iA471tB15493@bat.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv25703
+
+Modified Files:
+	CHANGELOG audio.c softdevice.c 
+Log Message:
+now no pre, 0.0.7
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.17
+retrieving revision 1.18
+diff -C2 -d -r1.17 -r1.18
+*** CHANGELOG	30 Oct 2004 12:37:33 -0000	1.17
+--- CHANGELOG	4 Nov 2004 07:01:52 -0000	1.18
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++   2004-11-04: softdevice-0.0.7
++    - audio-out: don't exit when we get EINTR upon write
+    2004-10-30: softdevice-0.0.7pre4 
+    2004-10-29:
+
+Index: audio.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio.c,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -C2 -d -r1.4 -r1.5
+*** audio.c	29 Oct 2004 16:41:39 -0000	1.4
+--- audio.c	4 Nov 2004 07:01:52 -0000	1.5
+***************
+*** 59,62 ****
+--- 59,65 ----
+        //suspend();
+        dsyslog("[softdevice-audio]: Suspend");
++     } else if (err == -EINTR) {
++       dsyslog ("[softdevice-audio]: EINTR");
++       return;
+      } else if (err < 0) {
+        dsyslog("[softdevice-audio]: write error: %s FATAL exiting",
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -C2 -d -r1.5 -r1.6
+*** softdevice.c	30 Oct 2004 12:37:33 -0000	1.5
+--- softdevice.c	4 Nov 2004 07:01:52 -0000	1.6
+***************
+*** 70,74 ****
+  #include "mpeg2decoder.h"
+  #include "utils.h"
+! static const char *VERSION        = "0.0.7pre4";
+  static const char *DESCRIPTION    = "A software emulated MPEG2 device";
+  static const char *MAINMENUENTRY  = "Softdevice";
+--- 70,74 ----
+  #include "mpeg2decoder.h"
+  #include "utils.h"
+! static const char *VERSION        = "0.0.7";
+  static const char *DESCRIPTION    = "A software emulated MPEG2 device";
+  static const char *MAINMENUENTRY  = "Softdevice";
+
+
+
+From nobody at sheep.berlios.de  Tue Nov  9 22:41:21 2004
+From: nobody at sheep.berlios.de (lucke)
+Date: Tue, 9 Nov 2004 22:41:21 +0100
+Subject: [Softdevice-cvs] softdevice mpeg2decoder.c,1.6,1.7
+Message-ID: <200411092141.iA9LfKB02005@bat.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv23675
+
+Modified Files:
+	mpeg2decoder.c 
+Log Message:
+make 2nd audio channel selectable again. tested with arte on dvb-t
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -C2 -d -r1.6 -r1.7
+*** mpeg2decoder.c	29 Oct 2004 16:41:39 -0000	1.6
+--- mpeg2decoder.c	9 Nov 2004 21:41:18 -0000	1.7
+***************
+*** 786,790 ****
+          {
+            state=PAYLOAD;
+!           streamtype=syncword & 0x000000FF;
+          }
+          break;
+--- 786,791 ----
+          {
+            state=PAYLOAD;
+!           //streamtype=syncword & 0x000000FF;
+!           streamtype=0xc0;
+          }
+          break;
+
+
+
+From nobody at sheep.berlios.de  Tue Nov  9 22:48:56 2004
+From: nobody at sheep.berlios.de (lucke)
+Date: Tue, 9 Nov 2004 22:48:56 +0100
+Subject: [Softdevice-cvs] softdevice video-dfb.c,1.8,1.9
+Message-ID: <200411092148.iA9LmuB02166@bat.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv24016
+
+Modified Files:
+	video-dfb.c 
+Log Message:
+radeon doesn't need pseudo alpha. ..
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -C2 -d -r1.8 -r1.9
+*** video-dfb.c	24 Oct 2004 11:27:27 -0000	1.8
+--- video-dfb.c	9 Nov 2004 21:48:53 -0000	1.9
+***************
+*** 250,254 ****
+    if (videoLayer) {
+      videoLayer->SetCooperativeLevel(DLSCL_ADMINISTRATIVE);
+!     videoLayer->SetDstColorKey(COLORKEY);
+  
+      videoSurface=videoLayer->GetSurface();
+--- 250,254 ----
+    if (videoLayer) {
+      videoLayer->SetCooperativeLevel(DLSCL_ADMINISTRATIVE);
+!     //videoLayer->SetDstColorKey(COLORKEY); // no need to do that now
+  
+      videoSurface=videoLayer->GetSurface();
+***************
+*** 295,298 ****
+--- 295,306 ----
+        Yres = 576;
+  #endif
++ 
++     /* ------------------------------------------------------------------------
++      * clear screen surface at startup
++      */
++     scrSurface->Clear(0,0,0,0);
++     scrSurface->Flip();
++     scrSurface->Clear(0,0,0,0);
++ 
+      osdDsc.flags = (DFBSurfaceDescriptionFlags) (DSDESC_CAPS |
+                                                   DSDESC_WIDTH |
+***************
+*** 520,526 ****
+          {
+            /* ------------------------------------------------------------------
+!            * use alpha channel if it is supported
+!           */
+            dlc.options = (DFBDisplayLayerOptions)((int)dlc.options|DLOP_ALPHACHANNEL);
+          }
+          else
+--- 528,535 ----
+          {
+            /* ------------------------------------------------------------------
+!            * use alpha channel if it is supported and disable pseudo alpha mode
+!            */
+            dlc.options = (DFBDisplayLayerOptions)((int)dlc.options|DLOP_ALPHACHANNEL);
++           OSDpseudo_alpha = false;
+          }
+          else
+***************
+*** 576,582 ****
+          /* --------------------------------------------------------------------
+           * set colorkey now. some driver accepct that _after_ configuration
+!          * has been set !
+           */
+!         videoLayer->SetDstColorKey(COLORKEY);
+  
+          videoSurface=videoLayer->GetSurface();
+--- 585,592 ----
+          /* --------------------------------------------------------------------
+           * set colorkey now. some driver accepct that _after_ configuration
+!          * has been set ! But check that color keying is supported.
+           */
+!         if (desc.caps & DLCAPS_DST_COLORKEY)
+!           videoLayer->SetDstColorKey(COLORKEY);
+  
+          videoSurface=videoLayer->GetSurface();
+***************
+*** 627,630 ****
+--- 637,645 ----
+    tmpSurface = (useStretchBlit) ? osdSurface : scrSurface;
+  
++   /* --------------------------------------------------------------------------
++    * ?? if that clear is removed, radeon OSD does not flicker
++    * any more. but it has some other negative effects on mga.
++    * ??
++    */
+    tmpSurface->Clear(0,0,0,0);
+    tmpSurface->Lock(DSLF_WRITE, (void **)&dst, &pitch) ;
+
+
+
+From nobody at sheep.berlios.de  Sun Nov 14 17:24:40 2004
+From: nobody at sheep.berlios.de (wachm)
+Date: Sun, 14 Nov 2004 17:24:40 +0100
+Subject: [Softdevice-cvs] softdevice softdevice.c,1.6,1.7 mpeg2decoder.c,1.7,1.8 mpeg2decoder.h,1.3,1.4
+Message-ID: <200411141624.iAEGOeB24979@bat.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv2545
+
+Modified Files:
+	softdevice.c mpeg2decoder.c mpeg2decoder.h 
+Log Message:
+new A-V sync & new audio buffering & added missing cDevice methods
+
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -C2 -d -r1.6 -r1.7
+*** softdevice.c	4 Nov 2004 07:01:52 -0000	1.6
+--- softdevice.c	14 Nov 2004 16:24:38 -0000	1.7
+***************
+*** 133,137 ****
+  };
+  
+! cSoftOsdProvider::cSoftOsdProvider(cVideoOut *VideoOut)
+  {
+      videoOut = VideoOut;
+--- 133,137 ----
+  };
+  
+! cSoftOsdProvider::cSoftOsdProvider(cVideoOut *VideoOut) : cOsdProvider()
+  {
+      videoOut = VideoOut;
+***************
+*** 259,262 ****
+--- 259,263 ----
+    virtual void StillPicture(const uchar *Data, int Length);
+    virtual bool Poll(cPoller &Poller, int TimeoutMs = 0);
++   virtual int64_t GetSTC(void);
+    virtual int PlayVideo(const uchar *Data, int Length);
+  #if VDRVERSNUM >= 10307
+***************
+*** 324,328 ****
+  }
+  
+! 
+  
+  #if VDRVERSNUM >= 10307
+--- 325,331 ----
+  }
+  
+! int64_t cSoftDevice::GetSTC(void) {
+!   return decoder->GetSTC();
+! };
+  
+  #if VDRVERSNUM >= 10307
+***************
+*** 388,399 ****
+  void cSoftDevice::TrickSpeed(int Speed)
+  {
+!     fprintf(stderr,"[softdevice] Trickspeed not implemented yet...\n");
+  }
+  void cSoftDevice::Clear(void)
+  {
+!     fprintf(stderr,"[softdevice] Clear not implemented yet...\n");
+  }
+  void cSoftDevice::Play(void)
+  {
+      playMutex.Lock();
+      freezeModeEnabled = false;
+--- 391,409 ----
+  void cSoftDevice::TrickSpeed(int Speed)
+  {
+!     //fprintf(stderr,"[softdevice] Trickspeed(%d) ...\n",Speed);
+!     decoder->TrickSpeed(Speed);
+  }
+  void cSoftDevice::Clear(void)
+  {
+!     //fprintf(stderr,"[softdevice] Clear ...\n");
+!     cDevice::Clear();
+!     decoder->Clear();
+  }
+  void cSoftDevice::Play(void)
+  {
++     //fprintf(stderr,"[softdevice] Play...\n");
++     cDevice::Play();
++     decoder->TrickSpeed(1);
++     decoder->Play();
+      playMutex.Lock();
+      freezeModeEnabled = false;
+***************
+*** 401,418 ****
+      readyForPlayCondVar.Broadcast();
+  }
+  void cSoftDevice::Freeze(void)
+  {
+      playMutex.Lock();
+      freezeModeEnabled = true;
+      playMutex.Unlock();
+  }
+  void cSoftDevice::Mute(void)
+  {
+!     fprintf(stderr,"[softdevice] Mute not implemented yet...\n");
+  }
+  
+  void cSoftDevice::SetVolumeDevice(int Volume)
+  {
+!   fprintf (stderr, "[softdevice] should set volume to %d\n", Volume);
+    audioOut->SetVolume(Volume);
+  }
+--- 411,434 ----
+      readyForPlayCondVar.Broadcast();
+  }
++ 
+  void cSoftDevice::Freeze(void)
+  {
++     //fprintf(stderr,"[softdevice] Freeze...\n");
++     cDevice::Freeze();
++     decoder->Freeze();
+      playMutex.Lock();
+      freezeModeEnabled = true;
+      playMutex.Unlock();
+  }
++ 
+  void cSoftDevice::Mute(void)
+  {
+!     //fprintf(stderr,"[softdevice] Mute not implemented yet...\n");
+!     cDevice::Mute();
+  }
+  
+  void cSoftDevice::SetVolumeDevice(int Volume)
+  {
+!   //fprintf (stderr, "[softdevice] should set volume to %d\n", Volume);
+    audioOut->SetVolume(Volume);
+  }
+***************
+*** 420,423 ****
+--- 436,440 ----
+  void cSoftDevice::StillPicture(const uchar *Data, int Length)
+  {
++     //fprintf(stderr,"[softdevice] StillPicture...\n");
+      decoder->StillPicture((uchar *)Data,Length);
+  }
+***************
+*** 425,432 ****
+--- 442,457 ----
+  bool cSoftDevice::Poll(cPoller &Poller, int TimeoutMs)
+  {
++   // fprintf(stderr,"[softdevice] Poll TimeoutMs: %d ....\n",TimeoutMs);
+    playMutex.Lock();
+    if (freezeModeEnabled)
+      readyForPlayCondVar.TimedWait(playMutex,TimeoutMs);
+    playMutex.Unlock();
++ 
++   if (decoder->BufferFilled()) {
++      //fprintf(stderr,"[softdevice] Buffer filled, sleeping\n");
++      usleep(TimeoutMs*1000);
++      return decoder->BufferFilled();
++   }
++ 
+    return true;
+  }
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -C2 -d -r1.7 -r1.8
+*** mpeg2decoder.c	9 Nov 2004 21:41:18 -0000	1.7
+--- mpeg2decoder.c	14 Nov 2004 16:24:38 -0000	1.8
+***************
+*** 7,12 ****
+--- 7,18 ----
+   */
+  
++ #include <math.h>
++ 
+  #include <vdr/plugin.h>
+  
++ // for RTC
++ #include <sys/ioctl.h>
++ #include <linux/rtc.h>
++ 
+  #include "mpeg2decoder.h"
+  #include "audio.h"
+***************
+*** 20,24 ****
+--- 26,48 ----
+  #define STREAM 500
+  
++ //#define HDRDEB(out...) {printf("header[%04d]:",getTimeMilis() % 10000);printf(out);}
++ 
++ #ifndef HDRDEB
++ #define HDRDEB(out...)
++ #endif
++ 
++ //#define MPGDEB(out...) {printf("mpegdec[%04d]:",getTimeMilis() % 10000);printf(out);}
++ 
++ #ifndef MPGDEB
++ #define MPGDEB(out...)
++ #endif
++ 
++ //#define BUFDEB(out...) {printf("BUF[%04d]:",getTimeMilis() % 10000);printf(out);}
+  
++ #ifndef BUFDEB
++ #define BUFDEB(out...)
++ #endif
++ 
++ //#define AV_STATS
+  
+  
+***************
+*** 36,39 ****
+--- 60,71 ----
+    streamID = StreamID;
+    frame=0;
++   freezeMode=false;
++   state=UNSYNCED;
++   pts=0;
++   validPTS=false;
++   ringBuffer=new cSoftRingBufferLinear(DVB_BUF_SIZE,1024,true);
++   //ringBuffer->SetTimeouts(100,10);
++   Start(); // starte thread
++   memset(header,0,MAX_HDR_LEN);
+  }
+  
+***************
+*** 42,53 ****
+  cStreamDecoder::~cStreamDecoder()
+  {
+! }
+! 
+! void cStreamDecoder::SyncPTS(uint64_t spts)
+! {
+!     int diff= (int)(pts-spts);
+! 
+!   if (abs(diff) > 100)
+!     pts=spts;
+  }
+  
+--- 74,79 ----
+  cStreamDecoder::~cStreamDecoder()
+  {
+!   active=false;
+!   Cancel(3);
+  }
+  
+***************
+*** 88,93 ****
+          break;
+  
+!       case HEADER+2:      //wei? ich nicht (immer 0x80 oder 0x85)
+          state++;
+          payload--;
+          break;
+--- 114,120 ----
+          break;
+  
+!       case HEADER+2:      //wei?? ich nicht (immer 0x80 oder 0x85)
+          state++;
++         *(uint8_t *)&Header1 = * inbuf_ptr;
+          payload--;
+          break;
+***************
+*** 95,98 ****
+--- 122,126 ----
+        case HEADER+3:      // ??
+          state++;
++         *(uint8_t *)&Header2 = *inbuf_ptr;
+          payload--;
+          break;
+***************
+*** 109,112 ****
+--- 137,142 ----
+            state=OPTHEADER;
+            hdr_ptr=header;
++           HDRDEB("ID 0x%x PtsDts 0x%x ESCR 0x%x ESRATE 0x%x optHLength 0x%x\n",
++              streamID,Header2.ptsdts_flags,Header2.has_escr,Header2.has_es_rate,headerLength); 
+          }
+          payload--;
+***************
+*** 114,123 ****
+  
+        case OPTHEADER:     // save PTS
+!         payload--;
+!         *hdr_ptr=*inbuf_ptr;
+!         hdr_ptr++;
+!         if (!--headerLength)
+!           state=STREAM;
+!         break;
+  
+        case STREAM:
+--- 144,161 ----
+  
+        case OPTHEADER:     // save PTS
+!             payload--;
+!             *hdr_ptr=*inbuf_ptr;
+!             hdr_ptr++;
+!             if (!--headerLength) {
+!               if (validPTS)
+!                 newPTS=GET_MPEG2_PTS(header)/90;
+!               else newPTS=0;
+!  
+!               state=STREAM;
+!               HDRDEB("ID: 0x%x PTS: %lld DTS: %lld ESCR: %lld\n",streamID,
+!                 GET_MPEG2_PTS(header),GET_MPEG2_PTS((header+5)),
+!                 GET_MPEG2_PTS((header+10)) );    
+!             }
+!             break;
+  
+        case STREAM:
+***************
+*** 137,148 ****
+  }
+  
+  // --- AUDIO ------------------------------------------------------------------
+  cAudioStreamDecoder::cAudioStreamDecoder(unsigned int StreamID,
+!                                          cAudioOut *AudioOut,
+!                                          uint64_t *commonPTS)
+!                                           : cStreamDecoder(StreamID)
+  {
+    audioOut=AudioOut;
+-   cPTS=commonPTS;
+    codec = avcodec_find_decoder(CODEC_ID_MP2);
+    if (!codec)
+--- 175,279 ----
+  }
+  
++ void cStreamDecoder::Write(uchar *Data, int Length)
++ {
++   int p;
++ 
++   p = ringBuffer->Put(Data, Length);
++ #define BLOCK_BUFFER
++ #ifdef BLOCK_BUFFER
++   while (p != Length)
++   {
++     //printf("ERROR: ring buffer overflow (%d bytes dropped)\n", Length - p);
++     //printf("[mpegdecoder] Videobuffer is full. This should not happen! Audio is playing too slow\n");
++     Length -= p;
++     Data += p;
++     p = ringBuffer->Put(Data, Length);
++     usleep(40000);
++   }
++ #endif
++ }
++ 
++ void cStreamDecoder::Action()
++ {
++   //printf("Neuer Thread gestartet: pid:%d ID: 0x%x\n",getpid(),streamID);
++   int size=0;
++   running=true;
++   active=true;
++ 
++   while ( (size< 4*1024) && active ) {
++     size = ringBuffer->Available();
++     usleep(5000);
++     //printf("buffer not filled ID 0x%x size: %d - wating\n",streamID,size);
++   };
++ 
++   while(active)
++   {
++ 
++     while (freezeMode)
++         usleep(10000);
++ 
++     mutex.Lock();
++     uchar *u =ringBuffer->Get(size);
++     BUFDEB("ringBuffer streamID 0x%x Get %d \n",streamID,size);
++     if (u)
++     {
++       if (size>4*1024)
++          size=4*1024;
++ 
++       size=ParseStream(u,size);
++       ringBuffer->Del(size);
++       mutex.Unlock();
++     }
++     else
++     {
++       mutex.Unlock();
++       usleep(1000);
++     }
++   }
++   running=false;
++   //printf("Thread beendet ID: 0x%x \n",streamID);
++ }
++ 
++ void cStreamDecoder::Play(void)
++ {
++   freezeMode=false;
++ };
++ 
++ void cStreamDecoder::Freeze(void)
++ {
++   //printf("freeze mode\n");
++   freezeMode=true;
++ };
++ 
++ void cStreamDecoder::Stop(void) 
++ {
++   active=false;
++   Cancel(3);
++ }
++ 
++ void cStreamDecoder::Clear(void)
++ {
++   printf("[mpegdecoder] Stream 0x%0x Clear %d \n",streamID,(ringBuffer->Free()*100)/ ringBuffer->Size() );
++   mutex.Lock();
++   avcodec_flush_buffers(context);
++   ClearParseStream();
++   ringBuffer->Clear();
++   mutex.Unlock();
++   printf("[mpegdecoder] Stream 0x%0x Clear %d \n",streamID,(ringBuffer->Free()*100)/ ringBuffer->Size() );
++ }
++ 
++ int cStreamDecoder::BufferFill()
++ {
++   //fprintf(stderr,"ringBuffer free %d %%\n",(ringBuffer->Free()*100)/ ringBuffer->Size() );
++   return ( ringBuffer->Available() ) *100/DVB_BUF_SIZE ;
++ }
++ 
++ 
+  // --- AUDIO ------------------------------------------------------------------
+  cAudioStreamDecoder::cAudioStreamDecoder(unsigned int StreamID,
+!                                          cAudioOut *AudioOut)
+!                                          : cStreamDecoder(StreamID)
+  {
+    audioOut=AudioOut;
+    codec = avcodec_find_decoder(CODEC_ID_MP2);
+    if (!codec)
+***************
+*** 160,175 ****
+  }
+  
+! void cAudioStreamDecoder::Write(uchar *Data, int Length)
+  {
+!     int size = Length;
+! 
+!   while (size > 0)
+!   {
+!       int len = ParseStream(Data,size);
+! 
+!     Data += len;
+!     size -= len;
+!   }
+! }
+  
+  int cAudioStreamDecoder::DecodeData(uchar *Data, int Length)
+--- 291,298 ----
+  }
+  
+! uint64_t cAudioStreamDecoder::GetPTS() 
+  {
+!   return pts - audioOut->GetDelay() + setupStore.avOffset;
+! };
+  
+  int cAudioStreamDecoder::DecodeData(uchar *Data, int Length)
+***************
+*** 179,200 ****
+  
+    len=avcodec_decode_audio(context, (short *)audiosamples, &audio_size, Data, Length);
+  
+!   if (audio_size > 0)
+    {
+!     //fwrite(audiosamples,1,audio_size,fo);
+!     audioOut->SetParams(context->channels,context->sample_rate);
+!     audioOut->Write(audiosamples,audio_size);
+!     int delay = audioOut->GetDelay();
+!     if (delay < 20)// if we have less than 20 ms in buffer we double frames
+!       audioOut->Write(audiosamples,audio_size);
+  
+!     pts += (audio_size/(48*4)); // PTS weiterz?hlen, egal ob Samples gespielt oder nicht
+  
+!     //  printf("Audiodelay: %d \n",delay);
+!     *cPTS = pts - delay + setupStore.avOffset; // Das ist die Master-PTS die wird an den video Teil ?bergeben,
+!     // damit Video syncronisieren kann
+!     if (validPTS)
+!       SyncPTS(GET_MPEG2_PTS(header)/90); // milisekunden
+    }
+    return len;
+  }
+--- 302,337 ----
+  
+    len=avcodec_decode_audio(context, (short *)audiosamples, &audio_size, Data, Length);
++   frame++;
++   MPGDEB("count: %d  Length: %d len: %d a_size: %d a_delay: %d\n",
++       frame,Length,len, audio_size, audioOut->GetDelay());
+  
+!   // no new frame decoded, return
+!   if (audio_size == 0) 
+!     return len;
+! 
+!   if (validPTS) 
+    {
+!     validPTS=false;
+!     MPGDEB("valid PTS : %lld pts - valid PTS: %lld \n",
+!       GET_MPEG2_PTS(header)/90,(int) pts - GET_MPEG2_PTS(header)/90);
+!     //pts = GET_MPEG2_PTS(header)/90;
+!     pts = newPTS;
+!   }
+  
+!   int delay = audioOut->GetDelay();
+! //  if (delay ==0)
+! //    printf("Buffer underrun \n");
+  
+!   audioOut->SetParams(context->channels,context->sample_rate);
+!   audioOut->Write(audiosamples,audio_size);
+!   /*    if (delay < 80)
+!    {
+!   // if we have less than 80 ms in buffer we double frames
+!   audioOut->Write(audiosamples,audio_size);
+!   printf("doubleing audio frame!!!!\n");
+    }
++   //}
++    */
++   pts += (audio_size/(48*4)); // PTS weiterz??hlen, egal ob Samples gespielt oder nicht
+    return len;
+  }
+***************
+*** 203,206 ****
+--- 340,344 ----
+  cAudioStreamDecoder::~cAudioStreamDecoder()
+  {
++   Cancel(3);
+    avcodec_close(context);
+    free(context);
+***************
+*** 211,217 ****
+  
+  cVideoStreamDecoder::cVideoStreamDecoder(unsigned int StreamID,
+!                                          cVideoOut *VideoOut,
+!                                          uint64_t *commonPTS)
+!                                           : cStreamDecoder(StreamID)
+  {
+    width = height = -1;
+--- 349,354 ----
+  
+  cVideoStreamDecoder::cVideoStreamDecoder(unsigned int StreamID,
+!                                          cVideoOut *VideoOut, cAudioStreamDecoder *AudioStreamDecoder)
+!                                          : cStreamDecoder(StreamID)
+  {
+    width = height = -1;
+***************
+*** 224,228 ****
+  #endif //PP_LIBAVCODEC
+    codec = avcodec_find_decoder(CODEC_ID_MPEG2VIDEO);
+-   avgOffset=0;
+    if (!codec)
+    {
+--- 361,364 ----
+***************
+*** 231,236 ****
+    }
+    videoOut = VideoOut;
+!   cPTS=commonPTS;
+!   //syncdevice = SyncDevice;
+    context=avcodec_alloc_context();
+    picture=avcodec_alloc_frame();
+--- 367,399 ----
+    }
+    videoOut = VideoOut;
+! 
+!   // init A-V syncing variables
+!   frametime=DEFAULT_FRAMETIME;
+!   syncOnAudio=1;
+!   offset=0;
+!   delay=0;
+!   (void) GetRelTime();
+!   AudioStream=AudioStreamDecoder;
+! 
+!   if ( (rtc_fd = open("/dev/rtc",O_RDONLY)) < 0 ) 
+!     fprintf(stderr,"Could not open /dev/rtc \n");
+!   else 
+!   {
+!     uint64_t irqp = 1024;
+! 
+!     if ( ioctl(rtc_fd, RTC_IRQP_SET, irqp) < 0) 
+!     {
+!       fprintf(stderr,"Could not set irq period\n");
+!       close(rtc_fd);
+!       rtc_fd=-1;
+!     }
+!     else if ( ioctl( rtc_fd, RTC_PIE_ON, 0 ) < 0) 
+!     {
+!       fprintf(stderr,"Error in rtc_pie on \n");
+!       close(rtc_fd);
+!       rtc_fd=-1;
+!     }// else  fprintf(stderr,"Set up to use linux RTC\n");
+!  };
+! 
+    context=avcodec_alloc_context();
+    picture=avcodec_alloc_frame();
+***************
+*** 242,302 ****
+      exit(1);
+    }
+-   ringBuffer=new cRingBufferLinear(1024*1024,1024,true);
+-   //ringBuffer->SetTimeouts(100,10);
+-   Start(); // starte thread
+  }
+  
+! 
+! void cVideoStreamDecoder::Write(uchar *Data, int Length)
+! {
+!     int p;
+! 
+!   p = ringBuffer->Put(Data, Length);
+! #define BLOCK_BUFFER
+! #ifdef BLOCK_BUFFER
+!   while (p != Length)
+!   {
+!     //printf("ERROR: ring buffer overflow (%d bytes dropped)\n", Length - p);
+!     //printf("[mpegdecoder] Videobuffer is full. This should not happen! Audio is playing too slow\n");
+!     Length -= p;
+!     Data += p;
+!     p = ringBuffer->Put(Data, Length);
+!     usleep(1);
+!   }
+! #endif
+! }
+! 
+! 
+! void cVideoStreamDecoder::Action()
+  {
+! //    printf("Neuer Thread geatartet: pid:%d\n",getpid());
+!   running=true;
+!   active=true;
+!   while(active)
+!   {
+!       int size=10240;
+  
+!     mutex.Lock();
+!     uchar *u =ringBuffer->Get(size);
+!     if (u)
+!     {
+!       size=ParseStream(u,size);
+!       ringBuffer->Del(size);
+!       mutex.Unlock();
+!     }
+!     else
+!     {
+!       mutex.Unlock();
+!       usleep(1000);
+!     }
+    }
+!   running=false;
+! //    printf("Thread beendet\n");
+! }
+! 
+  
+  void cVideoStreamDecoder::resetCodec(void)
+  {
+!   printf("[mpegdecoder] resetting codec\n");
+    avcodec_close(context);
+    if(codec->capabilities&CODEC_CAP_TRUNCATED)
+--- 405,431 ----
+      exit(1);
+    }
+  }
+  
+! int32_t cVideoStreamDecoder::GetRelTime() 
+  {
+!   struct timeval tv;
+!   struct timezone tz;
+!   int64_t now;
+!   int32_t ret;
+  
+!   gettimeofday(&tv,&tz);
+!   now=tv.tv_sec*1000000+tv.tv_usec;
+!   if ( now < lastTime ) { 
+!     ret = (uint32_t) (now - lastTime + 60 *1000000); // untested
+!     MPGDEB("now %lld kleiner als lastTime %lld\n",now,lastTime);
+    }
+!   else ret = now - lastTime;
+!   lastTime=now;
+!   return ret;
+! };
+  
+  void cVideoStreamDecoder::resetCodec(void)
+  {
+!   //printf("[mpegdecoder] resetting codec\n");
+    avcodec_close(context);
+    if(codec->capabilities&CODEC_CAP_TRUNCATED)
+***************
+*** 333,338 ****
+      return Length;
+    }
+!   if (got_picture)
+!   {
+      if (setupStore.mirror == 1)
+        Mirror();
+--- 462,468 ----
+      return Length;
+    }
+!   if (!got_picture)
+!     return len;
+! 
+      if (setupStore.mirror == 1)
+        Mirror();
+***************
+*** 360,434 ****
+  #endif //PP_LIBAVCODEC
+  
+!     width  = context->width;
+!     height = context->height;
+  
+!     if (validPTS &&
+!         (setupStore.syncOnFrames ||
+!          context->coded_frame->pict_type == FF_I_TYPE))
+!     {
+!       pts=(GET_MPEG2_PTS(header)/90);
+!     }
+  
+!     // this few lines does the whole syncing
+!     int offset = *cPTS - pts;
+!     if (offset > 1000) offset = 1000;
+!     if (offset < -1000) offset = -1000;
+  
+!     avgOffset = (int)( ( (24*avgOffset) + offset ) / 25);
+!     if (avgOffset > 1000) avgOffset = offset;
+!     if (avgOffset < -1000) avgOffset = offset;
+  
+!     int frametime = 40; //ms
+!     if (avgOffset > 20 && offset > 0) {
+!       frametime -= (avgOffset / 10);
+!     }
+!     if (avgOffset < -20 && offset < 0) {
+!       frametime -= (avgOffset / 10);
+!     }
+! #if 0
+!     if (!(frame % 10) || context->hurry_up) {
+!       printf ("[mpegdecoder] Frame# %-5d A-V(ms) %-5d(Avg:%-4d) Frame Time:%-3d ms Hurry: %d\n",frame,(int)(*cPTS-pts),avgOffset, frametime,context->hurry_up);
+!     }
+! #endif
+!     //frametime=40;
+!     pts += 40;
+!     vpts += frametime; // 40 ms for PAL   // FIXME FOR NTSC
+  
+!     int delay;
+!     delay = vpts - getTimeMilis();
+!     if (delay < -1000)
+!     {
+!       vpts = getTimeMilis();
+!       context->hurry_up++;
+      }
+!     else
+!     {
+!       if (delay > 1000)
+!       {
+!         vpts = getTimeMilis();
+!       }
+!       else
+!       {
+!         while (delay > 0)
+!         {
+!           usleep(1000);
+!           delay = vpts - getTimeMilis();
+!         }
+!       }
+!       if (context->hurry_up)
+!         context->hurry_up--;
+!       if (context->hurry_up < 3)
+        {
+!           videoOut->CheckAspectDimensions(picture,context);
+!           videoOut->YUV(picture->data[0], picture->data[1],picture->data[2],
+!                         context->width,context->height,
+!                         picture->linesize[0],picture->linesize[1]);
+        }
+      }
+!     frame++;
+    }
+    return len;
+  }
+  
+  
+  uchar *cVideoStreamDecoder::allocatePicBuf(uchar *pic_buf)
+--- 490,630 ----
+  #endif //PP_LIBAVCODEC
+  
+!   width  = context->width;
+!   height = context->height;
+!   /*
+!      if ( abs(AudioStream->GetPTS() - pts)  > 10000 ) 
+!      {
+!   //hmm, pts is completly wrong... just sync to audio
+!   pts=AudioStream->GetPTS();
+!   offset=0;
+!   MPGDEB("pts = AudioPTS\n");
+!   };
+!    */
+!   if (validPTS &&
+!       (setupStore.syncOnFrames ||
+!        context->coded_frame->pict_type == FF_I_TYPE))
+!   {
+!     //pts=(GET_MPEG2_PTS(header)/90);
+!     pts=newPTS;
+!     MPGDEB("Got Video PTS: %lld \n",pts); 
+!     validPTS=false;
+!   }
+  
+!   // this few lines does the whole syncing
+!   int pts_corr;
+  
+!   // calculate pts correction. Max. correction is 1/10 frametime.
+!   pts_corr = offset * 100;
+!   if (pts_corr > (frametime*1000)/10)
+!     pts_corr = frametime*100;
+!   else if (pts_corr < -frametime*100)
+!     pts_corr =-frametime*100;
+  
+!   // calculate delay
+!   delay += ( frametime *1000 - pts_corr ) ;
+!   //delay = ( frametime *1000 - pts_corr ) ;
+!   if (delay > 2*frametime*1000)
+!     delay = 2*frametime*1000;
+!   else if (delay < -2*frametime*1000)
+!     delay = -2*frametime*1000;    
+  
+!   // prepare picture for display
+!   videoOut->CheckAspectDimensions(picture,context);
+  
+!   MPGDEB("Frame# %-5d  aPTS: %lld offset: %d delay %d \n",frame,AudioStream->GetPTS(),offset,delay );
+! 
+!   if ( rtc_fd >= 0 ) {
+!     // RTC timinig
+!     while (delay > 15000) {
+!       //sleep one timer tick
+!       usleep(10000);
+!       //MPGDEB("RTC sleep loop %d \n",delay);
+!       delay-=GetRelTime();
+      }
+!     while (delay  > 1200) {
+!       uint32_t ts;
+!       //MPGDEB("RTC Loop %d \n",delay);
+!       if ( read(rtc_fd, &ts, sizeof(ts) )  <= 0) 
+        {
+!         fprintf(stderr,"Linux RTC read error, disableing RTC\n");
+!         close(rtc_fd);
+!         rtc_fd=-1;
+        }
++       delay-=GetRelTime();
+      }
+!   } else {
+!     // usleep timing
+!     const int rest=2200;
+!     while (delay > rest) {     
+!       usleep(1000);
+!       delay  -= GetRelTime();
+!       //MPGDEB("Loop %d \n",delay);  return len;
+!     }
+!     // cpu burn timing
+!     //while (delay > 100) { 
+!     //  delay  -= GetRelTime();
+!     //   printf("Loop2 %d \n",delay);
+!     //};
+!   }
+!   // display picture
+!   videoOut->YUV(picture->data[0], picture->data[1],picture->data[2],
+!       context->width,context->height,
+!       picture->linesize[0],picture->linesize[1]);
+! 
+!   // we just displayed a frame, now it's the right time to
+!   // measure the A-V offset
+!   // the A-V syncing code is partly based on MPlayer...
+!   uint64_t aPTS = AudioStream->GetPTS();
+! 
+!   if ( syncOnAudio && aPTS )
+!     offset = aPTS - pts ;
+!   else offset = 0;
+! 
+! #ifdef AV_STATS
+!   {
+!     const int Freq=10;
+!     static float offsetSum=0;
+!     static float offsetSqSum=0;
+!     static int StatCount=0;
+! 
+!     offsetSum+=(float)offset;
+!     offsetSqSum+=(float) offset*offset;
+!     StatCount+=1;
+! 
+!     if ( (StatCount % Freq) == 0 )
+!     {
+!       printf("A-V: %02.2f+-%02.2f \n",offsetSum/(float)Freq,
+!        sqrt(offsetSqSum/((float)Freq)-(offsetSum*offsetSum)/((float)Freq*Freq)));
+!       offsetSum=offsetSqSum=0;
+!       StatCount=0;
+!     };
+!   };
+! #endif
+! 
+! #if 1 
+!   if (!(frame % 1) || context->hurry_up) {
+!     int dispTime=GetRelTime();
+!     MPGDEB("Frame# %-5d A-V(ms) %-5d delay %d FrameT: %s, dispTime(ms): %1.2f\n",
+!       frame,(int)(AudioStream->GetPTS()-pts),delay,
+!       (context->coded_frame->pict_type == FF_I_TYPE ? "I_t":
+!       (context->coded_frame->pict_type == FF_P_TYPE ? "P_t":
+!       (context->coded_frame->pict_type == FF_B_TYPE ? "B_t":"other"
+!       )))
+!       ,(float)dispTime/1000 );
+!     delay-=dispTime;
+    }
++ #endif
++ 
++   // update video pts
++   pts += frametime;
++   frame++;
+    return len;
+  }
+  
++ void cVideoStreamDecoder::TrickSpeed(int Speed)
++ {
++   frametime = DEFAULT_FRAMETIME * Speed;
++   syncOnAudio = ( Speed == 1);
++ }
+  
+  uchar *cVideoStreamDecoder::allocatePicBuf(uchar *pic_buf)
+***************
+*** 688,692 ****
+  {
+    active = false;
+!   Cancel(3);
+    delete(ringBuffer);
+    avcodec_close(context);
+--- 884,892 ----
+  {
+    active = false;
+! 
+!   //RTC
+!   if (rtc_fd)
+!     close(rtc_fd);
+! 
+    delete(ringBuffer);
+    avcodec_close(context);
+***************
+*** 720,731 ****
+  void cMpeg2Decoder::Start(void)
+  {
+!   // ich wei? nicht, ob man's so kompliziert machen soll, aber jetzt hab ich's
+    // schon so gemacht, das 2 Threads gestartet werden.
+    // Audio is the master, Video syncs on Audio
+!   aout = new cAudioStreamDecoder( 0x000001C0, audioOut, &commonPTS);
+!   vout = new cVideoStreamDecoder( 0x000001E0, videoOut, &commonPTS);
+    running=true;
+  }
+  
+  void cMpeg2Decoder::Stop(void)
+  {
+--- 920,943 ----
+  void cMpeg2Decoder::Start(void)
+  {
+!   // ich wei?? nicht, ob man's so kompliziert machen soll, aber jetzt hab ich's
+    // schon so gemacht, das 2 Threads gestartet werden.
+    // Audio is the master, Video syncs on Audio
+!   aout = new cAudioStreamDecoder( 0x000001C0, audioOut );
+!   vout = new cVideoStreamDecoder( 0x000001E0, videoOut,(cAudioStreamDecoder *) aout);
+    running=true;
+  }
+  
++ void cMpeg2Decoder::Play(void)
++ {
++   aout->Play();
++   vout->Play();
++ };
++ 
++ void cMpeg2Decoder::Freeze(void)
++ {
++   aout->Freeze();
++   vout->Freeze();
++ };
++   
+  void cMpeg2Decoder::Stop(void)
+  {
+***************
+*** 738,742 ****
+      if (vout)
+      {
+!     //	    vout->Stop();
+        delete(vout);
+      }
+--- 950,954 ----
+      if (vout)
+      {
+!       vout->Stop();
+        delete(vout);
+      }
+***************
+*** 744,748 ****
+      if (aout)
+      {
+!     //	    aout->Stop();
+        delete(aout);
+      }
+--- 956,960 ----
+      if (aout)
+      {
+!       aout->Stop();
+        delete(aout);
+      }
+***************
+*** 754,757 ****
+--- 966,990 ----
+  {
+    return vout->StillPicture(Data,Length);
++ }
++ 
++ void cMpeg2Decoder::Clear(void)
++ {
++   aout->Clear();
++   vout->Clear();
++ }
++ 
++ void cMpeg2Decoder::TrickSpeed(int Speed)
++ {
++   aout->TrickSpeed(Speed);
++   vout->TrickSpeed(Speed);
++ }
++ 
++ int64_t cMpeg2Decoder::GetSTC(void) {
++   return vout->GetPTS()*90;
++ };
++ 
++ bool cMpeg2Decoder::BufferFilled() 
++ {
++   return vout->BufferFill()>95;
+  }
+  
+
+Index: mpeg2decoder.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.h,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** mpeg2decoder.h	29 Oct 2004 16:41:39 -0000	1.3
+--- mpeg2decoder.h	14 Nov 2004 16:24:38 -0000	1.4
+***************
+*** 18,25 ****
+  #define MAX_HDR_LEN 0xFF
+  
+  // Output device handler
+! class cStreamDecoder  {
+  private:
+!     unsigned int streamID; // stream to filter
+      unsigned int syncword;
+      int payload;
+--- 18,60 ----
+  #define MAX_HDR_LEN 0xFF
+  
++ #define DEFAULT_FRAMETIME 40   // for PAL
++ #define DVB_BUF_SIZE   (4* 256*1024)  // same value as in dvbplayer.c
++ #define AVG_FRAME_SIZE 15000         // dito 
++ 
++ struct PES_Header1 {
++   unsigned int is_original:1;
++   unsigned int has_copyright:1;
++   unsigned int data_alignment:1;
++   unsigned int priority:1;
++   unsigned int scrambling_ctrl:2;
++   unsigned int flag:2;
++ };
++ 
++ struct PES_Header2 {
++   unsigned int extension_exists:1;
++   unsigned int has_crc:1;
++   unsigned int has_copy_info:1;
++   unsigned int trick_mode_flag:1;
++   unsigned int has_es_rate:1;
++   unsigned int has_escr:1;
++   unsigned int ptsdts_flags:2;
++ };
++ 
++ // wrapper class to access protected methods
++ class cSoftRingBufferLinear : public cRingBufferLinear {
++ public:
++   cSoftRingBufferLinear(int Size, int Margin = 0, bool Statistics = false, const     char *Description = NULL) 
++      : cRingBufferLinear(Size,Margin,Statistics,Description) {};
++   ~cSoftRingBufferLinear() {};
++ 
++   virtual int Available(void) {return cRingBufferLinear::Available();} ;
++   int Size(void) { return cRingBufferLinear::Size(); }
++ };
++ 
+  // Output device handler
+! class cStreamDecoder : public cThread {
+  private:
+! 
+!     // used by ParseStreamIntern
+      unsigned int syncword;
+      int payload;
+***************
+*** 27,32 ****
+      int headerLength;
+      unsigned char * hdr_ptr;
+  protected:
+!     uint64_t *cPTS;
+      int64_t pts;
+      int frame;
+--- 62,74 ----
+      int headerLength;
+      unsigned char * hdr_ptr;
++ 
++     struct PES_Header1 Header1;
++     struct PES_Header2 Header2;
++ 
++ 
++     bool freezeMode;
+  protected:
+!     unsigned int streamID; // stream to filter
+!     int64_t newPTS;
+      int64_t pts;
+      int frame;
+***************
+*** 35,48 ****
+      AVCodec *codec;
+      AVCodecContext *context;
+      int ParseStream(uchar *Data, int Length);
+      int ParseStreamIntern(uchar *Data, int Length, unsigned int lowID, unsigned int highID);
+  public:
+      virtual int DecodeData(uchar *Data, int Length) = 0;
+!     virtual void Write(uchar *Data, int Length) = 0;
+      virtual int StillPicture(uchar *Data, int Length) {return 0;};
+  
+      cStreamDecoder(unsigned int StreamID);
+      virtual ~cStreamDecoder();
+-     void SyncPTS(uint64_t spts);
+  };
+  
+--- 77,104 ----
+      AVCodec *codec;
+      AVCodecContext *context;
++     
++     cMutex              mutex;
++     cSoftRingBufferLinear   *ringBuffer;
++     bool                active, running;
++     
+      int ParseStream(uchar *Data, int Length);
+      int ParseStreamIntern(uchar *Data, int Length, unsigned int lowID, unsigned int highID);
++     inline void ClearParseStream() {state=0;};
++     
++     virtual void Action(void);
+  public:
+      virtual int DecodeData(uchar *Data, int Length) = 0;
+!     virtual void Write(uchar *Data, int Length);
+!     virtual void Clear(void);
+!     virtual void Freeze(void);
+!     virtual void Play(void);
+!     virtual void TrickSpeed(int Speed) {return;};
+      virtual int StillPicture(uchar *Data, int Length) {return 0;};
++     virtual int BufferFill(void);
++     virtual uint64_t GetPTS()  {return pts;};
+  
++     virtual void Stop();
+      cStreamDecoder(unsigned int StreamID);
+      virtual ~cStreamDecoder();
+  };
+  
+***************
+*** 55,67 ****
+  public:
+      virtual int DecodeData(uchar *Data, int Length);
+!     cAudioStreamDecoder(unsigned int StreamID, cAudioOut *AudioOut, uint64_t *commonPTS);
+      ~cAudioStreamDecoder();
+!     virtual void Write(uchar *Data, int Length);
+! 
+  };
+  
+! class cVideoStreamDecoder : public cStreamDecoder , cThread {
+    private:
+!     cMutex              mutex;
+      AVFrame             *picture;
+      AVPicture           avpic_src, avpic_dest;
+--- 111,122 ----
+  public:
+      virtual int DecodeData(uchar *Data, int Length);
+!     cAudioStreamDecoder(unsigned int StreamID, cAudioOut *AudioOut);
+      ~cAudioStreamDecoder();
+!     virtual uint64_t GetPTS();
+  };
+  
+! class cVideoStreamDecoder : public cStreamDecoder {
+    private:
+!     cAudioStreamDecoder *AudioStream;
+      AVFrame             *picture;
+      AVPicture           avpic_src, avpic_dest;
+***************
+*** 76,84 ****
+  
+      cVideoOut           *videoOut;
+-     uint64_t            vpts;
+-     int                 avgOffset;
+-     cRingBufferLinear   *ringBuffer;
+-     bool                active, running;
+  
+      void    resetCodec(void);
+      uchar   *allocatePicBuf(uchar *pic_buf);
+--- 131,144 ----
+  
+      cVideoOut           *videoOut;
+  
++     // A-V syncing stuff
++     bool               syncOnAudio;
++     int64_t            lastTime;
++     int                offset;
++     int                delay;
++     int                rtc_fd; 
++     int                frametime;
++     int32_t GetRelTime();
++    
+      void    resetCodec(void);
+      uchar   *allocatePicBuf(uchar *pic_buf);
+***************
+*** 90,103 ****
+      void    Mirror(void);
+  
+-   protected:
+-     virtual void Action(void);
+- 
+    public:
+!     cVideoStreamDecoder(unsigned int StreamID, cVideoOut *VideoOut, uint64_t *commonPTS);
+      ~cVideoStreamDecoder();
+  
+      virtual int   DecodeData(uchar *Data, int Length);
+      virtual int   StillPicture(uchar *Data, int Length);
+!     virtual void  Write(uchar *Data, int Length);
+  };
+  
+--- 150,161 ----
+      void    Mirror(void);
+  
+    public:
+!     cVideoStreamDecoder(unsigned int StreamID, cVideoOut *VideoOut,
+!        cAudioStreamDecoder *AudioStreamDecoder );
+      ~cVideoStreamDecoder();
+  
+      virtual int   DecodeData(uchar *Data, int Length);
+      virtual int   StillPicture(uchar *Data, int Length);
+!     virtual void TrickSpeed(int Speed);
+  };
+  
+***************
+*** 112,116 ****
+      cAudioOut *audioOut;
+      cVideoOut *videoOut;
+-     uint64_t commonPTS;
+      bool running;
+      bool decoding;
+--- 170,173 ----
+***************
+*** 121,125 ****
+--- 178,188 ----
+      int StillPicture(uchar *Data, int Length);
+      void Start(void);
++     void Play(void);
++     void Freeze(void);
+      void Stop(void);
++     void Clear(void);
++     void TrickSpeed(int Speed);
++     bool BufferFilled(void);
++     int64_t GetSTC(void);
+  };
+  
+
+
+
+From nobody at sheep.berlios.de  Sun Nov 14 17:25:56 2004
+From: nobody at sheep.berlios.de (wachm)
+Date: Sun, 14 Nov 2004 17:25:56 +0100
+Subject: [Softdevice-cvs] softdevice CHANGELOG,1.18,1.19
+Message-ID: <200411141625.iAEGPuB25005@bat.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv2654
+
+Modified Files:
+	CHANGELOG 
+Log Message:
+update changelog
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.18
+retrieving revision 1.19
+diff -C2 -d -r1.18 -r1.19
+*** CHANGELOG	4 Nov 2004 07:01:52 -0000	1.18
+--- CHANGELOG	14 Nov 2004 16:25:54 -0000	1.19
+***************
+*** 1,3 ****
+--- 1,11 ----
+  Changelog
++   2004-11-14:
++    - new A-V sync with linux RTC support
++    - changed audio buffering 
++    - implemented serveral missing cDevice methods:
++      TrickSpeed(),Clear(),Freeze()...
++    - process smaller packets at one time to improve
++      the response time
++    - sleep in Poll if buffer is full
+    2004-11-04: softdevice-0.0.7
+     - audio-out: don't exit when we get EINTR upon write
+
+
+
+From nobody at sheep.berlios.de  Sun Nov 14 21:20:00 2004
+From: nobody at sheep.berlios.de (wachm)
+Date: Sun, 14 Nov 2004 21:20:00 +0100
+Subject: [Softdevice-cvs] softdevice mpeg2decoder.h,1.4,1.5
+Message-ID: <200411142020.iAEKK0B29851@bat.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv25476
+
+Modified Files:
+	mpeg2decoder.h 
+Log Message:
+fixed compile issue with vdr-1.2.1
+
+
+
+Index: mpeg2decoder.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.h,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -C2 -d -r1.4 -r1.5
+*** mpeg2decoder.h	14 Nov 2004 16:24:38 -0000	1.4
+--- mpeg2decoder.h	14 Nov 2004 20:19:58 -0000	1.5
+***************
+*** 44,49 ****
+  class cSoftRingBufferLinear : public cRingBufferLinear {
+  public:
+!   cSoftRingBufferLinear(int Size, int Margin = 0, bool Statistics = false, const     char *Description = NULL) 
+!      : cRingBufferLinear(Size,Margin,Statistics,Description) {};
+    ~cSoftRingBufferLinear() {};
+  
+--- 44,49 ----
+  class cSoftRingBufferLinear : public cRingBufferLinear {
+  public:
+!   cSoftRingBufferLinear(int Size, int Margin = 0, bool Statistics = false) 
+!      : cRingBufferLinear(Size,Margin,Statistics) {};
+    ~cSoftRingBufferLinear() {};
+  
+
+
+
+From nobody at sheep.berlios.de  Sun Nov 14 23:33:56 2004
+From: nobody at sheep.berlios.de (wachm)
+Date: Sun, 14 Nov 2004 23:33:56 +0100
+Subject: [Softdevice-cvs] softdevice mpeg2decoder.h,1.5,1.6
+Message-ID: <200411142233.iAEMXuB32177@bat.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv31071
+
+Modified Files:
+	mpeg2decoder.h 
+Log Message:
+fix vdr-1.2.1 compile issue second try...
+
+
+Index: mpeg2decoder.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.h,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -C2 -d -r1.5 -r1.6
+*** mpeg2decoder.h	14 Nov 2004 20:19:58 -0000	1.5
+--- mpeg2decoder.h	14 Nov 2004 22:33:54 -0000	1.6
+***************
+*** 49,52 ****
+--- 49,53 ----
+  
+    virtual int Available(void) {return cRingBufferLinear::Available();} ;
++   virtual int Free(void) {return cRingBufferLinear::Free();} ;
+    int Size(void) { return cRingBufferLinear::Size(); }
+  };
+
+
+
+From nobody at sheep.berlios.de  Sun Nov 21 14:45:41 2004
+From: nobody at sheep.berlios.de (lucke)
+Date: Sun, 21 Nov 2004 14:45:41 +0100
+Subject: [Softdevice-cvs] softdevice audio.c,1.5,1.6
+Message-ID: <200411211345.iALDjfB18585@bat.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv24896
+
+Modified Files:
+	audio.c 
+Log Message:
+report audio samplereate and number of channels via syslog
+
+Index: audio.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio.c,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -C2 -d -r1.5 -r1.6
+*** audio.c	4 Nov 2004 07:01:52 -0000	1.5
+--- audio.c	21 Nov 2004 13:45:37 -0000	1.6
+***************
+*** 137,140 ****
+--- 137,142 ----
+      }
+  
++     dsyslog ("[softdevice-audio] samplerate: %dHz, channels: #%d",
++              samplerate, channels);
+      rate=samplerate;
+      chn=channels;
+
+
+
+From nobody at sheep.berlios.de  Sun Dec 12 08:09:15 2004
+From: nobody at sheep.berlios.de (lucke)
+Date: Sun, 12 Dec 2004 08:09:15 +0100
+Subject: [Softdevice-cvs] softdevice mpeg2decoder.c,1.8,1.9 mpeg2decoder.h,1.6,1.7 CHANGELOG,1.19,1.20
+Message-ID: <200412120709.iBC79FB29398@bat.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv4748
+
+Modified Files:
+	mpeg2decoder.c mpeg2decoder.h CHANGELOG 
+Log Message:
+Changed A/V sync point by 4 frames. Sync is now ok for streams with PTS
+value for each frame and for streams with PTS values for I-Frames only.
+Thus OSD option "A/V Sync" is obsolete.
+
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -C2 -d -r1.8 -r1.9
+*** mpeg2decoder.c	14 Nov 2004 16:24:38 -0000	1.8
+--- mpeg2decoder.c	12 Dec 2004 07:09:13 -0000	1.9
+***************
+*** 62,66 ****
+    freezeMode=false;
+    state=UNSYNCED;
+!   pts=0;
+    validPTS=false;
+    ringBuffer=new cSoftRingBufferLinear(DVB_BUF_SIZE,1024,true);
+--- 62,69 ----
+    freezeMode=false;
+    state=UNSYNCED;
+!   prevPTS = newPTS = pts=0;
+!   for (int i = 0; i < PTS_COUNT; i++)
+!     historyPTS [i] = 0;
+!   historyPTSIndex = 0;
+    validPTS=false;
+    ringBuffer=new cSoftRingBufferLinear(DVB_BUF_SIZE,1024,true);
+***************
+*** 148,155 ****
+              hdr_ptr++;
+              if (!--headerLength) {
+                if (validPTS)
+                  newPTS=GET_MPEG2_PTS(header)/90;
+                else newPTS=0;
+!  
+                state=STREAM;
+                HDRDEB("ID: 0x%x PTS: %lld DTS: %lld ESCR: %lld\n",streamID,
+--- 151,159 ----
+              hdr_ptr++;
+              if (!--headerLength) {
++               prevPTS = newPTS;
+                if (validPTS)
+                  newPTS=GET_MPEG2_PTS(header)/90;
+                else newPTS=0;
+! 
+                state=STREAM;
+                HDRDEB("ID: 0x%x PTS: %lld DTS: %lld ESCR: %lld\n",streamID,
+***************
+*** 307,314 ****
+  
+    // no new frame decoded, return
+!   if (audio_size == 0) 
+      return len;
+  
+!   if (validPTS) 
+    {
+      validPTS=false;
+--- 311,318 ----
+  
+    // no new frame decoded, return
+!   if (audio_size == 0)
+      return len;
+  
+!   if (validPTS)
+    {
+      validPTS=false;
+***************
+*** 416,420 ****
+    gettimeofday(&tv,&tz);
+    now=tv.tv_sec*1000000+tv.tv_usec;
+!   if ( now < lastTime ) { 
+      ret = (uint32_t) (now - lastTime + 60 *1000000); // untested
+      MPGDEB("now %lld kleiner als lastTime %lld\n",now,lastTime);
+--- 420,424 ----
+    gettimeofday(&tv,&tz);
+    now=tv.tv_sec*1000000+tv.tv_usec;
+!   if ( now < lastTime ) {
+      ret = (uint32_t) (now - lastTime + 60 *1000000); // untested
+      MPGDEB("now %lld kleiner als lastTime %lld\n",now,lastTime);
+***************
+*** 501,504 ****
+--- 505,587 ----
+    };
+     */
++ 
++ /*
++  * A. recording sequence where only I-frames have pts values defined
++  * B. recording sequence where each frame has a pts value defined
++  * Lines marked with '*' show when we got a I-frame pts values
++  * before it it passed to the decoder.
++  * Lines marked with '+' are the ones when this I-frames is passed
++  * to us for displaying.
++  */
++ 
++ /* sequence A.
++  V(0) NPTS(65785272) PPTS(0)        P(2) P2(1) CF(1)  CF2(0)
++  V(0) NPTS(65785272) PPTS(0)        P(3) P2(3) CF(2)  CF2(2)
++  V(0) NPTS(65785272) PPTS(0)        P(3) P2(3) CF(3)  CF2(3)
++  V(0) NPTS(65785272) PPTS(0)        P(2) P2(2) CF(4)  CF2(1)
++  V(0) NPTS(65785272) PPTS(0)        P(3) P2(3) CF(5)  CF2(5)
++  V(0) NPTS(65785272) PPTS(0)        P(3) P2(3) CF(6)  CF2(6)
++  V(0) NPTS(65785272) PPTS(0)        P(2) P2(2) CF(7)  CF2(4)
++  V(0) NPTS(65785272) PPTS(0)        P(3) P2(3) CF(8)  CF2(8)
++ *V(1) NPTS(65785752) PPTS(65785272) P(3) P2(3) CF(9)  CF2(9)
++  V(0) NPTS(65785752) PPTS(65785272) P(1) P2(2) CF(10) CF2(7)
++  V(0) NPTS(65785752) PPTS(65785272) P(3) P2(3) CF(11) CF2(11)
++  V(0) NPTS(65785752) PPTS(65785272) P(3) P2(3) CF(12) CF2(12)
++ +V(0) NPTS(65785752) PPTS(65785272) P(2) P2(1) CF(13) CF2(10)
++ */
++ 
++ /* sequence B.
++  V(1) NPTS(69692924) PPTS(69693004) P(2) P2(1) CF(1)  CF2(0)
++  V(1) NPTS(69692964) PPTS(69692924) P(3) P2(3) CF(2)  CF2(2)
++  V(1) NPTS(69693124) PPTS(69692964) P(3) P2(3) CF(3)  CF2(3)
++  V(1) NPTS(69693044) PPTS(69693124) P(2) P2(2) CF(4)  CF2(1)
++  V(1) NPTS(69693084) PPTS(69693044) P(3) P2(3) CF(5)  CF2(5)
++  V(1) NPTS(69693244) PPTS(69693084) P(3) P2(3) CF(6)  CF2(6)
++  V(1) NPTS(69693164) PPTS(69693244) P(2) P2(2) CF(7)  CF2(4)
++  V(1) NPTS(69693204) PPTS(69693164) P(3) P2(3) CF(8)  CF2(8)
++ *V(1) NPTS(69693364) PPTS(69693204) P(3) P2(3) CF(9)  CF2(9)
++  V(1) NPTS(69693284) PPTS(69693364) P(1) P2(2) CF(10) CF2(7)
++  V(1) NPTS(69693324) PPTS(69693284) P(3) P2(3) CF(11) CF2(11)
++  V(1) NPTS(69693484) PPTS(69693324) P(3) P2(3) CF(12) CF2(12)
++ +V(1) NPTS(69693404) PPTS(69693484) P(2) P2(1) CF(13) CF2(10)
++ */
++ 
++ #if 0
++   fprintf(stderr,
++           " V(%d) NPTS(%lld) PPTS(%lld) P(%d) P2(%d) CF(%d) CF2(%d)\n",
++           validPTS,
++           newPTS,
++           prevPTS,
++           context->coded_frame->pict_type,
++           picture->pict_type,
++           context->coded_frame->coded_picture_number,
++           picture->coded_picture_number);
++ #endif
++ 
++ #if 1 // new method for setting the video PTS
++   if (picture->coded_picture_number)
++   {
++     if (picture->pict_type == FF_I_TYPE)
++     {
++ #if 0
++       fprintf (stderr, " changing PTS from %lld to %lld. delta %lld\n",
++                pts, historyPTS[(historyPTSIndex+PTS_COUNT-4)%PTS_COUNT],
++                historyPTS[(historyPTSIndex+PTS_COUNT-4)%PTS_COUNT]-pts);
++ #endif               
++       pts = historyPTS[(historyPTSIndex+PTS_COUNT-4)%PTS_COUNT];
++       //fprintf (stderr, "* using PTS value (%lld)\n", pts);
++     }
++   }
++   else
++   {
++     /**
++      * without subtracting 4 frame times I'll get deltas (see above)
++      * upon 2nd PTS setting in the range 0 to -160 ms. So this should
++      * change that 2nd deltas to -80 to +80 .
++      */
++     pts = newPTS - 2 * frametime;
++     //fprintf (stderr, "+ using PTS value (%lld)\n", pts);
++   }
++ #else
+    if (validPTS &&
+        (setupStore.syncOnFrames ||
+***************
+*** 507,513 ****
+      //pts=(GET_MPEG2_PTS(header)/90);
+      pts=newPTS;
+!     MPGDEB("Got Video PTS: %lld \n",pts); 
+      validPTS=false;
+    }
+  
+    // this few lines does the whole syncing
+--- 590,599 ----
+      //pts=(GET_MPEG2_PTS(header)/90);
+      pts=newPTS;
+!     MPGDEB("Got Video PTS: %lld \n",pts);
+      validPTS=false;
+    }
++ #endif
++ 
++   historyPTS[historyPTSIndex++%PTS_COUNT] = newPTS;
+  
+    // this few lines does the whole syncing
+***************
+*** 602,606 ****
+  #endif
+  
+! #if 1 
+    if (!(frame % 1) || context->hurry_up) {
+      int dispTime=GetRelTime();
+--- 688,692 ----
+  #endif
+  
+! #if 1
+    if (!(frame % 1) || context->hurry_up) {
+      int dispTime=GetRelTime();
+
+Index: mpeg2decoder.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.h,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -C2 -d -r1.6 -r1.7
+*** mpeg2decoder.h	14 Nov 2004 22:33:54 -0000	1.6
+--- mpeg2decoder.h	12 Dec 2004 07:09:13 -0000	1.7
+***************
+*** 21,24 ****
+--- 21,25 ----
+  #define DVB_BUF_SIZE   (4* 256*1024)  // same value as in dvbplayer.c
+  #define AVG_FRAME_SIZE 15000         // dito 
++ #define PTS_COUNT       4             // history of four PTS values
+  
+  struct PES_Header1 {
+***************
+*** 70,85 ****
+      bool freezeMode;
+  protected:
+!     unsigned int streamID; // stream to filter
+!     int64_t newPTS;
+!     int64_t pts;
+!     int frame;
+!     bool validPTS;
+!     unsigned char header[MAX_HDR_LEN];     
+!     AVCodec *codec;
+!     AVCodecContext *context;
+      
+!     cMutex              mutex;
+!     cSoftRingBufferLinear   *ringBuffer;
+!     bool                active, running;
+      
+      int ParseStream(uchar *Data, int Length);
+--- 71,89 ----
+      bool freezeMode;
+  protected:
+!     unsigned int          streamID; // stream to filter
+!     int64_t               newPTS,
+!                           prevPTS,
+!                           historyPTS[PTS_COUNT],
+!                           pts;
+!     int                   frame,
+!                           historyPTSIndex;
+!     bool                  validPTS;
+!     unsigned char         header[MAX_HDR_LEN];
+!     AVCodec               *codec;
+!     AVCodecContext        *context;
+      
+!     cMutex                mutex;
+!     cSoftRingBufferLinear *ringBuffer;
+!     bool                  active, running;
+      
+      int ParseStream(uchar *Data, int Length);
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.19
+retrieving revision 1.20
+diff -C2 -d -r1.19 -r1.20
+*** CHANGELOG	14 Nov 2004 16:25:54 -0000	1.19
+--- CHANGELOG	12 Dec 2004 07:09:13 -0000	1.20
+***************
+*** 1,3 ****
+--- 1,7 ----
+  Changelog
++   2004-12-12:
++    - Changed A/V sync point by 4 frames. Sync is now ok for streams with PTS
++      value for each frame and for streams with PTS values for I-Frames only.
++      Thus OSD option "A/V Sync" is obsolete.
+    2004-11-14:
+     - new A-V sync with linux RTC support
+
+
+
+From nobody at sheep.berlios.de  Sun Dec 12 19:49:40 2004
+From: nobody at sheep.berlios.de (lucke)
+Date: Sun, 12 Dec 2004 19:49:40 +0100
+Subject: [Softdevice-cvs] softdevice CHANGELOG,1.20,1.21 mpeg2decoder.c,1.9,1.10 mpeg2decoder.h,1.7,1.8 softdevice.c,1.7,1.8
+Message-ID: <200412121849.iBCIneB12486@bat.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv1528
+
+Modified Files:
+	CHANGELOG mpeg2decoder.c mpeg2decoder.h softdevice.c 
+Log Message:
+Added reporting of AC3 stream info (with help from plugin femon).
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.20
+retrieving revision 1.21
+diff -C2 -d -r1.20 -r1.21
+*** CHANGELOG	12 Dec 2004 07:09:13 -0000	1.20
+--- CHANGELOG	12 Dec 2004 18:49:37 -0000	1.21
+***************
+*** 1,4 ****
+--- 1,5 ----
+  Changelog
+    2004-12-12:
++    - Added reporting of AC3 stream info (with help from plugin femon).
+     - Changed A/V sync point by 4 frames. Sync is now ok for streams with PTS
+       value for each frame and for streams with PTS values for I-Frames only.
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -C2 -d -r1.9 -r1.10
+*** mpeg2decoder.c	12 Dec 2004 07:09:13 -0000	1.9
+--- mpeg2decoder.c	12 Dec 2004 18:49:37 -0000	1.10
+***************
+*** 67,70 ****
+--- 67,71 ----
+    historyPTSIndex = 0;
+    validPTS=false;
++ 
+    ringBuffer=new cSoftRingBufferLinear(DVB_BUF_SIZE,1024,true);
+    //ringBuffer->SetTimeouts(100,10);
+***************
+*** 568,572 ****
+                 pts, historyPTS[(historyPTSIndex+PTS_COUNT-4)%PTS_COUNT],
+                 historyPTS[(historyPTSIndex+PTS_COUNT-4)%PTS_COUNT]-pts);
+! #endif               
+        pts = historyPTS[(historyPTSIndex+PTS_COUNT-4)%PTS_COUNT];
+        //fprintf (stderr, "* using PTS value (%lld)\n", pts);
+--- 569,573 ----
+                 pts, historyPTS[(historyPTSIndex+PTS_COUNT-4)%PTS_COUNT],
+                 historyPTS[(historyPTSIndex+PTS_COUNT-4)%PTS_COUNT]-pts);
+! #endif
+        pts = historyPTS[(historyPTSIndex+PTS_COUNT-4)%PTS_COUNT];
+        //fprintf (stderr, "* using PTS value (%lld)\n", pts);
+***************
+*** 990,993 ****
+--- 991,997 ----
+    videoOut=VideoOut;
+    aout=vout=0;
++ 
++   ac3Mode = ac3Parm = 0;
++ 
+    running=false;
+    decoding=false;
+***************
+*** 1009,1012 ****
+--- 1013,1017 ----
+    // schon so gemacht, das 2 Threads gestartet werden.
+    // Audio is the master, Video syncs on Audio
++   ac3Mode = ac3Parm = 0;
+    aout = new cAudioStreamDecoder( 0x000001C0, audioOut );
+    vout = new cVideoStreamDecoder( 0x000001E0, videoOut,(cAudioStreamDecoder *) aout);
+***************
+*** 1075,1078 ****
+--- 1080,1139 ----
+  }
+  
++ /* ----------------------------------------------------------------------------
++  */
++ void cMpeg2Decoder::PlayAudio(const uchar *Data, int Length)
++ {
++     const uchar *p;
++     int         ac3ModeNew, ac3ParmNew;
++ 
++   ac3ModeNew = ac3Mode;
++   ac3ParmNew = ac3Parm;
++ 
++   p = Data;
++   /* -------------------------------------------------------------------------
++    * 1st check enshure that this is private stream
++    */
++   if (p[0] == 0x00 && p[1] == 0x00 && p[2] == 0x01 && p[3] == 0xbd)
++   {
++     p += 4 + 2 + 2;   // skip: stream id, length, ??
++     p += *p;
++     p++;
++ 
++     /* ------------------------------------------------------------------------
++      * check for ac3 sync word
++      */
++     if (p[0] == 0x0b && p[1] == 0x77)
++     {
++       p += 2 + 2 + 1;   // skip: sync word, crc, bitrate & frequency
++       ac3ModeNew = (p[1] & 0xe0) >> 5;
++       ac3ParmNew = ((p[1] & 0x01) << 1) | ((p[2] & 0x80) >> 7);
++     }
++   }
++ 
++   if (ac3ModeNew != ac3Mode || ac3ParmNew != ac3Parm)
++   {
++       char *info = NULL;
++ 
++     fprintf (stderr,
++              "[Softdevice] AC3 changed Mode(%d -> %d) Parm(%d -> %d)\n",
++              ac3Mode, ac3ModeNew, ac3Parm, ac3ParmNew);
++     ac3Mode = ac3ModeNew;
++     ac3Parm = ac3ParmNew;
++ 
++     if (ac3Mode == 0x02)
++     {
++       info = "2.0 Stereo";
++       if (ac3Parm == 0x02)
++         info = "2.0 Stereo Dolby Surround";
++     } else if (ac3Mode == 0x07)
++       info = "5.1 Dolby Digital";
++ 
++     if (info)
++       dsyslog ("[Mpeg2Decoder]: AC3 info: %s", info);
++   }
++ }
++ 
++ /* ----------------------------------------------------------------------------
++  */
+  int cMpeg2Decoder::Decode(const uchar *Data, int Length)
+  {
+
+Index: mpeg2decoder.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.h,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -C2 -d -r1.7 -r1.8
+*** mpeg2decoder.h	12 Dec 2004 07:09:13 -0000	1.7
+--- mpeg2decoder.h	12 Dec 2004 18:49:37 -0000	1.8
+***************
+*** 172,178 ****
+      unsigned char header[6];     
+      unsigned int syncword;
+!     cStreamDecoder *vout, *aout;
+!     cAudioOut *audioOut;
+!     cVideoOut *videoOut;
+      bool running;
+      bool decoding;
+--- 172,179 ----
+      unsigned char header[6];     
+      unsigned int syncword;
+!     cStreamDecoder  *vout, *aout;
+!     cAudioOut       *audioOut;
+!     cVideoOut       *videoOut;
+!     int             ac3Mode, ac3Parm;
+      bool running;
+      bool decoding;
+***************
+*** 180,183 ****
+--- 181,185 ----
+      cMpeg2Decoder(cAudioOut *AudioOut, cVideoOut *VideoOut);
+      ~cMpeg2Decoder();
++     void PlayAudio(const uchar *Data, int Length);
+      int Decode(const uchar *Data, int Length);
+      int StillPicture(uchar *Data, int Length);
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -C2 -d -r1.7 -r1.8
+*** softdevice.c	14 Nov 2004 16:24:38 -0000	1.7
+--- softdevice.c	12 Dec 2004 18:49:37 -0000	1.8
+***************
+*** 81,84 ****
+--- 81,87 ----
+  
+  // --- cSoftOsd -----------------------------------------------
++ 
++ /* ---------------------------------------------------------------------------
++  */
+  class cSoftOsd : public cOsd {
+  private:
+***************
+*** 92,109 ****
+  };
+  
+  cSoftOsd::cSoftOsd(cVideoOut *VideoOut, int X, int Y) : cOsd(X, Y)
+  {
+!     videoOut = VideoOut;
+!     videoOut->OpenOSD(X, Y);
+  }
+  
+  cSoftOsd::~cSoftOsd()
+  {
+!     if (videoOut) {
+! 	videoOut->CloseOSD();
+! 	videoOut=0;
+!     }
+  }
+  
+  eOsdError cSoftOsd::CanHandleAreas(const tArea *Areas, int NumAreas)
+  {
+--- 95,119 ----
+  };
+  
++ /* ---------------------------------------------------------------------------
++  */
+  cSoftOsd::cSoftOsd(cVideoOut *VideoOut, int X, int Y) : cOsd(X, Y)
+  {
+!   videoOut = VideoOut;
+!   videoOut->OpenOSD(X, Y);
+  }
+  
++ /* ---------------------------------------------------------------------------
++  */
+  cSoftOsd::~cSoftOsd()
+  {
+!   if (videoOut)
+!   {
+!     videoOut->CloseOSD();
+!     videoOut=0;
+!   }
+  }
+  
++ /* ---------------------------------------------------------------------------
++  */
+  eOsdError cSoftOsd::CanHandleAreas(const tArea *Areas, int NumAreas)
+  {
+***************
+*** 113,124 ****
+  }
+  
+  void cSoftOsd::Flush(void)
+  {
+      cBitmap *Bitmap;
+  
+!     for (int i = 0; (Bitmap = GetBitmap(i)) != NULL; i++)
+!     {
+! 	videoOut->Refresh(Bitmap);
+!     }
+  }
+  
+--- 123,136 ----
+  }
+  
++ /* ---------------------------------------------------------------------------
++  */
+  void cSoftOsd::Flush(void)
+  {
+      cBitmap *Bitmap;
+  
+!   for (int i = 0; (Bitmap = GetBitmap(i)) != NULL; i++)
+!   {
+!     videoOut->Refresh(Bitmap);
+!   }
+  }
+  
+***************
+*** 261,264 ****
+--- 273,277 ----
+    virtual int64_t GetSTC(void);
+    virtual int PlayVideo(const uchar *Data, int Length);
++   virtual void PlayAudio(const uchar *Data, int Length);
+  #if VDRVERSNUM >= 10307
+    virtual int ProvidesCa(const cChannel *Channel) const;
+***************
+*** 457,461 ****
+--- 470,482 ----
+  }
+  
++ /* ----------------------------------------------------------------------------
++  */
++ void cSoftDevice::PlayAudio(const uchar *Data, int Length)
++ {
++   decoder->PlayAudio(Data, Length);
++ }
+  
++ /* ----------------------------------------------------------------------------
++  */
+  int cSoftDevice::PlayVideo(const uchar *Data, int Length)
+  {
+
+
+
+From nobody at sheep.berlios.de  Thu Dec 30 19:38:59 2004
+From: nobody at sheep.berlios.de (lucke)
+Date: Thu, 30 Dec 2004 19:38:59 +0100
+Subject: [Softdevice-cvs] softdevice video-xv.c,1.9,1.10
+Message-ID: <200412301838.iBUIcxn21867@bat.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv23227
+
+Modified Files:
+	video-xv.c 
+Log Message:
+compile fix for gcc 3.4.3
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -C2 -d -r1.9 -r1.10
+*** video-xv.c	21 Dec 2004 05:55:42 -0000	1.9
+--- video-xv.c	30 Dec 2004 18:38:57 -0000	1.10
+***************
+*** 28,32 ****
+  #include "utils.h"
+  
+! #define PATCH_VERSION "008_pre_1"
+  
+  static pthread_mutex_t  xv_mutex = PTHREAD_MUTEX_INITIALIZER;
+--- 28,32 ----
+  #include "utils.h"
+  
+! #define PATCH_VERSION "008_pre_2"
+  
+  static pthread_mutex_t  xv_mutex = PTHREAD_MUTEX_INITIALIZER;
+***************
+*** 723,730 ****
+    }
+  
+!   osd_image->data =
+!     (char *) osd_buffer =
+!     (unsigned char *) osd_shminfo.shmaddr =
+!       (char *) shmat(osd_shminfo.shmid, NULL, 0);
+    if ((int) osd_image->data == -1) {
+      dsyslog("[XvVideoOut]: Initialize ERROR: shmat FAILED !");
+--- 723,732 ----
+    }
+  
+!   /* compile fix for gcc 3.4.3
+!    */
+!   osd_shminfo.shmaddr = (char *) shmat(osd_shminfo.shmid, NULL, 0);
+!   osd_buffer = (unsigned char *) osd_shminfo.shmaddr;
+!   osd_image->data = (char *) osd_buffer;
+! 
+    if ((int) osd_image->data == -1) {
+      dsyslog("[XvVideoOut]: Initialize ERROR: shmat FAILED !");
+***************
+*** 886,893 ****
+    }
+  
+!   xv_image->data =
+!     (char *) outbuffer =
+!     (unsigned char *) shminfo.shmaddr =
+!     (char *) shmat(shminfo.shmid, NULL, 0);
+    if ((int) xv_image->data == -1) {
+      dsyslog("[XvVideoOut]: ERROR: shmat FAILED !");
+--- 888,897 ----
+    }
+  
+!   /* compile fix for gcc 3.4.3
+!    */
+!   shminfo.shmaddr = (char *) shmat(shminfo.shmid, NULL, 0);
+!   outbuffer = (unsigned char *) shminfo.shmaddr;
+!   xv_image->data = (char *) outbuffer;
+! 
+    if ((int) xv_image->data == -1) {
+      dsyslog("[XvVideoOut]: ERROR: shmat FAILED !");
+
+
+
+From nobody at sheep.berlios.de  Thu Dec 30 19:47:53 2004
+From: nobody at sheep.berlios.de (lucke)
+Date: Thu, 30 Dec 2004 19:47:53 +0100
+Subject: [Softdevice-cvs] softdevice video.c,1.4,1.5
+Message-ID: <200412301847.iBUIlrn22056@bat.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv24016
+
+Modified Files:
+	video.c 
+Log Message:
+fix for vdr-1.2.x "_ZN9cVideoOut8OSDStartEv"
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -C2 -d -r1.4 -r1.5
+*** video.c	21 Dec 2004 05:55:43 -0000	1.4
+--- video.c	30 Dec 2004 18:47:50 -0000	1.5
+***************
+*** 194,211 ****
+  #define IS_BACKGROUND(a) (((a) < OPACITY_THRESHOLD) && (a > TRANSPARENT_THRESHOLD))
+  
+- #if VDRVERSNUM >= 10307
+- 
+- void cVideoOut::OpenOSD(int X, int Y)
+- {
+-   OSDxOfs = X;
+-   OSDyOfs = Y;
+-   OSDpresent=true;
+- }
+- 
+- void cVideoOut::CloseOSD()
+- {
+-   OSDpresent=false;
+- }
+- 
+  /* ---------------------------------------------------------------------------
+   */
+--- 194,197 ----
+***************
+*** 220,223 ****
+--- 206,223 ----
+  {
+    //fprintf (stderr, "-");
++ }
++ 
++ #if VDRVERSNUM >= 10307
++ 
++ void cVideoOut::OpenOSD(int X, int Y)
++ {
++   OSDxOfs = X;
++   OSDyOfs = Y;
++   OSDpresent=true;
++ }
++ 
++ void cVideoOut::CloseOSD()
++ {
++   OSDpresent=false;
+  }
+  
+
+
+
+From nobody at sheep.berlios.de  Thu Dec 30 19:54:46 2004
+From: nobody at sheep.berlios.de (lucke)
+Date: Thu, 30 Dec 2004 19:54:46 +0100
+Subject: [Softdevice-cvs] softdevice CHANGELOG,1.22,1.23
+Message-ID: <200412301854.iBUIskn22228@bat.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv24385
+
+Modified Files:
+	CHANGELOG 
+Log Message:
+report last changes
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.22
+retrieving revision 1.23
+diff -C2 -d -r1.22 -r1.23
+*** CHANGELOG	21 Dec 2004 05:55:42 -0000	1.22
+--- CHANGELOG	30 Dec 2004 18:54:44 -0000	1.23
+***************
+*** 1,3 ****
+--- 1,6 ----
+  Changelog
++   2004-12-30:
++    - xv-out: compile fix for gcc 3.4.3
++              fix for vdr-1.2.x "_ZN9cVideoOut8OSDStartEv"
+    2004-12-21: softdevice-0.0.8pre1
+     - directFB:
+
+
+
+From nobody at sheep.berlios.de  Fri Dec 31 02:00:15 2004
+From: nobody at sheep.berlios.de (lucke)
+Date: Fri, 31 Dec 2004 02:00:15 +0100
+Subject: [Softdevice-cvs] softdevice video-xv.c,1.10,1.11
+Message-ID: <200412310100.iBV10Fn30547@bat.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv18749
+
+Modified Files:
+	video-xv.c 
+Log Message:
+removed X11 savage colorkey bug work around. Fix for our bug #2972.
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -C2 -d -r1.10 -r1.11
+*** video-xv.c	30 Dec 2004 18:38:57 -0000	1.10
+--- video-xv.c	31 Dec 2004 01:00:10 -0000	1.11
+***************
+*** 860,864 ****
+    attributeStore.SetXInfo(dpy,port);
+    attributeStore.Save();
+!   attributeStore.SetColorkey(0x01000000);
+    attributeStore.SetValue("XV_AUTOPAINT_COLORKEY",1);
+  
+--- 860,864 ----
+    attributeStore.SetXInfo(dpy,port);
+    attributeStore.Save();
+!   attributeStore.SetColorkey(0x00000000);
+    attributeStore.SetValue("XV_AUTOPAINT_COLORKEY",1);
+  
+
+
+

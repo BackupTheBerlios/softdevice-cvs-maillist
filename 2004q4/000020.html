@@ -1,0 +1,196 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice Makefile,1.2,1.3 xscreensaver.c,1.2,1.3 xscreensaver.h,1.1,1.2
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2004q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20Makefile%2C1.2%2C1.3%20xscreensaver.c%2C1.2%2C1.3%20xscreensaver.h%2C1.1%2C1.2&In-Reply-To=%3C200410250236.i9P2aLB01621%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000019.html">
+   <LINK REL="Next"  HREF="000021.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice Makefile,1.2,1.3 xscreensaver.c,1.2,1.3 xscreensaver.h,1.1,1.2</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20Makefile%2C1.2%2C1.3%20xscreensaver.c%2C1.2%2C1.3%20xscreensaver.h%2C1.1%2C1.2&In-Reply-To=%3C200410250236.i9P2aLB01621%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice Makefile,1.2,1.3 xscreensaver.c,1.2,1.3 xscreensaver.h,1.1,1.2">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon Oct 25 04:36:21 CEST 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000019.html">[Softdevice-cvs] softdevice xscreensaver.c,1.1,1.2
+</A></li>
+        <LI>Next message: <A HREF="000021.html">[Softdevice-cvs] softdevice CHANGELOG,1.11,1.12 softdevice.c,1.1.1.1,1.2 video-xv.c,1.4,1.5
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#20">[ date ]</a>
+              <a href="thread.html#20">[ thread ]</a>
+              <a href="subject.html#20">[ subject ]</a>
+              <a href="author.html#20">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv2607
+
+Modified Files:
+	Makefile xscreensaver.c xscreensaver.h 
+Log Message:
+fix compile issues with X11 dpms headers
+
+Index: Makefile
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/Makefile,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** Makefile	18 Oct 2004 03:32:37 -0000	1.2
+--- Makefile	25 Oct 2004 02:36:18 -0000	1.3
+***************
+*** 161,164 ****
+--- 161,167 ----
+  OBJS 	+= video-xv.o xscreensaver.o
+  DEFINES += -DXV_SUPPORT
++ ifdef LIBXDPMS_SUPPORT
++ DEFINES += -DLIBXDPMS_SUPPORT
++ endif
+  LIBS 	+= -L/usr/X11R6/lib -lXi -lXext -lX11 -lm -lXv
+  endif
+
+Index: xscreensaver.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/xscreensaver.c,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** xscreensaver.c	24 Oct 2004 17:28:29 -0000	1.2
+--- xscreensaver.c	25 Oct 2004 02:36:18 -0000	1.3
+***************
+*** 28,31 ****
+--- 28,32 ----
+  static XErrorHandler old_handler = 0;
+  static Bool got_badwindow = False;
++ static BOOL dpms_on;
+  
+  static int BadWindow_ehandler(Display *dpy, XErrorEvent *error) {
+***************
+*** 42,46 ****
+  cScreensaver::~cScreensaver() {
+  #ifdef LIBXDPMS_SUPPORT
+!   if (disabled &amp;&amp; (DPMSQueryExtension(dpy, &amp;dpms_dummy, &amp;dpms_dummy)) &amp;&amp; DPMSCapable(dpy)) &amp;&amp; (dpms_on)) {
+      DPMSEnable(dpy);
+    }
+--- 43,50 ----
+  cScreensaver::~cScreensaver() {
+  #ifdef LIBXDPMS_SUPPORT
+!   if (disabled &amp;&amp;
+!       DPMSQueryExtension(dpy, &amp;dpms_dummy, &amp;dpms_dummy) &amp;&amp;
+!       DPMSCapable(dpy) &amp;&amp;
+!       dpms_on) {
+      DPMSEnable(dpy);
+    }
+***************
+*** 87,91 ****
+          DPMSForceLevel(dpy, DPMSModeOn);
+          DPMSInfo(dpy, &amp;dpms_state, &amp;dpms_on);
+!         if (onoff) {
+            dsyslog(&quot;[softdevice-xscreensaver]: Successfully enabled DPMS\n&quot;);
+          } else {
+--- 91,95 ----
+          DPMSForceLevel(dpy, DPMSModeOn);
+          DPMSInfo(dpy, &amp;dpms_state, &amp;dpms_on);
+!         if (dpms_on) {
+            dsyslog(&quot;[softdevice-xscreensaver]: Successfully enabled DPMS\n&quot;);
+          } else {
+
+Index: xscreensaver.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/xscreensaver.h,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1 -r1.2
+*** xscreensaver.h	18 Oct 2004 03:28:37 -0000	1.1
+--- xscreensaver.h	25 Oct 2004 02:36:18 -0000	1.2
+***************
+*** 14,18 ****
+--- 14,51 ----
+  
+  #ifdef LIBXDPMS_SUPPORT
++ 
++ /* ----------------------------------------------------------------------------
++  * X11 headers are buggy (won't compile C++). As long as this is true
++  * we have to caryy a local copy of them ;-) .
++  */
++ #if 0
+  #include &lt;X11/extensions/dpms.h&gt;
++ #else
++ 
++ #define DPMSModeOn      0
++ #define DPMSModeStandby 1
++ #define DPMSModeSuspend 2
++ #define DPMSModeOff     3
++ 
++ #ifndef DPMS_SERVER
++ 
++ #include &lt;X11/X.h&gt;
++ #include &lt;X11/Xmd.h&gt;
++ 
++ extern &quot;C&quot; {
++ extern Bool DPMSQueryExtension(Display *, int *, int *);
++ extern Status DPMSGetVersion(Display *, int *, int *);
++ extern Bool DPMSCapable(Display *);
++ extern Status DPMSSetTimeouts(Display *, CARD16, CARD16, CARD16);
++ extern Bool DPMSGetTimeouts(Display *, CARD16 *, CARD16 *, CARD16 *);
++ extern Status DPMSEnable(Display *);
++ extern Status DPMSDisable(Display *);
++ extern Status DPMSForceLevel(Display *, CARD16);
++ extern Status DPMSInfo(Display *, CARD16 *, BOOL *);
++ }
++ #endif
++ 
++ #endif
++ 
+  #endif
+  
+***************
+*** 29,37 ****
+    Atom XA_SCREENSAVER;
+    Atom XA_DEACTIVATE;
+- #ifdef LIBXDPMS_SUPPORT
+-   static BOOL dpms_on;
+    CARD16 dpms_state;
+    int dpms_dummy;
+- #endif
+    int FindWindow();
+  public:
+--- 62,67 ----
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000019.html">[Softdevice-cvs] softdevice xscreensaver.c,1.1,1.2
+</A></li>
+	<LI>Next message: <A HREF="000021.html">[Softdevice-cvs] softdevice CHANGELOG,1.11,1.12 softdevice.c,1.1.1.1,1.2 video-xv.c,1.4,1.5
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#20">[ date ]</a>
+              <a href="thread.html#20">[ thread ]</a>
+              <a href="subject.html#20">[ subject ]</a>
+              <a href="author.html#20">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

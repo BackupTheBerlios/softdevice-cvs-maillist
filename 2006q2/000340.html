@@ -1,0 +1,226 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice video.c,1.52,1.53 video.h,1.36,1.37 ShmClient.c,1.11,1.12 VdrReplacements.h,1.1,1.2 CHANGELOG,1.178,1.179
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video.c%2C1.52%2C1.53%20video.h%2C1.36%2C1.37%20ShmClient.c%2C1.11%2C1.12%20VdrReplacements.h%2C1.1%2C1.2%20CHANGELOG%2C1.178%2C1.179&In-Reply-To=%3C200604272029.k3RKTDt04067%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000339.html">
+   <LINK REL="Next"  HREF="000341.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice video.c,1.52,1.53 video.h,1.36,1.37 ShmClient.c,1.11,1.12 VdrReplacements.h,1.1,1.2 CHANGELOG,1.178,1.179</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video.c%2C1.52%2C1.53%20video.h%2C1.36%2C1.37%20ShmClient.c%2C1.11%2C1.12%20VdrReplacements.h%2C1.1%2C1.2%20CHANGELOG%2C1.178%2C1.179&In-Reply-To=%3C200604272029.k3RKTDt04067%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice video.c,1.52,1.53 video.h,1.36,1.37 ShmClient.c,1.11,1.12 VdrReplacements.h,1.1,1.2 CHANGELOG,1.178,1.179">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Thu Apr 27 22:29:13 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000339.html">[Softdevice-cvs] softdevice CHANGELOG,1.177,1.178 video.c,1.51,1.52 ShmClient.c,1.10,1.11
+</A></li>
+        <LI>Next message: <A HREF="000341.html">[Softdevice-cvs] softdevice CHANGELOG,1.179,1.180 audio.c,1.24,1.25 audio.h,1.10,1.11
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#340">[ date ]</a>
+              <a href="thread.html#340">[ thread ]</a>
+              <a href="subject.html#340">[ subject ]</a>
+              <a href="author.html#340">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv26551
+
+Modified Files:
+	video.c video.h ShmClient.c VdrReplacements.h CHANGELOG 
+Log Message:
+- fix black screen for some aspect ratios using ShmClient
+
+
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.52
+retrieving revision 1.53
+diff -C2 -d -r1.52 -r1.53
+*** video.c	25 Apr 2006 19:49:20 -0000	1.52
+--- video.c	27 Apr 2006 20:29:29 -0000	1.53
+***************
+*** 499,503 ****
+   */
+  void cVideoOut::DrawStill_420pl(uint8_t *pY, uint8_t *pU, uint8_t *pV,
+!                                 int w, int h, int yPitch, int uvPitch)
+  {
+    areaMutex. Lock();
+--- 499,504 ----
+   */
+  void cVideoOut::DrawStill_420pl(uint8_t *pY, uint8_t *pU, uint8_t *pV,
+!                                 int w, int h, int yPitch, int uvPitch,
+!                                 int new_afd,double new_asp)
+  {
+    areaMutex. Lock();
+***************
+*** 505,509 ****
+    Osd_changed=0;
+    CheckArea(w, h);
+!   CheckAspect(current_afd, aspect_F);
+    // display picture
+    YUV (pY, pU, pV, w, h, yPitch, uvPitch);
+--- 506,510 ----
+    Osd_changed=0;
+    CheckArea(w, h);
+!   CheckAspect(new_afd==-1?current_afd:new_afd, new_asp==0?aspect_F:new_asp);
+    // display picture
+    YUV (pY, pU, pV, w, h, yPitch, uvPitch);
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.36
+retrieving revision 1.37
+diff -C2 -d -r1.36 -r1.37
+*** video.h	24 Apr 2006 22:59:23 -0000	1.36
+--- video.h	27 Apr 2006 20:29:29 -0000	1.37
+***************
+*** 171,175 ****
+                                    AVFrame *picture, AVCodecContext *context);
+      virtual void DrawStill_420pl (uint8_t *pY, uint8_t *pU, uint8_t *pV,
+!                                   int w, int h, int yPitch, int uvPitch);
+      virtual bool Initialize(void) {videoInitialized = true; return 1;};
+      virtual bool Reconfigure (int format) {return 1;};
+--- 171,177 ----
+                                    AVFrame *picture, AVCodecContext *context);
+      virtual void DrawStill_420pl (uint8_t *pY, uint8_t *pU, uint8_t *pV,
+!                                   int w, int h, int yPitch, int uvPitch,
+!                                   int new_afd=-1, 
+!                                   double new_asp=0.0);
+      virtual bool Initialize(void) {videoInitialized = true; return 1;};
+      virtual bool Reconfigure (int format) {return 1;};
+
+Index: ShmClient.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/ShmClient.c,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -C2 -d -r1.11 -r1.12
+*** ShmClient.c	25 Apr 2006 19:49:20 -0000	1.11
+--- ShmClient.c	27 Apr 2006 20:29:30 -0000	1.12
+***************
+*** 181,193 ****
+  
+                          vout-&gt;CheckArea(width,height);
+!                         vout-&gt;CheckAspect(ctl-&gt;new_afd,ctl-&gt;new_asp);
+                          if ( vout-&gt;useShm ) {
+                                  vout-&gt;DrawStill_420pl(NULL,NULL,NULL,
+                                                  width,height,
+!                                                 ctl-&gt;stride0,ctl-&gt;stride1);
+                          } else {    
+                                  vout-&gt;DrawStill_420pl(pixel[0],pixel[2],pixel[1],
+                                          width,height,
+!                                         ctl-&gt;stride0,ctl-&gt;stride1);
+                          };
+                          ctl-&gt;new_pict=0;
+--- 181,195 ----
+  
+                          vout-&gt;CheckArea(width,height);
+!                         //vout-&gt;CheckAspect(ctl-&gt;new_afd,ctl-&gt;new_asp);
+                          if ( vout-&gt;useShm ) {
+                                  vout-&gt;DrawStill_420pl(NULL,NULL,NULL,
+                                                  width,height,
+!                                                 ctl-&gt;stride0,ctl-&gt;stride1,
+!                                                 ctl-&gt;new_afd,ctl-&gt;new_asp);
+                          } else {    
+                                  vout-&gt;DrawStill_420pl(pixel[0],pixel[2],pixel[1],
+                                          width,height,
+!                                         ctl-&gt;stride0,ctl-&gt;stride1,
+!                                         ctl-&gt;new_afd,ctl-&gt;new_asp);
+                          };
+                          ctl-&gt;new_pict=0;
+
+Index: VdrReplacements.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/VdrReplacements.h,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1 -r1.2
+*** VdrReplacements.h	23 Apr 2006 19:55:53 -0000	1.1
+--- VdrReplacements.h	27 Apr 2006 20:29:30 -0000	1.2
+***************
+*** 19,31 ****
+  #define VDRVERSNUM 10308
+  
+! #define esyslog(out...) while (0) { fprintf(stderr,&quot;esyslog:&quot;); \
+                                      fprintf(stderr,out);\
+!                                     fprintf(stderr,&quot;\n&quot;); }
+! #define dsyslog(out...) while (0) { fprintf(stderr,&quot;dsyslog:&quot;); \
+                                      fprintf(stderr,out);\
+!                                     fprintf(stderr,&quot;\n&quot;); }
+! #define isyslog(out...) while (0) { fprintf(stdout,&quot;isyslog:&quot;); \
+                                      fprintf(stdout,out);\
+!                                     fprintf(stdout,&quot;\n&quot;); }
+  
+  #define tr(out) out
+--- 19,31 ----
+  #define VDRVERSNUM 10308
+  
+! #define esyslog(out...) do { fprintf(stderr,&quot;esyslog:&quot;); \
+                                      fprintf(stderr,out);\
+!                                     fprintf(stderr,&quot;\n&quot;); } while (0)
+! #define dsyslog(out...) do { fprintf(stderr,&quot;dsyslog:&quot;); \
+                                      fprintf(stderr,out);\
+!                                     fprintf(stderr,&quot;\n&quot;); } while (0)
+! #define isyslog(out...) do { fprintf(stdout,&quot;isyslog:&quot;); \
+                                      fprintf(stdout,out);\
+!                                     fprintf(stdout,&quot;\n&quot;); } while (0)
+  
+  #define tr(out) out
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.178
+retrieving revision 1.179
+diff -C2 -d -r1.178 -r1.179
+*** CHANGELOG	25 Apr 2006 19:49:20 -0000	1.178
+--- CHANGELOG	27 Apr 2006 20:29:30 -0000	1.179
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2006-04-27:
++    - fix black screen for some aspect ratios using ShmClient
+  2006-04-25:
+     - fix ShmClient blank screen every 4s 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000339.html">[Softdevice-cvs] softdevice CHANGELOG,1.177,1.178 video.c,1.51,1.52 ShmClient.c,1.10,1.11
+</A></li>
+	<LI>Next message: <A HREF="000341.html">[Softdevice-cvs] softdevice CHANGELOG,1.179,1.180 audio.c,1.24,1.25 audio.h,1.10,1.11
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#340">[ date ]</a>
+              <a href="thread.html#340">[ thread ]</a>
+              <a href="subject.html#340">[ subject ]</a>
+              <a href="author.html#340">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

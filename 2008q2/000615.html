@@ -1,0 +1,140 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice mpeg2decoder.c, 1.79, 1.80 CHANGELOG,	1.331, 1.332
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2008q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20mpeg2decoder.c%2C%201.79%2C%201.80%20CHANGELOG%2C%0A%091.331%2C%201.332&In-Reply-To=%3C20080415173717.4B190FAB48%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000613.html">
+   <LINK REL="Next"  HREF="000616.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice mpeg2decoder.c, 1.79, 1.80 CHANGELOG,	1.331, 1.332</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20mpeg2decoder.c%2C%201.79%2C%201.80%20CHANGELOG%2C%0A%091.331%2C%201.332&In-Reply-To=%3C20080415173717.4B190FAB48%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice mpeg2decoder.c, 1.79, 1.80 CHANGELOG,	1.331, 1.332">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue Apr 15 19:37:17 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000613.html">[Softdevice-cvs] softdevice/po .cvsignore,NONE,1.1
+</A></li>
+        <LI>Next message: <A HREF="000616.html">[Softdevice-cvs] softdevice CHANGELOG, 1.332, 1.333 audio-alsa.c,	1.8, 1.9 mpeg2decoder.c, 1.80, 1.81 setup-softlog.c, 1.6, 1.7
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#615">[ date ]</a>
+              <a href="thread.html#615">[ thread ]</a>
+              <a href="subject.html#615">[ subject ]</a>
+              <a href="author.html#615">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv18891
+
+Modified Files:
+	mpeg2decoder.c CHANGELOG 
+Log Message:
+Switched from av_read_packet() to av_read_frame().
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.79
+retrieving revision 1.80
+diff -C2 -d -r1.79 -r1.80
+*** mpeg2decoder.c	12 Apr 2008 12:27:58 -0000	1.79
+--- mpeg2decoder.c	15 Apr 2008 17:34:30 -0000	1.80
+***************
+*** 175,179 ****
+    AVPacket *pkt;
+  
+!   while ( PacketQueue.Available() &lt; 7 &amp;&amp; active) {
+      BUFDEB(&quot;wait while loop packets %d StreamDecoder  pid:%d type %d\n&quot;,
+        PacketQueue.Available(),getpid(),context-&gt;codec_type );
+--- 175,183 ----
+    AVPacket *pkt;
+  
+!   // -------------------------------------------------------------------------
+!   // reduced comparison from 7 to 3, as this is required for
+!   // stillpicture to work.
+!   //
+!   while ( PacketQueue.Available() &lt; 3 &amp;&amp; active) {
+      BUFDEB(&quot;wait while loop packets %d StreamDecoder  pid:%d type %d\n&quot;,
+        PacketQueue.Available(),getpid(),context-&gt;codec_type );
+***************
+*** 1164,1169 ****
+  
+          BUFDEB(&quot;av_read_frame start\n&quot;);
+!         //ret = av_read_frame(ic, &amp;pkt);
+!         ret = av_read_packet(ic, &amp;pkt);
+          if (ret &lt; 0) {
+              BUFDEB(&quot;cMpeg2Decoder Stream Error!\n&quot;);
+--- 1168,1173 ----
+  
+          BUFDEB(&quot;av_read_frame start\n&quot;);
+!         ret = av_read_frame(ic, &amp;pkt);
+!         //ret = av_read_packet(ic, &amp;pkt);
+          if (ret &lt; 0) {
+              BUFDEB(&quot;cMpeg2Decoder Stream Error!\n&quot;);
+***************
+*** 1172,1176 ****
+              continue;
+          }
+!         //av_dup_packet(&amp;pkt);
+          PacketCount++;
+          BUFDEB(&quot;got packet from av_read_frame!\n&quot;);
+--- 1176,1180 ----
+              continue;
+          }
+!         av_dup_packet(&amp;pkt);
+          PacketCount++;
+          BUFDEB(&quot;got packet from av_read_frame!\n&quot;);
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.331
+retrieving revision 1.332
+diff -C2 -d -r1.331 -r1.332
+*** CHANGELOG	14 Apr 2008 02:52:10 -0000	1.331
+--- CHANGELOG	15 Apr 2008 17:34:30 -0000	1.332
+***************
+*** 4,7 ****
+--- 4,8 ----
+     - Added local translations of yes/no.
+     - Switched to vdr-1.5.x OSD translation.
++    - Switched from av_read_packet() to av_read_frame().
+  2008-04-14:
+     - Italian translation by Diego.
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000613.html">[Softdevice-cvs] softdevice/po .cvsignore,NONE,1.1
+</A></li>
+	<LI>Next message: <A HREF="000616.html">[Softdevice-cvs] softdevice CHANGELOG, 1.332, 1.333 audio-alsa.c,	1.8, 1.9 mpeg2decoder.c, 1.80, 1.81 setup-softlog.c, 1.6, 1.7
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#615">[ date ]</a>
+              <a href="thread.html#615">[ thread ]</a>
+              <a href="subject.html#615">[ subject ]</a>
+              <a href="author.html#615">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

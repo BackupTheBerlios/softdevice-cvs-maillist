@@ -1,0 +1,118 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.227, 1.228 SoftOsd.c, 1.16,	1.17
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.227%2C%201.228%20SoftOsd.c%2C%201.16%2C%0A%091.17&In-Reply-To=%3C20060910203355.5E79E78FEE%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000418.html">
+   <LINK REL="Next"  HREF="000420.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.227, 1.228 SoftOsd.c, 1.16,	1.17</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.227%2C%201.228%20SoftOsd.c%2C%201.16%2C%0A%091.17&In-Reply-To=%3C20060910203355.5E79E78FEE%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.227, 1.228 SoftOsd.c, 1.16,	1.17">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Sep 10 22:33:55 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000418.html">[Softdevice-cvs] softdevice video-vidix.c,1.22,1.23
+</A></li>
+        <LI>Next message: <A HREF="000420.html">[Softdevice-cvs] softdevice CHANGELOG, 1.228, 1.229 softdevice.c,	1.68, 1.69
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#419">[ date ]</a>
+              <a href="thread.html#419">[ thread ]</a>
+              <a href="subject.html#419">[ subject ]</a>
+              <a href="author.html#419">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv4468
+
+Modified Files:
+	CHANGELOG SoftOsd.c 
+Log Message:
+- fix the &quot;NVidia software alpha blending OSD&quot; issue
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.227
+retrieving revision 1.228
+diff -C2 -d -r1.227 -r1.228
+*** CHANGELOG	9 Sep 2006 10:35:37 -0000	1.227
+--- CHANGELOG	10 Sep 2006 20:33:29 -0000	1.228
+***************
+*** 1,3 ****
+--- 1,8 ----
+  Changelog
++ 2006-09-10:
++    - fix &quot;NVidia software alpha blending OSD&quot; issue, which turned out
++      to be a compiler problem with g++-4.1.1. (Many thanks to Prakash 
++      Punnoor, Matthias Schwarzott, Chris Elsworth and all the others
++      who helped to fix this)
+  2006-09-09:
+     - video-xv.c: silence some warnings
+
+Index: SoftOsd.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.c,v
+retrieving revision 1.16
+retrieving revision 1.17
+diff -C2 -d -r1.16 -r1.17
+*** SoftOsd.c	10 Jul 2006 18:23:28 -0000	1.16
+--- SoftOsd.c	10 Sep 2006 20:33:29 -0000	1.17
+***************
+*** 1382,1389 ****
+          __asm__ __volatile__ (
+                   &quot; pxor %%mm0,%%mm0 \n&quot; //mm0: dest pixel
+!                  &quot; movd (%0),%%mm6  \n&quot;
+                   &quot; pshufw $0,%%mm6,%%mm6 \n&quot;// mm6: new_pixel_width_rec
+                   &quot; pxor %%mm7,%%mm7 \n&quot; //mm7: 00 00 00 ...
+!                  : : &quot;r&quot; (&amp;new_pixel_width_rec)  );
+  #endif
+          SCALEDEBH(&quot;OSD_WIDTH: %d dest_width: %d new_pixel_width: %d\n&quot;,
+--- 1382,1389 ----
+          __asm__ __volatile__ (
+                   &quot; pxor %%mm0,%%mm0 \n&quot; //mm0: dest pixel
+!                  &quot; movd %0,%%mm6  \n&quot;
+                   &quot; pshufw $0,%%mm6,%%mm6 \n&quot;// mm6: new_pixel_width_rec
+                   &quot; pxor %%mm7,%%mm7 \n&quot; //mm7: 00 00 00 ...
+!                  : : &quot;r&quot; (new_pixel_width_rec)  );
+  #endif
+          SCALEDEBH(&quot;OSD_WIDTH: %d dest_width: %d new_pixel_width: %d\n&quot;,
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000418.html">[Softdevice-cvs] softdevice video-vidix.c,1.22,1.23
+</A></li>
+	<LI>Next message: <A HREF="000420.html">[Softdevice-cvs] softdevice CHANGELOG, 1.228, 1.229 softdevice.c,	1.68, 1.69
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#419">[ date ]</a>
+              <a href="thread.html#419">[ thread ]</a>
+              <a href="subject.html#419">[ subject ]</a>
+              <a href="author.html#419">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,170 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.115,1.116 README,1.9,1.10 softdevice.c,1.43,1.44
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.115%2C1.116%20README%2C1.9%2C1.10%20softdevice.c%2C1.43%2C1.44&In-Reply-To=%3C200510081237.j98CbJ911413%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000224.html">
+   <LINK REL="Next"  HREF="000226.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.115,1.116 README,1.9,1.10 softdevice.c,1.43,1.44</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.115%2C1.116%20README%2C1.9%2C1.10%20softdevice.c%2C1.43%2C1.44&In-Reply-To=%3C200510081237.j98CbJ911413%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.115,1.116 README,1.9,1.10 softdevice.c,1.43,1.44">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Oct  8 14:37:19 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000224.html">[Softdevice-cvs] softdevice CHANGELOG,1.114,1.115 configure,1.7,1.8
+</A></li>
+        <LI>Next message: <A HREF="000226.html">[Softdevice-cvs] softdevice video.c,1.32,1.33 CHANGELOG,1.116,1.117
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#225">[ date ]</a>
+              <a href="thread.html#225">[ thread ]</a>
+              <a href="subject.html#225">[ subject ]</a>
+              <a href="author.html#225">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv6935
+
+Modified Files:
+	CHANGELOG README softdevice.c 
+Log Message:
+softdevice-0.2.0
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.115
+retrieving revision 1.116
+diff -C2 -d -r1.115 -r1.116
+*** CHANGELOG	7 Oct 2005 13:37:53 -0000	1.115
+--- CHANGELOG	8 Oct 2005 12:37:16 -0000	1.116
+***************
+*** 1,3 ****
+--- 1,4 ----
+  Changelog
++ 2005-10-08: softdevice-0.2.0
+  2005-10-07:
+      - dfb+vidix: fix colored shadow bug for some crop modes
+
+Index: README
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/README,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -C2 -d -r1.9 -r1.10
+*** README	24 Jul 2005 20:16:38 -0000	1.9
+--- README	8 Oct 2005 12:37:16 -0000	1.10
+***************
+*** 55,62 ****
+  ./VDR/PLUGINS/src directory
+  
+! You _will_ have to modify the Makefile to your needs. Comment out all
+! ouput methods that you don't plan to use ( put a &quot;#&quot;-sign in at the
+! start of the line ). Adjust the path to libavcodec in the Makefile, 
+! and disable all other features you don't want.
+  
+  If you don't plan to use Xv,set up a framebuffer on /dev/fb0
+--- 55,68 ----
+  ./VDR/PLUGINS/src directory
+  
+! By default you should &quot;cd&quot; to softdevice directory and run &quot;./configure&quot; .
+! This will generate config.h and config.mak files, which will guide make.
+! Available parameters of configure are listed by &quot;./configure --help&quot; .
+! 
+! To get rid of these generated files a &quot;make dist-clean&quot; should be done.
+! 
+! Without running configure, you'll have to modify the Makefile to your needs.
+! Comment out all ouput methods that you don't plan to use
+! ( put a &quot;#&quot;-sign in at the start of the line ). Adjust the path to libavcodec
+! in the Makefile, and disable all other features you don't want.
+  
+  If you don't plan to use Xv,set up a framebuffer on /dev/fb0
+***************
+*** 85,88 ****
+--- 91,108 ----
+  
+  
++ AC3 pass through:
++ -----------------
++ For using AC3 pass through, you have to specify the IEC958 device name of
++ your sound card. Which device to use, can be checked with ac3play.
++ For my system, ac3play works with: &quot;ac3play -C -D 0,1 AC3_FILE_NAME&quot;
++ 
++ So my vdr call with parameter list for softdevice looks like:
++ -P &quot;softdevice -ao alsa:pcm=default#ac3=hw:0,1# -vo dfb:mgatv&quot;
++ 
++ Notice the trailing '#' of the last alsa subparameter.
++ 
++ AC3 pass through is mainly based on the code of ac3play-0.5.2f, so
++ many thanks to the authors of that program.
++ 
+  Problems/todo:
+  --------------
+***************
+*** 94,97 ****
+--- 114,118 ----
+  - mpeg2dec
+  - alsa
++ - ac3play-0.5.2f
+  
+  Many thanks to:
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.43
+retrieving revision 1.44
+diff -C2 -d -r1.43 -r1.44
+*** softdevice.c	6 Oct 2005 21:28:11 -0000	1.43
+--- softdevice.c	8 Oct 2005 12:37:16 -0000	1.44
+***************
+*** 73,77 ****
+  #include &quot;mpeg2decoder.h&quot;
+  #include &quot;utils.h&quot;
+! static const char *VERSION        = &quot;0.1.3&quot;;
+  static const char *DESCRIPTION    = &quot;A software emulated MPEG2 device&quot;;
+  static const char *MAINMENUENTRY  = &quot;Softdevice&quot;;
+--- 73,77 ----
+  #include &quot;mpeg2decoder.h&quot;
+  #include &quot;utils.h&quot;
+! static const char *VERSION        = &quot;0.2.0&quot;;
+  static const char *DESCRIPTION    = &quot;A software emulated MPEG2 device&quot;;
+  static const char *MAINMENUENTRY  = &quot;Softdevice&quot;;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000224.html">[Softdevice-cvs] softdevice CHANGELOG,1.114,1.115 configure,1.7,1.8
+</A></li>
+	<LI>Next message: <A HREF="000226.html">[Softdevice-cvs] softdevice video.c,1.32,1.33 CHANGELOG,1.116,1.117
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#225">[ date ]</a>
+              <a href="thread.html#225">[ thread ]</a>
+              <a href="subject.html#225">[ subject ]</a>
+              <a href="author.html#225">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

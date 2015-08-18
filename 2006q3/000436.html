@@ -1,0 +1,445 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.242, 1.243 video-shm.c,	1.10, 1.11 video-shm.h, 1.7, 1.8
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.242%2C%201.243%20video-shm.c%2C%0A%091.10%2C%201.11%20video-shm.h%2C%201.7%2C%201.8&In-Reply-To=%3C20060918105104.4FD0B7BEC2%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000435.html">
+   <LINK REL="Next"  HREF="000437.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.242, 1.243 video-shm.c,	1.10, 1.11 video-shm.h, 1.7, 1.8</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.242%2C%201.243%20video-shm.c%2C%0A%091.10%2C%201.11%20video-shm.h%2C%201.7%2C%201.8&In-Reply-To=%3C20060918105104.4FD0B7BEC2%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.242, 1.243 video-shm.c,	1.10, 1.11 video-shm.h, 1.7, 1.8">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon Sep 18 12:51:04 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000435.html">[Softdevice-cvs] softdevice configure,1.29,1.30
+</A></li>
+        <LI>Next message: <A HREF="000437.html">[Softdevice-cvs] softdevice CHANGELOG, 1.243, 1.244 video.c, 1.63,	1.64
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#436">[ date ]</a>
+              <a href="thread.html#436">[ thread ]</a>
+              <a href="subject.html#436">[ subject ]</a>
+              <a href="author.html#436">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv15156
+
+Modified Files:
+	CHANGELOG video-shm.c video-shm.h 
+Log Message:
+- combine shared memory checks into CheckShmIDs()
+- improve error messages in video-shm.c
+   
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.242
+retrieving revision 1.243
+diff -C2 -d -r1.242 -r1.243
+*** CHANGELOG	18 Sep 2006 10:14:01 -0000	1.242
+--- CHANGELOG	18 Sep 2006 10:50:33 -0000	1.243
+***************
+*** 4,7 ****
+--- 4,10 ----
+     - add a very simple cpu type and host system detection to configure
+     - fix changing from pseudo to software osd blending for video-xv
++    - remove no longer needed test for broken gcc compiler from configure
++    - combine shared memory checks into CheckShmIDs()
++    - improve error messages in video-shm.c
+  2006-09-17:
+     - replace &quot;pshufw&quot; with MMX commands to make scaling optimazations available
+
+Index: video-shm.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-shm.c,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -C2 -d -r1.10 -r1.11
+*** video-shm.c	4 Sep 2006 20:25:17 -0000	1.10
+--- video-shm.c	18 Sep 2006 10:50:33 -0000	1.11
+***************
+*** 69,80 ****
+          // first try to get an existing ShmCltBlock
+          if  ( (ctl_shmid = shmget(ctl_key,sizeof(ShmCtlBlock), 0666)) &gt;= 0 ) {
+!                 fprintf(stderr,&quot;got ctl_shmid %d shm ctl!\n&quot;,ctl_shmid);
+          } else if ( (ctl_shmid = shmget(ctl_key,sizeof(ShmCtlBlock), 
+                                          IPC_CREAT | 0666)) &gt;= 0 ) {
+!                 fprintf(stderr,&quot;created ctl_shmid %d shm ctl!\n&quot;,ctl_shmid);
+                  // created ShmCltBlock, clear it
+                  Clear_Ctl=true;
+          } else {
+!                 fprintf(stderr,&quot;error creating shm ctl!\n&quot;);
+                  exit(-1);
+          };
+--- 69,80 ----
+          // first try to get an existing ShmCltBlock
+          if  ( (ctl_shmid = shmget(ctl_key,sizeof(ShmCtlBlock), 0666)) &gt;= 0 ) {
+!                 fprintf(stderr,&quot;cShmVideoOut: Got ctl_shmid %d shm ctl!\n&quot;,ctl_shmid);
+          } else if ( (ctl_shmid = shmget(ctl_key,sizeof(ShmCtlBlock), 
+                                          IPC_CREAT | 0666)) &gt;= 0 ) {
+!                 fprintf(stderr,&quot;cShmVideoOut: Created ctl_shmid %d shm ctl!\n&quot;,ctl_shmid);
+                  // created ShmCltBlock, clear it
+                  Clear_Ctl=true;
+          } else {
+!                 fprintf(stderr,&quot;cShmVideoOut: Error creating shm ctl!\n&quot;);
+                  exit(-1);
+          };
+***************
+*** 83,87 ****
+          if ( (ctl = (ShmCtlBlock*)shmat(ctl_shmid,NULL,0)) 
+                          == (ShmCtlBlock*) -1 ) {
+!                 fprintf(stderr,&quot;error attatching shm ctl!\n&quot;);
+                  exit(-1);
+          };
+--- 83,87 ----
+          if ( (ctl = (ShmCtlBlock*)shmat(ctl_shmid,NULL,0)) 
+                          == (ShmCtlBlock*) -1 ) {
+!                 fprintf(stderr,&quot;cShmVideoOut: Error attatching shm ctl!\n&quot;);
+                  exit(-1);
+          };
+***************
+*** 98,105 ****
+                  if ( (ctl-&gt;semid = semget(IPC_PRIVATE, 4, 0666 | IPC_CREAT) )
+                                  == -1) {
+!                         fprintf(stderr,&quot;error creating semaphore set!\n&quot;);
+                          exit(-1);
+                  };
+!                 printf(&quot;created semaphores id %d\n&quot;,ctl-&gt;semid);
+          };
+  
+--- 98,105 ----
+                  if ( (ctl-&gt;semid = semget(IPC_PRIVATE, 4, 0666 | IPC_CREAT) )
+                                  == -1) {
+!                         fprintf(stderr,&quot;cShmVideoOut: Error creating semaphore set!\n&quot;);
+                          exit(-1);
+                  };
+!                 SHMDEB(&quot;created semaphores id %d\n&quot;,ctl-&gt;semid);
+          };
+  
+***************
+*** 107,115 ****
+          sem_val.val = 0; // nothing available
+          if ( semctl(ctl-&gt;semid,PICT_SIG, SETVAL, sem_val) == -1 ) {
+!                 printf(&quot;error resetting semaphore PICT_SIG\n&quot;);
+                  exit(-1);
+          };
+          if ( semctl(ctl-&gt;semid,KEY_SIG,SETVAL,sem_val) == -1 ) {
+!                 printf(&quot;error resetting semaphore KEY_SIG\n&quot;);
+                  exit(-1);
+          };
+--- 107,115 ----
+          sem_val.val = 0; // nothing available
+          if ( semctl(ctl-&gt;semid,PICT_SIG, SETVAL, sem_val) == -1 ) {
+!                 fprintf(stderr,&quot;cShmVideoOut: Error resetting semaphore PICT_SIG\n&quot;);
+                  exit(-1);
+          };
+          if ( semctl(ctl-&gt;semid,KEY_SIG,SETVAL,sem_val) == -1 ) {
+!                 fprintf(stderr,&quot;cShmVideoOut: Error resetting semaphore KEY_SIG\n&quot;);
+                  exit(-1);
+          };
+***************
+*** 117,125 ****
+          sem_val.val = 1; // not locked
+          if ( semctl(ctl-&gt;semid,PICT_MUT, SETVAL, sem_val) == -1 ) {
+!                 printf(&quot;error resetting semaphore PICT_MUT\n&quot;);
+                  exit(-1);
+          };
+          if ( semctl(ctl-&gt;semid,KEY_MUT,SETVAL,sem_val) == -1 ) {
+!                 printf(&quot;error resetting semaphore KEY_MUT\n&quot;);
+                  exit(-1);
+          };
+--- 117,125 ----
+          sem_val.val = 1; // not locked
+          if ( semctl(ctl-&gt;semid,PICT_MUT, SETVAL, sem_val) == -1 ) {
+!                 fprintf(stderr,&quot;cShmVideoOut: Error resetting semaphore PICT_MUT\n&quot;);
+                  exit(-1);
+          };
+          if ( semctl(ctl-&gt;semid,KEY_MUT,SETVAL,sem_val) == -1 ) {
+!                 fprintf(stderr,&quot;cShmVideoOut: Error resetting semaphore KEY_MUT\n&quot;);
+                  exit(-1);
+          };
+***************
+*** 141,145 ****
+          // remove semaphore 
+          if ( semctl(ctl-&gt;semid, 0, IPC_RMID, sem_val ) == -1) {
+!             fprintf(stderr,&quot;error removeing semaphore set!\n&quot;);
+              exit(1);
+          }
+--- 141,145 ----
+          // remove semaphore 
+          if ( semctl(ctl-&gt;semid, 0, IPC_RMID, sem_val ) == -1) {
+!             fprintf(stderr,&quot;cShmVideoOut: Error removing semaphore set!\n&quot;);
+              exit(1);
+          }
+***************
+*** 196,207 ****
+  };       
+  
+! void cShmVideoOut::GetLockOsdSurface(uint8_t *&amp;osd, int &amp;stride,
+!                   bool *&amp;dirtyLines) {
+! 	SHMDEB(&quot;GetLockOsdSurface osd_surface %p\n&quot;,osd_surface);
+          if ( ctl-&gt;osd_shmid != curr_osd_shmid ) {
+                  if (osd_surface) {
+                          shmdt(osd_surface);
+                          osd_surface=NULL;
+-                         osd=NULL;
+                  };
+                  
+--- 196,249 ----
+  };       
+  
+! void cShmVideoOut::CheckShmIDs() {
+! 
+!         if ( ctl-&gt;pict_shmid != curr_pict_shmid ) {
+!                 if (curr_pict) {
+!                         shmdt(curr_pict);
+!                         curr_pict=NULL;
+!                 };
+! 
+!                 if ( ctl-&gt;pict_shmid != -1 ) {
+!                         if ( (curr_pict = (uint8_t *)shmat(ctl-&gt;pict_shmid,NULL,0)) 
+!                                         == (uint8_t*) -1 ) {
+!                                 fprintf(stderr,&quot;cShmVideoOut: Warning! Could not attatch to shm pict! Assuming no client connected.\n&quot;);
+!                                 ctl-&gt;pict_shmid = -1;
+!                                 ctl-&gt;attached = 0;
+!                                 curr_pict=NULL;
+!                                 sem_sig_unlock(ctl-&gt;semid,PICT_MUT);
+!                                 return;
+!                         }
+!                         curr_pict_shmid=ctl-&gt;pict_shmid;
+!                         privBuf.format=ctl-&gt;format;
+!                         privBuf.max_width=ctl-&gt;max_width;
+!                         privBuf.max_height=ctl-&gt;max_height;
+!                         switch (privBuf.format) {
+!                                 case PIX_FMT_YUV420P:  
+!                                         SHMDEB(&quot;new format YUV420P\n&quot;);
+!                                         privBuf.pixel[0]=curr_pict+ctl-&gt;offset0;
+!                                         privBuf.pixel[1]=curr_pict+ctl-&gt;offset1;
+!                                         privBuf.pixel[2]=curr_pict+ctl-&gt;offset2;
+!                                         privBuf.stride[0]=ctl-&gt;stride0;
+!                                         privBuf.stride[1]=ctl-&gt;stride1;
+!                                         privBuf.stride[2]=ctl-&gt;stride2;
+!                                         break;
+!                                 case PIX_FMT_YUV422:
+!                                         SHMDEB(&quot;new format YUV422\n&quot;);
+!                                         privBuf.pixel[0]=curr_pict+ctl-&gt;offset0;
+!                                         privBuf.pixel[1]=privBuf.pixel[1]=NULL;
+!                                         privBuf.stride[0]=ctl-&gt;stride0;
+!                                         privBuf.stride[1]=privBuf.stride[2]=0;
+!                                         break;
+!                                 default:
+!                                         break;
+!                         }
+!                         SHMDEB(&quot;new pict %p shmid %d\n&quot;,curr_pict,curr_pict_shmid);
+!                 };
+!         };
+!  
+          if ( ctl-&gt;osd_shmid != curr_osd_shmid ) {
+                  if (osd_surface) {
+                          shmdt(osd_surface);
+                          osd_surface=NULL;
+                  };
+                  
+***************
+*** 210,214 ****
+                         if ( (osd_surface = (uint8_t *)shmat(ctl-&gt;osd_shmid,NULL,0)) 
+                                         == (uint8_t*) -1 ) {
+!                                fprintf(stderr,&quot;error attatching osd pict(%d)! Assuming no client connected\n&quot;,
+                                                 ctl-&gt;osd_shmid);
+                                 ctl-&gt;pict_shmid = -1;
+--- 252,256 ----
+                         if ( (osd_surface = (uint8_t *)shmat(ctl-&gt;osd_shmid,NULL,0)) 
+                                         == (uint8_t*) -1 ) {
+!                                fprintf(stderr,&quot;cShmVideoOut: Warning! Could not attatch to osd pict(%d)! Assuming no client connected.\n&quot;,
+                                                 ctl-&gt;osd_shmid);
+                                 ctl-&gt;pict_shmid = -1;
+***************
+*** 216,220 ****
+                                 ctl-&gt;attached = 0;
+                                 osd_surface=NULL;
+-                                osd=NULL;
+                                 return;
+                         }
+--- 258,261 ----
+***************
+*** 223,227 ****
+--- 264,274 ----
+  	        SHMDEB(&quot;got new osd_surface %p\n&quot;,osd_surface);
+          };
++ }
++ 
++ void cShmVideoOut::GetLockOsdSurface(uint8_t *&amp;osd, int &amp;stride,
++                   bool *&amp;dirtyLines) {
++ 	SHMDEB(&quot;GetLockOsdSurface osd_surface %p osd_shmid %d\n&quot;,osd_surface,ctl-&gt;osd_shmid);
+  
++         CheckShmIDs();
+          osd=osd_surface;
+          stride=ctl-&gt;osd_stride;
+***************
+*** 229,258 ****
+  };
+  
+! void cShmVideoOut::ClearOSD()
+! {
+!   SHMDEB(&quot;ClearOsd\n&quot;);
+!   cVideoOut::ClearOSD();
+!   if ( ctl-&gt;osd_shmid != curr_osd_shmid ) {
+!           if (osd_surface) {
+!                   shmdt(osd_surface);
+!                   osd_surface=NULL;
+!           };
+  
+!           if ( ctl-&gt;osd_shmid != -1 ) {
+!                   if ( (osd_surface = (uint8_t *)shmat(ctl-&gt;osd_shmid,NULL,0)) 
+!                                   == (uint8_t*) -1 ) {
+!                           fprintf(stderr,&quot;error attatching osd pict(%d)! Assuming no client connected\n&quot;,
+!                                           ctl-&gt;osd_shmid);
+!                           ctl-&gt;osd_shmid = -1;
+!                           ctl-&gt;attached = 0;
+!                           osd_surface=NULL;
+!                           return;
+!                   } 
+!           };
+!   };
+!   if (osd_surface)
+!           memset (osd_surface, 0, ctl-&gt;osd_stride *ctl-&gt;osd_max_height);
+!   ctl-&gt;new_osd++;
+!   sem_sig_unlock(ctl-&gt;semid,PICT_SIG);
+  };
+  
+--- 276,290 ----
+  };
+  
+! void cShmVideoOut::ClearOSD() {
+!         SHMDEB(&quot;ClearOsd\n&quot;);
+!         cVideoOut::ClearOSD();
+!         if (current_osdMode == OSDMODE_SOFTWARE)
+!                 return;
+  
+!         CheckShmIDs();
+!         if (osd_surface)
+!                 memset (osd_surface, 0, ctl-&gt;osd_stride *ctl-&gt;osd_max_height);
+!         ctl-&gt;new_osd++;
+!         sem_sig_unlock(ctl-&gt;semid,PICT_SIG);
+  };
+  
+***************
+*** 305,354 ****
+          sem_wait_lock(ctl-&gt;semid,PICT_MUT);
+          SIGDEB(&quot;YUV got a lock\n&quot;);
+          
+!         if ( ctl-&gt;pict_shmid != curr_pict_shmid ) {
+!                 if (curr_pict) {
+!                         shmdt(curr_pict);
+!                         curr_pict=NULL;
+!                 };
+!                 
+!                 if ( ctl-&gt;pict_shmid != -1 ) {
+!                        if ( (curr_pict = (uint8_t *)shmat(ctl-&gt;pict_shmid,NULL,0)) 
+!                                        == (uint8_t*) -1 ) {
+!                                fprintf(stderr,&quot;error attatching shm pict! Assuming no client connected\n&quot;);
+!                                ctl-&gt;pict_shmid = -1;
+!                                ctl-&gt;attached = 0;
+!                                curr_pict=NULL;
+!                                sem_sig_unlock(ctl-&gt;semid,PICT_MUT);
+!                                return;
+!                        }
+!                        curr_pict_shmid=ctl-&gt;pict_shmid;
+!                        privBuf.format=ctl-&gt;format;
+!                        privBuf.max_width=ctl-&gt;max_width;
+!                        privBuf.max_height=ctl-&gt;max_height;
+!                        switch (privBuf.format) {
+!                         case PIX_FMT_YUV420P:  
+!                                 SHMDEB(&quot;new format YUV420P\n&quot;);
+!                                 privBuf.pixel[0]=curr_pict+ctl-&gt;offset0;
+!                                 privBuf.pixel[1]=curr_pict+ctl-&gt;offset1;
+!                                 privBuf.pixel[2]=curr_pict+ctl-&gt;offset2;
+!                                 privBuf.stride[0]=ctl-&gt;stride0;
+!                                 privBuf.stride[1]=ctl-&gt;stride1;
+!                                 privBuf.stride[2]=ctl-&gt;stride2;
+!                                 break;
+!                         case PIX_FMT_YUV422:
+!                                 SHMDEB(&quot;new format YUV422\n&quot;);
+!                                 privBuf.pixel[0]=curr_pict+ctl-&gt;offset0;
+!                                 privBuf.pixel[1]=privBuf.pixel[1]=NULL;
+!                                 privBuf.stride[0]=ctl-&gt;stride0;
+!                                 privBuf.stride[1]=privBuf.stride[2]=0;
+!                                 break;
+!                         default:
+!                                 break;
+!                        }
+!                        SHMDEB(&quot;new pict %p shmid %d\n&quot;,curr_pict,curr_pict_shmid);
+!                 };
+!         };
+!         
+!         if (!ctl-&gt;pict_shmid || !curr_pict) {
+                  // unlock picture ctl
+                  sem_sig_unlock(ctl-&gt;semid,PICT_MUT);
+--- 337,344 ----
+          sem_wait_lock(ctl-&gt;semid,PICT_MUT);
+          SIGDEB(&quot;YUV got a lock\n&quot;);
++ 
++         CheckShmIDs();        
+          
+!         if ( ctl-&gt;pict_shmid==-1 || !curr_pict ) {
+                  // unlock picture ctl
+                  sem_sig_unlock(ctl-&gt;semid,PICT_MUT);
+
+Index: video-shm.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-shm.h,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -C2 -d -r1.7 -r1.8
+*** video-shm.h	4 Sep 2006 20:25:17 -0000	1.7
+--- video-shm.h	18 Sep 2006 10:50:33 -0000	1.8
+***************
+*** 61,64 ****
+--- 61,66 ----
+  
+          virtual void Suspend();
++ 
++         void CheckShmIDs();
+  };
+  
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000435.html">[Softdevice-cvs] softdevice configure,1.29,1.30
+</A></li>
+	<LI>Next message: <A HREF="000437.html">[Softdevice-cvs] softdevice CHANGELOG, 1.243, 1.244 video.c, 1.63,	1.64
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#436">[ date ]</a>
+              <a href="thread.html#436">[ thread ]</a>
+              <a href="subject.html#436">[ subject ]</a>
+              <a href="author.html#436">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

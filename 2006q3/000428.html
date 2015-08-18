@@ -1,0 +1,433 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.236, 1.237 utils.c, 1.17,	1.18
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.236%2C%201.237%20utils.c%2C%201.17%2C%0A%091.18&In-Reply-To=%3C20060917164005.327DE7DB84%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000427.html">
+   <LINK REL="Next"  HREF="000429.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.236, 1.237 utils.c, 1.17,	1.18</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.236%2C%201.237%20utils.c%2C%201.17%2C%0A%091.18&In-Reply-To=%3C20060917164005.327DE7DB84%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.236, 1.237 utils.c, 1.17,	1.18">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Sep 17 18:40:05 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000427.html">[Softdevice-cvs] softdevice CHANGELOG, 1.235, 1.236 configure, 1.27,	1.28
+</A></li>
+        <LI>Next message: <A HREF="000429.html">[Softdevice-cvs] softdevice utils.c,1.18,1.19
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#428">[ date ]</a>
+              <a href="thread.html#428">[ thread ]</a>
+              <a href="subject.html#428">[ subject ]</a>
+              <a href="author.html#428">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv6115
+
+Modified Files:
+	CHANGELOG utils.c 
+Log Message:
+- add altivec optimizations to some AlphaBlend() and 
+  yv12_to_yuy2_il_mmx2_line()
+- make utils.c compile on non MMX machines, cleanup some #ifdefs
+	
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.236
+retrieving revision 1.237
+diff -C2 -d -r1.236 -r1.237
+*** CHANGELOG	17 Sep 2006 13:02:46 -0000	1.236
+--- CHANGELOG	17 Sep 2006 16:39:34 -0000	1.237
+***************
+*** 6,9 ****
+--- 6,12 ----
+     - add linux framebuffer detection to configure
+     - disable libcle266mpegdec if no DirectFB is found
++    - add altivec optimizations to some AlphaBlend() and 
++      yv12_to_yuy2_il_mmx2_line()
++    - make utils.c compile on non MMX machines, cleanup some #ifdefs
+  2006-09-xx:
+     - added -vo shm: to help option
+
+Index: utils.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/utils.c,v
+retrieving revision 1.17
+retrieving revision 1.18
+diff -C2 -d -r1.17 -r1.18
+*** utils.c	10 Jul 2006 17:46:59 -0000	1.17
+--- utils.c	17 Sep 2006 16:39:34 -0000	1.18
+***************
+*** 110,115 ****
+                             const uint8_t *uc, const uint8_t *vc)
+  {
+!     int i;
+! 
+    for(i = chromaWidth/4; i--; )
+    {
+--- 110,116 ----
+                             const uint8_t *uc, const uint8_t *vc)
+  {
+!   int i;
+!   
+! #ifdef USE_MMX 
+    for(i = chromaWidth/4; i--; )
+    {
+***************
+*** 139,142 ****
+--- 140,186 ----
+      dest2 += 16;
+    }
++ #elif USE_ALTIVEC
++ 
++ /* This altivec optimization is based on vlc's i420_yuy2.c with the copyright notice:
++  * 
++  * Copyright (C) 2000, 2001 the VideoLAN team
++  *
++  * Authors: Samuel Hocevar &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">sam at zoy.org</A>&gt;
++  */
++   
++    vector unsigned char u_vec;
++    vector unsigned char v_vec; 
++    vector unsigned char uv_vec;
++    vector unsigned char y_vec;
++ 
++    for ( i=chromaWidth; i&gt;=16; i-=16) {
++         u_vec = vec_ld(0,uc); uc+=16;
++         v_vec = vec_ld(0,vc); vc+=16;
++         uv_vec = vec_mergeh( u_vec, v_vec);
++         y_vec = vec_ld( 0, yc1); yc1+=16;
++         vec_st( vec_mergeh( y_vec, uv_vec), 0, dest1); dest1+=16;
++         vec_st( vec_mergel( y_vec, uv_vec), 0, dest1); dest1+=16;
++         y_vec = vec_ld( 0, yc2); yc2+=16;
++         vec_st( vec_mergeh( y_vec, uv_vec), 0, dest2); dest2+=16;        
++         vec_st( vec_mergel( y_vec, uv_vec), 0, dest2); dest2+=16;             
++         
++         uv_vec = vec_mergel( u_vec, v_vec);
++         y_vec = vec_ld( 0, yc1); yc1+=16;
++         vec_st( vec_mergeh( y_vec, uv_vec), 0, dest1); dest1+=16;
++         vec_st( vec_mergel( y_vec, uv_vec), 0, dest1); dest1+=16;
++         y_vec = vec_ld( 0, yc2); yc2+=16;
++         vec_st( vec_mergeh( y_vec, uv_vec), 0, dest2); dest2+=16;        
++         vec_st( vec_mergel( y_vec, uv_vec), 0, dest2); dest2+=16;        
++    }
++ #endif
++    for ( ; i&gt;=1; i-=1 ) {
++       *((uint32_t *)dest1)++ = (yc1[0] &lt;&lt; 24)+ (uc[0] &lt;&lt; 16) + (yc1[1] &lt;&lt; 8) + (vc[0] &lt;&lt; 0);
++       *((uint32_t *)dest2)++ = (yc2[0] &lt;&lt; 24)+ (uc[0] &lt;&lt; 16) + (yc2[1] &lt;&lt; 8) + (vc[0] &lt;&lt; 0);
++       //*idst++ = (yc[0] &lt;&lt; 0)+ (uc[0] &lt;&lt; 8) + (yc[1] &lt;&lt; 16) + (vc[0] &lt;&lt; 24);
++       yc1 += 2;
++       yc2 += 2;
++       uc++;
++       vc++;
++     }
+  }
+  
+***************
+*** 222,225 ****
+--- 266,270 ----
+                            int lumStride, int chromStride, int dstStride)
+  {
++ #ifdef USE_MMX 
+    for (int i=0; i&lt;height; i++)
+    {
+***************
+*** 265,268 ****
+--- 310,314 ----
+    SFENCE;
+    EMMS;
++ #endif
+  }
+  
+***************
+*** 343,346 ****
+--- 389,394 ----
+  }
+  
++ #ifdef USE_MMX
++ 
+  #define VERT_SCALING
+  void (*mmx_unpack)(uint8_t * image, int lines, int stride);
+***************
+*** 422,427 ****
+  }
+  
+- 
+- 
+  void mmx_unpack_16rgb (uint8_t * image, int lines, int stride)
+  {
+--- 470,473 ----
+***************
+*** 632,636 ****
+    free(scaleV);
+  }
+! 
+  
+  void AlphaBlend(uint8_t *dest,uint8_t *P1,uint8_t *P2,
+--- 678,682 ----
+    free(scaleV);
+  }
+! #endif // USE_MMX
+  
+  void AlphaBlend(uint8_t *dest,uint8_t *P1,uint8_t *P2,
+***************
+*** 640,644 ****
+  #ifdef USE_MMX
+          __asm__(&quot; pxor %%mm3,%%mm3\n&quot;
+- #ifdef USE_MMX2
+                  PREFETCH(&quot;(%0)\n&quot;)
+                  PREFETCH(&quot;(%1)\n&quot;)
+--- 686,689 ----
+***************
+*** 650,654 ****
+                  PREFETCH(&quot;128(%1)\n&quot;)
+                  PREFETCH(&quot;128(%2)\n&quot;)
+- #endif //USE_MMX2
+                  : : &quot;r&quot; (P1), &quot;r&quot; (P2), &quot;r&quot; (alpha) : &quot;memory&quot;);
+  
+--- 695,698 ----
+***************
+*** 703,706 ****
+--- 747,799 ----
+  #endif //USE_MMX
+  
++ #ifdef USE_ALTIVEC 
++        vector unsigned char zero = vec_splat_u8(0);
++        vector unsigned short one = vec_splat_u16(1);
++        vector unsigned short seven = vec_splat_u16(7);
++        vector short p1h;
++        vector short p1l;
++        vector short p2h;
++        vector short p2l;
++        vector short ah;
++        vector short al;
++        for (; count&gt;15; count-=16) {
++                 p1h = (vector short) vec_ld(0,P1);
++                 p2h = (vector short) vec_ld(0,P2);
++                 p1l = (vector short) vec_mergel( zero, (vector unsigned char) p1h);
++                 p2l = (vector short) vec_mergel( zero, (vector unsigned char) p2h);
++                 ah  = (vector short) vec_ld(0,alpha);
++                 
++                 p1h = (vector short) vec_mergeh( zero, (vector unsigned char) p1h);
++                 p2h = (vector short) vec_mergeh( zero, (vector unsigned char) p2h);
++                 
++                 al = (vector short) vec_mergel( zero, (vector unsigned char) ah);
++                 ah = (vector short) vec_mergeh( zero, (vector unsigned char) ah);
++                 
++                 p1h = vec_subs(p1h,p2h);
++                 p1l = vec_subs(p1l,p2l);
++                 
++                 ah = vec_sr(ah, one);
++                 al = vec_sr(al, one);
++        
++                 p1h = vec_mladd( p1h, ah, (vector short) zero);
++                 p1l = vec_mladd( p1l, al, (vector short) zero);
++ 
++                 p1h = vec_sra(p1h, seven);
++                 p1l = vec_sra(p1l, seven);
++ 
++                 p1h = vec_adds(p1h, p2h);
++                 p1l = vec_adds(p1l, p2l);
++ 
++                 p1h = (vector short) vec_packsu(p1h,p1l);
++ 
++                 vec_st((vector unsigned char) p1h, 0, dest);
++                 
++                 P1+=16;
++                 P2+=16;
++                 alpha+=16;
++                 dest+=16;
++        }
++ #endif // USE_ALTIVEC
++        
+         //fallback version and the last missing bytes...
+         for (int i=0; i &lt; count; i++){
+***************
+*** 745,748 ****
+--- 838,850 ----
+  /* taken from MPlayer's aclib */
+  
++ 
++ #ifndef USE_MMX
++ 
++ void * fast_memcpy(void * to, const void * from, size_t len) {
++         memcpy(to,from,len);
++ }
++ 
++ #else
++ 
+  #define MIN_LEN 0x40
+  #define MMREG_SIZE 64
+***************
+*** 755,760 ****
+  #endif
+  
+- #define CONFUSION_FACTOR 0
+- 
+  /* for small memory blocks (&lt;256 bytes) this version is faster */
+  #define small_memcpy(to,from,n)\
+--- 857,860 ----
+***************
+*** 813,819 ****
+  	{
+  		__asm__ __volatile__ (
+- #ifdef USE_MMX2
+          	PREFETCH(&quot; 320(%0)\n&quot;)
+- #endif
+  		&quot;movq (%0), %%mm0\n&quot;
+  		&quot;movq 8(%0), %%mm1\n&quot;
+--- 913,917 ----
+***************
+*** 836,912 ****
+  		to=((unsigned char *)to)+64;
+  	}
+- #if 0
+- //	printf(&quot; %d %d\n&quot;, (int)from&amp;1023, (int)to&amp;1023);
+- 	// Pure Assembly cuz gcc is a bit unpredictable ;)
+- 	if(i&gt;=BLOCK_SIZE/64)
+- 		asm volatile(
+- 			&quot;xor %%&quot;REG_a&quot;, %%&quot;REG_a&quot;	\n\t&quot;
+- 			&quot;.balign 16		\n\t&quot;
+- 			&quot;1:			\n\t&quot;
+- 				&quot;movl (%0, %%&quot;REG_a&quot;), %%ebx 	\n\t&quot;
+- 				&quot;movl 32(%0, %%&quot;REG_a&quot;), %%ebx 	\n\t&quot;
+- 				&quot;movl 64(%0, %%&quot;REG_a&quot;), %%ebx 	\n\t&quot;
+- 				&quot;movl 96(%0, %%&quot;REG_a&quot;), %%ebx 	\n\t&quot;
+- 				&quot;add $128, %%&quot;REG_a&quot;		\n\t&quot;
+- 				&quot;cmp %3, %%&quot;REG_a&quot;		\n\t&quot;
+- 				&quot; jb 1b				\n\t&quot;
+- 
+- 			&quot;xor %%&quot;REG_a&quot;, %%&quot;REG_a&quot;	\n\t&quot;
+- 
+- 				&quot;.balign 16		\n\t&quot;
+- 				&quot;2:			\n\t&quot;
+- 				&quot;movq (%0, %%&quot;REG_a&quot;), %%mm0\n&quot;
+- 				&quot;movq 8(%0, %%&quot;REG_a&quot;), %%mm1\n&quot;
+- 				&quot;movq 16(%0, %%&quot;REG_a&quot;), %%mm2\n&quot;
+- 				&quot;movq 24(%0, %%&quot;REG_a&quot;), %%mm3\n&quot;
+- 				&quot;movq 32(%0, %%&quot;REG_a&quot;), %%mm4\n&quot;
+- 				&quot;movq 40(%0, %%&quot;REG_a&quot;), %%mm5\n&quot;
+- 				&quot;movq 48(%0, %%&quot;REG_a&quot;), %%mm6\n&quot;
+- 				&quot;movq 56(%0, %%&quot;REG_a&quot;), %%mm7\n&quot;
+- 				MOVNTQ&quot; %%mm0, (%1, %%&quot;REG_a&quot;)\n&quot;
+- 				MOVNTQ&quot; %%mm1, 8(%1, %%&quot;REG_a&quot;)\n&quot;
+- 				MOVNTQ&quot; %%mm2, 16(%1, %%&quot;REG_a&quot;)\n&quot;
+- 				MOVNTQ&quot; %%mm3, 24(%1, %%&quot;REG_a&quot;)\n&quot;
+- 				MOVNTQ&quot; %%mm4, 32(%1, %%&quot;REG_a&quot;)\n&quot;
+- 				MOVNTQ&quot; %%mm5, 40(%1, %%&quot;REG_a&quot;)\n&quot;
+- 				MOVNTQ&quot; %%mm6, 48(%1, %%&quot;REG_a&quot;)\n&quot;
+- 				MOVNTQ&quot; %%mm7, 56(%1, %%&quot;REG_a&quot;)\n&quot;
+- 				&quot;add $64, %%&quot;REG_a&quot;		\n\t&quot;
+- 				&quot;cmp %3, %%&quot;REG_a&quot;		\n\t&quot;
+- 				&quot;jb 2b				\n\t&quot;
+  
+! #if CONFUSION_FACTOR &gt; 0
+! 	// a few percent speedup on out of order executing CPUs
+! 			&quot;mov %5, %%&quot;REG_a&quot;		\n\t&quot;
+! 				&quot;2:			\n\t&quot;
+! 				&quot;movl (%0), %%ebx	\n\t&quot;
+! 				&quot;movl (%0), %%ebx	\n\t&quot;
+! 				&quot;movl (%0), %%ebx	\n\t&quot;
+! 				&quot;movl (%0), %%ebx	\n\t&quot;
+! 				&quot;dec %%&quot;REG_a&quot;		\n\t&quot;
+! 				&quot; jnz 2b		\n\t&quot;
+! #endif
+! 
+! 			&quot;xor %%&quot;REG_a&quot;, %%&quot;REG_a&quot;	\n\t&quot;
+! 			&quot;add %3, %0		\n\t&quot;
+! 			&quot;add %3, %1		\n\t&quot;
+! 			&quot;sub %4, %2		\n\t&quot;
+! 			&quot;cmp %4, %2		\n\t&quot;
+! 			&quot; jae 1b		\n\t&quot;
+! 				: &quot;+r&quot; (from), &quot;+r&quot; (to), &quot;+r&quot; (i)
+! 				: &quot;r&quot; ((long)BLOCK_SIZE), &quot;i&quot; (BLOCK_SIZE/64), &quot;i&quot; ((long)CONFUSION_FACTOR)
+! #if HAVE_BROKEN_GCC_CPP
+! 				: &quot;%eax&quot;, &quot;%ebx&quot;
+! #else
+! 				: &quot;%&quot;REG_a, &quot;%ebx&quot;
+! #endif
+! 		);
+! #endif
+! 	for(; i&gt;0; i--)
+  	{
+  		__asm__ __volatile__ (
+- #ifdef USE_MMX2
+          	PREFETCH(&quot; 320(%0)\n&quot;)
+- #endif
+  		&quot;movq (%0), %%mm0\n&quot;
+  		&quot;movq 8(%0), %%mm1\n&quot;
+--- 934,942 ----
+  		to=((unsigned char *)to)+64;
+  	}
+  
+!         for(; i&gt;0; i--)
+  	{
+  		__asm__ __volatile__ (
+          	PREFETCH(&quot; 320(%0)\n&quot;)
+  		&quot;movq (%0), %%mm0\n&quot;
+  		&quot;movq 8(%0), %%mm1\n&quot;
+***************
+*** 930,942 ****
+  	}
+  
+- #ifdef USE_MMX2
+                  /* since movntq is weakly-ordered, a &quot;sfence&quot;
+  		 * is needed to become ordered again. */
+                   SFENCE;
+- #endif
+- #ifdef USE_MMX
+  		/* enables to use FPU */
+  		EMMS ;
+- #endif
+  	}
+  	/*
+--- 960,968 ----
+***************
+*** 946,947 ****
+--- 972,975 ----
+  	return retval;
+  }
++ 
++ #endif // USE_MMX
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000427.html">[Softdevice-cvs] softdevice CHANGELOG, 1.235, 1.236 configure, 1.27,	1.28
+</A></li>
+	<LI>Next message: <A HREF="000429.html">[Softdevice-cvs] softdevice utils.c,1.18,1.19
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#428">[ date ]</a>
+              <a href="thread.html#428">[ thread ]</a>
+              <a href="subject.html#428">[ subject ]</a>
+              <a href="author.html#428">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

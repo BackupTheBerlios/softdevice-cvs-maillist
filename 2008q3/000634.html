@@ -1,0 +1,109 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice setup-softdevice.h, 1.45, 1.46 CHANGELOG,	1.338, 1.339
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2008q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20setup-softdevice.h%2C%201.45%2C%201.46%20CHANGELOG%2C%0A%091.338%2C%201.339&In-Reply-To=%3C20080910171542.D3EB814A0A8%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000633.html">
+   <LINK REL="Next"  HREF="000635.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice setup-softdevice.h, 1.45, 1.46 CHANGELOG,	1.338, 1.339</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20setup-softdevice.h%2C%201.45%2C%201.46%20CHANGELOG%2C%0A%091.338%2C%201.339&In-Reply-To=%3C20080910171542.D3EB814A0A8%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice setup-softdevice.h, 1.45, 1.46 CHANGELOG,	1.338, 1.339">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Wed Sep 10 19:15:42 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000633.html">[Softdevice-cvs] softdevice PicBuffer.c, 1.22, 1.23 CHANGELOG, 1.337,	1.338
+</A></li>
+        <LI>Next message: <A HREF="000635.html">[Softdevice-cvs] softdevice SoftOsd.c, 1.33, 1.34 SoftOsd.h, 1.18,	1.19 CHANGELOG, 1.339, 1.340
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#634">[ date ]</a>
+              <a href="thread.html#634">[ thread ]</a>
+              <a href="subject.html#634">[ subject ]</a>
+              <a href="author.html#634">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv27053
+
+Modified Files:
+	setup-softdevice.h CHANGELOG 
+Log Message:
+ShmClient: Fix for bug #14302: vdr version dependent member in setupstore.
+Member &quot;bool  doSuspend&quot; was dependent on &quot;VDRVERSNUM &gt;= 10501&quot; but
+VdrReplacements.h specifies 10308 as minimum required vdr version.
+So this class had different sizes in plugin and ShmClient :-( .
+
+
+Index: setup-softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.h,v
+retrieving revision 1.45
+retrieving revision 1.46
+diff -C2 -d -r1.45 -r1.46
+*** setup-softdevice.h	20 Jul 2008 16:41:01 -0000	1.45
+--- setup-softdevice.h	10 Sep 2008 17:15:38 -0000	1.46
+***************
+*** 163,169 ****
+      bool  stretchBlitLocked;
+      int   fieldOrderMode;
+- #if VDRVERSNUM &gt;= 10501
+      bool  doSuspend;
+- #endif
+      int   shouldSuspend;
+      int   osdMode;
+--- 163,167 ----
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.338
+retrieving revision 1.339
+diff -C2 -d -r1.338 -r1.339
+*** CHANGELOG	27 Jul 2008 17:34:42 -0000	1.338
+--- CHANGELOG	10 Sep 2008 17:15:38 -0000	1.339
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2008-09-10:
++    - ShmClient: Fix for bug #14302: vdr version dependent member in setupstore.
+  2008-07-27:
+     - video: Fix for bug #13729 when displaying yuv 422 planar video source.
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000633.html">[Softdevice-cvs] softdevice PicBuffer.c, 1.22, 1.23 CHANGELOG, 1.337,	1.338
+</A></li>
+	<LI>Next message: <A HREF="000635.html">[Softdevice-cvs] softdevice SoftOsd.c, 1.33, 1.34 SoftOsd.h, 1.18,	1.19 CHANGELOG, 1.339, 1.340
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#634">[ date ]</a>
+              <a href="thread.html#634">[ thread ]</a>
+              <a href="subject.html#634">[ subject ]</a>
+              <a href="author.html#634">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

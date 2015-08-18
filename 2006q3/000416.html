@@ -1,0 +1,350 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.225, 1.226 video-xv.c, 1.60,	1.61
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.225%2C%201.226%20video-xv.c%2C%201.60%2C%0A%091.61&In-Reply-To=%3C20060909095551.BFD037860D%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000415.html">
+   <LINK REL="Next"  HREF="000417.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.225, 1.226 video-xv.c, 1.60,	1.61</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.225%2C%201.226%20video-xv.c%2C%201.60%2C%0A%091.61&In-Reply-To=%3C20060909095551.BFD037860D%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.225, 1.226 video-xv.c, 1.60,	1.61">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Sep  9 11:55:51 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000415.html">[Softdevice-cvs] softdevice softdevice.c, 1.67, 1.68 CHANGELOG,	1.224, 1.225
+</A></li>
+        <LI>Next message: <A HREF="000417.html">[Softdevice-cvs] softdevice CHANGELOG, 1.226, 1.227 video-vidix.c,	1.21, 1.22 video-vidix.h, 1.10, 1.11 setup-softdevice-menu.c,	1.7, 1.8 setup-softdevice.h, 1.33, 1.34
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#416">[ date ]</a>
+              <a href="thread.html#416">[ thread ]</a>
+              <a href="subject.html#416">[ subject ]</a>
+              <a href="author.html#416">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv19983
+
+Modified Files:
+	CHANGELOG video-xv.c 
+Log Message:
+silence some warnings
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.225
+retrieving revision 1.226
+diff -C2 -d -r1.225 -r1.226
+*** CHANGELOG	8 Sep 2006 17:04:52 -0000	1.225
+--- CHANGELOG	9 Sep 2006 09:55:25 -0000	1.226
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2006-09-09:
++    - video-xv.c: silence some warnings
+  2006-09-08:
+     - limit destination video offsets to even values
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.60
+retrieving revision 1.61
+diff -C2 -d -r1.60 -r1.61
+*** video-xv.c	4 Sep 2006 20:29:53 -0000	1.60
+--- video-xv.c	9 Sep 2006 09:55:25 -0000	1.61
+***************
+*** 809,813 ****
+            dr_shminfo[i].shmaddr=NULL;
+    };
+!   
+    InitPicBuffer(&amp;privBuf);
+  }
+--- 809,813 ----
+            dr_shminfo[i].shmaddr=NULL;
+    };
+! 
+    InitPicBuffer(&amp;privBuf);
+  }
+***************
+*** 1079,1083 ****
+            return false;
+    };
+!   
+    currentPixelFormat=format;
+    format = pixFormat[currentPixelFormat];
+--- 1079,1083 ----
+            return false;
+    };
+! 
+    currentPixelFormat=format;
+    format = pixFormat[currentPixelFormat];
+***************
+*** 1221,1225 ****
+        pixels[1] = (uint8_t *) (xv_image-&gt;data + xv_image-&gt;offsets[1]);
+        pixels[2] = (uint8_t *) (xv_image-&gt;data + xv_image-&gt;offsets[2]);
+!       
+        privBuf.pixel[0] = (uint8_t *) (xv_image-&gt;data + xv_image-&gt;offsets[0]);
+        privBuf.stride[0] = xv_image-&gt;pitches[0];
+--- 1221,1225 ----
+        pixels[1] = (uint8_t *) (xv_image-&gt;data + xv_image-&gt;offsets[1]);
+        pixels[2] = (uint8_t *) (xv_image-&gt;data + xv_image-&gt;offsets[2]);
+! 
+        privBuf.pixel[0] = (uint8_t *) (xv_image-&gt;data + xv_image-&gt;offsets[0]);
+        privBuf.stride[0] = xv_image-&gt;pitches[0];
+***************
+*** 1240,1244 ****
+      case FOURCC_YUY2:
+        pixels[0] = (uint8_t *) (xv_image-&gt;data + xv_image-&gt;offsets[0]);
+!         
+        privBuf.pixel[0] = (uint8_t *) (xv_image-&gt;data + xv_image-&gt;offsets[0]);
+        privBuf.pixel[1] = NULL;
+--- 1240,1244 ----
+      case FOURCC_YUY2:
+        pixels[0] = (uint8_t *) (xv_image-&gt;data + xv_image-&gt;offsets[0]);
+! 
+        privBuf.pixel[0] = (uint8_t *) (xv_image-&gt;data + xv_image-&gt;offsets[0]);
+        privBuf.pixel[1] = NULL;
+***************
+*** 1248,1252 ****
+        privBuf.stride[1] = 0;
+        privBuf.stride[2] = 0;
+!       
+        privBuf.format = PIX_FMT_YUV422;
+        break;
+--- 1248,1252 ----
+        privBuf.stride[1] = 0;
+        privBuf.stride[2] = 0;
+! 
+        privBuf.format = PIX_FMT_YUV422;
+        break;
+***************
+*** 1430,1434 ****
+    if (!xv_image)
+            return;
+!   
+    if (xv_image-&gt;data) {
+      if(useShm &amp;&amp; shminfo.shmaddr)
+--- 1430,1434 ----
+    if (!xv_image)
+            return;
+! 
+    if (xv_image-&gt;data) {
+      if(useShm &amp;&amp; shminfo.shmaddr)
+***************
+*** 1455,1464 ****
+  
+    if ( pix_fmt != PIX_FMT_YUV420P || format != FOURCC_YV12 ||
+!        !xv_initialized 
+  #ifdef NO_DIRECT_RENDERING
+         || 1
+  #endif
+         ) {
+!     // no direct rendering 
+      return cVideoOut::AllocPicBuffer(buf_num,pix_fmt,w,h);
+    };
+--- 1455,1464 ----
+  
+    if ( pix_fmt != PIX_FMT_YUV420P || format != FOURCC_YV12 ||
+!        !xv_initialized
+  #ifdef NO_DIRECT_RENDERING
+         || 1
+  #endif
+         ) {
+!     // no direct rendering
+      return cVideoOut::AllocPicBuffer(buf_num,pix_fmt,w,h);
+    };
+***************
+*** 1471,1475 ****
+  
+    XvImage *image=dr_image[buf_num];
+!   
+    sPicBuffer *buf=&amp;PicBuffer[buf_num];
+  
+--- 1471,1475 ----
+  
+    XvImage *image=dr_image[buf_num];
+! 
+    sPicBuffer *buf=&amp;PicBuffer[buf_num];
+  
+***************
+*** 1477,1481 ****
+    buf-&gt;pixel[1] = (uint8_t *) (image-&gt;data + image-&gt;offsets[2]);
+    buf-&gt;pixel[2] = (uint8_t *) (image-&gt;data + image-&gt;offsets[1]);
+!   
+    buf-&gt;stride[0] = image-&gt;pitches[0];
+    buf-&gt;stride[1] = image-&gt;pitches[2];
+--- 1477,1481 ----
+    buf-&gt;pixel[1] = (uint8_t *) (image-&gt;data + image-&gt;offsets[2]);
+    buf-&gt;pixel[2] = (uint8_t *) (image-&gt;data + image-&gt;offsets[1]);
+! 
+    buf-&gt;stride[0] = image-&gt;pitches[0];
+    buf-&gt;stride[1] = image-&gt;pitches[2];
+***************
+*** 1495,1503 ****
+      return;
+    };
+!   
+    pthread_mutex_lock(&amp;xv_mutex);
+!   DestroyXvImage(dpy, port, dr_image[buf_num], dr_shminfo[buf_num] ); 
+    pthread_mutex_unlock(&amp;xv_mutex);
+!   
+    sPicBuffer *buf=&amp;PicBuffer[buf_num];
+  
+--- 1495,1503 ----
+      return;
+    };
+! 
+    pthread_mutex_lock(&amp;xv_mutex);
+!   DestroyXvImage(dpy, port, dr_image[buf_num], dr_shminfo[buf_num] );
+    pthread_mutex_unlock(&amp;xv_mutex);
+! 
+    sPicBuffer *buf=&amp;PicBuffer[buf_num];
+  
+***************
+*** 1513,1517 ****
+   */
+  
+! int cXvVideoOut::PutXvImage(XvImage *xv_image, 
+                              int edge_width, int edge_height) {
+    if (useShm)
+--- 1513,1517 ----
+   */
+  
+! int cXvVideoOut::PutXvImage(XvImage *xv_image,
+                              int edge_width, int edge_height) {
+    if (useShm)
+***************
+*** 1767,1771 ****
+         (xvHeight != buf-&gt;max_height &amp;&amp; xv_max_height &gt;= buf-&gt;max_height) ||
+         currentPixelFormat != setupStore-&gt;pixelFormat) {
+!   
+            if (xv_initialized)
+                    DeInitXv();
+--- 1767,1771 ----
+         (xvHeight != buf-&gt;max_height &amp;&amp; xv_max_height &gt;= buf-&gt;max_height) ||
+         currentPixelFormat != setupStore-&gt;pixelFormat) {
+! 
+            if (xv_initialized)
+                    DeInitXv();
+***************
+*** 1800,1804 ****
+        buf_num++;
+  
+!     if ( buf_num&lt;LAST_PICBUF &amp;&amp; 
+          !(OSDpresent&amp;&amp; current_osdMode==OSDMODE_SOFTWARE) ) {
+        PutXvImage(dr_image[buf_num],buf-&gt;edge_width,buf-&gt;edge_height);
+--- 1800,1804 ----
+        buf_num++;
+  
+!     if ( buf_num&lt;LAST_PICBUF &amp;&amp;
+          !(OSDpresent&amp;&amp; current_osdMode==OSDMODE_SOFTWARE) ) {
+        PutXvImage(dr_image[buf_num],buf-&gt;edge_width,buf-&gt;edge_height);
+***************
+*** 1809,1813 ****
+    };
+  
+!   
+    uint8_t *Py=buf-&gt;pixel[0]
+                  +(buf-&gt;edge_height)*buf-&gt;stride[0]
+--- 1809,1813 ----
+    };
+  
+! 
+    uint8_t *Py=buf-&gt;pixel[0]
+                  +(buf-&gt;edge_height)*buf-&gt;stride[0]
+***************
+*** 1817,1845 ****
+    uint8_t *Pv=buf-&gt;pixel[2]+(buf-&gt;edge_height/2)*buf-&gt;stride[2]
+                  +buf-&gt;edge_width/2;
+-   int Ystride=buf-&gt;stride[0];
+-   int UVstride=buf-&gt;stride[1];
+-   int Width=buf-&gt;width;
+-   int Height=buf-&gt;height;
+  
+    if ( Py &amp;&amp; Pu &amp;&amp; Pv ) {
+  #if VDRVERSNUM &gt;= 10307
+!   /* -------------------------------------------------------------------------
+!    * don't know where those funny stride values (752,376) come from.
+!    * therefor  we have to copy line by line :-( .
+!    * Hmm .. for HDTV they should be larger anyway and for some other
+!    * unusual resolutions they should be configurable swidth/sheight ?
+!    */
+! 
+!   // if (0) {
+!   if (OSDpresent &amp;&amp; current_osdMode==OSDMODE_SOFTWARE) {
+!         CopyPicBufAlphaBlend(&amp;privBuf,buf,
+!                         OsdPy,OsdPu,OsdPv,
+!                         OsdPAlphaY,OsdPAlphaUV,OSD_FULL_WIDTH,
+!                         cutTop,cutBottom,cutLeft,cutRight);
+!   }
+      else
+  #endif
+      {
+!        CopyPicBuf(&amp;privBuf,buf,cutTop,cutBottom,cutLeft,cutRight);
+      }
+    }
+--- 1817,1839 ----
+    uint8_t *Pv=buf-&gt;pixel[2]+(buf-&gt;edge_height/2)*buf-&gt;stride[2]
+                  +buf-&gt;edge_width/2;
+  
+    if ( Py &amp;&amp; Pu &amp;&amp; Pv ) {
+  #if VDRVERSNUM &gt;= 10307
+!     /* -----------------------------------------------------------------------
+!      * don't know where those funny stride values (752,376) come from.
+!      * therefor  we have to copy line by line :-( .
+!      * Hmm .. for HDTV they should be larger anyway and for some other
+!      * unusual resolutions they should be configurable swidth/sheight ?
+!      */
+!     if (OSDpresent &amp;&amp; current_osdMode==OSDMODE_SOFTWARE) {
+!       CopyPicBufAlphaBlend(&amp;privBuf,buf,
+!                            OsdPy,OsdPu,OsdPv,
+!                            OsdPAlphaY,OsdPAlphaUV,OSD_FULL_WIDTH,
+!                            cutTop,cutBottom,cutLeft,cutRight);
+!     }
+      else
+  #endif
+      {
+!       CopyPicBuf(&amp;privBuf,buf,cutTop,cutBottom,cutLeft,cutRight);
+      }
+    }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000415.html">[Softdevice-cvs] softdevice softdevice.c, 1.67, 1.68 CHANGELOG,	1.224, 1.225
+</A></li>
+	<LI>Next message: <A HREF="000417.html">[Softdevice-cvs] softdevice CHANGELOG, 1.226, 1.227 video-vidix.c,	1.21, 1.22 video-vidix.h, 1.10, 1.11 setup-softdevice-menu.c,	1.7, 1.8 setup-softdevice.h, 1.33, 1.34
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#416">[ date ]</a>
+              <a href="thread.html#416">[ thread ]</a>
+              <a href="subject.html#416">[ subject ]</a>
+              <a href="author.html#416">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

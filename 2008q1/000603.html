@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softplay softplay.c,1.11,1.12
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2008q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softplay%20softplay.c%2C1.11%2C1.12&In-Reply-To=%3C20080301101121.2904D1270AA%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000602.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softplay softplay.c,1.11,1.12</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softplay%20softplay.c%2C1.11%2C1.12&In-Reply-To=%3C20080301101121.2904D1270AA%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softplay softplay.c,1.11,1.12">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Mar  1 11:11:21 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000602.html">[Softdevice-cvs] softdevice CHANGELOG, 1.326, 1.327 video-fb.c, 1.20,	1.21
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#603">[ date ]</a>
+              <a href="thread.html#603">[ thread ]</a>
+              <a href="subject.html#603">[ subject ]</a>
+              <a href="author.html#603">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softplay
+In directory sheep:/tmp/cvs-serv21341
+
+Modified Files:
+	softplay.c 
+Log Message:
+Fix segfault at termination.
+
+Index: softplay.c
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/softplay.c,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -C2 -d -r1.11 -r1.12
+*** softplay.c	2 Apr 2006 20:19:12 -0000	1.11
+--- softplay.c	1 Mar 2008 10:09:42 -0000	1.12
+***************
+*** 464,475 ****
+  
+  void cSoftPlay::SaveList(cPlayList *List, const char* Name) {
+! 	char filename[60];
+! 	if (Name)
+!                 sprintf(filename,&quot;%s/%s.playlist&quot;,configDir,Name);
+! 	else
+!                 sprintf(filename,&quot;%s/%s.playlist&quot;,configDir,List-&gt;GetName());
+  
+  	printf(&quot;Save list as %s\n&quot;,filename);
+  	FILE *out=fopen(filename,&quot;w&quot;);
+  	if (!out)
+  		return;
+--- 464,477 ----
+  
+  void cSoftPlay::SaveList(cPlayList *List, const char* Name) {
+! 	char *filename;
+! 	if (asprintf(&amp;filename,
+! 		     &quot;%s/%s.playlist&quot;,
+! 		     configDir,
+! 		     (Name) ? Name: List-&gt;GetName()) &lt; 0)
+! 		return;
+  
+  	printf(&quot;Save list as %s\n&quot;,filename);
+  	FILE *out=fopen(filename,&quot;w&quot;);
++ 	free (filename);
+  	if (!out)
+  		return;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000602.html">[Softdevice-cvs] softdevice CHANGELOG, 1.326, 1.327 video-fb.c, 1.20,	1.21
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#603">[ date ]</a>
+              <a href="thread.html#603">[ thread ]</a>
+              <a href="subject.html#603">[ subject ]</a>
+              <a href="author.html#603">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

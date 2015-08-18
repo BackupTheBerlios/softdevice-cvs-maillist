@@ -1,0 +1,159 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice mpeg2decoder.c,1.42,1.43 mpeg2decoder.h,1.26,1.27
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20mpeg2decoder.c%2C1.42%2C1.43%20mpeg2decoder.h%2C1.26%2C1.27&In-Reply-To=%3C200507031558.j63FwXI24202%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000152.html">
+   <LINK REL="Next"  HREF="000154.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice mpeg2decoder.c,1.42,1.43 mpeg2decoder.h,1.26,1.27</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20mpeg2decoder.c%2C1.42%2C1.43%20mpeg2decoder.h%2C1.26%2C1.27&In-Reply-To=%3C200507031558.j63FwXI24202%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice mpeg2decoder.c,1.42,1.43 mpeg2decoder.h,1.26,1.27">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Jul  3 17:58:33 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000152.html">[Softdevice-cvs] softdevice setup-softdevice.c,1.19,1.20
+</A></li>
+        <LI>Next message: <A HREF="000154.html">[Softdevice-cvs] softdevice CHANGELOG,1.81,1.82 video-xv.c,1.27,1.28
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#153">[ date ]</a>
+              <a href="thread.html#153">[ thread ]</a>
+              <a href="subject.html#153">[ subject ]</a>
+              <a href="author.html#153">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv9594
+
+Modified Files:
+	mpeg2decoder.c mpeg2decoder.h 
+Log Message:
+- improve response time for 60-sec skips (clears)
+
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.42
+retrieving revision 1.43
+diff -C2 -d -r1.42 -r1.43
+*** mpeg2decoder.c	30 Jun 2005 19:40:46 -0000	1.42
+--- mpeg2decoder.c	3 Jul 2005 15:58:30 -0000	1.43
+***************
+*** 1101,1105 ****
+          if (ret &lt; 0) {
+              BUFDEB(&quot;cMpeg2Decoder Stream Error!\n&quot;);
+!             usleep(10000);
+              continue;
+          }
+--- 1101,1106 ----
+          if (ret &lt; 0) {
+              BUFDEB(&quot;cMpeg2Decoder Stream Error!\n&quot;);
+!             if (ThreadActive)
+! 		    usleep(10000);
+              continue;
+          }
+***************
+*** 1204,1208 ****
+      av_free_packet(&amp;pkt);
+    }
+! 
+  };
+  
+--- 1205,1209 ----
+      av_free_packet(&amp;pkt);
+    }
+!  BUFDEB(&quot;QueuePacket finished...\n&quot;);
+  };
+  
+***************
+*** 1331,1343 ****
+      
+      ThreadActive=false;
+      StreamBuffer-&gt;Clear();
+      EnableGetSignal.Signal();
+      Cancel(4);
+!    
+      if (vout) {
+        vout-&gt;Stop();
+        delete(vout);
+      }
+! 
+      if (aout) {
+        aout-&gt;Stop();
+--- 1332,1350 ----
+      
+      ThreadActive=false;
++     // prepare aout and vout for a stop
++     if (vout)
++        vout-&gt;Deactivate();
++     if (aout)
++        aout-&gt;Deactivate();
++     
+      StreamBuffer-&gt;Clear();
+      EnableGetSignal.Signal();
+      Cancel(4);
+!     CMDDEB(&quot;stopping video\n&quot;); 
+      if (vout) {
+        vout-&gt;Stop();
+        delete(vout);
+      }
+!     CMDDEB(&quot;stopping audio\n&quot;);
+      if (aout) {
+        aout-&gt;Stop();
+
+Index: mpeg2decoder.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.h,v
+retrieving revision 1.26
+retrieving revision 1.27
+diff -C2 -d -r1.26 -r1.27
+*** mpeg2decoder.h	12 Jun 2005 20:45:20 -0000	1.26
+--- mpeg2decoder.h	3 Jul 2005 15:58:31 -0000	1.27
+***************
+*** 157,160 ****
+--- 157,162 ----
+      virtual void      Play(void);
+      virtual void      Stop();
++     virtual void      Deactivate()
++     { active = false; };
+      virtual void      TrickSpeed(int Speed) {return;};
+      virtual int       BufferFill(void);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000152.html">[Softdevice-cvs] softdevice setup-softdevice.c,1.19,1.20
+</A></li>
+	<LI>Next message: <A HREF="000154.html">[Softdevice-cvs] softdevice CHANGELOG,1.81,1.82 video-xv.c,1.27,1.28
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#153">[ date ]</a>
+              <a href="thread.html#153">[ thread ]</a>
+              <a href="subject.html#153">[ subject ]</a>
+              <a href="author.html#153">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

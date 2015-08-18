@@ -1,0 +1,351 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.96,1.97 i18n.c,1.6,1.7 setup-softdevice.c,1.25,1.26
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.96%2C1.97%20i18n.c%2C1.6%2C1.7%20setup-softdevice.c%2C1.25%2C1.26&In-Reply-To=%3C200507292045.j6TKjhI16971%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000171.html">
+   <LINK REL="Next"  HREF="000173.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.96,1.97 i18n.c,1.6,1.7 setup-softdevice.c,1.25,1.26</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.96%2C1.97%20i18n.c%2C1.6%2C1.7%20setup-softdevice.c%2C1.25%2C1.26&In-Reply-To=%3C200507292045.j6TKjhI16971%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.96,1.97 i18n.c,1.6,1.7 setup-softdevice.c,1.25,1.26">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Jul 29 22:45:43 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000171.html">[Softdevice-cvs] softdevice CHANGELOG,1.95,1.96 i18n.c,1.5,1.6 mpeg2decoder.c,1.48,1.49 setup-softdevice.c,1.24,1.25 video-dfb.c,1.35,1.36
+</A></li>
+        <LI>Next message: <A HREF="000173.html">[Softdevice-cvs] softdevice CHANGELOG,1.97,1.98 setup-softdevice.c,1.26,1.27
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#172">[ date ]</a>
+              <a href="thread.html#172">[ thread ]</a>
+              <a href="subject.html#172">[ subject ]</a>
+              <a href="author.html#172">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv13645
+
+Modified Files:
+	CHANGELOG i18n.c setup-softdevice.c 
+Log Message:
+some small changes on finnish translations by Rolf Ahrenberg
+fix for segfaults in setup-softdevice.c by previous change
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.96
+retrieving revision 1.97
+diff -C2 -d -r1.96 -r1.97
+*** CHANGELOG	27 Jul 2005 20:57:00 -0000	1.96
+--- CHANGELOG	29 Jul 2005 20:45:40 -0000	1.97
+***************
+*** 1,3 ****
+--- 1,6 ----
+  Changelog
++ 2005-07-29:
++     - some small changes on finnish translations by Rolf Ahrenberg
++     - fix for segfaults in setup-softdevice.c by previous change
+  2005-07-27:
+      - compile fix for newer ffmpeg versions (&gt; 2005-07-17 22:24:35) by Antonio
+
+Index: i18n.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/i18n.c,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -C2 -d -r1.6 -r1.7
+*** i18n.c	27 Jul 2005 20:57:00 -0000	1.6
+--- i18n.c	29 Jul 2005 20:45:40 -0000	1.7
+***************
+*** 225,229 ****
+      &quot;&quot;,             //  7 TODO
+      &quot;&quot;,             //  8 TODO
+!     &quot;Toisto&quot;,       //  9
+      &quot;&quot;,             // 10 TODO
+      &quot;&quot;,             // 11 TODO
+--- 225,229 ----
+      &quot;&quot;,             //  7 TODO
+      &quot;&quot;,             //  8 TODO
+!     &quot;N&#228;yt&#246;n ulostulo&quot;, //  9
+      &quot;&quot;,             // 10 TODO
+      &quot;&quot;,             // 11 TODO
+***************
+*** 616,620 ****
+      &quot;&quot;,             //  7 TODO
+      &quot;&quot;,             //  8 TODO
+!     &quot;p&#228;&#228;ll&#228;&quot;,       //  9
+      &quot;&quot;,             // 10 TODO
+      &quot;&quot;,             // 11 TODO
+--- 616,620 ----
+      &quot;&quot;,             //  7 TODO
+      &quot;&quot;,             //  8 TODO
+!     &quot;toiminnassa&quot;,  //  9
+      &quot;&quot;,             // 10 TODO
+      &quot;&quot;,             // 11 TODO
+***************
+*** 639,643 ****
+      &quot;&quot;,             //  7 TODO
+      &quot;&quot;,             //  8 TODO
+!     &quot;keskeytetty&quot;,  //  9
+      &quot;&quot;,             // 10 TODO
+      &quot;&quot;,             // 11 TODO
+--- 639,643 ----
+      &quot;&quot;,             //  7 TODO
+      &quot;&quot;,             //  8 TODO
+!     &quot;pys&#228;ytetty&quot;,   //  9
+      &quot;&quot;,             // 10 TODO
+      &quot;&quot;,             // 11 TODO
+
+Index: setup-softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.c,v
+retrieving revision 1.25
+retrieving revision 1.26
+diff -C2 -d -r1.25 -r1.26
+*** setup-softdevice.c	27 Jul 2005 20:57:00 -0000	1.25
+--- setup-softdevice.c	29 Jul 2005 20:45:40 -0000	1.26
+***************
+*** 44,51 ****
+  /*-----------------------------------------------------------------------------
+   */
+- #ifdef PP_LIBAVCODEC
+  #define SETUP_PPMODES 4
+  const char *pp_str[SETUP_PPMODES];
+- #endif //PP_LIBAVCODEC
+  
+  /* ----------------------------------------------------------------------------
+--- 44,49 ----
+***************
+*** 69,73 ****
+   */
+  #define SETUP_OSDMODES 3
+! const char *osdMode[SETUP_OSDMODES];
+  
+  /*-----------------------------------------------------------------------------
+--- 67,71 ----
+   */
+  #define SETUP_OSDMODES 3
+! const char *osdModeNames[SETUP_OSDMODES];
+  
+  /*-----------------------------------------------------------------------------
+***************
+*** 136,139 ****
+--- 134,197 ----
+    strcpy (alsaSPDIFDevice, &quot;hw:0,2&quot;);
+    voArgs = aoArgs = NULL;
++ 
++   xv_startup_aspect[0] = tr(&quot;16:9 wide&quot;);
++   xv_startup_aspect[1] = tr(&quot;4:3 normal&quot;);
++   xv_startup_aspect[2] = NULL;
++ 
++   deint_str[0] = tr(&quot;none&quot;);
++ 
++   pp_str[0] = tr(&quot;none&quot;);
++   pp_str[1] = tr(&quot;fast&quot;);
++   pp_str[2] = tr(&quot;default&quot;);
++   pp_str[3] = NULL;
++ 
++   bufferModes[0] = tr(&quot;save&quot;);
++   bufferModes[1] = tr(&quot;good seeking&quot;);
++   bufferModes[2] = tr(&quot;HDTV&quot;);
++   bufferModes[3] = NULL;
++ 
++   pix_fmt[0] = &quot;I420&quot;; // no need to translate
++   pix_fmt[1] = &quot;YV12&quot;; // no need to translate
++   pix_fmt[2] = &quot;YUY2&quot;; // no need to translate
++   pix_fmt[3] = NULL;
++ 
++   crop_str[0] = tr(&quot;none&quot;);
++   crop_str[1] = &quot;4:3&quot;;  // no need to translate
++   crop_str[2] = &quot;16:9&quot;; // no need to translate
++   crop_str[3] = &quot;14:9&quot;; // no need to translate
++   crop_str[4] = NULL;
++ 
++   userKeyUsage[0] = tr(&quot;none&quot;);
++   userKeyUsage[1] = &quot;User1&quot;; // no need to translate
++   userKeyUsage[2] = &quot;User2&quot;; // no need to translate
++   userKeyUsage[3] = &quot;User3&quot;; // no need to translate
++   userKeyUsage[4] = &quot;User4&quot;; // no need to translate
++   userKeyUsage[5] = &quot;User5&quot;; // no need to translate
++   userKeyUsage[6] = &quot;User6&quot;; // no need to translate
++   userKeyUsage[7] = &quot;User7&quot;; // no need to translate
++   userKeyUsage[8] = &quot;User8&quot;; // no need to translate
++   userKeyUsage[9] = &quot;User9&quot;; // no need to translate
++   userKeyUsage[10] = NULL;
++ 
++   videoAspectNames[0] = tr(&quot;default&quot;);
++   videoAspectNames[1] = &quot;5:4&quot;;   // no need to translate
++   videoAspectNames[2] = &quot;4:3&quot;;   // no need to translate
++   videoAspectNames[3] = &quot;16:9&quot;;  // no need to translate
++   videoAspectNames[4] = &quot;16:10&quot;; // no need to translate
++   videoAspectNames[5] = NULL;
++ 
++   suspendVideo[0] = tr(&quot;playing&quot;);
++   suspendVideo[1] = tr(&quot;suspended&quot;);
++   suspendVideo[2] = NULL;
++ 
++   osdModeNames[0] = tr(&quot;pseudo&quot;);
++   osdModeNames[1] = tr(&quot;software&quot;);
++   osdModeNames[2] = NULL;
++ 
++   ac3ModeNames[0] = &quot;Stereo (2CH)&quot;;     // no need to translate?
++   ac3ModeNames[1] = &quot;5.1 S/P-DIF&quot;;      // no need to translate?
++   ac3ModeNames[2] = &quot;5.1 Analog (4CH)&quot;; // no need to translate?
++   ac3ModeNames[3] = &quot;5.1 Analog (6CH)&quot;; // no need to translate?
++   ac3ModeNames[4] = NULL;
+  }
+  
+***************
+*** 336,340 ****
+      xv_startup_aspect[0] = tr(&quot;16:9 wide&quot;);
+      xv_startup_aspect[1] = tr(&quot;4:3 normal&quot;);
+-     xv_startup_aspect[2] = NULL;
+      Add(new cMenuEditStraItem(tr(&quot;Xv startup aspect&quot;),
+                               &amp;data-&gt;xvAspect,
+--- 394,397 ----
+***************
+*** 351,358 ****
+  
+    crop_str[0] = tr(&quot;none&quot;);
+-   crop_str[1] = &quot;4:3&quot;;  // no need to translate
+-   crop_str[2] = &quot;16:9&quot;; // no need to translate
+-   crop_str[3] = &quot;14:9&quot;; // no need to translate
+-   crop_str[4] = NULL;
+    Add(new cMenuEditStraItem(tr(&quot;CropMode&quot;),
+                              &amp;data-&gt;cropMode,
+--- 408,411 ----
+***************
+*** 361,374 ****
+  
+    userKeyUsage[0] = tr(&quot;none&quot;);
+-   userKeyUsage[1] = &quot;User1&quot;; // no need to translate
+-   userKeyUsage[2] = &quot;User2&quot;; // no need to translate
+-   userKeyUsage[3] = &quot;User3&quot;; // no need to translate
+-   userKeyUsage[4] = &quot;User4&quot;; // no need to translate
+-   userKeyUsage[5] = &quot;User5&quot;; // no need to translate
+-   userKeyUsage[6] = &quot;User6&quot;; // no need to translate
+-   userKeyUsage[7] = &quot;User7&quot;; // no need to translate
+-   userKeyUsage[8] = &quot;User8&quot;; // no need to translate
+-   userKeyUsage[9] = &quot;User9&quot;; // no need to translate
+-   userKeyUsage[10] = NULL;
+    Add(new cMenuEditStraItem(tr(&quot;CropModeToggleKey&quot;),
+                              &amp;data-&gt;cropModeToggleKey,
+--- 414,417 ----
+***************
+*** 429,433 ****
+    pp_str[1] = tr(&quot;fast&quot;);
+    pp_str[2] = tr(&quot;default&quot;);
+-   pp_str[3] = NULL;
+    Add(new cMenuEditStraItem(tr(&quot;Postprocessing Method&quot;),
+                                &amp;data-&gt;ppMethod,(SETUP_PPMODES-1),pp_str));
+--- 472,475 ----
+***************
+*** 439,443 ****
+    bufferModes[1] = tr(&quot;good seeking&quot;);
+    bufferModes[2] = tr(&quot;HDTV&quot;);
+-   bufferModes[3] = NULL;
+    Add(new cMenuEditStraItem(tr(&quot;Buffer Mode&quot;),
+                                &amp;data-&gt;bufferMode,(SETUP_BUFFERMODES-1),bufferModes));
+--- 481,484 ----
+***************
+*** 445,452 ****
+    if (data-&gt;outputMethod == VOUT_DFB || data-&gt;outputMethod == VOUT_VIDIX)
+    {
+-     pix_fmt[0] = &quot;I420&quot;; // no need to translate
+-     pix_fmt[1] = &quot;YV12&quot;; // no need to translate
+-     pix_fmt[2] = &quot;YUY2&quot;; // no need to translate
+-     pix_fmt[3] = NULL;
+      Add(new cMenuEditStraItem(tr(&quot;Pixel Format&quot;),
+                                &amp;data-&gt;pixelFormat,
+--- 486,489 ----
+***************
+*** 469,477 ****
+  
+    videoAspectNames[0] = tr(&quot;default&quot;);
+-   videoAspectNames[1] = &quot;5:4&quot;;   // no need to translate
+-   videoAspectNames[2] = &quot;4:3&quot;;   // no need to translate
+-   videoAspectNames[3] = &quot;16:9&quot;;  // no need to translate
+-   videoAspectNames[4] = &quot;16:10&quot;; // no need to translate
+-   videoAspectNames[5] = NULL;
+    Add(new cMenuEditStraItem(tr(&quot;Screen Aspect&quot;),
+                              &amp;data-&gt;screenPixelAspect,
+--- 506,509 ----
+***************
+*** 481,485 ****
+    suspendVideo[0] = tr(&quot;playing&quot;);
+    suspendVideo[1] = tr(&quot;suspended&quot;);
+-   suspendVideo[2] = NULL;
+    Add(new cMenuEditStraItem(tr(&quot;Playback&quot;),
+                              &amp;data-&gt;shouldSuspend,
+--- 513,516 ----
+***************
+*** 487,503 ****
+                              suspendVideo));
+  
+!   osdMode[0] = tr(&quot;pseudo&quot;);
+!   osdMode[1] = tr(&quot;software&quot;);
+!   osdMode[2] = NULL;
+    Add(new cMenuEditStraItem(tr(&quot;OSD alpha blending&quot;),
+                              &amp;data-&gt;osdMode,
+                              (SETUP_OSDMODES-1),
+!                             osdMode));
+  
+-   ac3ModeNames[0] = &quot;Stereo (2CH)&quot;;     // no need to translate?
+-   ac3ModeNames[1] = &quot;5.1 S/P-DIF&quot;;      // no need to translate?
+-   ac3ModeNames[2] = &quot;5.1 Analog (4CH)&quot;; // no need to translate?
+-   ac3ModeNames[3] = &quot;5.1 Analog (6CH)&quot;; // no need to translate?
+-   ac3ModeNames[4] = NULL;
+    Add(new cMenuEditStraItem(tr(&quot;AC3 Mode&quot;),
+                              &amp;data-&gt;ac3Mode,
+--- 518,528 ----
+                              suspendVideo));
+  
+!   osdModeNames[0] = tr(&quot;pseudo&quot;);
+!   osdModeNames[1] = tr(&quot;software&quot;);
+    Add(new cMenuEditStraItem(tr(&quot;OSD alpha blending&quot;),
+                              &amp;data-&gt;osdMode,
+                              (SETUP_OSDMODES-1),
+!                             osdModeNames));
+  
+    Add(new cMenuEditStraItem(tr(&quot;AC3 Mode&quot;),
+                              &amp;data-&gt;ac3Mode,
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000171.html">[Softdevice-cvs] softdevice CHANGELOG,1.95,1.96 i18n.c,1.5,1.6 mpeg2decoder.c,1.48,1.49 setup-softdevice.c,1.24,1.25 video-dfb.c,1.35,1.36
+</A></li>
+	<LI>Next message: <A HREF="000173.html">[Softdevice-cvs] softdevice CHANGELOG,1.97,1.98 setup-softdevice.c,1.26,1.27
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#172">[ date ]</a>
+              <a href="thread.html#172">[ thread ]</a>
+              <a href="subject.html#172">[ subject ]</a>
+              <a href="author.html#172">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

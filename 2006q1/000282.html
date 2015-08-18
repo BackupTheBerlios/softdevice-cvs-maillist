@@ -1,0 +1,106 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice video-xv.c,1.40,1.41
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-xv.c%2C1.40%2C1.41&In-Reply-To=%3C200602051156.k15Bu0x30146%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000281.html">
+   <LINK REL="Next"  HREF="000283.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice video-xv.c,1.40,1.41</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-xv.c%2C1.40%2C1.41&In-Reply-To=%3C200602051156.k15Bu0x30146%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice video-xv.c,1.40,1.41">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Feb  5 12:56:00 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000281.html">[Softdevice-cvs] softdevice CHANGELOG,1.147,1.148 video.h,1.27,1.28 video-xv.c,1.39,1.40 video-xv.h,1.12,1.13
+</A></li>
+        <LI>Next message: <A HREF="000283.html">[Softdevice-cvs] softdevice CHANGELOG,1.148,1.149 softdevice.c,1.51,1.52 softdevice.h,1.7,1.8
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#282">[ date ]</a>
+              <a href="thread.html#282">[ thread ]</a>
+              <a href="subject.html#282">[ subject ]</a>
+              <a href="author.html#282">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv26533
+
+Modified Files:
+	video-xv.c 
+Log Message:
+compile fix for vdr-1.2.x
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.40
+retrieving revision 1.41
+diff -C2 -d -r1.40 -r1.41
+*** video-xv.c	4 Feb 2006 17:33:31 -0000	1.40
+--- video-xv.c	5 Feb 2006 11:55:54 -0000	1.41
+***************
+*** 29,33 ****
+  #include &quot;setup-softdevice.h&quot;
+  
+! #define PATCH_VERSION &quot;2005-11-06&quot;
+  
+  static pthread_mutex_t  xv_mutex = PTHREAD_MUTEX_INITIALIZER;
+--- 29,33 ----
+  #include &quot;setup-softdevice.h&quot;
+  
+! #define PATCH_VERSION &quot;2006-02-05&quot;
+  
+  static pthread_mutex_t  xv_mutex = PTHREAD_MUTEX_INITIALIZER;
+***************
+*** 1345,1350 ****
+      int y= lheight &gt; osd_max_height ? (lheight - osd_max_height) / 2+lyoff:lyoff;
+  #else
+!     int x=lwidth &gt; OSD_WIDTH ?(lwidth - OSD_WIDTH)/2+lxoff:lxoff;
+!     int y=lheight &gt; OSD_HEIGHT?(lheight - OSD_HEIGHT) / 2+lyoff:lyoff;
+  #endif
+      if (useShm) 
+--- 1345,1350 ----
+      int y= lheight &gt; osd_max_height ? (lheight - osd_max_height) / 2+lyoff:lyoff;
+  #else
+!     int x=lwidth &gt; OSD_FULL_WIDTH ?(lwidth - OSD_FULL_WIDTH)/2+lxoff:lxoff;
+!     int y=lheight &gt; OSD_FULL_HEIGHT?(lheight - OSD_FULL_HEIGHT) / 2+lyoff:lyoff;
+  #endif
+      if (useShm) 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000281.html">[Softdevice-cvs] softdevice CHANGELOG,1.147,1.148 video.h,1.27,1.28 video-xv.c,1.39,1.40 video-xv.h,1.12,1.13
+</A></li>
+	<LI>Next message: <A HREF="000283.html">[Softdevice-cvs] softdevice CHANGELOG,1.148,1.149 softdevice.c,1.51,1.52 softdevice.h,1.7,1.8
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#282">[ date ]</a>
+              <a href="thread.html#282">[ thread ]</a>
+              <a href="subject.html#282">[ subject ]</a>
+              <a href="author.html#282">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

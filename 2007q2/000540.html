@@ -1,0 +1,914 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice video-quartz.c, NONE, 1.1 video-quartz.h,	NONE, 1.1 audio-macos.c, NONE, 1.1 audio-macos.h, NONE,	1.1 Makefile, 1.40, 1.41 configure, 1.37, 1.38 softdevice.c,	1.79, 1.80 video-shm.c, 1.16, 1.17
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-quartz.c%2C%20NONE%2C%201.1%20video-quartz.h%2C%0A%09NONE%2C%201.1%20audio-macos.c%2C%20NONE%2C%201.1%20audio-macos.h%2C%20NONE%2C%0A%091.1%20Makefile%2C%201.40%2C%201.41%20configure%2C%201.37%2C%201.38%20softdevice.c%2C%0A%091.79%2C%201.80%20video-shm.c%2C%201.16%2C%201.17&In-Reply-To=%3C20070403202258.06DFFDB746%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000539.html">
+   <LINK REL="Next"  HREF="000541.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice video-quartz.c, NONE, 1.1 video-quartz.h,	NONE, 1.1 audio-macos.c, NONE, 1.1 audio-macos.h, NONE,	1.1 Makefile, 1.40, 1.41 configure, 1.37, 1.38 softdevice.c,	1.79, 1.80 video-shm.c, 1.16, 1.17</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-quartz.c%2C%20NONE%2C%201.1%20video-quartz.h%2C%0A%09NONE%2C%201.1%20audio-macos.c%2C%20NONE%2C%201.1%20audio-macos.h%2C%20NONE%2C%0A%091.1%20Makefile%2C%201.40%2C%201.41%20configure%2C%201.37%2C%201.38%20softdevice.c%2C%0A%091.79%2C%201.80%20video-shm.c%2C%201.16%2C%201.17&In-Reply-To=%3C20070403202258.06DFFDB746%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice video-quartz.c, NONE, 1.1 video-quartz.h,	NONE, 1.1 audio-macos.c, NONE, 1.1 audio-macos.h, NONE,	1.1 Makefile, 1.40, 1.41 configure, 1.37, 1.38 softdevice.c,	1.79, 1.80 video-shm.c, 1.16, 1.17">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue Apr  3 22:22:58 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000539.html">[Softdevice-cvs] softdevice/MacVdrClient.app/Contents/MacOS - New	directory
+</A></li>
+        <LI>Next message: <A HREF="000541.html">[Softdevice-cvs] softdevice/MacVdrClient.app/Contents Info.plist,	NONE, 1.1 PkgInfo, NONE, 1.1
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#540">[ date ]</a>
+              <a href="thread.html#540">[ thread ]</a>
+              <a href="subject.html#540">[ subject ]</a>
+              <a href="author.html#540">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv14563
+
+Modified Files:
+	Makefile configure softdevice.c video-shm.c 
+Added Files:
+	video-quartz.c video-quartz.h audio-macos.c audio-macos.h 
+Log Message:
+- add video-quartz and audio-macos for Mac Os X support
+
+
+--- NEW FILE: video-quartz.c ---
+/*
+ *
+ * video-quartz.c: A plugin for the Video Disk Recorder
+ *
+ * Copyright (c) Martin Wache 2006
+ *
+ * 
+ * This file is based on MPlayers vo_quartz with the original copyright notice:
+ */
+
+/*
+	vo_quartz.c
+	
+	by Nicolas Plourde &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">nicolasplourde at gmail.com</A>&gt;
+	
+	Copyright (c) Nicolas Plourde - April 2004
+
+	YUV support Copyright (C) 2004 Romain Dolbeau &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">romain at dolbeau.org</A>&gt;
+	
+[...990 lines suppressed...]
+			device_width = deviceRect.right;
+			device_height = deviceRect.bottom;
+			restoreState = NULL;
+		}*/
+		SetSystemUIMode( kUIModeNormal, NULL);
+
+		//show mouse cursor
+		CGDisplayShowCursor(kCGDirectMainDisplay);
+		//mouseHide = FALSE;
+		
+                QDEB(&quot;Going into windowed mode pos %d,%d size: %d,%d \n&quot;,
+                        oldWinBounds.left,oldWinBounds.top,oldWinRect.right,oldWinRect.bottom);
+		//revert window to previous setting
+		ChangeWindowAttributes(theWindow, 0, kWindowNoShadowAttribute);
+		MoveWindow(theWindow, oldWinBounds.left, oldWinBounds.top, 1);
+		SizeWindow(theWindow, oldWinRect.right, oldWinRect.bottom,1);
+	}
+	WindowResized();
+};
+
+
+--- NEW FILE: video-quartz.h ---
+/*
+ *
+ * video-quartz.h: A plugin for the Video Disk Recorder
+ *
+ * Copyright Martin Wache 2006
+ *
+ * 
+ */
+#ifndef __VIDEO_QUARTZ_H__
+#define __VIDEO_QUARTZ_H__
+
+#include &quot;video.h&quot;
+
+#undef always_inline
+namespace MacOs {
+#include &lt;Carbon/Carbon.h&gt;
+#include &lt;OpenGL/gl.h&gt;
+#include &lt;OpenGL/glext.h&gt;
+#include &lt;AGL/agl.h&gt;
+};
+
+using namespace std;
+using namespace MacOs;
+
+#define IMAGE_WIDTH 720
+#define IMAGE_HEIGHT 576
+extern cSoftRemote *quartzRemote;
+
+class cQuartzVideoOut : public cVideoOut {
+private:
+        cMutex glMutex;
+
+        WindowRef theWindow;
+        WindowGroupRef winGroup;
+        CGContextRef context;
+        MenuRef windMenu;
+        MenuRef movMenu;
+        MenuRef aspectMenu;
+       
+        Rect imgRect; // size of the original image (unscaled)
+        Rect dstRect; // size of the displayed image (after scaling)
+        Rect winRect; // size of the window containg the displayed image (include padding)
+        Rect oldWinRect; // size of the window containg the displayed image (include padding) when NOT in FS mode
+        Rect deviceRect; // size of the display device
+        Rect oldWinBounds;
+
+        int winLevel;
+
+        unsigned char *image_data[2];
+        unsigned int image_size;
+        unsigned int image_buffer_size;
+
+        GLuint osd_texture;
+        unsigned char * osd_image_data;
+
+        void CreateWindow( uint32_t d_width, uint32_t d_height, 
+                WindowAttributes windowAttrs);
+
+        void InitGl();
+        bool glInitialized;
+        AGLContext    aglCtx;
+        AGLPixelFormat	aglFmt;
+        bool isFullscreen;
+        GLuint p_textures[2];
+        int curr_index; 
+        int image_width;
+        int image_height;
+        GDHandle deviceHdl;
+        int lastTime;
+ 
+        sPicBuffer privBuffer;
+public:
+        int osd_shm_id;
+        int pic_shm_id;
+        cQuartzVideoOut(cSetupStore *setupStore);
+        virtual ~cQuartzVideoOut();
+
+        virtual void ProcessEvents();
+        virtual void YUV(sPicBuffer *buf);
+        void Render();
+        
+        virtual void GetLockOsdSurface(uint8_t *&amp;osd, int &amp;stride, bool *&amp;dirtyLines); 
+        virtual void CommitUnlockOsdSurface();
+ 
+        void WindowResized();
+        void ToggleFullscreen();
+        inline bool IsOpen()
+        { return (theWindow); }
+        
+        void RmShmMemory();
+
+        OSStatus MouseEventHandler(EventHandlerCallRef nextHandler, EventRef event, void *userData);
+
+        OSStatus WindowEventHandler(EventHandlerCallRef nextHandler, EventRef event, void *userData);
+
+};
+
+#endif
+
+--- NEW FILE: audio-macos.c ---
+/*
+ * audio-macos.c: A plugin for the Video Disk Recorder
+ *
+ * See the README file for copyright information and how to reach the author.
+ *
+ * $Id: audio-macos.c,v 1.1 2007/04/03 20:21:04 wachm Exp $
+ */
+
+/*
+ * This file is based on MPlayers ao_macosx.c with the original copyright 
+ * notice:
+ * 
+ *      Original Copyright (C) Timothy J. Wood - Aug 2000
+ *
+ */
+
+#include &quot;audio-macos.h&quot;
+
+
+#define AUDIODEB(out...) {printf(&quot;AUDIO-MACOS: &quot;);printf(out);}
+
+
+#ifndef AUDIODEB
+#define AUDIODEB(out...)
+#endif
+
+/* This is large, but best (maybe it should be even larger).
+ * CoreAudio supposedly has an internal latency in the order of 2ms */
+#define NUM_BUFS 32
+
+static cMacOsAudioOut *macosAO = NULL;
+
+/**
+ * \brief return number of free bytes in the buffer
+ *    may only be called by mplayer's thread
+ * \return minimum number of free bytes in buffer, value may change between
+ *    two immediately following calls, and the real number of free bytes
+ *    might actually be larger!
+ */
+int cMacOsAudioOut::buf_free() {
+  int free = buf_read_pos - buf_write_pos - chunk_size;
+  if (free &lt; 0) free += buffer_len;
+  return free;
+}
+
+/**
+ * \brief return number of buffered bytes
+ *    may only be called by playback thread
+ * \return minimum number of buffered bytes, value may change between
+ *    two immediately following calls, and the real number of buffered bytes
+ *    might actually be larger!
+ */
+int cMacOsAudioOut::buf_used() {
+  int used = buf_write_pos - buf_read_pos;
+  if (used &lt; 0) used += buffer_len;
+  return used;
+}
+
+/**
+ * \brief add data to ringbuffer
+ */
+int cMacOsAudioOut::write_buffer(unsigned char* data, int len){
+  int first_len = buffer_len - buf_write_pos;
+  int free = buf_free();
+  if (len &gt; free) {
+          len = free;
+          //AUDIODEB(&quot;write_buffer buffer full!\n&quot;);
+  }
+  if (first_len &gt; len) first_len = len;
+  // till end of buffer
+  memcpy (&amp;buffer[buf_write_pos], data, first_len);
+  if (len &gt; first_len) { // we have to wrap around
+    // remaining part from beginning of buffer
+    //AUDIODEB(&quot;write_buffer wrap around len %d first_len %d\n&quot;,len,first_len);
+    memcpy (buffer, &amp;data[first_len], len - first_len);
+  }
+  buf_write_pos = (buf_write_pos + len) % buffer_len;
+  return len;
+}
+
+/**
+ * \brief remove data from ringbuffer
+ */
+int cMacOsAudioOut::read_buffer(unsigned char* data,int len){
+  int first_len = buffer_len - buf_read_pos;
+  int buffered = buf_used();
+  if (len &gt; buffered) len = buffered;
+  if (first_len &gt; len) first_len = len;
+  // till end of buffer
+  memcpy (data, &amp;buffer[buf_read_pos], first_len);
+  if (len &gt; first_len) { // we have to wrap around
+    // remaining part from beginning of buffer
+    //AUDIODEB(&quot;read_buffer wrap around len %d first_len %d\n&quot;,len,first_len);
+    memcpy (&amp;data[first_len], buffer, len - first_len);
+  }
+  buf_read_pos = (buf_read_pos + len) % buffer_len;
+  return len;
+}
+
+OSStatus theRenderProc(void *inRefCon, AudioUnitRenderActionFlags *inActionFlags, const AudioTimeStamp *inTimeStamp, UInt32 inBusNumber, UInt32 inNumFrames, AudioBufferList *ioData) {
+       return  (macosAO ? macosAO-&gt;Render(inNumFrames,ioData) : -1 );
+};
+
+
+OSStatus cMacOsAudioOut::Render(UInt32 inNumFrames, AudioBufferList *ioData) {
+        int amt=buf_used();
+        int req=(inNumFrames)*packetSize;
+
+	if(amt&gt;req)
+ 		amt=req;
+
+	if(amt)
+		read_buffer((unsigned char *)ioData-&gt;mBuffers[0].mData, amt);
+	else Pause();
+	ioData-&gt;mBuffers[0].mDataByteSize = amt;
+
+ 	return noErr;
+}
+
+cMacOsAudioOut::cMacOsAudioOut(cSetupStore *store) : cAudioOut() {
+        ComponentDescription desc; 
+        Component comp; 
+        OSStatus err;
+
+        if (macosAO) {
+                fprintf(stderr,&quot;MacOsAudioOut already initialized!\n&quot;);
+                exit(-1);
+        };
+        macosAO=this;	
+        buffer = NULL;
+
+        desc.componentType = kAudioUnitType_Output;
+	desc.componentSubType = kAudioUnitSubType_DefaultOutput;
+	desc.componentManufacturer = kAudioUnitManufacturer_Apple;
+	desc.componentFlags = 0;
+	desc.componentFlagsMask = 0;
+				
+	comp = FindNextComponent(NULL, &amp;desc);  //Finds an component that meets the desc spec's
+	if (comp == NULL) {
+		fprintf(stderr, &quot;Unable to find Output Unit component\n&quot;);
+		exit(-1);
+	}
+		
+	err = OpenAComponent(comp, &amp;(theOutputUnit));  //gains access to the services provided by the component
+	if (err) {
+		fprintf(stderr,&quot;Unable to open Output Unit component (err=%d)\n&quot;, err);
+		exit(-1);
+	}
+
+	// Initialize AudioUnit 
+	err = AudioUnitInitialize(theOutputUnit);
+	if (err) {
+		fprintf(stderr, &quot;Unable to initialize Output Unit component (err=%d)\n&quot;, err);
+		exit(-1);
+	}
+        scale_Factor=0x7FFF;
+}
+
+
+cMacOsAudioOut::~cMacOsAudioOut() {
+        AudioOutputUnitStop(theOutputUnit);
+        AudioUnitUninitialize(theOutputUnit);
+        CloseComponent(theOutputUnit);
+
+        free(buffer);
+}
+
+int cMacOsAudioOut::SetParams(SampleContext &amp;context) {
+
+        if (currContext.samplerate == context.samplerate &amp;&amp;
+                        currContext.channels == context.channels ) {
+                context=currContext;
+                return 0;
+        };
+        AUDIODEB(&quot;alsa-macos : SetParams samplerate %d channels %d\n&quot;,context.samplerate,context.channels);
+        currContext=context;
+
+        AudioStreamBasicDescription inDesc, outDesc;
+        AURenderCallbackStruct renderCallback;
+        OSStatus err;
+        UInt32 size, maxFrames;
+
+	// Build Description for the input format
+	inDesc.mSampleRate=currContext.samplerate;
+	inDesc.mFormatID=kAudioFormatLinearPCM;
+	inDesc.mChannelsPerFrame=currContext.channels;
+        inDesc.mBitsPerChannel=16;
+
+        inDesc.mFormatFlags = kAudioFormatFlagIsSignedInteger|kAudioFormatFlagIsPacked;
+        /*if((format&amp;AF_FORMAT_POINT_MASK)==AF_FORMAT_F) {
+	// float
+                inDesc.mFormatFlags = kAudioFormatFlagIsFloat|kAudioFormatFlagIsPacked;
+        }
+        else if((format&amp;AF_FORMAT_SIGN_MASK)==AF_FORMAT_SI) {
+                // signed int
+                inDesc.mFormatFlags = kAudioFormatFlagIsSignedInteger|kAudioFormatFlagIsPacked;
+        }
+        else {
+                // unsigned int
+                inDesc.mFormatFlags = kAudioFormatFlagIsPacked;
+        }*/
+
+#ifdef CPU_BIGENDIAN 
+        inDesc.mFormatFlags |= kAudioFormatFlagIsBigEndian; //Intel processors???
+#endif
+        inDesc.mFramesPerPacket = 1;
+        packetSize = inDesc.mBytesPerPacket = inDesc.mBytesPerFrame = inDesc.mFramesPerPacket*currContext.channels*(inDesc.mBitsPerChannel/8);
+
+
+	size =  sizeof(AudioStreamBasicDescription);
+	err = AudioUnitSetProperty(theOutputUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, 0, &amp;inDesc, size);
+
+	if (err) {
+		printf( &quot;Unable to set the input format (err=%d)\n&quot;, err);
+		exit(-1);
+	}
+
+	size = sizeof(UInt32);
+	err = AudioUnitGetProperty(theOutputUnit, kAudioDevicePropertyBufferSize, kAudioUnitScope_Input, 0, &amp;maxFrames, &amp;size);
+	
+	if (err) {
+		printf( &quot;AudioUnitGetProperty returned %d when getting kAudioDevicePropertyBufferSize\n&quot;, (int)err);
+		exit(-1);
+	}
+
+	chunk_size = maxFrames;//*inDesc.mBytesPerFrame;
+	printf(&quot;%5d chunk size\n&quot;, (int)chunk_size);
+    
+	num_chunks = NUM_BUFS;
+        buffer_len = (num_chunks + 1) * chunk_size;
+        buffer = buffer ? (unsigned char *)realloc(buffer,(num_chunks + 1)*chunk_size)
+			: (unsigned char *)calloc(num_chunks + 1, chunk_size);
+
+        buf_read_pos=0;
+	buf_write_pos=0;
+    
+/*	
+        ao_data.samplerate = inDesc.mSampleRate;
+        ao_data.channels = inDesc.mChannelsPerFrame;
+        ao_data.outburst = ao_data.buffersize = ao-&gt;chunk_size;
+        ao_data.bps = ao_data.samplerate * inDesc.mBytesPerFrame;
+*/
+        renderCallback.inputProc = theRenderProc;
+        renderCallback.inputProcRefCon = 0;
+        err = AudioUnitSetProperty(theOutputUnit, kAudioUnitProperty_SetRenderCallback, kAudioUnitScope_Input, 0, &amp;renderCallback, sizeof(AURenderCallbackStruct));
+	if (err) {
+		fprintf(stderr, &quot;Unable to set the render callback (err=%d)\n&quot;, err);
+		exit(-1);
+	}
+
+        return 0;
+}
+
+/* stop playing, keep buffers (for pause) */
+void cMacOsAudioOut::Pause() {
+  OSErr status=noErr;
+
+  /* stop callback */
+  status=AudioOutputUnitStop(theOutputUnit);
+  if (status)
+    fprintf(stderr, &quot;AudioOutputUnitStop returned %d\n&quot;,(int)status);
+}
+
+
+/* resume playing, after audio_pause() */
+void cMacOsAudioOut::Play() {
+  OSErr status=noErr;
+  
+  status=AudioOutputUnitStart(theOutputUnit);
+  if (status)
+    fprintf(stderr,&quot;AudioOutputUnitStart returned %d\n&quot;,(int)status);
+}
+
+void cMacOsAudioOut::Write(uchar *Data, int Length) {
+        Play();
+        Scale((int16_t*)Data,Length/2,scale_Factor);
+        while (Length &gt;0) {
+                int len = write_buffer(Data,Length);
+                Data +=len;
+                Length-=len;
+                usleep(13000);
+        }
+};
+
+int cMacOsAudioOut::GetDelay() {
+        if ( ! currContext.samplerate*currContext.channels )
+                return -1;
+
+        int res = buffer_len - chunk_size - buf_free();
+        res = res*10000 / (currContext.samplerate*currContext.channels*2) ;
+        //AUDIODEB(&quot;GetDelay %d\n&quot;,res);
+        return res;
+};
+
+void cMacOsAudioOut::SetVolume( int vol ) {
+        scale_Factor = CalcScaleFactor(vol);
+};
+
+--- NEW FILE: audio-macos.h ---
+/*
+ * audio-macos.h: A plugin for the Video Disk Recorder
+ *
+ * See the README file for copyright information and how to reach the author.
+ *
+ * $Id: audio-macos.h,v 1.1 2007/04/03 20:21:04 wachm Exp $
+ */
+#ifndef __AUDIO_MACOS_H__
+#define __AUDIO_MACOS_H__
+#include &lt;vdr/plugin.h&gt;
+#include &quot;audio.h&quot;
+
+
+namespace MacOs {
+#include &lt;CoreServices/CoreServices.h&gt;
+#include &lt;AudioUnit/AudioUnit.h&gt;
+#include &lt;AudioToolbox/AudioToolbox.h&gt;
+}
+
+
+using namespace MacOs;
+
+/* ---------------------------------------------------------------------------
+ */
+class cMacOsAudioOut : public cAudioOut  {
+        private:
+                int scale_Factor;
+
+                /* AudioUnit */
+                AudioUnit theOutputUnit;
+                int packetSize;
+
+                /* Ring-buffer */
+                /* does not need explicit synchronization, but needs to allocate
+                 * (num_chunks + 1) * chunk_size memory to store num_chunks * chunk_size
+                 * data */
+                unsigned char *buffer;
+                unsigned int buffer_len; ///&lt; must always be (num_chunks + 1) * chunk_size
+                unsigned int num_chunks;
+                unsigned int chunk_size;
+
+                unsigned int buf_read_pos;
+                unsigned int buf_write_pos;
+        protected:
+                int buf_free();
+                int buf_used();
+                int write_buffer(unsigned char* data, int len);
+                int read_buffer(unsigned char* data, int len);
+
+        public:
+                cMacOsAudioOut(cSetupStore *setupStore);
+                virtual ~cMacOsAudioOut();
+                OSStatus Render(UInt32 inNumFrames, AudioBufferList *ioData); 
+
+                virtual void  Write(uchar *Data, int Length);
+                virtual void  WriteAC3(uchar *Data, int Length)
+                {};
+                virtual int   SetParams(SampleContext &amp;context);
+                virtual int   GetDelay(void);
+                virtual void  Pause(void);
+                virtual void  Play(void);
+                virtual void  SetVolume(int vol);
+/*                virtual void  Suspend(void);
+                virtual bool  Resume(void);
+*/};
+
+
+#endif 
+
+Index: Makefile
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/Makefile,v
+retrieving revision 1.40
+retrieving revision 1.41
+diff -C2 -d -r1.40 -r1.41
+*** Makefile	3 Apr 2007 19:44:39 -0000	1.40
+--- Makefile	3 Apr 2007 20:21:04 -0000	1.41
+***************
+*** 241,244 ****
+--- 241,254 ----
+  ALL_OBJS = $(OBJS)
+  
++ ifdef MACOSAO_SUPPORT
++   OBJS += audio-macos.o
++   LIBS += -framework Carbon -framework CoreAudio -framework AudioUnit -framework AudioToolbox 
++ endif
++ 
++ ifdef QUARTZ_SUPPORT
++   OBJS += video-quartz.o
++   LIBS += -framework Carbon -framework AGL -framework OpenGL 
++ endif
++ 
+  ifdef ALSA_SUPPORT
+    LIBS += -lasound
+***************
+*** 306,313 ****
+      OBJS += video-shm.o
+    endif
+-   TARGETS += ShmClient
+    DEFINES += -DSHM_SUPPORT
+  endif
+  
+  ### Implicit rules:
+  
+--- 316,330 ----
+      OBJS += video-shm.o
+    endif
+    DEFINES += -DSHM_SUPPORT
+  endif
+  
++ ifdef SHMCLIENT_SUPPORT
++   TARGETS += ShmClient
++ endif
++ 
++ ifdef MACVDRCLIENT_SUPPORT
++   TARGETS += MacVdrClient
++ endif
++ 
+  ### Implicit rules:
+  
+***************
+*** 369,373 ****
+  
+  clean:
+! 	@-rm -f $(OBJS) $(DEPFILE) ShmClient *.so *.o *.tgz core* *~
+  
+  VDR_SHM_CLIENT_OBJS = ../../../tools.o ../../../thread.o \
+--- 386,390 ----
+  
+  clean:
+! 	@-rm -f $(OBJS) $(DEPFILE) ShmClient MacVdrClient *.so *.o *.tgz core* *~
+  
+  VDR_SHM_CLIENT_OBJS = ../../../tools.o ../../../thread.o \
+***************
+*** 385,386 ****
+--- 402,409 ----
+  ShmClient: $(SHM_CLIENT_OBJS)
+  	$(CXX) $(CXXFLAGS) $(XV_LIBS)  $(SHM_CLIENT_OBJS) -lpthread -o $@
++ 
++ 
++ MacVdrClient_obj = video_shm.o video-quartz_shm.o setup-softdevice_shm.o utils_shm.o VdrReplacements_shm.o PicBuffer_shm.o setup-softlog_shm.o MacVdrClient_shm.o
++ MacVdrClient: $(MacVdrClient_obj)
++ 	$(CXX) $(LDFLAGS) $(MacVdrClient_obj)  -framework Carbon -framework AGL -framework OpenGL -lpthread -o $@
++ 	cp $@ ./MacVdrClient.app/Contents/MacOS/MacVdrClient
+
+Index: configure
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/configure,v
+retrieving revision 1.37
+retrieving revision 1.38
+diff -C2 -d -r1.37 -r1.38
+*** configure	3 Apr 2007 20:03:41 -0000	1.37
+--- configure	3 Apr 2007 20:21:04 -0000	1.38
+***************
+*** 110,114 ****
+  case &quot;$system&quot; in
+    Linux) system=&quot;Linux&quot;;;
+!   Darwin) system=&quot;Darwin&quot;;;
+    *) system=&quot;unknown&quot;;;
+  esac
+--- 110,117 ----
+  case &quot;$system&quot; in
+    Linux) system=&quot;Linux&quot;;;
+!   Darwin) 
+!         system=&quot;Darwin&quot;
+!         #with_subplugins=&quot;no&quot;
+!         ;;
+    *) system=&quot;unknown&quot;;;
+  esac
+***************
+*** 602,605 ****
+--- 605,620 ----
+  
+  ###############################################################################
++ # Darwin defines
++ #
++ if test &quot;${system}&quot; = &quot;Darwin&quot;; then
++   echo &quot;SHARED_FLAG = -dynamiclib -Wl,-single_module,-undefined,dynamic_lookup &quot; &gt;&gt; $TMPM
++   echo &quot;QUARTZ_SUPPORT = 1&quot; &gt;&gt; $TMPM
++   echo &quot;#define QUARTZ_SUPPORT 1 &quot;&gt;&gt; $TMPH
++   echo &quot;MACOSAO_SUPPORT = 1&quot; &gt;&gt; $TMPM
++   echo &quot;#define MACOSAO_SUPPORT 1 &quot;&gt;&gt; $TMPH
++   echo &quot;MACVDRCLIENT_SUPPORT = 1&quot; &gt;&gt; $TMPM
++ fi
++ 
++ ###############################################################################
+  # alsa defines
+  #
+***************
+*** 678,682 ****
+    echo &quot;XV_SUPPORT       = 1&quot; &gt;&gt; $TMPM
+    if test &quot;${with_shm}&quot; = &quot;yes&quot; ; then
+!     echo &quot;SHM_SUPPORT = 1&quot; &gt;&gt; $TMPM
+    fi
+    if test &quot;${xinerama}&quot; = &quot;yes&quot; ; then
+--- 693,697 ----
+    echo &quot;XV_SUPPORT       = 1&quot; &gt;&gt; $TMPM
+    if test &quot;${with_shm}&quot; = &quot;yes&quot; ; then
+!     echo &quot;SHMCLIENT_SUPPORT = 1&quot; &gt;&gt; $TMPM
+    fi
+    if test &quot;${xinerama}&quot; = &quot;yes&quot; ; then
+***************
+*** 689,692 ****
+--- 704,714 ----
+    echo &quot;#define XV_SUPPORT       1&quot; &gt;&gt; $TMPH
+    echo &quot;#define LIBXDPMS_SUPPORT 1&quot; &gt;&gt; $TMPH
++ fi
++ 
++ ###############################################################################
++ # generate defines for shared memory server
++ #
++ if test &quot;${with_shm}&quot; = &quot;yes&quot; ; then
++   echo &quot;SHM_SUPPORT = 1&quot; &gt;&gt; $TMPM
+  fi
+  
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.79
+retrieving revision 1.80
+diff -C2 -d -r1.79 -r1.80
+*** softdevice.c	12 Mar 2007 20:10:54 -0000	1.79
+--- softdevice.c	3 Apr 2007 20:21:04 -0000	1.80
+***************
+*** 6,10 ****
+   * $Id$
+   */
+- 
+  #include &quot;softdevice.h&quot;
+  
+--- 6,9 ----
+***************
+*** 68,71 ****
+--- 67,81 ----
+  #endif
+  
++ #ifdef QUARTZ_SUPPORT
++ #include &quot;video-quartz.h&quot;
++ 
++ #ifndef VOUT_DEFAULT
++ #define VOUT_DEFAULT  VOUT_QUARTZ
++ #endif
++ 
++ #endif
++ 
++ #include &quot;audio.h&quot;
++ 
+  #ifdef ALSA_SUPPORT
+  #include &quot;audio-alsa.h&quot;
+***************
+*** 76,80 ****
+  #endif
+  
+! #include &quot;audio.h&quot;
+  #include &quot;mpeg2decoder.h&quot;
+  #include &quot;utils.h&quot;
+--- 86,93 ----
+  #endif
+  
+! #ifdef MACOSAO_SUPPORT
+! #include &quot;audio-macos.h&quot;
+! #endif
+! 
+  #include &quot;mpeg2decoder.h&quot;
+  #include &quot;utils.h&quot;
+***************
+*** 91,94 ****
+--- 104,108 ----
+  #define AOUT_DUMMY  2
+  #define AOUT_OSS    3
++ #define AOUT_MACOS  4 
+  
+  //#define SOFTDEB(out...) {printf(&quot;softdeb[%04d]:&quot;,(int)(getTimeMilis() % 10000));printf(out);}
+***************
+*** 224,227 ****
+--- 238,246 ----
+          videoOut-&gt;Initialize();
+  #endif
++       case VOUT_QUARTZ:
++ #ifdef QUARTZ_SUPPORT
++         videoOut=new cQuartzVideoOut(&amp;setupStore);
++         videoOut-&gt;Initialize();
++ #endif
+          break;
+        case VOUT_DUMMY:
+***************
+*** 246,250 ****
+          break;
+  #else
+!         fprintf(stderr,&quot;[softdevice] No alsa support compiled in. Using dummy-audio\n&quot;);
+  #endif
+        case AOUT_OSS:
+--- 265,276 ----
+          break;
+  #else
+!         fprintf(stderr,&quot;[softdevice] audio-alsa not compiled in. Using audio dummy!\n&quot;);
+! #endif
+!       case AOUT_MACOS:
+! #ifdef MACOSAO_SUPPORT
+!         audioOut=new cMacOsAudioOut(&amp;setupStore);
+!         break;
+! #else
+!         fprintf(stderr,&quot;[softdevice] audio-macos not compiled in. Using audio dummy!\n&quot;);
+  #endif
+        case AOUT_OSS:
+***************
+*** 262,265 ****
+--- 288,292 ----
+      fprintf(stderr,&quot;[softdevice] A/V devices initialized, now initializing MPEG2 Decoder\n&quot;);
+      decoder= new cMpeg2Decoder(audioOut, videoOut);
++     videoOut-&gt;Start();
+  }
+  
+***************
+*** 297,301 ****
+  
+    void *handle = dlopen (subPluginFileName, RTLD_NOW);
+!   char *err = dlerror();
+    if (!err)
+    {
+--- 324,328 ----
+  
+    void *handle = dlopen (subPluginFileName, RTLD_NOW);
+!   const char *err = dlerror();
+    if (!err)
+    {
+***************
+*** 959,962 ****
+--- 986,997 ----
+            fprintf(stderr,&quot;[softdevice] vidix support not compiled in\n&quot;);
+            ret = false;
++ #endif
++         } else if (!strncmp (vo_argv, &quot;quartz:&quot;, 7)) {
++           vo_argv += 6;
++           setupStore.voArgs = vo_argv;
++ #ifdef QUARTZ_SUPPORT
++           voutMethod = VOUT_QUARTZ;
++ #else
++           fprintf(stderr,&quot;[softdevice] quartz support not compiled in\n&quot;);
+  #endif
+          } else if (!strncmp (vo_argv, &quot;dummy:&quot;, 6)) {
+
+Index: video-shm.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-shm.c,v
+retrieving revision 1.16
+retrieving revision 1.17
+diff -C2 -d -r1.16 -r1.17
+*** video-shm.c	14 Dec 2006 22:33:07 -0000	1.16
+--- video-shm.c	3 Apr 2007 20:21:04 -0000	1.17
+***************
+*** 131,138 ****
+--- 131,143 ----
+          osd_surface=NULL;
+          ctl-&gt;key=NO_KEY;
++ #ifdef __APPLE__ // FIXME... should be decided at run time
++         remote = new cShmRemote(&quot;softdevice-quartz&quot;,this);
++ #else
+          remote = new cShmRemote(&quot;softdevice-xv&quot;,this);
++ #endif
+  };
+  
+  cShmVideoOut::~cShmVideoOut() {
++         SHMDEB(&quot;cShmVideoOut destructor\n&quot;);
+          // stop&amp;delete remote
+          remote-&gt;Stop();
+***************
+*** 160,163 ****
+--- 165,172 ----
+  
+  void cShmVideoOut::AdjustOSDMode() {
++   if ( curr_osd_shmid==-1 ) {
++         current_osdMode=OSDMODE_SOFTWARE;
++         return;
++   }
+    current_osdMode = setupStore-&gt;osdMode;
+  }
+***************
+*** 184,188 ****
+  void cShmVideoOut::GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+                  bool &amp;IsYUV, uint8_t *&amp;PixelMask) {
+!         if (current_osdMode==OSDMODE_SOFTWARE) {
+                  IsYUV=true;
+                  PixelMask=NULL;
+--- 193,197 ----
+  void cShmVideoOut::GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+                  bool &amp;IsYUV, uint8_t *&amp;PixelMask) {
+!         if ( current_osdMode==OSDMODE_SOFTWARE ) {
+                  IsYUV=true;
+                  PixelMask=NULL;
+***************
+*** 194,197 ****
+--- 203,207 ----
+          HasAlpha=false;
+          PixelMask=NULL;
++         AlphaInversed=false;
+  };       
+  
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000539.html">[Softdevice-cvs] softdevice/MacVdrClient.app/Contents/MacOS - New	directory
+</A></li>
+	<LI>Next message: <A HREF="000541.html">[Softdevice-cvs] softdevice/MacVdrClient.app/Contents Info.plist,	NONE, 1.1 PkgInfo, NONE, 1.1
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#540">[ date ]</a>
+              <a href="thread.html#540">[ thread ]</a>
+              <a href="subject.html#540">[ subject ]</a>
+              <a href="author.html#540">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

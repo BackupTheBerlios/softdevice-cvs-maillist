@@ -1,0 +1,199 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.160,1.161 mpeg2decoder.c,1.61,1.62
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.160%2C1.161%20mpeg2decoder.c%2C1.61%2C1.62&In-Reply-To=%3C200603121046.k2CAkNb07179%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000301.html">
+   <LINK REL="Next"  HREF="000303.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.160,1.161 mpeg2decoder.c,1.61,1.62</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.160%2C1.161%20mpeg2decoder.c%2C1.61%2C1.62&In-Reply-To=%3C200603121046.k2CAkNb07179%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.160,1.161 mpeg2decoder.c,1.61,1.62">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Mar 12 11:46:23 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000301.html">[Softdevice-cvs] softdevice CHANGELOG,1.159,1.160 video.h,1.30,1.31 video-dfb.c,1.50,1.51 video-vidix.c,1.16,1.17 video-xv.c,1.44,1.45 video.c,1.46,1.47
+</A></li>
+        <LI>Next message: <A HREF="000303.html">[Softdevice-cvs] softdevice SoftOsd.c,1.10,1.11
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#302">[ date ]</a>
+              <a href="thread.html#302">[ thread ]</a>
+              <a href="subject.html#302">[ subject ]</a>
+              <a href="author.html#302">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv6033
+
+Modified Files:
+	CHANGELOG mpeg2decoder.c 
+Log Message:
+- Fix StillPicture handling when no PES header is sent 
+  (for example streamdev-server-plugin)
+	
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.160
+retrieving revision 1.161
+diff -C2 -d -r1.160 -r1.161
+*** CHANGELOG	12 Mar 2006 09:43:28 -0000	1.160
+--- CHANGELOG	12 Mar 2006 09:47:43 -0000	1.161
+***************
+*** 1,4 ****
+--- 1,6 ----
+  Changelog
+  2005-03-12:
++    - Fix StillPicture handling when no PES header is sent 
++      (for example streamdev-server-plugin)
+     - redraw video layer on OSD close in software mode
+     - use OsdWidth and OsdHeight for drawing osd layer
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.61
+retrieving revision 1.62
+diff -C2 -d -r1.61 -r1.62
+*** mpeg2decoder.c	6 Feb 2006 20:32:00 -0000	1.61
+--- mpeg2decoder.c	12 Mar 2006 09:47:43 -0000	1.62
+***************
+*** 145,149 ****
+    syncTimer=NULL;
+  
+! //  Context-&gt;debug |=FF_DEBUG_STARTCODE;
+    active=true;
+    Start(); // starte thread
+--- 145,150 ----
+    syncTimer=NULL;
+  
+! //  Context-&gt;debug |=0xF|FF_DEBUG_STARTCODE|FF_DEBUG_PTS;
+! //  av_log_set_level(AV_LOG_DEBUG);
+    active=true;
+    Start(); // starte thread
+***************
+*** 1558,1587 ****
+  /* ----------------------------------------------------------------------------
+   */
+  int cMpeg2Decoder::StillPicture(uchar *Data, int Length)
+  {
+!   //Clear();
+!   mutex.Lock();
+!   CMDDEB(&quot;StillPicture \n&quot;);
+    // XXX hack to ingore audio junk sent by vdr in the still picture
+    AudioIdx=DONT_PLAY;
+    for (int i=0; 4&gt;i;i++) {
+!     int P;
+!     uchar *data=Data;
+!     int Size=Length;
+!     BUFDEB(&quot;StillPicture StreamBuffer Put %d\n&quot;,Size);
+!     while ( (P = StreamBuffer-&gt;Put(data, Size)) != Size ) {
+!       BUFDEB(&quot;StillPicture StreamBuffer-&gt;Put only accepted %d bytes\n&quot;,P);
+!       data+=P;
+!       Size-=P;
+!       BUFDEB(&quot;StillPicture EnableGet.Signal(), EnablePut.Sleep start\n&quot;);
+!       EnableGetSignal.Signal();
+!       EnablePutSignal.Sleep(50000);
+!       BUFDEB(&quot;StillPicture EnablePut.Sleep end\n&quot;);
+!     }
+!     BUFDEB(&quot;StillPicture EnableGetSignal.Signal() wrote %d bytes\n&quot;,Length);
+!     EnableGetSignal.Signal();
+    }
+    CMDDEB(&quot;StillPicture end \n&quot;);
+-   mutex.Unlock();
+    return Length;
+  }
+--- 1559,1598 ----
+  /* ----------------------------------------------------------------------------
+   */
++ 
++ static uint8_t pes_packet_header[] = {
++      0x00,0x00,0x01, 0xe0,           0x00,0x00,   0x84, 0x00, 0x00,0x00};
++      // startcode,  video-stream 0, packet length,      no pts
+  int cMpeg2Decoder::StillPicture(uchar *Data, int Length)
+  {
+!   bool has_pesheader=false;
+!   CMDDEB(&quot;StillPicture %p length %d \n&quot;,Data,Length);
+    // XXX hack to ingore audio junk sent by vdr in the still picture
+    AudioIdx=DONT_PLAY;
++ 
++   // check if data contains a valid pes header
++ #define SEARCH_LENGTH 64
++   if (Length&gt;SEARCH_LENGTH) {
++     uchar *start=Data+1;
++     do {
++       start++;
++       start=(uchar *)memchr(start,0x01,Data+SEARCH_LENGTH-start);
++       if ( start &amp;&amp; start[-1]==0 &amp;&amp; start[-2] == 0
++           &amp;&amp; ((start[1] &amp;0xF0)==0xe0) ) { // video stream pes header
++         has_pesheader=true;
++         break;
++       };
++     } while (start&lt;Data+SEARCH_LENGTH &amp;&amp; start);
++   };
++ 
+    for (int i=0; 4&gt;i;i++) {
+!     if (!has_pesheader) {
+!       // send a fake pes header
+!       pes_packet_header[4]=(Length+2)&gt;&gt;8 &amp; 0xFF;
+!       pes_packet_header[5]=(Length+2) &amp; 0xFF;
+!       Decode(pes_packet_header,9);
+!     };
+!     Decode(Data,Length);
+    }
+    CMDDEB(&quot;StillPicture end \n&quot;);
+    return Length;
+  }
+***************
+*** 1684,1688 ****
+  int cMpeg2Decoder::Decode(const uchar *Data, int Length)
+  {
+!   BUFDEB(&quot;Decode %x, Length %d\n&quot;,Data,Length);
+    
+    if (running &amp;&amp; !IsSuspended &amp;&amp; setupStore.shouldSuspend)
+--- 1695,1699 ----
+  int cMpeg2Decoder::Decode(const uchar *Data, int Length)
+  {
+!   BUFDEB(&quot;Decode %p, Length %d\n&quot;,Data,Length);
+    
+    if (running &amp;&amp; !IsSuspended &amp;&amp; setupStore.shouldSuspend)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000301.html">[Softdevice-cvs] softdevice CHANGELOG,1.159,1.160 video.h,1.30,1.31 video-dfb.c,1.50,1.51 video-vidix.c,1.16,1.17 video-xv.c,1.44,1.45 video.c,1.46,1.47
+</A></li>
+	<LI>Next message: <A HREF="000303.html">[Softdevice-cvs] softdevice SoftOsd.c,1.10,1.11
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#302">[ date ]</a>
+              <a href="thread.html#302">[ thread ]</a>
+              <a href="subject.html#302">[ subject ]</a>
+              <a href="author.html#302">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

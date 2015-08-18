@@ -1,0 +1,141 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice configure,1.29,1.30
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20configure%2C1.29%2C1.30&In-Reply-To=%3C20060918101700.B8664638F0%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000434.html">
+   <LINK REL="Next"  HREF="000436.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice configure,1.29,1.30</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20configure%2C1.29%2C1.30&In-Reply-To=%3C20060918101700.B8664638F0%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice configure,1.29,1.30">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon Sep 18 12:17:00 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000434.html">[Softdevice-cvs] softdevice CHANGELOG, 1.241, 1.242 video-xv.c, 1.61,	1.62
+</A></li>
+        <LI>Next message: <A HREF="000436.html">[Softdevice-cvs] softdevice CHANGELOG, 1.242, 1.243 video-shm.c,	1.10, 1.11 video-shm.h, 1.7, 1.8
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#435">[ date ]</a>
+              <a href="thread.html#435">[ thread ]</a>
+              <a href="subject.html#435">[ subject ]</a>
+              <a href="author.html#435">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv1137
+
+Modified Files:
+	configure 
+Log Message:
+- remove no longer needed test for broken gcc compiler from configure
+
+
+Index: configure
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/configure,v
+retrieving revision 1.29
+retrieving revision 1.30
+diff -C2 -d -r1.29 -r1.30
+*** configure	18 Sep 2006 10:06:38 -0000	1.29
+--- configure	18 Sep 2006 10:16:31 -0000	1.30
+***************
+*** 496,538 ****
+  fi
+  
+- #########################################################
+- broken_gcc_cpp=&quot;no&quot;
+- cat &gt; ${TMPC} &lt;&lt; EOF
+- 
+- #include &lt;stdio.h&gt;
+- #define BLOCK_SIZE 4096
+- 
+- #ifdef __x86_64__
+- # define  REG_a &quot;rax&quot;
+- #else
+- # define  REG_a &quot;eax&quot;
+- #endif
+- 
+- #define CONFUSION_FACTOR 0
+- 
+- int main(void) {
+-     void    *to, *from;
+-     size_t  i;
+- 
+-   asm volatile(
+-     &quot;xor %%&quot;REG_a&quot;, %%&quot;REG_a&quot;	\n\t&quot;
+-     &quot;xor %%&quot;REG_a&quot;, %%&quot;REG_a&quot;	\n\t&quot;
+-     &quot;add %3, %0		\n\t&quot;
+-     &quot;add %3, %1		\n\t&quot;
+-     &quot;sub %4, %2		\n\t&quot;
+-     &quot;cmp %4, %2		\n\t&quot;
+-       : &quot;+r&quot; (from),
+-         &quot;+r&quot; (to),
+-         &quot;+r&quot; (i)
+-       : &quot;r&quot; ((long)BLOCK_SIZE),
+-         &quot;i&quot; (BLOCK_SIZE/64),
+-         &quot;i&quot; ((long)CONFUSION_FACTOR)
+-       : &quot;%&quot;REG_a,
+-         &quot;%ebx&quot;
+-     );
+-   return 0;
+- }
+- EOF
+- $cc $CFLAGS -o $TMPE $TMPC &gt;&gt; config.log 2&gt;&amp;1 || broken_gcc_cpp=&quot;yes&quot;
+  ###########
+  
+--- 496,499 ----
+***************
+*** 652,664 ****
+    echo &quot;FB_SUPPORT = 1&quot; &gt;&gt; $TMPM
+    echo &quot;#define FB_SUPPORT  1&quot; &gt;&gt; $TMPH
+- fi
+- 
+- ###############################################################################
+- # generating utils.c specific specific defines
+- #
+- if test &quot;${broken_gcc_cpp}&quot; = &quot;yes&quot; ; then
+-   echo &quot;#define HAVE_BROKEN_GCC_CPP  1&quot; &gt;&gt; $TMPH
+- else
+-   echo &quot;#define HAVE_BROKEN_GCC_CPP  0&quot; &gt;&gt; $TMPH
+  fi
+  
+--- 613,616 ----
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000434.html">[Softdevice-cvs] softdevice CHANGELOG, 1.241, 1.242 video-xv.c, 1.61,	1.62
+</A></li>
+	<LI>Next message: <A HREF="000436.html">[Softdevice-cvs] softdevice CHANGELOG, 1.242, 1.243 video-shm.c,	1.10, 1.11 video-shm.h, 1.7, 1.8
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#435">[ date ]</a>
+              <a href="thread.html#435">[ thread ]</a>
+              <a href="subject.html#435">[ subject ]</a>
+              <a href="author.html#435">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

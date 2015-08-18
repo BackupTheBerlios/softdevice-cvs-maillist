@@ -1,0 +1,133 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.215, 1.216 video-dfb.c,	1.68, 1.69
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.215%2C%201.216%20video-dfb.c%2C%0A%091.68%2C%201.69&In-Reply-To=%3C20060725194752.1E9155B3BF%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000401.html">
+   <LINK REL="Next"  HREF="000403.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.215, 1.216 video-dfb.c,	1.68, 1.69</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.215%2C%201.216%20video-dfb.c%2C%0A%091.68%2C%201.69&In-Reply-To=%3C20060725194752.1E9155B3BF%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.215, 1.216 video-dfb.c,	1.68, 1.69">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue Jul 25 21:47:52 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000401.html">[Softdevice-cvs] softdevice CHANGELOG, 1.214, 1.215 audio-alsa.c,	1.1, 1.2
+</A></li>
+        <LI>Next message: <A HREF="000403.html">[Softdevice-cvs] softdevice CHANGELOG, 1.216,	1.217 setup-softdevice.c, 1.45, 1.46 setup-softdevice.h, 1.32,	1.33 softdevice.c, 1.64, 1.65 video-xv.c, 1.57,	1.58 video-xv.h, 1.21, 1.22
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#402">[ date ]</a>
+              <a href="thread.html#402">[ thread ]</a>
+              <a href="subject.html#402">[ subject ]</a>
+              <a href="author.html#402">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv25766
+
+Modified Files:
+	CHANGELOG video-dfb.c 
+Log Message:
+- init tmpOsdSurface and delete dirtyLines properly
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.215
+retrieving revision 1.216
+diff -C2 -d -r1.215 -r1.216
+*** CHANGELOG	25 Jul 2006 19:45:37 -0000	1.215
+--- CHANGELOG	25 Jul 2006 19:47:41 -0000	1.216
+***************
+*** 3,6 ****
+--- 3,7 ----
+     - no longer exit when a audio mode is not available, audio is only disabled.
+     - clean up audio-alsa
++    - init tmpOsdSurface and delete dirtyLines properly
+  2006-07-16:
+     - only link against libXi if necessary ( do we need libXi at all?)
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.68
+retrieving revision 1.69
+diff -C2 -d -r1.68 -r1.69
+*** video-dfb.c	25 Jun 2006 13:46:12 -0000	1.68
+--- video-dfb.c	25 Jul 2006 19:47:41 -0000	1.69
+***************
+*** 277,280 ****
+--- 277,281 ----
+    sheight = fheight = 576;
+  
++   tmpOsdSurface = NULL;
+    screenPixelAspect = -1;
+    currentPixelFormat = setupStore-&gt;pixelFormat;
+***************
+*** 1060,1063 ****
+--- 1061,1065 ----
+    osd = NULL;
+    stride = 0;
++   tmpOsdSurface = NULL;
+  
+    if (!videoInitialized)
+***************
+*** 1071,1074 ****
+--- 1073,1077 ----
+      tmpOsdSurface = (useStretchBlit) ? osdSurface : scrSurface;
+      tmpOsdSurface-&gt;Lock(DSLF_WRITE, (void **)&amp;dst, &amp;pitch) ;
++     //printf(&quot;GetLockOsdSurface %p\n&quot;,tmpOsdSurface);fflush(stdout);
+      osd=dst;stride=pitch;
+    }
+***************
+*** 1128,1132 ****
+    }
+    //printf(&quot;CommitUnlockOsdSurface %p 4\n&quot;,tmpOsdSurface);fflush(stdout);
+!   free(dirtyLines);
+    dirtyLines=NULL;
+    tmpOsdSurface=NULL;
+--- 1131,1135 ----
+    }
+    //printf(&quot;CommitUnlockOsdSurface %p 4\n&quot;,tmpOsdSurface);fflush(stdout);
+!   delete[] dirtyLines;
+    dirtyLines=NULL;
+    tmpOsdSurface=NULL;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000401.html">[Softdevice-cvs] softdevice CHANGELOG, 1.214, 1.215 audio-alsa.c,	1.1, 1.2
+</A></li>
+	<LI>Next message: <A HREF="000403.html">[Softdevice-cvs] softdevice CHANGELOG, 1.216,	1.217 setup-softdevice.c, 1.45, 1.46 setup-softdevice.h, 1.32,	1.33 softdevice.c, 1.64, 1.65 video-xv.c, 1.57,	1.58 video-xv.h, 1.21, 1.22
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#402">[ date ]</a>
+              <a href="thread.html#402">[ thread ]</a>
+              <a href="subject.html#402">[ subject ]</a>
+              <a href="author.html#402">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,215 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.104,1.105 softdevice.c,1.39,1.40 video-dfb.c,1.38,1.39 video-dfb.h,1.9,1.10
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.104%2C1.105%20softdevice.c%2C1.39%2C1.40%20video-dfb.c%2C1.38%2C1.39%20video-dfb.h%2C1.9%2C1.10&In-Reply-To=%3C200509040549.j845nU130621%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000196.html">
+   <LINK REL="Next"  HREF="000198.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.104,1.105 softdevice.c,1.39,1.40 video-dfb.c,1.38,1.39 video-dfb.h,1.9,1.10</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.104%2C1.105%20softdevice.c%2C1.39%2C1.40%20video-dfb.c%2C1.38%2C1.39%20video-dfb.h%2C1.9%2C1.10&In-Reply-To=%3C200509040549.j845nU130621%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.104,1.105 softdevice.c,1.39,1.40 video-dfb.c,1.38,1.39 video-dfb.h,1.9,1.10">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Sep  4 07:49:30 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000196.html">[Softdevice-cvs] softdevice utils.c,1.7,1.8
+</A></li>
+        <LI>Next message: <A HREF="000198.html">[Softdevice-cvs] softdevice CHANGELOG,1.105,1.106 audio.c,1.19,1.20 mpeg2decoder.c,1.52,1.53
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#197">[ date ]</a>
+              <a href="thread.html#197">[ thread ]</a>
+              <a href="subject.html#197">[ subject ]</a>
+              <a href="author.html#197">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv20321
+
+Modified Files:
+	CHANGELOG softdevice.c video-dfb.c video-dfb.h 
+Log Message:
+softdevice-0.1.3
+- dfb-out: applied dfb-key-repeat handling patch (by Marko M&#228;kel&#228;)
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.104
+retrieving revision 1.105
+diff -C2 -d -r1.104 -r1.105
+*** CHANGELOG	19 Aug 2005 09:09:22 -0000	1.104
+--- CHANGELOG	4 Sep 2005 05:49:17 -0000	1.105
+***************
+*** 1,8 ****
+  Changelog
+  2005-08-19:
+      - change #ifdefs to contain closing brackets 
+          (stops my editor from complaining...)
+      - fix possible segfault in ToYUV()
+! 2005-08-20:
+      - audio-out: changed retrieval of audio delay with newer alsa versions on
+                   &quot;default&quot; device. should fix bug #2971 too.
+--- 1,10 ----
+  Changelog
++ 2005-09-04: softdevice-0.1.3
++     - dfb-out: applied dfb-key-repeat handling patch (by Marko M&#228;kel&#228;)
+  2005-08-19:
+      - change #ifdefs to contain closing brackets 
+          (stops my editor from complaining...)
+      - fix possible segfault in ToYUV()
+! 2005-08-17:
+      - audio-out: changed retrieval of audio delay with newer alsa versions on
+                   &quot;default&quot; device. should fix bug #2971 too.
+***************
+*** 99,103 ****
+        (thanks to Marko M&#228;kel&#228;)
+      - buffering is now complety signal triggered
+!     - made buffersizes variable 
+  2005-05-22: softdevice-0.1.2
+  2005-05-20:
+--- 101,105 ----
+        (thanks to Marko M&#228;kel&#228;)
+      - buffering is now complety signal triggered
+!     - made buffersizes variable
+  2005-05-22: softdevice-0.1.2
+  2005-05-20:
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.39
+retrieving revision 1.40
+diff -C2 -d -r1.39 -r1.40
+*** softdevice.c	8 Aug 2005 18:43:41 -0000	1.39
+--- softdevice.c	4 Sep 2005 05:49:18 -0000	1.40
+***************
+*** 69,73 ****
+  #include &quot;mpeg2decoder.h&quot;
+  #include &quot;utils.h&quot;
+! static const char *VERSION        = &quot;0.1.2&quot;;
+  static const char *DESCRIPTION    = &quot;A software emulated MPEG2 device&quot;;
+  static const char *MAINMENUENTRY  = &quot;Softdevice&quot;;
+--- 69,73 ----
+  #include &quot;mpeg2decoder.h&quot;
+  #include &quot;utils.h&quot;
+! static const char *VERSION        = &quot;0.1.3&quot;;
+  static const char *DESCRIPTION    = &quot;A software emulated MPEG2 device&quot;;
+  static const char *MAINMENUENTRY  = &quot;Softdevice&quot;;
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.38
+retrieving revision 1.39
+diff -C2 -d -r1.38 -r1.39
+*** video-dfb.c	10 Aug 2005 17:31:18 -0000	1.38
+--- video-dfb.c	4 Sep 2005 05:49:18 -0000	1.39
+***************
+*** 87,93 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cDFBRemote::PutKey(DFBInputDeviceKeySymbol key)
+  {
+!   Put ((int) key);
+  }
+  
+--- 87,93 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void cDFBRemote::PutKey(DFBInputDeviceKeySymbol key, bool repeat)
+  {
+!   Put ((int) key, repeat, false);
+  }
+  
+***************
+*** 566,569 ****
+--- 566,572 ----
+      {
+        case DIET_KEYPRESS:
++ #ifdef DFB_SUPPORTS_REPEAT
++       case DIET_KEYREPEAT:
++ #endif /* DFB_SUPPORTS_REPEAT */
+          if (dfbRemote)
+          {
+***************
+*** 574,581 ****
+                break;
+              default:
+!               if (!setupStore-&gt;CatchRemoteKey(dfbRemote-&gt;Name(),
+                                                event.key_symbol))
+                {
+!                 dfbRemote-&gt;PutKey(event.key_symbol);
+                }
+                break;
+--- 577,586 ----
+                break;
+              default:
+!               if (event.type != DIET_KEYPRESS ||
+!                   !setupStore-&gt;CatchRemoteKey(dfbRemote-&gt;Name(),
+                                                event.key_symbol))
+                {
+!                 dfbRemote-&gt;PutKey(event.key_symbol,
+!                                   event.type != DIET_KEYPRESS);
+                }
+                break;
+
+Index: video-dfb.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.h,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -C2 -d -r1.9 -r1.10
+*** video-dfb.h	30 Jun 2005 21:20:55 -0000	1.9
+--- video-dfb.h	4 Sep 2005 05:49:18 -0000	1.10
+***************
+*** 82,86 ****
+                    ~cDFBRemote();
+      void          DFBRemoteStart (void);
+!     void          PutKey (DFBInputDeviceKeySymbol key);
+  };
+  
+--- 82,86 ----
+                    ~cDFBRemote();
+      void          DFBRemoteStart (void);
+!     void          PutKey (DFBInputDeviceKeySymbol key, bool repeat);
+  };
+  
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000196.html">[Softdevice-cvs] softdevice utils.c,1.7,1.8
+</A></li>
+	<LI>Next message: <A HREF="000198.html">[Softdevice-cvs] softdevice CHANGELOG,1.105,1.106 audio.c,1.19,1.20 mpeg2decoder.c,1.52,1.53
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#197">[ date ]</a>
+              <a href="thread.html#197">[ thread ]</a>
+              <a href="subject.html#197">[ subject ]</a>
+              <a href="author.html#197">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

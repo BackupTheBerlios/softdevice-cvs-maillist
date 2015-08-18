@@ -1,0 +1,115 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.241, 1.242 video-xv.c, 1.61,	1.62
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.241%2C%201.242%20video-xv.c%2C%201.61%2C%0A%091.62&In-Reply-To=%3C20060918101430.DDD10794FB%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000433.html">
+   <LINK REL="Next"  HREF="000435.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.241, 1.242 video-xv.c, 1.61,	1.62</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.241%2C%201.242%20video-xv.c%2C%201.61%2C%0A%091.62&In-Reply-To=%3C20060918101430.DDD10794FB%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.241, 1.242 video-xv.c, 1.61,	1.62">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon Sep 18 12:14:30 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000433.html">[Softdevice-cvs] softdevice configure, 1.28, 1.29 Makefile, 1.33,	1.34 CHANGELOG, 1.240, 1.241
+</A></li>
+        <LI>Next message: <A HREF="000435.html">[Softdevice-cvs] softdevice configure,1.29,1.30
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#434">[ date ]</a>
+              <a href="thread.html#434">[ thread ]</a>
+              <a href="subject.html#434">[ subject ]</a>
+              <a href="author.html#434">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv907
+
+Modified Files:
+	CHANGELOG video-xv.c 
+Log Message:
+- fix changing from pseudo to software osd blending for video-xv
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.241
+retrieving revision 1.242
+diff -C2 -d -r1.241 -r1.242
+*** CHANGELOG	18 Sep 2006 10:06:38 -0000	1.241
+--- CHANGELOG	18 Sep 2006 10:14:01 -0000	1.242
+***************
+*** 3,6 ****
+--- 3,7 ----
+     - fix RefreshAll for NoVScaleCopyToBitmap()
+     - add a very simple cpu type and host system detection to configure
++    - fix changing from pseudo to software osd blending for video-xv
+  2006-09-17:
+     - replace &quot;pshufw&quot; with MMX commands to make scaling optimazations available
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.61
+retrieving revision 1.62
+diff -C2 -d -r1.61 -r1.62
+*** video-xv.c	9 Sep 2006 09:55:25 -0000	1.61
+--- video-xv.c	18 Sep 2006 10:14:01 -0000	1.62
+***************
+*** 1593,1600 ****
+  {
+    cVideoOut::ClearOSD();
+!   if (videoInitialized &amp;&amp; current_osdMode==OSDMODE_PSEUDO) {
+      pthread_mutex_lock(&amp;xv_mutex);
+      memset (osd_buffer, 0, osd_image-&gt;bytes_per_line * osd_max_height);
+!     ShowOSD();
+      XSync(dpy, False);
+      pthread_mutex_unlock(&amp;xv_mutex);
+--- 1593,1600 ----
+  {
+    cVideoOut::ClearOSD();
+!   if ( videoInitialized ) {
+      pthread_mutex_lock(&amp;xv_mutex);
+      memset (osd_buffer, 0, osd_image-&gt;bytes_per_line * osd_max_height);
+!     XClearArea (dpy, win, 0, 0, 0, 0, False);
+      XSync(dpy, False);
+      pthread_mutex_unlock(&amp;xv_mutex);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000433.html">[Softdevice-cvs] softdevice configure, 1.28, 1.29 Makefile, 1.33,	1.34 CHANGELOG, 1.240, 1.241
+</A></li>
+	<LI>Next message: <A HREF="000435.html">[Softdevice-cvs] softdevice configure,1.29,1.30
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#434">[ date ]</a>
+              <a href="thread.html#434">[ thread ]</a>
+              <a href="subject.html#434">[ subject ]</a>
+              <a href="author.html#434">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

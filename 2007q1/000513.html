@@ -1,0 +1,514 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice mpeg2decoder.c, 1.71,	1.72 mpeg2decoder.h, 1.38, 1.39 video.c, 1.72, 1.73 video.h,	1.50, 1.51
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20mpeg2decoder.c%2C%201.71%2C%0A%091.72%20mpeg2decoder.h%2C%201.38%2C%201.39%20video.c%2C%201.72%2C%201.73%20video.h%2C%0A%091.50%2C%201.51&In-Reply-To=%3C20070226230220.4F60CD7F1B%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000512.html">
+   <LINK REL="Next"  HREF="000514.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice mpeg2decoder.c, 1.71,	1.72 mpeg2decoder.h, 1.38, 1.39 video.c, 1.72, 1.73 video.h,	1.50, 1.51</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20mpeg2decoder.c%2C%201.71%2C%0A%091.72%20mpeg2decoder.h%2C%201.38%2C%201.39%20video.c%2C%201.72%2C%201.73%20video.h%2C%0A%091.50%2C%201.51&In-Reply-To=%3C20070226230220.4F60CD7F1B%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice mpeg2decoder.c, 1.71,	1.72 mpeg2decoder.h, 1.38, 1.39 video.c, 1.72, 1.73 video.h,	1.50, 1.51">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue Feb 27 00:02:20 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000512.html">[Softdevice-cvs] softdevice video-dfb.c, 1.77, 1.78 video-dfb.h,	1.24, 1.25
+</A></li>
+        <LI>Next message: <A HREF="000514.html">[Softdevice-cvs] softdevice CHANGELOG,1.296,1.297
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#513">[ date ]</a>
+              <a href="thread.html#513">[ thread ]</a>
+              <a href="subject.html#513">[ subject ]</a>
+              <a href="author.html#513">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv1922
+
+Modified Files:
+	mpeg2decoder.c mpeg2decoder.h video.c video.h 
+Log Message:
+preparation for new changeable sync parameters.
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.71
+retrieving revision 1.72
+diff -C2 -d -r1.71 -r1.72
+*** mpeg2decoder.c	28 Jan 2007 19:29:53 -0000	1.71
+--- mpeg2decoder.c	26 Feb 2007 23:00:34 -0000	1.72
+***************
+*** 601,608 ****
+    // init A-V syncing variables
+    offset=0;
+-   delay=0;
+-   hurry_up=0;
+    syncTimer = new cSyncTimer ((eSyncMode) setupStore.syncTimerMode);
+    syncTimer-&gt;Reset();
+  
+    default_frametime = DEFAULT_FRAMETIME;
+--- 601,607 ----
+    // init A-V syncing variables
+    offset=0;
+    syncTimer = new cSyncTimer ((eSyncMode) setupStore.syncTimerMode);
+    syncTimer-&gt;Reset();
++   videoOut-&gt;ResetDelay();
+  
+    default_frametime = DEFAULT_FRAMETIME;
+***************
+*** 634,638 ****
+  
+  uint64_t cVideoStreamDecoder::GetPTS() {
+!   return pts - (delay + syncTimer-&gt;GetRelTime(false))/100;
+  }
+  
+--- 633,639 ----
+  
+  uint64_t cVideoStreamDecoder::GetPTS() {
+!   return pts;
+! // Was pts of next frame reduced by time to display next frame.
+! //  return pts - (delay + syncTimer-&gt;GetRelTime(false))/100;
+  }
+  
+***************
+*** 889,898 ****
+            pts=pic-&gt;pts;
+  
+!   if (!hurry_up || frame % 2 ) {
+!     MPGDEB(&quot;DrawVideo...delay : %d\n&quot;,delay);
+!     videoOut-&gt;DrawVideo_420pl(syncTimer, &amp;delay, pic);
+!     MPGDEB(&quot;end DrawVideo\n&quot;);
+!   } else
+!     fprintf(stderr,&quot;+&quot;);
+    // we just displayed a frame, now it's the right time to
+    // measure the A-V offset
+--- 890,895 ----
+            pts=pic-&gt;pts;
+  
+!   videoOut-&gt;DrawVideo_420pl(syncTimer, pic);
+! 
+    // we just displayed a frame, now it's the right time to
+    // measure the A-V offset
+***************
+*** 902,941 ****
+    cClock::AdjustVideoPTS(pts);
+  
+!   if ( aPTS )
+!     offset = aPTS - pts ;
+!   else offset = 0;
+!   if ( abs(offset) &gt; 100000)
+!           offset=0;
+! 
+!   // this few lines does the whole syncing
+!   int pts_corr;
+! 
+!   // calculate pts correction. Correct 1/10 of offset at a time
+!   pts_corr = offset/10;
+! 
+!   //Max. correction is 2/10 frametime.
+!   if (pts_corr &gt; 2*frametime() / 10 )
+!     pts_corr = 2*frametime() / 10;
+!   else if (pts_corr &lt; -2*frametime() / 10 )
+!     pts_corr = -2*frametime() / 10;
+! 
+!   // calculate delay
+!   delay += ( frametime() - pts_corr  ) * 100;
+    // update video pts
+    pts += frametime();
+  
+!   if (delay &gt; 2*frametime()*100)
+!     delay = 2*frametime()*100;
+!   else if (delay &lt; -frametime()*100)
+!     delay = -frametime()*100;
+! 
+!   if (offset &gt;  8*frametime())
+!      hurry_up=1;
+!   else if ( (offset &lt; 2*frametime()) &amp;&amp; (hurry_up &gt; 0) )
+!      hurry_up=0;
+! 
+! #if 1
+!   int dispTime=syncTimer-&gt;GetRelTime();
+!   delay-=dispTime;
+    if (!(frame % 1) || context-&gt;hurry_up) {
+      MPGDEB(&quot;Frame# %-5d A-V(ms) %-5d delay %d FrameT: %s, dispTime(ms): %1.2f\n&quot;,
+--- 899,907 ----
+    cClock::AdjustVideoPTS(pts);
+  
+!   videoOut-&gt;EvaluateDelay (aPTS, pts, frametime());
+    // update video pts
+    pts += frametime();
+  
+! #if 0
+    if (!(frame % 1) || context-&gt;hurry_up) {
+      MPGDEB(&quot;Frame# %-5d A-V(ms) %-5d delay %d FrameT: %s, dispTime(ms): %1.2f\n&quot;,
+***************
+*** 949,953 ****
+  #endif
+  
+! #ifdef AV_STATS
+    {
+      const int Freq=10;
+--- 915,920 ----
+  #endif
+  
+! #if 0
+! //#ifdef AV_STATS
+    {
+      const int Freq=10;
+
+Index: mpeg2decoder.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.h,v
+retrieving revision 1.38
+retrieving revision 1.39
+diff -C2 -d -r1.38 -r1.39
+*** mpeg2decoder.h	17 Jun 2006 16:27:35 -0000	1.38
+--- mpeg2decoder.h	26 Feb 2007 23:00:34 -0000	1.39
+***************
+*** 238,244 ****
+  
+      // A-V syncing stuff
+-     int                hurry_up;
+      int                offset;
+-     int                delay;
+      int                trickspeed;
+      int                default_frametime;
+--- 238,242 ----
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.72
+retrieving revision 1.73
+diff -C2 -d -r1.72 -r1.73
+*** video.c	15 Jan 2007 20:30:08 -0000	1.72
+--- video.c	26 Feb 2007 23:00:34 -0000	1.73
+***************
+*** 25,28 ****
+--- 25,30 ----
+  #endif
+  
++ /* ---------------------------------------------------------------------------
++  */
+  cVideoOut::cVideoOut(cSetupStore *setupStore)
+  {
+***************
+*** 51,54 ****
+--- 53,68 ----
+    oldPicture = NULL;
+  
++   hurryUp = 0;
++   delay   = 0;
++   repeatedFrames  = droppedFrames = frame = 0;
++   offsetInHold    = false;
++   dropStart       =  80;
++   dropEnd         =  20;
++   dropInterval    =   2;
++   offsetClampLow  =  -2;
++   offsetClampHigh =   2;
++   offsetUse       =   1;
++   useAverage4Drop =   false;
++ 
+    for (int i = 0; i &lt; SETUP_VIDEOASPECTNAMES_COUNT; ++i)
+      parValues [i] = 1.0;
+***************
+*** 434,440 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cVideoOut::DrawVideo_420pl(cSyncTimer *syncTimer, int *delay,
+                                  sPicBuffer *pic)
+  {
+    sPicBuffer *scale_pic=NULL;
+    if (scaleVid != 0) {
+--- 448,462 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void cVideoOut::DrawVideo_420pl(cSyncTimer *syncTimer,
+                                  sPicBuffer *pic)
+  {
++   if (hurryUp &amp;&amp; (frame % dropInterval) == 0) {
++     ++frame;
++     ++droppedFrames;
++     fprintf(stderr,&quot;X&quot;);
++     delay -= dispTime = syncTimer-&gt;GetRelTime();
++     return;
++   }
++ 
+    sPicBuffer *scale_pic=NULL;
+    if (scaleVid != 0) {
+***************
+*** 452,456 ****
+    };
+  
+!   Sync(syncTimer, delay);
+    oldPictureMutex.Lock();
+  
+--- 474,481 ----
+    };
+  
+!   if (delay &gt; frametime * 100)
+!     ++repeatedFrames;
+! 
+!   Sync(syncTimer, &amp;delay);
+    oldPictureMutex.Lock();
+  
+***************
+*** 464,470 ****
+--- 489,498 ----
+  
+    oldPictureMutex.Unlock();
++   delay -= dispTime = syncTimer-&gt;GetRelTime();
++ 
+    ProcessEvents();
+    if (scale_pic)
+            ReleaseBuffer(scale_pic);
++   ++frame;
+  }
+  
+***************
+*** 488,491 ****
+--- 516,626 ----
+  /* ---------------------------------------------------------------------------
+   */
++ void cVideoOut::EvaluateDelay(int aPTS, int pts, int frametime)
++ {
++     int   offset,
++           dropOffset,
++           pts_corr;
++ 
++   this-&gt;frametime = frametime;
++   offset = (aPTS) ? aPTS - pts : 0;
++ 
++   if (abs(offset) &gt; 100000)
++     offset=0;
++ 
++   if (offsetCount &gt;= AVRG_OFF_CNT) {
++     offsetSum -= offsetHistory[offsetIndex];
++     offsetCount--;
++   }
++ 
++   offsetHistory[offsetIndex] = offset;
++   offsetSum += offset;
++   offsetCount++;
++   offsetAverage = offsetSum / offsetCount;
++   offsetIndex++;
++   offsetIndex %= AVRG_OFF_CNT;
++ 
++   setupStore-&gt;softlog-&gt;Log(SOFT_LOG_TRACE, 0,
++                   &quot;[VideoOut] A/V (%d - %d) off = %d avoff = %d\n&quot;,
++                   aPTS, pts, offset, offsetAverage);
++ 
++   if (0) {
++     // should be moved to contructor of video-dfb for TV-out
++ 
++     dropStart       =  25;
++     dropEnd         =  15;
++     dropInterval    =   8;
++     //offsetClampLow  = -10;
++     //offsetClampHigh =  10;
++     //offsetUse       =   4;
++     //offset = offsetAverage;
++     //useAverage4Drop = true;
++   }
++ 
++   dropOffset = (useAverage4Drop) ? offsetAverage : offset;
++ 
++   /* -------------------------------------------------------------------------
++    * this few lines does the whole syncing
++    * calculate pts correction. Correct offsetUse / 10 of offset at a time
++    */
++   pts_corr = (offsetUse * offset) / 10;
++ 
++   //Max. correction is limited to offsetClampLow|High / 10 frametime.
++   pts_corr = clamp ((offsetClampLow * frametime) / 10,
++                     pts_corr,
++                     (offsetClampHigh * frametime) / 10);
++ 
++   if (dropOffset &gt; (dropStart * frametime) / 10)
++     hurryUp = 1;
++   else if ((dropOffset &lt; (dropEnd * frametime) / 10) &amp;&amp; (hurryUp &gt; 0))
++     hurryUp = 0;
++ 
++   // calculate delay
++   delay += ( frametime - pts_corr  ) * 100;
++ 
++   delay = clamp (-frametime*100, delay, 2*frametime*100);
++ 
++   if (frame &lt; 100) {
++     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_TRACE, 0,
++                   &quot;[VideoOut] %d %d %d \n&quot;,
++                   frame, offset, offsetAverage);
++   }
++ 
++   if (frame &gt; 8  &amp;&amp; frame &lt; 200) {
++     if (!offsetInHold) {
++       if (abs(offset) &lt; frametime) {
++         offsetInHold = true;
++         setupStore-&gt;softlog-&gt;Log(SOFT_LOG_DEBUG, 0,
++                   &quot;[VideoOut] video now synced (%d - %d)\n&quot;,
++                   frame, offset);
++       }
++     }
++   }
++   if (frame &amp;&amp; !(frame % 7500)) {
++     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_DEBUG, 0,
++               &quot;[VideoOut] sync info: repF = %d, drpF = %d, totF = %d\n&quot;,
++               repeatedFrames, droppedFrames, frame);
++   }
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ void cVideoOut::ResetDelay()
++ {
++   hurryUp = 0;
++   delay = 0;
++   offsetInHold = false;
++ 
++   offsetIndex = offsetCount = offsetAverage = offsetSum = 0;
++   memset (offsetHistory, 0, sizeof(offsetHistory));
++ 
++   setupStore-&gt;softlog-&gt;Log(SOFT_LOG_DEBUG, 0,
++             &quot;[VideoOut] reset: sync info: repF = %d, drpF = %d, totF = %d\n&quot;,
++             repeatedFrames, droppedFrames, frame);
++ 
++   repeatedFrames = droppedFrames = frame = 0;
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
+  void cVideoOut::ClearOSD()
+  {
+***************
+*** 518,522 ****
+  
+  void cVideoOut::SetVidWin(int ScaleVid, int VidX1, int VidY1,
+!                 int VidX2, int VidY2) 
+  {
+    OSDDEB(&quot;SetVidWin ScaleVid %d: %d,%d  %d,%d\n&quot;,
+--- 653,657 ----
+  
+  void cVideoOut::SetVidWin(int ScaleVid, int VidX1, int VidY1,
+!                 int VidX2, int VidY2)
+  {
+    OSDDEB(&quot;SetVidWin ScaleVid %d: %d,%d  %d,%d\n&quot;,
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.50
+retrieving revision 1.51
+diff -C2 -d -r1.50 -r1.51
+*** video.h	28 Jan 2007 19:28:11 -0000	1.50
+--- video.h	26 Feb 2007 23:00:34 -0000	1.51
+***************
+*** 35,38 ****
+--- 35,40 ----
+  #define SRC_WIDTH          736
+  
++ #define AVRG_OFF_CNT        16
++ 
+  #ifndef STAND_ALONE
+  class cSoftRemote : public cRemote {
+***************
+*** 119,122 ****
+--- 121,148 ----
+      virtual bool IsSoftOSDMode();
+  
++     /* -----------------------------------------------------------------------
++      */
++     int     frame,
++             droppedFrames,
++             repeatedFrames;
++     bool    offsetInHold;
++     int     hurryUp;
++     int     delay;
++     int     dispTime;
++     int     frametime;
++     int     offsetHistory[AVRG_OFF_CNT];
++     int     offsetIndex;
++     int     offsetCount;
++     int     offsetAverage;
++     int     offsetSum;
++     int     dropStart,
++             dropEnd,
++             dropInterval,
++             offsetClampHigh,
++             offsetClampLow,
++             offsetUse;
++     bool    useAverage4Drop;
++ 
++ 
+  public:
+      cVideoOut(cSetupStore *setupStore);
+***************
+*** 136,142 ****
+      virtual void CheckAspectDimensions (sPicBuffer *pic);
+      virtual void CheckArea(int w, int h);
+!     virtual void DrawVideo_420pl(cSyncTimer *syncTimer, int *delay,
+!                                   sPicBuffer *pic);
+      virtual void DrawStill_420pl(sPicBuffer *buf);
+      virtual bool Initialize(void) {videoInitialized = true; return 1;};
+      virtual bool Reconfigure (int format = 0,
+--- 162,170 ----
+      virtual void CheckAspectDimensions (sPicBuffer *pic);
+      virtual void CheckArea(int w, int h);
+!     virtual void DrawVideo_420pl(cSyncTimer *syncTimer,
+!                                  sPicBuffer *pic);
+      virtual void DrawStill_420pl(sPicBuffer *buf);
++     virtual void EvaluateDelay(int aPTS, int pts, int frametime);
++     virtual void ResetDelay(void);
+      virtual bool Initialize(void) {videoInitialized = true; return 1;};
+      virtual bool Reconfigure (int format = 0,
+***************
+*** 188,192 ****
+  
+      virtual void OpenOSD();
+!     virtual void SetVidWin(int ScaleVid, int VidX1, int VidY1, 
+                      int VidX2, int VidY2);
+      virtual int GetOSDColorkey();
+--- 216,220 ----
+  
+      virtual void OpenOSD();
+!     virtual void SetVidWin(int ScaleVid, int VidX1, int VidY1,
+                      int VidX2, int VidY2);
+      virtual int GetOSDColorkey();
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000512.html">[Softdevice-cvs] softdevice video-dfb.c, 1.77, 1.78 video-dfb.h,	1.24, 1.25
+</A></li>
+	<LI>Next message: <A HREF="000514.html">[Softdevice-cvs] softdevice CHANGELOG,1.296,1.297
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#513">[ date ]</a>
+              <a href="thread.html#513">[ thread ]</a>
+              <a href="subject.html#513">[ subject ]</a>
+              <a href="author.html#513">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

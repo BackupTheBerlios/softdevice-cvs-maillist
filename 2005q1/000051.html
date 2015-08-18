@@ -1,0 +1,753 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice video.h,1.6,1.7 video-xv.c,1.12,1.13 video-xv.h,1.3,1.4 mpeg2decoder.c,1.13,1.14 mpeg2decoder.h,1.10,1.11 Makefile,1.4,1.5 CHANGELOG,1.30,1.31
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video.h%2C1.6%2C1.7%20video-xv.c%2C1.12%2C1.13%20video-xv.h%2C1.3%2C1.4%20mpeg2decoder.c%2C1.13%2C1.14%20mpeg2decoder.h%2C1.10%2C1.11%20Makefile%2C1.4%2C1.5%20CHANGELOG%2C1.30%2C1.31&In-Reply-To=%3C200501231454.j0NEsTN07802%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000050.html">
+   <LINK REL="Next"  HREF="000052.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice video.h,1.6,1.7 video-xv.c,1.12,1.13 video-xv.h,1.3,1.4 mpeg2decoder.c,1.13,1.14 mpeg2decoder.h,1.10,1.11 Makefile,1.4,1.5 CHANGELOG,1.30,1.31</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video.h%2C1.6%2C1.7%20video-xv.c%2C1.12%2C1.13%20video-xv.h%2C1.3%2C1.4%20mpeg2decoder.c%2C1.13%2C1.14%20mpeg2decoder.h%2C1.10%2C1.11%20Makefile%2C1.4%2C1.5%20CHANGELOG%2C1.30%2C1.31&In-Reply-To=%3C200501231454.j0NEsTN07802%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice video.h,1.6,1.7 video-xv.c,1.12,1.13 video-xv.h,1.3,1.4 mpeg2decoder.c,1.13,1.14 mpeg2decoder.h,1.10,1.11 Makefile,1.4,1.5 CHANGELOG,1.30,1.31">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Jan 23 15:54:29 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000050.html">[Softdevice-cvs] softdevice CHANGELOG,1.29,1.30 mpeg2decoder.c,1.12,1.13
+</A></li>
+        <LI>Next message: <A HREF="000052.html">[Softdevice-cvs] softdevice audio.c,1.6,1.7 audio.h,1.2,1.3 setup-softdevice.c,1.7,1.8 setup-softdevice.h,1.4,1.5
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#51">[ date ]</a>
+              <a href="thread.html#51">[ thread ]</a>
+              <a href="subject.html#51">[ subject ]</a>
+              <a href="author.html#51">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv26781
+
+Modified Files:
+	video.h video-xv.c video-xv.h mpeg2decoder.c mpeg2decoder.h 
+	Makefile CHANGELOG 
+Log Message:
+- added playback suspend patch
+
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -C2 -d -r1.6 -r1.7
+*** video.h	15 Jan 2005 08:33:04 -0000	1.6
+--- video.h	23 Jan 2005 14:54:22 -0000	1.7
+***************
+*** 77,80 ****
+--- 77,83 ----
+      virtual bool GetInfo(int *fmt, unsigned char **dest,int *w, int *h) {return false;};
+  
++     virtual void Suspend(void) { printf(&quot;Video Suspend\n&quot;); return;};
++     virtual bool Resume(void) {printf(&quot;Video Resume\n&quot;); return true;};
++ 
+  #if VDRVERSNUM &gt;= 10307
+  
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.12
+retrieving revision 1.13
+diff -C2 -d -r1.12 -r1.13
+*** video-xv.c	15 Jan 2005 08:33:04 -0000	1.12
+--- video-xv.c	23 Jan 2005 14:54:22 -0000	1.13
+***************
+*** 27,30 ****
+--- 27,31 ----
+  #include &quot;xscreensaver.h&quot;
+  #include &quot;utils.h&quot;
++ #include &quot;setup-softdevice.h&quot;
+  
+  #define PATCH_VERSION &quot;008_pre_2&quot;
+***************
+*** 447,493 ****
+              break;
+            case 'b':
+!             attributeStore.Decrement(&quot;XV_BRIGHTNESS&quot;);
+              break;
+            case 'B':
+!             attributeStore.Increment(&quot;XV_BRIGHTNESS&quot;);
+              break;
+            case 'c':
+!             attributeStore.Decrement(&quot;XV_CONTRAST&quot;);
+              break;
+            case 'C':
+!             attributeStore.Increment(&quot;XV_CONTRAST&quot;);
+              break;
+            case 'h':
+!             attributeStore.Decrement(&quot;XV_HUE&quot;);
+              break;
+            case 'H':
+!             attributeStore.Increment(&quot;XV_HUE&quot;);
+              break;
+            case 's':
+!             attributeStore.Decrement(&quot;XV_SATURATION&quot;);
+              break;
+            case 'S':
+!             attributeStore.Increment(&quot;XV_SATURATION&quot;);
+              break;
+  #if 1
+            case 'o':
+!             attributeStore.Decrement(&quot;XV_OVERLAY_ALPHA&quot;);
+              break;
+            case 'O':
+!             attributeStore.Increment(&quot;XV_OVERLAY_ALPHA&quot;);
+              break;
+            case 'g':
+!             attributeStore.Decrement(&quot;XV_GRAPHICS_ALPHA&quot;);
+              break;
+            case 'G':
+!             attributeStore.Increment(&quot;XV_GRAPHICS_ALPHA&quot;);
+              break;
+            case 'a':
+!             attributeStore.Decrement(&quot;XV_ALPHA_MODE&quot;);
+              break;
+            case 'A':
+!             attributeStore.Increment(&quot;XV_ALPHA_MODE&quot;);
+              break;
+  #endif
+            default:
+              if (xvRemote) {
+--- 448,513 ----
+              break;
+            case 'b':
+!             if (xv_initialized)
+!               attributeStore.Decrement(&quot;XV_BRIGHTNESS&quot;);
+              break;
+            case 'B':
+!             if (xv_initialized)
+!               attributeStore.Increment(&quot;XV_BRIGHTNESS&quot;);
+              break;
+            case 'c':
+!             if (xv_initialized)
+!               attributeStore.Decrement(&quot;XV_CONTRAST&quot;);
+              break;
+            case 'C':
+!             if (xv_initialized)
+!               attributeStore.Increment(&quot;XV_CONTRAST&quot;);
+              break;
+            case 'h':
+!             if (xv_initialized)
+!               attributeStore.Decrement(&quot;XV_HUE&quot;);
+              break;
+            case 'H':
+!             if (xv_initialized)
+!               attributeStore.Increment(&quot;XV_HUE&quot;);
+              break;
+            case 's':
+!             if (xv_initialized)
+!               attributeStore.Decrement(&quot;XV_SATURATION&quot;);
+              break;
+            case 'S':
+!             if (xv_initialized)
+!               attributeStore.Increment(&quot;XV_SATURATION&quot;);
+              break;
+  #if 1
+            case 'o':
+!             if (xv_initialized)
+!               attributeStore.Decrement(&quot;XV_OVERLAY_ALPHA&quot;);
+              break;
+            case 'O':
+!             if (xv_initialized)
+!               attributeStore.Increment(&quot;XV_OVERLAY_ALPHA&quot;);
+              break;
+            case 'g':
+!             if (xv_initialized)
+!               attributeStore.Decrement(&quot;XV_GRAPHICS_ALPHA&quot;);
+              break;
+            case 'G':
+!             if (xv_initialized)
+!               attributeStore.Increment(&quot;XV_GRAPHICS_ALPHA&quot;);
+              break;
+            case 'a':
+!             if (xv_initialized)
+!               attributeStore.Decrement(&quot;XV_ALPHA_MODE&quot;);
+              break;
+            case 'A':
+!             if (xv_initialized)
+!               attributeStore.Increment(&quot;XV_ALPHA_MODE&quot;);
+              break;
+  #endif
++ #ifdef SUSPEND_BY_KEY 
++           case 'r':
++           case 'R':
++             setupStore.shouldSuspend=!setupStore.shouldSuspend;
++ #endif
+            default:
+              if (xvRemote) {
+***************
+*** 505,509 ****
+                     RevertToParent,
+                     CurrentTime);
+!           if (map_count &gt; 2) {
+              XvShmPutImage(dpy, port,
+                            win, gc,
+--- 525,529 ----
+                     RevertToParent,
+                     CurrentTime);
+!           if (map_count &gt; 2 &amp;&amp; xv_initialized) {
+              XvShmPutImage(dpy, port,
+                            win, gc,
+***************
+*** 520,524 ****
+          break;
+        case UnmapNotify:
+!         XvStopVideo (dpy,port,win);
+          if(cursor_visible == False) {
+            XUndefineCursor(dpy, win);
+--- 540,545 ----
+          break;
+        case UnmapNotify:
+!         if (xv_initialized)
+!           XvStopVideo (dpy,port,win);
+          if(cursor_visible == False) {
+            XUndefineCursor(dpy, win);
+***************
+*** 531,535 ****
+    }
+  
+!   if (initialized &amp;&amp; map_count) {
+      XvShmPutImage(dpy, port,
+                    win, gc,
+--- 552,556 ----
+    }
+  
+!   if (xv_initialized &amp;&amp; map_count) {
+      XvShmPutImage(dpy, port,
+                    win, gc,
+***************
+*** 777,780 ****
+--- 798,803 ----
+      XvImageFormatValues *fmt_info;
+  
++   pthread_mutex_lock(&amp;xv_mutex);
++ 
+    /*
+     * So let's first check for an available adaptor and port
+***************
+*** 923,933 ****
+                       lwidth, lheight,   /* dw, dh */
+                       False);
+! 
+    rc = XClearArea (dpy, win, 0, 0, 0, 0, True);
+! 
+    rc = XSync(dpy, False);
+  
+    this-&gt;format = format;
+    initialized = 1;
+    return true;
+  }
+--- 946,959 ----
+                       lwidth, lheight,   /* dw, dh */
+                       False);
+! 		     
+    rc = XClearArea (dpy, win, 0, 0, 0, 0, True);
+!   
+    rc = XSync(dpy, False);
++   
++   pthread_mutex_unlock(&amp;xv_mutex);
+  
+    this-&gt;format = format;
+    initialized = 1;
++   xv_initialized = 1;
+    return true;
+  }
+***************
+*** 947,950 ****
+--- 973,1013 ----
+  /* ---------------------------------------------------------------------------
+   */
++ void cXvVideoOut::Suspend(void)
++ {
++   if (!xv_initialized)
++     return;
++ 
++   pthread_mutex_lock(&amp;xv_mutex);
++ 
++   XvStopVideo(dpy, port, win);
++   XvUngrabPort(dpy, port, CurrentTime);
++   
++   pthread_mutex_unlock(&amp;xv_mutex);
++ 
++   if(shminfo.shmaddr)
++   {
++     shmdt(shminfo.shmaddr);
++     shminfo.shmaddr = NULL;
++   }
++ 
++   if (xv_image)
++   {
++     free(xv_image);
++     xv_image = NULL;
++   }
++   
++   xv_initialized = 0;
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ bool cXvVideoOut::Resume(void)
++ {
++   return Reconfigure(format);
++ }
++ 
++ 
++ /* ---------------------------------------------------------------------------
++  */
+  bool cXvVideoOut::GetInfo(int *fmt, unsigned char **dest, int *w, int *h)
+  {
+***************
+*** 1096,1100 ****
+                        int Ystride, int UVstride)
+  {
+!   if (!initialized)
+      return;
+  
+--- 1159,1163 ----
+                        int Ystride, int UVstride)
+  {
+!   if (!initialized || !xv_initialized)
+      return;
+  
+***************
+*** 1140,1155 ****
+      return;
+  
+!   pthread_mutex_lock(&amp;xv_mutex);
+  
+!   XvStopVideo(dpy, port, win);
+  
+!   pthread_mutex_unlock(&amp;xv_mutex);
+  
+!   if(shminfo.shmaddr)
+!   {
+!     shmdt(shminfo.shmaddr);
+!     shminfo.shmaddr = NULL;
+    }
+  
+    if(osd_shminfo.shmaddr)
+    {
+--- 1203,1228 ----
+      return;
+  
+!   if (xv_initialized) 
+!   {
+!     pthread_mutex_lock(&amp;xv_mutex);
+  
+!     XvStopVideo(dpy, port, win);
+  
+!     pthread_mutex_unlock(&amp;xv_mutex);
+  
+!     if(shminfo.shmaddr)
+!     {
+!       shmdt(shminfo.shmaddr);
+!       shminfo.shmaddr = NULL;
+!     }
+!   
+!     if (xv_image)
+!     {
+!       free(xv_image);
+!       xv_image = NULL;
+!     }
+    }
+  
++ 
+    if(osd_shminfo.shmaddr)
+    {
+***************
+*** 1158,1166 ****
+    }
+  
+-   if (xv_image)
+-   {
+-     free(xv_image);
+-     xv_image = NULL;
+-   }
+  
+    if (osd_image)
+--- 1231,1234 ----
+
+Index: video-xv.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.h,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** video-xv.h	29 Oct 2004 20:36:07 -0000	1.3
+--- video-xv.h	23 Jan 2005 14:54:22 -0000	1.4
+***************
+*** 100,103 ****
+--- 100,104 ----
+                      net_wm_STATE;
+    int               initialized,
++                     xv_initialized,
+                      osd_refresh_counter,
+                      osd_skip_counter,
+***************
+*** 156,159 ****
+--- 157,163 ----
+    virtual void Pause(void);
+    virtual bool GetInfo(int *fmt, unsigned char **dest,int *w, int *h);
++ 
++   virtual void Suspend();
++   virtual bool Resume();
+  };
+  
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.13
+retrieving revision 1.14
+diff -C2 -d -r1.13 -r1.14
+*** mpeg2decoder.c	15 Jan 2005 09:29:29 -0000	1.13
+--- mpeg2decoder.c	23 Jan 2005 14:54:22 -0000	1.14
+***************
+*** 44,47 ****
+--- 44,54 ----
+  #endif
+  
++ //#define CMDDEB(out...) {printf(&quot;CMD[%04d]:&quot;,getTimeMilis() % 10000);printf(out);}
++ 
++ #ifndef CMDDEB
++ #define CMDDEB(out...)
++ #endif
++ 
++ 
+  //#define AV_STATS
+  
+***************
+*** 975,978 ****
+--- 982,987 ----
+  
+  //----------------------------   create a new MPEG Decoder
++ 
++ 
+  cMpeg2Decoder::cMpeg2Decoder(cAudioOut *AudioOut, cVideoOut *VideoOut)
+  {
+***************
+*** 988,991 ****
+--- 997,1001 ----
+    running=false;
+    decoding=false;
++   IsSuspended=false;
+  }
+  
+***************
+*** 1002,1005 ****
+--- 1012,1020 ----
+  void cMpeg2Decoder::Start(void)
+  {
++   CMDDEB(&quot;Start IsSuspended %d \n&quot;,IsSuspended);
++   if (IsSuspended)
++     // don't start if we are suspended
++     return;
++ 
+    // ich wei&#195;&#159; nicht, ob man's so kompliziert machen soll, aber jetzt hab ich's
+    // schon so gemacht, das 2 Threads gestartet werden.
+***************
+*** 1011,1028 ****
+  }
+  
+  void cMpeg2Decoder::Play(void)
+  {
+!   aout-&gt;Play();
+!   vout-&gt;Play();
+  };
+  
+  void cMpeg2Decoder::Freeze(void)
+  {
+!   aout-&gt;Freeze();
+!   vout-&gt;Freeze();
+  };
+    
+  void cMpeg2Decoder::Stop(void)
+  {
+    if (running)
+    {
+--- 1026,1085 ----
+  }
+  
++ void cMpeg2Decoder::Suspend()
++ {
++   CMDDEB(&quot;Suspend\n&quot;);
++   Stop();
++   audioOut-&gt;Suspend();
++   videoOut-&gt;Suspend();
++   IsSuspended=true;
++ }
++ 
++ void cMpeg2Decoder::Resume()
++ {
++   CMDDEB(&quot;Resume\n&quot;);
++   IsSuspended=false;
++   if (!videoOut-&gt;Resume()) {
++     fprintf(stderr,&quot;Could not open video out! Sleeping again...\n&quot;);
++     videoOut-&gt;Suspend();
++     setupStore.shouldSuspend=true;
++     IsSuspended=true;
++     return;
++   };
++ 
++   if (!audioOut-&gt;Resume()) {
++    fprintf(stderr,&quot;Could not open audio out! Sleeping again...\n&quot;);
++    setupStore.shouldSuspend=true;
++    IsSuspended=true;
++    videoOut-&gt;Suspend();
++    return;
++   };
++ 
++   Start();
++   IsSuspended=false;
++ }
++ 
+  void cMpeg2Decoder::Play(void)
+  {
+!   CMDDEB(&quot;Play\n&quot;);
+!   if (running) 
+!   {
+!     aout-&gt;Play();
+!     vout-&gt;Play();
+!   };
+  };
+  
+  void cMpeg2Decoder::Freeze(void)
+  {
+!   CMDDEB(&quot;Freeze\n&quot;);
+!   if (running) 
+!   {
+!     aout-&gt;Freeze();
+!     vout-&gt;Freeze();
+!   };
+  };
+    
+  void cMpeg2Decoder::Stop(void)
+  {
++   CMDDEB(&quot;Stop\n&quot;);
+    if (running)
+    {
+***************
+*** 1053,1073 ****
+  void cMpeg2Decoder::Clear(void)
+  {
+!   aout-&gt;Clear();
+!   vout-&gt;Clear();
+  }
+  
+  void cMpeg2Decoder::TrickSpeed(int Speed)
+  {
+!   aout-&gt;TrickSpeed(Speed);
+!   vout-&gt;TrickSpeed(Speed);
+  }
+  
+  int64_t cMpeg2Decoder::GetSTC(void) {
+!   return vout-&gt;GetPTS()*90;
+  };
+  
+  bool cMpeg2Decoder::BufferFilled() 
+  {
+!   return vout-&gt;BufferFill()&gt;95;
+  }
+  
+--- 1110,1142 ----
+  void cMpeg2Decoder::Clear(void)
+  {
+!   CMDDEB(&quot;Clear\n&quot;);
+!   if (running)
+!   {
+!     aout-&gt;Clear();
+!     vout-&gt;Clear();
+!   };
+  }
+  
+  void cMpeg2Decoder::TrickSpeed(int Speed)
+  {
+!   CMDDEB(&quot;TrickSpeed %d\n&quot;,Speed);
+!   if (running)
+!   {
+!     aout-&gt;TrickSpeed(Speed);
+!     vout-&gt;TrickSpeed(Speed);
+!   };
+  }
+  
+  int64_t cMpeg2Decoder::GetSTC(void) {
+!   if (running)
+!     return vout-&gt;GetPTS()*90;
+!   else return 0;
+  };
+  
+  bool cMpeg2Decoder::BufferFilled() 
+  {
+!   if (running)
+!     return vout-&gt;BufferFill()&gt;95;
+!   else return false;
+  }
+  
+***************
+*** 1144,1148 ****
+    }
+  #if VDRVERSNUM &gt;= 10318
+!   aout-&gt;Write((uchar *)Data,Length);
+  #endif
+    return Length;
+--- 1213,1218 ----
+    }
+  #if VDRVERSNUM &gt;= 10318
+!   if (running)
+!     aout-&gt;Write((uchar *)Data,Length);
+  #endif
+    return Length;
+***************
+*** 1158,1168 ****
+      int size=Length;
+  
+!   decoding=true;
+    if (!running)
+-   {
+-     decoding=false;
+      return Length;
+-   }
+  
+    while (size &gt; 0)
+    {
+--- 1228,1243 ----
+      int size=Length;
+  
+!   if (running &amp;&amp; !IsSuspended &amp;&amp; setupStore.shouldSuspend)
+!      // still running and should suspend
+!      Suspend();
+! 
+!   if (!running &amp;&amp; IsSuspended &amp;&amp; !setupStore.shouldSuspend)
+!      // not running and should resume
+!      Resume();
+!      
+    if (!running)
+      return Length;
+  
++   decoding=true;
+    while (size &gt; 0)
+    {
+
+Index: mpeg2decoder.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.h,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -C2 -d -r1.10 -r1.11
+*** mpeg2decoder.h	13 Jan 2005 20:31:08 -0000	1.10
+--- mpeg2decoder.h	23 Jan 2005 14:54:22 -0000	1.11
+***************
+*** 177,180 ****
+--- 177,181 ----
+      int             ac3Mode, ac3Parm, lpcmMode;
+      bool running;
++     bool IsSuspended;
+      bool decoding;
+  public:
+***************
+*** 189,192 ****
+--- 190,195 ----
+      void Stop(void);
+      void Clear(void);
++     void Suspend(void);
++     void Resume(void);
+      void TrickSpeed(int Speed);
+      bool BufferFilled(void);
+
+Index: Makefile
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/Makefile,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -C2 -d -r1.4 -r1.5
+*** Makefile	21 Dec 2004 05:55:42 -0000	1.4
+--- Makefile	23 Jan 2005 14:54:22 -0000	1.5
+***************
+*** 37,40 ****
+--- 37,43 ----
+  LIBXDPMS_SUPPORT = 1
+  
++ # Set this if you want to be able to toggle suspend mode by keyboard (XV only)
++ SUSPEND_BY_KEY = 1
++ 
+  # Enable the usage from some deinterlacing pp-filters of libavcodec
+  # ffmpeg must be compiled with the options --enable-pp --enable-gpl
+***************
+*** 179,182 ****
+--- 182,189 ----
+  DEFINES     += -DPP_LIBAVCODEC
+  FFMPEGLIBS  += -lpostproc
++ endif
++ 
++ ifdef SUSPEND_BY_KEY
++ DEFINES     += -DSUSPEND_BY_KEY
+  endif
+  
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.30
+retrieving revision 1.31
+diff -C2 -d -r1.30 -r1.31
+*** CHANGELOG	15 Jan 2005 09:29:29 -0000	1.30
+--- CHANGELOG	23 Jan 2005 14:54:22 -0000	1.31
+***************
+*** 1,4 ****
+  Changelog
+!   2005-01-15:
+      - fix OSD drawing when multiple areas are used (with text2skin plugin)
+      - dfb out: reverted top-field first setting as it may crash
+--- 1,6 ----
+  Changelog
+!  2005-01-23:
+!     - added suspend video playback patch. 
+!  2005-01-15:
+      - fix OSD drawing when multiple areas are used (with text2skin plugin)
+      - dfb out: reverted top-field first setting as it may crash
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000050.html">[Softdevice-cvs] softdevice CHANGELOG,1.29,1.30 mpeg2decoder.c,1.12,1.13
+</A></li>
+	<LI>Next message: <A HREF="000052.html">[Softdevice-cvs] softdevice audio.c,1.6,1.7 audio.h,1.2,1.3 setup-softdevice.c,1.7,1.8 setup-softdevice.h,1.4,1.5
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#51">[ date ]</a>
+              <a href="thread.html#51">[ thread ]</a>
+              <a href="subject.html#51">[ subject ]</a>
+              <a href="author.html#51">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

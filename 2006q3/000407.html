@@ -1,0 +1,135 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.218, 1.219 configure, 1.23,	1.24
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.218%2C%201.219%20configure%2C%201.23%2C%0A%091.24&In-Reply-To=%3C20060827124909.A7745709C8%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000406.html">
+   <LINK REL="Next"  HREF="000408.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.218, 1.219 configure, 1.23,	1.24</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.218%2C%201.219%20configure%2C%201.23%2C%0A%091.24&In-Reply-To=%3C20060827124909.A7745709C8%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.218, 1.219 configure, 1.23,	1.24">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Aug 27 14:49:09 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000406.html">[Softdevice-cvs] softdevice CHANGELOG, 1.217, 1.218 video-dfb.c,	1.69, 1.70
+</A></li>
+        <LI>Next message: <A HREF="000408.html">[Softdevice-cvs] softdevice ShmClient.c, 1.14,	1.15 setup-softdevice-menu.c, 1.6, 1.7 softdevice.c, 1.65,	1.66 softdevice.h, 1.10, 1.11 video-shm.c, 1.8,	1.9 video-shm.h, 1.5, 1.6 video-xv.c, 1.58, 1.59 video-xv.h,	1.22, 1.23 video.c, 1.60, 1.61 video.h, 1.40, 1.41
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#407">[ date ]</a>
+              <a href="thread.html#407">[ thread ]</a>
+              <a href="subject.html#407">[ subject ]</a>
+              <a href="author.html#407">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv25497
+
+Modified Files:
+	CHANGELOG configure 
+Log Message:
+-adjust ffmpeg library order in configure
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.218
+retrieving revision 1.219
+diff -C2 -d -r1.218 -r1.219
+*** CHANGELOG	5 Aug 2006 17:51:25 -0000	1.218
+--- CHANGELOG	27 Aug 2006 12:48:46 -0000	1.219
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2006-08-27:
++    - adjust ffmpeg library order in configure
+  2006-08-05:
+     - video-dfb: disable reported failed flags in SetParams()
+
+Index: configure
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/configure,v
+retrieving revision 1.23
+retrieving revision 1.24
+diff -C2 -d -r1.23 -r1.24
+*** configure	16 Jul 2006 13:04:15 -0000	1.23
+--- configure	27 Aug 2006 12:48:46 -0000	1.24
+***************
+*** 130,134 ****
+  }
+  EOF
+!   $cc $CFLAGS $ffmpeg_cflags $ffmpeg_libs -o $TMPE $TMPC $ffmpeg_libs  &gt;&gt; config.log 2&gt;&amp;1 || ffmpeg=&quot;no&quot;
+  };
+  
+--- 130,134 ----
+  }
+  EOF
+!   $cc $CFLAGS $ffmpeg_cflags -o $TMPE $TMPC $ffmpeg_libs  &gt;&gt; config.log 2&gt;&amp;1 || ffmpeg=&quot;no&quot;
+  };
+  
+***************
+*** 138,142 ****
+  
+  echo &quot;try to use pkg-config.&quot; &gt;&gt; config.log
+! ffmpeg_l1=&quot;libavcodec libavformat&quot;
+  
+  pkg-config --libs libpostproc &gt;&gt; config.log 2&gt;&amp;1 &amp;&amp; { ffmpeg_l1=&quot;$ffmpeg_l1 libpostproc&quot;;libpostproc=&quot;yes&quot;; }
+--- 138,142 ----
+  
+  echo &quot;try to use pkg-config.&quot; &gt;&gt; config.log
+! ffmpeg_l1=&quot;libavformat libavcodec&quot;
+  
+  pkg-config --libs libpostproc &gt;&gt; config.log 2&gt;&amp;1 &amp;&amp; { ffmpeg_l1=&quot;$ffmpeg_l1 libpostproc&quot;;libpostproc=&quot;yes&quot;; }
+***************
+*** 154,158 ****
+    echo &quot;pkg-config failed, try the default/parameter path.&quot; &gt;&gt; config.log
+    ffmpeg=&quot;yes&quot;
+!   ffmpeg_libs=&quot;-L${ffmpeg_path}/ -L${ffmpeg_path}/libavcodec/ -L${ffmpeg_path}/libavformat/ -lavformat -lz -lavcodec &quot;
+    ffmpeg_cflags=&quot;-I${ffmpeg_path}/ -I${ffmpeg_path}/libavcodec/ -I${ffmpeg_path}/libavformat/ &quot;
+  
+--- 154,158 ----
+    echo &quot;pkg-config failed, try the default/parameter path.&quot; &gt;&gt; config.log
+    ffmpeg=&quot;yes&quot;
+!   ffmpeg_libs=&quot;-L${ffmpeg_path}/ -L${ffmpeg_path}/libavcodec/ -L${ffmpeg_path}/libavformat/ -lavformat -lavcodec -lz&quot;
+    ffmpeg_cflags=&quot;-I${ffmpeg_path}/ -I${ffmpeg_path}/libavcodec/ -I${ffmpeg_path}/libavformat/ &quot;
+  
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000406.html">[Softdevice-cvs] softdevice CHANGELOG, 1.217, 1.218 video-dfb.c,	1.69, 1.70
+</A></li>
+	<LI>Next message: <A HREF="000408.html">[Softdevice-cvs] softdevice ShmClient.c, 1.14,	1.15 setup-softdevice-menu.c, 1.6, 1.7 softdevice.c, 1.65,	1.66 softdevice.h, 1.10, 1.11 video-shm.c, 1.8,	1.9 video-shm.h, 1.5, 1.6 video-xv.c, 1.58, 1.59 video-xv.h,	1.22, 1.23 video.c, 1.60, 1.61 video.h, 1.40, 1.41
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#407">[ date ]</a>
+              <a href="thread.html#407">[ thread ]</a>
+              <a href="subject.html#407">[ subject ]</a>
+              <a href="author.html#407">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,429 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice Makefile,1.24,1.25 CHANGELOG,1.166,1.167 README,1.14,1.15
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20Makefile%2C1.24%2C1.25%20CHANGELOG%2C1.166%2C1.167%20README%2C1.14%2C1.15&In-Reply-To=%3C200604010933.k319XHt25417%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000313.html">
+   <LINK REL="Next"  HREF="000315.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice Makefile,1.24,1.25 CHANGELOG,1.166,1.167 README,1.14,1.15</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20Makefile%2C1.24%2C1.25%20CHANGELOG%2C1.166%2C1.167%20README%2C1.14%2C1.15&In-Reply-To=%3C200604010933.k319XHt25417%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice Makefile,1.24,1.25 CHANGELOG,1.166,1.167 README,1.14,1.15">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Apr  1 11:33:17 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000313.html">[Softdevice-cvs] softdevice CHANGELOG,1.165,1.166 video-xv.c,1.48,1.49
+</A></li>
+        <LI>Next message: <A HREF="000315.html">[Softdevice-cvs] softplay PlayListMenu.c,1.3,1.4 FileIndex.c,1.1,1.2 softplay.c,1.10,1.11
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#314">[ date ]</a>
+              <a href="thread.html#314">[ thread ]</a>
+              <a href="subject.html#314">[ subject ]</a>
+              <a href="author.html#314">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv2413
+
+Modified Files:
+	Makefile CHANGELOG README 
+Log Message:
+- applied Makefile patch from Antti Sepp&#228;l&#228;
+
+PS: My new kde Kate seems to modify more than intended.
+    Hopefully harmless.
+
+
+Index: Makefile
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/Makefile,v
+retrieving revision 1.24
+retrieving revision 1.25
+diff -C2 -d -r1.24 -r1.25
+*** Makefile	6 Feb 2006 19:59:34 -0000	1.24
+--- Makefile	1 Apr 2006 09:33:41 -0000	1.25
+***************
+*** 26,34 ****
+  LIBDIR     = ../../lib
+  TMPDIR     = /tmp
+  
+  -include config.mak
+  
+  # uncomment to build the shared memory video server
+! # 
+  #SHM_SUPPORT = 1
+  
+--- 26,35 ----
+  LIBDIR     = ../../lib
+  TMPDIR     = /tmp
++ PLUGINLIBDIR = ./PLUGINS/lib
+  
+  -include config.mak
+  
+  # uncomment to build the shared memory video server
+! #
+  #SHM_SUPPORT = 1
+  
+***************
+*** 210,214 ****
+  
+  DEFINES += -DPLUGIN_NAME_I18N='&quot;$(PLUGIN)&quot;' -D_GNU_SOURCE
+! DEFINES += -DPLUGINLIBDIR='&quot;./PLUGINS/lib&quot;'
+  
+  ### The object files (add further files here):
+--- 211,215 ----
+  
+  DEFINES += -DPLUGIN_NAME_I18N='&quot;$(PLUGIN)&quot;' -D_GNU_SOURCE
+! DEFINES += -DPLUGINLIBDIR='&quot;$(PLUGINLIBDIR)&quot;'
+  
+  ### The object files (add further files here):
+***************
+*** 221,225 ****
+  ifdef DFB_SUPPORT
+    ifdef USE_SUBPLUGINS
+!     DFB_OBJS  = utils.o video.o video-dfb.o 
+      ALL_OBJS += $(DFB_OBJS)
+      TARGETS  += libsubvdr-$(PLUGIN)-dfb.so
+--- 222,226 ----
+  ifdef DFB_SUPPORT
+    ifdef USE_SUBPLUGINS
+!     DFB_OBJS  = utils.o video.o video-dfb.o
+      ALL_OBJS += $(DFB_OBJS)
+      TARGETS  += libsubvdr-$(PLUGIN)-dfb.so
+***************
+*** 234,238 ****
+    ifdef USE_SUBPLUGINS
+      FB_LIBS   =
+!     FB_OBJS   = utils.o video.o video-fb.o 
+      ALL_OBJS  += $(FB_OBJS)
+      TARGETS   += libsubvdr-$(PLUGIN)-fb.so
+--- 235,239 ----
+    ifdef USE_SUBPLUGINS
+      FB_LIBS   =
+!     FB_OBJS   = utils.o video.o video-fb.o
+      ALL_OBJS  += $(FB_OBJS)
+      TARGETS   += libsubvdr-$(PLUGIN)-fb.so
+***************
+*** 244,248 ****
+  ifdef XV_SUPPORT
+    ifdef USE_SUBPLUGINS
+!     XV_OBJS   = utils.o video.o video-xv.o xscreensaver.o 
+      ALL_OBJS  += $(XV_OBJS)
+      TARGETS   += libsubvdr-$(PLUGIN)-xv.so
+--- 245,249 ----
+  ifdef XV_SUPPORT
+    ifdef USE_SUBPLUGINS
+!     XV_OBJS   = utils.o video.o video-xv.o xscreensaver.o
+      ALL_OBJS  += $(XV_OBJS)
+      TARGETS   += libsubvdr-$(PLUGIN)-xv.so
+***************
+*** 255,259 ****
+  ifdef VIDIX_SUPPORT
+    ifdef USE_SUBPLUGINS
+!     VIDIX_OBJS  = utils.o video.o video-vidix.o 
+      ALL_OBJS    += $(VIDIX_OBJS)
+      TARGETS     += libsubvdr-$(PLUGIN)-vidix.so
+--- 256,260 ----
+  ifdef VIDIX_SUPPORT
+    ifdef USE_SUBPLUGINS
+!     VIDIX_OBJS  = utils.o video.o video-vidix.o
+      ALL_OBJS    += $(VIDIX_OBJS)
+      TARGETS     += libsubvdr-$(PLUGIN)-vidix.so
+***************
+*** 267,271 ****
+  ifdef SHM_SUPPORT
+    ifdef USE_SUBPLUGINS
+!     SHM_OBJS  = utils.o video.o video-shm.o 
+      ALL_OBJS    += $(SHM_OBJS)
+      TARGETS     += libsubvdr-$(PLUGIN)-shm.so
+--- 268,272 ----
+  ifdef SHM_SUPPORT
+    ifdef USE_SUBPLUGINS
+!     SHM_OBJS  = utils.o video.o video-shm.o
+      ALL_OBJS    += $(SHM_OBJS)
+      TARGETS     += libsubvdr-$(PLUGIN)-shm.so
+***************
+*** 342,346 ****
+  		      ../../../sources.o
+  SHM_CLIENT_OBJS  = video.o video-xv.o setup-softdevice.o xscreensaver.o \
+! 		   utils.o 
+  
+  ShmClient: ShmClient.o $(SHM_CLIENT_OBJS)
+--- 343,347 ----
+  		      ../../../sources.o
+  SHM_CLIENT_OBJS  = video.o video-xv.o setup-softdevice.o xscreensaver.o \
+! 		   utils.o
+  
+  ShmClient: ShmClient.o $(SHM_CLIENT_OBJS)
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.166
+retrieving revision 1.167
+diff -C2 -d -r1.166 -r1.167
+*** CHANGELOG	1 Apr 2006 08:45:35 -0000	1.166
+--- CHANGELOG	1 Apr 2006 09:33:41 -0000	1.167
+***************
+*** 1,4 ****
+--- 1,5 ----
+  Changelog
+  2006-04-01:
++    - applied Makefile patch from Antti Sepp&#228;l&#228;
+     - apply slightly modified patch by Thomas G&#252;nter which fixes improper
+       includes of vdr header files
+***************
+*** 7,11 ****
+     - Xinerama support (detection and build requires to run configure).
+     - reactivate use of source x/y offsets for Xv*PutImage(..) operations.
+-    - date fix of Changelog
+  2006-03-21:
+     - remove the image copy overhead from the ShmClient
+--- 8,11 ----
+***************
+*** 13,17 ****
+     - support for non-shared memory xv
+  2006-03-12:
+!    - Fix StillPicture handling when no PES header is sent 
+       (for example streamdev-server-plugin)
+     - redraw video layer on OSD close in software mode
+--- 13,17 ----
+     - support for non-shared memory xv
+  2006-03-12:
+!    - Fix StillPicture handling when no PES header is sent
+       (for example streamdev-server-plugin)
+     - redraw video layer on OSD close in software mode
+***************
+*** 115,119 ****
+      - packet playback: assume we get complete frames via packet interface.
+                         This fixes playing divx via softplay.
+!     - fix frame dropping with IEEE1394 read.                       
+  2005-10-26:
+      - fix cropmode handling via OSD
+--- 115,119 ----
+      - packet playback: assume we get complete frames via packet interface.
+                         This fixes playing divx via softplay.
+!     - fix frame dropping with IEEE1394 read.
+  2005-10-26:
+      - fix cropmode handling via OSD
+***************
+*** 155,159 ****
+      - dfb-out: applied dfb-key-repeat handling patch (by Marko M&#228;kel&#228;)
+  2005-08-19:
+!     - change #ifdefs to contain closing brackets 
+          (stops my editor from complaining...)
+      - fix possible segfault in ToYUV()
+--- 155,159 ----
+      - dfb-out: applied dfb-key-repeat handling patch (by Marko M&#228;kel&#228;)
+  2005-08-19:
+!     - change #ifdefs to contain closing brackets
+          (stops my editor from complaining...)
+      - fix possible segfault in ToYUV()
+***************
+*** 168,172 ****
+      - introduce SOFTDEB, more checks agains NULL dereferences
+      - call decoder-&gt;Clear in Clear
+!     - return NULL in getPPValue when compiled without postproc lib 
+        (suggested by Antonio)
+  2005-07-29:
+--- 168,172 ----
+      - introduce SOFTDEB, more checks agains NULL dereferences
+      - call decoder-&gt;Clear in Clear
+!     - return NULL in getPPValue when compiled without postproc lib
+        (suggested by Antonio)
+  2005-07-29:
+***************
+*** 234,238 ****
+      - provide error message on stderr when Xv plugin cannot connect to X server.
+  2005-06-12:
+!     - no new audio frame has been decoded when audio_size &lt;= 0 
+         (reported by Antonio O.)
+      - introduce fast_memcpy (gives 20-30% speed increase on copying)
+--- 234,238 ----
+      - provide error message on stderr when Xv plugin cannot connect to X server.
+  2005-06-12:
+!     - no new audio frame has been decoded when audio_size &lt;= 0
+         (reported by Antonio O.)
+      - introduce fast_memcpy (gives 20-30% speed increase on copying)
+***************
+*** 250,254 ****
+      - changed screen aspect ratio selection (based on suggestion by Nicolas Huillard)
+      - fix some segfaults on bad signal
+!     - fix possible segfault when called without arguments 
+        (thanks to Marko M&#228;kel&#228;)
+      - buffering is now complety signal triggered
+--- 250,254 ----
+      - changed screen aspect ratio selection (based on suggestion by Nicolas Huillard)
+      - fix some segfaults on bad signal
+!     - fix possible segfault when called without arguments
+        (thanks to Marko M&#228;kel&#228;)
+      - buffering is now complety signal triggered
+***************
+*** 260,264 ****
+      - fix pplib deinterlacing
+      - check libavcodec build of library against header
+!     - some more error messages 
+  2005-05-18:
+      - fix for aspect ratio calculation if sample_aspect_ratio.num == 0
+--- 260,264 ----
+      - fix pplib deinterlacing
+      - check libavcodec build of library against header
+!     - some more error messages
+  2005-05-18:
+      - fix for aspect ratio calculation if sample_aspect_ratio.num == 0
+***************
+*** 297,301 ****
+      - replace unneeded usleep&lt;10000usec with &gt;=10000usec
+      - add SIG_TIMING option (default: disabled, enable in mpeg2decoder.c)
+!     - introduce meaningful return values in packet mode. 
+      - disable debugging output.
+  2005-04-09:
+--- 297,301 ----
+      - replace unneeded usleep&lt;10000usec with &gt;=10000usec
+      - add SIG_TIMING option (default: disabled, enable in mpeg2decoder.c)
+!     - introduce meaningful return values in packet mode.
+      - disable debugging output.
+  2005-04-09:
+***************
+*** 346,350 ****
+   2005-03-02:
+      - increased osd fallback timeout
+!     - removed syoff and sxoff from Draw(...) 
+   2005-02-27:
+      - save &quot;vo&quot; and &quot;ao&quot; calling args in setup store.
+--- 346,350 ----
+   2005-03-02:
+      - increased osd fallback timeout
+!     - removed syoff and sxoff from Draw(...)
+   2005-02-27:
+      - save &quot;vo&quot; and &quot;ao&quot; calling args in setup store.
+***************
+*** 373,377 ****
+      - xv-out: fix compile warnings on amd64 (reported by Konrad Naumann)
+   2005-01-23:
+!     - added suspend video playback patch. 
+   2005-01-15:
+      - fix OSD drawing when multiple areas are used (with text2skin plugin)
+--- 373,377 ----
+      - xv-out: fix compile warnings on amd64 (reported by Konrad Naumann)
+   2005-01-23:
+!     - added suspend video playback patch.
+   2005-01-15:
+      - fix OSD drawing when multiple areas are used (with text2skin plugin)
+***************
+*** 414,418 ****
+    2004-11-14:
+     - new A-V sync with linux RTC support
+!    - changed audio buffering 
+     - implemented serveral missing cDevice methods:
+       TrickSpeed(),Clear(),Freeze()...
+--- 414,418 ----
+    2004-11-14:
+     - new A-V sync with linux RTC support
+!    - changed audio buffering
+     - implemented serveral missing cDevice methods:
+       TrickSpeed(),Clear(),Freeze()...
+***************
+*** 422,426 ****
+    2004-11-04: softdevice-0.0.7
+     - audio-out: don't exit when we get EINTR upon write
+!   2004-10-30: softdevice-0.0.7pre4 
+    2004-10-29:
+     - xv-out: changed fullscreen mode. works now with more wms (bug: #2265)
+--- 422,426 ----
+    2004-11-04: softdevice-0.0.7
+     - audio-out: don't exit when we get EINTR upon write
+!   2004-10-30: softdevice-0.0.7pre4
+    2004-10-29:
+     - xv-out: changed fullscreen mode. works now with more wms (bug: #2265)
+***************
+*** 510,514 ****
+    2004-05-20 : softdevice-0.0.6pre2
+      - xv output now works with vdr-1.3.7 too
+!     
+    2004-05-19 : softdevice-0.0.6pre1
+      - audio.c: dropped round() call
+--- 510,514 ----
+    2004-05-20 : softdevice-0.0.6pre2
+      - xv output now works with vdr-1.3.7 too
+! 
+    2004-05-19 : softdevice-0.0.6pre1
+      - audio.c: dropped round() call
+
+Index: README
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/README,v
+retrieving revision 1.14
+retrieving revision 1.15
+diff -C2 -d -r1.14 -r1.15
+*** README	6 Feb 2006 20:32:00 -0000	1.14
+--- README	1 Apr 2006 09:33:41 -0000	1.15
+***************
+*** 87,92 ****
+  Set the PrimaryDVB value to the last device if you own a FF-Card.
+  
+! Note that we strongly recommend to use Xv, DirectFB or Vidix for output. 
+! Framebuffer mode is not well maintained and  _completly_ unaccelerated. 
+  
+  
+--- 87,92 ----
+  Set the PrimaryDVB value to the last device if you own a FF-Card.
+  
+! Note that we strongly recommend to use Xv, DirectFB or Vidix for output.
+! Framebuffer mode is not well maintained and  _completly_ unaccelerated.
+  
+  
+***************
+*** 143,146 ****
+--- 143,147 ----
+  Many thanks to:
+  - Andre Neumann
++ - Antti Sepp&#228;l&#228;
+  - Colin Paton
+  - Herbert Attenberger
+***************
+*** 157,160 ****
+--- 158,162 ----
+  - Rolf Ahrenberg
+  - Stefan Lucke
++ - Thomas G&#252;nter
+  - Torgeir Veimo
+  - Vadim Catana
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000313.html">[Softdevice-cvs] softdevice CHANGELOG,1.165,1.166 video-xv.c,1.48,1.49
+</A></li>
+	<LI>Next message: <A HREF="000315.html">[Softdevice-cvs] softplay PlayListMenu.c,1.3,1.4 FileIndex.c,1.1,1.2 softplay.c,1.10,1.11
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#314">[ date ]</a>
+              <a href="thread.html#314">[ thread ]</a>
+              <a href="subject.html#314">[ subject ]</a>
+              <a href="author.html#314">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,210 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice SoftOsd.c, 1.29, 1.30 video.h, 1.54,	1.55 video-xv.c, 1.72, 1.73 video-xv.h, 1.28, 1.29
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20SoftOsd.c%2C%201.29%2C%201.30%20video.h%2C%201.54%2C%0A%091.55%20video-xv.c%2C%201.72%2C%201.73%20video-xv.h%2C%201.28%2C%201.29&In-Reply-To=%3C20070711200843.1A985E3334%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000566.html">
+   <LINK REL="Next"  HREF="000568.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice SoftOsd.c, 1.29, 1.30 video.h, 1.54,	1.55 video-xv.c, 1.72, 1.73 video-xv.h, 1.28, 1.29</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20SoftOsd.c%2C%201.29%2C%201.30%20video.h%2C%201.54%2C%0A%091.55%20video-xv.c%2C%201.72%2C%201.73%20video-xv.h%2C%201.28%2C%201.29&In-Reply-To=%3C20070711200843.1A985E3334%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice SoftOsd.c, 1.29, 1.30 video.h, 1.54,	1.55 video-xv.c, 1.72, 1.73 video-xv.h, 1.28, 1.29">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Wed Jul 11 22:08:43 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000566.html">[Softdevice-cvs] softdevice PicBuffer.c,1.20,1.21
+</A></li>
+        <LI>Next message: <A HREF="000568.html">[Softdevice-cvs] softdevice CHANGELOG,1.314,1.315
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#567">[ date ]</a>
+              <a href="thread.html#567">[ thread ]</a>
+              <a href="subject.html#567">[ subject ]</a>
+              <a href="author.html#567">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv14843
+
+Modified Files:
+	SoftOsd.c video.h video-xv.c video-xv.h 
+Log Message:
+fix OSD partially not drawn or cleared in pseudo mode:
+- a small stripe remains on the right side, when video aspect changes
+  from 16:9 to 4:3
+- only modified OSD was shown when deinterlacer was toggled
+  on/off.
+
+
+
+Index: SoftOsd.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.c,v
+retrieving revision 1.29
+retrieving revision 1.30
+diff -C2 -d -r1.29 -r1.30
+*** SoftOsd.c	11 Jul 2007 19:49:28 -0000	1.29
+--- SoftOsd.c	11 Jul 2007 20:08:34 -0000	1.30
+***************
+*** 259,263 ****
+  
+          // we have to redraw everything on format change...
+!         if (old_bitmap_Format != bitmap_Format) {
+                  Clear();
+                  FlushBitmaps(false);
+--- 259,264 ----
+  
+          // we have to redraw everything on format change...
+!         if (old_bitmap_Format != bitmap_Format ||
+!             videoOut-&gt;OSDNeedsRedraw()) {
+                  Clear();
+                  FlushBitmaps(false);
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.54
+retrieving revision 1.55
+diff -C2 -d -r1.54 -r1.55
+*** video.h	10 May 2007 21:57:26 -0000	1.54
+--- video.h	11 Jul 2007 20:08:34 -0000	1.55
+***************
+*** 187,191 ****
+              pic=oldPicture;
+              if (oldPicture)
+! 		LockBuffer(oldPicture);
+              oldPictureMutex.Unlock();
+      };
+--- 187,191 ----
+              pic=oldPicture;
+              if (oldPicture)
+!                 LockBuffer(oldPicture);
+              oldPictureMutex.Unlock();
+      };
+***************
+*** 235,238 ****
+--- 235,241 ----
+      { Depth=32; HasAlpha=true; AlphaInversed=false; IsYUV=false; };
+      // should be implemented by all video out method to set the OSD pixel mode
++ 
++     virtual bool OSDNeedsRedraw(void)
++     { return false; };
+  
+      // RGB modes
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.72
+retrieving revision 1.73
+diff -C2 -d -r1.72 -r1.73
+*** video-xv.c	11 Jul 2007 19:30:42 -0000	1.72
+--- video-xv.c	11 Jul 2007 20:08:35 -0000	1.73
+***************
+*** 766,769 ****
+--- 766,770 ----
+    OSDpresent = false;
+    OSDpseudo_alpha = true;
++   needsFullOSDRedraw = false;
+    toggleInProgress = 0;
+    xv_initialized=false;
+***************
+*** 1335,1339 ****
+    };
+  
+! 
+    pthread_mutex_unlock(&amp;xv_mutex);
+  
+--- 1336,1340 ----
+    };
+  
+!   needsFullOSDRedraw = true;
+    pthread_mutex_unlock(&amp;xv_mutex);
+  
+***************
+*** 1675,1678 ****
+--- 1676,1689 ----
+  /* ---------------------------------------------------------------------------
+   */
++ bool cXvVideoOut::OSDNeedsRedraw(void)
++ {
++     bool tmp = needsFullOSDRedraw;
++ 
++   needsFullOSDRedraw = false;
++   return tmp;
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
+  void cXvVideoOut::GetLockOsdSurface(uint8_t *&amp;osd, int &amp;stride,
+                    bool *&amp;dirtyLines)
+***************
+*** 1799,1802 ****
+--- 1810,1814 ----
+      cutLeft = setupStore-&gt;cropLeftCols;
+      cutRight = setupStore-&gt;cropRightCols;
++     needsFullOSDRedraw = true;
+      ClearXvArea (0, 128, 128);
+    }
+
+Index: video-xv.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.h,v
+retrieving revision 1.28
+retrieving revision 1.29
+diff -C2 -d -r1.28 -r1.29
+*** video-xv.h	10 May 2007 21:57:26 -0000	1.28
+--- video-xv.h	11 Jul 2007 20:08:35 -0000	1.29
+***************
+*** 126,129 ****
+--- 126,130 ----
+                      width, height,
+                      format;
++   bool              needsFullOSDRedraw;
+    /* -------------------------------------------------------------------------
+     * Xinerama specific members (not all depend on Xinerame available)
+***************
+*** 185,188 ****
+--- 186,190 ----
+    virtual void GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+                    bool &amp;IsYUV);
++   virtual bool OSDNeedsRedraw(void);
+    virtual void GetLockOsdSurface(uint8_t *&amp;osd, int &amp;stride,
+                    bool *&amp;dirtyLines);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000566.html">[Softdevice-cvs] softdevice PicBuffer.c,1.20,1.21
+</A></li>
+	<LI>Next message: <A HREF="000568.html">[Softdevice-cvs] softdevice CHANGELOG,1.314,1.315
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#567">[ date ]</a>
+              <a href="thread.html#567">[ thread ]</a>
+              <a href="subject.html#567">[ subject ]</a>
+              <a href="author.html#567">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

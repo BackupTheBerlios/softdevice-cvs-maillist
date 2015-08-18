@@ -1,0 +1,172 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice audio.c,1.23,1.24 audio.h,1.9,1.10 CHANGELOG,1.172,1.173
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20audio.c%2C1.23%2C1.24%20audio.h%2C1.9%2C1.10%20CHANGELOG%2C1.172%2C1.173&In-Reply-To=%3C200604231558.k3NFwOt21193%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000325.html">
+   <LINK REL="Next"  HREF="000327.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice audio.c,1.23,1.24 audio.h,1.9,1.10 CHANGELOG,1.172,1.173</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20audio.c%2C1.23%2C1.24%20audio.h%2C1.9%2C1.10%20CHANGELOG%2C1.172%2C1.173&In-Reply-To=%3C200604231558.k3NFwOt21193%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice audio.c,1.23,1.24 audio.h,1.9,1.10 CHANGELOG,1.172,1.173">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Apr 23 17:58:24 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000325.html">[Softdevice-cvs] softdevice CHANGELOG,1.171,1.172 video-xv.c,1.50,1.51 video-xv.h,1.18,1.19
+</A></li>
+        <LI>Next message: <A HREF="000327.html">[Softdevice-cvs] softdevice CHANGELOG,1.173,1.174 Makefile,1.25,1.26 softdevice.c,1.55,1.56
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#326">[ date ]</a>
+              <a href="thread.html#326">[ thread ]</a>
+              <a href="subject.html#326">[ subject ]</a>
+              <a href="author.html#326">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv19169
+
+Modified Files:
+	audio.c audio.h CHANGELOG 
+Log Message:
+- added volume changing with changing the mixer setting ( to use it add 
+  -DNO_MIXER, currently experimental
+	
+
+
+Index: audio.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio.c,v
+retrieving revision 1.23
+retrieving revision 1.24
+diff -C2 -d -r1.23 -r1.24
+*** audio.c	7 Jan 2006 13:20:24 -0000	1.23
+--- audio.c	23 Apr 2006 15:58:49 -0000	1.24
+***************
+*** 55,58 ****
+--- 55,59 ----
+      oldContext.samplerate = currContext.samplerate=48000;
+      dsyslog(&quot;[softdevice-audio] Device opened! Ready to play&quot;);
++     volume=255;
+  }
+  
+***************
+*** 92,95 ****
+--- 93,107 ----
+  /* ----------------------------------------------------------------------------
+   */
++ 
++ void Scale(int16_t *Data, int size,int Volume) 
++ {
++   while (size&gt;0) {
++     register int32_t tmp=(int32_t)(*Data) * Volume;
++     *Data=(int16_t) (tmp&gt;&gt;8);
++     Data++;
++     size--;
++   };
++ };
++   
+  void cAlsaAudioOut::Write(uchar *Data, int Length)
+  {
+***************
+*** 112,115 ****
+--- 124,132 ----
+      size = Length/(2*currContext.channels);
+  
++ #ifdef NO_MIXER
++   // change the volume
++   Scale((int16_t*)Data,Length/2,volume);
++ #endif
++ 
+    while (size) {
+      while (paused) usleep(1000); // block
+***************
+*** 389,392 ****
+--- 406,412 ----
+  void cAlsaAudioOut::SetVolume (int vol)
+  {
++ #ifdef NO_MIXER
++   volume = vol;
++ #else
+      int                   err;
+      long                  mixerMin, mixerMax,
+***************
+*** 434,437 ****
+--- 454,458 ----
+  
+    snd_mixer_close(mHandle);
++ #endif
+  }
+  
+
+Index: audio.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio.h,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -C2 -d -r1.9 -r1.10
+*** audio.h	6 Oct 2005 21:28:11 -0000	1.9
+--- audio.h	23 Apr 2006 15:58:49 -0000	1.10
+***************
+*** 64,67 ****
+--- 64,68 ----
+    bool  SetAC3PassThroughMode(bool on);
+    void  Xrun(void);
++   int volume;
+  
+  protected:
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.172
+retrieving revision 1.173
+diff -C2 -d -r1.172 -r1.173
+*** CHANGELOG	21 Apr 2006 18:20:45 -0000	1.172
+--- CHANGELOG	23 Apr 2006 15:58:49 -0000	1.173
+***************
+*** 1,3 ****
+--- 1,6 ----
+  Changelog
++ 2006-04-23:
++    - added volume changing with changing the  mixer control ( to use it add 
++      -DNO_MIXER, currently experimental
+  2006-04-21:
+     - updated finnish translations (by Rolf Ahrenberg).
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000325.html">[Softdevice-cvs] softdevice CHANGELOG,1.171,1.172 video-xv.c,1.50,1.51 video-xv.h,1.18,1.19
+</A></li>
+	<LI>Next message: <A HREF="000327.html">[Softdevice-cvs] softdevice CHANGELOG,1.173,1.174 Makefile,1.25,1.26 softdevice.c,1.55,1.56
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#326">[ date ]</a>
+              <a href="thread.html#326">[ thread ]</a>
+              <a href="subject.html#326">[ subject ]</a>
+              <a href="author.html#326">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

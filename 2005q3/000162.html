@@ -1,0 +1,355 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.87,1.88 setup-softdevice.c,1.21,1.22 setup-softdevice.h,1.15,1.16 video-xv.c,1.29,1.30 video.c,1.25,1.26 video.h,1.16,1.17
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.87%2C1.88%20setup-softdevice.c%2C1.21%2C1.22%20setup-softdevice.h%2C1.15%2C1.16%20video-xv.c%2C1.29%2C1.30%20video.c%2C1.25%2C1.26%20video.h%2C1.16%2C1.17&In-Reply-To=%3C200507201858.j6KIwuI05017%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000161.html">
+   <LINK REL="Next"  HREF="000163.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.87,1.88 setup-softdevice.c,1.21,1.22 setup-softdevice.h,1.15,1.16 video-xv.c,1.29,1.30 video.c,1.25,1.26 video.h,1.16,1.17</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.87%2C1.88%20setup-softdevice.c%2C1.21%2C1.22%20setup-softdevice.h%2C1.15%2C1.16%20video-xv.c%2C1.29%2C1.30%20video.c%2C1.25%2C1.26%20video.h%2C1.16%2C1.17&In-Reply-To=%3C200507201858.j6KIwuI05017%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.87,1.88 setup-softdevice.c,1.21,1.22 setup-softdevice.h,1.15,1.16 video-xv.c,1.29,1.30 video.c,1.25,1.26 video.h,1.16,1.17">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Wed Jul 20 20:58:56 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000161.html">[Softdevice-cvs] softdevice video-vidix.c,1.10,1.11
+</A></li>
+        <LI>Next message: <A HREF="000163.html">[Softdevice-cvs] softdevice CHANGELOG,1.88,1.89 setup-softdevice.c,1.22,1.23 setup-softdevice.h,1.16,1.17 video-dfb.c,1.33,1.34
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#162">[ date ]</a>
+              <a href="thread.html#162">[ thread ]</a>
+              <a href="subject.html#162">[ subject ]</a>
+              <a href="author.html#162">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv25582
+
+Modified Files:
+	CHANGELOG setup-softdevice.c setup-softdevice.h video-xv.c 
+	video.c video.h 
+Log Message:
+    - cropLeft/Right for xv-out
+    - exclude cropTop/Bottom OSD from fb-out
+    - adjusted vidix-out call of yv12_to_yuy2() to dfb-out
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.87
+retrieving revision 1.88
+diff -C2 -d -r1.87 -r1.88
+*** CHANGELOG	17 Jul 2005 09:10:38 -0000	1.87
+--- CHANGELOG	20 Jul 2005 18:58:52 -0000	1.88
+***************
+*** 1,4 ****
+--- 1,8 ----
+  Changelog
+  2005-07-17:
++     - cropLeft/Right for xv-out
++     - exclude cropTop/Bottom OSD from fb-out
++     - adjusted vidix-out call of yv12_to_yuy2() to dfb-out
++ 2005-07-17:
+      - crop Top/Bottom for xv-out
+      - introduce colour space conversion (by Malcom Caldwell)
+
+Index: setup-softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.c,v
+retrieving revision 1.21
+retrieving revision 1.22
+diff -C2 -d -r1.21 -r1.22
+*** setup-softdevice.c	15 Jul 2005 20:42:16 -0000	1.21
+--- setup-softdevice.c	20 Jul 2005 18:58:52 -0000	1.22
+***************
+*** 157,160 ****
+--- 157,162 ----
+    cropTopLines      = 0;
+    cropBottomLines   = 0;
++   cropLeftCols      = 0;
++   cropRightCols     = 0;
+    deintMethod   = 0;
+    ppMethod   = 0;
+***************
+*** 237,240 ****
+--- 239,252 ----
+      fprintf(stderr,&quot;[setup-softdevice] Cropping %d lines from bottom\n&quot;,
+              cropBottomLines);
++   } else if(!strcasecmp(Name,&quot;CropLeftCols&quot;)) {
++     cropLeftCols = atoi(Value);
++     cropLeftCols = clamp (0, cropLeftCols, 100);
++     fprintf(stderr,&quot;[setup-softdevice] Cropping %d columns from left\n&quot;,
++             cropLeftCols);
++   } else if(!strcasecmp(Name,&quot;CropRightCols&quot;)) {
++     cropRightCols = atoi(Value);
++     cropRightCols = clamp (0, cropRightCols, 100);
++     fprintf(stderr,&quot;[setup-softdevice] Cropping %d columns from right\n&quot;,
++             cropRightCols);
+    } else if (!strcasecmp(Name,&quot;PixelFormat&quot;)) {
+      pixelFormat = atoi(Value);
+***************
+*** 383,395 ****
+                              userKeyUsage));
+  
+!   Add(new cMenuEditIntItem(tr(&quot;Crop lines from top&quot;),
+!                             &amp;data-&gt;cropTopLines,
+!                             0,
+!                             100));
+  
+!   Add(new cMenuEditIntItem(tr(&quot;Crop lines from bottom&quot;),
+!                             &amp;data-&gt;cropBottomLines,
+!                             0,
+!                             100));
+  
+    if (data-&gt;outputMethod == VOUT_FB)
+--- 395,422 ----
+                              userKeyUsage));
+  
+!   if (data-&gt;outputMethod != VOUT_FB)
+!   {
+!     Add(new cMenuEditIntItem(tr(&quot;Crop lines from top&quot;),
+!                              &amp;data-&gt;cropTopLines,
+!                              0,
+!                              100));
+  
+!     Add(new cMenuEditIntItem(tr(&quot;Crop lines from bottom&quot;),
+!                              &amp;data-&gt;cropBottomLines,
+!                              0,
+!                              100));
+!   }                            
+! 
+!   if (data-&gt;outputMethod == VOUT_XV)
+!   {
+!     Add(new cMenuEditIntItem(tr(&quot;Crop columns from left&quot;),
+!                              &amp;data-&gt;cropLeftCols,
+!                              0,
+!                              100));
+!     Add(new cMenuEditIntItem(tr(&quot;Crop columns from right&quot;),
+!                              &amp;data-&gt;cropRightCols,
+!                              0,
+!                              100));
+!   }
+  
+    if (data-&gt;outputMethod == VOUT_FB)
+***************
+*** 507,511 ****
+    SetupStore (&quot;CropModeToggleKey&quot;,     setupStore.cropModeToggleKey);
+    SetupStore (&quot;CropTopLines&quot;,        setupStore.cropTopLines);
+!   SetupStore (&quot;CropBottomLines&quot;,     setupStore.cropBottomLines);  
+    SetupStore (&quot;Deinterlace Method&quot;, setupStore.deintMethod);
+    SetupStore (&quot;Postprocess Method&quot;, setupStore.ppMethod);
+--- 534,540 ----
+    SetupStore (&quot;CropModeToggleKey&quot;,     setupStore.cropModeToggleKey);
+    SetupStore (&quot;CropTopLines&quot;,        setupStore.cropTopLines);
+!   SetupStore (&quot;CropBottomLines&quot;,     setupStore.cropBottomLines);
+!   SetupStore (&quot;CropLeftCols&quot;,        setupStore.cropLeftCols);
+!   SetupStore (&quot;CropRightCols&quot;,       setupStore.cropRightCols);
+    SetupStore (&quot;Deinterlace Method&quot;, setupStore.deintMethod);
+    SetupStore (&quot;Postprocess Method&quot;, setupStore.ppMethod);
+
+Index: setup-softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.h,v
+retrieving revision 1.15
+retrieving revision 1.16
+diff -C2 -d -r1.15 -r1.16
+*** setup-softdevice.h	15 Jul 2005 20:42:16 -0000	1.15
+--- setup-softdevice.h	20 Jul 2005 18:58:52 -0000	1.16
+***************
+*** 39,42 ****
+--- 39,44 ----
+      int   cropTopLines;
+      int   cropBottomLines;
++     int   cropLeftCols;
++     int   cropRightCols;
+      int   deintMethod;
+      int   ppMethod;
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.29
+retrieving revision 1.30
+diff -C2 -d -r1.29 -r1.30
+*** video-xv.c	17 Jul 2005 07:39:50 -0000	1.29
+--- video-xv.c	20 Jul 2005 18:58:52 -0000	1.30
+***************
+*** 1266,1270 ****
+    if (aspect_changed ||
+        cutTop != setupStore-&gt;cropTopLines ||
+!       cutBottom != setupStore-&gt;cropBottomLines)
+    {
+      XClearArea (dpy, win, 0, 0, 0, 0, True);
+--- 1266,1272 ----
+    if (aspect_changed ||
+        cutTop != setupStore-&gt;cropTopLines ||
+!       cutBottom != setupStore-&gt;cropBottomLines ||
+!       cutLeft != setupStore-&gt;cropLeftCols ||
+!       cutRight != setupStore-&gt;cropRightCols)
+    {
+      XClearArea (dpy, win, 0, 0, 0, 0, True);
+***************
+*** 1272,1275 ****
+--- 1274,1279 ----
+      cutTop = setupStore-&gt;cropTopLines;
+      cutBottom = setupStore-&gt;cropBottomLines;
++     cutLeft = setupStore-&gt;cropLeftCols;
++     cutRight = setupStore-&gt;cropRightCols;
+      memset (pixels [0], 0, xvWidth*xvHeight);
+      memset (pixels [1], 128, xvWidth*xvHeight/4);
+***************
+*** 1291,1311 ****
+          for (int i = cutTop * 2; i &lt; fheight - cutBottom * 2; i++)
+          {
+!           AlphaBlend(pixels[0]+i*xvWidth,OsdPy+i*OSD_FULL_WIDTH,
+!             Py + i * Ystride,
+!             OsdPAlphaY+i*OSD_FULL_WIDTH,fwidth);
+          }
+  
+          for (int i = cutTop; i &lt; fheight / 2 - cutBottom; i++)
+          {
+!           AlphaBlend(pixels[1]+i*xvWidth/2,
+!             OsdPv+i*OSD_FULL_WIDTH/2,Pv+ i * UVstride,
+!             OsdPAlphaUV+i*OSD_FULL_WIDTH/2,fwidth/2);
+          }
+  
+          for (int i = cutTop; i &lt; fheight / 2 - cutBottom; i++)
+          {
+!           AlphaBlend(pixels[2]+i*xvWidth/2,
+!             OsdPu+i*OSD_FULL_WIDTH/2,Pu+i*UVstride,
+!             OsdPAlphaUV+i*OSD_FULL_WIDTH/2,fwidth/2);
+          }
+  #ifdef USE_MMX
+--- 1295,1321 ----
+          for (int i = cutTop * 2; i &lt; fheight - cutBottom * 2; i++)
+          {
+!           AlphaBlend(pixels[0]+i*xvWidth+2*cutLeft,
+!                      OsdPy+i*OSD_FULL_WIDTH+2*cutLeft,
+!                      Py + i * Ystride+2*cutLeft,
+!                      OsdPAlphaY+i*OSD_FULL_WIDTH+2*cutLeft,
+!                      fwidth-2*(cutLeft+cutRight));
+          }
+  
+          for (int i = cutTop; i &lt; fheight / 2 - cutBottom; i++)
+          {
+!           AlphaBlend(pixels[1]+i*xvWidth/2+cutLeft,
+!                      OsdPv+i*OSD_FULL_WIDTH/2+cutLeft,
+!                      Pv+ i * UVstride+cutLeft,
+!                      OsdPAlphaUV+i*OSD_FULL_WIDTH/2+cutLeft,
+!                      fwidth/2-(cutLeft+cutRight));
+          }
+  
+          for (int i = cutTop; i &lt; fheight / 2 - cutBottom; i++)
+          {
+!           AlphaBlend(pixels[2]+i*xvWidth/2+cutLeft,
+!                      OsdPu+i*OSD_FULL_WIDTH/2+cutLeft,
+!                      Pu+i*UVstride+cutLeft,
+!                      OsdPAlphaUV+i*OSD_FULL_WIDTH/2+cutLeft,
+!                      fwidth/2-(cutLeft+cutRight));
+          }
+  #ifdef USE_MMX
+***************
+*** 1329,1337 ****
+  
+            for (int i = cutTop * 2; i &lt; fheight - cutBottom * 2; i++)
+!              fast_memcpy(pixels [0] + i * xvWidth, Py + i * Ystride, fwidth);
+            for (int i = cutTop; i &lt; fheight / 2 - cutBottom; i++)
+!              fast_memcpy (pixels [1] + i * xvWidth / 2, Pv + i * UVstride, fwidth / 2);
+            for (int i = cutTop; i &lt; fheight / 2 - cutBottom; i++)
+!              fast_memcpy (pixels [2] + i * xvWidth / 2, Pu + i * UVstride, fwidth / 2);
+  
+            pthread_mutex_lock(&amp;xv_mutex);
+--- 1339,1353 ----
+  
+            for (int i = cutTop * 2; i &lt; fheight - cutBottom * 2; i++)
+!              fast_memcpy(pixels [0] + i * xvWidth + 2 * cutLeft,
+!                          Py + i * Ystride + 2 * cutLeft,
+!                          fwidth - 2 * (cutLeft + cutRight));
+            for (int i = cutTop; i &lt; fheight / 2 - cutBottom; i++)
+!              fast_memcpy (pixels [1] + i * xvWidth / 2 + cutLeft,
+!                           Pv + i * UVstride + cutLeft,
+!                           fwidth / 2 - (cutLeft + cutRight));
+            for (int i = cutTop; i &lt; fheight / 2 - cutBottom; i++)
+!              fast_memcpy (pixels [2] + i * xvWidth / 2 + cutLeft,
+!                           Pu + i * UVstride + cutLeft,
+!                           fwidth / 2 - (cutLeft + cutRight));
+  
+            pthread_mutex_lock(&amp;xv_mutex);
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.25
+retrieving revision 1.26
+diff -C2 -d -r1.25 -r1.26
+*** video.c	15 Jul 2005 20:42:16 -0000	1.25
+--- video.c	20 Jul 2005 18:58:52 -0000	1.26
+***************
+*** 23,27 ****
+  #endif
+    sxoff = syoff = lxoff = lyoff = 0;
+!   cutTop = cutBottom = 0;
+    OsdPy = OsdPu = OsdPv = OsdPAlphaY = OsdPAlphaUV = NULL;
+    PixelMask=NULL;
+--- 23,27 ----
+  #endif
+    sxoff = syoff = lxoff = lyoff = 0;
+!   cutTop = cutBottom = cutLeft = cutRight = 0;
+    OsdPy = OsdPu = OsdPv = OsdPAlphaY = OsdPAlphaUV = NULL;
+    PixelMask=NULL;
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.16
+retrieving revision 1.17
+diff -C2 -d -r1.16 -r1.17
+*** video.h	15 Jul 2005 20:42:16 -0000	1.16
+--- video.h	20 Jul 2005 18:58:52 -0000	1.17
+***************
+*** 93,96 ****
+--- 93,97 ----
+              currentPixelFormat,
+              cutTop, cutBottom,
++             cutLeft, cutRight,
+              aspect_changed,
+              current_afd,
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000161.html">[Softdevice-cvs] softdevice video-vidix.c,1.10,1.11
+</A></li>
+	<LI>Next message: <A HREF="000163.html">[Softdevice-cvs] softdevice CHANGELOG,1.88,1.89 setup-softdevice.c,1.22,1.23 setup-softdevice.h,1.16,1.17 video-dfb.c,1.33,1.34
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#162">[ date ]</a>
+              <a href="thread.html#162">[ thread ]</a>
+              <a href="subject.html#162">[ subject ]</a>
+              <a href="author.html#162">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

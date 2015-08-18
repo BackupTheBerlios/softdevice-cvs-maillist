@@ -1,0 +1,206 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.274, 1.275 configure, 1.30,	1.31 SoftOsd.c, 1.24, 1.25
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.274%2C%201.275%20configure%2C%201.30%2C%0A%091.31%20SoftOsd.c%2C%201.24%2C%201.25&In-Reply-To=%3C20061203195616.1ED76B0BC6%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000481.html">
+   <LINK REL="Next"  HREF="000483.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.274, 1.275 configure, 1.30,	1.31 SoftOsd.c, 1.24, 1.25</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.274%2C%201.275%20configure%2C%201.30%2C%0A%091.31%20SoftOsd.c%2C%201.24%2C%201.25&In-Reply-To=%3C20061203195616.1ED76B0BC6%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.274, 1.275 configure, 1.30,	1.31 SoftOsd.c, 1.24, 1.25">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Dec  3 20:56:16 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000481.html">[Softdevice-cvs] softdevice CHANGELOG, 1.273, 1.274 video.c, 1.70,	1.71 video.h, 1.48, 1.49
+</A></li>
+        <LI>Next message: <A HREF="000483.html">[Softdevice-cvs] softdevice audio-oss.c, NONE, 1.1 audio-oss.h, NONE,	1.1 softdevice.c, 1.75, 1.76 CHANGELOG, 1.275, 1.276 configure,	1.31, 1.32 Makefile, 1.34, 1.35
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#482">[ date ]</a>
+              <a href="thread.html#482">[ thread ]</a>
+              <a href="subject.html#482">[ subject ]</a>
+              <a href="author.html#482">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv6697
+
+Modified Files:
+	CHANGELOG configure SoftOsd.c 
+Log Message:
+- detection of and support for the yaepg-patch.
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.274
+retrieving revision 1.275
+diff -C2 -d -r1.274 -r1.275
+*** CHANGELOG	3 Dec 2006 19:32:59 -0000	1.274
+--- CHANGELOG	3 Dec 2006 19:55:15 -0000	1.275
+***************
+*** 6,10 ****
+     - change CopyPicBuf_YUV420P_to_YUY() to a general YUV420P to planar
+       conversion method
+!    - introduce the possibility to scale the video window(for yaepg)
+  2006-11-26:
+     - use brackets in WRITE_RGB16 macro, introduce WRITE_RGB15 (untested)
+--- 6,11 ----
+     - change CopyPicBuf_YUV420P_to_YUY() to a general YUV420P to planar
+       conversion method
+!    - introduce the possibility to scale the video window (for yaepg).
+!    - detection of and support for the yaepg-patch.
+  2006-11-26:
+     - use brackets in WRITE_RGB16 macro, introduce WRITE_RGB15 (untested)
+
+Index: configure
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/configure,v
+retrieving revision 1.30
+retrieving revision 1.31
+diff -C2 -d -r1.30 -r1.31
+*** configure	18 Sep 2006 10:16:31 -0000	1.30
+--- configure	3 Dec 2006 19:55:15 -0000	1.31
+***************
+*** 42,45 ****
+--- 42,46 ----
+  cle266=&quot;yes&quot;
+  alsa=&quot;yes&quot;
++ yaepg=&quot;auto&quot;
+  
+  function help () {
+***************
+*** 56,59 ****
+--- 57,61 ----
+    echo &quot;  --disable-mmx2&quot;
+    echo &quot;  --disable-alsa&quot;
++   echo &quot;  --disable-yaepg / --enable-yapg (yaepg patch support)&quot;
+    echo &quot;  --with-ffmpeg-path YOUR_FFMPEG_PATH&quot;
+    echo &quot;  --with-vidix-path YOUR_VIDIX_PATH&quot;
+***************
+*** 77,80 ****
+--- 79,84 ----
+      --disable-mmx2) shift; with_mmx2=&quot;no&quot;;;
+      --disable-alsa) shift; alsa=&quot;no&quot;;;
++     --disable-yaepg) shift; yaepg=&quot;no&quot;;;
++     --enable-yaepg) shift; yaepg=&quot;yes&quot;;;
+      --with-ffmpeg-path) shift;
+        ffmpeg_path=$1 ;
+***************
+*** 290,293 ****
+--- 294,316 ----
+  fi
+  
++ ########################################################
++ # check for yaepg patch
++ if test &quot;${yaepg}&quot; = &quot;auto&quot; ; then
++ echo -n &quot;Checking for yaepg patch... &quot;
++ echo &quot;Checking for yaepg patch.------------------&quot; &gt;&gt; config.log
++ 
++ yaepg=&quot;no&quot;;
++ VDR_DIR=../../../
++ 
++ grep vidWin $VDR_DIR/osd.h &gt;&gt; config.log 2&gt;&amp;1 &amp;&amp; yaepg=&quot;yes&quot;
++ 
++ if test &quot;${yaepg}&quot; = &quot;yes&quot; ; then
++ echo &quot;Found yaepg patch.&quot;
++ else
++ echo &quot;Not Found.&quot;
++ fi
++ 
++ fi
++ 
+  #########################################################
+  # start of DirectFB specific tests
+***************
+*** 523,526 ****
+--- 546,553 ----
+    echo &quot;#define USE_ALTIVEC 1&quot; &gt;&gt; $TMPH
+    echo &quot;ADD_CXXFLAGS += -faltivec&quot; &gt;&gt; $TMPM
++ fi
++ 
++ if test &quot;${yaepg}&quot; = &quot;yes&quot; ; then
++   echo &quot;#define HAVE_YAEPGPATCH 1&quot; &gt;&gt; $TMPH
+  fi
+  
+
+Index: SoftOsd.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.c,v
+retrieving revision 1.24
+retrieving revision 1.25
+diff -C2 -d -r1.24 -r1.25
+*** SoftOsd.c	16 Nov 2006 21:03:18 -0000	1.24
+--- SoftOsd.c	3 Dec 2006 19:55:15 -0000	1.25
+***************
+*** 13,16 ****
+--- 13,20 ----
+  #include &quot;utils.h&quot;
+  
++ #ifdef HAVE_CONFIG
++ # include &quot;config.h&quot;
++ #endif
++ 
+  //#define OSDDEB(out...) {printf(&quot;soft_osd[%04d]:&quot;,(int)(getTimeMilis() % 10000));printf(out);}
+  
+***************
+*** 94,97 ****
+--- 98,105 ----
+                  voutMutex.Lock();
+                  videoOut-&gt;CloseOSD();
++ #ifdef HAVE_YAEPGPATCH
++                 if (vidWin.bpp!=0) 
++                         videoOut-&gt;SetVidWin(0,0,0,0,0);
++ #endif
+                  videoOut=0;
+                  voutMutex.Unlock();
+***************
+*** 273,276 ****
+--- 281,288 ----
+  
+          voutMutex.Lock();
++ #ifdef HAVE_YAEPGPATCH
++         if (vidWin.bpp!=0) 
++                 videoOut-&gt;SetVidWin(1,vidWin.x1,vidWin.y1,vidWin.x2,vidWin.y2);
++ #endif
+          if (OSD_changed)
+                  OsdCommit();
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000481.html">[Softdevice-cvs] softdevice CHANGELOG, 1.273, 1.274 video.c, 1.70,	1.71 video.h, 1.48, 1.49
+</A></li>
+	<LI>Next message: <A HREF="000483.html">[Softdevice-cvs] softdevice audio-oss.c, NONE, 1.1 audio-oss.h, NONE,	1.1 softdevice.c, 1.75, 1.76 CHANGELOG, 1.275, 1.276 configure,	1.31, 1.32 Makefile, 1.34, 1.35
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#482">[ date ]</a>
+              <a href="thread.html#482">[ thread ]</a>
+              <a href="subject.html#482">[ subject ]</a>
+              <a href="author.html#482">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

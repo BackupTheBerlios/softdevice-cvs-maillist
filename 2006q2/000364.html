@@ -1,0 +1,293 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softieee1394 HISTORY,1.3,1.4 Makefile,1.2,1.3 README,1.2,1.3 avc-handler.c,1.2,1.3
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softieee1394%20HISTORY%2C1.3%2C1.4%20Makefile%2C1.2%2C1.3%20README%2C1.2%2C1.3%20avc-handler.c%2C1.2%2C1.3&In-Reply-To=%3C200605251743.k4PHhQT26624%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000363.html">
+   <LINK REL="Next"  HREF="000365.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softieee1394 HISTORY,1.3,1.4 Makefile,1.2,1.3 README,1.2,1.3 avc-handler.c,1.2,1.3</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softieee1394%20HISTORY%2C1.3%2C1.4%20Makefile%2C1.2%2C1.3%20README%2C1.2%2C1.3%20avc-handler.c%2C1.2%2C1.3&In-Reply-To=%3C200605251743.k4PHhQT26624%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softieee1394 HISTORY,1.3,1.4 Makefile,1.2,1.3 README,1.2,1.3 avc-handler.c,1.2,1.3">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Thu May 25 19:43:26 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000363.html">[Softdevice-cvs] softieee1394/patches libavc1394-0.5.3-read-mic-00.diff,NONE,1.1
+</A></li>
+        <LI>Next message: <A HREF="000365.html">[Softdevice-cvs] softieee1394 HISTORY,1.4,1.5 avc-handler.c,1.3,1.4 avc-handler.h,1.2,1.3
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#364">[ date ]</a>
+              <a href="thread.html#364">[ thread ]</a>
+              <a href="subject.html#364">[ subject ]</a>
+              <a href="author.html#364">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softieee1394
+In directory sheep:/tmp/cvs-serv22478
+
+Modified Files:
+	HISTORY Makefile README avc-handler.c 
+Log Message:
+- new patch for current libavc-0.5.3
+- update for vdr-1.4.0
+- some changes due to ffmpeg
+
+
+
+Index: HISTORY
+===================================================================
+RCS file: /cvsroot/softdevice/softieee1394/HISTORY,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** HISTORY	12 Sep 2005 12:17:07 -0000	1.3
+--- HISTORY	25 May 2006 17:48:19 -0000	1.4
+***************
+*** 1,4 ****
+--- 1,8 ----
+  VDR Plugin 'softieee1394' Revision History
+  ------------------------------------------
++ 2006-05-25:
++   - new patch for current libavc-0.5.3
++   - update for vdr-1.4.0
++   - some changes due to ffmpeg
+  2005-09-12:
+    - do not offer a mainmenu entry if there are no ieee1394 devices.
+
+Index: Makefile
+===================================================================
+RCS file: /cvsroot/softdevice/softieee1394/Makefile,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** Makefile	12 Sep 2005 12:17:07 -0000	1.2
+--- Makefile	25 May 2006 17:48:19 -0000	1.3
+***************
+*** 19,23 ****
+  
+  CXX      ?= g++
+! CXXFLAGS ?= -g -O2 -Wall -Woverloaded-virtual
+  
+  ### The directory environment:
+--- 19,23 ----
+  
+  CXX      ?= g++
+! CXXFLAGS ?= -g -O2 -Wall -fPIC -Woverloaded-virtual
+  
+  ### The directory environment:
+***************
+*** 35,38 ****
+--- 35,43 ----
+  
+  VDRVERSION = $(shell grep 'define VDRVERSION ' $(VDRDIR)/config.h | awk '{ print $$3 }' | sed -e 's/&quot;//g')
++ APIVERSION = $(shell sed -ne '/define APIVERSION/ { s/^.*&quot;\(.*\)&quot;.*$$/\1/; p }' $(VDRDIR)/config.h)
++ 
++ ifeq ($(APIVERSION),)
++        APIVERSION = $(VDRVERSION)
++ endif
+  
+  ### The name of the distribution archive:
+***************
+*** 72,76 ****
+  libvdr-$(PLUGIN).so: $(OBJS)
+  	$(CXX) $(CXXFLAGS) -shared $(OBJS) $(LIBS) -o $@
+! 	@cp $@ $(LIBDIR)/$@.$(VDRVERSION)
+  
+  dist: clean
+--- 77,81 ----
+  libvdr-$(PLUGIN).so: $(OBJS)
+  	$(CXX) $(CXXFLAGS) -shared $(OBJS) $(LIBS) -o $@
+! 	@cp $@ $(LIBDIR)/$@.$(APIVERSION)
+  
+  dist: clean
+
+Index: README
+===================================================================
+RCS file: /cvsroot/softdevice/softieee1394/README,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** README	12 Sep 2005 12:17:07 -0000	1.2
+--- README	25 May 2006 17:48:19 -0000	1.3
+***************
+*** 23,30 ****
+  Patches:
+    You need to patch libavc1394. Therefore the only supported version
+!   is 0.5.0. The patch required is in directory patches. The usual procedure
+    for doing this is:
+    1. cd to_your_libavc1394_directory
+!   2. patch --dry-run &lt;path_to_patch_directory/patch_file
+    3. if that was succesfully (no rejects or failed messages)
+       patch &lt;path_to_patch_directory/patch_file
+--- 23,30 ----
+  Patches:
+    You need to patch libavc1394. Therefore the only supported version
+!   is 0.5.3. The patch required is in directory patches. The usual procedure
+    for doing this is:
+    1. cd to_your_libavc1394_directory
+!   2. patch --dry-run -p 1 &lt;path_to_patch_directory/patch_file
+    3. if that was succesfully (no rejects or failed messages)
+       patch &lt;path_to_patch_directory/patch_file
+***************
+*** 37,41 ****
+      <A HREF="http://softdevice.berlios.de">http://softdevice.berlios.de</A>
+  
+!   libavc1394-0.5.0
+      <A HREF="http://sourceforge.net/projects/libavc1394">http://sourceforge.net/projects/libavc1394</A>
+  
+--- 37,41 ----
+      <A HREF="http://softdevice.berlios.de">http://softdevice.berlios.de</A>
+  
+!   libavc1394-0.5.3
+      <A HREF="http://sourceforge.net/projects/libavc1394">http://sourceforge.net/projects/libavc1394</A>
+  
+
+Index: avc-handler.c
+===================================================================
+RCS file: /cvsroot/softdevice/softieee1394/avc-handler.c,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** avc-handler.c	12 Sep 2005 12:17:07 -0000	1.2
+--- avc-handler.c	25 May 2006 17:48:19 -0000	1.3
+***************
+*** 110,114 ****
+          Skins.Message(mtInfo,msg);
+  #endif
+!         avc1394_vcr_get_mic_info (handle, i, NULL, NULL);
+        }
+      }
+--- 110,115 ----
+          Skins.Message(mtInfo,msg);
+  #endif
+!         avc1394_vcr_get_mic_info (handle, i, &amp;micData[i], &amp;micSize[i]);
+!         avc1394_vcr_parse_mic_info (micData[i], micSize[i], 1);
+        }
+      }
+***************
+*** 348,360 ****
+      AVPacket          pkt;
+      int               nStreams=0;
+-     static int64_t    lastPTS=0;
+- 
+  
+    dsyslog(&quot;[AVCPlayer-Action] started&quot;);
+-   active = running = true;
+    pDevice = (cSoftDevice *) cDevice::PrimaryDevice();
+  
+    fmt = av_find_input_format(&quot;dv1394&quot;);
+!   rc = av_open_input_stream(&amp;ic, NULL, &quot;/dev/zero&quot;, fmt, ap);
+  
+    // limitation in cPlayer: we have to know the play mode at
+--- 349,369 ----
+      AVPacket          pkt;
+      int               nStreams=0;
+  
+    dsyslog(&quot;[AVCPlayer-Action] started&quot;);
+    pDevice = (cSoftDevice *) cDevice::PrimaryDevice();
+  
+    fmt = av_find_input_format(&quot;dv1394&quot;);
+!   if (!fmt) {
+!     esyslog(&quot;[AVCPlayer-Action] inputformat dv1394 &quot;
+!             &quot;not supported by your ffmpeg version&quot;);
+!     return;
+!   }
+! 
+!   if ((rc = av_open_input_stream(&amp;ic, NULL, &quot;/dev/zero&quot;, fmt, ap)) &lt; 0) {
+!     esyslog(&quot;[AVCPlayer-Action] open input stream failed (%d)&quot;, rc);
+!     return;
+!   }
+! 
+!   active = running = true;
+  
+    // limitation in cPlayer: we have to know the play mode at
+***************
+*** 395,402 ****
+      av_dup_packet(&amp;pkt);
+  
+!     lastPTS=pkt.pts;
+      if ( pkt.pts != (int64_t) AV_NOPTS_VALUE ) {
+        pkt.pts/=100;
+      }
+  
+      pDevice-&gt;PlayVideo((uchar *)&amp;pkt,-2);
+--- 404,432 ----
+      av_dup_packet(&amp;pkt);
+  
+! #if LIBAVFORMAT_BUILD &gt; 4623
+!       AVRational time_base;
+! 
+!     time_base = ic-&gt;streams[pkt.stream_index]-&gt;time_base;
+!     if (pkt.pts != (int64_t) AV_NOPTS_VALUE) {
+! #if 0
+!       if (ic-&gt;streams[pkt.stream_index]-&gt;codec-&gt;codec_type == CODEC_TYPE_AUDIO)
+!         fprintf (stderr, &quot;Au: %lld -&gt;&quot;,pkt.pts);
+!       else if (ic-&gt;streams[pkt.stream_index]-&gt;codec-&gt;codec_type == CODEC_TYPE_VIDEO)
+!         fprintf (stderr, &quot;Vi: %lld -&gt;&quot;,pkt.pts);
+!       else
+!         fprintf (stderr, &quot;??: %lld -&gt;&quot;,pkt.pts);
+! #endif
+!       pkt.pts = av_rescale(pkt.pts,
+!                            AV_TIME_BASE * (int64_t)time_base.num,
+!                            time_base.den) / 100;
+! #if 0
+!       fprintf (stderr, &quot; %lld\n&quot;,pkt.pts);
+! #endif
+!     }
+! #else
+      if ( pkt.pts != (int64_t) AV_NOPTS_VALUE ) {
+        pkt.pts/=100;
+      }
++ #endif
+  
+      pDevice-&gt;PlayVideo((uchar *)&amp;pkt,-2);
+***************
+*** 407,411 ****
+--- 437,445 ----
+        fprintf(stderr,&quot;Streams: %d\n&quot;,nStreams);
+        for (int i=0; i &lt;nStreams; i++ ) {
++ #if LIBAVFORMAT_BUILD &gt; 4628
++           printf(&quot;Codec %d ID: %d\n&quot;,i,ic-&gt;streams[i]-&gt;codec-&gt;codec_id);
++ #else
+            printf(&quot;Codec %d ID: %d\n&quot;,i,ic-&gt;streams[i]-&gt;codec.codec_id);
++ #endif
+        }
+      }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000363.html">[Softdevice-cvs] softieee1394/patches libavc1394-0.5.3-read-mic-00.diff,NONE,1.1
+</A></li>
+	<LI>Next message: <A HREF="000365.html">[Softdevice-cvs] softieee1394 HISTORY,1.4,1.5 avc-handler.c,1.3,1.4 avc-handler.h,1.2,1.3
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#364">[ date ]</a>
+              <a href="thread.html#364">[ thread ]</a>
+              <a href="subject.html#364">[ subject ]</a>
+              <a href="author.html#364">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

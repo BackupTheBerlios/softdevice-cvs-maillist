@@ -1,0 +1,3569 @@
+From nobody at sheep.berlios.de  Wed Jul 11 19:37:46 2007
+From: nobody at sheep.berlios.de (lucke)
+Date: Wed, 11 Jul 2007 19:37:46 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice softdevice.c,1.83,1.84
+Message-ID: <20070711173746.4601EF4420@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv4005
+
+Modified Files:
+	softdevice.c 
+Log Message:
+whitespace cleanup
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.83
+retrieving revision 1.84
+diff -C2 -d -r1.83 -r1.84
+*** softdevice.c	10 May 2007 19:54:44 -0000	1.83
+--- softdevice.c	11 Jul 2007 17:37:38 -0000	1.84
+***************
+*** 104,108 ****
+  #define AOUT_DUMMY  2
+  #define AOUT_OSS    3
+! #define AOUT_MACOS  4 
+  
+  //#define SOFTDEB(out...) {printf("softdeb[%04d]:",(int)(getTimeMilis() % 10000));printf(out);}
+--- 104,108 ----
+  #define AOUT_DUMMY  2
+  #define AOUT_OSS    3
+! #define AOUT_MACOS  4
+  
+  //#define SOFTDEB(out...) {printf("softdeb[%04d]:",(int)(getTimeMilis() % 10000));printf(out);}
+***************
+*** 140,144 ****
+  {
+      if (cOsd::IsOpen())
+! 	return osd;
+      return NULL;
+  };
+--- 140,144 ----
+  {
+      if (cOsd::IsOpen())
+!         return osd;
+      return NULL;
+  };
+***************
+*** 689,704 ****
+                      SizeX, SizeY);
+       CopyScalePicBufAlphaBlend(&dst,orig_pic,
+! 	   0,0,orig_pic->width,orig_pic->height,
+! 	   0,0,SizeX,SizeY,
+! 	   OsdPy,OsdPv,OsdPu,OsdPAlphaY,OsdPAlphaUV,
+             OSD_STRIDE,
+! 	   0,0,0,0);
+       free(OsdPy); free(OsdPu); free(OsdPv);
+       free(OsdPAlphaY); free(OsdPAlphaUV);
+    } else {
+       CopyScalePicBuf(&dst,orig_pic,
+! 	   0,0,orig_pic->width,orig_pic->height,
+! 	   0,0,SizeX,SizeY,
+! 	   0,0,0,0);
+    };
+    SizeX=dst.width;
+--- 689,704 ----
+                      SizeX, SizeY);
+       CopyScalePicBufAlphaBlend(&dst,orig_pic,
+!            0,0,orig_pic->width,orig_pic->height,
+!            0,0,SizeX,SizeY,
+!            OsdPy,OsdPv,OsdPu,OsdPAlphaY,OsdPAlphaUV,
+             OSD_STRIDE,
+!            0,0,0,0);
+       free(OsdPy); free(OsdPu); free(OsdPv);
+       free(OsdPAlphaY); free(OsdPAlphaUV);
+    } else {
+       CopyScalePicBuf(&dst,orig_pic,
+!            0,0,orig_pic->width,orig_pic->height,
+!            0,0,SizeX,SizeY,
+!            0,0,0,0);
+    };
+    SizeX=dst.width;
+***************
+*** 787,791 ****
+  
+    softlog = new cSetupSoftlog();
+! #ifndef VOUT_SHM 
+    setupStore = (cSetupStore *) malloc( sizeof(cSetupStore) );
+    setupStore->InitSetupStore();
+--- 787,791 ----
+  
+    softlog = new cSetupSoftlog();
+! #ifndef VOUT_SHM
+    setupStore = (cSetupStore *) malloc( sizeof(cSetupStore) );
+    setupStore->InitSetupStore();
+***************
+*** 798,805 ****
+    if  ( (ctl_shmid = shmget(ctl_key,sizeof(ShmCtlBlock), 0666)) >= 0 ) {
+            fprintf(stderr,"softdevice: Got ctl_shmid %d shm ctl!\n",ctl_shmid);
+!   }; 
+  
+    // attach to the control block
+!   if ( ctl_shmid>0 && ( (ctl = (ShmCtlBlock*)shmat(ctl_shmid,NULL,0)) 
+                            == (ShmCtlBlock*) -1 )) {
+            fprintf(stderr,"softdevice: Error attatching shm ctl!\n");
+--- 798,805 ----
+    if  ( (ctl_shmid = shmget(ctl_key,sizeof(ShmCtlBlock), 0666)) >= 0 ) {
+            fprintf(stderr,"softdevice: Got ctl_shmid %d shm ctl!\n",ctl_shmid);
+!   };
+  
+    // attach to the control block
+!   if ( ctl_shmid>0 && ( (ctl = (ShmCtlBlock*)shmat(ctl_shmid,NULL,0))
+                            == (ShmCtlBlock*) -1 )) {
+            fprintf(stderr,"softdevice: Error attatching shm ctl!\n");
+***************
+*** 810,814 ****
+            setupStoreShmId=ctl->setup_shmid;
+            // try to attach to an existing setupStore
+!           if ( (setupStore = (cSetupStore*)shmat(setupStoreShmId,NULL,0)) 
+                            == (cSetupStore*) -1 ) {
+                    fprintf(stderr,"softdevice: Error attatching existing setupStore shm!\n");
+--- 810,814 ----
+            setupStoreShmId=ctl->setup_shmid;
+            // try to attach to an existing setupStore
+!           if ( (setupStore = (cSetupStore*)shmat(setupStoreShmId,NULL,0))
+                            == (cSetupStore*) -1 ) {
+                    fprintf(stderr,"softdevice: Error attatching existing setupStore shm!\n");
+***************
+*** 819,827 ****
+            } else fprintf(stderr,"softdevice: Attatched to setupStore %d at %p\n",
+                            setupStoreShmId,setupStore);
+!                                  
+    };
+  
+    if ( !setupStore ) {
+!           if ( (setupStoreShmId = shmget(IPC_PRIVATE,sizeof(cSetupStore), 
+                                            IPC_CREAT | 0666)) >= 0 ) {
+                    fprintf(stderr,"softdevice: Created setupStoreId %d!\n",
+--- 819,827 ----
+            } else fprintf(stderr,"softdevice: Attatched to setupStore %d at %p\n",
+                            setupStoreShmId,setupStore);
+! 
+    };
+  
+    if ( !setupStore ) {
+!           if ( (setupStoreShmId = shmget(IPC_PRIVATE,sizeof(cSetupStore),
+                                            IPC_CREAT | 0666)) >= 0 ) {
+                    fprintf(stderr,"softdevice: Created setupStoreId %d!\n",
+***************
+*** 829,844 ****
+            };
+            // try to attach to the new setupStore
+!           if ( (setupStore = (cSetupStore*)shmat(setupStoreShmId,NULL,0)) 
+                            == (cSetupStore*) -1 ) {
+                    fprintf(stderr,"softdevice: Error attatching setupStore shm!\n");
+                    exit(-1);
+!           } else 
+                    fprintf(stderr,"softdevice: Attatched to setupStoreId %d at %p.\n",
+                            setupStoreShmId,setupStore);
+!           
+            if (ctl>0)
+                    ctl->setup_shmid=setupStoreShmId;
+  #ifndef __APPLE__
+! 	  // request removing after detaching
+            if ( setupStoreShmId > 0)
+                          shmctl(setupStoreShmId, IPC_RMID, 0);
+--- 829,844 ----
+            };
+            // try to attach to the new setupStore
+!           if ( (setupStore = (cSetupStore*)shmat(setupStoreShmId,NULL,0))
+                            == (cSetupStore*) -1 ) {
+                    fprintf(stderr,"softdevice: Error attatching setupStore shm!\n");
+                    exit(-1);
+!           } else
+                    fprintf(stderr,"softdevice: Attatched to setupStoreId %d at %p.\n",
+                            setupStoreShmId,setupStore);
+! 
+            if (ctl>0)
+                    ctl->setup_shmid=setupStoreShmId;
+  #ifndef __APPLE__
+!           // request removing after detaching
+            if ( setupStoreShmId > 0)
+                          shmctl(setupStoreShmId, IPC_RMID, 0);
+***************
+*** 930,934 ****
+          i++;
+          argc--;
+! 	continue;
+      };
+      if (!strcmp (argv[i], "-vo")) {
+--- 930,934 ----
+          i++;
+          argc--;
+!         continue;
+      };
+      if (!strcmp (argv[i], "-vo")) {
+
+
+
+From nobody at sheep.berlios.de  Wed Jul 11 19:41:12 2007
+From: nobody at sheep.berlios.de (lucke)
+Date: Wed, 11 Jul 2007 19:41:12 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice softdevice.c,1.84,1.85
+Message-ID: <20070711174112.351F82D249@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv4253
+
+Modified Files:
+	softdevice.c 
+Log Message:
+compile fix for: ./configure --disable-shm
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.84
+retrieving revision 1.85
+diff -C2 -d -r1.84 -r1.85
+*** softdevice.c	11 Jul 2007 17:37:38 -0000	1.84
+--- softdevice.c	11 Jul 2007 17:41:04 -0000	1.85
+***************
+*** 787,791 ****
+  
+    softlog = new cSetupSoftlog();
+! #ifndef VOUT_SHM
+    setupStore = (cSetupStore *) malloc( sizeof(cSetupStore) );
+    setupStore->InitSetupStore();
+--- 787,791 ----
+  
+    softlog = new cSetupSoftlog();
+! #ifndef SHM_SUPPORT
+    setupStore = (cSetupStore *) malloc( sizeof(cSetupStore) );
+    setupStore->InitSetupStore();
+
+
+
+From nobody at sheep.berlios.de  Wed Jul 11 19:52:28 2007
+From: nobody at sheep.berlios.de (lucke)
+Date: Wed, 11 Jul 2007 19:52:28 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice configure, 1.42, 1.43 VideoFilter.h, 1.3,
+	1.4
+Message-ID: <20070711175228.3D17077017@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv5050
+
+Modified Files:
+	configure VideoFilter.h 
+Log Message:
+whitespace cleanup
+
+Index: configure
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/configure,v
+retrieving revision 1.42
+retrieving revision 1.43
+diff -C2 -d -r1.42 -r1.43
+*** configure	10 May 2007 22:03:03 -0000	1.42
+--- configure	11 Jul 2007 17:52:20 -0000	1.43
+***************
+*** 136,140 ****
+          ;;
+    *)
+! 	echo "'$cpu_arch' is unknown..."
+          cpu_arch="unknown"
+          with_mmx="no"
+--- 136,140 ----
+          ;;
+    *)
+!         echo "'$cpu_arch' is unknown..."
+          cpu_arch="unknown"
+          with_mmx="no"
+***************
+*** 338,348 ****
+  
+  int main(void) {
+! 	int fdDSP;
+! 	if (-1 == (fdDSP = open(DSP_DEVICE, O_WRONLY))) {
+! 		exit(-1);
+! 	}
+! 	ioctl(fdDSP, SNDCTL_DSP_RESET, 0);
+! 	close(fdDSP);
+! 	return 0;
+  }
+  EOF
+--- 338,348 ----
+  
+  int main(void) {
+!         int fdDSP;
+!         if (-1 == (fdDSP = open(DSP_DEVICE, O_WRONLY))) {
+!                 exit(-1);
+!         }
+!         ioctl(fdDSP, SNDCTL_DSP_RESET, 0);
+!         close(fdDSP);
+!         return 0;
+  }
+  EOF
+
+Index: VideoFilter.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/VideoFilter.h,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** VideoFilter.h	10 May 2007 22:03:03 -0000	1.3
+--- VideoFilter.h	11 Jul 2007 17:52:20 -0000	1.4
+***************
+*** 47,51 ****
+          cVideoMirror(cVideoOut *VideoOut);
+          virtual ~cVideoMirror();
+!    
+          virtual void Filter(sPicBuffer *&dest, sPicBuffer *orig);
+  };
+--- 47,51 ----
+          cVideoMirror(cVideoOut *VideoOut);
+          virtual ~cVideoMirror();
+! 
+          virtual void Filter(sPicBuffer *&dest, sPicBuffer *orig);
+  };
+***************
+*** 56,60 ****
+          cDeintLibav(cVideoOut *VideoOut);
+          virtual ~cDeintLibav();
+!    
+          virtual void Filter(sPicBuffer *&dest, sPicBuffer *orig);
+  };
+--- 56,60 ----
+          cDeintLibav(cVideoOut *VideoOut);
+          virtual ~cDeintLibav();
+! 
+          virtual void Filter(sPicBuffer *&dest, sPicBuffer *orig);
+  };
+***************
+*** 74,78 ****
+          cImageConvert(cVideoOut *VideoOut);
+          virtual ~cImageConvert();
+!    
+          virtual void Filter(sPicBuffer *&dest, sPicBuffer *orig);
+  };
+--- 74,78 ----
+          cImageConvert(cVideoOut *VideoOut);
+          virtual ~cImageConvert();
+! 
+          virtual void Filter(sPicBuffer *&dest, sPicBuffer *orig);
+  };
+***************
+*** 89,93 ****
+          cBorderDetect(cVideoOut *VideoOut);
+          virtual ~cBorderDetect();
+!    
+          virtual void Filter(sPicBuffer *&dest, sPicBuffer *orig);
+  };
+--- 89,93 ----
+          cBorderDetect(cVideoOut *VideoOut);
+          virtual ~cBorderDetect();
+! 
+          virtual void Filter(sPicBuffer *&dest, sPicBuffer *orig);
+  };
+***************
+*** 104,108 ****
+          cLibAvPostProc(cVideoOut *VideoOut);
+          virtual ~cLibAvPostProc();
+!    
+          virtual void Filter(sPicBuffer *&dest, sPicBuffer *orig);
+  };
+--- 104,108 ----
+          cLibAvPostProc(cVideoOut *VideoOut);
+          virtual ~cLibAvPostProc();
+! 
+          virtual void Filter(sPicBuffer *&dest, sPicBuffer *orig);
+  };
+
+
+
+From nobody at sheep.berlios.de  Wed Jul 11 19:57:05 2007
+From: nobody at sheep.berlios.de (lucke)
+Date: Wed, 11 Jul 2007 19:57:05 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice configure, 1.43, 1.44 VideoFilter.h, 1.4,
+	1.5
+Message-ID: <20070711175705.73133F6ABF@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv5393
+
+Modified Files:
+	configure VideoFilter.h 
+Log Message:
+apply patch by Matthias Schwarzott for compile issues with newer ffmpeg versions
+
+Index: configure
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/configure,v
+retrieving revision 1.43
+retrieving revision 1.44
+diff -C2 -d -r1.43 -r1.44
+*** configure	11 Jul 2007 17:52:20 -0000	1.43
+--- configure	11 Jul 2007 17:56:57 -0000	1.44
+***************
+*** 174,180 ****
+--- 174,182 ----
+  cat > ${TMPC} << EOF
+  #define __STDC_CONSTANT_MACROS
++ extern "C" {
+  #include <stdlib.h>
+  #include <avcodec.h>
+  #include <avformat.h>
++ }
+  int main(void) {
+  /*  if ( avcodec_build() != LIBAVCODEC_BUILD ) {
+***************
+*** 250,256 ****
+--- 252,260 ----
+  #define __STDC_CONSTANT_MACROS
+  #include <stdlib.h>
++ extern "C" {
+  #include <avcodec.h>
+  #include <avformat.h>
+  #include <swscale.h>
++ }
+  int main(void) {
+  /*  if ( avcodec_build() != LIBAVCODEC_BUILD ) {
+
+Index: VideoFilter.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/VideoFilter.h,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -C2 -d -r1.4 -r1.5
+*** VideoFilter.h	11 Jul 2007 17:52:20 -0000	1.4
+--- VideoFilter.h	11 Jul 2007 17:56:57 -0000	1.5
+***************
+*** 15,20 ****
+--- 15,22 ----
+  #ifdef PP_LIBAVCODEC
+  #include <stdint.h> //needed by postproc.h
++ extern "C" {
+    #include <postprocess.h>
+    //#include <postproc/postprocess.h>
++ }
+  #endif //PP_LIBAVCODEC
+  
+***************
+*** 61,65 ****
+--- 63,69 ----
+  
+  #ifdef USE_SWSCALE
++ extern "C" {
+  #include <swscale.h>
++ }
+  #endif
+  class cImageConvert : public cVideoFilter {
+
+
+
+From nobody at sheep.berlios.de  Wed Jul 11 20:08:33 2007
+From: nobody at sheep.berlios.de (lucke)
+Date: Wed, 11 Jul 2007 20:08:33 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice PicBuffer.c,1.19,1.20
+Message-ID: <20070711180833.BFEBCF42DF@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv6470
+
+Modified Files:
+	PicBuffer.c 
+Log Message:
+whitespace cleanup
+
+Index: PicBuffer.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/PicBuffer.c,v
+retrieving revision 1.19
+retrieving revision 1.20
+diff -C2 -d -r1.19 -r1.20
+*** PicBuffer.c	12 Mar 2007 20:43:26 -0000	1.19
+--- PicBuffer.c	11 Jul 2007 18:08:24 -0000	1.20
+***************
+*** 44,48 ****
+          PICDEB("FillPicBuffer Pic %p pixel[0] %p max_height %d stride[0] %d\n",
+                          Pic, Pic->pixel[0], Pic->max_height, Pic->stride[0]);
+!         int pixel_size=GetFormatBPP(Pic->format); 
+  
+          switch (Pic->format) {
+--- 44,48 ----
+          PICDEB("FillPicBuffer Pic %p pixel[0] %p max_height %d stride[0] %d\n",
+                          Pic, Pic->pixel[0], Pic->max_height, Pic->stride[0]);
+!         int pixel_size=GetFormatBPP(Pic->format);
+  
+          switch (Pic->format) {
+***************
+*** 63,67 ****
+                                  break;
+                          };
+!                         break;                        
+                  case PIX_FMT_RGB555 :
+                          {
+--- 63,67 ----
+                                  break;
+                          };
+!                         break;
+                  case PIX_FMT_RGB555 :
+                          {
+***************
+*** 106,110 ****
+          PICDEB("ClearPicBuffer Pic %p pixel[0] %p max_height %d stride[0] %d\n",
+                          Pic, Pic->pixel[0], Pic->max_height, Pic->stride[0]);
+!         int pixel_size=GetFormatBPP(Pic->format); 
+  
+          switch (Pic->format) {
+--- 106,110 ----
+          PICDEB("ClearPicBuffer Pic %p pixel[0] %p max_height %d stride[0] %d\n",
+                          Pic, Pic->pixel[0], Pic->max_height, Pic->stride[0]);
+!         int pixel_size=GetFormatBPP(Pic->format);
+  
+          switch (Pic->format) {
+***************
+*** 318,322 ****
+                  buf->stride[0]=ALIGN(pixel_size*w,16);
+                  buf->pixel[0]=(uint8_t*)malloc((buf->stride[0]*h)+16);
+!                 
+                  if (buf->pixel[0]==NULL) {
+                      printf("could not allocate memory for picture buffer!\n") ;
+--- 318,322 ----
+                  buf->stride[0]=ALIGN(pixel_size*w,16);
+                  buf->pixel[0]=(uint8_t*)malloc((buf->stride[0]*h)+16);
+! 
+                  if (buf->pixel[0]==NULL) {
+                      printf("could not allocate memory for picture buffer!\n") ;
+***************
+*** 326,330 ****
+                  return true;
+          };
+!                 
+          // planar pixel formats
+          GetChromaSubSample(pix_fmt, h_chroma_shift, v_chroma_shift);
+--- 326,330 ----
+                  return true;
+          };
+! 
+          // planar pixel formats
+          GetChromaSubSample(pix_fmt, h_chroma_shift, v_chroma_shift);
+***************
+*** 417,422 ****
+              return;
+      };
+!             
+!             
+      int buf_num=0;
+      PicBufMutex.Lock();
+--- 417,422 ----
+              return;
+      };
+! 
+! 
+      int buf_num=0;
+      PicBufMutex.Lock();
+***************
+*** 444,448 ****
+          PICDEB("CopyPicBuf_Convert width %d height %d\n",
+                          dst->width,dst->height);
+!         
+          yuv420_convert_fct yuv_convert=GetYuv420ConvertFct(dst->format);
+  
+--- 444,448 ----
+          PICDEB("CopyPicBuf_Convert width %d height %d\n",
+                          dst->width,dst->height);
+! 
+          yuv420_convert_fct yuv_convert=GetYuv420ConvertFct(dst->format);
+  
+***************
+*** 614,619 ****
+                  tmp|=((int)src[src_pixel])<<24;
+                  pos+=pixel_width;
+!                 src_pixel=pos>>8;   
+!                 
+                  tmp_dst[dst_pixel]=tmp;
+                  dst_pixel++;
+--- 614,619 ----
+                  tmp|=((int)src[src_pixel])<<24;
+                  pos+=pixel_width;
+!                 src_pixel=pos>>8;
+! 
+                  tmp_dst[dst_pixel]=tmp;
+                  dst_pixel++;
+***************
+*** 628,632 ****
+  #endif
+  };
+!                       
+  void CopyScalePicBuf(sPicBuffer *dst, sPicBuffer *src,
+                  int sxoff, int syoff, int src_width, int src_height,
+--- 628,632 ----
+  #endif
+  };
+! 
+  void CopyScalePicBuf(sPicBuffer *dst, sPicBuffer *src,
+                  int sxoff, int syoff, int src_width, int src_height,
+***************
+*** 636,653 ****
+          PICDEB("CopyScalePicBuf_YUV420P width %d height %d\n",
+                          dst->max_width,dst->max_height);
+!         
+          if ( dst_height == 0 || dst_width == 0)
+                  return;
+!         
+          if (src_width+sxoff > src->max_width)
+                  src_width=src->max_width-sxoff;
+          if (src_height+syoff > src->max_height)
+                  src_width=src->max_width-syoff;
+!  
+          if (dst_width+dxoff > dst->max_width)
+                  dst_width=dst->max_width-dxoff;
+          if (dst_height+dyoff > dst->max_height)
+                  dst_width=dst->max_width-dyoff;
+!         
+          dst->width = dst_width;// - 2 * (cutLeft + cutRight);
+          dst->height = dst_height;// - 2 *  (cutBottom + cutTop) ;
+--- 636,653 ----
+          PICDEB("CopyScalePicBuf_YUV420P width %d height %d\n",
+                          dst->max_width,dst->max_height);
+! 
+          if ( dst_height == 0 || dst_width == 0)
+                  return;
+! 
+          if (src_width+sxoff > src->max_width)
+                  src_width=src->max_width-sxoff;
+          if (src_height+syoff > src->max_height)
+                  src_width=src->max_width-syoff;
+! 
+          if (dst_width+dxoff > dst->max_width)
+                  dst_width=dst->max_width-dxoff;
+          if (dst_height+dyoff > dst->max_height)
+                  dst_width=dst->max_width-dyoff;
+! 
+          dst->width = dst_width;// - 2 * (cutLeft + cutRight);
+          dst->height = dst_height;// - 2 *  (cutBottom + cutTop) ;
+***************
+*** 699,706 ****
+                          +dxoff*GetFormatBPP(dst->format);
+                  convert_dst_stride=dst->stride[0];
+!                 
+                  yuv_convert=GetYuv420ConvertFct(dst->format);
+          };
+!         
+          int last_srcline=-1;
+          int last_uvsrcline=-1;
+--- 699,706 ----
+                          +dxoff*GetFormatBPP(dst->format);
+                  convert_dst_stride=dst->stride[0];
+! 
+                  yuv_convert=GetYuv420ConvertFct(dst->format);
+          };
+! 
+          int last_srcline=-1;
+          int last_uvsrcline=-1;
+***************
+*** 709,715 ****
+          int pixel_height=(src_height<<8)/dst_height;
+          src_height=((pixel_height*dst_height)>>8) & ~2;
+!         while ( srcline < src_height ) {  
+                  // first luma line
+!                 if (last_srcline==srcline && !do_convert) { 
+                          memcpy(dst_ptr0,dst_ptr0-dst->stride[0],dst_width);
+                  } else {
+--- 709,715 ----
+          int pixel_height=(src_height<<8)/dst_height;
+          src_height=((pixel_height*dst_height)>>8) & ~2;
+!         while ( srcline < src_height ) {
+                  // first luma line
+!                 if (last_srcline==srcline && !do_convert) {
+                          memcpy(dst_ptr0,dst_ptr0-dst->stride[0],dst_width);
+                  } else {
+***************
+*** 718,723 ****
+                  };
+  
+!                 // chroma lines 
+!                 if (last_uvsrcline==srcline/2) { 
+                          if (!do_convert) {
+                                  memcpy(dst_ptr1,dst_ptr1-dst->stride[1],dst_width/2);
+--- 718,723 ----
+                  };
+  
+!                 // chroma lines
+!                 if (last_uvsrcline==srcline/2) {
+                          if (!do_convert) {
+                                  memcpy(dst_ptr1,dst_ptr1-dst->stride[1],dst_width/2);
+***************
+*** 735,741 ****
+                  pos+=pixel_height;
+                  srcline=pos>>8;
+!                 
+                  // second luma line
+!                 if (last_srcline==srcline && !do_convert) 
+                          memcpy(dst_ptr0,dst_ptr0-dst->stride[0],dst_width);
+                  else {
+--- 735,741 ----
+                  pos+=pixel_height;
+                  srcline=pos>>8;
+! 
+                  // second luma line
+!                 if (last_srcline==srcline && !do_convert)
+                          memcpy(dst_ptr0,dst_ptr0-dst->stride[0],dst_width);
+                  else {
+***************
+*** 743,751 ****
+                          ScaleLine(dst_ptr0+dst_stride0,dst_width,src_ptr,src_width);
+                  };
+!                 
+                  last_srcline=srcline;
+                  pos+=pixel_height;
+                  srcline=pos>>8;
+!               
+                  if (do_convert) {
+                          // convert yuv to destination format
+--- 743,751 ----
+                          ScaleLine(dst_ptr0+dst_stride0,dst_width,src_ptr,src_width);
+                  };
+! 
+                  last_srcline=srcline;
+                  pos+=pixel_height;
+                  srcline=pos>>8;
+! 
+                  if (do_convert) {
+                          // convert yuv to destination format
+***************
+*** 782,791 ****
+          if (src_height+syoff > src->max_height)
+                  src_width=src->max_width-syoff;
+!  
+          if (dst_width+dxoff > dst->max_width)
+                  dst_width=dst->max_width-dxoff;
+          if (dst_height+dyoff > dst->max_height)
+                  dst_width=dst->max_width-dyoff;
+!         
+          dst->width = dst_width;// - 2 * (cutLeft + cutRight);
+          dst->height = dst_height;// - 2 *  (cutBottom + cutTop) ;
+--- 782,791 ----
+          if (src_height+syoff > src->max_height)
+                  src_width=src->max_width-syoff;
+! 
+          if (dst_width+dxoff > dst->max_width)
+                  dst_width=dst->max_width-dxoff;
+          if (dst_height+dyoff > dst->max_height)
+                  dst_width=dst->max_width-dyoff;
+! 
+          dst->width = dst_width;// - 2 * (cutLeft + cutRight);
+          dst->height = dst_height;// - 2 *  (cutBottom + cutTop) ;
+***************
+*** 824,828 ****
+          uint8_t *alpha_py=OsdPAlphaY+(2*cutTop+syoff)*osd_stride+2*cutLeft+sxoff;
+          uint8_t *alpha_puv=OsdPAlphaUV+(cutTop+syoff/2)*osd_stride/2+cutLeft+sxoff/2;
+!         
+          if ( dst->format == PIX_FMT_YUV420P ) {
+                  dst_ptr0=dst->pixel[0]
+--- 824,828 ----
+          uint8_t *alpha_py=OsdPAlphaY+(2*cutTop+syoff)*osd_stride+2*cutLeft+sxoff;
+          uint8_t *alpha_puv=OsdPAlphaUV+(cutTop+syoff/2)*osd_stride/2+cutLeft+sxoff/2;
+! 
+          if ( dst->format == PIX_FMT_YUV420P ) {
+                  dst_ptr0=dst->pixel[0]
+***************
+*** 851,855 ****
+                  yuv_convert=GetYuv420ConvertFct(dst->format);
+          };
+!         
+          int last_srcline=-1;
+          int last_uvsrcline=-1;
+--- 851,855 ----
+                  yuv_convert=GetYuv420ConvertFct(dst->format);
+          };
+! 
+          int last_srcline=-1;
+          int last_uvsrcline=-1;
+***************
+*** 858,866 ****
+          int pixel_height=(src_height<<8)/dst_height;
+          src_height=((pixel_height*dst_height)>>8) & ~2;
+!         while ( srcline < src_height ) {  
+                  // first luma line
+                  if (last_srcline==srcline) {
+                          memcpy(dst_ptr0,dst_ptr0+dst_stride0,dst_width);
+!                 } else { 
+                          src_ptr=start_src_ptr0+srcline*src->stride[0];
+                          int offset=srcline*osd_stride;
+--- 858,866 ----
+          int pixel_height=(src_height<<8)/dst_height;
+          src_height=((pixel_height*dst_height)>>8) & ~2;
+!         while ( srcline < src_height ) {
+                  // first luma line
+                  if (last_srcline==srcline) {
+                          memcpy(dst_ptr0,dst_ptr0+dst_stride0,dst_width);
+!                 } else {
+                          src_ptr=start_src_ptr0+srcline*src->stride[0];
+                          int offset=srcline*osd_stride;
+***************
+*** 872,877 ****
+                  };
+  
+!                 // chroma lines 
+!                 if (last_uvsrcline!=srcline/2) { 
+                          src_ptr=start_src_ptr1+srcline/2*src->stride[1];
+                          int offset=srcline/2*osd_stride/2;
+--- 872,877 ----
+                  };
+  
+!                 // chroma lines
+!                 if (last_uvsrcline!=srcline/2) {
+                          src_ptr=start_src_ptr1+srcline/2*src->stride[1];
+                          int offset=srcline/2*osd_stride/2;
+***************
+*** 880,884 ****
+                                          src_ptr,
+                                          alpha_puv+offset,src_width);
+!                         
+                          src_ptr=start_src_ptr2+srcline/2*src->stride[2];
+                          AlphaBlend(tmp_v,
+--- 880,884 ----
+                                          src_ptr,
+                                          alpha_puv+offset,src_width);
+! 
+                          src_ptr=start_src_ptr2+srcline/2*src->stride[2];
+                          AlphaBlend(tmp_v,
+***************
+*** 886,890 ****
+                                          src_ptr,
+                                          alpha_puv+offset,src_width);
+!                         
+                          ScaleLine(dst_ptr1,dst_width/2,tmp_u,src_width/2);
+                          ScaleLine(dst_ptr2,dst_width/2,tmp_v,src_width/2);
+--- 886,890 ----
+                                          src_ptr,
+                                          alpha_puv+offset,src_width);
+! 
+                          ScaleLine(dst_ptr1,dst_width/2,tmp_u,src_width/2);
+                          ScaleLine(dst_ptr2,dst_width/2,tmp_v,src_width/2);
+***************
+*** 895,903 ****
+                  pos+=pixel_height;
+                  srcline=pos>>8;
+!                 
+                  // second luma line
+                  if (last_srcline==srcline) {
+                          memcpy(dst_ptr0+dst_stride0,dst_ptr0,dst_width);
+!                 } else { 
+                          src_ptr=start_src_ptr0+srcline*src->stride[0];
+                          int offset=srcline*osd_stride;
+--- 895,903 ----
+                  pos+=pixel_height;
+                  srcline=pos>>8;
+! 
+                  // second luma line
+                  if (last_srcline==srcline) {
+                          memcpy(dst_ptr0+dst_stride0,dst_ptr0,dst_width);
+!                 } else {
+                          src_ptr=start_src_ptr0+srcline*src->stride[0];
+                          int offset=srcline*osd_stride;
+***************
+*** 909,917 ****
+                                          tmp_y+src_stride0,src_width);
+                   };
+!                 
+                  last_srcline=srcline;
+                  pos+=pixel_height;
+                  srcline=pos>>8;
+!               
+                  if (do_convert) {
+                          // convert yuv to destination format
+--- 909,917 ----
+                                          tmp_y+src_stride0,src_width);
+                   };
+! 
+                  last_srcline=srcline;
+                  pos+=pixel_height;
+                  srcline=pos>>8;
+! 
+                  if (do_convert) {
+                          // convert yuv to destination format
+
+
+
+From nobody at sheep.berlios.de  Wed Jul 11 21:30:50 2007
+From: nobody at sheep.berlios.de (lucke)
+Date: Wed, 11 Jul 2007 21:30:50 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice video-xv.c,1.71,1.72
+Message-ID: <20070711193050.93883F336E@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv12231
+
+Modified Files:
+	video-xv.c 
+Log Message:
+whitespace cleanup
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.71
+retrieving revision 1.72
+diff -C2 -d -r1.71 -r1.72
+*** video-xv.c	10 May 2007 21:57:26 -0000	1.71
+--- video-xv.c	11 Jul 2007 19:30:42 -0000	1.72
+***************
+*** 1020,1027 ****
+            if (osd_image) {
+                    dsyslog("[XvVideoOut]: Initialize XGetImage Successful (%p)", osd_image);
+! 		              osd_buffer = (unsigned char *) osd_image->data;
+            } else {
+                    dsyslog("[XvVideoOut]: Initialize ERROR: XGetImage FAILED !");
+! 		              osd_buffer = NULL;
+            }
+    };
+--- 1020,1027 ----
+            if (osd_image) {
+                    dsyslog("[XvVideoOut]: Initialize XGetImage Successful (%p)", osd_image);
+!                               osd_buffer = (unsigned char *) osd_image->data;
+            } else {
+                    dsyslog("[XvVideoOut]: Initialize ERROR: XGetImage FAILED !");
+!                               osd_buffer = NULL;
+            }
+    };
+***************
+*** 1038,1042 ****
+                    case 24 : osdBuf.format=PIX_FMT_RGB24;
+                              break;
+!                   case 16 : 
+                    default:
+                             osdBuf.format=PIX_FMT_RGB555;
+--- 1038,1042 ----
+                    case 24 : osdBuf.format=PIX_FMT_RGB24;
+                              break;
+!                   case 16 :
+                    default:
+                             osdBuf.format=PIX_FMT_RGB555;
+***************
+*** 1250,1254 ****
+                    ARGB_TO_RGB(RGB16,&colorkey,COLOR_KEY);
+                    break;
+!   };               
+    dsyslog("[XvVideoOut]: using color key 0x%0x",colorkey);
+    FillPicBuffer(&osdBuf,colorkey);
+--- 1250,1254 ----
+                    ARGB_TO_RGB(RGB16,&colorkey,COLOR_KEY);
+                    break;
+!   };
+    dsyslog("[XvVideoOut]: using color key 0x%0x",colorkey);
+    FillPicBuffer(&osdBuf,colorkey);
+***************
+*** 1745,1749 ****
+      return;
+  
+!   if (!xv_initialized) { 
+            // no xv, use software scaler and yuv->rgb conversion
+            pthread_mutex_lock(&xv_mutex);
+--- 1745,1749 ----
+      return;
+  
+!   if (!xv_initialized) {
+            // no xv, use software scaler and yuv->rgb conversion
+            pthread_mutex_lock(&xv_mutex);
+***************
+*** 1772,1779 ****
+                                    cutTop,cutBottom,cutLeft,cutRight);
+            } else {
+!                   CopyScalePicBuf(&osdBuf, buf,                   
+                                    sxoff, syoff,
+                                    swidth, sheight,
+!                                   0,  0,    
+                                    lwidth, lheight,
+                                    0,0,0,0);
+--- 1772,1779 ----
+                                    cutTop,cutBottom,cutLeft,cutRight);
+            } else {
+!                   CopyScalePicBuf(&osdBuf, buf,
+                                    sxoff, syoff,
+                                    swidth, sheight,
+!                                   0,  0,
+                                    lwidth, lheight,
+                                    0,0,0,0);
+***************
+*** 1784,1788 ****
+            return;
+    };
+!   
+    pthread_mutex_lock(&xv_mutex);
+    if (aspect_changed ||
+--- 1784,1788 ----
+            return;
+    };
+! 
+    pthread_mutex_lock(&xv_mutex);
+    if (aspect_changed ||
+
+
+
+From nobody at sheep.berlios.de  Wed Jul 11 21:49:36 2007
+From: nobody at sheep.berlios.de (lucke)
+Date: Wed, 11 Jul 2007 21:49:36 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice SoftOsd.c,1.28,1.29
+Message-ID: <20070711194936.222D64DD81@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv13698
+
+Modified Files:
+	SoftOsd.c 
+Log Message:
+whitespace cleanup
+
+Index: SoftOsd.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.c,v
+retrieving revision 1.28
+retrieving revision 1.29
+diff -C2 -d -r1.28 -r1.29
+*** SoftOsd.c	10 May 2007 21:57:26 -0000	1.28
+--- SoftOsd.c	11 Jul 2007 19:49:28 -0000	1.29
+***************
+*** 60,68 ****
+          colorkey=videoOut->GetOSDColorkey();
+          pseudo_transparent=(uint64_t)colorkey | ((uint64_t) colorkey)<<32;
+!         
+          xOfs=X;yOfs=Y;
+          ScreenOsdWidth=ScreenOsdHeight=0;
+          int Depth=16; bool HasAlpha=false; bool AlphaInversed=false;
+!         bool IsYUV=false; 
+          videoOut->AdjustOSDMode();
+          videoOut->GetOSDMode(Depth,HasAlpha,AlphaInversed,IsYUV);
+--- 60,68 ----
+          colorkey=videoOut->GetOSDColorkey();
+          pseudo_transparent=(uint64_t)colorkey | ((uint64_t) colorkey)<<32;
+! 
+          xOfs=X;yOfs=Y;
+          ScreenOsdWidth=ScreenOsdHeight=0;
+          int Depth=16; bool HasAlpha=false; bool AlphaInversed=false;
+!         bool IsYUV=false;
+          videoOut->AdjustOSDMode();
+          videoOut->GetOSDMode(Depth,HasAlpha,AlphaInversed,IsYUV);
+***************
+*** 96,100 ****
+                  videoOut->CloseOSD();
+  #ifdef HAVE_YAEPGPATCH
+!                 if (vidWin.bpp!=0) 
+                          videoOut->SetVidWin(0,0,0,0,0);
+  #endif
+--- 96,100 ----
+                  videoOut->CloseOSD();
+  #ifdef HAVE_YAEPGPATCH
+!                 if (vidWin.bpp!=0)
+                          videoOut->SetVidWin(0,0,0,0,0);
+  #endif
+***************
+*** 129,133 ****
+  
+                  int Depth=16; bool HasAlpha=false; bool AlphaInversed=false;
+!                 bool IsYUV=false; 
+                  videoOut->GetOSDMode(Depth,HasAlpha,AlphaInversed,IsYUV);
+                  bool modeChanged=SetMode(Depth,HasAlpha,AlphaInversed,IsYUV);
+--- 129,133 ----
+  
+                  int Depth=16; bool HasAlpha=false; bool AlphaInversed=false;
+!                 bool IsYUV=false;
+                  videoOut->GetOSDMode(Depth,HasAlpha,AlphaInversed,IsYUV);
+                  bool modeChanged=SetMode(Depth,HasAlpha,AlphaInversed,IsYUV);
+***************
+*** 175,179 ****
+  
+          int Depth=16; bool HasAlpha=false; bool AlphaInversed=false;
+!         bool IsYUV=false; 
+          videoOut->GetOSDMode(Depth,HasAlpha,AlphaInversed,IsYUV);
+          bool modeChanged=SetMode(Depth,HasAlpha,AlphaInversed,IsYUV);
+--- 175,179 ----
+  
+          int Depth=16; bool HasAlpha=false; bool AlphaInversed=false;
+!         bool IsYUV=false;
+          videoOut->GetOSDMode(Depth,HasAlpha,AlphaInversed,IsYUV);
+          bool modeChanged=SetMode(Depth,HasAlpha,AlphaInversed,IsYUV);
+***************
+*** 261,265 ****
+          if (old_bitmap_Format != bitmap_Format) {
+                  Clear();
+! 		FlushBitmaps(false);
+                  OSDDEB("SetMode switched old_bitmap_Format %d -> bitmap_Format %d\n",
+                          old_bitmap_Format,bitmap_Format);
+--- 261,265 ----
+          if (old_bitmap_Format != bitmap_Format) {
+                  Clear();
+!                 FlushBitmaps(false);
+                  OSDDEB("SetMode switched old_bitmap_Format %d -> bitmap_Format %d\n",
+                          old_bitmap_Format,bitmap_Format);
+***************
+*** 278,282 ****
+          voutMutex.Lock();
+  #ifdef HAVE_YAEPGPATCH
+!         if (vidWin.bpp!=0) 
+                  videoOut->SetVidWin(1,vidWin.x1,vidWin.y1,vidWin.x2,vidWin.y2);
+  #endif
+--- 278,282 ----
+          voutMutex.Lock();
+  #ifdef HAVE_YAEPGPATCH
+!         if (vidWin.bpp!=0)
+                  videoOut->SetVidWin(1,vidWin.x1,vidWin.y1,vidWin.x2,vidWin.y2);
+  #endif
+***************
+*** 419,425 ****
+          };
+  };
+!  
+  /*---------------------------------------------------------------------*/
+! // pseudo alpha blending macros 
+  #define PSEUDO_ALPHA_TO_RGB(rgb) \
+          if ( !c ||       \
+--- 419,425 ----
+          };
+  };
+! 
+  /*---------------------------------------------------------------------*/
+! // pseudo alpha blending macros
+  #define PSEUDO_ALPHA_TO_RGB(rgb) \
+          if ( !c ||       \
+***************
+*** 484,488 ****
+                                                                  \
+                   "punpckldq %%mm4,%%mm2 \n"                     \
+!                  "punpckhdq %%mm4,%%mm3 \n"                     
+  
+  #define REPLACE_COLORKEY_MMX           \
+--- 484,488 ----
+                                                                  \
+                   "punpckldq %%mm4,%%mm2 \n"                     \
+!                  "punpckhdq %%mm4,%%mm3 \n"
+  
+  #define REPLACE_COLORKEY_MMX           \
+***************
+*** 498,503 ****
+                   "pand %%mm7, %%mm1 \n"                         \
+                   "pandn %%mm3, %%mm4 \n"                        \
+!                  "por %%mm4, %%mm1\n"                           
+!  
+  /*---------------------------------------------------------------------*/
+  void cSoftOsd::ARGB_to_BGRA32(uint8_t * dest1, color * pixmap, int Pixel,
+--- 498,503 ----
+                   "pand %%mm7, %%mm1 \n"                         \
+                   "pandn %%mm3, %%mm4 \n"                        \
+!                  "por %%mm4, %%mm1\n"
+! 
+  /*---------------------------------------------------------------------*/
+  void cSoftOsd::ARGB_to_BGRA32(uint8_t * dest1, color * pixmap, int Pixel,
+***************
+*** 536,540 ****
+                 );
+  
+!         if (odd) 
+                  while (end_dest>dest) {
+                          // pseudo alpha blending
+--- 536,540 ----
+                 );
+  
+!         if (odd)
+                  while (end_dest>dest) {
+                          // pseudo alpha blending
+***************
+*** 826,830 ****
+                          "r" (&pseudo_transparent)
+                 );
+!  
+          if (odd)
+                  while (end_dest>dest) {
+--- 826,830 ----
+                          "r" (&pseudo_transparent)
+                 );
+! 
+          if (odd)
+                  while (end_dest>dest) {
+***************
+*** 1014,1021 ****
+                                  // channel back to normal...
+                               ConvertPalette((tColor *)tmp_pixmap, (tColor *)tmp_pixmap,
+!                                              dest_Width);    
+!                              ConvertPalette((tColor *)&tmp_pixmap[OSD_STRIDE], 
+                                               (tColor *)&tmp_pixmap[OSD_STRIDE],
+!                                              dest_Width);    
+                          };
+                          ARGB_to_AYUV((uint32_t*)tmp_pixmap,(color *)tmp_pixmap,
+--- 1014,1021 ----
+                                  // channel back to normal...
+                               ConvertPalette((tColor *)tmp_pixmap, (tColor *)tmp_pixmap,
+!                                              dest_Width);
+!                              ConvertPalette((tColor *)&tmp_pixmap[OSD_STRIDE],
+                                               (tColor *)&tmp_pixmap[OSD_STRIDE],
+!                                              dest_Width);
+                          };
+                          ARGB_to_AYUV((uint32_t*)tmp_pixmap,(color *)tmp_pixmap,
+***************
+*** 1294,1298 ****
+                  buf=dest+y*linesize;
+                  (*OutputConvert)(buf,tmp_pixmap+1,dest_Width-2,y&1);
+!                 
+                  if (dest_dirtyLines)
+                          dest_dirtyLines[y]=true;
+--- 1294,1298 ----
+                  buf=dest+y*linesize;
+                  (*OutputConvert)(buf,tmp_pixmap+1,dest_Width-2,y&1);
+! 
+                  if (dest_dirtyLines)
+                          dest_dirtyLines[y]=true;
+***************
+*** 1305,1309 ****
+                          buf=dest+y*linesize;
+                          (*OutputConvert)(buf,((color*)src)+1,dest_Width-2,y&1);
+!                         
+                          if (dest_dirtyLines)
+                                  dest_dirtyLines[y]=true;
+--- 1305,1309 ----
+                          buf=dest+y*linesize;
+                          (*OutputConvert)(buf,((color*)src)+1,dest_Width-2,y&1);
+! 
+                          if (dest_dirtyLines)
+                                  dest_dirtyLines[y]=true;
+***************
+*** 1322,1326 ****
+                  bool *dest_dirtyLines) {
+          OSDDEB("CopyToBitmap RGB no scale\n");
+! 	
+          if ( bitmap_Format == PF_AYUV ) {
+                  fprintf(stderr,"cSoftOsd error did not call SetMode()!\n");
+--- 1322,1326 ----
+                  bool *dest_dirtyLines) {
+          OSDDEB("CopyToBitmap RGB no scale\n");
+! 
+          if ( bitmap_Format == PF_AYUV ) {
+                  fprintf(stderr,"cSoftOsd error did not call SetMode()!\n");
+
+
+
+From nobody at sheep.berlios.de  Wed Jul 11 22:04:30 2007
+From: nobody at sheep.berlios.de (lucke)
+Date: Wed, 11 Jul 2007 22:04:30 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice PicBuffer.c,1.20,1.21
+Message-ID: <20070711200430.D28D2F3630@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv14656
+
+Modified Files:
+	PicBuffer.c 
+Log Message:
+applied patch from Artur Skawina for memory alignment error
+
+Index: PicBuffer.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/PicBuffer.c,v
+retrieving revision 1.20
+retrieving revision 1.21
+diff -C2 -d -r1.20 -r1.21
+*** PicBuffer.c	11 Jul 2007 18:08:24 -0000	1.20
+--- PicBuffer.c	11 Jul 2007 20:04:22 -0000	1.21
+***************
+*** 317,323 ****
+          if ( !isPlanar(pix_fmt) ) {
+                  buf->stride[0]=ALIGN(pixel_size*w,16);
+-                 buf->pixel[0]=(uint8_t*)malloc((buf->stride[0]*h)+16);
+  
+!                 if (buf->pixel[0]==NULL) {
+                      printf("could not allocate memory for picture buffer!\n") ;
+                      exit(-1);
+--- 317,322 ----
+          if ( !isPlanar(pix_fmt) ) {
+                  buf->stride[0]=ALIGN(pixel_size*w,16);
+  
+!                 if (posix_memalign((void **) &buf->pixel[0], 16, buf->stride[0]*h+16)) {
+                      printf("could not allocate memory for picture buffer!\n") ;
+                      exit(-1);
+***************
+*** 338,344 ****
+                              STRIDE_ALIGN<<(h_chroma_shift-h_shift));
+  
+!             buf->pixel[i]= (uint8_t*)malloc((buf->stride[i]*h>>v_shift)+16); //FIXME 16
+! 
+!             if(buf->pixel[i]==NULL) {
+                      printf("could not allocate memory for picture buffer!\n") ;
+                      exit(-1);
+--- 337,341 ----
+                              STRIDE_ALIGN<<(h_chroma_shift-h_shift));
+  
+!             if(posix_memalign((void **) &buf->pixel[i], 16, (buf->stride[i]*h>>v_shift)+16)) { //FIXME 16
+                      printf("could not allocate memory for picture buffer!\n") ;
+                      exit(-1);
+
+
+
+From nobody at sheep.berlios.de  Wed Jul 11 22:08:43 2007
+From: nobody at sheep.berlios.de (lucke)
+Date: Wed, 11 Jul 2007 22:08:43 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice SoftOsd.c, 1.29, 1.30 video.h, 1.54,
+	1.55 video-xv.c, 1.72, 1.73 video-xv.h, 1.28, 1.29
+Message-ID: <20070711200843.1A985E3334@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv14843
+
+Modified Files:
+	SoftOsd.c video.h video-xv.c video-xv.h 
+Log Message:
+fix OSD partially not drawn or cleared in pseudo mode:
+- a small stripe remains on the right side, when video aspect changes
+  from 16:9 to 4:3
+- only modified OSD was shown when deinterlacer was toggled
+  on/off.
+
+
+
+Index: SoftOsd.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.c,v
+retrieving revision 1.29
+retrieving revision 1.30
+diff -C2 -d -r1.29 -r1.30
+*** SoftOsd.c	11 Jul 2007 19:49:28 -0000	1.29
+--- SoftOsd.c	11 Jul 2007 20:08:34 -0000	1.30
+***************
+*** 259,263 ****
+  
+          // we have to redraw everything on format change...
+!         if (old_bitmap_Format != bitmap_Format) {
+                  Clear();
+                  FlushBitmaps(false);
+--- 259,264 ----
+  
+          // we have to redraw everything on format change...
+!         if (old_bitmap_Format != bitmap_Format ||
+!             videoOut->OSDNeedsRedraw()) {
+                  Clear();
+                  FlushBitmaps(false);
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.54
+retrieving revision 1.55
+diff -C2 -d -r1.54 -r1.55
+*** video.h	10 May 2007 21:57:26 -0000	1.54
+--- video.h	11 Jul 2007 20:08:34 -0000	1.55
+***************
+*** 187,191 ****
+              pic=oldPicture;
+              if (oldPicture)
+! 		LockBuffer(oldPicture);
+              oldPictureMutex.Unlock();
+      };
+--- 187,191 ----
+              pic=oldPicture;
+              if (oldPicture)
+!                 LockBuffer(oldPicture);
+              oldPictureMutex.Unlock();
+      };
+***************
+*** 235,238 ****
+--- 235,241 ----
+      { Depth=32; HasAlpha=true; AlphaInversed=false; IsYUV=false; };
+      // should be implemented by all video out method to set the OSD pixel mode
++ 
++     virtual bool OSDNeedsRedraw(void)
++     { return false; };
+  
+      // RGB modes
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.72
+retrieving revision 1.73
+diff -C2 -d -r1.72 -r1.73
+*** video-xv.c	11 Jul 2007 19:30:42 -0000	1.72
+--- video-xv.c	11 Jul 2007 20:08:35 -0000	1.73
+***************
+*** 766,769 ****
+--- 766,770 ----
+    OSDpresent = false;
+    OSDpseudo_alpha = true;
++   needsFullOSDRedraw = false;
+    toggleInProgress = 0;
+    xv_initialized=false;
+***************
+*** 1335,1339 ****
+    };
+  
+! 
+    pthread_mutex_unlock(&xv_mutex);
+  
+--- 1336,1340 ----
+    };
+  
+!   needsFullOSDRedraw = true;
+    pthread_mutex_unlock(&xv_mutex);
+  
+***************
+*** 1675,1678 ****
+--- 1676,1689 ----
+  /* ---------------------------------------------------------------------------
+   */
++ bool cXvVideoOut::OSDNeedsRedraw(void)
++ {
++     bool tmp = needsFullOSDRedraw;
++ 
++   needsFullOSDRedraw = false;
++   return tmp;
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
+  void cXvVideoOut::GetLockOsdSurface(uint8_t *&osd, int &stride,
+                    bool *&dirtyLines)
+***************
+*** 1799,1802 ****
+--- 1810,1814 ----
+      cutLeft = setupStore->cropLeftCols;
+      cutRight = setupStore->cropRightCols;
++     needsFullOSDRedraw = true;
+      ClearXvArea (0, 128, 128);
+    }
+
+Index: video-xv.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.h,v
+retrieving revision 1.28
+retrieving revision 1.29
+diff -C2 -d -r1.28 -r1.29
+*** video-xv.h	10 May 2007 21:57:26 -0000	1.28
+--- video-xv.h	11 Jul 2007 20:08:35 -0000	1.29
+***************
+*** 126,129 ****
+--- 126,130 ----
+                      width, height,
+                      format;
++   bool              needsFullOSDRedraw;
+    /* -------------------------------------------------------------------------
+     * Xinerama specific members (not all depend on Xinerame available)
+***************
+*** 185,188 ****
+--- 186,190 ----
+    virtual void GetOSDMode(int &Depth, bool &HasAlpha, bool &AlphaInversed,
+                    bool &IsYUV);
++   virtual bool OSDNeedsRedraw(void);
+    virtual void GetLockOsdSurface(uint8_t *&osd, int &stride,
+                    bool *&dirtyLines);
+
+
+
+From nobody at sheep.berlios.de  Wed Jul 11 22:17:46 2007
+From: nobody at sheep.berlios.de (lucke)
+Date: Wed, 11 Jul 2007 22:17:46 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice CHANGELOG,1.314,1.315
+Message-ID: <20070711201746.AB592F0E50@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv15801
+
+Modified Files:
+	CHANGELOG 
+Log Message:
+document updates
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.314
+retrieving revision 1.315
+diff -C2 -d -r1.314 -r1.315
+*** CHANGELOG	10 May 2007 22:03:03 -0000	1.314
+--- CHANGELOG	11 Jul 2007 20:17:38 -0000	1.315
+***************
+*** 1,3 ****
+--- 1,13 ----
+  Changelog
++ 2007-07-11:
++    - compile fix for: ./configure --disable-shm
++    - applied patch from Matthias Schwarzott for compile issues with
++      newer ffmpeg versions
++    - applied patch from Artur Skawina for memory alignment error
++    - video-xv: fix OSD parially not drawn or cleared in pseudo mode:
++                - a small stripe remains on the right side, when video changed
++                  from 16:9 to 4:3
++                - only modified OSD was shown when deinterlacer was toggled
++                  on/off.
+  2007-05-10:
+     - use libswscale if available.
+***************
+*** 8,12 ****
+     - remove softlog from setupStore. Pointers aren't valid in a shared memory
+       block.
+!    - remove private variable setupStore from audio out methods. They can 
+       access the global variable.
+     - move setupStore into a shared memory block. This allows ShmClient to
+--- 18,22 ----
+     - remove softlog from setupStore. Pointers aren't valid in a shared memory
+       block.
+!    - remove private variable setupStore from audio out methods. They can
+       access the global variable.
+     - move setupStore into a shared memory block. This allows ShmClient to
+
+
+
+From nobody at sheep.berlios.de  Thu Jul 12 18:17:40 2007
+From: nobody at sheep.berlios.de (lucke)
+Date: Thu, 12 Jul 2007 18:17:40 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice video-dfb.c, 1.82, 1.83 video.c, 1.75,
+	1.76
+Message-ID: <20070712161740.5027045C5E@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv11760
+
+Modified Files:
+	video-dfb.c video.c 
+Log Message:
+video / dfb: moved some code from video.c to video-dfb.c as announced
+             and changed some constants to those I use in productive VDR.
+
+
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.82
+retrieving revision 1.83
+diff -C2 -d -r1.82 -r1.83
+*** video-dfb.c	10 May 2007 21:57:26 -0000	1.82
+--- video-dfb.c	12 Jul 2007 16:17:31 -0000	1.83
+***************
+*** 356,359 ****
+--- 356,374 ----
+        EnableFieldParity(videoLayer);
+  
++     /* -----------------------------------------------------------------------
++      * Do something common for both TV out modes
++      * (moved from video.c)
++      */
++     if (setupStore->useMGAtv || setupStore->viaTv) {
++       dropStart       =  21;  // changed from 25
++       dropEnd         =  15;
++       dropInterval    =  16;  // changed from 8
++       //offsetClampLow  = -10;
++       //offsetClampHigh =  10;
++       //offsetUse       =   4;
++       //offset = offsetAverage;
++       //useAverage4Drop = true;
++     }
++ 
+      scrSurface = osdLayer->GetSurface();
+  
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.75
+retrieving revision 1.76
+diff -C2 -d -r1.75 -r1.76
+*** video.c	10 May 2007 19:54:44 -0000	1.75
+--- video.c	12 Jul 2007 16:17:31 -0000	1.76
+***************
+*** 545,561 ****
+                    aPTS, pts, offset, offsetAverage);
+  
+-   if (0) {
+-     // should be moved to contructor of video-dfb for TV-out
+- 
+-     dropStart       =  25;
+-     dropEnd         =  15;
+-     dropInterval    =   8;
+-     //offsetClampLow  = -10;
+-     //offsetClampHigh =  10;
+-     //offsetUse       =   4;
+-     //offset = offsetAverage;
+-     //useAverage4Drop = true;
+-   }
+- 
+    dropOffset = (useAverage4Drop) ? offsetAverage : offset;
+  
+--- 545,548 ----
+
+
+
+From nobody at sheep.berlios.de  Wed Aug 29 00:14:00 2007
+From: nobody at sheep.berlios.de (lucke)
+Date: Wed, 29 Aug 2007 00:14:00 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice softdevice.c,1.85,1.86
+Message-ID: <20070828221400.9277F103630@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv15545
+
+Modified Files:
+	softdevice.c 
+Log Message:
+cosmetic change
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.85
+retrieving revision 1.86
+diff -C2 -d -r1.85 -r1.86
+*** softdevice.c	11 Jul 2007 17:41:04 -0000	1.85
+--- softdevice.c	28 Aug 2007 22:13:33 -0000	1.86
+***************
+*** 126,129 ****
+--- 126,131 ----
+  cOsd *cSoftOsdProvider::osd=NULL;
+  
++ /* ----------------------------------------------------------------------------
++  */
+  cSoftOsdProvider::cSoftOsdProvider(cVideoOut *VideoOut) : cOsdProvider()
+  {
+***************
+*** 131,135 ****
+  }
+  
+! cOsd * cSoftOsdProvider::CreateOsd(int Left, int Top)
+  {
+      osd = new cSoftOsd(videoOut, Left, Top);
+--- 133,139 ----
+  }
+  
+! /* ----------------------------------------------------------------------------
+!  */
+! cOsd *cSoftOsdProvider::CreateOsd(int Left, int Top)
+  {
+      osd = new cSoftOsd(videoOut, Left, Top);
+***************
+*** 137,146 ****
+  }
+  
+! cOsd * cSoftOsdProvider::GetOsd()
+  {
+      if (cOsd::IsOpen())
+          return osd;
+      return NULL;
+! };
+  
+  /* ----------------------------------------------------------------------------
+--- 141,152 ----
+  }
+  
+! /* ----------------------------------------------------------------------------
+!  */
+! cOsd *cSoftOsdProvider::GetOsd()
+  {
+      if (cOsd::IsOpen())
+          return osd;
+      return NULL;
+! }
+  
+  /* ----------------------------------------------------------------------------
+
+
+
+From nobody at sheep.berlios.de  Wed Aug 29 00:14:46 2007
+From: nobody at sheep.berlios.de (lucke)
+Date: Wed, 29 Aug 2007 00:14:46 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice SoftOsd.h,1.14,1.15
+Message-ID: <20070828221446.DE2FCF402D@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv15576
+
+Modified Files:
+	SoftOsd.h 
+Log Message:
+whitespace change
+
+Index: SoftOsd.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.h,v
+retrieving revision 1.14
+retrieving revision 1.15
+diff -C2 -d -r1.14 -r1.15
+*** SoftOsd.h	10 May 2007 21:57:26 -0000	1.14
+--- SoftOsd.h	28 Aug 2007 22:14:19 -0000	1.15
+***************
+*** 85,89 ****
+  
+      void ConvertPalette(tColor *dest_palette, const tColor *orig_palette,
+! 		    int maxColors);
+  
+      bool active;
+--- 85,89 ----
+  
+      void ConvertPalette(tColor *dest_palette, const tColor *orig_palette,
+!                     int maxColors);
+  
+      bool active;
+***************
+*** 99,103 ****
+      // Does *not* change anything in the osd!!
+      void StealToBitmap(uint8_t *PY,uint8_t *PU, uint8_t *PV,
+! 		    uint8_t *PAlphaY,uint8_t *PAlphaUV,
+                      int Ystride, int UVstride,
+                      int dest_Width, int dest_Height);
+--- 99,103 ----
+      // Does *not* change anything in the osd!!
+      void StealToBitmap(uint8_t *PY,uint8_t *PU, uint8_t *PV,
+!                     uint8_t *PAlphaY,uint8_t *PAlphaUV,
+                      int Ystride, int UVstride,
+                      int dest_Width, int dest_Height);
+***************
+*** 128,148 ****
+  
+      static void AYUV_to_AYUV420P(uint8_t *PY1,uint8_t *PY2,
+! 		    uint8_t *PU, uint8_t *PV,
+! 		    uint8_t *PAlphaY1, uint8_t *PAlphaY2, uint8_t *PAlphaUV,
+! 		    color * pixmap1, color *pixmap2, int Pixel);
+  
+      // YUV planar modes
+      void CopyToBitmap(uint8_t *PY,uint8_t *PU, uint8_t *PV,
+! 		    uint8_t *PAlphaY,uint8_t *PAlphaUV,
+                      int Ystride, int UVstride,
+                      int dest_Width, int dest_Height, bool RefreshAll=false);
+  
+      void NoVScaleCopyToBitmap(uint8_t *PY,uint8_t *PU, uint8_t *PV,
+! 		    uint8_t *PAlphaY,uint8_t *PAlphaUV,
+                      int Ystride, int UVstride,
+                      int dest_Width, int dest_Height, bool RefreshAll=false);
+  
+      void ScaleVDownCopyToBitmap(uint8_t *PY,uint8_t *PU, uint8_t *PV,
+! 		    uint8_t *PAlphaY,uint8_t *PAlphaUV,
+                      int Ystride, int UVstride,
+                      int dest_Width, int dest_Height, bool RefreshAll=false);
+--- 128,148 ----
+  
+      static void AYUV_to_AYUV420P(uint8_t *PY1,uint8_t *PY2,
+!                     uint8_t *PU, uint8_t *PV,
+!                     uint8_t *PAlphaY1, uint8_t *PAlphaY2, uint8_t *PAlphaUV,
+!                     color * pixmap1, color *pixmap2, int Pixel);
+  
+      // YUV planar modes
+      void CopyToBitmap(uint8_t *PY,uint8_t *PU, uint8_t *PV,
+!                     uint8_t *PAlphaY,uint8_t *PAlphaUV,
+                      int Ystride, int UVstride,
+                      int dest_Width, int dest_Height, bool RefreshAll=false);
+  
+      void NoVScaleCopyToBitmap(uint8_t *PY,uint8_t *PU, uint8_t *PV,
+!                     uint8_t *PAlphaY,uint8_t *PAlphaUV,
+                      int Ystride, int UVstride,
+                      int dest_Width, int dest_Height, bool RefreshAll=false);
+  
+      void ScaleVDownCopyToBitmap(uint8_t *PY,uint8_t *PU, uint8_t *PV,
+!                     uint8_t *PAlphaY,uint8_t *PAlphaUV,
+                      int Ystride, int UVstride,
+                      int dest_Width, int dest_Height, bool RefreshAll=false);
+
+
+
+From nobody at sheep.berlios.de  Wed Aug 29 00:29:03 2007
+From: nobody at sheep.berlios.de (lucke)
+Date: Wed, 29 Aug 2007 00:29:03 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice CHANGELOG, 1.315, 1.316 SoftOsd.c, 1.30,
+	1.31 SoftOsd.h, 1.15, 1.16 softdevice.c, 1.86, 1.87
+Message-ID: <20070828222903.E48F5F1F31@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv16740
+
+Modified Files:
+	CHANGELOG SoftOsd.c SoftOsd.h softdevice.c 
+Log Message:
+compile fix for vdr-1.5.9
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.315
+retrieving revision 1.316
+diff -C2 -d -r1.315 -r1.316
+*** CHANGELOG	11 Jul 2007 20:17:38 -0000	1.315
+--- CHANGELOG	28 Aug 2007 22:28:36 -0000	1.316
+***************
+*** 1,3 ****
+--- 1,8 ----
+  Changelog
++ 2007-08-29:
++    - compile fix for vdr-1.5.9 based on Stone's patch.
++ 2007-07-12:
++    - video / dfb: moved some code from video.c to video-dfb.c as announced
++                   and changed some constants to those I use in productive VDR.
+  2007-07-11:
+     - compile fix for: ./configure --disable-shm
+
+Index: SoftOsd.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.c,v
+retrieving revision 1.30
+retrieving revision 1.31
+diff -C2 -d -r1.30 -r1.31
+*** SoftOsd.c	11 Jul 2007 20:08:34 -0000	1.30
+--- SoftOsd.c	28 Aug 2007 22:28:36 -0000	1.31
+***************
+*** 46,52 ****
+  /* ---------------------------------------------------------------------------
+   */
+! 
+  cSoftOsd::cSoftOsd(cVideoOut *VideoOut, int X, int Y)
+          : cOsd(X, Y),active(false),close(false) {
+          OSDDEB("cSoftOsd constructor\n");
+          OutputConvert=&cSoftOsd::ARGB_to_ARGB32;
+--- 46,56 ----
+  /* ---------------------------------------------------------------------------
+   */
+! #if VDRVERSNUM >= 10509
+! cSoftOsd::cSoftOsd(cVideoOut *VideoOut, int X, int Y, uint level)
+!         : cOsd(X, Y, level),active(false),close(false) {
+! #else
+  cSoftOsd::cSoftOsd(cVideoOut *VideoOut, int X, int Y)
+          : cOsd(X, Y),active(false),close(false) {
++ #endif	
+          OSDDEB("cSoftOsd constructor\n");
+          OutputConvert=&cSoftOsd::ARGB_to_ARGB32;
+
+Index: SoftOsd.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.h,v
+retrieving revision 1.15
+retrieving revision 1.16
+diff -C2 -d -r1.15 -r1.16
+*** SoftOsd.h	28 Aug 2007 22:14:19 -0000	1.15
+--- SoftOsd.h	28 Aug 2007 22:28:36 -0000	1.16
+***************
+*** 92,96 ****
+--- 92,100 ----
+      int ScreenOsdHeight;
+  public:
++ #if VDRVERSNUM >= 10509
++     cSoftOsd(cVideoOut *VideoOut, int XOfs, int XOfs, uint level);
++ #else
+      cSoftOsd(cVideoOut *VideoOut, int XOfs, int XOfs);
++ #endif
+      virtual ~cSoftOsd();
+      virtual void Flush(void);
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.86
+retrieving revision 1.87
+diff -C2 -d -r1.86 -r1.87
+*** softdevice.c	28 Aug 2007 22:13:33 -0000	1.86
+--- softdevice.c	28 Aug 2007 22:28:36 -0000	1.87
+***************
+*** 120,124 ****
+--- 120,128 ----
+  public:
+      cSoftOsdProvider(cVideoOut *VideoOut);
++ #if VDRVERSNUM >= 10509
++     virtual cOsd *CreateOsd(int Left, int Top, uint level);
++ #else
+      virtual cOsd *CreateOsd(int Left, int Top);
++ #endif    
+      static cOsd *GetOsd();
+  };
+***************
+*** 133,136 ****
+--- 137,149 ----
+  }
+  
++ #if VDRVERSNUM >= 10509
++ /* ----------------------------------------------------------------------------
++  */
++ cOsd *cSoftOsdProvider::CreateOsd(int Left, int Top, uint level)
++ {
++     osd = new cSoftOsd(videoOut, Left, Top, level);
++     return osd;
++ }
++ #else
+  /* ----------------------------------------------------------------------------
+   */
+***************
+*** 140,143 ****
+--- 153,157 ----
+      return osd;
+  }
++ #endif
+  
+  /* ----------------------------------------------------------------------------
+
+
+
+From nobody at sheep.berlios.de  Sun Sep 16 11:35:52 2007
+From: nobody at sheep.berlios.de (lucke)
+Date: Sun, 16 Sep 2007 11:35:52 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice VideoFilter.c,1.6,1.7
+Message-ID: <20070916093552.C4F74DFEDC@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv5697
+
+Modified Files:
+	VideoFilter.c 
+Log Message:
+white space cleanup
+
+Index: VideoFilter.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/VideoFilter.c,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -C2 -d -r1.6 -r1.7
+*** VideoFilter.c	10 May 2007 22:03:03 -0000	1.6
+--- VideoFilter.c	16 Sep 2007 09:35:18 -0000	1.7
+***************
+*** 26,33 ****
+                  return false;
+          };
+!         
+!         if (!dest) 
+                  return AllocateBuffer(dest, orig);
+!         
+          if ( dest->format != orig->format ||
+               dest->max_width != orig->width ||
+--- 26,33 ----
+                  return false;
+          };
+! 
+!         if (!dest)
+                  return AllocateBuffer(dest, orig);
+! 
+          if ( dest->format != orig->format ||
+               dest->max_width != orig->width ||
+***************
+*** 39,43 ****
+                  vout->ReleaseBuffer(dest);
+                  AllocateBuffer(dest, orig);
+!                 if (!dest) 
+                          return false;
+          };
+--- 39,43 ----
+                  vout->ReleaseBuffer(dest);
+                  AllocateBuffer(dest, orig);
+!                 if (!dest)
+                          return false;
+          };
+***************
+*** 51,58 ****
+                  return false;
+          };
+!        
+          printf("allocating buffer format orig->format %d\n",orig->format);
+          dest=vout->GetBuffer(orig->format, orig->width, orig->height);
+!         
+          dest->width = orig->width;
+          dest->height = orig->height;
+--- 51,58 ----
+                  return false;
+          };
+! 
+          printf("allocating buffer format orig->format %d\n",orig->format);
+          dest=vout->GetBuffer(orig->format, orig->width, orig->height);
+! 
+          dest->width = orig->width;
+          dest->height = orig->height;
+***************
+*** 68,72 ****
+  /*--------------------------------------------------------------------------*/
+  
+! cVideoMirror::cVideoMirror(cVideoOut *vOut) 
+          : cVideoFilter(vOut), outBuf(NULL) {
+  };
+--- 68,72 ----
+  /*--------------------------------------------------------------------------*/
+  
+! cVideoMirror::cVideoMirror(cVideoOut *vOut)
+          : cVideoFilter(vOut), outBuf(NULL) {
+  };
+***************
+*** 108,112 ****
+              }
+      }
+!     
+      // mirror chrominance
+      int h_shift;
+--- 108,112 ----
+              }
+      }
+! 
+      // mirror chrominance
+      int h_shift;
+***************
+*** 137,141 ****
+  /*--------------------------------------------------------------------------*/
+  
+! cDeintLibav::cDeintLibav(cVideoOut *vOut) 
+          : cVideoFilter(vOut), outBuf(NULL) {
+  };
+--- 137,141 ----
+  /*--------------------------------------------------------------------------*/
+  
+! cDeintLibav::cDeintLibav(cVideoOut *vOut)
+          : cVideoFilter(vOut), outBuf(NULL) {
+  };
+***************
+*** 168,185 ****
+      avcodec_get_chroma_sub_sample(dest->format,&h_shift,&v_shift);
+  
+!     avpic_src.data[0] = orig->pixel[0] 
+              + orig->edge_height * orig->stride[0]
+              + orig->edge_width;
+!     
+!     avpic_src.data[1] = orig->pixel[1] 
+              + (orig->edge_height >> v_shift) * orig->stride[1]
+              + (orig->edge_width >> h_shift);
+!     
+!     avpic_src.data[2] = orig->pixel[2] 
+              + (orig->edge_height >> v_shift) * orig->stride[2]
+              + (orig->edge_width >> h_shift);
+  
+      memcpy(avpic_src.linesize,orig->stride,sizeof(avpic_src.linesize));
+!     
+      memcpy(avpic_dest.data,dest->pixel,sizeof(avpic_dest.data));
+      memcpy(avpic_dest.linesize,dest->stride,sizeof(avpic_dest.linesize));
+--- 168,185 ----
+      avcodec_get_chroma_sub_sample(dest->format,&h_shift,&v_shift);
+  
+!     avpic_src.data[0] = orig->pixel[0]
+              + orig->edge_height * orig->stride[0]
+              + orig->edge_width;
+! 
+!     avpic_src.data[1] = orig->pixel[1]
+              + (orig->edge_height >> v_shift) * orig->stride[1]
+              + (orig->edge_width >> h_shift);
+! 
+!     avpic_src.data[2] = orig->pixel[2]
+              + (orig->edge_height >> v_shift) * orig->stride[2]
+              + (orig->edge_width >> h_shift);
+  
+      memcpy(avpic_src.linesize,orig->stride,sizeof(avpic_src.linesize));
+! 
+      memcpy(avpic_dest.data,dest->pixel,sizeof(avpic_dest.data));
+      memcpy(avpic_dest.linesize,dest->stride,sizeof(avpic_dest.linesize));
+***************
+*** 200,204 ****
+  /*---------------------------cImageConvert---------------------------------*/
+  
+! cImageConvert::cImageConvert(cVideoOut *vOut) 
+          : cVideoFilter(vOut), outBuf(NULL)
+  #ifdef USE_SWSCALE
+--- 200,204 ----
+  /*---------------------------cImageConvert---------------------------------*/
+  
+! cImageConvert::cImageConvert(cVideoOut *vOut)
+          : cVideoFilter(vOut), outBuf(NULL)
+  #ifdef USE_SWSCALE
+***************
+*** 226,230 ****
+                          vout->ReleaseBuffer(outBuf);
+  
+!                 outBuf=dest=vout->GetBuffer(PIX_FMT_YUV420P, 
+                                  orig->width, orig->height);
+  
+--- 226,230 ----
+                          vout->ReleaseBuffer(outBuf);
+  
+!                 outBuf=dest=vout->GetBuffer(PIX_FMT_YUV420P,
+                                  orig->width, orig->height);
+  
+***************
+*** 267,279 ****
+          avcodec_get_chroma_sub_sample(orig->format,&h_shift,&v_shift);
+  
+!         avpic_src.data[0] = orig->pixel[0] 
+                  + orig->edge_height * orig->stride[0]
+                  + orig->edge_width;
+  
+!         avpic_src.data[1] = orig->pixel[1] 
+                  + (orig->edge_height >> v_shift) * orig->stride[1]
+                  + (orig->edge_width >> h_shift);
+  
+!         avpic_src.data[2] = orig->pixel[2] 
+                  + (orig->edge_height >> v_shift) * orig->stride[2]
+                  + (orig->edge_width >> h_shift);
+--- 267,279 ----
+          avcodec_get_chroma_sub_sample(orig->format,&h_shift,&v_shift);
+  
+!         avpic_src.data[0] = orig->pixel[0]
+                  + orig->edge_height * orig->stride[0]
+                  + orig->edge_width;
+  
+!         avpic_src.data[1] = orig->pixel[1]
+                  + (orig->edge_height >> v_shift) * orig->stride[1]
+                  + (orig->edge_width >> h_shift);
+  
+!         avpic_src.data[2] = orig->pixel[2]
+                  + (orig->edge_height >> v_shift) * orig->stride[2]
+                  + (orig->edge_width >> h_shift);
+***************
+*** 309,313 ****
+  1/6 of the width on left and right side. After BODER_MIN_SIZE lines which are
+  on average brigther than BORDER_BLACK, stop scanning. During the scan, edges
+! are detected by subtracting the top (bottom) pixel from the current pixel. 
+  If more than 1/6*width of the differences are greater than EDGE_DIFF, the
+  position is marked as an edge.
+--- 309,313 ----
+  1/6 of the width on left and right side. After BODER_MIN_SIZE lines which are
+  on average brigther than BORDER_BLACK, stop scanning. During the scan, edges
+! are detected by subtracting the top (bottom) pixel from the current pixel.
+  If more than 1/6*width of the differences are greater than EDGE_DIFF, the
+  position is marked as an edge.
+***************
+*** 319,326 ****
+  #define EDGE_DIFF 30
+  
+! cBorderDetect::cBorderDetect(cVideoOut *vOut) 
+          : cVideoFilter(vOut), currOrigAspect(-1.0), currDetAspect(-1.0),
+            newDetAspect(-1.0),currBlackBorder(0),frame_count(0) {
+!         
+  };
+  
+--- 319,326 ----
+  #define EDGE_DIFF 30
+  
+! cBorderDetect::cBorderDetect(cVideoOut *vOut)
+          : cVideoFilter(vOut), currOrigAspect(-1.0), currDetAspect(-1.0),
+            newDetAspect(-1.0),currBlackBorder(0),frame_count(0) {
+! 
+  };
+  
+***************
+*** 334,339 ****
+  
+      double tmp_asp = currDetAspect;
+!     
+!     if (orig->aspect_ratio > 1.43) 
+              // 16/9 Frame
+              return;
+--- 334,339 ----
+  
+      double tmp_asp = currDetAspect;
+! 
+!     if (orig->aspect_ratio > 1.43)
+              // 16/9 Frame
+              return;
+***************
+*** 342,346 ****
+      int height=orig->height/4;
+      int not_black_count=0;
+!         
+      // 4/3 Frame
+      // start of first line
+--- 342,346 ----
+      int height=orig->height/4;
+      int not_black_count=0;
+! 
+      // 4/3 Frame
+      // start of first line
+***************
+*** 379,383 ****
+                      edge_pos=black_border;
+  
+!             if (brightness > BORDER_BLACK) 
+                      not_black_count++;
+              else not_black_count=0;
+--- 379,383 ----
+                      edge_pos=black_border;
+  
+!             if (brightness > BORDER_BLACK)
+                      not_black_count++;
+              else not_black_count=0;
+***************
+*** 403,413 ****
+              //printf("Picture is bright enough\n");
+              // calculate new aspect with the detected borders
+!             float new_aspect = orig->aspect_ratio * float(orig->height) 
+                      / (float)(orig->height - edge_pos * 2);
+  
+              // 4/3 = 1.33  16/9 = 1.77  mid = 1,55
+!             if (new_aspect > 1.65) 
+                      tmp_asp = 16.0 / 9.0;
+!             else if (new_aspect > 1.45) 
+                      tmp_asp = 14.0 / 9.0; //4.0 / 3.0;
+              else tmp_asp = 4.0 / 3.0;
+--- 403,413 ----
+              //printf("Picture is bright enough\n");
+              // calculate new aspect with the detected borders
+!             float new_aspect = orig->aspect_ratio * float(orig->height)
+                      / (float)(orig->height - edge_pos * 2);
+  
+              // 4/3 = 1.33  16/9 = 1.77  mid = 1,55
+!             if (new_aspect > 1.65)
+                      tmp_asp = 16.0 / 9.0;
+!             else if (new_aspect > 1.45)
+                      tmp_asp = 14.0 / 9.0; //4.0 / 3.0;
+              else tmp_asp = 4.0 / 3.0;
+***************
+*** 417,421 ****
+      if (tmp_asp == newDetAspect && newDetAspect != currDetAspect ) {
+              frame_count++;
+!             if ( frame_count > FRAMES_BEFORE_SWITCH ) { 
+                      currDetAspect=tmp_asp;
+                      currBlackBorder=edge_pos;
+--- 417,421 ----
+      if (tmp_asp == newDetAspect && newDetAspect != currDetAspect ) {
+              frame_count++;
+!             if ( frame_count > FRAMES_BEFORE_SWITCH ) {
+                      currDetAspect=tmp_asp;
+                      currBlackBorder=edge_pos;
+***************
+*** 430,435 ****
+              orig->height-=2*currBlackBorder;
+  /*            printf("%f %d edge_height %d height %d\n",
+!                             currDetAspect,currBlackBorder, 
+!                             orig->edge_height, orig->height);*/  
+      }
+  #endif
+--- 430,435 ----
+              orig->height-=2*currBlackBorder;
+  /*            printf("%f %d edge_height %d height %d\n",
+!                             currDetAspect,currBlackBorder,
+!                             orig->edge_height, orig->height);*/
+      }
+  #endif
+***************
+*** 438,442 ****
+  /*---------------------------cLibAvPostProc---------------------------------*/
+  #ifdef PP_LIBAVCODEC
+! cLibAvPostProc::cLibAvPostProc(cVideoOut *vOut) 
+          : cVideoFilter(vOut), width(-1), height(-1), pix_fmt(PIX_FMT_NB),
+            ppmode(NULL), ppcontext(NULL), outBuf(NULL),
+--- 438,442 ----
+  /*---------------------------cLibAvPostProc---------------------------------*/
+  #ifdef PP_LIBAVCODEC
+! cLibAvPostProc::cLibAvPostProc(cVideoOut *vOut)
+          : cVideoFilter(vOut), width(-1), height(-1), pix_fmt(PIX_FMT_NB),
+            ppmode(NULL), ppcontext(NULL), outBuf(NULL),
+***************
+*** 479,483 ****
+                  width=orig->width;height=orig->height;
+                  pix_fmt=orig->format;
+!                 
+                  // reallocate ppcontext if format or size of picture changed
+                  if (ppcontext)
+--- 479,483 ----
+                  width=orig->width;height=orig->height;
+                  pix_fmt=orig->format;
+! 
+                  // reallocate ppcontext if format or size of picture changed
+                  if (ppcontext)
+***************
+*** 506,512 ****
+                  ppcontext = pp_get_context(width, height,flags);
+          }
+!         
+!         if ( ppmode == NULL 
+!                         || currentDeintMethod != setupStore->deintMethod 
+                          || currentppMethod != setupStore->ppMethod
+                          || currentppQuality != setupStore->ppQuality ) {
+--- 506,512 ----
+                  ppcontext = pp_get_context(width, height,flags);
+          }
+! 
+!         if ( ppmode == NULL
+!                         || currentDeintMethod != setupStore->deintMethod
+                          || currentppMethod != setupStore->ppMethod
+                          || currentppQuality != setupStore->ppQuality ) {
+***************
+*** 545,557 ****
+          avcodec_get_chroma_sub_sample(orig->format,&h_shift,&v_shift);
+  
+!         avpic_src.data[0] = orig->pixel[0] 
+                  + orig->edge_height * orig->stride[0]
+                  + orig->edge_width;
+  
+!         avpic_src.data[1] = orig->pixel[1] 
+                  + (orig->edge_height >> v_shift) * orig->stride[1]
+                  + (orig->edge_width >> h_shift);
+  
+!         avpic_src.data[2] = orig->pixel[2] 
+                  + (orig->edge_height >> v_shift) * orig->stride[2]
+                  + (orig->edge_width >> h_shift);
+--- 545,557 ----
+          avcodec_get_chroma_sub_sample(orig->format,&h_shift,&v_shift);
+  
+!         avpic_src.data[0] = orig->pixel[0]
+                  + orig->edge_height * orig->stride[0]
+                  + orig->edge_width;
+  
+!         avpic_src.data[1] = orig->pixel[1]
+                  + (orig->edge_height >> v_shift) * orig->stride[1]
+                  + (orig->edge_width >> h_shift);
+  
+!         avpic_src.data[2] = orig->pixel[2]
+                  + (orig->edge_height >> v_shift) * orig->stride[2]
+                  + (orig->edge_width >> h_shift);
+
+
+
+From nobody at sheep.berlios.de  Sun Sep 16 11:50:28 2007
+From: nobody at sheep.berlios.de (lucke)
+Date: Sun, 16 Sep 2007 11:50:28 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice i18n.c,1.20,1.21
+Message-ID: <20070916095028.00E62106A72@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv6965
+
+Modified Files:
+	i18n.c 
+Log Message:
+russian translation by neptunvasja
+
+Index: i18n.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/i18n.c,v
+retrieving revision 1.20
+retrieving revision 1.21
+diff -C2 -d -r1.20 -r1.21
+*** i18n.c	11 Apr 2007 08:23:55 -0000	1.20
+--- i18n.c	16 Sep 2007 09:49:55 -0000	1.21
+***************
+*** 27,31 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 27,31 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "Softdevice",   // 17 
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 50,54 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 50,54 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "??????????-??????????? MPEG-2 ??????????",   // 17 
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 73,77 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 73,77 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "?????? ??? ???????  Xv",  // 17 
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 96,100 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 96,100 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "????? ??????? ???????????", // 17 
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 119,123 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 119,123 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "????? ???????????????", // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 142,146 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 142,146 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "?????? ???????",  // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 165,169 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 165,169 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "?????????? ???????????",  // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 188,192 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 188,192 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "???????? A/V",     // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 211,215 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 211,215 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "?????? ??????", // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 234,238 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 234,238 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "???????????????", // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 257,261 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 257,261 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "???????????? OSD", // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 280,284 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 280,284 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "???.",         // 17 
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 303,307 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 303,307 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "????.",        // 17 
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 326,330 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 326,330 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "????? AC3",    // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 349,353 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 349,353 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "???????? ?????",  // 17 
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 372,376 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 372,376 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "??????? ???????????? ??????? ???????", // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 395,399 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 395,399 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "O??????? ????? ??????", // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 418,422 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 418,422 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "O??????? ????? ?????", // 17 
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 441,445 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 441,445 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "O??????? ?????o? ?????", // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 464,468 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 464,468 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "O??????? ?????o? ??????",  // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 487,491 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 487,491 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "????? ?????????????", // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 510,514 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 510,514 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "???????? ?????????????", // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 533,537 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 533,537 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "???????????? StretchBlit",  // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 556,560 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 556,560 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "??????",       // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 579,583 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 579,583 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "??????",       // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 602,606 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 602,606 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "?? ?????????", // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 625,629 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 625,629 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "?????????????", // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 648,652 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 648,652 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "???????????????",  // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 671,675 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 671,675 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "??????",       // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 694,698 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 694,698 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "??????????",      // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 717,721 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 717,721 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "?????????",    // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 740,744 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 740,744 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "????? ???????????",  // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 763,767 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 763,767 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "HDTV (???)",   // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 786,790 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 786,790 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "16:9 ??????????????", // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 809,813 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 809,813 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "4:3 ??????????",  // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 832,836 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 832,836 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "???????? ????? ? ??????? ????",  // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 855,859 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 855,859 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "???????",     // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 878,882 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 878,882 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "?????????????", // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 901,905 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 901,905 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "????? ?????????????", // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 924,928 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 924,928 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "????? ?????",  // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 947,951 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 947,951 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "???????",      // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 970,974 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 970,974 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "?????????????",     // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 993,997 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 993,997 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "???????? ?????",    // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 1016,1020 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 1016,1020 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "???????????? ?????", // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 1039,1043 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 1039,1043 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "??????????",   // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 1062,1066 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 1062,1066 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "????? ??????? ?????????? (?????/??????)",  // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 1085,1089 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 1085,1089 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "????? ??????? ?????????? (?????/????)",  // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 1108,1112 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 1108,1112 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "?????????? (???./????.) ??????", // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 1131,1135 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 1131,1135 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "?????????? (???./????.) ???????",  // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 1154,1158 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 1154,1158 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "????????????????",   // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 1177,1181 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 1177,1181 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "????. ?????????", // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 1200,1204 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 1200,1204 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "????????? ???????",  // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 1223,1227 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 1223,1227 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "???????????? ?????????",  // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 1246,1250 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 1246,1250 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "???? ???????", // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 1269,1273 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 1269,1273 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "???????? PID", // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+***************
+*** 1292,1296 ****
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "",             // 17 TODO
+      "",             // 18 TODO
+      "",             // 19 TODO
+--- 1292,1296 ----
+      "",             // 16 TODO
+  #if VDRVERSNUM >= 10316
+!     "??????????????? ??????? (16:9/4:3)",  // 17
+      "",             // 18 TODO
+      "",             // 19 TODO
+
+
+
+From nobody at sheep.berlios.de  Sun Sep 16 12:08:33 2007
+From: nobody at sheep.berlios.de (lucke)
+Date: Sun, 16 Sep 2007 12:08:33 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice VideoFilter.c,1.7,1.8
+Message-ID: <20070916100833.9826BBC614@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv8447
+
+Modified Files:
+	VideoFilter.c 
+Log Message:
+- border detect: whole black area was cut out. that not correct when aspect
+  ratio is greater than 16/9. limit cut out area to 16/9.
+
+
+
+Index: VideoFilter.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/VideoFilter.c,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -C2 -d -r1.7 -r1.8
+*** VideoFilter.c	16 Sep 2007 09:35:18 -0000	1.7
+--- VideoFilter.c	16 Sep 2007 10:07:59 -0000	1.8
+***************
+*** 330,333 ****
+--- 330,335 ----
+  void cBorderDetect::Filter(sPicBuffer *&dest, sPicBuffer *orig) {
+      int black_border=0;
++     int     lim;
++     float   new_aspect;
+  
+      dest = orig; // "copy" do not modify
+***************
+*** 403,407 ****
+              //printf("Picture is bright enough\n");
+              // calculate new aspect with the detected borders
+!             float new_aspect = orig->aspect_ratio * float(orig->height)
+                      / (float)(orig->height - edge_pos * 2);
+  
+--- 405,409 ----
+              //printf("Picture is bright enough\n");
+              // calculate new aspect with the detected borders
+!             new_aspect = orig->aspect_ratio * float(orig->height)
+                      / (float)(orig->height - edge_pos * 2);
+  
+***************
+*** 413,416 ****
+--- 415,421 ----
+              else tmp_asp = 4.0 / 3.0;
+              //printf("Bordersize: %d  Calculated aspect %f\n",edge_pos, new_aspect);
++             lim = (orig->height / 2) -
++                      (orig->aspect_ratio * orig->height) /
++                        ((16.0 / 9.0) * 2);
+      }
+  
+***************
+*** 419,425 ****
+              if ( frame_count > FRAMES_BEFORE_SWITCH ) {
+                      currDetAspect=tmp_asp;
+!                     currBlackBorder=edge_pos;
+!                     fprintf(stderr,"new Aspect detected %f\n", tmp_asp);
+!             };
+      } else  frame_count=0;
+      newDetAspect=tmp_asp;
+--- 424,432 ----
+              if ( frame_count > FRAMES_BEFORE_SWITCH ) {
+                      currDetAspect=tmp_asp;
+!                     currBlackBorder = (edge_pos > lim) ? lim : edge_pos;
+!                     fprintf(stderr,
+!                             "new Aspect detected %f (%f) / bb %d %d\n",
+!                             tmp_asp, new_aspect, edge_pos, lim);
+!             }
+      } else  frame_count=0;
+      newDetAspect=tmp_asp;
+
+
+
+From nobody at sheep.berlios.de  Sun Sep 16 12:09:14 2007
+From: nobody at sheep.berlios.de (lucke)
+Date: Sun, 16 Sep 2007 12:09:14 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice CHANGELOG,1.316,1.317
+Message-ID: <20070916100914.2191CFE2F3@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv8518
+
+Modified Files:
+	CHANGELOG 
+Log Message:
+report changes
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.316
+retrieving revision 1.317
+diff -C2 -d -r1.316 -r1.317
+*** CHANGELOG	28 Aug 2007 22:28:36 -0000	1.316
+--- CHANGELOG	16 Sep 2007 10:08:40 -0000	1.317
+***************
+*** 1,3 ****
+--- 1,7 ----
+  Changelog
++ 2007-09-16:
++    - border detect: whole black area was cut out. that not correct when aspect
++      ratio is greater than 16/9. limit cut out area to 16/9.
++    - russian translation by neptunvasja
+  2007-08-29:
+     - compile fix for vdr-1.5.9 based on Stone's patch.
+
+
+
+From nobody at sheep.berlios.de  Sun Sep 23 10:34:17 2007
+From: nobody at sheep.berlios.de (lucke)
+Date: Sun, 23 Sep 2007 10:34:17 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice configure,1.44,1.45
+Message-ID: <20070923083417.0B3A51050E0@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv1750
+
+Modified Files:
+	configure 
+Log Message:
+fix framebuffer check
+
+Index: configure
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/configure,v
+retrieving revision 1.44
+retrieving revision 1.45
+diff -C2 -d -r1.44 -r1.45
+*** configure	11 Jul 2007 17:56:57 -0000	1.44
+--- configure	23 Sep 2007 08:33:40 -0000	1.45
+***************
+*** 367,374 ****
+  if test "${with_fb}" = "yes" ; then
+  cat > ${TMPC} << EOF
+- #include <linux/fb.h>
+  #include <sys/mman.h>
+  #include <sys/ioctl.h>
+  #include <fcntl.h>
+  #include <stdio.h>
+  #include <stdlib.h>
+--- 367,374 ----
+  if test "${with_fb}" = "yes" ; then
+  cat > ${TMPC} << EOF
+  #include <sys/mman.h>
+  #include <sys/ioctl.h>
+  #include <fcntl.h>
++ #include <linux/fb.h>
+  #include <stdio.h>
+  #include <stdlib.h>
+
+
+
+From nobody at sheep.berlios.de  Thu Sep 27 19:35:03 2007
+From: nobody at sheep.berlios.de (lucke)
+Date: Thu, 27 Sep 2007 19:35:03 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice mpeg2decoder.c,1.75,1.76
+Message-ID: <20070927173503.E79FB107CD4@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv21396
+
+Modified Files:
+	mpeg2decoder.c 
+Log Message:
+white space cleanup
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.75
+retrieving revision 1.76
+diff -C2 -d -r1.75 -r1.76
+*** mpeg2decoder.c	10 May 2007 19:49:51 -0000	1.75
+--- mpeg2decoder.c	27 Sep 2007 17:34:25 -0000	1.76
+***************
+*** 521,526 ****
+    avcodec_align_dimensions(c, &w, &h);
+  #endif
+!  
+! #ifdef USE_ALTIVEC 
+  #define EDGE_WIDTH 32
+  #else
+--- 521,526 ----
+    avcodec_align_dimensions(c, &w, &h);
+  #endif
+! 
+! #ifdef USE_ALTIVEC
+  #define EDGE_WIDTH 32
+  #else
+***************
+*** 558,564 ****
+  
+      pic->base[i]= buf->pixel[i];
+!     if(EmuEdge) 
+        pic->data[i] = buf->pixel[i];
+!      else 
+        pic->data[i] = buf->pixel[i] + (buf->stride[i]*
+            EDGE_WIDTH>>v_shift) + (EDGE_WIDTH>>h_shift);
+--- 558,564 ----
+  
+      pic->base[i]= buf->pixel[i];
+!     if(EmuEdge)
+        pic->data[i] = buf->pixel[i];
+!      else
+        pic->data[i] = buf->pixel[i] + (buf->stride[i]*
+            EDGE_WIDTH>>v_shift) + (EDGE_WIDTH>>h_shift);
+***************
+*** 568,574 ****
+      pic->linesize[i]= buf->stride[i];
+    }
+!   if(EmuEdge) 
+      buf->edge_width=buf->edge_height=0;
+!   else 
+      buf->edge_width=buf->edge_height=EDGE_WIDTH;
+    pic->age=buf->age;
+--- 568,574 ----
+      pic->linesize[i]= buf->stride[i];
+    }
+!   if(EmuEdge)
+      buf->edge_width=buf->edge_height=0;
+!   else
+      buf->edge_width=buf->edge_height=EDGE_WIDTH;
+    pic->age=buf->age;
+***************
+*** 886,890 ****
+      if (setupStore->autodetectAspect)
+              BorderDetect.Filter(pic,pic);
+!     
+  #ifdef PP_LIBAVCODEC
+  #ifdef FB_SUPPORT
+--- 886,890 ----
+      if (setupStore->autodetectAspect)
+              BorderDetect.Filter(pic,pic);
+! 
+  #ifdef PP_LIBAVCODEC
+  #ifdef FB_SUPPORT
+
+
+
+From nobody at sheep.berlios.de  Thu Sep 27 20:11:19 2007
+From: nobody at sheep.berlios.de (lucke)
+Date: Thu, 27 Sep 2007 20:11:19 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice mpeg2decoder.c,1.76,1.77
+Message-ID: <20070927181119.8A616A7BB5@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv22924
+
+Modified Files:
+	mpeg2decoder.c 
+Log Message:
+workaround for some ac3 decoding issues
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.76
+retrieving revision 1.77
+diff -C2 -d -r1.76 -r1.77
+*** mpeg2decoder.c	27 Sep 2007 17:34:25 -0000	1.76
+--- mpeg2decoder.c	27 Sep 2007 18:10:41 -0000	1.77
+***************
+*** 447,453 ****
+         frame,pkt->size,len, audio_size, audioOut->GetDelay());
+  
+!     // no new frame decoded, continue
+!     if (audio_size <= 0)
+!       continue;
+  
+      if ( audio_size > AVCODEC_MAX_AUDIO_FRAME_SIZE ) {
+--- 447,464 ----
+         frame,pkt->size,len, audio_size, audioOut->GetDelay());
+  
+!     // no new frame decoded, continue but ...
+!     if (audio_size <= 0) {
+!       // AC3 oddities:
+!       //   1st call processes header and adjusts channels.
+!       //   2nd call delivers data.
+!       if (context->codec_id == CODEC_ID_AC3) {
+!         len=avcodec_decode_audio(context, (short *)audiosamples,
+!                                  &audio_size, data, 1);
+!         //fprintf(stderr,"2nd call len: %d a_size: %d\n", len, audio_size);
+!       }
+!       if (audio_size <= 0)
+!         continue;
+!     }
+! 
+  
+      if ( audio_size > AVCODEC_MAX_AUDIO_FRAME_SIZE ) {
+
+
+
+From nobody at sheep.berlios.de  Thu Sep 27 20:23:18 2007
+From: nobody at sheep.berlios.de (lucke)
+Date: Thu, 27 Sep 2007 20:23:18 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice CHANGELOG, 1.317, 1.318 README, 1.24,
+	1.25 audio-alsa.c, 1.6, 1.7 audio-alsa.h, 1.4, 1.5
+Message-ID: <20070927182318.89630EF06B@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv23698
+
+Modified Files:
+	CHANGELOG README audio-alsa.c audio-alsa.h 
+Log Message:
+added open for number of channels device names CH1, CH2, CH3, .. .
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.317
+retrieving revision 1.318
+diff -C2 -d -r1.317 -r1.318
+*** CHANGELOG	16 Sep 2007 10:08:40 -0000	1.317
+--- CHANGELOG	27 Sep 2007 18:22:40 -0000	1.318
+***************
+*** 1,5 ****
+  Changelog
+  2007-09-16:
+!    - border detect: whole black area was cut out. that not correct when aspect
+       ratio is greater than 16/9. limit cut out area to 16/9.
+     - russian translation by neptunvasja
+--- 1,10 ----
+  Changelog
++ 2007-09-27:
++    - audio: added open for number of channels device names CH1, CH2, CH3, .. .
++    - mpeg2decoder: workaround for some ac3 decoding issues.
++ 2007-09-23:
++    - configure: fix framebuffer check.
+  2007-09-16:
+!    - border detect: whole black area was cut out. that's not correct when aspect
+       ratio is greater than 16/9. limit cut out area to 16/9.
+     - russian translation by neptunvasja
+
+Index: README
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/README,v
+retrieving revision 1.24
+retrieving revision 1.25
+diff -C2 -d -r1.24 -r1.25
+*** README	11 Apr 2007 08:35:57 -0000	1.24
+--- README	27 Sep 2007 18:22:40 -0000	1.25
+***************
+*** 140,143 ****
+--- 140,154 ----
+      -ao alsa:mixer:pcm=default#ac3=hw:0,2#
+  
++ ALSA audio device names:
++ ------------------------
++ In most cases it is enough to use the alsa default device name "default".
++ In case of several installed cards, the exact name could be specified
++ like "hw:0,0". If this still does not fit your needs (ac3 analog out,
++ redirecting/remapping logical channels to physical ones, ..), you may
++ specify for each number of channels some special action, as we try
++ to open device CH1, CH2, CH3, CH4, CH5, CH6 according to current number
++ of channels. As fallback mode, we still try to open specified pcm device
++ name which defaults to "default" :-) .
++ 
+  AC3 pass through:
+  -----------------
+
+Index: audio-alsa.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio-alsa.c,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -C2 -d -r1.6 -r1.7
+*** audio-alsa.c	10 May 2007 19:54:44 -0000	1.6
+--- audio-alsa.c	27 Sep 2007 18:22:40 -0000	1.7
+***************
+*** 273,277 ****
+   */
+  int cAlsaAudioOut::SetParams(SampleContext &context) {
+!       int err;
+  
+      // not needed to set again
+--- 273,278 ----
+   */
+  int cAlsaAudioOut::SetParams(SampleContext &context) {
+!       int   err;
+!       char  *ch_dev = NULL;
+  
+      // not needed to set again
+***************
+*** 287,301 ****
+  
+      if (handle)
+!             snd_pcm_close(handle);
+  
+!     if ((err = snd_pcm_open(&handle,
+!                             device,
+!                             SND_PCM_STREAM_PLAYBACK, 0)) < 0) {
+!       esyslog("[softdevice-audio] Playback reopen error: %s, %s FATAL exiting",
+!               device, snd_strerror(err));
+!       // should we close handle?
+!       handle = NULL;
+!       handleMutex.Unlock();
+!       return -1;
+      }
+  
+--- 288,319 ----
+  
+      if (handle)
+!       snd_pcm_close(handle);
+!     handle = NULL;
+  
+!     if (context.channels < 10) {
+!       sprintf (chDevice, "CH%d", currContext.channels);
+!       device = chDevice;
+!       if ((err = snd_pcm_open(&handle,
+!                               device,
+!                               SND_PCM_STREAM_PLAYBACK, 0)) < 0) {
+!         esyslog("[softdevice-audio] Playback reopen error: %s, %s",
+!                 chDevice, snd_strerror(err));
+!         handle = NULL;
+!       }
+!     }
+! 
+!     if (!handle) {
+!       device = setupStore->alsaDevice;
+!       if ((err = snd_pcm_open(&handle,
+!                               device,
+!                               SND_PCM_STREAM_PLAYBACK, 0)) < 0) {
+!         esyslog("[softdevice-audio] Playback reopen error: "
+!                 "%s, %s FATAL exiting",
+!                 device, snd_strerror(err));
+! 
+!         handle = NULL;
+!         handleMutex.Unlock();
+!         return -1;
+!       }
+      }
+  
+
+Index: audio-alsa.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio-alsa.h,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -C2 -d -r1.4 -r1.5
+*** audio-alsa.h	10 May 2007 19:54:44 -0000	1.4
+--- audio-alsa.h	27 Sep 2007 18:22:40 -0000	1.5
+***************
+*** 27,31 ****
+    snd_pcm_t         *handle;
+    char              *device,
+!                     *ac3Device;
+    volatile bool     paused;
+    bool              ac3PassThrough,
+--- 27,32 ----
+    snd_pcm_t         *handle;
+    char              *device,
+!                     *ac3Device,
+!                     chDevice [8];
+    volatile bool     paused;
+    bool              ac3PassThrough,
+
+
+
+From nobody at sheep.berlios.de  Fri Sep 28 17:53:19 2007
+From: nobody at sheep.berlios.de (lucke)
+Date: Fri, 28 Sep 2007 17:53:19 +0200 (CEST)
+Subject: [Softdevice-cvs] softplay SoftHandles.h, 1.1, 1.2 SoftPlayer.h, 1.8,
+	1.9
+Message-ID: <20070928155319.99CBC104512@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softplay
+In directory sheep:/tmp/cvs-serv22691
+
+Modified Files:
+	SoftHandles.h SoftPlayer.h 
+Log Message:
+fix undefined symbol: _Z15av_register_allv
+
+Index: SoftHandles.h
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/SoftHandles.h,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1 -r1.2
+*** SoftHandles.h	12 Mar 2006 20:23:23 -0000	1.1
+--- SoftHandles.h	28 Sep 2007 15:52:41 -0000	1.2
+***************
+*** 13,17 ****
+--- 13,19 ----
+  #define __SOFTHANDLES_H
+  
++ extern "C" {
+  #include <avformat.h>
++ }
+  
+  #if VDRVERSNUM >= 10330
+
+Index: SoftPlayer.h
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/SoftPlayer.h,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -C2 -d -r1.8 -r1.9
+*** SoftPlayer.h	14 Dec 2006 22:51:47 -0000	1.8
+--- SoftPlayer.h	28 Sep 2007 15:52:41 -0000	1.9
+***************
+*** 16,20 ****
+--- 16,22 ----
+  #include <vdr/player.h>
+  
++ extern "C" {
+  #include <avformat.h>
++ }
+  
+  #include "SoftHandles.h"
+
+
+

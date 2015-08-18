@@ -1,0 +1,111 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice SoftOsd.c,1.21,1.22
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20SoftOsd.c%2C1.21%2C1.22&In-Reply-To=%3C20061027190511.28F349909A%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000453.html">
+   <LINK REL="Next"  HREF="000455.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice SoftOsd.c,1.21,1.22</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20SoftOsd.c%2C1.21%2C1.22&In-Reply-To=%3C20061027190511.28F349909A%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice SoftOsd.c,1.21,1.22">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Oct 27 21:05:11 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000453.html">[Softdevice-cvs] softdevice CHANGELOG,1.252,1.253
+</A></li>
+        <LI>Next message: <A HREF="000455.html">[Softdevice-cvs] softplay Makefile,1.6,1.7
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#454">[ date ]</a>
+              <a href="thread.html#454">[ thread ]</a>
+              <a href="subject.html#454">[ subject ]</a>
+              <a href="author.html#454">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv28697
+
+Modified Files:
+	SoftOsd.c 
+Log Message:
+tab expansion + trailing blank removal
+
+Index: SoftOsd.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.c,v
+retrieving revision 1.21
+retrieving revision 1.22
+diff -C2 -d -r1.21 -r1.22
+*** SoftOsd.c	21 Sep 2006 10:35:51 -0000	1.21
+--- SoftOsd.c	27 Oct 2006 19:04:26 -0000	1.22
+***************
+*** 17,21 ****
+  
+  #ifndef OSDDEB
+! #define OSDDEB(out...) 
+  #endif
+  
+--- 17,21 ----
+  
+  #ifndef OSDDEB
+! #define OSDDEB(out...)
+  #endif
+[...2425 lines suppressed...]
+                                  SPLAT_U16( &quot;%%mm2&quot; )
+!                                 &quot; pmullw %%mm3, %%mm0 \n&quot;
+!                                 &quot; psraw $&quot;SHIFT_BITS&quot;,%%mm0 \n&quot;
+!                                 &quot; paddsw %%mm1, %%mm0 \n&quot;
+!                                 &quot; packuswb %%mm0,%%mm0 \n&quot;
+!                                 &quot; movd %%mm0,(%1) \n&quot;
+!                                 : : &quot;r&quot; (pos),
+!                                 &quot;r&quot; (&amp;dest[ypos*linesize+currPixel]) );
+  #endif
+! 
+                          pos +=new_pixel_height;
+                          ypos+=1;
+                  };
+!                 currPixel++;
+          };
+!         EMMS;
+  };
+! 
+  #endif   // VDRVERSNUM &gt;= 10307
+! 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000453.html">[Softdevice-cvs] softdevice CHANGELOG,1.252,1.253
+</A></li>
+	<LI>Next message: <A HREF="000455.html">[Softdevice-cvs] softplay Makefile,1.6,1.7
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#454">[ date ]</a>
+              <a href="thread.html#454">[ thread ]</a>
+              <a href="subject.html#454">[ subject ]</a>
+              <a href="author.html#454">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

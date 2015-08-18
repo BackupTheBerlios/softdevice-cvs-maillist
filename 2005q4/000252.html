@@ -1,0 +1,127 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.128,1.129 mpeg2decoder.c,1.59,1.60
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.128%2C1.129%20mpeg2decoder.c%2C1.59%2C1.60&In-Reply-To=%3C200511120807.jAC87SN07209%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000251.html">
+   <LINK REL="Next"  HREF="000253.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.128,1.129 mpeg2decoder.c,1.59,1.60</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.128%2C1.129%20mpeg2decoder.c%2C1.59%2C1.60&In-Reply-To=%3C200511120807.jAC87SN07209%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.128,1.129 mpeg2decoder.c,1.59,1.60">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Nov 12 09:07:28 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000251.html">[Softdevice-cvs] softdevice CHANGELOG,1.127,1.128 softdevice.c,1.47,1.48 softdevice.h,1.5,1.6 mpeg2decoder.c,1.58,1.59 mpeg2decoder.h,1.33,1.34
+</A></li>
+        <LI>Next message: <A HREF="000253.html">[Softdevice-cvs] softdevice i18n.c,1.14,1.15
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#252">[ date ]</a>
+              <a href="thread.html#252">[ thread ]</a>
+              <a href="subject.html#252">[ subject ]</a>
+              <a href="author.html#252">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv20452
+
+Modified Files:
+	CHANGELOG mpeg2decoder.c 
+Log Message:
+- speed up moving of cutmarks by a factor of about 100. I forgot to signal
+  that new data is available in StillPicture() :-/
+	  
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.128
+retrieving revision 1.129
+diff -C2 -d -r1.128 -r1.129
+*** CHANGELOG	12 Nov 2005 07:57:41 -0000	1.128
+--- CHANGELOG	12 Nov 2005 08:07:21 -0000	1.129
+***************
+*** 1,4 ****
+--- 1,6 ----
+  Changelog
+  2005-11-12:
++     - speed up moving of cutmarks by a factor of about 100. I forgot to signal
++       that new data is available in StillPicture() :-/
+      - new packet mode: make some softdevice functions available to other
+        plugins like softplay useing the new service interface
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.59
+retrieving revision 1.60
+diff -C2 -d -r1.59 -r1.60
+*** mpeg2decoder.c	12 Nov 2005 07:57:41 -0000	1.59
+--- mpeg2decoder.c	12 Nov 2005 08:07:21 -0000	1.60
+***************
+*** 1569,1577 ****
+      uchar *data=Data;
+      int Size=Length;
+      while ( (P = StreamBuffer-&gt;Put(data, Size)) != Size ) {
+        data+=P;
+        Size-=P;
+!       usleep( 10000 );
+      }
+    }
+    CMDDEB(&quot;StillPicture end \n&quot;);
+--- 1569,1584 ----
+      uchar *data=Data;
+      int Size=Length;
++     BUFDEB(&quot;StillPicture StreamBuffer Put %d\n&quot;,Size);
+      while ( (P = StreamBuffer-&gt;Put(data, Size)) != Size ) {
++       BUFDEB(&quot;StillPicture StreamBuffer-&gt;Put only accepted %d bytes\n&quot;,P);
+        data+=P;
+        Size-=P;
+!       BUFDEB(&quot;StillPicture EnableGet.Signal(), EnablePut.Sleep start\n&quot;);
+!       EnableGetSignal.Signal();
+!       EnablePutSignal.Sleep(50000);
+!       BUFDEB(&quot;StillPicture EnablePut.Sleep end\n&quot;);
+      }
++     BUFDEB(&quot;StillPicture EnableGetSignal.Signal() wrote %d bytes\n&quot;,Length);
++     EnableGetSignal.Signal();
+    }
+    CMDDEB(&quot;StillPicture end \n&quot;);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000251.html">[Softdevice-cvs] softdevice CHANGELOG,1.127,1.128 softdevice.c,1.47,1.48 softdevice.h,1.5,1.6 mpeg2decoder.c,1.58,1.59 mpeg2decoder.h,1.33,1.34
+</A></li>
+	<LI>Next message: <A HREF="000253.html">[Softdevice-cvs] softdevice i18n.c,1.14,1.15
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#252">[ date ]</a>
+              <a href="thread.html#252">[ thread ]</a>
+              <a href="subject.html#252">[ subject ]</a>
+              <a href="author.html#252">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

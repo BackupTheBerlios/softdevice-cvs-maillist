@@ -1,0 +1,287 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice video-xv.c,1.52,1.53 video-dfb.c,1.55,1.56
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-xv.c%2C1.52%2C1.53%20video-dfb.c%2C1.55%2C1.56&In-Reply-To=%3C200604241852.k3OIqVt32650%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000333.html">
+   <LINK REL="Next"  HREF="000335.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice video-xv.c,1.52,1.53 video-dfb.c,1.55,1.56</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-xv.c%2C1.52%2C1.53%20video-dfb.c%2C1.55%2C1.56&In-Reply-To=%3C200604241852.k3OIqVt32650%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice video-xv.c,1.52,1.53 video-dfb.c,1.55,1.56">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon Apr 24 20:52:31 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000333.html">[Softdevice-cvs] softdevice video-dfb.c,1.54,1.55
+</A></li>
+        <LI>Next message: <A HREF="000335.html">[Softdevice-cvs] softdevice video.h,1.34,1.35
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#334">[ date ]</a>
+              <a href="thread.html#334">[ thread ]</a>
+              <a href="subject.html#334">[ subject ]</a>
+              <a href="author.html#334">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv25317
+
+Modified Files:
+	video-xv.c video-dfb.c 
+Log Message:
+xv + dfb: removed some unused code
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.52
+retrieving revision 1.53
+diff -C2 -d -r1.52 -r1.53
+*** video-xv.c	23 Apr 2006 19:38:29 -0000	1.52
+--- video-xv.c	24 Apr 2006 18:52:53 -0000	1.53
+***************
+*** 528,532 ****
+      struct timeval  current_time;
+      XEvent            event;
+!     
+    pthread_mutex_lock(&amp;xv_mutex);
+    if (!videoInitialized) {
+--- 528,532 ----
+      struct timeval  current_time;
+      XEvent            event;
+! 
+    pthread_mutex_lock(&amp;xv_mutex);
+    if (!videoInitialized) {
+***************
+*** 719,723 ****
+    }
+    xScreensaver-&gt;MaybeSendDeactivate();
+!   pthread_mutex_unlock(&amp;xv_mutex);  
+  }
+  
+--- 719,723 ----
+    }
+    xScreensaver-&gt;MaybeSendDeactivate();
+!   pthread_mutex_unlock(&amp;xv_mutex);
+  }
+  
+***************
+*** 1500,1531 ****
+  }
+  
+- /*
+- void cXvVideoOut::RefreshOSD(cSoftOsd *Osd,bool RefreshAll)
+- {
+-   // refreshes the screen
+-   // copy video Data
+-   if (!videoInitialized)
+-     return;
+- //  if (OSDpresent)
+-   {
+-     switch (current_osdMode) {
+-       case OSDMODE_PSEUDO :
+-               Osd-&gt;CopyToBitmap(osd_buffer, osd_image-&gt;bytes_per_line,
+-                               OsdWidth,OsdHeight,RefreshAll);
+-             break;
+-       case OSDMODE_SOFTWARE:
+- 	    Osd-&gt;CopyToBitmap(OsdPy,OsdPv,OsdPu,OsdPAlphaY,OsdPAlphaUV,
+-                             OSD_FULL_WIDTH,OSD_FULL_WIDTH/2,
+- 			    OsdWidth,OsdHeight,RefreshAll);
+- 	    break;
+- 
+-     }
+-     pthread_mutex_lock(&amp;xv_mutex);
+-     ShowOSD(0,1);
+-     //OSDpresent=true;
+-     pthread_mutex_unlock(&amp;xv_mutex);
+-   };
+- };
+- */
+  #else
+  /* ---------------------------------------------------------------------------
+--- 1500,1503 ----
+***************
+*** 1712,1716 ****
+    }
+    PutXvImage();
+-   //ProcessEvents ();
+    XSync(dpy, False);
+    pthread_mutex_unlock(&amp;xv_mutex);
+--- 1684,1687 ----
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.55
+retrieving revision 1.56
+diff -C2 -d -r1.55 -r1.56
+*** video-dfb.c	23 Apr 2006 21:23:21 -0000	1.55
+--- video-dfb.c	24 Apr 2006 18:52:53 -0000	1.56
+***************
+*** 363,372 ****
+                 fmt, DFB_BITS_PER_PIXEL(fmt));
+        Bpp = DFB_BITS_PER_PIXEL(fmt);
+! /*
+!       if (Xres &gt; OSD_FULL_WIDTH)
+!         Xres = OSD_FULL_WIDTH;
+!       if (Yres &gt; OSD_FULL_HEIGHT)
+!         Yres = OSD_FULL_HEIGHT;
+! */
+        /* ------------------------------------------------------------------------
+         * clear screen surface at startup
+--- 363,367 ----
+                 fmt, DFB_BITS_PER_PIXEL(fmt));
+        Bpp = DFB_BITS_PER_PIXEL(fmt);
+! 
+        /* ------------------------------------------------------------------------
+         * clear screen surface at startup
+***************
+*** 1095,1195 ****
+  }
+  
+- /*
+- void cDFBVideoOut::RefreshOSD(cSoftOsd *Osd, bool RefreshAll)
+- {
+-     int               pitch;
+-     uint8_t           *dst;
+-     IDirectFBSurface  *tmpSurface;
+-     DFBRectangle      osdsrc;
+- 
+-     try
+-     {
+-       bool dirtyLines[Yres];
+-       memset(dirtyLines,false,sizeof(dirtyLines));
+- 
+-       tmpSurface = (useStretchBlit) ? osdSurface : scrSurface;
+-       tmpSurface-&gt;Lock(DSLF_WRITE, (void **)&amp;dst, &amp;pitch) ;
+-       Osd-&gt;CopyToBitmap(dst, pitch,
+-                               Xres,Yres,RefreshAll,dirtyLines);
+-       tmpSurface-&gt;Unlock();
+- 
+-       tmpSurface-&gt;Flip();
+- 
+-       int miny=0;
+-       int maxy=0;
+-       do {
+-               while (!dirtyLines[miny] &amp;&amp; miny &lt; Yres)
+-                       miny++;
+- 
+- 	      if (miny &gt;= Yres)
+- 		      break;
+- 
+-               maxy=miny;
+-               while (dirtyLines[maxy] &amp;&amp; maxy &lt; Yres)
+-                       maxy++;
+- 
+-               osdsrc.x = 0;
+-               osdsrc.y = miny;
+-               osdsrc.w = Xres;
+-               osdsrc.h = maxy-miny + 1;
+-               tmpSurface-&gt;Blit(tmpSurface,&amp;osdsrc,0,miny);
+- 
+-               miny=maxy;
+- 
+-       } while ( miny&lt;Yres);
+- 
+-     }
+-     catch (DFBException *ex)
+-     {
+-       fprintf (stderr,&quot;[dfb] Refresh: action=%s, result=%s\n&quot;,
+-                ex-&gt;GetAction(), ex-&gt;GetResult());
+-       delete ex;
+-     }
+- 
+- }
+- 	*/
+- /* ---------------------------------------------------------------------------
+-  */
+- /*
+- void cDFBVideoOut::Refresh(cBitmap *Bitmap)
+- {
+-     int               pitch;
+-     uint8_t           *dst;
+-     IDirectFBSurface  *tmpSurface;
+-     DFBRegion         modArea;
+-     DFBRectangle      osdsrc;
+- 
+-   if (Bitmap-&gt;Dirty(modArea.x1,modArea.y1,modArea.x2,modArea.y2))
+-   {
+-     try
+-     {
+-       tmpSurface = (useStretchBlit) ? osdSurface : scrSurface;
+-       tmpSurface-&gt;Lock(DSLF_WRITE, (void **)&amp;dst, &amp;pitch) ;
+-       Draw(Bitmap,dst,pitch,(isVIAUnichrome) ? true:false);
+-       tmpSurface-&gt;Unlock();
+- 
+-       modArea.x1 += OSDxOfs + Bitmap-&gt;X0();
+-       modArea.y1 += OSDyOfs + Bitmap-&gt;Y0();
+-       modArea.x2 += OSDxOfs + Bitmap-&gt;X0();
+-       modArea.y2 += OSDyOfs + Bitmap-&gt;Y0();
+- 
+-       tmpSurface-&gt;Flip(&amp;modArea,DSFLIP_WAIT);
+-       osdsrc.x = modArea.x1;
+-       osdsrc.y = modArea.y1;
+-       osdsrc.w = modArea.x2 - modArea.x1 + 1;
+-       osdsrc.h = modArea.y2 - modArea.y1 + 1;
+-       tmpSurface-&gt;Blit(tmpSurface, &amp;osdsrc, modArea.x1, modArea.y1);
+-     }
+-     catch (DFBException *ex)
+-     {
+-       fprintf (stderr,&quot;[dfb] Refresh: action=%s, result=%s\n&quot;,
+-                ex-&gt;GetAction(), ex-&gt;GetResult());
+-       delete ex;
+-     }
+- 
+-     Bitmap-&gt;Clean();
+-   }
+- }
+- */
+  #else
+  
+--- 1090,1093 ----
+***************
+*** 1485,1490 ****
+      delete ex;
+    }
+-   //ProcessEvents ();
+-   //events_not_done = 0;
+  }
+  
+--- 1383,1386 ----
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000333.html">[Softdevice-cvs] softdevice video-dfb.c,1.54,1.55
+</A></li>
+	<LI>Next message: <A HREF="000335.html">[Softdevice-cvs] softdevice video.h,1.34,1.35
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#334">[ date ]</a>
+              <a href="thread.html#334">[ thread ]</a>
+              <a href="subject.html#334">[ subject ]</a>
+              <a href="author.html#334">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

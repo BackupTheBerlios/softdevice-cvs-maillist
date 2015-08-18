@@ -1,0 +1,188 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.108,1.109 video.c,1.30,1.31 video.h,1.21,1.22
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.108%2C1.109%20video.c%2C1.30%2C1.31%20video.h%2C1.21%2C1.22&In-Reply-To=%3C200509151908.j8FJ8P105466%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000209.html">
+   <LINK REL="Next"  HREF="000211.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.108,1.109 video.c,1.30,1.31 video.h,1.21,1.22</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.108%2C1.109%20video.c%2C1.30%2C1.31%20video.h%2C1.21%2C1.22&In-Reply-To=%3C200509151908.j8FJ8P105466%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.108,1.109 video.c,1.30,1.31 video.h,1.21,1.22">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Thu Sep 15 21:08:25 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000209.html">[Softdevice-cvs] softdevice CHANGELOG,1.107,1.108 configure,1.2,1.3 video-dfb.c,1.39,1.40
+</A></li>
+        <LI>Next message: <A HREF="000211.html">[Softdevice-cvs] softdevice audio.c,1.20,1.21
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#210">[ date ]</a>
+              <a href="thread.html#210">[ thread ]</a>
+              <a href="subject.html#210">[ subject ]</a>
+              <a href="author.html#210">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv24932
+
+Modified Files:
+	CHANGELOG video.c video.h 
+Log Message:
+modified previous OSD redraw handling (timed redraw after _all_ OSD bitmaps have been drawn)
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.108
+retrieving revision 1.109
+diff -C2 -d -r1.108 -r1.109
+*** CHANGELOG	15 Sep 2005 18:23:05 -0000	1.108
+--- CHANGELOG	15 Sep 2005 19:08:22 -0000	1.109
+***************
+*** 1,4 ****
+--- 1,6 ----
+  Changelog
+  2005-09-15:
++     - modified previous OSD redraw handling (timed redraw after _all_ OSD bitmaps
++       have been drawn)
+      - video-dfb: keyrepeat handling + configure check for DIET_REPEAT
+  2005-09-11:
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.30
+retrieving revision 1.31
+diff -C2 -d -r1.30 -r1.31
+*** video.c	11 Sep 2005 09:22:30 -0000	1.30
+--- video.c	15 Sep 2005 19:08:22 -0000	1.31
+***************
+*** 25,28 ****
+--- 25,29 ----
+    cutTop = cutBottom = cutLeft = cutRight = 0;
+    OsdPy = OsdPu = OsdPv = OsdPAlphaY = OsdPAlphaUV = NULL;
++   Osd_changed = Osd_Bitmap_changed = 0;
+    PixelMask=NULL;
+    OsdRefreshCounter=0;
+***************
+*** 109,112 ****
+--- 110,114 ----
+                           OSD_FULL_WIDTH, OSD_FULL_WIDTH/2);
+        }
++       
+        osdMutex.Lock();
+        Osd_changed=0;
+***************
+*** 465,468 ****
+--- 467,477 ----
+    OSDdirty=false;
+    OSDpresent=true;
++ #if VDRVERSNUM &gt;= 10307
++   if (Osd_Bitmap_changed)
++   {
++     Osd_Bitmap_changed = 0;
++     Osd_changed = 1;
++   }
++ #endif
+    osdMutex.Unlock();
+  }
+***************
+*** 472,476 ****
+  void cVideoOut::ClearOSD()
+  {
+!   //if (current_osdMode==OSDMODE_SOFTWARE) 
+    {
+      if (OsdPy)
+--- 481,485 ----
+  void cVideoOut::ClearOSD()
+  {
+!   //if (current_osdMode==OSDMODE_SOFTWARE)
+    {
+      if (OsdPy)
+***************
+*** 727,731 ****
+    
+   // printf( &quot;YUV:OSDWidth %d %d Bitmap %d %d \n&quot;,
+!  //   OsdWidth,OsdHeight,Bitmap-&gt;Width(),Bitmap-&gt;Height()); 
+   
+      int           x1,x2,y1,y2;
+--- 736,740 ----
+    
+   // printf( &quot;YUV:OSDWidth %d %d Bitmap %d %d \n&quot;,
+!  //   OsdWidth,OsdHeight,Bitmap-&gt;Width(),Bitmap-&gt;Height());
+   
+      int           x1,x2,y1,y2;
+***************
+*** 734,738 ****
+        return;
+      
+!   Osd_changed=1;
+     //printf( &quot;----------------------------\nOSDWidth %d %d Bitmap %d %d \n&quot;,
+     //     OsdWidth,OsdHeight,Bitmap-&gt;Width(),Bitmap-&gt;Height()); 
+--- 743,747 ----
+        return;
+      
+!   Osd_Bitmap_changed=1;
+     //printf( &quot;----------------------------\nOSDWidth %d %d Bitmap %d %d \n&quot;,
+     //     OsdWidth,OsdHeight,Bitmap-&gt;Width(),Bitmap-&gt;Height()); 
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.21
+retrieving revision 1.22
+diff -C2 -d -r1.21 -r1.22
+*** video.h	11 Sep 2005 09:22:30 -0000	1.21
+--- video.h	15 Sep 2005 19:08:22 -0000	1.22
+***************
+*** 158,162 ****
+  
+      uint8_t *PixelMask;
+!     int Osd_changed;
+      uint8_t *OsdPy;
+      uint8_t *OsdPu; 
+--- 158,163 ----
+  
+      uint8_t *PixelMask;
+!     int     Osd_changed,
+!             Osd_Bitmap_changed;
+      uint8_t *OsdPy;
+      uint8_t *OsdPu; 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000209.html">[Softdevice-cvs] softdevice CHANGELOG,1.107,1.108 configure,1.2,1.3 video-dfb.c,1.39,1.40
+</A></li>
+	<LI>Next message: <A HREF="000211.html">[Softdevice-cvs] softdevice audio.c,1.20,1.21
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#210">[ date ]</a>
+              <a href="thread.html#210">[ thread ]</a>
+              <a href="subject.html#210">[ subject ]</a>
+              <a href="author.html#210">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

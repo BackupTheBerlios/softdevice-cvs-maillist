@@ -1,0 +1,157 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.210,1.211 video.c,1.59,1.60
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.210%2C1.211%20video.c%2C1.59%2C1.60&In-Reply-To=%3C200607121840.k6CIeKY30896%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000395.html">
+   <LINK REL="Next"  HREF="000397.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.210,1.211 video.c,1.59,1.60</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.210%2C1.211%20video.c%2C1.59%2C1.60&In-Reply-To=%3C200607121840.k6CIeKY30896%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.210,1.211 video.c,1.59,1.60">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Wed Jul 12 20:40:20 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000395.html">[Softdevice-cvs] softdevice CHANGELOG,1.209,1.210 softdevice.c,1.63,1.64
+</A></li>
+        <LI>Next message: <A HREF="000397.html">[Softdevice-cvs] softdevice video-xv.c, 1.56, 1.57 CHANGELOG, 1.211,	1.212
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#396">[ date ]</a>
+              <a href="thread.html#396">[ thread ]</a>
+              <a href="subject.html#396">[ subject ]</a>
+              <a href="author.html#396">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv2061
+
+Modified Files:
+	CHANGELOG video.c 
+Log Message:
+fix segfault in OSD refresher
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.210
+retrieving revision 1.211
+diff -C2 -d -r1.210 -r1.211
+*** CHANGELOG	11 Jul 2006 20:31:37 -0000	1.210
+--- CHANGELOG	12 Jul 2006 18:40:16 -0000	1.211
+***************
+*** 1,14 ****
+  Changelog
+! 2006-07-11:
+!    - remove no longer defined FFMPEG_VERSION string
+  2006-07-10:
+!    - move alsa related stuff into a separate file, enable build without alsa 
+!      support
+!    - remove uneeded include of &quot;sys/mman.h&quot; and &quot;sys/ioctl.h&quot; from video.c
+!    - set max_width and max_height for temporary PicBuffer
+!    - remove uneeded include of &quot;linux/fb.h&quot; from softdevice.c 
+!    - fix possible endianness problems in SoftOsd.c
+!    - add support for yuy2 pixel format to alpha blend and copy pic buf code
+!    - change return value of AllocPicBuffer()
+     - change the parameters of yv12_to_yuy2_il_mmx() so that it can also be used
+       for not interlaced pictures
+--- 1,16 ----
+  Changelog
+! 2006-07-12:
+!    - fix segfault in OSD refresher.
+! 2006-07-11:
+!    - remove no longer defined FFMPEG_VERSION string
+  2006-07-10:
+!    - move alsa related stuff into a separate file, enable build without alsa
+!      support
+!    - remove uneeded include of &quot;sys/mman.h&quot; and &quot;sys/ioctl.h&quot; from video.c
+!    - set max_width and max_height for temporary PicBuffer
+!    - remove uneeded include of &quot;linux/fb.h&quot; from softdevice.c
+!    - fix possible endianness problems in SoftOsd.c
+!    - add support for yuy2 pixel format to alpha blend and copy pic buf code
+!    - change return value of AllocPicBuffer()
+     - change the parameters of yv12_to_yuy2_il_mmx() so that it can also be used
+       for not interlaced pictures
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.59
+retrieving revision 1.60
+diff -C2 -d -r1.59 -r1.60
+*** video.c	10 Jul 2006 18:50:45 -0000	1.59
+--- video.c	12 Jul 2006 18:40:16 -0000	1.60
+***************
+*** 118,121 ****
+--- 118,123 ----
+        {
+          sPicBuffer tmpBuf;
++ 
++         memset (&amp;tmpBuf, 0, sizeof (sPicBuffer));
+          tmpBuf.pixel[0]=OsdPy;
+          tmpBuf.pixel[1]=OsdPu;
+***************
+*** 148,152 ****
+       old_picture=picture;
+    } else old_picture = NULL;
+!   
+    //osdMutex.Unlock();
+  }
+--- 150,154 ----
+       old_picture=picture;
+    } else old_picture = NULL;
+! 
+    //osdMutex.Unlock();
+  }
+***************
+*** 445,450 ****
+    CheckAspectDimensions(pic);
+    Sync(syncTimer, delay);
+!   
+!   // display picture 
+    YUV(pic);
+    SetOldPicture(pic);
+--- 447,452 ----
+    CheckAspectDimensions(pic);
+    Sync(syncTimer, delay);
+! 
+!   // display picture
+    YUV(pic);
+    SetOldPicture(pic);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000395.html">[Softdevice-cvs] softdevice CHANGELOG,1.209,1.210 softdevice.c,1.63,1.64
+</A></li>
+	<LI>Next message: <A HREF="000397.html">[Softdevice-cvs] softdevice video-xv.c, 1.56, 1.57 CHANGELOG, 1.211,	1.212
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#396">[ date ]</a>
+              <a href="thread.html#396">[ thread ]</a>
+              <a href="subject.html#396">[ subject ]</a>
+              <a href="author.html#396">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

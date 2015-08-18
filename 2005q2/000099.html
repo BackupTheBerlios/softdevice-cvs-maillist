@@ -1,0 +1,596 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.59,1.60 audio.c,1.14,1.15 audio.h,1.7,1.8
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.59%2C1.60%20audio.c%2C1.14%2C1.15%20audio.h%2C1.7%2C1.8&In-Reply-To=%3C200505010807.j4187km01023%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000098.html">
+   <LINK REL="Next"  HREF="000100.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.59,1.60 audio.c,1.14,1.15 audio.h,1.7,1.8</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.59%2C1.60%20audio.c%2C1.14%2C1.15%20audio.h%2C1.7%2C1.8&In-Reply-To=%3C200505010807.j4187km01023%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.59,1.60 audio.c,1.14,1.15 audio.h,1.7,1.8">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun May  1 10:07:46 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000098.html">[Softdevice-cvs] softdevice CHANGELOG,1.58,1.59 setup-softdevice.c,1.15,1.16 setup-softdevice.h,1.11,1.12 video-dfb.c,1.23,1.24 video-xv.c,1.21,1.22
+</A></li>
+        <LI>Next message: <A HREF="000100.html">[Softdevice-cvs] softdevice sync-timer.c,NONE,1.1 sync-timer.h,NONE,1.1
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#99">[ date ]</a>
+              <a href="thread.html#99">[ thread ]</a>
+              <a href="subject.html#99">[ subject ]</a>
+              <a href="author.html#99">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv6359
+
+Modified Files:
+	CHANGELOG audio.c audio.h 
+Log Message:
+- audio-out: some other preparations for ac3
+             mute current mixer if volume is set to 0 and unmute if vol != 0
+             changed dsyslod to esyslog is case we exit()
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.59
+retrieving revision 1.60
+diff -C2 -d -r1.59 -r1.60
+*** CHANGELOG	30 Apr 2005 20:50:42 -0000	1.59
+--- CHANGELOG	1 May 2005 08:07:43 -0000	1.60
+***************
+*** 1,3 ****
+--- 1,7 ----
+  Changelog
++ 2005-05-01:
++     - audio-out: some other preparations for ac3
++                  mute current mixer if volume is set to 0 and unmute if vol != 0
++                  changed dsyslod to esyslog is case we exit()
+  2005-04-30:
+      - some preparations for ac3 out selection
+
+Index: audio.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio.c,v
+retrieving revision 1.14
+retrieving revision 1.15
+diff -C2 -d -r1.14 -r1.15
+*** audio.c	9 Apr 2005 08:47:10 -0000	1.14
+--- audio.c	1 May 2005 08:07:43 -0000	1.15
+***************
+*** 24,35 ****
+  
+  cAlsaAudioOut::cAlsaAudioOut(cSetupStore *setupStore) {
+      if (strlen(setupStore-&gt;alsaDevice) == 0)
+        strcpy (setupStore-&gt;alsaDevice, &quot;default&quot;);
+      dsyslog(&quot;[softdevice-audio] Opening alsa device %s&quot;,setupStore-&gt;alsaDevice);
+      device = setupStore-&gt;alsaDevice;
+-     int err;
+      paused=false;
+      if ((err = snd_pcm_open(&amp;handle, device, SND_PCM_STREAM_PLAYBACK, 0)) &lt; 0) {
+!       dsyslog(&quot;[softdevice-audio] Playback open error: %s, %s FATAL exiting&quot;,
+                device, snd_strerror(err));
+        exit(1);
+--- 24,37 ----
+  
+  cAlsaAudioOut::cAlsaAudioOut(cSetupStore *setupStore) {
++     int err;
++ 
+      if (strlen(setupStore-&gt;alsaDevice) == 0)
+        strcpy (setupStore-&gt;alsaDevice, &quot;default&quot;);
+      dsyslog(&quot;[softdevice-audio] Opening alsa device %s&quot;,setupStore-&gt;alsaDevice);
+      device = setupStore-&gt;alsaDevice;
+      paused=false;
++     ac3PassThrough = false;
+      if ((err = snd_pcm_open(&amp;handle, device, SND_PCM_STREAM_PLAYBACK, 0)) &lt; 0) {
+!       esyslog(&quot;[softdevice-audio] Playback open error: %s, %s FATAL exiting&quot;,
+                device, snd_strerror(err));
+        exit(1);
+***************
+*** 40,59 ****
+  }
+  
+! 
+! cAlsaAudioOut::~cAlsaAudioOut() {
+!     if (handle)
+!       snd_pcm_close(handle);
+  }
+  
+! void cAlsaAudioOut::Suspend() {
+!   snd_pcm_close(handle);
+!   handle=0;
+  }
+  
+  bool cAlsaAudioOut::Resume() {
+     int err;
+     printf(&quot;Device %s\n&quot;,device);
+     if ((err = snd_pcm_open(&amp;handle, device, SND_PCM_STREAM_PLAYBACK, 0)) &lt; 0) {
+!      dsyslog(&quot;[softdevice-audio] Playback open error: %s, %s FATAL exiting&quot;,
+               device, snd_strerror(err));
+       return false;
+--- 42,70 ----
+  }
+  
+! /* ----------------------------------------------------------------------------
+!  */
+! cAlsaAudioOut::~cAlsaAudioOut()
+! {
+!   if (handle)
+!     snd_pcm_close(handle);
+!   handle = NULL;
+  }
+  
+! /* ----------------------------------------------------------------------------
+!  */
+! void cAlsaAudioOut::Suspend()
+! {
+!   if (handle)
+!     snd_pcm_close(handle);
+!   handle = NULL;
+  }
+  
++ /* ----------------------------------------------------------------------------
++  */
+  bool cAlsaAudioOut::Resume() {
+     int err;
+     printf(&quot;Device %s\n&quot;,device);
+     if ((err = snd_pcm_open(&amp;handle, device, SND_PCM_STREAM_PLAYBACK, 0)) &lt; 0) {
+!      esyslog(&quot;[softdevice-audio] Playback open error: %s, %s FATAL&quot;,
+               device, snd_strerror(err));
+       return false;
+***************
+*** 64,72 ****
+  };
+  
+  void cAlsaAudioOut::Write(uchar *Data, int Length)
+  {
+      int err;
+      size_t size;
+!     size = Length/(2*currContext.channels);
+    while (size) {
+      while (paused) usleep(1000); // block
+--- 75,91 ----
+  };
+  
++ /* ----------------------------------------------------------------------------
++  */
+  void cAlsaAudioOut::Write(uchar *Data, int Length)
+  {
+      int err;
+      size_t size;
+! 
+!   if (ac3PassThrough)
+!   {
+!     ac3PassThrough = false;
+!     SetAC3PassThroughMode(ac3PassThrough);
+!   }
+!   size = Length/(2*currContext.channels);
+    while (size) {
+      while (paused) usleep(1000); // block
+***************
+*** 92,95 ****
+--- 111,189 ----
+  }
+  
++ /* ----------------------------------------------------------------------------
++  */
++ void cAlsaAudioOut::SetAC3PassThroughMode(bool on)
++ {
++ #if 0
++     int err;
++ 
++   if (handle)
++     snd_pcm_close(handle);
++   handle = NULL;
++ 
++   if (on)
++   {
++     oldContext = currContext;
++     if ((err = snd_pcm_open(&amp;handle, device, SND_PCM_STREAM_PLAYBACK, 0)) &lt; 0)
++     {
++       esyslog(&quot;[softdevice-audio] Playback open error: %s, %s FATAL exiting&quot;,
++               device, snd_strerror(err));
++       exit(1);
++     }
++ 
++   }
++   else
++   {
++     if ((err = snd_pcm_open(&amp;handle, device, SND_PCM_STREAM_PLAYBACK, 0)) &lt; 0)
++     {
++       esyslog(&quot;[softdevice-audio] Playback open error: %s, %s FATAL exiting&quot;,
++               device, snd_strerror(err));
++       exit(1);
++     }
++ 
++     currContext.channels = 0;
++     SetParams(oldContext);
++   }
++ #endif
++ }
++ 
++ /* ----------------------------------------------------------------------------
++  */
++ void cAlsaAudioOut::WriteAC3(uchar *Data, int Length)
++ {
++     int err;
++     size_t size;
++ 
++ 
++   if (!ac3PassThrough)
++   {
++     ac3PassThrough = true;
++     SetAC3PassThroughMode(ac3PassThrough);
++   }
++ 
++ #if 0
++   {
++       static int fd = -1;
++ 
++     if (fd == -1) fd = open (&quot;/tmp/xx.ac3&quot;, O_CREAT|O_WRONLY|O_TRUNC, 0700);
++     if (fd &gt;= 0) write (fd, Data,Length);
++   }
++ #endif
++ 
++   if (!currContext.channels)
++     size = Length/(2*2);
++   else
++     size = Length/(2*currContext.channels);
++   while (size)
++   {
++     while (paused)
++       usleep(1000); // block
++ 
++     err = size;
++ 
++     size -= err;
++   }
++ }
++ 
+  void cAlsaAudioOut::Pause(void) {
+      //    snd_pcm_pause(handle,1);
+***************
+*** 109,117 ****
+  	handleMutex.Lock();
+  	if ((res = snd_pcm_status(handle, status))&lt;0) {
+!     dsyslog(&quot;[softdevice-audio]: GetDelay status error: %s FATAL exiting&quot;,
+              snd_strerror(res));
+  		exit(EXIT_FAILURE);
+  	}
+!         res=snd_pcm_status_get_delay(status) *10000 / 
+  	  currContext.samplerate;
+  	handleMutex.Unlock();
+--- 203,211 ----
+  	handleMutex.Lock();
+  	if ((res = snd_pcm_status(handle, status))&lt;0) {
+!     esyslog(&quot;[softdevice-audio]: GetDelay status error: %s FATAL exiting&quot;,
+              snd_strerror(res));
+  		exit(EXIT_FAILURE);
+  	}
+!         res=snd_pcm_status_get_delay(status) *10000 /
+  	  currContext.samplerate;
+  	handleMutex.Unlock();
+***************
+*** 127,131 ****
+          //printf(&quot;alsa-audio: Xrun\n&quot;);
+  	if ((res = snd_pcm_status(handle, status))&lt;0) {
+!     dsyslog(&quot;[softdevice-audio]: Xrun status error: %s FATAL exiting&quot;,
+              snd_strerror(res));
+  		exit(EXIT_FAILURE);
+--- 221,225 ----
+          //printf(&quot;alsa-audio: Xrun\n&quot;);
+  	if ((res = snd_pcm_status(handle, status))&lt;0) {
+!     esyslog(&quot;[softdevice-audio]: Xrun status error: %s FATAL exiting&quot;,
+              snd_strerror(res));
+  		exit(EXIT_FAILURE);
+***************
+*** 134,138 ****
+  //		snd_pcm_status_get_trigger_tstamp(status, &amp;tstamp);
+  		if ((res = snd_pcm_prepare(handle))&lt;0) {
+!       dsyslog(&quot;[softdevice-audio]: Xrun prepare error: %s FATAL exiting&quot;,
+                snd_strerror(res));
+  			exit(EXIT_FAILURE);
+--- 228,232 ----
+  //		snd_pcm_status_get_trigger_tstamp(status, &amp;tstamp);
+  		if ((res = snd_pcm_prepare(handle))&lt;0) {
+!       esyslog(&quot;[softdevice-audio]: Xrun prepare error: %s FATAL exiting&quot;,
+                snd_strerror(res));
+  			exit(EXIT_FAILURE);
+***************
+*** 142,146 ****
+  
+  //	error(&quot;read/write error, state = %s&quot;, snd_pcm_state_name(snd_pcm_status_get_state(status)));
+!   dsyslog(&quot;[softdevice-audio]: read/write error FATAL exiting&quot;);
+  	exit(EXIT_FAILURE);
+  }
+--- 236,240 ----
+  
+  //	error(&quot;read/write error, state = %s&quot;, snd_pcm_state_name(snd_pcm_status_get_state(status)));
+!   esyslog(&quot;[softdevice-audio]: read/write error FATAL exiting&quot;);
+  	exit(EXIT_FAILURE);
+  }
+***************
+*** 166,170 ****
+                              device,
+                              SND_PCM_STREAM_PLAYBACK, 0)) &lt; 0) {
+!       dsyslog(&quot;[softdevice-audio] Playback reopen error: %s, %s FATAL exiting&quot;,
+                device, snd_strerror(err));
+        exit(1);
+--- 260,264 ----
+                              device,
+                              SND_PCM_STREAM_PLAYBACK, 0)) &lt; 0) {
+!       esyslog(&quot;[softdevice-audio] Playback reopen error: %s, %s FATAL exiting&quot;,
+                device, snd_strerror(err));
+        exit(1);
+***************
+*** 183,187 ****
+      err = snd_pcm_hw_params_any(handle, params);
+      if (err &lt; 0) {
+!       dsyslog(&quot;[softdevice-audio] Broken config for this PCM: no configurations available&quot;);
+        exit(EXIT_FAILURE);
+      }
+--- 277,281 ----
+      err = snd_pcm_hw_params_any(handle, params);
+      if (err &lt; 0) {
+!       esyslog(&quot;[softdevice-audio] Broken config for this PCM: no configurations available&quot;);
+        exit(EXIT_FAILURE);
+      }
+***************
+*** 194,198 ****
+      err = snd_pcm_hw_params_set_access_mask(handle, params, mask);
+      if (err &lt; 0) {
+!       dsyslog(&quot;[softdevice-audio] Access type not available FATAL exiting&quot;);
+        exit(EXIT_FAILURE);
+      }
+--- 288,292 ----
+      err = snd_pcm_hw_params_set_access_mask(handle, params, mask);
+      if (err &lt; 0) {
+!       esyslog(&quot;[softdevice-audio] Access type not available FATAL exiting&quot;);
+        exit(EXIT_FAILURE);
+      }
+***************
+*** 200,204 ****
+      err = snd_pcm_hw_params_set_format(handle, params, PCM_FMT);
+      if (err &lt; 0) {
+!       dsyslog(&quot;[softdevice-audio] Sample format non available FATAL exiting&quot;);
+        exit(EXIT_FAILURE);
+      }
+--- 294,298 ----
+      err = snd_pcm_hw_params_set_format(handle, params, PCM_FMT);
+      if (err &lt; 0) {
+!       esyslog(&quot;[softdevice-audio] Sample format non available FATAL exiting&quot;);
+        exit(EXIT_FAILURE);
+      }
+***************
+*** 206,210 ****
+      err = snd_pcm_hw_params_set_channels(handle, params,currContext.channels);
+      if (err &lt; 0) {
+!       dsyslog(&quot;[softdevice-audio] Channels count non available FATAL exiting&quot;);
+        exit(EXIT_FAILURE);
+      }
+--- 300,304 ----
+      err = snd_pcm_hw_params_set_channels(handle, params,currContext.channels);
+      if (err &lt; 0) {
+!       esyslog(&quot;[softdevice-audio] Channels count non available FATAL exiting&quot;);
+        exit(EXIT_FAILURE);
+      }
+***************
+*** 213,217 ****
+      assert(err &gt;= 0);
+      if (currContext.samplerate != context.samplerate ) {
+!       dsyslog(&quot;[softdevice-audio] Rate %d Hz is not possible (and using instead %d Hz is not implemented) FATAL exiting&quot;,context.samplerate,currContext.samplerate);
+        exit(1);
+      }
+--- 307,311 ----
+      assert(err &gt;= 0);
+      if (currContext.samplerate != context.samplerate ) {
+!       esyslog(&quot;[softdevice-audio] Rate %d Hz is not possible (and using instead %d Hz is not implemented) FATAL exiting&quot;,context.samplerate,currContext.samplerate);
+        exit(1);
+      }
+***************
+*** 224,235 ****
+      err = snd_pcm_hw_params_set_period_size_near(handle, params, &amp;periodSize, 0);
+      if ( err &lt; 0)  {
+!       dsyslog(&quot;[softdevice-audio] Failed to set period size!&quot;);
+        exit(1);
+      }
+      
+!     snd_pcm_uframes_t buffersize = 2 * 4608; 
+      err = snd_pcm_hw_params_set_buffer_size_near(handle, params, &amp;buffersize);
+      if ( err &lt; 0 ) {
+!       dsyslog(&quot;[softdevice-audio] Failed to set buffer size!&quot;);
+        exit(1);
+      }
+--- 318,329 ----
+      err = snd_pcm_hw_params_set_period_size_near(handle, params, &amp;periodSize, 0);
+      if ( err &lt; 0)  {
+!       esyslog(&quot;[softdevice-audio] Failed to set period size!&quot;);
+        exit(1);
+      }
+      
+!     snd_pcm_uframes_t buffersize = 2 * 4608;
+      err = snd_pcm_hw_params_set_buffer_size_near(handle, params, &amp;buffersize);
+      if ( err &lt; 0 ) {
+!       esyslog(&quot;[softdevice-audio] Failed to set buffer size!&quot;);
+        exit(1);
+      }
+***************
+*** 237,241 ****
+      err = snd_pcm_hw_params(handle, params);
+      if (err &lt; 0) {
+!       dsyslog(&quot;[softdevice-audio] Unable to install hw params: FATAL exiting&quot;);
+        exit(EXIT_FAILURE);
+      }
+--- 331,335 ----
+      err = snd_pcm_hw_params(handle, params);
+      if (err &lt; 0) {
+!       esyslog(&quot;[softdevice-audio] Unable to install hw params: FATAL exiting&quot;);
+        exit(EXIT_FAILURE);
+      }
+***************
+*** 244,248 ****
+      snd_pcm_hw_params_get_buffer_size(params, &amp;bufferSize);
+      if (periodSize == bufferSize) {
+!       dsyslog(&quot;[softdevice-audio] Can't use period equal to buffer size (%lu == %lu) FATAL exiting&quot;,
+                periodSize, bufferSize);
+        exit(EXIT_FAILURE);
+--- 338,342 ----
+      snd_pcm_hw_params_get_buffer_size(params, &amp;bufferSize);
+      if (periodSize == bufferSize) {
+!       esyslog(&quot;[softdevice-audio] Can't use period equal to buffer size (%lu == %lu) FATAL exiting&quot;,
+                periodSize, bufferSize);
+        exit(EXIT_FAILURE);
+***************
+*** 257,261 ****
+      err = snd_pcm_sw_params_get_xfer_align(swparams, &amp;xfer_align);
+      if (err &lt; 0) {
+!       dsyslog(&quot;[softdevice-audio] Unable to obtain xfer align FATAL exiting&quot;);
+        exit(EXIT_FAILURE);
+      }
+--- 351,355 ----
+      err = snd_pcm_sw_params_get_xfer_align(swparams, &amp;xfer_align);
+      if (err &lt; 0) {
+!       esyslog(&quot;[softdevice-audio] Unable to obtain xfer align FATAL exiting&quot;);
+        exit(EXIT_FAILURE);
+      }
+***************
+*** 309,312 ****
+--- 403,410 ----
+      snd_mixer_selem_set_playback_volume(mElem,SND_MIXER_SCHN_FRONT_LEFT,setVol);
+      snd_mixer_selem_set_playback_volume(mElem,SND_MIXER_SCHN_FRONT_RIGHT,setVol);
++     if (snd_mixer_selem_has_playback_switch(mElem))
++     {
++       snd_mixer_selem_set_playback_switch_all(mElem, (vol) ? 1 : 0);
++     }
+    }
+  
+***************
+*** 325,328 ****
+--- 423,432 ----
+   */
+  void cDummyAudioOut::Write(uchar *Data, int Length)
++ {
++ }
++ 
++ /* ----------------------------------------------------------------------------
++  */
++ void cDummyAudioOut::WriteAC3(uchar *Data, int Length)
+  {
+  }
+
+Index: audio.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio.h,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -C2 -d -r1.7 -r1.8
+*** audio.h	27 Mar 2005 09:01:26 -0000	1.7
+--- audio.h	1 May 2005 08:07:43 -0000	1.8
+***************
+*** 33,36 ****
+--- 33,37 ----
+    virtual ~cAudioOut();
+    virtual void Write(uchar *Data, int Length)=0;
++   virtual void WriteAC3(uchar *Data, int Length)=0;
+    // length should always be a multiple of 4
+    virtual int SetParams(SampleContext &amp;context)=0;
+***************
+*** 39,45 ****
+    virtual void Play(void)=0;
+    virtual void SetVolume(int vol)=0;
+!   virtual void Suspend(void) 
+    {return;};
+!   virtual bool Resume(void) 
+    {return true;};
+  };
+--- 40,46 ----
+    virtual void Play(void)=0;
+    virtual void SetVolume(int vol)=0;
+!   virtual void Suspend(void)
+    {return;};
+!   virtual bool Resume(void)
+    {return true;};
+  };
+***************
+*** 50,58 ****
+  class cAlsaAudioOut : public cAudioOut  {
+  private:
+!   void Xrun(void);
+!   cMutex handleMutex;
+!   snd_pcm_t *handle;
+!   char *device;
+    volatile bool paused;
+  protected:
+  public:
+--- 51,64 ----
+  class cAlsaAudioOut : public cAudioOut  {
+  private:
+!   cMutex        handleMutex;
+!   snd_pcm_t     *handle;
+!   char          *device;
+    volatile bool paused;
++   bool          ac3PassThrough;
++   SampleContext oldContext;
++ 
++   void SetAC3PassThroughMode(bool on);
++   void Xrun(void);
++ 
+  protected:
+  public:
+***************
+*** 60,63 ****
+--- 66,70 ----
+    virtual ~cAlsaAudioOut();
+    virtual void Write(uchar *Data, int Length);
++   virtual void WriteAC3(uchar *Data, int Length);
+    //virtual int SetParams(int channels, unsigned int samplerate);
+    virtual int SetParams(SampleContext &amp;context);
+***************
+*** 79,82 ****
+--- 86,90 ----
+    virtual ~cDummyAudioOut() { return; };
+    virtual void Write(uchar *Data, int Length);
++   virtual void WriteAC3(uchar *Data, int Length);
+    virtual int SetParams(SampleContext &amp;context);
+    virtual int GetDelay(void);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000098.html">[Softdevice-cvs] softdevice CHANGELOG,1.58,1.59 setup-softdevice.c,1.15,1.16 setup-softdevice.h,1.11,1.12 video-dfb.c,1.23,1.24 video-xv.c,1.21,1.22
+</A></li>
+	<LI>Next message: <A HREF="000100.html">[Softdevice-cvs] softdevice sync-timer.c,NONE,1.1 sync-timer.h,NONE,1.1
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#99">[ date ]</a>
+              <a href="thread.html#99">[ thread ]</a>
+              <a href="subject.html#99">[ subject ]</a>
+              <a href="author.html#99">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

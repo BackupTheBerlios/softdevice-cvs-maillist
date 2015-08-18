@@ -1,0 +1,198 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.238, 1.239 SoftOsd.c, 1.18,	1.19 SoftOsd.h, 1.7, 1.8
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.238%2C%201.239%20SoftOsd.c%2C%201.18%2C%0A%091.19%20SoftOsd.h%2C%201.7%2C%201.8&In-Reply-To=%3C20060917204934.4A4F57D5B9%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000430.html">
+   <LINK REL="Next"  HREF="000432.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.238, 1.239 SoftOsd.c, 1.18,	1.19 SoftOsd.h, 1.7, 1.8</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.238%2C%201.239%20SoftOsd.c%2C%201.18%2C%0A%091.19%20SoftOsd.h%2C%201.7%2C%201.8&In-Reply-To=%3C20060917204934.4A4F57D5B9%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.238, 1.239 SoftOsd.c, 1.18,	1.19 SoftOsd.h, 1.7, 1.8">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Sep 17 22:49:34 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000430.html">[Softdevice-cvs] softdevice utils.c, 1.19, 1.20 CHANGELOG, 1.237,	1.238
+</A></li>
+        <LI>Next message: <A HREF="000432.html">[Softdevice-cvs] softdevice CHANGELOG, 1.239, 1.240 SoftOsd.c, 1.19,	1.20
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#431">[ date ]</a>
+              <a href="thread.html#431">[ thread ]</a>
+              <a href="subject.html#431">[ subject ]</a>
+              <a href="author.html#431">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv10081
+
+Modified Files:
+	CHANGELOG SoftOsd.c SoftOsd.h 
+Log Message:
+- add NoVScaleCopyBitmap() for RGB modes
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.238
+retrieving revision 1.239
+diff -C2 -d -r1.238 -r1.239
+*** CHANGELOG	17 Sep 2006 18:41:27 -0000	1.238
+--- CHANGELOG	17 Sep 2006 20:49:04 -0000	1.239
+***************
+*** 10,13 ****
+--- 10,14 ----
+     - make utils.c compile on non MMX machines, cleanup some #ifdefs
+     - fix compile issue with g++-4.1.1
++    - add NoVScaleCopyBitmap() for RGB modes
+  2006-09-xx:
+     - added -vo shm: to help option
+
+Index: SoftOsd.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.c,v
+retrieving revision 1.18
+retrieving revision 1.19
+diff -C2 -d -r1.18 -r1.19
+*** SoftOsd.c	17 Sep 2006 11:54:32 -0000	1.18
+--- SoftOsd.c	17 Sep 2006 20:49:05 -0000	1.19
+***************
+*** 1037,1041 ****
+                  return;
+  
+! 	if (dest_Height&gt;=OSD_HEIGHT)
+  		ScaleVUpCopyToBitmap(dest,linesize,dest_Width,dest_Height,
+                                  RefreshAll,dirtyLines);
+--- 1037,1044 ----
+                  return;
+  
+!         if ( dest_Height==OSD_HEIGHT )
+!                 NoVScaleCopyToBitmap(dest,linesize,dest_Width,dest_Height,
+!                                 RefreshAll,dirtyLines);
+!         else if ( dest_Height&gt;OSD_HEIGHT )
+  		ScaleVUpCopyToBitmap(dest,linesize,dest_Width,dest_Height,
+                                  RefreshAll,dirtyLines);
+***************
+*** 1147,1150 ****
+--- 1150,1204 ----
+  
+  
++ //--------------------------- no vertical scale -----------------------------
++ void cSoftOsd::NoVScaleCopyToBitmap(uint8_t *dest, int linesize, 
++                 int dest_Width, int dest_Height, bool RefreshAll,
++                 bool *dest_dirtyLines) {
++ 	
++         OSDDEB(&quot;CopyToBitmap RGB down\n&quot;);
++ 	if ( bitmap_Format == PF_AYUV ) {
++                 fprintf(stderr,&quot;cSoftOsd error did not call SetMode()!\n&quot;);
++ 		// convert bitmap to argb
++ 		bitmap_Format = PF_ARGB32;
++ 		Clear();
++ 		FlushBitmaps(false);
++ 	};
++ 
++ 	cMutexLock dirty(&amp;dirty_Mutex);
++         uint8_t *buf;
++         color *pixmap=(color*) OSD_Bitmap;
++ 	const int dest_stride=(dest_Width+32)&amp;~0xF;
++         color tmp_pixmap1[2*dest_stride];
++         color *tmp_pixmap=tmp_pixmap1;
++ 
++        void (cSoftOsd::*ScaleHoriz)(uint32_t * dest, int dest_Width, color * pixmap,int Pixel);
++ 	ScaleHoriz= dest_Width&lt;OSD_WIDTH ? &amp;cSoftOsd::ScaleDownHoriz_MMX :
++ 		&amp;cSoftOsd::ScaleUpHoriz_MMX;
++ 
++         for (int y=0; y&lt;OSD_HEIGHT; y++) {
++ 
++                 if (!dirty_lines[y]) 
++                         continue;
++                 
++                 if (dest_Width==OSD_WIDTH) {
++                         tmp_pixmap=&amp;pixmap[y*OSD_STRIDE];
++                 } else {
++                         (this-&gt;*ScaleHoriz)((uint32_t*)tmp_pixmap,dest_Width,
++                                       &amp;pixmap[y*OSD_STRIDE],OSD_WIDTH-1);
++                 };
++                 
++                 buf=dest+y*linesize;
++                 //printf(&quot;copy to destination %d\n&quot;,y);
++                 (*OutputConvert)(buf,tmp_pixmap+1,dest_Width-2);
++                 if (pixelMask)
++                         CreatePixelMask(pixelMask+y*linesize/16,
++                                         tmp_pixmap+1,dest_Width-2);
++                 if (dest_dirtyLines)
++                         dest_dirtyLines[y]=true;
++ 
++         };
++         memset(dirty_lines,false,sizeof(dirty_lines));
++         OSDDEB(&quot;CopyToBitmap RGB down end\n&quot;);
++ };
++ 
+  //--------------------------- scale vertical down -----------------------------
+  #define SCALEH_IDX(x) ((scaleH_strtIdx+(x))%lines_count)
+***************
+*** 1222,1227 ****
+          OSDDEB(&quot;CopyToBitmap RGB down end\n&quot;);
+  };
+- 
+- 
+  
+  //------------------------ lowlevel scaling functions ------------------------
+--- 1276,1279 ----
+
+Index: SoftOsd.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.h,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -C2 -d -r1.7 -r1.8
+*** SoftOsd.h	10 Jul 2006 18:23:28 -0000	1.7
+--- SoftOsd.h	17 Sep 2006 20:49:05 -0000	1.8
+***************
+*** 143,146 ****
+--- 143,149 ----
+                      int dest_Width, int dest_Height, bool RefreshAll=false,
+                      bool *dirtyLines=NULL);
++     void NoVScaleCopyToBitmap(uint8_t * dest, int linesize,
++                     int dest_Width, int dest_Height, bool RefreshAll=false,
++                     bool *dirtyLines=NULL);
+      void ScaleVUpCopyToBitmap(uint8_t * dest, int linesize,
+                      int dest_Width, int dest_Height, bool RefreshAll=false,
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000430.html">[Softdevice-cvs] softdevice utils.c, 1.19, 1.20 CHANGELOG, 1.237,	1.238
+</A></li>
+	<LI>Next message: <A HREF="000432.html">[Softdevice-cvs] softdevice CHANGELOG, 1.239, 1.240 SoftOsd.c, 1.19,	1.20
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#431">[ date ]</a>
+              <a href="thread.html#431">[ thread ]</a>
+              <a href="subject.html#431">[ subject ]</a>
+              <a href="author.html#431">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

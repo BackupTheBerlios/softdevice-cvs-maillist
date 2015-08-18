@@ -1,0 +1,325 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice mpeg2decoder.h, 1.43, 1.44 VideoFilter.h,	1.5, 1.6 PicBuffer.h, 1.8, 1.9 configure, 1.46, 1.47 CHANGELOG,	1.325, 1.326
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2008q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20mpeg2decoder.h%2C%201.43%2C%201.44%20VideoFilter.h%2C%0A%091.5%2C%201.6%20PicBuffer.h%2C%201.8%2C%201.9%20configure%2C%201.46%2C%201.47%20CHANGELOG%2C%0A%091.325%2C%201.326&In-Reply-To=%3C20080226080754.EC842F1F58%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000599.html">
+   <LINK REL="Next"  HREF="000601.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice mpeg2decoder.h, 1.43, 1.44 VideoFilter.h,	1.5, 1.6 PicBuffer.h, 1.8, 1.9 configure, 1.46, 1.47 CHANGELOG,	1.325, 1.326</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20mpeg2decoder.h%2C%201.43%2C%201.44%20VideoFilter.h%2C%0A%091.5%2C%201.6%20PicBuffer.h%2C%201.8%2C%201.9%20configure%2C%201.46%2C%201.47%20CHANGELOG%2C%0A%091.325%2C%201.326&In-Reply-To=%3C20080226080754.EC842F1F58%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice mpeg2decoder.h, 1.43, 1.44 VideoFilter.h,	1.5, 1.6 PicBuffer.h, 1.8, 1.9 configure, 1.46, 1.47 CHANGELOG,	1.325, 1.326">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue Feb 26 09:07:54 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000599.html">[Softdevice-cvs] softdevice PicBuffer.h,1.7,1.8
+</A></li>
+        <LI>Next message: <A HREF="000601.html">[Softdevice-cvs] softdevice video-fb.c,1.19,1.20
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#600">[ date ]</a>
+              <a href="thread.html#600">[ thread ]</a>
+              <a href="subject.html#600">[ subject ]</a>
+              <a href="author.html#600">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv28413
+
+Modified Files:
+	mpeg2decoder.h VideoFilter.h PicBuffer.h configure CHANGELOG 
+Log Message:
+fix for ffmpeg &gt;= r12194
+
+Index: mpeg2decoder.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.h,v
+retrieving revision 1.43
+retrieving revision 1.44
+diff -C2 -d -r1.43 -r1.44
+*** mpeg2decoder.h	24 Dec 2007 11:43:31 -0000	1.43
+--- mpeg2decoder.h	26 Feb 2008 08:06:18 -0000	1.44
+***************
+*** 15,20 ****
+  #include &lt;sys/time.h&gt;
+  extern &quot;C&quot; {
+! #include &lt;avcodec.h&gt;
+! #include &lt;avformat.h&gt;
+  }
+  
+--- 15,25 ----
+  #include &lt;sys/time.h&gt;
+  extern &quot;C&quot; {
+! #if HAVE_FFMPEG_LOCAL
+! # include &lt;libavcodec/avcodec.h&gt;
+! # include &lt;libavformat/avformat.h&gt;
+! #else
+! # include &lt;avcodec.h&gt;
+! # include &lt;avformat.h&gt;
+! #endif
+  }
+  
+
+Index: VideoFilter.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/VideoFilter.h,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -C2 -d -r1.5 -r1.6
+*** VideoFilter.h	11 Jul 2007 17:56:57 -0000	1.5
+--- VideoFilter.h	26 Feb 2008 08:06:18 -0000	1.6
+***************
+*** 15,20 ****
+  #ifdef PP_LIBAVCODEC
+  #include &lt;stdint.h&gt; //needed by postproc.h
+  extern &quot;C&quot; {
+!   #include &lt;postprocess.h&gt;
+    //#include &lt;postproc/postprocess.h&gt;
+  }
+--- 15,25 ----
+  #ifdef PP_LIBAVCODEC
+  #include &lt;stdint.h&gt; //needed by postproc.h
++ 
+  extern &quot;C&quot; {
+! #if HAVE_FFMPEG_LOCAL
+! # include &lt;libpostproc/postprocess.h&gt;
+! #else
+! # include &lt;postprocess.h&gt;
+! #endif
+    //#include &lt;postproc/postprocess.h&gt;
+  }
+***************
+*** 64,68 ****
+  #ifdef USE_SWSCALE
+  extern &quot;C&quot; {
+! #include &lt;swscale.h&gt;
+  }
+  #endif
+--- 69,77 ----
+  #ifdef USE_SWSCALE
+  extern &quot;C&quot; {
+! #if HAVE_FFMPEG_LOCAL
+! # include &lt;libswscale/swscale.h&gt;
+! #else
+! # include &lt;swscale.h&gt;
+! #endif
+  }
+  #endif
+
+Index: PicBuffer.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/PicBuffer.h,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -C2 -d -r1.8 -r1.9
+*** PicBuffer.h	26 Feb 2008 07:37:42 -0000	1.8
+--- PicBuffer.h	26 Feb 2008 08:06:18 -0000	1.9
+***************
+*** 12,17 ****
+  #define __PIC_BUFFER_H__
+  
+  extern &quot;C&quot; {
+! #include &lt;avcodec.h&gt;
+  }
+  
+--- 12,25 ----
+  #define __PIC_BUFFER_H__
+  
++ #ifdef HAVE_CONFIG
++ # include &quot;config.h&quot;
++ #endif
++ 
+  extern &quot;C&quot; {
+! #if HAVE_FFMPEG_LOCAL
+! # include &lt;libavcodec/avcodec.h&gt;
+! #else
+! # include &lt;avcodec.h&gt;
+! #endif
+  }
+  
+
+Index: configure
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/configure,v
+retrieving revision 1.46
+retrieving revision 1.47
+diff -C2 -d -r1.46 -r1.47
+*** configure	26 Feb 2008 06:57:57 -0000	1.46
+--- configure	26 Feb 2008 08:06:18 -0000	1.47
+***************
+*** 25,28 ****
+--- 25,29 ----
+  use_pkgconfig=&quot;yes&quot;
+  ffmpeg=&quot;yes&quot;
++ ffmpeg_local=&quot;no&quot;
+  libswscale=&quot;no&quot;
+  ffmpeg_use_path=&quot;no&quot;
+***************
+*** 169,172 ****
+--- 170,174 ----
+  echo  &quot;Checking for ffmpeg.------------------------------------&quot; &gt;&gt; config.log
+  
++ #########################################################
+  test_ffmpeg()
+  {
+***************
+*** 189,192 ****
+--- 191,215 ----
+  };
+  
++ #########################################################
++ test_ffmpeg_local()
++ {
++   ffmpeg=&quot;yes&quot;;
++ cat &gt; ${TMPC} &lt;&lt; EOF
++ #define __STDC_CONSTANT_MACROS
++ extern &quot;C&quot; {
++ #include &lt;stdlib.h&gt;
++ #include &lt;libavcodec/avcodec.h&gt;
++ #include &lt;libavformat/avformat.h&gt;
++ }
++ int main(void) {
++   avcodec_init();
++   avcodec_register_all();
++ 
++  return 0;
++ }
++ EOF
++   $cc $CFLAGS $ffmpeg_cflags -o $TMPE $TMPC $ffmpeg_libs  &gt;&gt; config.log 2&gt;&amp;1 || ffmpeg=&quot;no&quot;
++ };
++ 
+  ffmpeg=&quot;no&quot; # = not yet configured
+  if test &quot;${use_pkgconfig}&quot; = &quot;yes&quot; ; then
+***************
+*** 208,211 ****
+--- 231,242 ----
+  
+  if test &quot;${ffmpeg}&quot; = &quot;no&quot; ; then
++   # try the latest ffmpeg change
++   test_ffmpeg_local
++   if test &quot;${ffmpeg}&quot; = &quot;yes&quot; ; then
++     ffmpeg_local=&quot;yes&quot;
++   fi
++ fi
++ 
++ if test &quot;${ffmpeg}&quot; = &quot;no&quot; ; then
+    echo &quot;pkg-config failed, try the default/parameter path.&quot; &gt;&gt; config.log
+    ffmpeg=&quot;yes&quot;
+***************
+*** 266,274 ****
+  };
+  
+  swscale_libs=`PKG_CONFIG_PATH=$PKG_CONFIG_PATH pkg-config --libs libswscale 2&gt;&gt; config.log` || libswscale=&quot;no&quot;
+  swscale_cflags=`PKG_CONFIG_PATH=$PKG_CONFIG_PATH pkg-config --cflags libswscale 2&gt;&gt; config.log`
+  
+  #test if it works
+! test_swscale
+  
+  if test &quot;${swscale}&quot; = &quot;no&quot; ; then
+--- 297,335 ----
+  };
+  
++ test_swscale_local()
++ {
++   swscale=&quot;yes&quot;;
++ cat &gt; ${TMPC} &lt;&lt; EOF
++ #define __STDC_CONSTANT_MACROS
++ #include &lt;stdlib.h&gt;
++ extern &quot;C&quot; {
++ #include &lt;libavcodec/avcodec.h&gt;
++ #include &lt;libavformat/avformat.h&gt;
++ #include &lt;libswscale/swscale.h&gt;
++ }
++ int main(void) {
++   avcodec_init();
++   avcodec_register_all();
++   struct SwsContext *img_convert_ctx = sws_getContext(120, 120,
++                                 PIX_FMT_YUV420P,
++                                 100, 100,
++                                 PIX_FMT_YUV420P,
++                                 SWS_BICUBIC, NULL, NULL, NULL);
++ 
++  return 0;
++ }
++ EOF
++   $cc $CFLAGS $ffmpeg_cflags $swscale_cflags -o $TMPE $TMPC $swscale_libs $ffmpeg_libs &gt;&gt; config.log 2&gt;&amp;1 || swscale=&quot;no&quot;
++ };
++ 
+  swscale_libs=`PKG_CONFIG_PATH=$PKG_CONFIG_PATH pkg-config --libs libswscale 2&gt;&gt; config.log` || libswscale=&quot;no&quot;
+  swscale_cflags=`PKG_CONFIG_PATH=$PKG_CONFIG_PATH pkg-config --cflags libswscale 2&gt;&gt; config.log`
+  
+  #test if it works
+! if test &quot;${ffmpeg_local}&quot; = &quot;no&quot; ; then
+!   test_swscale
+! else
+!   test_swscale_local
+! fi
+  
+  if test &quot;${swscale}&quot; = &quot;no&quot; ; then
+***************
+*** 660,663 ****
+--- 721,730 ----
+  if test &quot;${system}&quot; = &quot;Linux&quot;; then
+    echo &quot;#define LINUX_RTC                       1&quot; &gt;&gt; $TMPH
++ fi
++ 
++ if test &quot;${ffmpeg_local}&quot; = &quot;yes&quot;; then
++   echo &quot;#define HAVE_FFMPEG_LOCAL               1&quot; &gt;&gt; $TMPH
++ else
++   echo &quot;#define HAVE_FFMPEG_LOCAL               0&quot; &gt;&gt; $TMPH
+  fi
+  
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.325
+retrieving revision 1.326
+diff -C2 -d -r1.325 -r1.326
+*** CHANGELOG	20 Feb 2008 08:05:42 -0000	1.325
+--- CHANGELOG	26 Feb 2008 08:06:18 -0000	1.326
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2008-02-26:
++    - fix for ffmpeg &gt;= r12194.
+  2008-02-20:
+     - VideoFilter.c: fix some warnings and compile error with ffmpeg &gt;= r11816
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000599.html">[Softdevice-cvs] softdevice PicBuffer.h,1.7,1.8
+</A></li>
+	<LI>Next message: <A HREF="000601.html">[Softdevice-cvs] softdevice video-fb.c,1.19,1.20
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#600">[ date ]</a>
+              <a href="thread.html#600">[ thread ]</a>
+              <a href="subject.html#600">[ subject ]</a>
+              <a href="author.html#600">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

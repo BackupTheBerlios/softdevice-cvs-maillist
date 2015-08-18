@@ -1,0 +1,247 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.233, 1.234 PicBuffer.c, 1.7,	1.8
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.233%2C%201.234%20PicBuffer.c%2C%201.7%2C%0A%091.8&In-Reply-To=%3C20060917120825.E7A1A79E23%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000424.html">
+   <LINK REL="Next"  HREF="000426.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.233, 1.234 PicBuffer.c, 1.7,	1.8</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.233%2C%201.234%20PicBuffer.c%2C%201.7%2C%0A%091.8&In-Reply-To=%3C20060917120825.E7A1A79E23%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.233, 1.234 PicBuffer.c, 1.7,	1.8">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Sep 17 14:08:25 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000424.html">[Softdevice-cvs] softdevice CHANGELOG, 1.232, 1.233 SoftOsd.c, 1.17,	1.18
+</A></li>
+        <LI>Next message: <A HREF="000426.html">[Softdevice-cvs] softdevice CHANGELOG, 1.234, 1.235 configure, 1.26,	1.27
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#425">[ date ]</a>
+              <a href="thread.html#425">[ thread ]</a>
+              <a href="subject.html#425">[ subject ]</a>
+              <a href="author.html#425">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv13066
+
+Modified Files:
+	CHANGELOG PicBuffer.c 
+Log Message:
+- cleanup PicBuffer.c, release PicBuffers in destructor,...
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.233
+retrieving revision 1.234
+diff -C2 -d -r1.233 -r1.234
+*** CHANGELOG	17 Sep 2006 11:54:32 -0000	1.233
+--- CHANGELOG	17 Sep 2006 12:07:57 -0000	1.234
+***************
+*** 3,6 ****
+--- 3,7 ----
+     - replace &quot;pshufw&quot; with MMX commands to make scaling optimazations available
+       to processors without MMX2
++    - cleanup PicBuffer.c, release PicBuffers in destructor,...
+  2006-09-xx:
+     - added -vo shm: to help option
+
+Index: PicBuffer.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/PicBuffer.c,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -C2 -d -r1.7 -r1.8
+*** PicBuffer.c	4 Sep 2006 20:37:07 -0000	1.7
+--- PicBuffer.c	17 Sep 2006 12:07:57 -0000	1.8
+***************
+*** 39,49 ****
+  /*----------------------------------------------------------------------*/
+  cPicBufferManager::cPicBufferManager() {
+!   lastPicNum=0;
+!   for (int i=0; i&lt; LAST_PICBUF; i++) 
+!           InitPicBuffer(&amp;PicBuffer[i]);
+  }
+  
+  cPicBufferManager::~cPicBufferManager() {
+!         // FIXME release buffers
+  };
+  
+--- 39,55 ----
+  /*----------------------------------------------------------------------*/
+  cPicBufferManager::cPicBufferManager() {
+!         lastPicNum=0;
+!         for (int i=0; i&lt; LAST_PICBUF; i++) 
+!                 InitPicBuffer(&amp;PicBuffer[i]);
+  }
+  
+  cPicBufferManager::~cPicBufferManager() {
+!         for (int i=0; i&lt;LAST_PICBUF; i++) 
+!                 if ( PicBuffer[i].pixel[0] ) {
+! //                        if ( PicBuffer[i].use_count &gt; 0 ) 
+! //                                fprintf(stderr,&quot;Warning! Use_count of PicBuffer not zero in PicBufferManager destructor!\n&quot;);
+!                         
+!                         ReleasePicBuffer( i );
+!                 };
+  };
+  
+***************
+*** 60,67 ****
+  
+  void cPicBufferManager::ReleasePicBuffer(int buf_num) {
+!         PICDEB(&quot;ReleasePicBuffer %d\n&quot;,buf_num);
+          sPicBuffer *buf=&amp;PicBuffer[buf_num];
+  
+          for (int i=0; i&lt;4; i++) {
+                  free(buf-&gt;pixel[i]);
+                  buf-&gt;pixel[i]=NULL;
+--- 66,74 ----
+  
+  void cPicBufferManager::ReleasePicBuffer(int buf_num) {
+!         PICDEB(&quot;ReleasePicBuffer %d pixel[0] %p\n&quot;,buf_num,PicBuffer[buf_num].pixel[0]);
+          sPicBuffer *buf=&amp;PicBuffer[buf_num];
+  
+          for (int i=0; i&lt;4; i++) {
++                 //printf(&quot;release %d: %p\n&quot;,i,buf-&gt;pixel[i]);
+                  free(buf-&gt;pixel[i]);
+                  buf-&gt;pixel[i]=NULL;
+***************
+*** 85,89 ****
+                        
+                  default:
+!                         fprintf(stderr,&quot;warning unsupported pixel format(%d)! \n&quot;,pix_fmt);
+                          hChromaShift=vChromaShift=1;
+          };
+--- 92,96 ----
+                        
+                  default:
+!                         fprintf(stderr,&quot;Warning unsupported pixel format(%d)! \n&quot;,pix_fmt);
+                          hChromaShift=vChromaShift=1;
+          };
+***************
+*** 91,104 ****
+  
+  void cPicBufferManager::LockBuffer(sPicBuffer *picture) {
+          PicBufMutex.Lock();
+          if (picture)
+                  picture-&gt;use_count++;
+          PicBufMutex.Unlock();
+  };
+  
+  void cPicBufferManager::UnlockBuffer(sPicBuffer *picture) {
+          PicBufMutex.Lock();
+!         if (picture &amp;&amp; picture-&gt;use_count&gt;0)
+                  picture-&gt;use_count--;
+          PicBufMutex.Unlock();
+  };
+--- 98,121 ----
+  
+  void cPicBufferManager::LockBuffer(sPicBuffer *picture) {
++         PICDEB(&quot;LockBuffer buf-&gt;pixel[0] %p\n&quot;,picture-&gt;pixel[0]);
+          PicBufMutex.Lock();
+          if (picture)
+                  picture-&gt;use_count++;
++         else fprintf(stderr,
++                     &quot;Error! Trying to lock a nil picture... Ignoring.\n&quot;);
+          PicBufMutex.Unlock();
+  };
+  
+  void cPicBufferManager::UnlockBuffer(sPicBuffer *picture) {
++         if (!picture) {
++                 fprintf(stderr,
++                     &quot;Error! Trying to unlock a nil picture... Ignoring.\n&quot;);
++                 return;
++         };
++         PICDEB(&quot;UnlockBuffer buf %p pixel[0] %p %p\n&quot;,picture,picture-&gt;pixel[0]);
+          PicBufMutex.Lock();
+!         if ( picture-&gt;use_count&gt;0 )
+                  picture-&gt;use_count--;
++         else fprintf(stderr,&quot;Warning, trying to unlock buffer with use_count 0!\n&quot;);
+          PicBufMutex.Unlock();
+  };
+***************
+*** 180,185 ****
+      PICDEB(&quot;GetBuffer pix_fmt %d (%d,%d)\n&quot;,pix_fmt,w,h);
+  
+-     //assert(pic-&gt;data[0]==NULL);
+- 
+      PicBufMutex.Lock();
+      int buf_num=0;
+--- 197,200 ----
+***************
+*** 190,194 ****
+      };
+  
+-     //assert(buf_num&lt;LAST_PICBUF);
+      if (buf_num&gt;=LAST_PICBUF) {
+              printf(&quot;error finding PicBuffer!\n&quot;);
+--- 205,208 ----
+***************
+*** 243,249 ****
+              buf_num++;
+  
+-     //assert(buf_num&lt;LAST_PICBUF);
+      if (buf_num&gt;=LAST_PICBUF)  {
+!             printf(&quot;didn't find corresponding PicBuffer!\n&quot;);
+              exit(-1);
+      };
+--- 257,262 ----
+              buf_num++;
+  
+      if (buf_num&gt;=LAST_PICBUF)  {
+!             fprintf(stderr,&quot;ReleaseBuffer din't find corresponding PicBuffer!\n&quot;);
+              exit(-1);
+      };
+***************
+*** 253,257 ****
+      PicBuffer[buf_num].buf_num=-1;
+      PicBufMutex.Unlock();
+!     PICDEB(&quot;end ReleaseBuffer bufnum %d\n&quot;,buf_num);
+  }
+  
+--- 266,270 ----
+      PicBuffer[buf_num].buf_num=-1;
+      PicBufMutex.Unlock();
+!     PICDEB(&quot;end ReleaseBuffer bufnum %d use_count %d\n&quot;,buf_num,PicBuffer[buf_num].use_count);
+  }
+  
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000424.html">[Softdevice-cvs] softdevice CHANGELOG, 1.232, 1.233 SoftOsd.c, 1.17,	1.18
+</A></li>
+	<LI>Next message: <A HREF="000426.html">[Softdevice-cvs] softdevice CHANGELOG, 1.234, 1.235 configure, 1.26,	1.27
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#425">[ date ]</a>
+              <a href="thread.html#425">[ thread ]</a>
+              <a href="subject.html#425">[ subject ]</a>
+              <a href="author.html#425">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

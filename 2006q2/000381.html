@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.198,1.199
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.198%2C1.199&In-Reply-To=%3C200606171343.k5HDhvb12286%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000380.html">
+   <LINK REL="Next"  HREF="000382.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.198,1.199</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.198%2C1.199&In-Reply-To=%3C200606171343.k5HDhvb12286%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.198,1.199">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Jun 17 15:43:57 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000380.html">[Softdevice-cvs] softdevice video-dfb.c,1.63,1.64
+</A></li>
+        <LI>Next message: <A HREF="000382.html">[Softdevice-cvs] softdevice CHANGELOG,1.199,1.200 Makefile,1.30,1.31 PicBuffer.c,1.4,1.5 PicBuffer.h,1.1,1.2 configure,1.16,1.17 mpeg2decoder.c,1.65,1.66 mpeg2decoder.h,1.37,1.38 setup-softdevice.c,1.43,1.44 setup-softdevice.h,1.30,1.31 softdevice.c,1.60,1.61 video-dfb.c,1.64,1.65 video-dfb.h,1.21,1.22
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#381">[ date ]</a>
+              <a href="thread.html#381">[ thread ]</a>
+              <a href="subject.html#381">[ subject ]</a>
+              <a href="author.html#381">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv17736
+
+Modified Files:
+	CHANGELOG 
+Log Message:
+fix via aspect ratio handling
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.198
+retrieving revision 1.199
+diff -C2 -d -r1.198 -r1.199
+*** CHANGELOG	15 Jun 2006 21:34:20 -0000	1.198
+--- CHANGELOG	17 Jun 2006 13:43:54 -0000	1.199
+***************
+*** 1,5 ****
+  Changelog
+  2006-06-15:
+!    - make configure a bit more verbose. A complete log is now saved in 
+       config.log.
+     - fix delete &lt;-&gt; delete[] mismatch reported by Prakash Punnoor.
+--- 1,7 ----
+  Changelog
++ 2006-06-16:
++    - video-dfb: fix via aspect ratio handling
+  2006-06-15:
+!    - make configure a bit more verbose. A complete log is now saved in
+       config.log.
+     - fix delete &lt;-&gt; delete[] mismatch reported by Prakash Punnoor.
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000380.html">[Softdevice-cvs] softdevice video-dfb.c,1.63,1.64
+</A></li>
+	<LI>Next message: <A HREF="000382.html">[Softdevice-cvs] softdevice CHANGELOG,1.199,1.200 Makefile,1.30,1.31 PicBuffer.c,1.4,1.5 PicBuffer.h,1.1,1.2 configure,1.16,1.17 mpeg2decoder.c,1.65,1.66 mpeg2decoder.h,1.37,1.38 setup-softdevice.c,1.43,1.44 setup-softdevice.h,1.30,1.31 softdevice.c,1.60,1.61 video-dfb.c,1.64,1.65 video-dfb.h,1.21,1.22
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#381">[ date ]</a>
+              <a href="thread.html#381">[ thread ]</a>
+              <a href="subject.html#381">[ subject ]</a>
+              <a href="author.html#381">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

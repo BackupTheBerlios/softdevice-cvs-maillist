@@ -1,0 +1,435 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.336, 1.337 PicBuffer.c,	1.21, 1.22 PicBuffer.h, 1.9, 1.10 mpeg2decoder.c, 1.82,	1.83 setup-softdevice-menu.c, 1.14, 1.15 setup-softdevice.c,	1.55, 1.56 setup-softdevice.h, 1.44, 1.45 video-dfb.c, 1.83,	1.84 video-dfb.h, 1.28, 1.29 video.c, 1.76, 1.77 video.h, 1.55, 1.56
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2008q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.336%2C%201.337%20PicBuffer.c%2C%0A%091.21%2C%201.22%20PicBuffer.h%2C%201.9%2C%201.10%20mpeg2decoder.c%2C%201.82%2C%0A%091.83%20setup-softdevice-menu.c%2C%201.14%2C%201.15%20setup-softdevice.c%2C%0A%091.55%2C%201.56%20setup-softdevice.h%2C%201.44%2C%201.45%20video-dfb.c%2C%201.83%2C%0A%091.84%20video-dfb.h%2C%201.28%2C%201.29%20video.c%2C%201.76%2C%201.77%20video.h%2C%201.55%2C%201.56&In-Reply-To=%3C20080720164104.1A9A513E93D%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000630.html">
+   <LINK REL="Next"  HREF="000632.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.336, 1.337 PicBuffer.c,	1.21, 1.22 PicBuffer.h, 1.9, 1.10 mpeg2decoder.c, 1.82,	1.83 setup-softdevice-menu.c, 1.14, 1.15 setup-softdevice.c,	1.55, 1.56 setup-softdevice.h, 1.44, 1.45 video-dfb.c, 1.83,	1.84 video-dfb.h, 1.28, 1.29 video.c, 1.76, 1.77 video.h, 1.55, 1.56</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.336%2C%201.337%20PicBuffer.c%2C%0A%091.21%2C%201.22%20PicBuffer.h%2C%201.9%2C%201.10%20mpeg2decoder.c%2C%201.82%2C%0A%091.83%20setup-softdevice-menu.c%2C%201.14%2C%201.15%20setup-softdevice.c%2C%0A%091.55%2C%201.56%20setup-softdevice.h%2C%201.44%2C%201.45%20video-dfb.c%2C%201.83%2C%0A%091.84%20video-dfb.h%2C%201.28%2C%201.29%20video.c%2C%201.76%2C%201.77%20video.h%2C%201.55%2C%201.56&In-Reply-To=%3C20080720164104.1A9A513E93D%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.336, 1.337 PicBuffer.c,	1.21, 1.22 PicBuffer.h, 1.9, 1.10 mpeg2decoder.c, 1.82,	1.83 setup-softdevice-menu.c, 1.14, 1.15 setup-softdevice.c,	1.55, 1.56 setup-softdevice.h, 1.44, 1.45 video-dfb.c, 1.83,	1.84 video-dfb.h, 1.28, 1.29 video.c, 1.76, 1.77 video.h, 1.55, 1.56">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Jul 20 18:41:04 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000630.html">[Softdevice-cvs] softdevice audio-alsa.c, 1.9, 1.10 audio-alsa.h,	1.5, 1.6
+</A></li>
+        <LI>Next message: <A HREF="000632.html">[Softdevice-cvs] softdevice video-dfb.c,1.84,1.85
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#631">[ date ]</a>
+              <a href="thread.html#631">[ thread ]</a>
+              <a href="subject.html#631">[ subject ]</a>
+              <a href="author.html#631">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv12088
+
+Modified Files:
+	CHANGELOG PicBuffer.c PicBuffer.h mpeg2decoder.c 
+	setup-softdevice-menu.c setup-softdevice.c setup-softdevice.h 
+	video-dfb.c video-dfb.h video.c video.h 
+Log Message:
+video-dfb (TV-out): Make display field order depended on stream information.
+  Default is Auto. If detected field order is wrong, it can be overwritten
+  via OSD to &quot;Top field first&quot; or &quot;Bottom field first&quot;.
+
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.336
+retrieving revision 1.337
+diff -C2 -d -r1.336 -r1.337
+*** CHANGELOG	14 Jul 2008 17:03:03 -0000	1.336
+--- CHANGELOG	20 Jul 2008 16:41:01 -0000	1.337
+***************
+*** 1,3 ****
+--- 1,8 ----
+  Changelog
++ 2008-07-20:
++    - audio: Fix for bug #14039 based upon suggestion by 'earcar'.
++    - video-dfb (TV-out): Make display field order depended on stream information.
++        Default is Auto. If detected field order is wrong, it can be overwritten
++        via OSD to &quot;Top field first&quot; or &quot;Bottom field first&quot;.
+  2008-07-14:
+     - video-xv: - Workaround for DPMS not getting reenabled.
+
+Index: PicBuffer.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/PicBuffer.c,v
+retrieving revision 1.21
+retrieving revision 1.22
+diff -C2 -d -r1.21 -r1.22
+*** PicBuffer.c	11 Jul 2007 20:04:22 -0000	1.21
+--- PicBuffer.c	20 Jul 2008 16:41:01 -0000	1.22
+***************
+*** 36,39 ****
+--- 36,40 ----
+      dest-&gt;pts=orig-&gt;pts;
+      dest-&gt;interlaced_frame=orig-&gt;interlaced_frame;
++     dest-&gt;top_field_first=orig-&gt;top_field_first;
+      dest-&gt;pict_type=orig-&gt;pict_type;
+  };
+
+Index: PicBuffer.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/PicBuffer.h,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -C2 -d -r1.9 -r1.10
+*** PicBuffer.h	26 Feb 2008 08:06:18 -0000	1.9
+--- PicBuffer.h	20 Jul 2008 16:41:01 -0000	1.10
+***************
+*** 52,55 ****
+--- 52,56 ----
+      uint64_t pts;
+      bool interlaced_frame;
++     int  top_field_first;
+      int pict_type;
+  
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.82
+retrieving revision 1.83
+diff -C2 -d -r1.82 -r1.83
+*** mpeg2decoder.c	16 Apr 2008 10:41:40 -0000	1.82
+--- mpeg2decoder.c	20 Jul 2008 16:41:01 -0000	1.83
+***************
+*** 767,770 ****
+--- 767,771 ----
+    pic-&gt;interlaced_frame=true;
+  #endif
++   pic-&gt;top_field_first = context-&gt;coded_frame-&gt;top_field_first;
+    pic-&gt;width=context-&gt;width;
+    pic-&gt;height=context-&gt;height;
+***************
+*** 838,844 ****
+--- 839,847 ----
+    pic-&gt;dtg_active_format = decoder.dtg_active_format;
+    pic-&gt;interlaced_frame = decoder.progressive_frame ? false : true;
++   pic-&gt;top_field_first = decoder.top_field_first;
+  #else
+    pic-&gt;dtg_active_format = 0; // currently not parsed
+    pic-&gt;interlaced_frame = true; // FIXME Do we have that information?
++   pic-&gt;top_field_first = 1;
+  #endif
+    pic-&gt;aspect_ratio = ( decoder.aspect_ratio_info &gt;= 0
+
+Index: setup-softdevice-menu.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice-menu.c,v
+retrieving revision 1.14
+retrieving revision 1.15
+diff -C2 -d -r1.14 -r1.15
+*** setup-softdevice-menu.c	13 Oct 2007 13:38:45 -0000	1.14
+--- setup-softdevice-menu.c	20 Jul 2008 16:41:01 -0000	1.15
+***************
+*** 366,369 ****
+--- 366,374 ----
+                              syncTimerNames));
+  
++   Add(new cMenuEditStraItem(tr(&quot;Field Order&quot;),
++                             &amp;data-&gt;fieldOrderMode,
++                             (SETUP_FIELD_ORDER_NAMES-1),
++                             fieldOrderNames));
++ 
+  #if VDRVERSNUM &gt;= 10334
+    Add(new cOsdItem(&quot; &quot;, osUnknown, false));
+***************
+*** 484,487 ****
+--- 489,493 ----
+    SetupStore (&quot;mainMenu&quot;,             setupStore-&gt;mainMenu);
+    SetupStore (&quot;syncTimerMode&quot;,        setupStore-&gt;syncTimerMode);
++   SetupStore (&quot;fieldOrderMode&quot;,       setupStore-&gt;fieldOrderMode);
+    SetupStore (&quot;vidBrightness&quot;,        setupStore-&gt;vidBrightness);
+    SetupStore (&quot;vidContrast&quot;,          setupStore-&gt;vidContrast);
+
+Index: setup-softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.c,v
+retrieving revision 1.55
+retrieving revision 1.56
+diff -C2 -d -r1.55 -r1.56
+*** setup-softdevice.c	16 Apr 2008 10:41:40 -0000	1.55
+--- setup-softdevice.c	20 Jul 2008 16:41:01 -0000	1.56
+***************
+*** 73,76 ****
+--- 73,78 ----
+  const char *syncTimerNames[SETUP_SYNC_TIMER_NAMES];
+  
++ const char *fieldOrderNames[SETUP_FIELD_ORDER_NAMES];
++ 
+  /* ----------------------------------------------------------------------------
+   */
+***************
+*** 114,117 ****
+--- 116,120 ----
+    useStretchBlit    = 0;
+    stretchBlitLocked = false;
++   fieldOrderMode    = 2;
+    bufferMode      = 0;
+    mainMenu  = 1;
+***************
+*** 202,205 ****
+--- 205,213 ----
+    syncTimerNames[2] = &quot;sig&quot;;
+    syncTimerNames[3] = NULL;
++ 
++   fieldOrderNames[0] = &quot;Bottom field first&quot;;
++   fieldOrderNames[1] = &quot;Top field first&quot;;
++   fieldOrderNames[2] = &quot;Auto&quot;;
++   fieldOrderNames[3] = NULL;
+  }
+  
+***************
+*** 369,372 ****
+--- 377,385 ----
+      fprintf(stderr, &quot;[setup-softdevice] syncTimerMode: %s\n&quot;,
+              syncTimerNames[syncTimerMode]);
++   } else if (!strcasecmp(Name, &quot;fieldOrderMode&quot;)) {
++     fieldOrderMode = atoi (Value);
++     fieldOrderMode = clamp (0, fieldOrderMode, 2);
++     fprintf(stderr, &quot;[setup-softdevice] fieldOrderMode: %s\n&quot;,
++             fieldOrderNames[fieldOrderMode]);
+    } else if (!strcasecmp(Name, &quot;vidBrightness&quot;)) {
+      vidBrightness = atoi (Value);
+
+Index: setup-softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.h,v
+retrieving revision 1.44
+retrieving revision 1.45
+diff -C2 -d -r1.44 -r1.45
+*** setup-softdevice.h	16 Apr 2008 10:41:40 -0000	1.44
+--- setup-softdevice.h	20 Jul 2008 16:41:01 -0000	1.45
+***************
+*** 103,106 ****
+--- 103,109 ----
+  extern const char *syncTimerNames[SETUP_SYNC_TIMER_NAMES];
+  
++ #define SETUP_FIELD_ORDER_NAMES  4
++ extern const char *fieldOrderNames[SETUP_FIELD_ORDER_NAMES];
++ 
+  /* ----------------------------------------------------------------------------
+   * allow changing of output pixfmt
+***************
+*** 159,162 ****
+--- 162,166 ----
+      int   useStretchBlit;
+      bool  stretchBlitLocked;
++     int   fieldOrderMode;
+  #if VDRVERSNUM &gt;= 10501
+      bool  doSuspend;
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.83
+retrieving revision 1.84
+diff -C2 -d -r1.83 -r1.84
+*** video-dfb.c	12 Jul 2007 16:17:31 -0000	1.83
+--- video-dfb.c	20 Jul 2008 16:41:01 -0000	1.84
+***************
+*** 207,211 ****
+    videoLayerLevel = 1;
+    OSDpresent = false;
+-   fieldParity = 0;    // 0 - top field first, 1 - bottom field first
+  
+    if(setupStore-&gt;viaTv)
+--- 207,210 ----
+***************
+*** 631,635 ****
+      layer-&gt;SetConfiguration(dlc);
+      if (desc.caps &amp; DLCAPS_FIELD_PARITY)
+!       layer-&gt;SetFieldParity(fieldParity);
+    }
+    catch(DFBException *ex)
+--- 630,634 ----
+      layer-&gt;SetConfiguration(dlc);
+      if (desc.caps &amp; DLCAPS_FIELD_PARITY)
+!       SetFieldParity(layer, currentFieldOrder);
+    }
+    catch(DFBException *ex)
+***************
+*** 644,647 ****
+--- 643,679 ----
+  /* ---------------------------------------------------------------------------
+   */
++ void cDFBVideoOut::SetFieldParity(IDirectFBDisplayLayer *layer, int fieldOrder)
++ {
++     DFBDisplayLayerDescription    desc;
++ 
++   desc = layer-&gt;GetDescription();
++ 
++   if (!(desc.caps &amp; DLCAPS_FIELD_PARITY))
++     return;
++ 
++   softlog-&gt;Log(SOFT_LOG_INFO, 0,
++                &quot;[dfb] Set DLBM_TRIPLE for layer [%s] to (%s)\n&quot;,
++                desc.name,
++                (fieldOrder) ? &quot;TOP field first&quot; : &quot;BOTTOM field first&quot;);
++ 
++   try
++   {
++     /* -----------------------------------------------------------------------
++      * ffmpeg has member top_field_first: 1 - top; 0 - bottom
++      * dfb values are: 0 - top field first, 1 - bottom field first
++      */
++     layer-&gt;SetFieldParity(!fieldOrder);
++   }
++   catch(DFBException *ex)
++   {
++     softlog-&gt;Log(SOFT_LOG_ERROR, 0,
++                  &quot;[dfb] SetFieldParity: action=%s, result=%s\n&quot;,
++                  ex-&gt;GetAction(), ex-&gt;GetResult());
++     delete ex;
++   }
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
+  void cDFBVideoOut::GetDisplayFrameTime (void)
+  {
+***************
+*** 1061,1064 ****
+--- 1093,1105 ----
+        softlog-&gt;Log(SOFT_LOG_DEBUG, 0,
+                  &quot;[dfb] (re)configured 0x%08x\n&quot;,pixelformat);
++     }
++     if (targetFieldOrder != currentFieldOrder)
++     {
++       if (setupStore-&gt;useMGAtv)
++         SetFieldParity(osdLayer, targetFieldOrder);
++       if (setupStore-&gt;viaTv)
++         SetFieldParity(videoLayer, targetFieldOrder);
++ 
++       currentFieldOrder = targetFieldOrder;
+      }
+    }
+
+Index: video-dfb.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.h,v
+retrieving revision 1.28
+retrieving revision 1.29
+diff -C2 -d -r1.28 -r1.29
+*** video-dfb.h	10 May 2007 21:57:26 -0000	1.28
+--- video-dfb.h	20 Jul 2008 16:41:01 -0000	1.29
+***************
+*** 44,49 ****
+      int   clearAlpha;
+      int   clearBackCount,
+!           clearBackground,
+!           fieldParity;
+      int   prevOsdMode;
+      int   videoLayerLevel;
+--- 44,48 ----
+      int   clearAlpha;
+      int   clearBackCount,
+!           clearBackground;
+      int   prevOsdMode;
+      int   videoLayerLevel;
+***************
+*** 51,54 ****
+--- 50,54 ----
+      void  SetParams();
+      void  EnableFieldParity(IDirectFBDisplayLayer *layer),
++           SetFieldParity(IDirectFBDisplayLayer *layer, int fieldOrder),
+            ReportSurfaceCapabilities (IDirectFBSurface *surf,char *name),
+            BESColorkeyState(IDirectFBDisplayLayer *layer, bool state),
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.76
+retrieving revision 1.77
+diff -C2 -d -r1.76 -r1.77
+*** video.c	12 Jul 2007 16:17:31 -0000	1.76
+--- video.c	20 Jul 2008 16:41:01 -0000	1.77
+***************
+*** 43,46 ****
+--- 43,47 ----
+    current_aspect = -1;
+    interlaceMode = -1;
++   currentFieldOrder = targetFieldOrder = 1;
+    prevZoomFactor = 0;
+    realZoomFactor = 1.0;
+***************
+*** 389,392 ****
+--- 390,405 ----
+        //      (picture-&gt;interlaced_frame) ? &quot;&quot; : &quot;non-&quot;);
+      interlaceMode = pic-&gt;interlaced_frame;
++   }
++ 
++   if (interlaceMode &amp;&amp;
++       pic-&gt;top_field_first != currentFieldOrder)
++   {
++     targetFieldOrder = pic-&gt;top_field_first;
++   }
++ 
++   if (setupStore-&gt;fieldOrderMode &lt; 2 &amp;&amp;
++       setupStore-&gt;fieldOrderMode != currentFieldOrder)
++   {
++     targetFieldOrder = setupStore-&gt;fieldOrderMode;
+    }
+  
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.55
+retrieving revision 1.56
+diff -C2 -d -r1.55 -r1.56
+*** video.h	11 Jul 2007 20:08:34 -0000	1.55
+--- video.h	20 Jul 2008 16:41:01 -0000	1.56
+***************
+*** 102,105 ****
+--- 102,107 ----
+              current_afd,
+              interlaceMode,
++             currentFieldOrder,
++             targetFieldOrder,
+              displayTimeUS;
+      double  parValues[SETUP_VIDEOASPECTNAMES_COUNT];
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000630.html">[Softdevice-cvs] softdevice audio-alsa.c, 1.9, 1.10 audio-alsa.h,	1.5, 1.6
+</A></li>
+	<LI>Next message: <A HREF="000632.html">[Softdevice-cvs] softdevice video-dfb.c,1.84,1.85
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#631">[ date ]</a>
+              <a href="thread.html#631">[ thread ]</a>
+              <a href="subject.html#631">[ subject ]</a>
+              <a href="author.html#631">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

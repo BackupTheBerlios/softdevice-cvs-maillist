@@ -1,0 +1,1706 @@
+From nobody at sheep.berlios.de  Sun Jul 13 16:25:42 2008
+From: nobody at sheep.berlios.de (lucke)
+Date: Sun, 13 Jul 2008 16:25:42 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice xscreensaver.c,1.7,1.8
+Message-ID: <20080713142542.2FE3A2FA07@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv30192
+
+Modified Files:
+	xscreensaver.c 
+Log Message:
+white space cleanup
+
+Index: xscreensaver.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/xscreensaver.c,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -C2 -d -r1.7 -r1.8
+*** xscreensaver.c	15 Jan 2007 20:25:39 -0000	1.7
+--- xscreensaver.c	13 Jul 2008 14:25:40 -0000	1.8
+***************
+*** 5,9 ****
+   *
+   * Code adapted by Torgeir Veimo from jwz' xscreensaver remote control code
+!  * (simplified similar to Gerd Knorr's xawtv) which carries the following 
+   * copyright notice:
+   *
+--- 5,9 ----
+   *
+   * Code adapted by Torgeir Veimo from jwz' xscreensaver remote control code
+!  * (simplified similar to Gerd Knorr's xawtv) which carries the following
+   * copyright notice:
+   *
+***************
+*** 16,22 ****
+   * copyright notice and this permission notice appear in supporting
+   * documentation.  No representations are made about the suitability of this
+!  * software for any purpose.  It is provided "as is" without express or 
+   * implied warranty.
+!  * 
+   * $Id$
+   */
+--- 16,22 ----
+   * copyright notice and this permission notice appear in supporting
+   * documentation.  No representations are made about the suitability of this
+!  * software for any purpose.  It is provided "as is" without express or
+   * implied warranty.
+!  *
+   * $Id$
+   */
+***************
+*** 136,140 ****
+        keyEvent.y_root = 1;
+        keyEvent.same_screen = True;
+!       keyEvent.type = KeyPress; 
+        keyEvent.keycode = XKeysymToKeycode(this->dpy, XK_Shift_L);
+  
+--- 136,140 ----
+        keyEvent.y_root = 1;
+        keyEvent.same_screen = True;
+!       keyEvent.type = KeyPress;
+        keyEvent.keycode = XKeysymToKeycode(this->dpy, XK_Shift_L);
+  
+***************
+*** 187,191 ****
+        }
+        XSync (dpy, 0);
+!       
+        // restore error handler
+        XSetErrorHandler(old_handler);
+--- 187,191 ----
+        }
+        XSync (dpy, 0);
+! 
+        // restore error handler
+        XSetErrorHandler(old_handler);
+***************
+*** 199,203 ****
+    Window root2, parent, *kids;
+    unsigned int nkids;
+!    
+    if (! XQueryTree (dpy, root, &root2, &parent, &kids, &nkids))
+      esyslog("[softdevice-xscreensaver]: unexpected error looking up xscreensaver window\n");
+--- 199,203 ----
+    Window root2, parent, *kids;
+    unsigned int nkids;
+! 
+    if (! XQueryTree (dpy, root, &root2, &parent, &kids, &nkids))
+      esyslog("[softdevice-xscreensaver]: unexpected error looking up xscreensaver window\n");
+
+
+
+From nobody at sheep.berlios.de  Mon Jul 14 18:59:24 2008
+From: nobody at sheep.berlios.de (lucke)
+Date: Mon, 14 Jul 2008 18:59:24 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice xscreensaver.c,1.8,1.9
+Message-ID: <20080714165924.05CC913726D@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv12117
+
+Modified Files:
+	xscreensaver.c 
+Log Message:
+Workaround for DPMS not getting reenabled.
+
+Index: xscreensaver.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/xscreensaver.c,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -C2 -d -r1.8 -r1.9
+*** xscreensaver.c	13 Jul 2008 14:25:40 -0000	1.8
+--- xscreensaver.c	14 Jul 2008 16:59:20 -0000	1.9
+***************
+*** 55,58 ****
+--- 55,68 ----
+        dpms_on) {
+      DPMSEnable(dpy);
++ 
++     // Add workaround for xorg bug #13962.
++     //  DPMSEnable() did not rearm timeouts.
++     {
++         CARD16    t0, t1, t2;
++ 
++       DPMSGetTimeouts(dpy, &t0, &t1, &t2);
++       DPMSSetTimeouts(dpy, t0, t1, t2);
++     }
++ 
+    }
+  #endif
+***************
+*** 103,106 ****
+--- 113,126 ----
+          DPMSForceLevel(dpy, DPMSModeOn);
+          DPMSInfo(dpy, &dpms_state, &dpms_on);
++ 
++         // Add workaround for xorg bug #13962.
++         //  DPMSEnable() did not rearm timeouts.
++         {
++             CARD16    t0, t1, t2;
++ 
++           DPMSGetTimeouts(dpy, &t0, &t1, &t2);
++           DPMSSetTimeouts(dpy, t0, t1, t2);
++         }
++ 
+          if (dpms_on) {
+            dsyslog("[softdevice-xscreensaver]: Successfully enabled DPMS\n");
+
+
+
+From nobody at sheep.berlios.de  Mon Jul 14 19:01:01 2008
+From: nobody at sheep.berlios.de (lucke)
+Date: Mon, 14 Jul 2008 19:01:01 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice video-xv.c,1.74,1.75
+Message-ID: <20080714170101.B069213726D@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv13237
+
+Modified Files:
+	video-xv.c 
+Log Message:
+Fix for reenable DPMS when quit from fullscreen mode.
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.74
+retrieving revision 1.75
+diff -C2 -d -r1.74 -r1.75
+*** video-xv.c	25 Dec 2007 16:57:41 -0000	1.74
+--- video-xv.c	14 Jul 2008 17:00:59 -0000	1.75
+***************
+*** 1904,1907 ****
+--- 1904,1912 ----
+    }
+    videoInitialized = false;
++   if (xScreensaver)
++   {
++     delete xScreensaver;
++     xScreensaver = NULL;
++   }
+    pthread_mutex_unlock(&xv_mutex);
+  
+
+
+
+From nobody at sheep.berlios.de  Mon Jul 14 19:03:05 2008
+From: nobody at sheep.berlios.de (lucke)
+Date: Mon, 14 Jul 2008 19:03:05 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice CHANGELOG, 1.335, 1.336 configure, 1.48,
+	1.49
+Message-ID: <20080714170305.C998F13726D@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv15478
+
+Modified Files:
+	CHANGELOG configure 
+Log Message:
+Improve detection of yaepg patched vdr.
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.335
+retrieving revision 1.336
+diff -C2 -d -r1.335 -r1.336
+*** CHANGELOG	18 Apr 2008 15:15:40 -0000	1.335
+--- CHANGELOG	14 Jul 2008 17:03:03 -0000	1.336
+***************
+*** 1,3 ****
+--- 1,7 ----
+  Changelog
++ 2008-07-14:
++    - video-xv: - Workaround for DPMS not getting reenabled.
++                - Fix for reenable DPMS when quit from fullscreen mode.
++    - configure: Improve detection of yaepg patched vdr.
+  2008-04-18: softdevice-0.5.0
+     - Check configuration for ffmpeg < r11816.
+
+Index: configure
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/configure,v
+retrieving revision 1.48
+retrieving revision 1.49
+diff -C2 -d -r1.48 -r1.49
+*** configure	18 Apr 2008 15:10:35 -0000	1.48
+--- configure	14 Jul 2008 17:03:03 -0000	1.49
+***************
+*** 9,12 ****
+--- 9,13 ----
+  TMPC="${TMPDIR1}/softdevice-conf-${RANDOM}-$$-${RANDOM}.c"
+  TMPE="${TMPDIR1}/softdevice-conf-${RANDOM}-$$-${RANDOM}"
++ TMPF="${TMPDIR1}/softdevice-conf-${RANDOM}-$$-${RANDOM}.makefile"
+  TMPH="${TMPDIR1}/softdevice-conf-${RANDOM}-$$-${RANDOM}.h"
+  TMPM="${TMPDIR1}/softdevice-conf-${RANDOM}-$$-${RANDOM}.mak"
+***************
+*** 511,517 ****
+  
+  yaepg="no";
+! VDR_DIR=../../../
+  
+! grep vidWin $VDR_DIR/osd.h >> config.log 2>&1 && yaepg="yes"
+  
+  if test "${yaepg}" = "yes" ; then
+--- 512,534 ----
+  
+  yaepg="no";
+! VDR_DIR=../../..
+  
+! cat > ${TMPF} << EOF
+! DEFINES += -D_GNU_SOURCE
+! CFLAGS = -O2 -g -Wall
+! -include ../../../Make.config
+! ${TMPE}: ${TMPC}
+! 	$cc \$(CFLAGS)  \$(DEFINES) -I${VDR_DIR} -c -o $TMPE $TMPC >> config.log 2>&1
+! EOF
+! 
+! cat > ${TMPC} << EOF
+! #include <osd.h>
+! int test_func(cOsd *osd) {
+! 	return (osd -> vidWin. bpp) ? 1 : 0;
+! }
+! EOF
+! 
+! rm ${TMPE}
+! make -f ${TMPF} >> config.log 2>&1 && yaepg="yes"
+  
+  if test "${yaepg}" = "yes" ; then
+
+
+
+From nobody at sheep.berlios.de  Sun Jul 20 18:32:48 2008
+From: nobody at sheep.berlios.de (lucke)
+Date: Sun, 20 Jul 2008 18:32:48 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice audio-alsa.c, 1.9, 1.10 audio-alsa.h,
+	1.5, 1.6
+Message-ID: <20080720163248.3F86B142B8F@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv2289
+
+Modified Files:
+	audio-alsa.c audio-alsa.h 
+Log Message:
+Fix for bug #14039 based upon suggestion by 'earcar'
+
+Index: audio-alsa.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio-alsa.c,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -C2 -d -r1.9 -r1.10
+*** audio-alsa.c	16 Apr 2008 09:06:31 -0000	1.9
+--- audio-alsa.c	20 Jul 2008 16:32:44 -0000	1.10
+***************
+*** 117,124 ****
+    while (size) {
+      while (paused) usleep(1000); // block
+!     AUDIODEB("pcm_mmap_writei  handle %p Data %p size %d\n",handle,Data,size);
+!     err = snd_pcm_mmap_writei(handle,Data, size);
+!     AUDIODEB("pcm_mmap_writeei return value %d Data %p size %d \n",
+!                    err,Data,size);
+      if (err == -EAGAIN || (err >= 0 && (size_t)err < size)) {
+        AUDIODEB("wait \n");
+--- 117,134 ----
+    while (size) {
+      while (paused) usleep(1000); // block
+! 
+!     AUDIODEB("pcm%s_writei  handle %p Data %p size %d\n",
+!              (useMmapWrite) ? "_mmap" : "",
+!              handle, Data, size);
+! 
+!     if (useMmapWrite)
+!       err = snd_pcm_mmap_writei(handle, Data, size);
+!     else
+!       err = snd_pcm_writei(handle, Data, size);
+! 
+!     AUDIODEB("pcm%s_writei return value %d Data %p size %d \n",
+!              (useMmapWrite) ? "_mmap" : "",
+!              err, Data, size);
+! 
+      if (err == -EAGAIN || (err >= 0 && (size_t)err < size)) {
+        AUDIODEB("wait \n");
+***************
+*** 333,336 ****
+--- 343,347 ----
+      }
+  
++     useMmapWrite = 1;
+      snd_pcm_access_mask_t *mask = (snd_pcm_access_mask_t *)alloca(snd_pcm_access_mask_sizeof());
+      snd_pcm_access_mask_none(mask);
+***************
+*** 340,347 ****
+      err = snd_pcm_hw_params_set_access_mask(handle, params, mask);
+      if (err < 0) {
+!       esyslog("[softdevice-audio] Access type not available NO AUDIO!");
+!       handleMutex.Unlock();
+!       Suspend();
+!       return -1;
+      }
+  
+--- 351,364 ----
+      err = snd_pcm_hw_params_set_access_mask(handle, params, mask);
+      if (err < 0) {
+!       snd_pcm_access_mask_none(mask);
+!       snd_pcm_access_mask_set(mask, SND_PCM_ACCESS_RW_INTERLEAVED);
+!       err = snd_pcm_hw_params_set_access_mask(handle, params, mask);
+!       if (err < 0) {
+!         esyslog("[softdevice-audio] Access type not available NO AUDIO!");
+!         handleMutex.Unlock();
+!         Suspend();
+!         return -1;
+!       }
+!       useMmapWrite = 0;
+      }
+  
+
+Index: audio-alsa.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio-alsa.h,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -C2 -d -r1.5 -r1.6
+*** audio-alsa.h	27 Sep 2007 18:22:40 -0000	1.5
+--- audio-alsa.h	20 Jul 2008 16:32:44 -0000	1.6
+***************
+*** 31,35 ****
+    volatile bool     paused;
+    bool              ac3PassThrough,
+!                     ac3SpdifPro;
+    SampleContext     oldContext;
+    cAlsaAC3pt        ac3pt;
+--- 31,36 ----
+    volatile bool     paused;
+    bool              ac3PassThrough,
+!                     ac3SpdifPro,
+!                     useMmapWrite;
+    SampleContext     oldContext;
+    cAlsaAC3pt        ac3pt;
+
+
+
+From nobody at sheep.berlios.de  Sun Jul 20 18:41:04 2008
+From: nobody at sheep.berlios.de (lucke)
+Date: Sun, 20 Jul 2008 18:41:04 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice CHANGELOG, 1.336, 1.337 PicBuffer.c,
+	1.21, 1.22 PicBuffer.h, 1.9, 1.10 mpeg2decoder.c, 1.82,
+	1.83 setup-softdevice-menu.c, 1.14, 1.15 setup-softdevice.c,
+	1.55, 1.56 setup-softdevice.h, 1.44, 1.45 video-dfb.c, 1.83,
+	1.84 video-dfb.h, 1.28, 1.29 video.c, 1.76, 1.77 video.h, 1.55, 1.56
+Message-ID: <20080720164104.1A9A513E93D@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv12088
+
+Modified Files:
+	CHANGELOG PicBuffer.c PicBuffer.h mpeg2decoder.c 
+	setup-softdevice-menu.c setup-softdevice.c setup-softdevice.h 
+	video-dfb.c video-dfb.h video.c video.h 
+Log Message:
+video-dfb (TV-out): Make display field order depended on stream information.
+  Default is Auto. If detected field order is wrong, it can be overwritten
+  via OSD to "Top field first" or "Bottom field first".
+
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.336
+retrieving revision 1.337
+diff -C2 -d -r1.336 -r1.337
+*** CHANGELOG	14 Jul 2008 17:03:03 -0000	1.336
+--- CHANGELOG	20 Jul 2008 16:41:01 -0000	1.337
+***************
+*** 1,3 ****
+--- 1,8 ----
+  Changelog
++ 2008-07-20:
++    - audio: Fix for bug #14039 based upon suggestion by 'earcar'.
++    - video-dfb (TV-out): Make display field order depended on stream information.
++        Default is Auto. If detected field order is wrong, it can be overwritten
++        via OSD to "Top field first" or "Bottom field first".
+  2008-07-14:
+     - video-xv: - Workaround for DPMS not getting reenabled.
+
+Index: PicBuffer.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/PicBuffer.c,v
+retrieving revision 1.21
+retrieving revision 1.22
+diff -C2 -d -r1.21 -r1.22
+*** PicBuffer.c	11 Jul 2007 20:04:22 -0000	1.21
+--- PicBuffer.c	20 Jul 2008 16:41:01 -0000	1.22
+***************
+*** 36,39 ****
+--- 36,40 ----
+      dest->pts=orig->pts;
+      dest->interlaced_frame=orig->interlaced_frame;
++     dest->top_field_first=orig->top_field_first;
+      dest->pict_type=orig->pict_type;
+  };
+
+Index: PicBuffer.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/PicBuffer.h,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -C2 -d -r1.9 -r1.10
+*** PicBuffer.h	26 Feb 2008 08:06:18 -0000	1.9
+--- PicBuffer.h	20 Jul 2008 16:41:01 -0000	1.10
+***************
+*** 52,55 ****
+--- 52,56 ----
+      uint64_t pts;
+      bool interlaced_frame;
++     int  top_field_first;
+      int pict_type;
+  
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.82
+retrieving revision 1.83
+diff -C2 -d -r1.82 -r1.83
+*** mpeg2decoder.c	16 Apr 2008 10:41:40 -0000	1.82
+--- mpeg2decoder.c	20 Jul 2008 16:41:01 -0000	1.83
+***************
+*** 767,770 ****
+--- 767,771 ----
+    pic->interlaced_frame=true;
+  #endif
++   pic->top_field_first = context->coded_frame->top_field_first;
+    pic->width=context->width;
+    pic->height=context->height;
+***************
+*** 838,844 ****
+--- 839,847 ----
+    pic->dtg_active_format = decoder.dtg_active_format;
+    pic->interlaced_frame = decoder.progressive_frame ? false : true;
++   pic->top_field_first = decoder.top_field_first;
+  #else
+    pic->dtg_active_format = 0; // currently not parsed
+    pic->interlaced_frame = true; // FIXME Do we have that information?
++   pic->top_field_first = 1;
+  #endif
+    pic->aspect_ratio = ( decoder.aspect_ratio_info >= 0
+
+Index: setup-softdevice-menu.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice-menu.c,v
+retrieving revision 1.14
+retrieving revision 1.15
+diff -C2 -d -r1.14 -r1.15
+*** setup-softdevice-menu.c	13 Oct 2007 13:38:45 -0000	1.14
+--- setup-softdevice-menu.c	20 Jul 2008 16:41:01 -0000	1.15
+***************
+*** 366,369 ****
+--- 366,374 ----
+                              syncTimerNames));
+  
++   Add(new cMenuEditStraItem(tr("Field Order"),
++                             &data->fieldOrderMode,
++                             (SETUP_FIELD_ORDER_NAMES-1),
++                             fieldOrderNames));
++ 
+  #if VDRVERSNUM >= 10334
+    Add(new cOsdItem(" ", osUnknown, false));
+***************
+*** 484,487 ****
+--- 489,493 ----
+    SetupStore ("mainMenu",             setupStore->mainMenu);
+    SetupStore ("syncTimerMode",        setupStore->syncTimerMode);
++   SetupStore ("fieldOrderMode",       setupStore->fieldOrderMode);
+    SetupStore ("vidBrightness",        setupStore->vidBrightness);
+    SetupStore ("vidContrast",          setupStore->vidContrast);
+
+Index: setup-softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.c,v
+retrieving revision 1.55
+retrieving revision 1.56
+diff -C2 -d -r1.55 -r1.56
+*** setup-softdevice.c	16 Apr 2008 10:41:40 -0000	1.55
+--- setup-softdevice.c	20 Jul 2008 16:41:01 -0000	1.56
+***************
+*** 73,76 ****
+--- 73,78 ----
+  const char *syncTimerNames[SETUP_SYNC_TIMER_NAMES];
+  
++ const char *fieldOrderNames[SETUP_FIELD_ORDER_NAMES];
++ 
+  /* ----------------------------------------------------------------------------
+   */
+***************
+*** 114,117 ****
+--- 116,120 ----
+    useStretchBlit    = 0;
+    stretchBlitLocked = false;
++   fieldOrderMode    = 2;
+    bufferMode      = 0;
+    mainMenu  = 1;
+***************
+*** 202,205 ****
+--- 205,213 ----
+    syncTimerNames[2] = "sig";
+    syncTimerNames[3] = NULL;
++ 
++   fieldOrderNames[0] = "Bottom field first";
++   fieldOrderNames[1] = "Top field first";
++   fieldOrderNames[2] = "Auto";
++   fieldOrderNames[3] = NULL;
+  }
+  
+***************
+*** 369,372 ****
+--- 377,385 ----
+      fprintf(stderr, "[setup-softdevice] syncTimerMode: %s\n",
+              syncTimerNames[syncTimerMode]);
++   } else if (!strcasecmp(Name, "fieldOrderMode")) {
++     fieldOrderMode = atoi (Value);
++     fieldOrderMode = clamp (0, fieldOrderMode, 2);
++     fprintf(stderr, "[setup-softdevice] fieldOrderMode: %s\n",
++             fieldOrderNames[fieldOrderMode]);
+    } else if (!strcasecmp(Name, "vidBrightness")) {
+      vidBrightness = atoi (Value);
+
+Index: setup-softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.h,v
+retrieving revision 1.44
+retrieving revision 1.45
+diff -C2 -d -r1.44 -r1.45
+*** setup-softdevice.h	16 Apr 2008 10:41:40 -0000	1.44
+--- setup-softdevice.h	20 Jul 2008 16:41:01 -0000	1.45
+***************
+*** 103,106 ****
+--- 103,109 ----
+  extern const char *syncTimerNames[SETUP_SYNC_TIMER_NAMES];
+  
++ #define SETUP_FIELD_ORDER_NAMES  4
++ extern const char *fieldOrderNames[SETUP_FIELD_ORDER_NAMES];
++ 
+  /* ----------------------------------------------------------------------------
+   * allow changing of output pixfmt
+***************
+*** 159,162 ****
+--- 162,166 ----
+      int   useStretchBlit;
+      bool  stretchBlitLocked;
++     int   fieldOrderMode;
+  #if VDRVERSNUM >= 10501
+      bool  doSuspend;
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.83
+retrieving revision 1.84
+diff -C2 -d -r1.83 -r1.84
+*** video-dfb.c	12 Jul 2007 16:17:31 -0000	1.83
+--- video-dfb.c	20 Jul 2008 16:41:01 -0000	1.84
+***************
+*** 207,211 ****
+    videoLayerLevel = 1;
+    OSDpresent = false;
+-   fieldParity = 0;    // 0 - top field first, 1 - bottom field first
+  
+    if(setupStore->viaTv)
+--- 207,210 ----
+***************
+*** 631,635 ****
+      layer->SetConfiguration(dlc);
+      if (desc.caps & DLCAPS_FIELD_PARITY)
+!       layer->SetFieldParity(fieldParity);
+    }
+    catch(DFBException *ex)
+--- 630,634 ----
+      layer->SetConfiguration(dlc);
+      if (desc.caps & DLCAPS_FIELD_PARITY)
+!       SetFieldParity(layer, currentFieldOrder);
+    }
+    catch(DFBException *ex)
+***************
+*** 644,647 ****
+--- 643,679 ----
+  /* ---------------------------------------------------------------------------
+   */
++ void cDFBVideoOut::SetFieldParity(IDirectFBDisplayLayer *layer, int fieldOrder)
++ {
++     DFBDisplayLayerDescription    desc;
++ 
++   desc = layer->GetDescription();
++ 
++   if (!(desc.caps & DLCAPS_FIELD_PARITY))
++     return;
++ 
++   softlog->Log(SOFT_LOG_INFO, 0,
++                "[dfb] Set DLBM_TRIPLE for layer [%s] to (%s)\n",
++                desc.name,
++                (fieldOrder) ? "TOP field first" : "BOTTOM field first");
++ 
++   try
++   {
++     /* -----------------------------------------------------------------------
++      * ffmpeg has member top_field_first: 1 - top; 0 - bottom
++      * dfb values are: 0 - top field first, 1 - bottom field first
++      */
++     layer->SetFieldParity(!fieldOrder);
++   }
++   catch(DFBException *ex)
++   {
++     softlog->Log(SOFT_LOG_ERROR, 0,
++                  "[dfb] SetFieldParity: action=%s, result=%s\n",
++                  ex->GetAction(), ex->GetResult());
++     delete ex;
++   }
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
+  void cDFBVideoOut::GetDisplayFrameTime (void)
+  {
+***************
+*** 1061,1064 ****
+--- 1093,1105 ----
+        softlog->Log(SOFT_LOG_DEBUG, 0,
+                  "[dfb] (re)configured 0x%08x\n",pixelformat);
++     }
++     if (targetFieldOrder != currentFieldOrder)
++     {
++       if (setupStore->useMGAtv)
++         SetFieldParity(osdLayer, targetFieldOrder);
++       if (setupStore->viaTv)
++         SetFieldParity(videoLayer, targetFieldOrder);
++ 
++       currentFieldOrder = targetFieldOrder;
+      }
+    }
+
+Index: video-dfb.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.h,v
+retrieving revision 1.28
+retrieving revision 1.29
+diff -C2 -d -r1.28 -r1.29
+*** video-dfb.h	10 May 2007 21:57:26 -0000	1.28
+--- video-dfb.h	20 Jul 2008 16:41:01 -0000	1.29
+***************
+*** 44,49 ****
+      int   clearAlpha;
+      int   clearBackCount,
+!           clearBackground,
+!           fieldParity;
+      int   prevOsdMode;
+      int   videoLayerLevel;
+--- 44,48 ----
+      int   clearAlpha;
+      int   clearBackCount,
+!           clearBackground;
+      int   prevOsdMode;
+      int   videoLayerLevel;
+***************
+*** 51,54 ****
+--- 50,54 ----
+      void  SetParams();
+      void  EnableFieldParity(IDirectFBDisplayLayer *layer),
++           SetFieldParity(IDirectFBDisplayLayer *layer, int fieldOrder),
+            ReportSurfaceCapabilities (IDirectFBSurface *surf,char *name),
+            BESColorkeyState(IDirectFBDisplayLayer *layer, bool state),
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.76
+retrieving revision 1.77
+diff -C2 -d -r1.76 -r1.77
+*** video.c	12 Jul 2007 16:17:31 -0000	1.76
+--- video.c	20 Jul 2008 16:41:01 -0000	1.77
+***************
+*** 43,46 ****
+--- 43,47 ----
+    current_aspect = -1;
+    interlaceMode = -1;
++   currentFieldOrder = targetFieldOrder = 1;
+    prevZoomFactor = 0;
+    realZoomFactor = 1.0;
+***************
+*** 389,392 ****
+--- 390,405 ----
+        //      (picture->interlaced_frame) ? "" : "non-");
+      interlaceMode = pic->interlaced_frame;
++   }
++ 
++   if (interlaceMode &&
++       pic->top_field_first != currentFieldOrder)
++   {
++     targetFieldOrder = pic->top_field_first;
++   }
++ 
++   if (setupStore->fieldOrderMode < 2 &&
++       setupStore->fieldOrderMode != currentFieldOrder)
++   {
++     targetFieldOrder = setupStore->fieldOrderMode;
+    }
+  
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.55
+retrieving revision 1.56
+diff -C2 -d -r1.55 -r1.56
+*** video.h	11 Jul 2007 20:08:34 -0000	1.55
+--- video.h	20 Jul 2008 16:41:01 -0000	1.56
+***************
+*** 102,105 ****
+--- 102,107 ----
+              current_afd,
+              interlaceMode,
++             currentFieldOrder,
++             targetFieldOrder,
+              displayTimeUS;
+      double  parValues[SETUP_VIDEOASPECTNAMES_COUNT];
+
+
+
+From nobody at sheep.berlios.de  Sun Jul 20 19:17:47 2008
+From: nobody at sheep.berlios.de (lucke)
+Date: Sun, 20 Jul 2008 19:17:47 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice video-dfb.c,1.84,1.85
+Message-ID: <20080720171747.6299614C652@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv22209
+
+Modified Files:
+	video-dfb.c 
+Log Message:
+Fix layer message for switching field order.
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.84
+retrieving revision 1.85
+diff -C2 -d -r1.84 -r1.85
+*** video-dfb.c	20 Jul 2008 16:41:01 -0000	1.84
+--- video-dfb.c	20 Jul 2008 17:17:42 -0000	1.85
+***************
+*** 653,657 ****
+  
+    softlog->Log(SOFT_LOG_INFO, 0,
+!                "[dfb] Set DLBM_TRIPLE for layer [%s] to (%s)\n",
+                 desc.name,
+                 (fieldOrder) ? "TOP field first" : "BOTTOM field first");
+--- 653,657 ----
+  
+    softlog->Log(SOFT_LOG_INFO, 0,
+!                "[dfb] Set layer [%s] to (%s)\n",
+                 desc.name,
+                 (fieldOrder) ? "TOP field first" : "BOTTOM field first");
+
+
+
+From nobody at sheep.berlios.de  Sun Jul 27 19:34:45 2008
+From: nobody at sheep.berlios.de (lucke)
+Date: Sun, 27 Jul 2008 19:34:45 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice PicBuffer.c, 1.22, 1.23 CHANGELOG, 1.337,
+	1.338
+Message-ID: <20080727173445.31F4D144645@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv20014
+
+Modified Files:
+	PicBuffer.c CHANGELOG 
+Log Message:
+Fix for bug #13729 when displaying yuv 422 planar video source.
+
+Index: PicBuffer.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/PicBuffer.c,v
+retrieving revision 1.22
+retrieving revision 1.23
+diff -C2 -d -r1.22 -r1.23
+*** PicBuffer.c	20 Jul 2008 16:41:01 -0000	1.22
+--- PicBuffer.c	27 Jul 2008 17:34:42 -0000	1.23
+***************
+*** 553,556 ****
+--- 553,658 ----
+  };
+  
++ /* ---------------------------------------------------------------------------
++  */
++ static void
++ CopyPicBuf_YUV422P_YUV420P(sPicBuffer *dst, sPicBuffer *src,
++                            int cutTop, int cutBottom,
++                            int cutLeft, int cutRight)
++ {
++ 
++         int copy_width  = dst->width  - 2 * (cutLeft   + cutRight);
++         int copy_height = dst->height - 2 * (cutBottom + cutTop) ;
++ 
++         uint8_t *dst_ptr = dst->pixel[0] +
++                            (2 * cutTop + dst->edge_height) * dst->stride[0] +
++                            2 * cutLeft + dst->edge_width;
++         uint8_t *src_ptr = src->pixel[0] +
++                            (2 * cutTop + src->edge_height) * src->stride[0] +
++                            2 * cutLeft + src->edge_width;
++ 
++         for (int i = copy_height; i >= 0; i--) {
++                 fast_memcpy (dst_ptr, src_ptr, copy_width);
++                 dst_ptr += dst->stride[0];
++                 src_ptr += src->stride[0];
++         }
++ 
++         dst_ptr = dst->pixel[1] +
++                   (cutTop + dst->edge_height / 2) * dst->stride[1] +
++                   cutLeft + dst->edge_width / 2;
++         src_ptr = src->pixel[1] +
++                   2 * (cutTop + src->edge_height / 2) * src->stride[1] +
++                   cutLeft + src->edge_width / 2;
++ 
++         copy_width  = dst->width  / 2 - (cutLeft   + cutRight);
++         copy_height = dst->height / 2 - (cutBottom + cutTop);
++ 
++         for (int i = copy_height; i--; ) {
++                 fast_memcpy (dst_ptr, src_ptr, copy_width);
++                 dst_ptr += dst->stride[1];
++                 src_ptr += 2 * src->stride[1];
++         }
++ 
++         dst_ptr = dst->pixel[2] +
++                   (cutTop + dst->edge_height / 2) * dst->stride[1] +
++                   cutLeft + dst->edge_width / 2;
++         src_ptr = src->pixel[2] +
++                   2 * (cutTop + src->edge_height / 2) * src->stride[2] +
++                   cutLeft + src->edge_width / 2;
++ 
++         for (int i = copy_height; i--; ) {
++                 fast_memcpy (dst_ptr, src_ptr, copy_width);
++                 dst_ptr += dst->stride[2];
++                 src_ptr += 2 * src->stride[2];
++         }
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ static void
++ CopyPicBuf_YUV422P_YUV2 (sPicBuffer *dst, sPicBuffer *src,
++                          int cutTop, int cutBottom,
++                          int cutLeft, int cutRight)
++ {
++         yuv420_convert_fct yuv_convert = GetYuv420ConvertFct (dst->format);
++ 
++         uint8_t *dst_ptr = dst->pixel[0] +
++                            (2 * cutTop + dst->edge_height) * dst->stride[0] +
++                            4 * cutLeft + 2 * dst->edge_width;
++ 
++         uint8_t *py = src->pixel[0] +
++                       (2 * cutTop + src->edge_height) * src->stride[0] +
++                       2 * cutLeft + src->edge_width;
++ 
++         uint8_t *pu = src->pixel[1] +
++                       (cutTop + src->edge_height) * src->stride[1] +
++                       cutLeft + src->edge_width / 2;
++ 
++         uint8_t *pv = src->pixel[2] +
++                       (cutTop + src->edge_height) * src->stride[2] +
++                       cutLeft + src->edge_width / 2;
++ 
++         int dstStride   = dst->stride[0];
++         int lumStride   = src->stride[0];
++         int chromStride = src->stride[1];
++ 
++         int height = dst->height - 2 * (cutTop + cutBottom);
++         int width  = dst->width - 2 * (cutLeft + cutRight);
++ 
++         for(int y = height / 2; y--; ) {
++                 (*yuv_convert)(dst_ptr, dst_ptr + dstStride,
++                                py, py + lumStride,
++                                pu, pv,
++                                width);
++                 py      += 2 * lumStride;
++                 pu      += 2 * chromStride;
++                 pv      += 2 * chromStride;
++                 dst_ptr += 2 * dstStride;
++         }
++         SFENCE;
++         EMMS;
++ 
++         dst->interlaced_frame = src->interlaced_frame;
++ }
++ 
+  /*------------------------------------------------------------------------*/
+  void CopyPicBuf(sPicBuffer *dst, sPicBuffer *src,
+***************
+*** 576,586 ****
+          };
+  
+!         if ( dst->format == PIX_FMT_YUV420P )
+!                 CopyPicBuf_YUV420P(dst,src,
+!                                 cutTop,cutBottom,
+!                                 cutLeft,cutRight);
+!         else CopyPicBuf_YUV420P_Convert(dst,src,
+!                                 cutTop,cutBottom,
+!                                 cutLeft,cutRight);
+  }
+  
+--- 678,722 ----
+          };
+  
+!         if ( dst->format == PIX_FMT_YUV420P ) {
+!                 if ( src->format == PIX_FMT_YUV420P ) {
+!                         CopyPicBuf_YUV420P (dst, src,
+!                                             cutTop, cutBottom,
+!                                             cutLeft, cutRight);
+!                 } else if ( src->format == PIX_FMT_YUV422P ){
+!                         CopyPicBuf_YUV422P_YUV420P (dst, src,
+!                                                     cutTop, cutBottom,
+!                                                     cutLeft, cutRight);
+!                 } else {
+!                                 static int once = 0;
+! 
+!                         if (!once) {
+!                                 esyslog ("[CopyPicBuf]: "
+!                                          "No converter available for "
+!                                          "(%d -> %d) conversion",
+!                                          src->format, dst->format);
+!                                 once = 1;
+!                         }
+!                 }
+!         } else {
+!                 if ( src->format == PIX_FMT_YUV420P ) {
+!                         CopyPicBuf_YUV420P_Convert(dst,src,
+!                                         cutTop,cutBottom,
+!                                         cutLeft,cutRight);
+!                 } else if ( src->format == PIX_FMT_YUV422P ){
+!                         CopyPicBuf_YUV422P_YUV2 (dst, src,
+!                                                     cutTop, cutBottom,
+!                                                     cutLeft, cutRight);
+!                 } else {
+!                                 static int once = 0;
+! 
+!                         if (!once) {
+!                                 esyslog ("[CopyPicBuf]: "
+!                                          "No converter available for "
+!                                          "(%d -> %d) conversion",
+!                                          src->format, dst->format);
+!                                 once = 1;
+!                         }
+!                 }
+!         }
+  }
+  
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.337
+retrieving revision 1.338
+diff -C2 -d -r1.337 -r1.338
+*** CHANGELOG	20 Jul 2008 16:41:01 -0000	1.337
+--- CHANGELOG	27 Jul 2008 17:34:42 -0000	1.338
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2008-07-27:
++    - video: Fix for bug #13729 when displaying yuv 422 planar video source.
+  2008-07-20:
+     - audio: Fix for bug #14039 based upon suggestion by 'earcar'.
+
+
+
+From nobody at sheep.berlios.de  Wed Sep 10 19:15:42 2008
+From: nobody at sheep.berlios.de (lucke)
+Date: Wed, 10 Sep 2008 19:15:42 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice setup-softdevice.h, 1.45, 1.46 CHANGELOG,
+	1.338, 1.339
+Message-ID: <20080910171542.D3EB814A0A8@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv27053
+
+Modified Files:
+	setup-softdevice.h CHANGELOG 
+Log Message:
+ShmClient: Fix for bug #14302: vdr version dependent member in setupstore.
+Member "bool  doSuspend" was dependent on "VDRVERSNUM >= 10501" but
+VdrReplacements.h specifies 10308 as minimum required vdr version.
+So this class had different sizes in plugin and ShmClient :-( .
+
+
+Index: setup-softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.h,v
+retrieving revision 1.45
+retrieving revision 1.46
+diff -C2 -d -r1.45 -r1.46
+*** setup-softdevice.h	20 Jul 2008 16:41:01 -0000	1.45
+--- setup-softdevice.h	10 Sep 2008 17:15:38 -0000	1.46
+***************
+*** 163,169 ****
+      bool  stretchBlitLocked;
+      int   fieldOrderMode;
+- #if VDRVERSNUM >= 10501
+      bool  doSuspend;
+- #endif
+      int   shouldSuspend;
+      int   osdMode;
+--- 163,167 ----
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.338
+retrieving revision 1.339
+diff -C2 -d -r1.338 -r1.339
+*** CHANGELOG	27 Jul 2008 17:34:42 -0000	1.338
+--- CHANGELOG	10 Sep 2008 17:15:38 -0000	1.339
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2008-09-10:
++    - ShmClient: Fix for bug #14302: vdr version dependent member in setupstore.
+  2008-07-27:
+     - video: Fix for bug #13729 when displaying yuv 422 planar video source.
+
+
+
+From nobody at sheep.berlios.de  Wed Sep 10 22:17:46 2008
+From: nobody at sheep.berlios.de (lucke)
+Date: Wed, 10 Sep 2008 22:17:46 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice SoftOsd.c, 1.33, 1.34 SoftOsd.h, 1.18,
+	1.19 CHANGELOG, 1.339, 1.340
+Message-ID: <20080910201746.28718148446@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv23793
+
+Modified Files:
+	SoftOsd.c SoftOsd.h CHANGELOG 
+Log Message:
+OSD: continued fix from 2008-01-26: now subtitle vs. menu OSD flickering.
+
+Index: SoftOsd.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.c,v
+retrieving revision 1.33
+retrieving revision 1.34
+diff -C2 -d -r1.33 -r1.34
+*** SoftOsd.c	25 Jan 2008 23:55:44 -0000	1.33
+--- SoftOsd.c	10 Sep 2008 20:17:43 -0000	1.34
+***************
+*** 97,101 ****
+          active=false;
+          Cancel(3);
+!         if (videoOut) {
+                  voutMutex.Lock();
+                  videoOut->CloseOSD();
+--- 97,105 ----
+          active=false;
+          Cancel(3);
+!         if (videoOut
+! #if VDRVERSNUM >= 10509
+!             && cOsd::Active()
+! #endif
+!             ) {
+                  voutMutex.Lock();
+                  videoOut->CloseOSD();
+***************
+*** 121,124 ****
+--- 125,136 ----
+  }
+  
++ #if VDRVERSNUM >= 10509
++ /* -------------------------------------------------------------------------*/
++ void cSoftOsd::SetActive(bool On)
++ {
++         cOsd::SetActive(On);
++ }
++ #endif
++ 
+  /* -------------------------------------------------------------------------*/
+  void cSoftOsd::Action() {
+***************
+*** 131,136 ****
+  
+                  voutMutex.Lock();
+!                 if (!videoOut) {
+                          voutMutex.Unlock();
+                          continue;
+                  };
+--- 143,153 ----
+  
+                  voutMutex.Lock();
+!                 if (!videoOut
+! #if VDRVERSNUM >= 10509
+!                     || !cOsd::Active()
+! #endif
+!                     ) {
+                          voutMutex.Unlock();
++                         usleep(17000);
+                          continue;
+                  };
+***************
+*** 291,294 ****
+--- 308,317 ----
+  void cSoftOsd::Flush(void) {
+          OSDDEB("SoftOsd::Flush \n");
++ 
++ #if VDRVERSNUM >= 10509
++         if (!cOsd::Active())
++                 return;
++ #endif
++ 
+          bool OSD_changed=FlushBitmaps(true);
+  
+
+Index: SoftOsd.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.h,v
+retrieving revision 1.18
+retrieving revision 1.19
+diff -C2 -d -r1.18 -r1.19
+*** SoftOsd.h	10 Apr 2008 06:48:57 -0000	1.18
+--- SoftOsd.h	10 Sep 2008 20:17:43 -0000	1.19
+***************
+*** 101,104 ****
+--- 101,107 ----
+      virtual void Flush(void);
+      virtual eOsdError SetAreas(const tArea *Areas, int NumAreas);
++ #if VDRVERSNUM >= 10509
++     virtual void      SetActive(bool On);
++ #endif
+  
+      // Create a copy of the osd layer for the Grab() method.
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.339
+retrieving revision 1.340
+diff -C2 -d -r1.339 -r1.340
+*** CHANGELOG	10 Sep 2008 17:15:38 -0000	1.339
+--- CHANGELOG	10 Sep 2008 20:17:43 -0000	1.340
+***************
+*** 1,4 ****
+--- 1,5 ----
+  Changelog
+  2008-09-10:
++    - OSD: continued fix from 2008-01-26: now subtitle vs. menu OSD flickering.
+     - ShmClient: Fix for bug #14302: vdr version dependent member in setupstore.
+  2008-07-27:
+
+
+
+From nobody at sheep.berlios.de  Fri Sep 12 18:49:01 2008
+From: nobody at sheep.berlios.de (lucke)
+Date: Fri, 12 Sep 2008 18:49:01 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice CHANGELOG, 1.340, 1.341 SoftOsd.c, 1.34,
+	1.35 SoftOsd.h, 1.19, 1.20
+Message-ID: <20080912164901.F03DB153CD3@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv22386
+
+Modified Files:
+	CHANGELOG SoftOsd.c SoftOsd.h 
+Log Message:
+next fix in subtitle vs. OSD behaviour issues.
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.340
+retrieving revision 1.341
+diff -C2 -d -r1.340 -r1.341
+*** CHANGELOG	10 Sep 2008 20:17:43 -0000	1.340
+--- CHANGELOG	12 Sep 2008 16:48:58 -0000	1.341
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2008-09-12:
++    - OSD: next fix in subtitle vs. OSD behaviour issues.
+  2008-09-10:
+     - OSD: continued fix from 2008-01-26: now subtitle vs. menu OSD flickering.
+
+Index: SoftOsd.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.c,v
+retrieving revision 1.34
+retrieving revision 1.35
+diff -C2 -d -r1.34 -r1.35
+*** SoftOsd.c	10 Sep 2008 20:17:43 -0000	1.34
+--- SoftOsd.c	12 Sep 2008 16:48:58 -0000	1.35
+***************
+*** 119,123 ****
+          if (shown) {
+                  Clear();
+!                 videoOut->ClearOSD();
+                  shown = false;
+          }
+--- 119,126 ----
+          if (shown) {
+                  Clear();
+! #if VDRVERSNUM >= 10509
+!                 if (cOsd::Active())
+! #endif
+!                         videoOut->ClearOSD();
+                  shown = false;
+          }
+***************
+*** 129,133 ****
+  void cSoftOsd::SetActive(bool On)
+  {
+!         cOsd::SetActive(On);
+  }
+  #endif
+--- 132,144 ----
+  void cSoftOsd::SetActive(bool On)
+  {
+!         voutMutex.Lock();
+!         if (On != cOsd::Active()) {
+!                 cOsd::SetActive(On);
+!                 if (On && GetBitmap(0)) {
+!                         Flush();
+!                         OsdCommit(true);
+!                 }
+!         }
+!         voutMutex.Unlock();
+  }
+  #endif
+***************
+*** 188,192 ****
+  
+  /*--------------------------------------------------------------------------*/
+! void cSoftOsd::OsdCommit() {
+          OSDDEB("OsdCommit()\n");
+          int newX;
+--- 199,203 ----
+  
+  /*--------------------------------------------------------------------------*/
+! void cSoftOsd::OsdCommit(bool forced) {
+          OSDDEB("OsdCommit()\n");
+          int newX;
+***************
+*** 218,221 ****
+--- 229,235 ----
+                  modeChanged = true;
+          }
++ 
++         if (forced)
++                 RefreshAll = true;
+  
+          if (modeChanged) {
+
+Index: SoftOsd.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.h,v
+retrieving revision 1.19
+retrieving revision 1.20
+diff -C2 -d -r1.19 -r1.20
+*** SoftOsd.h	10 Sep 2008 20:17:43 -0000	1.19
+--- SoftOsd.h	12 Sep 2008 16:48:58 -0000	1.20
+***************
+*** 118,122 ****
+      bool DrawConvertBitmap(cBitmap *Bitmap, bool OnlyDirty);
+  
+!     void OsdCommit();
+      // may only be called if the caller holds voutMutex
+  
+--- 118,122 ----
+      bool DrawConvertBitmap(cBitmap *Bitmap, bool OnlyDirty);
+  
+!     void OsdCommit(bool forced = false);
+      // may only be called if the caller holds voutMutex
+  
+
+
+
+From nobody at sheep.berlios.de  Sun Sep 21 14:55:59 2008
+From: nobody at sheep.berlios.de (lucke)
+Date: Sun, 21 Sep 2008 14:55:59 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice CHANGELOG, 1.341, 1.342 configure, 1.49,
+	1.50 mpeg2decoder.c, 1.83, 1.84
+Message-ID: <20080921125559.A9D7E154192@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv17230
+
+Modified Files:
+	CHANGELOG configure mpeg2decoder.c 
+Log Message:
+Fix build failure with newer ffmpeg releases (bug #14494).
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.341
+retrieving revision 1.342
+diff -C2 -d -r1.341 -r1.342
+*** CHANGELOG	12 Sep 2008 16:48:58 -0000	1.341
+--- CHANGELOG	21 Sep 2008 12:55:57 -0000	1.342
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2008-09-21:
++    - build: Fix build failure with newer ffmpeg releases (bug #14494).
+  2008-09-12:
+     - OSD: next fix in subtitle vs. OSD behaviour issues.
+
+Index: configure
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/configure,v
+retrieving revision 1.49
+retrieving revision 1.50
+diff -C2 -d -r1.49 -r1.50
+*** configure	14 Jul 2008 17:03:03 -0000	1.49
+--- configure	21 Sep 2008 12:55:57 -0000	1.50
+***************
+*** 402,405 ****
+--- 402,442 ----
+  
+  ########################################################
++ echo -n "Checking ffmpeg for member of AVCodecContext: error_recognition ... "
++ echo  "Checking ffmpeg for member of AVCodecContext: error_recognition ----" >> config.log
++ 
++ test_error_recognition()
++ {
++   has_error_recognition="yes";
++ cat > ${TMPC} << EOF
++ #define __STDC_CONSTANT_MACROS
++ #include <stdlib.h>
++ extern "C" {
++ #include <libavcodec/avcodec.h>
++ #include <libavformat/avformat.h>
++ #include <libswscale/swscale.h>
++ }
++ int main(void) {
++     AVCodecContext *context;
++ 
++   if (context -> error_recognition)
++     return 1;
++   return 0;
++ }
++ EOF
++   $cc $CFLAGS $ffmpeg_cflags $swscale_cflags -o $TMPE $TMPC $swscale_libs $ffmpeg_libs >> config.log 2>&1 || has_error_recognition="no"
++   $TMPE
++ };
++ 
++ ########################################################
++ # check for error_recognition
++ test_error_recognition
++ if test "${has_error_recognition}" = "yes" ; then
++   echo " 'error_recognition' found"
++ else
++   echo " 'error_recognition' NOT found"
++ fi
++ 
++ 
++ ########################################################
+  # check for ALSA
+  echo -n "Checking for ALSA sound... "
+***************
+*** 930,933 ****
+--- 967,976 ----
+  if test "${swscale}" = "yes"; then
+    echo "#define USE_SWSCALE" >> $TMPH
++ fi
++ 
++ if test "${has_error_recognition}" = "yes" ; then
++   echo "#define HAS_ERROR_RECOGNITION           1" >> $TMPH
++ else
++   echo "#define HAS_ERROR_RECOGNITION           0" >> $TMPH
+  fi
+  
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.83
+retrieving revision 1.84
+diff -C2 -d -r1.83 -r1.84
+*** mpeg2decoder.c	20 Jul 2008 16:41:01 -0000	1.83
+--- mpeg2decoder.c	21 Sep 2008 12:55:57 -0000	1.84
+***************
+*** 141,145 ****
+--- 141,149 ----
+    context=Context;
+    if (context)
++ #if HAS_ERROR_RECOGNITION
++         context->error_recognition=1;
++ #else
+          context->error_resilience=1;
++ #endif
+    CMDDEB("Neuer StreamDecoder Pid: %d context %p type %d\n",
+          getpid(),context,context->codec_type );
+***************
+*** 1027,1032 ****
+  cMpeg2Decoder::cMpeg2Decoder(cAudioOut *AudioOut, cVideoOut *VideoOut)
+  {
+    if ( avcodec_build() != LIBAVCODEC_BUILD ) {
+!      fprintf(stderr,"Fatal Error! Libavcodec library build(%d) doesn't match avcodec.h build(%d)!!!\n",avcodec_build(),LIBAVCODEC_BUILD);
+       fprintf(stderr,"Check your ffmpeg installation / the pathes in the Makefile!!!\n");
+       exit(-1);
+--- 1031,1047 ----
+  cMpeg2Decoder::cMpeg2Decoder(cAudioOut *AudioOut, cVideoOut *VideoOut)
+  {
++ #if LIBAVCODEC_VERSION_INT < ((52<<16)+(0<<8)+0)
+    if ( avcodec_build() != LIBAVCODEC_BUILD ) {
+!      fprintf(stderr,
+!              "Fatal Error! Libavcodec library build(%d) doesn't "
+!                "match avcodec.h build(%d)!!!\n",
+!              avcodec_build(), LIBAVCODEC_BUILD);
+! #else
+!   if ( avcodec_version() != LIBAVCODEC_VERSION_INT ) {
+!      fprintf(stderr,
+!              "Fatal Error! Libavcodec library build(%d) doesn't "
+!                "match avcodec.h build(%d)!!!\n",
+!              avcodec_version(), LIBAVCODEC_VERSION_INT);
+! #endif
+       fprintf(stderr,"Check your ffmpeg installation / the pathes in the Makefile!!!\n");
+       exit(-1);
+
+
+
+From nobody at sheep.berlios.de  Fri Sep 26 22:34:11 2008
+From: nobody at sheep.berlios.de (lucke)
+Date: Fri, 26 Sep 2008 22:34:11 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice CHANGELOG, 1.342, 1.343 README, 1.28,
+	1.29
+Message-ID: <20080926203411.66CBF151F91@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv14389
+
+Modified Files:
+	CHANGELOG README 
+Log Message:
+Updated italian translations by Diego Pierotto.
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.342
+retrieving revision 1.343
+diff -C2 -d -r1.342 -r1.343
+*** CHANGELOG	21 Sep 2008 12:55:57 -0000	1.342
+--- CHANGELOG	26 Sep 2008 20:34:08 -0000	1.343
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2008-09-26:
++    - Updated italian translations by Diego Pierotto.
+  2008-09-21:
+     - build: Fix build failure with newer ffmpeg releases (bug #14494).
+***************
+*** 31,35 ****
+     - Switched from av_read_packet() to av_read_frame().
+  2008-04-14:
+!    - Italian translation by Diego.
+  2008-04-13:
+     - audio: fix ac3 downmix request for ffmpeg >= r10199.
+--- 33,37 ----
+     - Switched from av_read_packet() to av_read_frame().
+  2008-04-14:
+!    - Italian translation by Diego Pierotto.
+  2008-04-13:
+     - audio: fix ac3 downmix request for ffmpeg >= r10199.
+
+Index: README
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/README,v
+retrieving revision 1.28
+retrieving revision 1.29
+diff -C2 -d -r1.28 -r1.29
+*** README	16 Apr 2008 10:41:39 -0000	1.28
+--- README	26 Sep 2008 20:34:08 -0000	1.29
+***************
+*** 353,356 ****
+--- 353,357 ----
+  - Chris Elsworth
+  - Colin Paton
++ - Diego Pierotto
+  - Herbert Attenberger
+  - Holger Waechtler
+
+
+
+From nobody at sheep.berlios.de  Fri Sep 26 22:34:11 2008
+From: nobody at sheep.berlios.de (lucke)
+Date: Fri, 26 Sep 2008 22:34:11 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice/po it_IT.po,1.2,1.3
+Message-ID: <20080926203411.85CA5153D36@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice/po
+In directory sheep:/tmp/cvs-serv14389/po
+
+Modified Files:
+	it_IT.po 
+Log Message:
+Updated italian translations by Diego Pierotto.
+
+Index: it_IT.po
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/po/it_IT.po,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** it_IT.po	18 Apr 2008 14:43:31 -0000	1.2
+--- it_IT.po	26 Sep 2008 20:34:09 -0000	1.3
+***************
+*** 9,13 ****
+  "POT-Creation-Date: \n"
+  "PO-Revision-Date: \n"
+! "Last-Translator: \n"
+  "Language-Team: \n"
+  "MIME-Version: 1.0\n"
+--- 9,13 ----
+  "POT-Creation-Date: \n"
+  "PO-Revision-Date: \n"
+! "Last-Translator: Diego Pierotto <vdr-italian at tiscali.it>\n"
+  "Language-Team: \n"
+  "MIME-Version: 1.0\n"
+***************
+*** 31,38 ****
+  
+  msgid "safe"
+! msgstr "sicuro"
+  
+  msgid "good seeking"
+! msgstr "precisione"
+  
+  msgid "HDTV"
+--- 31,38 ----
+  
+  msgid "safe"
+! msgstr "sicura"
+  
+  msgid "good seeking"
+! msgstr "precisa"
+  
+  msgid "HDTV"
+***************
+*** 64,68 ****
+  
+  msgid "HW-Deinterlace"
+! msgstr ""
+  
+  msgid "CropMode"
+--- 64,68 ----
+  
+  msgid "HW-Deinterlace"
+! msgstr "Deinterlacciamento HW"
+  
+  msgid "CropMode"
+***************
+*** 70,77 ****
+  
+  msgid "CropModeToggleKey"
+! msgstr "Tasto cambiamento aspetto"
+  
+  msgid "Autodetect Movie Aspect"
+! msgstr "Rileva aspetto film (16:9/4:3)"
+  
+  msgid "no"
+--- 70,77 ----
+  
+  msgid "CropModeToggleKey"
+! msgstr "Tasto cambio aspetto"
+  
+  msgid "Autodetect Movie Aspect"
+! msgstr "Rileva aspetto video (16:9/4:3)"
+  
+  msgid "no"
+***************
+*** 79,86 ****
+  
+  msgid "yes"
+! msgstr "si"
+  
+  msgid "Zoom factor"
+! msgstr "Fattore ingrandimento"
+  
+  msgid "Zoom area shift (left/right)"
+--- 79,86 ----
+  
+  msgid "yes"
+! msgstr "s?"
+  
+  msgid "Zoom factor"
+! msgstr "Fattore di ingrandimento"
+  
+  msgid "Zoom area shift (left/right)"
+***************
+*** 88,92 ****
+  
+  msgid "Zoom area shift (up/down)"
+! msgstr "Cambia area zoom (su/gi???)"
+  
+  msgid "Crop lines from top"
+--- 88,92 ----
+  
+  msgid "Zoom area shift (up/down)"
+! msgstr "Cambia area zoom (su/gi?)"
+  
+  msgid "Crop lines from top"
+***************
+*** 169,185 ****
+  
+  msgid "Use SourceRectangle"
+! msgstr ""
+  
+  msgid "Hide main menu entry"
+! msgstr "Nascondi voce nel menu principale"
+  
+  msgid "Info Messages"
+! msgstr "Messaggi informazione"
+  
+  msgid "Debug Messages"
+! msgstr "Messaggi debug"
+  
+  msgid "Trace Messages"
+! msgstr "Messaggi prova"
+  
+  msgid "Logfile"
+--- 169,185 ----
+  
+  msgid "Use SourceRectangle"
+! msgstr "Utilizza fonte rettangolo"
+  
+  msgid "Hide main menu entry"
+! msgstr "Nascondi voce menu principale"
+  
+  msgid "Info Messages"
+! msgstr "Messaggi di informazione"
+  
+  msgid "Debug Messages"
+! msgstr "Messaggi di debug"
+  
+  msgid "Trace Messages"
+! msgstr "Messaggi di prova"
+  
+  msgid "Logfile"
+***************
+*** 194,195 ****
+--- 194,196 ----
+  msgid "Softdevice"
+  msgstr "Softdevice"
++ 
+
+
+

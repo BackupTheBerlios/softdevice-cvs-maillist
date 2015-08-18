@@ -1,0 +1,147 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.148,1.149 softdevice.c,1.51,1.52 softdevice.h,1.7,1.8
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.148%2C1.149%20softdevice.c%2C1.51%2C1.52%20softdevice.h%2C1.7%2C1.8&In-Reply-To=%3C200602060658.k166wux10424%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000282.html">
+   <LINK REL="Next"  HREF="000284.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.148,1.149 softdevice.c,1.51,1.52 softdevice.h,1.7,1.8</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.148%2C1.149%20softdevice.c%2C1.51%2C1.52%20softdevice.h%2C1.7%2C1.8&In-Reply-To=%3C200602060658.k166wux10424%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.148,1.149 softdevice.c,1.51,1.52 softdevice.h,1.7,1.8">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon Feb  6 07:58:56 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000282.html">[Softdevice-cvs] softdevice video-xv.c,1.40,1.41
+</A></li>
+        <LI>Next message: <A HREF="000284.html">[Softdevice-cvs] softdevice softdevice.c,1.52,1.53 video.c,1.42,1.43
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#283">[ date ]</a>
+              <a href="thread.html#283">[ thread ]</a>
+              <a href="subject.html#283">[ subject ]</a>
+              <a href="author.html#283">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv11242
+
+Modified Files:
+	CHANGELOG softdevice.c softdevice.h 
+Log Message:
+fix for vdr-1.3.42 compatibility
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.148
+retrieving revision 1.149
+diff -C2 -d -r1.148 -r1.149
+*** CHANGELOG	4 Feb 2006 17:33:31 -0000	1.148
+--- CHANGELOG	6 Feb 2006 06:58:49 -0000	1.149
+***************
+*** 1,4 ****
+  Changelog
+! 2006-03-03:
+     - remove unused code, variables and parameters from video-xv
+     - add more documentation to the readme
+--- 1,6 ----
+  Changelog
+! 2006-02-06:
+!    - fix for vdr-1.3.42 compatibility
+! 2006-02-03:
+     - remove unused code, variables and parameters from video-xv
+     - add more documentation to the readme
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.51
+retrieving revision 1.52
+diff -C2 -d -r1.51 -r1.52
+*** softdevice.c	17 Jan 2006 20:45:46 -0000	1.51
+--- softdevice.c	6 Feb 2006 06:58:49 -0000	1.52
+***************
+*** 527,533 ****
+--- 527,540 ----
+  }
+  #else
++ 
++ # if VDRVERSNUM &gt;= 10342
++ /* ----------------------------------------------------------------------------
++  */
++ int cSoftDevice::PlayAudio(const uchar *Data, int Length, uchar Id)
++ # else
+  /* ----------------------------------------------------------------------------
+   */
+  int cSoftDevice::PlayAudio(const uchar *Data, int Length)
++ # endif
+  {
+    //fprintf(stderr,&quot;PlayAudio...\n&quot;);
+
+Index: softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.h,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -C2 -d -r1.7 -r1.8
+*** softdevice.h	12 Nov 2005 15:47:34 -0000	1.7
+--- softdevice.h	6 Feb 2006 06:58:49 -0000	1.8
+***************
+*** 115,120 ****
+    virtual int  GetAudioChannelDevice(void);
+    virtual void SetDigitalAudioDevice(bool On);
+!   virtual void SetAudioTrackDevice(eTrackType Type);  
+    virtual int  PlayAudio(const uchar *Data, int Length);
+  #endif
+  #if VDRVERSNUM &gt;= 10307
+--- 115,126 ----
+    virtual int  GetAudioChannelDevice(void);
+    virtual void SetDigitalAudioDevice(bool On);
+!   virtual void SetAudioTrackDevice(eTrackType Type);
+! 
+! # if VDRVERSNUM &gt;= 10342
+!   virtual int  PlayAudio(const uchar *Data, int Length, uchar Id);
+! # else
+    virtual int  PlayAudio(const uchar *Data, int Length);
++ # endif
++ 
+  #endif
+  #if VDRVERSNUM &gt;= 10307
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000282.html">[Softdevice-cvs] softdevice video-xv.c,1.40,1.41
+</A></li>
+	<LI>Next message: <A HREF="000284.html">[Softdevice-cvs] softdevice softdevice.c,1.52,1.53 video.c,1.42,1.43
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#283">[ date ]</a>
+              <a href="thread.html#283">[ thread ]</a>
+              <a href="subject.html#283">[ subject ]</a>
+              <a href="author.html#283">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

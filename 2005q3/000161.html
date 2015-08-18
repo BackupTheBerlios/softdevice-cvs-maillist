@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice video-vidix.c,1.10,1.11
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-vidix.c%2C1.10%2C1.11&In-Reply-To=%3C200507201845.j6KIjnI04737%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000160.html">
+   <LINK REL="Next"  HREF="000162.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice video-vidix.c,1.10,1.11</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-vidix.c%2C1.10%2C1.11&In-Reply-To=%3C200507201845.j6KIjnI04737%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice video-vidix.c,1.10,1.11">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Wed Jul 20 20:45:49 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000160.html">[Softdevice-cvs] softdevice mpeg2decoder.h,1.28,1.29
+</A></li>
+        <LI>Next message: <A HREF="000162.html">[Softdevice-cvs] softdevice CHANGELOG,1.87,1.88 setup-softdevice.c,1.21,1.22 setup-softdevice.h,1.15,1.16 video-xv.c,1.29,1.30 video.c,1.25,1.26 video.h,1.16,1.17
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#161">[ date ]</a>
+              <a href="thread.html#161">[ thread ]</a>
+              <a href="subject.html#161">[ subject ]</a>
+              <a href="author.html#161">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv24870
+
+Modified Files:
+	video-vidix.c 
+Log Message:
+adjusted vidix-out call of yv12_to_yuy2() to dfb-out
+
+Index: video-vidix.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-vidix.c,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -C2 -d -r1.10 -r1.11
+*** video-vidix.c	15 Jul 2005 20:42:16 -0000	1.10
+--- video-vidix.c	20 Jul 2005 18:45:47 -0000	1.11
+***************
+*** 501,506 ****
+        }
+      } else if (currentPixelFormat == 2) {
+! 
+! 	yv12_to_yuy2(Py, Pu, Pv, dst, Width, Height, Ystride, UVstride, dstrides.y*2);
+      }
+  
+--- 501,510 ----
+        }
+      } else if (currentPixelFormat == 2) {
+!       yv12_to_yuy2(Py + Ystride  * cutTop * 2,
+!                    Pu + UVstride * cutTop,
+!                    Pv + UVstride * cutTop,
+!                    dst + dstrides.y*2 * cutTop * 2,
+!                    Width, Height - 2 * (cutTop + cutBottom),
+!                    Ystride, UVstride, dstrides.y*2);
+      }
+  
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000160.html">[Softdevice-cvs] softdevice mpeg2decoder.h,1.28,1.29
+</A></li>
+	<LI>Next message: <A HREF="000162.html">[Softdevice-cvs] softdevice CHANGELOG,1.87,1.88 setup-softdevice.c,1.21,1.22 setup-softdevice.h,1.15,1.16 video-xv.c,1.29,1.30 video.c,1.25,1.26 video.h,1.16,1.17
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#161">[ date ]</a>
+              <a href="thread.html#161">[ thread ]</a>
+              <a href="subject.html#161">[ subject ]</a>
+              <a href="author.html#161">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

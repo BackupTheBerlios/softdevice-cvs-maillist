@@ -1,0 +1,136 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice SoftOsd.c,1.6,1.7
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20SoftOsd.c%2C1.6%2C1.7&In-Reply-To=%3C200602111828.k1BISiE04072%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000290.html">
+   <LINK REL="Next"  HREF="000292.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice SoftOsd.c,1.6,1.7</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20SoftOsd.c%2C1.6%2C1.7&In-Reply-To=%3C200602111828.k1BISiE04072%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice SoftOsd.c,1.6,1.7">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Feb 11 19:28:44 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000290.html">[Softdevice-cvs] softdevice video-dfb.c,1.48,1.49 video-dfb.h,1.15,1.16
+</A></li>
+        <LI>Next message: <A HREF="000292.html">[Softdevice-cvs] softdevice video-xv.c,1.41,1.42
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#291">[ date ]</a>
+              <a href="thread.html#291">[ thread ]</a>
+              <a href="subject.html#291">[ subject ]</a>
+              <a href="author.html#291">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv19065
+
+Modified Files:
+	SoftOsd.c 
+Log Message:
+compile fix for gcc 2.95.3
+
+Index: SoftOsd.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.c,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -C2 -d -r1.6 -r1.7
+*** SoftOsd.c	4 Feb 2006 10:05:09 -0000	1.6
+--- SoftOsd.c	11 Feb 2006 18:28:39 -0000	1.7
+***************
+*** 901,905 ****
+  		FlushBitmaps(false);
+  	};
+! 	
+  	cMutexLock dirty(&amp;dirty_Mutex);
+          uint8_t *buf;
+--- 901,905 ----
+  		FlushBitmaps(false);
+  	};
+! 
+  	cMutexLock dirty(&amp;dirty_Mutex);
+          uint8_t *buf;
+***************
+*** 1047,1051 ****
+                                 : : &quot;r&quot; (&amp;pixmap[row][Pixel])  );
+  #endif
+!                        
+                          pos -=ScaleFactor;
+                          row++;
+--- 1047,1051 ----
+                                 : : &quot;r&quot; (&amp;pixmap[row][Pixel])  );
+  #endif
+! 
+                          pos -=ScaleFactor;
+                          row++;
+***************
+*** 1349,1356 ****
+  #else
+          __asm__(
+!                  &quot; pxor %%mm7,%%mm7 \n&quot; //mm7: 00 00 00 ...
+!                  : :   );	
+  #endif
+!         
+          int32_t pos=start_pos;
+  	int currPixel=0;
+--- 1349,1356 ----
+  #else
+          __asm__(
+!                 &quot; pxor %%mm7,%%mm7 \n&quot; //mm7: 00 00 00 ...
+!                 : : : &quot;memory&quot; );
+  #endif
+! 
+          int32_t pos=start_pos;
+  	int currPixel=0;
+***************
+*** 1373,1377 ****
+                        &quot; movd (%1),%%mm2 \n&quot;
+                        &quot; punpcklbw %%mm7, %%mm1 \n&quot;  // mm1 pixel1
+!                       &quot; punpcklbw %%mm7, %%mm2 \n&quot;  
+  		      //&quot; psubw %%mm1, %%mm2 \n&quot;// mm2 pixel2-pixel1
+  		      &quot; psubsw %%mm1, %%mm2 \n&quot;// mm2 pixel2-pixel1
+--- 1373,1377 ----
+                        &quot; movd (%1),%%mm2 \n&quot;
+                        &quot; punpcklbw %%mm7, %%mm1 \n&quot;  // mm1 pixel1
+!                       &quot; punpcklbw %%mm7, %%mm2 \n&quot;
+  		      //&quot; psubw %%mm1, %%mm2 \n&quot;// mm2 pixel2-pixel1
+  		      &quot; psubsw %%mm1, %%mm2 \n&quot;// mm2 pixel2-pixel1
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000290.html">[Softdevice-cvs] softdevice video-dfb.c,1.48,1.49 video-dfb.h,1.15,1.16
+</A></li>
+	<LI>Next message: <A HREF="000292.html">[Softdevice-cvs] softdevice video-xv.c,1.41,1.42
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#291">[ date ]</a>
+              <a href="thread.html#291">[ thread ]</a>
+              <a href="subject.html#291">[ subject ]</a>
+              <a href="author.html#291">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

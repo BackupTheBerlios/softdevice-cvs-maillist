@@ -1,0 +1,390 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice SoftOsd.h, 1.20, 1.21 mpeg2decoder.c,	1.89, 1.90 softdevice.c, 1.98, 1.99 softdevice.h, 1.16,	1.17 video.c, 1.79, 1.80 video.h, 1.59, 1.60
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2011q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20SoftOsd.h%2C%201.20%2C%201.21%20mpeg2decoder.c%2C%0A%091.89%2C%201.90%20softdevice.c%2C%201.98%2C%201.99%20softdevice.h%2C%201.16%2C%0A%091.17%20video.c%2C%201.79%2C%201.80%20video.h%2C%201.59%2C%201.60&In-Reply-To=%3C20110417172223.0F7A1481366%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000663.html">
+   <LINK REL="Next"  HREF="000665.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice SoftOsd.h, 1.20, 1.21 mpeg2decoder.c,	1.89, 1.90 softdevice.c, 1.98, 1.99 softdevice.h, 1.16,	1.17 video.c, 1.79, 1.80 video.h, 1.59, 1.60</H1>
+    <B>lucke at BerliOS</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20SoftOsd.h%2C%201.20%2C%201.21%20mpeg2decoder.c%2C%0A%091.89%2C%201.90%20softdevice.c%2C%201.98%2C%201.99%20softdevice.h%2C%201.16%2C%0A%091.17%20video.c%2C%201.79%2C%201.80%20video.h%2C%201.59%2C%201.60&In-Reply-To=%3C20110417172223.0F7A1481366%40sheep.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice SoftOsd.h, 1.20, 1.21 mpeg2decoder.c,	1.89, 1.90 softdevice.c, 1.98, 1.99 softdevice.h, 1.16,	1.17 video.c, 1.79, 1.80 video.h, 1.59, 1.60">lucke at sheep.berlios.de
+       </A><BR>
+    <I>Sun Apr 17 19:22:22 CEST 2011</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000663.html">[Softdevice-cvs] softdevice PicBuffer.c, 1.23, 1.24 SoftOsd.c, 1.36,	1.37 softdevice.c, 1.97, 1.98
+</A></li>
+        <LI>Next message: <A HREF="000665.html">[Softdevice-cvs] softdevice CHANGELOG,1.349,1.350
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#664">[ date ]</a>
+              <a href="thread.html#664">[ thread ]</a>
+              <a href="subject.html#664">[ subject ]</a>
+              <a href="author.html#664">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv7411
+
+Modified Files:
+	SoftOsd.h mpeg2decoder.c softdevice.c softdevice.h video.c 
+	video.h 
+Log Message:
+Some changes for vdr-1.7.x support.
+
+Index: SoftOsd.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.h,v
+retrieving revision 1.20
+retrieving revision 1.21
+diff -C 2 -d -r1.20 -r1.21
+*** SoftOsd.h	12 Sep 2008 16:48:58 -0000	1.20
+--- SoftOsd.h	17 Apr 2011 17:22:18 -0000	1.21
+***************
+*** 13,16 ****
+--- 13,20 ----
+  #define __SOFTOSD_H__
+  
++ #include &lt;vdr/config.h&gt;
++ #include &lt;vdr/osd.h&gt;
++ #include &lt;vdr/thread.h&gt;
++ 
+  // osd some constants and macros
+  #define OPACITY_THRESHOLD 0x9FLL
+***************
+*** 18,23 ****
+--- 22,38 ----
+  #define COLOR_KEY 0x00000000LL
+  
++ #if VDRVERSNUM &lt;= 10707
++ 
+  #define OSD_WIDTH   720
+  #define OSD_HEIGHT  576
++ #define OSD_STRIDE (736)
++ 
++ #else
++ 
++ #define OSD_WIDTH   1920
++ #define OSD_HEIGHT  1080
++ #define OSD_STRIDE (1920)
++ 
++ #endif
+  
+  #define IS_BACKGROUND(a) (((a) &lt; OPACITY_THRESHOLD) &amp;&amp; ((a) &gt; TRANSPARENT_THRESHOLD))
+***************
+*** 25,32 ****
+  #define IS_OPAQUE(a) ((a) &gt; OPACITY_THRESHOLD)
+  
+- #include &lt;vdr/config.h&gt;
+- 
+- #include &lt;vdr/osd.h&gt;
+- #include &lt;vdr/thread.h&gt;
+  #include &quot;video.h&quot;
+  
+--- 40,43 ----
+***************
+*** 34,38 ****
+  #define Y_OFFSET 0
+  
+- #define OSD_STRIDE (736)
+  
+  #define COLOR_RGB16(r,g,b) (((b &gt;&gt; 3)&amp; 0x1F) | ((g &amp; 0xF8) &lt;&lt; 2)| ((r &amp; 0xF8)&lt;&lt;10) )
+--- 45,48 ----
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.89
+retrieving revision 1.90
+diff -C 2 -d -r1.89 -r1.90
+*** mpeg2decoder.c	16 Apr 2011 14:23:59 -0000	1.89
+--- mpeg2decoder.c	17 Apr 2011 17:22:18 -0000	1.90
+***************
+*** 125,136 ****
+  bool cClock::freezeMode=true;
+  
+! int64_t  cClock::GetPTS() {
+!   //MPGDEB(&quot;audioOffset %lld time %lld\n&quot;,audioOffset,GetTime());
+    if ( audioOffset )
+!      return freezeMode ? audioPTS : GetTime()+audioOffset;
+    else if ( videoOffset )
+!      return freezeMode ? videoPTS : GetTime()+videoOffset;
+!   else return 0;
+! };
+  
+  // --- cStreamDecoder ---------------------------------------------------------
+--- 125,154 ----
+  bool cClock::freezeMode=true;
+  
+! /* ---------------------------------------------------------------------------
+!  */
+! int64_t  cClock::GetPTS()
+! {
+!     int64_t    rc = 0;
+!     static int lastrc = 0;
+! 
+!  //MPGDEB(&quot;audioOffset %lld time %lld\n&quot;,audioOffset,GetTime());
+    if ( audioOffset )
+!      rc = freezeMode ? audioPTS : GetTime()+audioOffset;
+    else if ( videoOffset )
+!      rc = freezeMode ? videoPTS : GetTime()+videoOffset;
+! 
+! #if 0
+!   fprintf (stderr,
+!            &quot;-- f(%d) ap(%lld - %lld) vp(%lld - %lld) gt(%lld) &quot;
+!              &quot;rc(%lld %lld %lld)\n&quot;,
+!            freezeMode,
+!            audioPTS, audioOffset,
+!            videoPTS, videoOffset,
+!            GetTime(),
+!            rc, (int64_t) (rc / 10000), (rc - lastrc) / 10000);
+! #endif
+!   lastrc = rc;
+!   return rc;
+! }
+  
+  // --- cStreamDecoder ---------------------------------------------------------
+***************
+*** 297,300 ****
+--- 315,327 ----
+    }
+  
++ #if 0
++   int thread_count = 3;
++   if (thread_count &gt; 1) {
++     avcodec_thread_init (context, thread_count);
++     context-&gt;thread_count = thread_count;
++     fprintf(stderr, &quot;using %d threads\n&quot;, thread_count);
++   }
++ #endif
++ 
+    if ( (ret=avcodec_open(context, codec)) &lt; 0)
+    {
+***************
+*** 1487,1491 ****
+  {
+    CMDDEB(&quot;Freeze Streams %d freeze %d\n&quot;,Stream,freeze);
+!   if (Stream &amp; SOFTDEVICE_BOTH_STREAMS == SOFTDEVICE_BOTH_STREAMS )
+      freezeMode=freeze;
+    if (freeze)
+--- 1514,1518 ----
+  {
+    CMDDEB(&quot;Freeze Streams %d freeze %d\n&quot;,Stream,freeze);
+!   if ((Stream &amp; SOFTDEVICE_BOTH_STREAMS) == SOFTDEVICE_BOTH_STREAMS )
+      freezeMode=freeze;
+    if (freeze)
+
+Index: softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.h,v
+retrieving revision 1.16
+retrieving revision 1.17
+diff -C 2 -d -r1.16 -r1.17
+*** softdevice.h	16 Apr 2011 13:13:58 -0000	1.16
+--- softdevice.h	17 Apr 2011 17:22:19 -0000	1.17
+***************
+*** 118,121 ****
+--- 118,127 ----
+  public:
+    virtual int PlayTs(const uchar *Data, int Length, bool VideoOnly = false);
++ 
++ #if VDRVERSNUM &gt; 10707
++   virtual void GetVideoSize(int &amp;Width, int &amp;Height, double &amp;VideoAspect);
++   virtual void GetOsdSize(int &amp;Width, int &amp;Height, double &amp;PixelAspect);
++ #endif
++ 
+  #endif
+  
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.79
+retrieving revision 1.80
+diff -C 2 -d -r1.79 -r1.80
+*** video.c	27 Feb 2009 17:02:35 -0000	1.79
+--- video.c	17 Apr 2011 17:22:19 -0000	1.80
+***************
+*** 32,37 ****
+    OsdHeight=OSD_FULL_HEIGHT;
+    // set some reasonable defaults
+!   fwidth = lwidth = old_dwidth = dwidth = swidth = 720;
+!   fheight = lheight = old_dheight = dheight = sheight = 536;
+    sxoff = syoff = lxoff = lyoff = 0;
+    cutTop = cutBottom = cutLeft = cutRight = 0;
+--- 32,37 ----
+    OsdHeight=OSD_FULL_HEIGHT;
+    // set some reasonable defaults
+!   fwidth = lwidth = old_dwidth = dwidth = swidth = VIDEO_DEF_WIDTH;
+!   fheight = lheight = old_dheight = dheight = sheight = VIDEO_DEF_HEIGHT;
+    sxoff = syoff = lxoff = lyoff = 0;
+    cutTop = cutBottom = cutLeft = cutRight = 0;
+***************
+*** 752,753 ****
+--- 752,773 ----
+    current_osdMode = OSDMODE_PSEUDO;
+  }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ void cVideoOut::GetVideoSize(int &amp;w, int &amp;h, double &amp;a)
++ {
++   w = swidth;
++   h = sheight;
++   a = 1.0;
++   fprintf (stderr, &quot;GetVideoSize (w = %d, h = %d, a = %.3f)\n&quot;, w, h, a);
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ void cVideoOut::GetOsdSize(int &amp;w, int &amp;h, double &amp;a)
++ {
++   w = OSD_FULL_WIDTH;
++   h = OSD_FULL_HEIGHT;
++   a = 1.0;
++   //fprintf (stderr, &quot;GetOsdSize (w = %d, h = %d, a = %.3f)\n&quot;, w, h, a);
++ }
+\ No newline at end of file
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.59
+retrieving revision 1.60
+diff -C 2 -d -r1.59 -r1.60
+*** video.h	14 Jun 2009 10:50:47 -0000	1.59
+--- video.h	17 Apr 2011 17:22:19 -0000	1.60
+***************
+*** 29,38 ****
+  #define DV_FORMAT_WIDE    2
+  
+  #define OSD_FULL_WIDTH    736
+  #define OSD_FULL_HEIGHT   576
+- 
+  #define SRC_HEIGHT         576
+  #define SRC_WIDTH          736
+  
+  #define AVRG_OFF_CNT        16
+  
+--- 29,51 ----
+  #define DV_FORMAT_WIDE    2
+  
++ #if  VDRVERSNUM &lt;= 10707
++ 
+  #define OSD_FULL_WIDTH    736
+  #define OSD_FULL_HEIGHT   576
+  #define SRC_HEIGHT         576
+  #define SRC_WIDTH          736
+  
++ #else
++ 
++ #define OSD_FULL_WIDTH      (8+1920+8)
++ #define OSD_FULL_HEIGHT     (1080)
++ #define SRC_HEIGHT          1080
++ #define SRC_WIDTH           (8+1920+8)
++ 
++ #endif
++ 
++ #define VIDEO_DEF_WIDTH        720
++ #define VIDEO_DEF_HEIGHT       576
++ 
+  #define AVRG_OFF_CNT        16
+  
+***************
+*** 171,174 ****
+--- 184,188 ----
+      virtual void CheckAspect(int new_afd, double new_asp);
+      virtual void CheckAspectDimensions (sPicBuffer *pic);
++     virtual void GetVideoSize(int &amp;w, int &amp;h, double &amp;a);
+      virtual void CheckArea(int w, int h);
+      virtual void DrawVideo_420pl(cSyncTimer *syncTimer,
+***************
+*** 242,245 ****
+--- 256,260 ----
+      { OsdWidth=-1;OsdHeight=-1; xPan = yPan = 0;};
+  
++     virtual void GetOsdSize(int &amp;w, int &amp;h, double &amp;a);
+      virtual void GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+                      bool &amp;IsYUV)
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.98
+retrieving revision 1.99
+diff -C 2 -d -r1.98 -r1.99
+*** softdevice.c	17 Apr 2011 16:06:31 -0000	1.98
+--- softdevice.c	17 Apr 2011 17:22:19 -0000	1.99
+***************
+*** 694,701 ****
+--- 694,726 ----
+  }
+  
++ /* ----------------------------------------------------------------------------
++  */
+  int cSoftDevice::PlayTs(const uchar *data, int len, bool VideoOnly)
+  {
+    return cDevice::PlayTs(data, len, VideoOnly);
+  }
++ 
++ #if VDRVERSNUM &gt; 10707
++ /* ----------------------------------------------------------------------------
++  */
++ void cSoftDevice::GetVideoSize(int &amp;Width, int &amp;Height, double &amp;VideoAspect)
++ {
++   if (videoOut)
++     videoOut-&gt;GetVideoSize (Width, Height, VideoAspect);
++   else
++     cDevice::GetVideoSize (Width, Height, VideoAspect);
++ }
++ 
++ /* ----------------------------------------------------------------------------
++  */
++ void cSoftDevice::GetOsdSize(int &amp;Width, int &amp;Height, double &amp;VideoAspect)
++ {
++   if (videoOut)
++     videoOut-&gt;GetOsdSize (Width, Height, VideoAspect);
++   else
++     cDevice::GetOsdSize (Width, Height, VideoAspect);
++ }
++ #endif
++ 
+  #endif
+  
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000663.html">[Softdevice-cvs] softdevice PicBuffer.c, 1.23, 1.24 SoftOsd.c, 1.36,	1.37 softdevice.c, 1.97, 1.98
+</A></li>
+	<LI>Next message: <A HREF="000665.html">[Softdevice-cvs] softdevice CHANGELOG,1.349,1.350
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#664">[ date ]</a>
+              <a href="thread.html#664">[ thread ]</a>
+              <a href="subject.html#664">[ subject ]</a>
+              <a href="author.html#664">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

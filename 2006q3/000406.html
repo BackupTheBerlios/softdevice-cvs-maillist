@@ -1,0 +1,150 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.217, 1.218 video-dfb.c,	1.69, 1.70
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.217%2C%201.218%20video-dfb.c%2C%0A%091.69%2C%201.70&In-Reply-To=%3C20060805175140.3DC34609AF%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000405.html">
+   <LINK REL="Next"  HREF="000407.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.217, 1.218 video-dfb.c,	1.69, 1.70</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.217%2C%201.218%20video-dfb.c%2C%0A%091.69%2C%201.70&In-Reply-To=%3C20060805175140.3DC34609AF%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.217, 1.218 video-dfb.c,	1.69, 1.70">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Aug  5 19:51:40 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000405.html">[Softdevice-cvs] softplay softplay.h,1.4,1.5
+</A></li>
+        <LI>Next message: <A HREF="000407.html">[Softdevice-cvs] softdevice CHANGELOG, 1.218, 1.219 configure, 1.23,	1.24
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#406">[ date ]</a>
+              <a href="thread.html#406">[ thread ]</a>
+              <a href="subject.html#406">[ subject ]</a>
+              <a href="author.html#406">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv20957
+
+Modified Files:
+	CHANGELOG video-dfb.c 
+Log Message:
+disable reported failed flags in SetParams()
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.217
+retrieving revision 1.218
+diff -C2 -d -r1.217 -r1.218
+*** CHANGELOG	25 Jul 2006 19:58:12 -0000	1.217
+--- CHANGELOG	5 Aug 2006 17:51:25 -0000	1.218
+***************
+*** 1,15 ****
+  Changelog
+! 2006-07-25:
+!    - no longer exit when a audio mode is not available, audio is only disabled.
+!    - clean up audio-alsa
+!    - init tmpOsdSurface and delete dirtyLines properly
+!    - try to use the XVideo default brightness, hue etc. values on first start
+!    - new option: &quot;-vo xv:use-defaults&quot;, can be used to reset the values
+!      of brightness, hue etc. to the default values. (Based on a patch
+!      by Matthias Schwarzott)
+! 2006-07-16:
+!    - only link against libXi if necessary ( do we need libXi at all?)
+!    - check explicitly for pkg-config in configure
+!    - configure: &quot;--with-ffmpeg-path&quot; overrides pkg-config
+     - unconditionally set _NET_WM_FULLSCREEN Atom when going fullscreen (recent Metacity WM need it)
+  2006-07-12:
+--- 1,17 ----
+  Changelog
+! 2006-08-05:
+!    - video-dfb: disable reported failed flags in SetParams()
+! 2006-07-25:
+!    - no longer exit when a audio mode is not available, audio is only disabled.
+!    - clean up audio-alsa
+!    - init tmpOsdSurface and delete dirtyLines properly
+!    - try to use the XVideo default brightness, hue etc. values on first start
+!    - new option: &quot;-vo xv:use-defaults&quot;, can be used to reset the values
+!      of brightness, hue etc. to the default values. (Based on a patch
+!      by Matthias Schwarzott)
+! 2006-07-16:
+!    - only link against libXi if necessary ( do we need libXi at all?)
+!    - check explicitly for pkg-config in configure
+!    - configure: &quot;--with-ffmpeg-path&quot; overrides pkg-config
+     - unconditionally set _NET_WM_FULLSCREEN Atom when going fullscreen (recent Metacity WM need it)
+  2006-07-12:
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.69
+retrieving revision 1.70
+diff -C2 -d -r1.69 -r1.70
+*** video-dfb.c	25 Jul 2006 19:47:41 -0000	1.69
+--- video-dfb.c	5 Aug 2006 17:51:25 -0000	1.70
+***************
+*** 868,871 ****
+--- 868,877 ----
+                        &quot;to back video, reverting to normal\n&quot;);
+                dlc.buffermode = DLBM_FRONTONLY;
++             } else {
++               fprintf(stderr,
++                       &quot;[dfb]: Testconfiguration failed flags: %08x &quot;
++                       &quot;(disabling failed flags)\n&quot;,
++                       failed);
++               dlc.flags = (DFBDisplayLayerConfigFlags) (dlc.flags &amp; ~failed);
+              }
+              delete ex;
+***************
+*** 905,909 ****
+            catch (DFBException *ex)
+            {
+!             fprintf (stderr, &quot;[dfb] SetParams: action=%s, result=%s\n&quot;,
+                       ex-&gt;GetAction(), ex-&gt;GetResult());
+              delete ex;
+--- 911,917 ----
+            catch (DFBException *ex)
+            {
+!             fprintf (stderr,
+!                      &quot;[dfb] SetParams() SetScreenLocation(): &quot;
+!                      &quot;action=%s, result=%s\n&quot;,
+                       ex-&gt;GetAction(), ex-&gt;GetResult());
+              delete ex;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000405.html">[Softdevice-cvs] softplay softplay.h,1.4,1.5
+</A></li>
+	<LI>Next message: <A HREF="000407.html">[Softdevice-cvs] softdevice CHANGELOG, 1.218, 1.219 configure, 1.23,	1.24
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#406">[ date ]</a>
+              <a href="thread.html#406">[ thread ]</a>
+              <a href="subject.html#406">[ subject ]</a>
+              <a href="author.html#406">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

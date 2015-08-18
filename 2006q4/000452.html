@@ -1,0 +1,104 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice PicBuffer.c,1.11,1.12
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20PicBuffer.c%2C1.11%2C1.12&In-Reply-To=%3C20061011195828.AC6D089612%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000451.html">
+   <LINK REL="Next"  HREF="000453.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice PicBuffer.c,1.11,1.12</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20PicBuffer.c%2C1.11%2C1.12&In-Reply-To=%3C20061011195828.AC6D089612%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice PicBuffer.c,1.11,1.12">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Wed Oct 11 21:58:28 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000451.html">[Softdevice-cvs] softdevice PicBuffer.c,1.10,1.11
+</A></li>
+        <LI>Next message: <A HREF="000453.html">[Softdevice-cvs] softdevice CHANGELOG,1.252,1.253
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#452">[ date ]</a>
+              <a href="thread.html#452">[ thread ]</a>
+              <a href="subject.html#452">[ subject ]</a>
+              <a href="author.html#452">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv22697
+
+Modified Files:
+	PicBuffer.c 
+Log Message:
+fix horizontal picture placement when YUY2 is selected for xv-out
+
+Index: PicBuffer.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/PicBuffer.c,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -C2 -d -r1.11 -r1.12
+*** PicBuffer.c	11 Oct 2006 19:50:55 -0000	1.11
+--- PicBuffer.c	11 Oct 2006 19:57:50 -0000	1.12
+***************
+*** 310,314 ****
+          uint8_t *dst_ptr=dst-&gt;pixel[0]+
+                  (2*cutTop+dst-&gt;edge_height)*dst-&gt;stride[0]+
+!                 4*cutLeft+dst-&gt;edge_width;// 4*cutLeft ?? &lt;- !!!! [2-&gt;4]
+  
+          uint8_t *py=src-&gt;pixel[0]+
+--- 310,314 ----
+          uint8_t *dst_ptr=dst-&gt;pixel[0]+
+                  (2*cutTop+dst-&gt;edge_height)*dst-&gt;stride[0]+
+!                 4*cutLeft+2*dst-&gt;edge_width;// 4*cutLeft ?? &lt;- !!!! [2-&gt;4]
+  
+          uint8_t *py=src-&gt;pixel[0]+
+***************
+*** 472,476 ****
+          uint8_t *dst_ptr=dst-&gt;pixel[0]+
+                  (2*cutTop+dst-&gt;edge_height)*dst-&gt;stride[0]+
+!                 4*cutLeft+dst-&gt;edge_width;// 4*cutLeft ?? &lt;- !!!! [2-&gt;4]
+  
+          uint8_t *py=src-&gt;pixel[0]+
+--- 472,476 ----
+          uint8_t *dst_ptr=dst-&gt;pixel[0]+
+                  (2*cutTop+dst-&gt;edge_height)*dst-&gt;stride[0]+
+!                 4*cutLeft+2*dst-&gt;edge_width;// 4*cutLeft ?? &lt;- !!!! [2-&gt;4]
+  
+          uint8_t *py=src-&gt;pixel[0]+
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000451.html">[Softdevice-cvs] softdevice PicBuffer.c,1.10,1.11
+</A></li>
+	<LI>Next message: <A HREF="000453.html">[Softdevice-cvs] softdevice CHANGELOG,1.252,1.253
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#452">[ date ]</a>
+              <a href="thread.html#452">[ thread ]</a>
+              <a href="subject.html#452">[ subject ]</a>
+              <a href="author.html#452">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

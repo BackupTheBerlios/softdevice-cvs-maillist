@@ -1,0 +1,147 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice video-dfb.c,1.48,1.49 video-dfb.h,1.15,1.16
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-dfb.c%2C1.48%2C1.49%20video-dfb.h%2C1.15%2C1.16&In-Reply-To=%3C200602101733.k1AHXsE15681%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000289.html">
+   <LINK REL="Next"  HREF="000291.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice video-dfb.c,1.48,1.49 video-dfb.h,1.15,1.16</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-dfb.c%2C1.48%2C1.49%20video-dfb.h%2C1.15%2C1.16&In-Reply-To=%3C200602101733.k1AHXsE15681%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice video-dfb.c,1.48,1.49 video-dfb.h,1.15,1.16">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Feb 10 18:33:54 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000289.html">[Softdevice-cvs] softdevice video-dfb.c,1.47,1.48
+</A></li>
+        <LI>Next message: <A HREF="000291.html">[Softdevice-cvs] softdevice SoftOsd.c,1.6,1.7
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#290">[ date ]</a>
+              <a href="thread.html#290">[ thread ]</a>
+              <a href="subject.html#290">[ subject ]</a>
+              <a href="author.html#290">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv2078
+
+Modified Files:
+	video-dfb.c video-dfb.h 
+Log Message:
+moved some functions from video-dfb.h to video-dfb.c
+
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.48
+retrieving revision 1.49
+diff -C2 -d -r1.48 -r1.49
+*** video-dfb.c	10 Feb 2006 17:22:11 -0000	1.48
+--- video-dfb.c	10 Feb 2006 17:33:49 -0000	1.49
+***************
+*** 1105,1110 ****
+  }
+  
+  /*
+! void cDFBVideoOut::RefreshOSD(cSoftOsd *Osd, bool RefreshAll) 
+  {
+      int               pitch;
+--- 1105,1130 ----
+  }
+  
++ /* ---------------------------------------------------------------------------
++  */
++ void cDFBVideoOut::GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
++                               bool &amp;IsYUV, uint8_t *&amp;PixelMask)
++ {
++   Depth=Bpp;
++   HasAlpha=!OSDpseudo_alpha;
++   AlphaInversed=isVIAUnichrome;
++   IsYUV=false;
++   PixelMask=NULL;
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ void cDFBVideoOut::GetOSDDimension( int &amp;Width, int &amp;Height)
++ {
++   Width=Xres;
++   Height=Yres;
++ }
++ 
+  /*
+! void cDFBVideoOut::RefreshOSD(cSoftOsd *Osd, bool RefreshAll)
+  {
+      int               pitch;
+
+Index: video-dfb.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.h,v
+retrieving revision 1.15
+retrieving revision 1.16
+diff -C2 -d -r1.15 -r1.16
+*** video-dfb.h	3 Feb 2006 22:34:54 -0000	1.15
+--- video-dfb.h	10 Feb 2006 17:33:49 -0000	1.16
+***************
+*** 60,71 ****
+      virtual void OpenOSD();
+      virtual void GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+!                   bool &amp;IsYUV, uint8_t *&amp;PixelMask) 
+!     { Depth=Bpp; HasAlpha=!OSDpseudo_alpha; AlphaInversed=isVIAUnichrome;
+!             IsYUV=false;PixelMask=NULL;};
+!     virtual void GetOSDDimension( int &amp;Width, int &amp;Height)
+!     { Width=Xres; Height=Yres;};		    
+      virtual void OSDStart();
+!     virtual void GetLockOsdSurface(uint8_t *&amp;osd, int &amp;stride, 
+!                     bool *&amp;dirtyLines);
+      virtual void CommitUnlockOsdSurface();
+  #else
+--- 60,68 ----
+      virtual void OpenOSD();
+      virtual void GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+!                             bool &amp;IsYUV, uint8_t *&amp;PixelMask);
+!     virtual void GetOSDDimension( int &amp;Width, int &amp;Height);
+      virtual void OSDStart();
+!     virtual void GetLockOsdSurface(uint8_t *&amp;osd, int &amp;stride,
+!                                    bool *&amp;dirtyLines);
+      virtual void CommitUnlockOsdSurface();
+  #else
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000289.html">[Softdevice-cvs] softdevice video-dfb.c,1.47,1.48
+</A></li>
+	<LI>Next message: <A HREF="000291.html">[Softdevice-cvs] softdevice SoftOsd.c,1.6,1.7
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#290">[ date ]</a>
+              <a href="thread.html#290">[ thread ]</a>
+              <a href="subject.html#290">[ subject ]</a>
+              <a href="author.html#290">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,318 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.313, 1.314 VideoFilter.c,	1.5, 1.6 VideoFilter.h, 1.2, 1.3 configure, 1.41, 1.42
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.313%2C%201.314%20VideoFilter.c%2C%0A%091.5%2C%201.6%20VideoFilter.h%2C%201.2%2C%201.3%20configure%2C%201.41%2C%201.42&In-Reply-To=%3C20070510220511.6F026EFF1A%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000557.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.313, 1.314 VideoFilter.c,	1.5, 1.6 VideoFilter.h, 1.2, 1.3 configure, 1.41, 1.42</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.313%2C%201.314%20VideoFilter.c%2C%0A%091.5%2C%201.6%20VideoFilter.h%2C%201.2%2C%201.3%20configure%2C%201.41%2C%201.42&In-Reply-To=%3C20070510220511.6F026EFF1A%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.313, 1.314 VideoFilter.c,	1.5, 1.6 VideoFilter.h, 1.2, 1.3 configure, 1.41, 1.42">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri May 11 00:05:11 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000557.html">[Softdevice-cvs] softdevice CHANGELOG, 1.312, 1.313 SoftOsd.c, 1.27,	1.28 SoftOsd.h, 1.13, 1.14 utils.c, 1.26, 1.27 utils.h, 1.17,	1.18 video-dfb.c, 1.81, 1.82 video-dfb.h, 1.27,	1.28 video-fb.h, 1.11, 1.12 video-shm.c, 1.18,	1.19 video-shm.h, 1.10, 1.11 video-vidix.c, 1.26,	1.27 video-vidix.h, 1.13, 1.14 video-xv.c, 1.70,	1.71 video-xv.h, 1.27, 1.28 video.h, 1.53, 1.54
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#558">[ date ]</a>
+              <a href="thread.html#558">[ thread ]</a>
+              <a href="subject.html#558">[ subject ]</a>
+              <a href="author.html#558">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv28407
+
+Modified Files:
+	CHANGELOG VideoFilter.c VideoFilter.h configure 
+Log Message:
+- use libswscale if available.
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.313
+retrieving revision 1.314
+diff -C2 -d -r1.313 -r1.314
+*** CHANGELOG	10 May 2007 21:57:26 -0000	1.313
+--- CHANGELOG	10 May 2007 22:03:03 -0000	1.314
+***************
+*** 1,4 ****
+--- 1,5 ----
+  Changelog
+  2007-05-10:
++    - use libswscale if available.
+     - remove left over code from the old video-fb.
+     - remove pixel mask option from SoftOsd.[hc] and video*, which was only used
+
+Index: VideoFilter.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/VideoFilter.c,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -C2 -d -r1.5 -r1.6
+*** VideoFilter.c	10 May 2007 19:49:51 -0000	1.5
+--- VideoFilter.c	10 May 2007 22:03:03 -0000	1.6
+***************
+*** 201,205 ****
+  
+  cImageConvert::cImageConvert(cVideoOut *vOut) 
+!         : cVideoFilter(vOut), outBuf(NULL) {
+  };
+  
+--- 201,210 ----
+  
+  cImageConvert::cImageConvert(cVideoOut *vOut) 
+!         : cVideoFilter(vOut), outBuf(NULL)
+! #ifdef USE_SWSCALE
+!           , img_convert_ctx(NULL), ctx_width(0),
+!           ctx_height(0), ctx_fmt(0)
+! #endif
+! {
+  };
+  
+***************
+*** 226,234 ****
+                  dest-&gt;width = orig-&gt;width;
+                  dest-&gt;height = orig-&gt;height;
+-                 dest-&gt;pts=orig-&gt;pts;
+                  dest-&gt;edge_width=dest-&gt;edge_height=0;
+-                 dest-&gt;dtg_active_format=orig-&gt;dtg_active_format;
+-                 dest-&gt;aspect_ratio=orig-&gt;aspect_ratio;
+-                 dest-&gt;interlaced_frame=orig-&gt;interlaced_frame;
+          };
+          dest=outBuf;
+--- 231,235 ----
+***************
+*** 239,243 ****
+--- 240,266 ----
+                  return;
+          }
++ #ifdef USE_SWSCALE
++         if ( ctx_width != orig-&gt;width || ctx_height != orig-&gt;height
++                || ctx_fmt != orig-&gt;format ) {
++                 free(img_convert_ctx);
++                 img_convert_ctx=NULL;
++         };
+  
++         if (!img_convert_ctx) {
++                 img_convert_ctx = sws_getContext(orig-&gt;width, orig-&gt;height,
++                                 PIX_FMT_YUV420P,
++                                 orig-&gt;width, orig-&gt;height,
++                                 orig-&gt;format,
++                                 SWS_BICUBIC, NULL, NULL, NULL);
++                 if (!img_convert_ctx) {
++                         fprintf(stderr,&quot;[softdevice] could not get SWScaler context. No image converting!\n&quot;);
++                         dest=orig;
++                         return;
++                 };
++                 ctx_width=orig-&gt;width;
++                 ctx_height=orig-&gt;height;
++                 ctx_fmt=orig-&gt;format;
++         };
++ #endif
+          int h_shift;
+          int v_shift;
+***************
+*** 261,264 ****
+--- 284,291 ----
+          memcpy(avpic_dest.linesize,dest-&gt;stride,sizeof(avpic_dest.linesize));
+  
++ #ifdef USE_SWSCALE
++        sws_scale(img_convert_ctx, avpic_src.data, avpic_src.linesize,
++                         0, orig-&gt;height, avpic_dest.data, avpic_dest.linesize);
++ #else
+          if (img_convert(&amp;avpic_dest,PIX_FMT_YUV420P,
+                                  &amp;avpic_src, orig-&gt;format,
+***************
+*** 269,273 ****
+                  return;
+          }
+!     CopyPicBufferContext(dest,orig);
+  }
+  
+--- 296,301 ----
+                  return;
+          }
+! #endif
+!         CopyPicBufferContext(dest,orig);
+  }
+  
+
+Index: VideoFilter.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/VideoFilter.h,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** VideoFilter.h	3 Apr 2007 19:06:17 -0000	1.2
+--- VideoFilter.h	10 May 2007 22:03:03 -0000	1.3
+***************
+*** 60,65 ****
+--- 60,74 ----
+  };
+  
++ #ifdef USE_SWSCALE
++ #include &lt;swscale.h&gt;
++ #endif
+  class cImageConvert : public cVideoFilter {
+          sPicBuffer *outBuf;
++ #ifdef USE_SWSCALE
++         struct SwsContext *img_convert_ctx;
++         int ctx_width;
++         int ctx_height;
++         int ctx_fmt;
++ #endif
+  public:
+          cImageConvert(cVideoOut *VideoOut);
+
+Index: configure
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/configure,v
+retrieving revision 1.41
+retrieving revision 1.42
+diff -C2 -d -r1.41 -r1.42
+*** configure	12 Apr 2007 08:01:25 -0000	1.41
+--- configure	10 May 2007 22:03:03 -0000	1.42
+***************
+*** 25,28 ****
+--- 25,29 ----
+  use_pkgconfig=&quot;yes&quot;
+  ffmpeg=&quot;yes&quot;
++ libswscale=&quot;no&quot;
+  ffmpeg_use_path=&quot;no&quot;
+  dfb=&quot;yes&quot;
+***************
+*** 239,242 ****
+--- 240,299 ----
+  echo &quot;Ok.&quot;
+  
++ ####################################################################################
++ echo -n &quot;Checking for ffmpeg/libswscale... &quot;
++ echo  &quot;Checking for ffmpeg/libswscale.------------------------------------&quot; &gt;&gt; config.log
++ 
++ test_swscale()
++ {
++   swscale=&quot;yes&quot;;
++ cat &gt; ${TMPC} &lt;&lt; EOF
++ #define __STDC_CONSTANT_MACROS
++ #include &lt;stdlib.h&gt;
++ #include &lt;avcodec.h&gt;
++ #include &lt;avformat.h&gt;
++ #include &lt;swscale.h&gt;
++ int main(void) {
++ /*  if ( avcodec_build() != LIBAVCODEC_BUILD ) {
++      fprintf(stderr,&quot;Fatal Error! Libavcodec library build(%d) doesn't match avcodec.h build(%d)!!!\n&quot;,avcodec_build(),LIBAVCODEC_BUILD);
++      fprintf(stderr,&quot;Check your ffmpeg installation / the pathes in the Makefile!!!\n&quot;);
++      exit(-1);
++   };
++ */
++   avcodec_init();
++   avcodec_register_all();
++   struct SwsContext *img_convert_ctx = sws_getContext(120, 120,
++                                 PIX_FMT_YUV420P,
++                                 100, 100,
++                                 PIX_FMT_YUV420P,
++                                 SWS_BICUBIC, NULL, NULL, NULL);
++ 
++  return 0;
++ }
++ EOF
++   $cc $CFLAGS $ffmpeg_cflags $swscale_cflags -o $TMPE $TMPC $swscale_libs $ffmpeg_libs &gt;&gt; config.log 2&gt;&amp;1 || swscale=&quot;no&quot;
++ };
++ 
++ swscale_libs=`PKG_CONFIG_PATH=$PKG_CONFIG_PATH pkg-config --libs libswscale 2&gt;&gt; config.log` || libswscale=&quot;no&quot;
++ swscale_cflags=`PKG_CONFIG_PATH=$PKG_CONFIG_PATH pkg-config --cflags libswscale 2&gt;&gt; config.log`
++ 
++ #test if it works
++ test_swscale
++ 
++ if test &quot;${swscale}&quot; = &quot;no&quot; ; then
++   echo &quot;pkg-config failed, try the default/parameter path.&quot; &gt;&gt; config.log
++   swscale_libs=&quot;-L${ffmpeg_path}/libswscale/ -lswscale -lz&quot;
++   swscale_cflags=&quot;-I${ffmpeg_path}/libswscale/ &quot;
++ 
++   test_swscale
++ fi
++ 
++ if test &quot;${swscale}&quot; = &quot;yes&quot; ; then
++ echo &quot;Using libswscale.&quot;
++ else
++ echo &quot;Not Found.&quot;
++ swscale_libs=&quot;&quot;
++ swscale_cflags=&quot;&quot;
++ fi
++ 
+  ########################################################
+  # check for ALSA
+***************
+*** 731,735 ****
+  
+  ###############################################################################
+! # generating ffmpeg specific defines
+  #
+  if test &quot;${libpostproc}&quot; = &quot;yes&quot; ; then
+--- 788,792 ----
+  
+  ###############################################################################
+! # generating ffmpeg and libswscale specific defines
+  #
+  if test &quot;${libpostproc}&quot; = &quot;yes&quot; ; then
+***************
+*** 739,744 ****
+  fi
+  
+! echo &quot;FFMPEGLIBS = ${ffmpeg_libs}&quot; &gt;&gt; $TMPM
+! echo &quot;FFMPEGCFLAGS = ${ffmpeg_cflags}&quot; &gt;&gt; $TMPM
+  
+  ###############################################################################
+--- 796,805 ----
+  fi
+  
+! if test &quot;${swscale}&quot; = &quot;yes&quot;; then
+!   echo &quot;#define USE_SWSCALE&quot; &gt;&gt; $TMPH
+! fi
+! 
+! echo &quot;FFMPEGLIBS = ${swscale_libs} ${ffmpeg_libs}&quot; &gt;&gt; $TMPM
+! echo &quot;FFMPEGCFLAGS = ${swscale_cflags} ${ffmpeg_cflags}&quot; &gt;&gt; $TMPM
+  
+  ###############################################################################
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000557.html">[Softdevice-cvs] softdevice CHANGELOG, 1.312, 1.313 SoftOsd.c, 1.27,	1.28 SoftOsd.h, 1.13, 1.14 utils.c, 1.26, 1.27 utils.h, 1.17,	1.18 video-dfb.c, 1.81, 1.82 video-dfb.h, 1.27,	1.28 video-fb.h, 1.11, 1.12 video-shm.c, 1.18,	1.19 video-shm.h, 1.10, 1.11 video-vidix.c, 1.26,	1.27 video-vidix.h, 1.13, 1.14 video-xv.c, 1.70,	1.71 video-xv.h, 1.27, 1.28 video.h, 1.53, 1.54
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#558">[ date ]</a>
+              <a href="thread.html#558">[ thread ]</a>
+              <a href="subject.html#558">[ subject ]</a>
+              <a href="author.html#558">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

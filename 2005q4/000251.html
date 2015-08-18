@@ -1,0 +1,1133 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.127,1.128 softdevice.c,1.47,1.48 softdevice.h,1.5,1.6 mpeg2decoder.c,1.58,1.59 mpeg2decoder.h,1.33,1.34
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.127%2C1.128%20softdevice.c%2C1.47%2C1.48%20softdevice.h%2C1.5%2C1.6%20mpeg2decoder.c%2C1.58%2C1.59%20mpeg2decoder.h%2C1.33%2C1.34&In-Reply-To=%3C200511120757.jAC7vnN06980%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000250.html">
+   <LINK REL="Next"  HREF="000252.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.127,1.128 softdevice.c,1.47,1.48 softdevice.h,1.5,1.6 mpeg2decoder.c,1.58,1.59 mpeg2decoder.h,1.33,1.34</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.127%2C1.128%20softdevice.c%2C1.47%2C1.48%20softdevice.h%2C1.5%2C1.6%20mpeg2decoder.c%2C1.58%2C1.59%20mpeg2decoder.h%2C1.33%2C1.34&In-Reply-To=%3C200511120757.jAC7vnN06980%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.127,1.128 softdevice.c,1.47,1.48 softdevice.h,1.5,1.6 mpeg2decoder.c,1.58,1.59 mpeg2decoder.h,1.33,1.34">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Nov 12 08:57:49 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000250.html">[Softdevice-cvs] softdevice i18n.c,1.13,1.14
+</A></li>
+        <LI>Next message: <A HREF="000252.html">[Softdevice-cvs] softdevice CHANGELOG,1.128,1.129 mpeg2decoder.c,1.59,1.60
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#251">[ date ]</a>
+              <a href="thread.html#251">[ thread ]</a>
+              <a href="subject.html#251">[ subject ]</a>
+              <a href="author.html#251">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv13820
+
+Modified Files:
+	CHANGELOG softdevice.c softdevice.h mpeg2decoder.c 
+	mpeg2decoder.h 
+Log Message:
+- new packet mode: make some softdevice functions available to other
+  plugins useing the new service interface
+
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.127
+retrieving revision 1.128
+diff -C2 -d -r1.127 -r1.128
+*** CHANGELOG	6 Nov 2005 17:56:06 -0000	1.127
+--- CHANGELOG	12 Nov 2005 07:57:41 -0000	1.128
+***************
+*** 1,3 ****
+--- 1,6 ----
+  Changelog
++ 2005-11-12:
++     - new packet mode: make some softdevice functions available to other
++       plugins like softplay useing the new service interface
+  2005-11-06:
+      - video-xv: some of X11 atoms could be set via OSD too. So using hardcoded
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.47
+retrieving revision 1.48
+diff -C2 -d -r1.47 -r1.48
+*** softdevice.c	6 Nov 2005 17:56:06 -0000	1.47
+--- softdevice.c	12 Nov 2005 07:57:41 -0000	1.48
+***************
+*** 468,472 ****
+        default:
+            printf(&quot;playmode not implemented... %d\n&quot;,PlayMode);
+-           decoder-&gt;Stop();
+            break;
+      }
+--- 468,471 ----
+***************
+*** 489,493 ****
+        cDevice::Clear();
+        decoder-&gt;Clear();
+!     } else decoder-&gt;ClearPacketQueue();
+  }
+  void cSoftDevice::Play(void)
+--- 488,492 ----
+        cDevice::Clear();
+        decoder-&gt;Clear();
+!     } else decoder-&gt;ResetDecoder();
+  }
+  void cSoftDevice::Play(void)
+***************
+*** 530,534 ****
+  bool cSoftDevice::Poll(cPoller &amp;Poller, int TimeoutMs)
+  {
+!    //fprintf(stderr,&quot;[softdevice] Poll TimeoutMs: %d ....\n&quot;,TimeoutMs);
+  
+    if ( decoder-&gt;BufferFill() &gt; 90 ) {
+--- 529,533 ----
+  bool cSoftDevice::Poll(cPoller &amp;Poller, int TimeoutMs)
+  {
+!   SOFTDEB(&quot;[softdevice] Poll TimeoutMs: %d ....\n&quot;,TimeoutMs);
+  
+    if ( decoder-&gt;BufferFill() &gt; 90 ) {
+***************
+*** 586,590 ****
+    if ( packetMode &amp;&amp; ic &amp;&amp; Length == -2 ) {
+       // Length = -2 : pass pointer to packet
+!      decoder-&gt;QueuePacket(ic,( AVPacket &amp;) *Data);
+       return -2;
+    };
+--- 585,589 ----
+    if ( packetMode &amp;&amp; ic &amp;&amp; Length == -2 ) {
+       // Length = -2 : pass pointer to packet
+!      decoder-&gt;QueuePacket(ic,( AVPacket &amp;) *Data,true);
+       return -2;
+    };
+***************
+*** 639,643 ****
+    if ( packetMode &amp;&amp; ic &amp;&amp; Length == -2 ) {
+       // Length = -2 : pass pointer to packet
+!      decoder-&gt;QueuePacket(ic,( AVPacket &amp;) *Data);
+       return -2;
+    };
+--- 638,642 ----
+    if ( packetMode &amp;&amp; ic &amp;&amp; Length == -2 ) {
+       // Length = -2 : pass pointer to packet
+!      decoder-&gt;QueuePacket(ic,( AVPacket &amp;) *Data,true);
+       return -2;
+    };
+***************
+*** 897,900 ****
+--- 896,952 ----
+    return true;
+  }
++ 
++ #if VDRVERSNUM &gt;= 10330
++ static void QueuePacketFct(cDevice *Device, AVFormatContext *ic, AVPacket &amp;pkt) {
++         cSoftDevice *device = dynamic_cast &lt;cSoftDevice*&gt;(Device);
++ 
++         if (device)
++                 device-&gt;QueuePacket(ic,pkt);
++         else printf(&quot;Device is not the softdevice!!\n&quot;);
++ };
++ 
++ static int BufferFillFct(cDevice *Device, int Stream, int value =-1) {
++         cSoftDevice *device = dynamic_cast &lt;cSoftDevice*&gt;(Device);
++ 
++         if (device)
++                 return device-&gt;BufferFill(Stream);
++         else printf(&quot;Device is not the softdevice!!\n&quot;);
++         return 0;
++ };
++ 
++ static int FreezeFct(cDevice *Device, int Stream, int value =-1) {
++         cSoftDevice *device = dynamic_cast &lt;cSoftDevice*&gt;(Device);
++ 
++         if (device)
++                 return device-&gt;Freeze(Stream,value);
++         else printf(&quot;Device is not the softdevice!!\n&quot;);
++         return 0;
++ };
++ 
++ static int ResetDecoderFct(cDevice *Device, int Stream, int value =-1) {
++         cSoftDevice *device = dynamic_cast &lt;cSoftDevice*&gt;(Device);
++ 
++         if (device)
++                 device-&gt;ResetDecoder(Stream);
++         else printf(&quot;Device is not the softdevice!!\n&quot;);
++         return 0;
++ };
++  
++ bool cPluginSoftDevice::Service(const char *Id, void *Data ) {
++         printf(&quot;Service '%s'\n&quot;,Id);
++         struct PacketHandlesV100 *Handles=(struct PacketHandlesV100 *) Data;
++         if ( strcmp(Id,GET_PACKET_HANDEL_IDV100) == 0 ) {
++                 if ( Data ) {
++                         Handles-&gt;QueuePacket=&QueuePacketFct;
++                         Handles-&gt;ResetDecoder = &ResetDecoderFct;
++                         Handles-&gt;BufferFill = &BufferFillFct;
++                         Handles-&gt;Freeze = &FreezeFct;
++                 };
++                 return true;
++         };
++         return false;
++ };
++ #endif
++ 
+  
+  bool cPluginSoftDevice::Start(void)
+
+Index: softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.h,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -C2 -d -r1.5 -r1.6
+*** softdevice.h	22 Jul 2005 08:24:56 -0000	1.5
+--- softdevice.h	12 Nov 2005 07:57:41 -0000	1.6
+***************
+*** 19,22 ****
+--- 19,41 ----
+  #include &quot;utils.h&quot;
+  
++ // ---- Service interface ----------------------------------------------------
++ 
++ 
++ typedef void (* fQueuePacket)(cDevice *Device, AVFormatContext *ic, AVPacket &amp;pkt);
++ 
++ typedef int (* SoftdeviceHandle)(cDevice *Device,int Stream, int value=-1);
++ 
++ struct PacketHandlesV100{
++         fQueuePacket  QueuePacket;
++         SoftdeviceHandle ResetDecoder;
++         SoftdeviceHandle BufferFill;
++         SoftdeviceHandle Freeze;
++         // value = 0 Play, value = 1 Pause
++ };
++         
++ 
++ static const char *const GET_PACKET_HANDEL_IDV100=&quot;softdevice-GetPacketHandles-v1.0&quot;;
++ // 
++ 
+  // --- cSoftDevice ------------------------------------------------------------
+  class cPluginSoftDevice : public cPlugin {
+***************
+*** 40,43 ****
+--- 59,65 ----
+    virtual cMenuSetupPage *SetupMenu(void);
+    virtual bool SetupParse(const char *Name, const char *Value);
++ #if VDRVERSNUM &gt;= 10330
++   virtual bool Service(const char *Id, void *Data = NULL);
++ #endif
+  };
+  
+***************
+*** 62,69 ****
+    ~cSoftDevice();
+    
+!   void QueuePacket(const AVFormatContext *ic, AVPacket &amp;pkt) 
+!   { if (decoder) decoder-&gt;QueuePacket(ic,pkt); };
+!   void ClearPacketQueue() 
+!   { if (decoder) decoder-&gt;ClearPacketQueue(); };
+  
+    void LoadSubPlugin(char *outMethodName, int reconfigureArg, char *pluginPath);
+--- 84,95 ----
+    ~cSoftDevice();
+    
+!   inline void QueuePacket(AVFormatContext *ic, AVPacket &amp;pkt) 
+!   { if (decoder) decoder-&gt;QueuePacket(ic,pkt,true); };
+!   inline int ResetDecoder(int Stream) 
+!   { if (decoder) decoder-&gt;ResetDecoder(Stream); return 0;};
+!   inline int BufferFill(int Stream)
+!   { if (decoder) return decoder-&gt;BufferFill(Stream); return 0;};
+!   inline int Freeze(int Stream, int Value)
+!   { if (decoder) decoder-&gt;Freeze(Stream,Value); return 0;};
+  
+    void LoadSubPlugin(char *outMethodName, int reconfigureArg, char *pluginPath);
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.58
+retrieving revision 1.59
+diff -C2 -d -r1.58 -r1.59
+*** mpeg2decoder.c	4 Nov 2005 19:08:16 -0000	1.58
+--- mpeg2decoder.c	12 Nov 2005 07:57:41 -0000	1.59
+***************
+*** 221,232 ****
+  };
+  
+! void cStreamDecoder::Freeze(void)
+  {
+    //printf(&quot;freeze mode\n&quot;);
+!   freezeMode=true;
+  };
+  
+  void cStreamDecoder::Stop(void)
+  {
+    active=false;
+    if (syncTimer)
+--- 221,233 ----
+  };
+  
+! void cStreamDecoder::Freeze(bool freeze)
+  {
+    //printf(&quot;freeze mode\n&quot;);
+!   freezeMode=freeze;
+  };
+  
+  void cStreamDecoder::Stop(void)
+  {
++   CMDDEB(&quot;cStreamDecoder::Stop\n&quot;);
+    active=false;
+    if (syncTimer)
+***************
+*** 237,240 ****
+--- 238,242 ----
+    PacketQueue.EnablePutSignal();
+    Cancel(3);
++   CMDDEB(&quot;cStreamDecoder::Stop finished\n&quot;);
+  }
+  
+***************
+*** 464,467 ****
+--- 466,470 ----
+  cAudioStreamDecoder::~cAudioStreamDecoder()
+  {
++   CMDDEB(&quot;~cAudioStreamDecoder\n&quot;);
+    cClock::AdjustAudioPTS(0);
+    Cancel(3);
+***************
+*** 513,529 ****
+  };
+  
+! void cVideoStreamDecoder::Freeze(void)
+  {
+!   cStreamDecoder::Freeze();
+    videoOut-&gt;FreezeMode(freezeMode);
+  };
+  
+- void cVideoStreamDecoder::Stop(void)
+- {
+-   active=false;
+-   syncTimer-&gt;Signal(); // abort waiting for frame display
+-   Cancel(3);
+- }
+- 
+  uint64_t cVideoStreamDecoder::GetPTS() {
+    return pts - (delay + syncTimer-&gt;TimePassed())/100;
+--- 516,525 ----
+  };
+  
+! void cVideoStreamDecoder::Freeze(bool freeze)
+  {
+!   cStreamDecoder::Freeze(freeze);
+    videoOut-&gt;FreezeMode(freezeMode);
+  };
+  
+  uint64_t cVideoStreamDecoder::GetPTS() {
+    return pts - (delay + syncTimer-&gt;TimePassed())/100;
+***************
+*** 542,545 ****
+--- 538,542 ----
+        fprintf(stderr,&quot;Invalid width (%d) or height (%d), most likely a broken stream\n&quot;,
+            context-&gt;width,context-&gt;height);
++       resetCodec();
+        return len;
+      };
+***************
+*** 548,552 ****
+          pkt-&gt;stream_index,data,size);
+      len = avcodec_decode_video(context, picture, &amp;got_picture,data, size);
+!     BUFDEB(&quot;end decode video\n&quot;);
+      if (len &lt; 0) {
+        printf(&quot;[mpegdecoder] Error while decoding video frame %d\n&quot;, frame);
+--- 545,550 ----
+          pkt-&gt;stream_index,data,size);
+      len = avcodec_decode_video(context, picture, &amp;got_picture,data, size);
+!     BUFDEB(&quot;end decode video got_picture %d, data %p, size %d\n&quot;,
+!         got_picture,data,size);
+      if (len &lt; 0) {
+        printf(&quot;[mpegdecoder] Error while decoding video frame %d\n&quot;, frame);
+***************
+*** 651,657 ****
+      }
+  
+!   if (!hurry_up || frame % 2 )
+      videoOut-&gt;DrawVideo_420pl(syncTimer, &amp;delay, picture,context);
+!   else
+      fprintf(stderr,&quot;+&quot;);
+    // we just displayed a frame, now it's the right time to
+--- 649,657 ----
+      }
+  
+!   if (!hurry_up || frame % 2 ) {
+!     MPGDEB(&quot;DrawVideo...delay : %d\n&quot;,delay);
+      videoOut-&gt;DrawVideo_420pl(syncTimer, &amp;delay, picture,context);
+!     MPGDEB(&quot;end DrawVideo\n&quot;);
+!   } else
+      fprintf(stderr,&quot;+&quot;);
+    // we just displayed a frame, now it's the right time to
+***************
+*** 665,668 ****
+--- 665,670 ----
+      offset = aPTS - pts ;
+    else offset = 0;
++   if ( abs(offset) &gt; 100000)
++           offset=0;
+  
+    // this few lines does the whole syncing
+***************
+*** 703,707 ****
+        (picture-&gt;pict_type == FF_B_TYPE ? &quot;B_t&quot;:&quot;other&quot;
+        )))
+!       ,(float)dispTime/1000 );
+    }
+  #endif
+--- 705,709 ----
+        (picture-&gt;pict_type == FF_B_TYPE ? &quot;B_t&quot;:&quot;other&quot;
+        )))
+!       ,(float)dispTime/1000.0 );
+    }
+  #endif
+***************
+*** 726,731 ****
+        printf(&quot;A-V: %02.2f+-%02.2f ms DispTime: %02.2f ms hurry_up: %d\n&quot;,
+         offsetSum/(float)Freq,
+!        sqrt(offsetSqSum/((float)Freq)-(offsetSum*offsetSum)/((float)Freq*Freq)),
+!        DispTSum/(float)Freq/1000,hurry_up);
+        offsetSum=offsetSqSum=DispTSum=DispTSqSum=0;
+        StatCount=0;
+--- 728,733 ----
+        printf(&quot;A-V: %02.2f+-%02.2f ms DispTime: %02.2f ms hurry_up: %d\n&quot;,
+         offsetSum/(float)Freq,
+!        sqrt(offsetSqSum/((float)Freq)-(offsetSum*offsetSum)/((float)(Freq*Freq))),
+!        DispTSum/(float)Freq/1000.0,hurry_up);
+        offsetSum=offsetSqSum=DispTSum=DispTSqSum=0;
+        StatCount=0;
+***************
+*** 1025,1028 ****
+--- 1027,1031 ----
+    videoOut-&gt;InvalidateOldPicture();
+    delete(syncTimer);
++   syncTimer=NULL;
+    free(picture);
+    if (pic_buf_lavc)
+***************
+*** 1095,1107 ****
+--- 1098,1117 ----
+  cMpeg2Decoder::~cMpeg2Decoder()
+  {
++   aoutMutex.Lock();
+    if (aout)
+      delete(aout);
+    aout=0;
++   aoutMutex.Unlock();
++   
++   voutMutex.Lock();
+    if (vout)
+      delete(vout);
+    vout=0;
++   voutMutex.Unlock();
+  }
+  
+  int cMpeg2Decoder::read_packet(uint8_t *buf, int buf_size) {
++    if (!StreamBuffer)
++            return 0;
+     BUFDEB(&quot;read_packet Del %d\n&quot;,LastSize);
+      StreamBuffer-&gt;Del(LastSize);
+***************
+*** 1173,1176 ****
+--- 1183,1187 ----
+     init_put_byte(&amp;ic-&gt;pb, NULL,dvb_buf_size[setupStore.bufferMode]/2, 0, this,
+         read_packet_RingBuffer,NULL,seek_RingBuffer);
++    ic-&gt;pb.buf_end=NULL;
+     CMDDEB(&quot;init put byte finished\n&quot;);
+  };
+***************
+*** 1191,1197 ****
+          while (freezeMode &amp;&amp; ThreadActive)
+            usleep(50000);
+!       
+!         //ret = av_read_frame(ic, &amp;pkt);
+          BUFDEB(&quot;av_read_frame start\n&quot;);
+          ret = av_read_packet(ic, &amp;pkt);
+          if (ret &lt; 0) {
+--- 1202,1208 ----
+          while (freezeMode &amp;&amp; ThreadActive)
+            usleep(50000);
+!         
+          BUFDEB(&quot;av_read_frame start\n&quot;);
++         //ret = av_read_frame(ic, &amp;pkt);
+          ret = av_read_packet(ic, &amp;pkt);
+          if (ret &lt; 0) {
+***************
+*** 1201,1204 ****
+--- 1212,1216 ----
+              continue;
+          }
++         //av_dup_packet(&amp;pkt);
+          PacketCount++;
+          BUFDEB(&quot;got packet from av_read_frame!\n&quot;);
+***************
+*** 1207,1211 ****
+            pkt.pts/=9;
+  
+!         QueuePacket(ic,pkt);
+  
+          if (nStreams!=ic-&gt;nb_streams ){
+--- 1219,1223 ----
+            pkt.pts/=9;
+  
+!         QueuePacket(ic,pkt,packetMode);
+  
+          if (nStreams!=ic-&gt;nb_streams ){
+***************
+*** 1229,1241 ****
+  }
+  
+! void cMpeg2Decoder::ClearPacketQueue()
+  {
+!   if (aout)
+!     aout-&gt;Clear();
+!   if (vout)
+!     vout-&gt;Clear();
+  };
+  
+! void cMpeg2Decoder::QueuePacket(const AVFormatContext *ic, AVPacket &amp;pkt)
+  {
+    BUFDEB(&quot;QueuePacket AudioIdx: %d VideoIdx %d pkt.stream_index: %d\n&quot;,
+--- 1241,1275 ----
+  }
+  
+! void cMpeg2Decoder::ResetDecoder(int Stream)
+  {
+!   CMDDEB(&quot;ResetDecoder %d\n&quot;,Stream);
+!   
+!   if (Stream &amp; SOFTDEVICE_AUDIO_STREAM)  {
+!     aoutMutex.Lock();
+!     if (aout) {
+!       CMDDEB(&quot;ResetDecoder resetting audio decoder\n&quot;);
+!       aout-&gt;Stop();
+!       delete aout;
+!       aout=NULL;
+!       AudioIdx=NO_STREAM;
+!     };
+!     aoutMutex.Unlock();
+!   };
+!     
+!   if (Stream &amp; SOFTDEVICE_VIDEO_STREAM)  {
+!     voutMutex.Lock();
+!     if (vout) {
+!       CMDDEB(&quot;ResetDecoder resetting video decoder\n&quot;);
+!       vout-&gt;Stop();
+!       delete vout;
+!       vout=NULL;
+!       VideoIdx=NO_STREAM;
+!     };
+!     voutMutex.Unlock();
+!   };
+  };
+  
+! void cMpeg2Decoder::QueuePacket(const AVFormatContext *ic, AVPacket &amp;pkt,
+! 		bool PacketMode)
+  {
+    BUFDEB(&quot;QueuePacket AudioIdx: %d VideoIdx %d pkt.stream_index: %d\n&quot;,
+***************
+*** 1252,1267 ****
+          return;
+    }; 
+!   // check if there are new streams
+!   if (AudioIdx != DONT_PLAY &amp;&amp; ic-&gt;streams[pkt.stream_index] &amp;&amp;
+  #if LIBAVFORMAT_BUILD &gt; 4628
+!       ic-&gt;streams[pkt.stream_index]-&gt;codec-&gt;codec_type == CODEC_TYPE_AUDIO &amp;&amp;
+  #else
+!       ic-&gt;streams[pkt.stream_index]-&gt;codec.codec_type == CODEC_TYPE_AUDIO &amp;&amp;
+! #endif
+!       AudioIdx != pkt.stream_index) {
+  
+      CMDDEB(&quot;new Audio stream index.. old %d new %d\n&quot;,
+        AudioIdx,pkt.stream_index);
+      AudioIdx = pkt.stream_index;
+      if (aout) {
+        aout-&gt;Stop();
+--- 1286,1312 ----
+          return;
+    }; 
+!   int packet_type=CODEC_TYPE_UNKNOWN;
+! 
+  #if LIBAVFORMAT_BUILD &gt; 4628
+!   if ( ic-&gt;streams[pkt.stream_index] 
+!                   &amp;&amp; ic-&gt;streams[pkt.stream_index]-&gt;codec )
+!           packet_type = ic-&gt;streams[pkt.stream_index]-&gt;codec-&gt;codec_type;
+  #else
+!   if ( ic-&gt;streams[pkt.stream_index] ) 
+!           packet_type = ic-&gt;streams[pkt.stream_index]-&gt;codec.codec_type;
+! #endif         
+  
++   if ( packet_type == CODEC_TYPE_UNKNOWN ) {
++           BUFDEB(&quot;Unknown packet type! Return;\n&quot;);
++           return;
++   };
++   
++   // check if there are new streams
++   if ( AudioIdx != DONT_PLAY &amp;&amp; packet_type == CODEC_TYPE_AUDIO
++        &amp;&amp; AudioIdx != pkt.stream_index) {
+      CMDDEB(&quot;new Audio stream index.. old %d new %d\n&quot;,
+        AudioIdx,pkt.stream_index);
+      AudioIdx = pkt.stream_index;
++     aoutMutex.Lock();
+      if (aout) {
+        aout-&gt;Stop();
+***************
+*** 1271,1293 ****
+  #if LIBAVFORMAT_BUILD &gt; 4628
+      aout = new cAudioStreamDecoder(ic-&gt;streams[pkt.stream_index]-&gt;codec,
+!                  audioOut, audioMode, packetMode );
+  #else
+      aout = new cAudioStreamDecoder(&amp;ic-&gt;streams[pkt.stream_index]-&gt;codec,
+!                  audioOut, audioMode, packetMode );
+  #endif
+    } else
+! #if LIBAVFORMAT_BUILD &gt; 4628
+!   if (VideoIdx != DONT_PLAY &amp;&amp; ic-&gt;streams[pkt.stream_index] &amp;&amp;
+!       ic-&gt;streams[pkt.stream_index]-&gt;codec-&gt;codec_type == CODEC_TYPE_VIDEO &amp;&amp;
+!       VideoIdx!=pkt.stream_index)
+! #else
+!   if (VideoIdx != DONT_PLAY &amp;&amp; ic-&gt;streams[pkt.stream_index] &amp;&amp;
+!       ic-&gt;streams[pkt.stream_index]-&gt;codec.codec_type == CODEC_TYPE_VIDEO &amp;&amp;
+!       VideoIdx!=pkt.stream_index)
+! #endif
+!   {
+      CMDDEB(&quot;new Video stream index.. old %d new %d\n&quot;,
+        VideoIdx,pkt.stream_index);
+      VideoIdx=pkt.stream_index;
+      if (vout) {
+        vout-&gt;Stop();
+--- 1316,1332 ----
+  #if LIBAVFORMAT_BUILD &gt; 4628
+      aout = new cAudioStreamDecoder(ic-&gt;streams[pkt.stream_index]-&gt;codec,
+!                  audioOut, audioMode, PacketMode );
+  #else
+      aout = new cAudioStreamDecoder(&amp;ic-&gt;streams[pkt.stream_index]-&gt;codec,
+!                  audioOut, audioMode, PacketMode );
+  #endif
++     aoutMutex.Unlock();
+    } else
+!   if (VideoIdx != DONT_PLAY &amp;&amp; packet_type == CODEC_TYPE_VIDEO 
+!        &amp;&amp; VideoIdx!=pkt.stream_index) {
+      CMDDEB(&quot;new Video stream index.. old %d new %d\n&quot;,
+        VideoIdx,pkt.stream_index);
+      VideoIdx=pkt.stream_index;
++     voutMutex.Lock();
+      if (vout) {
+        vout-&gt;Stop();
+***************
+*** 1295,1309 ****
+        vout = NULL;
+      };
+  #if LIBAVFORMAT_BUILD &gt; 4628
+      vout = new cVideoStreamDecoder(ic-&gt;streams[pkt.stream_index]-&gt;codec,
+!                    videoOut, &amp;clock, Speed, packetMode );
+  #else
+      vout = new cVideoStreamDecoder(&amp;ic-&gt;streams[pkt.stream_index]-&gt;codec,
+!                    videoOut, &amp;clock, Speed, packetMode );
+  #endif
+    };
+    
+    // write streams 
+!   if ( pkt.stream_index == VideoIdx &amp;&amp; vout ) {
+      BUFDEB(&quot;QueuePacket video stream\n&quot;);
+      while ( vout-&gt;PutPacket(pkt) == -1 &amp;&amp; ThreadActive ) {
+--- 1334,1350 ----
+        vout = NULL;
+      };
++     voutMutex.Unlock();
+  #if LIBAVFORMAT_BUILD &gt; 4628
+      vout = new cVideoStreamDecoder(ic-&gt;streams[pkt.stream_index]-&gt;codec,
+!                    videoOut, &amp;clock, Speed, PacketMode );
+  #else
+      vout = new cVideoStreamDecoder(&amp;ic-&gt;streams[pkt.stream_index]-&gt;codec,
+!                    videoOut, &amp;clock, Speed, PacketMode );
+  #endif
+    };
+    
+    // write streams 
+!   voutMutex.Lock();
+!   if ( packet_type == CODEC_TYPE_VIDEO &amp;&amp; vout ) {
+      BUFDEB(&quot;QueuePacket video stream\n&quot;);
+      while ( vout-&gt;PutPacket(pkt) == -1 &amp;&amp; ThreadActive ) {
+***************
+*** 1311,1315 ****
+        //printf(&quot;Video Buffer full\n&quot;);
+      };
+!   } else if ( pkt.stream_index == AudioIdx &amp;&amp; aout ) {
+      BUFDEB(&quot;QueuePacket audio stream\n&quot;);
+      while ( aout-&gt;PutPacket(pkt) == -1 &amp;&amp; ThreadActive ) {
+--- 1352,1360 ----
+        //printf(&quot;Video Buffer full\n&quot;);
+      };
+!   } ;
+!   voutMutex.Unlock();
+!   
+!   aoutMutex.Lock();
+!   if ( packet_type == CODEC_TYPE_AUDIO &amp;&amp; aout ) {
+      BUFDEB(&quot;QueuePacket audio stream\n&quot;);
+      while ( aout-&gt;PutPacket(pkt) == -1 &amp;&amp; ThreadActive ) {
+***************
+*** 1317,1321 ****
+        //printf(&quot;Audio Buffer full\n&quot;);
+      };
+!   } else {
+      //printf(&quot;Unknown packet or vout or aout not init!!\n&quot;);
+      av_free_packet(&amp;pkt);
+--- 1362,1369 ----
+        //printf(&quot;Audio Buffer full\n&quot;);
+      };
+!   };
+!   aoutMutex.Unlock();
+!   
+!   if ( packet_type != CODEC_TYPE_VIDEO &amp;&amp; packet_type != CODEC_TYPE_AUDIO ) {
+      //printf(&quot;Unknown packet or vout or aout not init!!\n&quot;);
+      av_free_packet(&amp;pkt);
+***************
+*** 1326,1330 ****
+  void cMpeg2Decoder::Start(bool GetMutex)
+  {
+!   CMDDEB(&quot;Start IsSuspended %d \n&quot;,IsSuspended);
+    if (IsSuspended)
+      // don't start if we are suspended
+--- 1374,1381 ----
+  void cMpeg2Decoder::Start(bool GetMutex)
+  {
+!   CMDDEB(&quot;Mpeg2Decoder Start IsSuspended %d  GetMutex %d\n&quot;,IsSuspended,GetMutex);
+!   if (running)
+!           return;
+! 
+    if (IsSuspended)
+      // don't start if we are suspended
+***************
+*** 1350,1353 ****
+--- 1401,1405 ----
+    if (GetMutex)
+      mutex.Unlock();
++   CMDDEB(&quot;mpeg2Decoder Start finished&quot;);
+  }
+  
+***************
+*** 1391,1399 ****
+    if (running) 
+    {
+      if (aout)
+        aout-&gt;Play();
+      if (vout)
+        vout-&gt;Play();
+! 
+      cClock::SetFreezeMode(false);
+    };
+--- 1443,1456 ----
+    if (running) 
+    {
++     aoutMutex.Lock();
+      if (aout)
+        aout-&gt;Play();
++     aoutMutex.Unlock();
++     
++     voutMutex.Lock();
+      if (vout)
+        vout-&gt;Play();
+!     voutMutex.Unlock();
+!     
+      cClock::SetFreezeMode(false);
+    };
+***************
+*** 1422,1439 ****
+  };
+        
+! void cMpeg2Decoder::Freeze(void)
+  {
+!   CMDDEB(&quot;Freeze\n&quot;);
+!   freezeMode=true;
+    // sleep a short while before putting the
+    // audio and video stream decoders to sleep
+    usleep(20000);
+    if (running) 
+!   { 
+!     if (aout)
+!       aout-&gt;Freeze();
+!     if (vout)
+!       vout-&gt;Freeze();
+! 
+      cClock::SetFreezeMode(true);
+    };
+--- 1479,1506 ----
+  };
+        
+! void cMpeg2Decoder::Freeze(int Stream, bool freeze)
+  {
+!   CMDDEB(&quot;Freeze Streams %d freeze %d\n&quot;,Stream,freeze);
+!   if (Stream &amp; SOFTDEVICE_BOTH_STREAMS == SOFTDEVICE_BOTH_STREAMS )
+!     freezeMode=freeze;
+    // sleep a short while before putting the
+    // audio and video stream decoders to sleep
+    usleep(20000);
+    if (running) 
+!   {
+!     if (Stream &amp; SOFTDEVICE_AUDIO_STREAM) {
+!       aoutMutex.Lock();
+!       if (aout)
+!         aout-&gt;Freeze(freeze);
+!       aoutMutex.Unlock();
+!     };
+!     
+!     if (Stream &amp; SOFTDEVICE_VIDEO_STREAM) {
+!       voutMutex.Lock();
+!       if (vout)
+!         vout-&gt;Freeze(freeze);
+!       voutMutex.Unlock();
+!     };
+!     
+      cClock::SetFreezeMode(true);
+    };
+***************
+*** 1456,1465 ****
+--- 1523,1538 ----
+      EnableGetSignal.Signal();
+      Cancel(4);
++     
+      CMDDEB(&quot;stopping video\n&quot;); 
++     voutMutex.Lock();
+      if (vout) {
+        vout-&gt;Stop();
+        delete(vout);
+      }
++     vout=NULL;
++     voutMutex.Unlock();
++ 
+      CMDDEB(&quot;stopping audio\n&quot;);
++     aoutMutex.Lock();
+      if (aout) {
+        aout-&gt;Stop();
+***************
+*** 1467,1472 ****
+      }
+      aout=NULL;
+!     vout=NULL;
+      av_close_input_file(ic);
+    }
+    if (StreamBuffer) {
+--- 1540,1547 ----
+      }
+      aout=NULL;
+!     aoutMutex.Unlock();
+! 
+      av_close_input_file(ic);
++     ic=NULL;
+    }
+    if (StreamBuffer) {
+***************
+*** 1525,1530 ****
+--- 1600,1608 ----
+    // XXX hack to ingore audio junk sent by vdr in the
+    if (trickSpeed!=1) {
++     aoutMutex.Lock();
+      if (aout)
+        aout-&gt;Clear();
++     aoutMutex.Unlock();
++     
+      AudioIdx=DONT_PLAY;
+    } else if (AudioIdx==DONT_PLAY)
+***************
+*** 1533,1547 ****
+    if (running)
+    {
+      if (aout)
+        aout-&gt;TrickSpeed(Speed);
+      if (vout)
+        vout-&gt;TrickSpeed(Speed);
+    };
+  }
+  void cMpeg2Decoder::SetAudioMode(int AudioMode)  { 
+    CMDDEB(&quot;SetAudioMode %d\n&quot;,AudioMode);
+!   audioMode=AudioMode; 
+    if (aout) 
+!     aout-&gt;SetAudioMode(audioMode); 
+  };
+  
+--- 1611,1632 ----
+    if (running)
+    {
++     aoutMutex.Lock();
+      if (aout)
+        aout-&gt;TrickSpeed(Speed);
++     aoutMutex.Unlock();
++ 
++     voutMutex.Lock();
+      if (vout)
+        vout-&gt;TrickSpeed(Speed);
++     voutMutex.Unlock();
+    };
+  }
+  void cMpeg2Decoder::SetAudioMode(int AudioMode)  { 
+    CMDDEB(&quot;SetAudioMode %d\n&quot;,AudioMode);
+!   audioMode=AudioMode;
+!   aoutMutex.Lock();
+    if (aout) 
+!     aout-&gt;SetAudioMode(audioMode);
+!   aoutMutex.Unlock();
+  };
+  
+***************
+*** 1551,1579 ****
+    if (running) {
+      return clock.GetPTS()*9;
+! 
+      if (vout)
+        return vout-&gt;GetPTS()*9;
+      if (aout)
+        return aout-&gt;GetPTS()*9;
+    }
+    return -1;
+  };
+  
+! int cMpeg2Decoder::BufferFill() 
+  {
+    if (freezeMode)
+      return 100;
+!   int fill=0;
+!   int fill2=0;
+!   BUFDEB(&quot;buffer fill\n&quot;);
+!   if (running &amp;&amp; vout )
+!     fill= vout-&gt;BufferFill();
+!     BUFDEB(&quot;vout buffer fill: %d\n&quot;,fill);
+!   if (running &amp;&amp; aout )
+!     if ( (fill2=aout-&gt;BufferFill()) &gt;fill)
+!        fill=fill2;
+!     
+!     BUFDEB(&quot;aout buffer fill: %d\n&quot;,fill2);
+!   return fill;
+  }
+  
+--- 1636,1674 ----
+    if (running) {
+      return clock.GetPTS()*9;
+! /*
+      if (vout)
+        return vout-&gt;GetPTS()*9;
+      if (aout)
+        return aout-&gt;GetPTS()*9;
++       */
+    }
+    return -1;
+  };
+  
+! int cMpeg2Decoder::BufferFill(int Stream) 
+  {
+    if (freezeMode)
+      return 100;
+!   
+!   int video_Fill=0;
+!   int audio_Fill=0;
+! 
+!   BUFDEB(&quot;BufferFill Stream %d vout %p aout %p\n&quot;,Stream,vout,aout);
+!   if (Stream &amp; SOFTDEVICE_VIDEO_STREAM) {
+!     voutMutex.Lock();
+!     if ( vout  )
+!       video_Fill = vout-&gt;BufferFill();
+!     voutMutex.Unlock();
+!   };
+! 
+!   if ( Stream &amp; SOFTDEVICE_AUDIO_STREAM )  {
+!     aoutMutex.Lock();
+!     if (aout)
+!       audio_Fill = aout-&gt;BufferFill();
+!     aoutMutex.Unlock();
+!   };
+!   
+!   BUFDEB(&quot;audio_Fill: %d video_Fill: %d\n&quot;,audio_Fill,video_Fill);
+!   return video_Fill&gt;audio_Fill ? video_Fill : audio_Fill;
+  }
+  
+***************
+*** 1583,1586 ****
+--- 1678,1682 ----
+  {
+    BUFDEB(&quot;Decode %x, Length %d\n&quot;,Data,Length);
++   
+    if (running &amp;&amp; !IsSuspended &amp;&amp; setupStore.shouldSuspend)
+       // still running and should suspend
+***************
+*** 1595,1598 ****
+--- 1691,1697 ----
+      return Length;
+    };
++ 
++   if (!StreamBuffer)
++           return 0;
+  
+    if (freezeMode)
+
+Index: mpeg2decoder.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.h,v
+retrieving revision 1.33
+retrieving revision 1.34
+diff -C2 -d -r1.33 -r1.34
+*** mpeg2decoder.h	29 Oct 2005 08:30:27 -0000	1.33
+--- mpeg2decoder.h	12 Nov 2005 07:57:42 -0000	1.34
+***************
+*** 16,20 ****
+  
+  #ifdef PP_LIBAVCODEC
+!   #include &lt;postproc/postprocess.h&gt;
+  #endif //PP_LIBAVCODEC
+  
+--- 16,20 ----
+  
+  #ifdef PP_LIBAVCODEC
+!   #include &lt;postprocess.h&gt;
+  #endif //PP_LIBAVCODEC
+  
+***************
+*** 47,50 ****
+--- 47,55 ----
+  #define DONT_PLAY  -100
+  
++ #define SOFTDEVICE_VIDEO_STREAM  1
++ #define SOFTDEVICE_AUDIO_STREAM  2
++ #define SOFTDEVICE_BOTH_STREAMS (SOFTDEVICE_VIDEO_STREAM | SOFTDEVICE_AUDIO_STREAM ) 
++ 
++ 
+  class cAudioStreamDecoder; 
+  class cVideoStreamDecoder; 
+***************
+*** 168,174 ****
+  
+      virtual void      Clear(void);
+!     virtual void      Freeze(void);
+      virtual void      Play(void);
+!     virtual void      Stop();
+      virtual void      TrickSpeed(int Speed) {return;};
+      virtual int       BufferFill(void);
+--- 173,179 ----
+  
+      virtual void      Clear(void);
+!     virtual void      Freeze(bool freeze=true);
+      virtual void      Play(void);
+!     void      Stop();
+      virtual void      TrickSpeed(int Speed) {return;};
+      virtual int       BufferFill(void);
+***************
+*** 259,265 ****
+      ~cVideoStreamDecoder();
+  
+!     virtual void      Freeze(void);
+      virtual void      Play(void);
+-     virtual void Stop();
+      virtual int DecodePacket(AVPacket *pkt);
+      virtual void TrickSpeed(int Speed);
+--- 264,269 ----
+      ~cVideoStreamDecoder();
+  
+!     virtual void      Freeze(bool freeze=true);
+      virtual void      Play(void);
+      virtual int DecodePacket(AVPacket *pkt);
+      virtual void TrickSpeed(int Speed);
+***************
+*** 267,271 ****
+  };
+  
+- 
+  //--------------------------------cMpeg2Decoder -------------------------
+  class cMpeg2Decoder: public cThread  {
+--- 271,274 ----
+***************
+*** 273,276 ****
+--- 276,281 ----
+      cVideoStreamDecoder  *vout;
+      cAudioStreamDecoder  *aout;
++     cMutex          voutMutex;
++     cMutex          aoutMutex;
+      cAudioOut       *audioOut;
+      cVideoOut       *videoOut;
+***************
+*** 315,325 ****
+      ~cMpeg2Decoder();
+  
+!     void QueuePacket(const AVFormatContext *ic,AVPacket &amp;pkt);
+!     void ClearPacketQueue();
+      int Decode(const uchar *Data, int Length);
+      int StillPicture(uchar *Data, int Length);
+      void Start(bool GetMutex=true);
+      void Play(void);
+!     void Freeze(void);
+      void Stop(bool GetMutex=true);
+      void Clear(void);
+--- 320,331 ----
+      ~cMpeg2Decoder();
+  
+!     void QueuePacket(const AVFormatContext *ic,AVPacket &amp;pkt, 
+! 		    bool PacketMode);
+!     void ResetDecoder( int Stream = SOFTDEVICE_BOTH_STREAMS );
+      int Decode(const uchar *Data, int Length);
+      int StillPicture(uchar *Data, int Length);
+      void Start(bool GetMutex=true);
+      void Play(void);
+!     void Freeze( int Stream = SOFTDEVICE_BOTH_STREAMS, bool freeze=true );
+      void Stop(bool GetMutex=true);
+      void Clear(void);
+***************
+*** 337,341 ****
+      { return audioMode; };
+      
+!     int BufferFill(void);
+      // in percent 
+      
+--- 343,347 ----
+      { return audioMode; };
+      
+!     int BufferFill( int Stream = SOFTDEVICE_BOTH_STREAMS );
+      // in percent 
+      
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000250.html">[Softdevice-cvs] softdevice i18n.c,1.13,1.14
+</A></li>
+	<LI>Next message: <A HREF="000252.html">[Softdevice-cvs] softdevice CHANGELOG,1.128,1.129 mpeg2decoder.c,1.59,1.60
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#251">[ date ]</a>
+              <a href="thread.html#251">[ thread ]</a>
+              <a href="subject.html#251">[ subject ]</a>
+              <a href="author.html#251">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

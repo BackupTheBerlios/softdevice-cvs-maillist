@@ -1,0 +1,581 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice video-xv.c,1.51,1.52 video-xv.h,1.19,1.20 video-dfb.c,1.53,1.54 video-dfb.h,1.18,1.19 video.c,1.49,1.50 video.h,1.33,1.34
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-xv.c%2C1.51%2C1.52%20video-xv.h%2C1.19%2C1.20%20video-dfb.c%2C1.53%2C1.54%20video-dfb.h%2C1.18%2C1.19%20video.c%2C1.49%2C1.50%20video.h%2C1.33%2C1.34&In-Reply-To=%3C200604231938.k3NJc6t31264%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000327.html">
+   <LINK REL="Next"  HREF="000329.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice video-xv.c,1.51,1.52 video-xv.h,1.19,1.20 video-dfb.c,1.53,1.54 video-dfb.h,1.18,1.19 video.c,1.49,1.50 video.h,1.33,1.34</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-xv.c%2C1.51%2C1.52%20video-xv.h%2C1.19%2C1.20%20video-dfb.c%2C1.53%2C1.54%20video-dfb.h%2C1.18%2C1.19%20video.c%2C1.49%2C1.50%20video.h%2C1.33%2C1.34&In-Reply-To=%3C200604231938.k3NJc6t31264%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice video-xv.c,1.51,1.52 video-xv.h,1.19,1.20 video-dfb.c,1.53,1.54 video-dfb.h,1.18,1.19 video.c,1.49,1.50 video.h,1.33,1.34">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Apr 23 21:38:06 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000327.html">[Softdevice-cvs] softdevice CHANGELOG,1.173,1.174 Makefile,1.25,1.26 softdevice.c,1.55,1.56
+</A></li>
+        <LI>Next message: <A HREF="000329.html">[Softdevice-cvs] softdevice setup-softdevice-menu.h,NONE,1.1 VdrReplacements.c,NONE,1.1 VdrReplacements.h,NONE,1.1 CHANGELOG,1.174,1.175 Makefile,1.26,1.27 ShmClient.c,1.9,1.10 setup-softdevice-menu.c,1.2,1.3 setup-softdevice.h,1.26,1.27 softdevice.c,1.56,1.57 softdevice.h,1.8,1.9 utils.c,1.11,1.12 utils.h,1.6,1.7 video-shm.c,1.6,1.7 xscreensaver.c,1.3,1.4
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#328">[ date ]</a>
+              <a href="thread.html#328">[ thread ]</a>
+              <a href="subject.html#328">[ subject ]</a>
+              <a href="author.html#328">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv17358
+
+Modified Files:
+	video-xv.c video-xv.h video-dfb.c video-dfb.h video.c video.h 
+Log Message:
+- remove duplicate remote code, call ProcessEvents() from the video thread
+  and remove the RC thread   
+
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.51
+retrieving revision 1.52
+diff -C2 -d -r1.51 -r1.52
+*** video-xv.c	21 Apr 2006 18:20:45 -0000	1.51
+--- video-xv.c	23 Apr 2006 19:38:29 -0000	1.52
+***************
+*** 20,27 ****
+  #include &lt;stdio.h&gt;
+  #include &lt;math.h&gt;
+  #include &lt;sys/mman.h&gt;
+  #include &lt;sys/ioctl.h&gt;
+  #include &lt;fcntl.h&gt;
+! #include &lt;vdr/plugin.h&gt;
+  #include &quot;video-xv.h&quot;
+  #include &quot;xscreensaver.h&quot;
+--- 20,28 ----
+  #include &lt;stdio.h&gt;
+  #include &lt;math.h&gt;
++ #include &lt;string.h&gt;
+  #include &lt;sys/mman.h&gt;
+  #include &lt;sys/ioctl.h&gt;
+  #include &lt;fcntl.h&gt;
+! //#include &lt;vdr/plugin.h&gt;
+  #include &quot;video-xv.h&quot;
+  #include &quot;xscreensaver.h&quot;
+***************
+*** 32,38 ****
+  
+  static pthread_mutex_t  xv_mutex = PTHREAD_MUTEX_INITIALIZER;
+! cXvRemote        *xvRemote = NULL;
+  static cScreensaver     *xScreensaver = NULL;
+- static int              events_not_done = 0;
+  
+  static XErrorHandler old_handler = 0;
+--- 33,38 ----
+  
+  static pthread_mutex_t  xv_mutex = PTHREAD_MUTEX_INITIALIZER;
+! cSoftRemote        *xvRemote = NULL;
+  static cScreensaver     *xScreensaver = NULL;
+  
+  static XErrorHandler old_handler = 0;
+***************
+*** 312,374 ****
+      XSync(dpy,False);
+  }
+- 
+- /* ---------------------------------------------------------------------------
+-  */
+- cXvRemote::cXvRemote(const char *Name, cXvVideoOut *vout) : cRemote(Name)
+- {
+-   video_out = vout;
+- }
+- 
+- /* ---------------------------------------------------------------------------
+-  */
+- cXvRemote::~cXvRemote()
+- {
+-   active = false;
+-   Cancel(2);
+- }
+- 
+- /* ---------------------------------------------------------------------------
+-  */
+- void cXvRemote::PutKey(KeySym key)
+- {
+-   Put (key);
+- }
+- 
+- /* ---------------------------------------------------------------------------
+-  */
+- void cXvRemote::Action(void)
+- {
+-   dsyslog(&quot;Xv remote control thread started (pid=%d)&quot;, getpid());
+-   active = true;
+-   while (active)
+-   {
+-     usleep (25000);
+-     pthread_mutex_lock(&amp;xv_mutex);
+-     if (events_not_done &gt; 2) {
+-       video_out-&gt;ProcessEvents ();
+-       events_not_done = 0;
+-     } else {
+-       events_not_done++;
+-     }
+-     pthread_mutex_unlock(&amp;xv_mutex);
+-   }
+-   dsyslog(&quot;Xv remote control thread ended (pid=%d)&quot;, getpid());
+- }
+- 
+- /* ---------------------------------------------------------------------------
+-  */
+- void cXvRemote::SetX11Info(Display *d, Window w)
+- {
+-   dpy = d;
+-   win = w;
+- }
+- 
+- /* ---------------------------------------------------------------------------
+-  */
+- void cXvRemote::XvRemoteStart(void)
+- {
+-   Start();
+- }
+- 
+  /* ---------------------------------------------------------------------------
+   */
+--- 312,315 ----
+***************
+*** 587,590 ****
+--- 528,537 ----
+      struct timeval  current_time;
+      XEvent            event;
++     
++   pthread_mutex_lock(&amp;xv_mutex);
++   if (!videoInitialized) {
++           pthread_mutex_unlock(&amp;xv_mutex);
++           return;
++   };
+  
+    while (XCheckMaskEvent (dpy, /* win, */
+***************
+*** 772,775 ****
+--- 719,723 ----
+    }
+    xScreensaver-&gt;MaybeSendDeactivate();
++   pthread_mutex_unlock(&amp;xv_mutex);  
+  }
+  
+***************
+*** 1056,1062 ****
+    if (!xvRemote)
+    {
+!     xvRemote = new cXvRemote (&quot;softdevice-xv&quot;, this);
+!     xvRemote-&gt;SetX11Info(dpy,win);
+!     xvRemote-&gt;XvRemoteStart();
+    }
+  
+--- 1004,1008 ----
+    if (!xvRemote)
+    {
+!     xvRemote = new cSoftRemote (&quot;softdevice-xv&quot;);
+    }
+  
+***************
+*** 1766,1771 ****
+    }
+    PutXvImage();
+!   ProcessEvents ();
+!   events_not_done = 0;
+    XSync(dpy, False);
+    pthread_mutex_unlock(&amp;xv_mutex);
+--- 1712,1716 ----
+    }
+    PutXvImage();
+!   //ProcessEvents ();
+    XSync(dpy, False);
+    pthread_mutex_unlock(&amp;xv_mutex);
+
+Index: video-xv.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.h,v
+retrieving revision 1.19
+retrieving revision 1.20
+diff -C2 -d -r1.19 -r1.20
+*** video-xv.h	21 Apr 2006 18:20:45 -0000	1.19
+--- video-xv.h	23 Apr 2006 19:38:29 -0000	1.20
+***************
+*** 22,28 ****
+  #include &lt;pthread.h&gt;
+  
+- // ?? remote.h thread.h why previous without include
+- #include &lt;vdr/remote.h&gt;
+- #include &lt;vdr/thread.h&gt;
+  
+  #include &lt;sys/ipc.h&gt;
+--- 22,25 ----
+***************
+*** 39,42 ****
+--- 36,46 ----
+  #endif
+  
++ #ifndef STAND_ALONE
++ #include &lt;vdr/remote.h&gt;
++ #include &lt;vdr/thread.h&gt;
++ #else
++ #include &quot;VdrReplacements.h&quot;
++ #endif
++ 
+  #define FOURCC_YV12       0x32315659   /* 4:2:0 Planar: Y + V + U  (3 planes) */
+  #define FOURCC_I420       0x30323449   /* 4:2:0 Planar: Y + U + V  (3 planes) */
+***************
+*** 160,164 ****
+    cXvVideoOut(cSetupStore *setupStore);
+    virtual ~cXvVideoOut();
+!   void ProcessEvents ();
+    void ShowOSD ();
+  
+--- 164,168 ----
+    cXvVideoOut(cSetupStore *setupStore);
+    virtual ~cXvVideoOut();
+!   virtual void ProcessEvents ();
+    void ShowOSD ();
+  
+***************
+*** 190,212 ****
+  };
+  
+! /* ---------------------------------------------------------------------------
+!  */
+! class cXvRemote : public cRemote, private cThread {
+!   private:
+!     bool        active;
+!     Display     *dpy;
+!     Window      win;
+!     cXvVideoOut *video_out;
+! 
+!     virtual void  Action(void);
+!   public:
+!                   cXvRemote(const char *Name, cXvVideoOut *vout);
+!                   ~cXvRemote();
+!     void          SetX11Info (Display *d, Window w);
+!     void          XvRemoteStart (void);
+!     virtual void  PutKey (KeySym key);
+! //    virtual bool  Initialize(void);
+! };
+! extern cXvRemote        *xvRemote;
+  
+  #endif // VIDEO_XV_H
+--- 194,198 ----
+  };
+  
+! extern cSoftRemote        *xvRemote;
+  
+  #endif // VIDEO_XV_H
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.53
+retrieving revision 1.54
+diff -C2 -d -r1.53 -r1.54
+*** video-dfb.c	21 Apr 2006 06:47:10 -0000	1.53
+--- video-dfb.c	23 Apr 2006 19:38:29 -0000	1.54
+***************
+*** 70,125 ****
+    };
+  
+- static int              events_not_done = 0;
+- 
+- // --- cDFBRemote ---------------------------------------------------
+- /* ---------------------------------------------------------------------------
+-  */
+- cDFBRemote::cDFBRemote(const char *Name, cDFBVideoOut *vout) : cRemote(Name)
+- {
+-   video_out = vout;
+- }
+- 
+- /* ---------------------------------------------------------------------------
+-  */
+- cDFBRemote::~cDFBRemote()
+- {
+-   active = false;
+-   Cancel(2);
+- }
+- 
+- /* ---------------------------------------------------------------------------
+-  */
+- void cDFBRemote::PutKey(DFBInputDeviceKeySymbol key, bool repeat)
+- {
+-   Put ((int) key, repeat, false);
+- }
+- 
+- /* ---------------------------------------------------------------------------
+-  */
+- void cDFBRemote::Action(void)
+- {
+-   dsyslog(&quot;DFB remote control thread started (pid=%d)&quot;, getpid());
+-   active = true;
+-   while (active)
+-   {
+-     usleep (25000);
+-     if (events_not_done &gt; 1) {
+-       video_out-&gt;ProcessEvents ();
+-       video_out-&gt;ShowOSD ();
+-       events_not_done = 0;
+-     } else {
+-       events_not_done++;
+-     }
+-   }
+-   dsyslog(&quot;DFB remote control thread ended (pid=%d)&quot;, getpid());
+- }
+- 
+- /* ---------------------------------------------------------------------------
+-  */
+- void cDFBRemote::DFBRemoteStart(void)
+- {
+-   Start();
+- }
+- 
+  // --- cDFBVideoOut -------------------------------------------------
+  IDirectFB *DFBWrapper;
+--- 70,73 ----
+***************
+*** 625,630 ****
+    if (!dfbRemote)
+    {
+!     dfbRemote = new cDFBRemote (&quot;softdevice-dfb&quot;, this);
+!     dfbRemote-&gt;DFBRemoteStart();
+    }
+    videoInitialized = true;
+--- 573,577 ----
+    if (!dfbRemote)
+    {
+!     dfbRemote = new cSoftRemote (&quot;softdevice-dfb&quot;);
+    }
+    videoInitialized = true;
+***************
+*** 1389,1393 ****
+      return;
+  
+-   events_not_done = 0;
+    SetParams();
+  
+--- 1336,1339 ----
+***************
+*** 1536,1541 ****
+      delete ex;
+    }
+!   ProcessEvents ();
+!   events_not_done = 0;
+  }
+  
+--- 1482,1487 ----
+      delete ex;
+    }
+!   //ProcessEvents ();
+!   //events_not_done = 0;
+  }
+  
+
+Index: video-dfb.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.h,v
+retrieving revision 1.18
+retrieving revision 1.19
+diff -C2 -d -r1.18 -r1.19
+*** video-dfb.h	21 Apr 2006 06:47:10 -0000	1.18
+--- video-dfb.h	23 Apr 2006 19:38:29 -0000	1.19
+***************
+*** 21,25 ****
+  #include &lt;vdr/thread.h&gt;
+  
+- class cDFBRemote;
+  
+  class cDFBVideoOut : public cVideoOut {
+--- 21,24 ----
+***************
+*** 30,34 ****
+  
+      DFBSurfacePixelFormat pixelformat;
+!     cDFBRemote            *dfbRemote;
+  
+      IDirectFBEventBuffer  *events;
+--- 29,33 ----
+  
+      DFBSurfacePixelFormat pixelformat;
+!     cSoftRemote            *dfbRemote;
+  
+      IDirectFBEventBuffer  *events;
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.49
+retrieving revision 1.50
+diff -C2 -d -r1.49 -r1.50
+*** video.c	21 Apr 2006 06:47:10 -0000	1.49
+--- video.c	23 Apr 2006 19:38:29 -0000	1.50
+***************
+*** 10,19 ****
+  #include &lt;sys/ioctl.h&gt;
+  #include &lt;fcntl.h&gt;
+! #include &lt;vdr/plugin.h&gt;
+  #include &quot;video.h&quot;
+  #include &quot;utils.h&quot;
+  #include &quot;setup-softdevice.h&quot;
+  #include &quot;sync-timer.h&quot;
+- #include &quot;SoftOsd.h&quot;
+  
+  //#define OSDDEB(out...) {printf(&quot;vout_osd[%04d]:&quot;,(int)(getTimeMilis() % 10000));printf(out);}
+--- 10,22 ----
+  #include &lt;sys/ioctl.h&gt;
+  #include &lt;fcntl.h&gt;
+! #include &lt;string.h&gt;
+! #include &lt;unistd.h&gt;
+! #include &lt;stdlib.h&gt;
+! 
+! //#include &lt;vdr/plugin.h&gt;
+  #include &quot;video.h&quot;
+  #include &quot;utils.h&quot;
+  #include &quot;setup-softdevice.h&quot;
+  #include &quot;sync-timer.h&quot;
+  
+  //#define OSDDEB(out...) {printf(&quot;vout_osd[%04d]:&quot;,(int)(getTimeMilis() % 10000));printf(out);}
+***************
+*** 97,105 ****
+    {
+      OsdRefreshCounter++;
+!     usleep(50000);
+      if (
+!         OsdRefreshCounter &gt; 80 || // blanks the screen after inactivity (4s)
+          (setupStore-&gt;osdMode == OSDMODE_SOFTWARE &amp;&amp;
+!          OsdRefreshCounter&gt;2 &amp;&amp; Osd_changed))
+      {
+        osdMutex.Lock();
+--- 100,109 ----
+    {
+      OsdRefreshCounter++;
+!     usleep(20000);
+!     ProcessEvents();
+      if (
+!         OsdRefreshCounter &gt; 120 || // blanks the screen after inactivity (4s)
+          (setupStore-&gt;osdMode == OSDMODE_SOFTWARE &amp;&amp;
+!          OsdRefreshCounter&gt;5 &amp;&amp; Osd_changed))
+      {
+        osdMutex.Lock();
+***************
+*** 486,489 ****
+--- 490,494 ----
+     */
+    areaMutex. Unlock();
++   ProcessEvents();  
+  }
+  
+***************
+*** 501,504 ****
+--- 506,510 ----
+    YUV (pY, pU, pV, w, h, yPitch, uvPitch);
+    areaMutex. Unlock();
++   ProcessEvents();  
+  }
+  
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.33
+retrieving revision 1.34
+diff -C2 -d -r1.33 -r1.34
+*** video.h	21 Apr 2006 06:47:10 -0000	1.33
+--- video.h	23 Apr 2006 19:38:29 -0000	1.34
+***************
+*** 10,14 ****
+--- 10,19 ----
+  #define VIDEO_H
+  
++ #ifndef STAND_ALONE
+  #include &lt;vdr/plugin.h&gt;
++ #include &lt;vdr/remote.h&gt;
++ #else
++ #include &quot;VdrReplacements.h&quot;
++ #endif
+  
+  #ifdef HAVE_CONFIG
+***************
+*** 19,22 ****
+--- 24,28 ----
+  #include &quot;sync-timer.h&quot;
+  
++ 
+  #include &lt;avcodec.h&gt;
+  
+***************
+*** 74,78 ****
+  #endif
+  
+! class cSoftOsd;
+  
+  class cVideoOut: public cThread {
+--- 80,93 ----
+  #endif
+  
+! #ifndef STAND_ALONE
+! class cSoftRemote : public cRemote {
+!   public:
+!           cSoftRemote(const char *Name) : cRemote(Name) {};
+!           virtual ~cSoftRemote() {};
+!           virtual bool PutKey(uint64 Code, bool Repeat = false, 
+!                           bool Release = false)
+!           { return Put(Code,Repeat,Release); };
+! };
+! #endif
+  
+  class cVideoOut: public cThread {
+***************
+*** 137,140 ****
+--- 152,160 ----
+      cVideoOut(cSetupStore *setupStore);
+      virtual ~cVideoOut();
++      
++     virtual void ProcessEvents ()
++     {};
++     // will be called every xx ms, at a minimum after each frame.
++     // Can be used to process for example keypress events
+  
+      virtual void Sync(cSyncTimer *syncTimer, int *delay);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000327.html">[Softdevice-cvs] softdevice CHANGELOG,1.173,1.174 Makefile,1.25,1.26 softdevice.c,1.55,1.56
+</A></li>
+	<LI>Next message: <A HREF="000329.html">[Softdevice-cvs] softdevice setup-softdevice-menu.h,NONE,1.1 VdrReplacements.c,NONE,1.1 VdrReplacements.h,NONE,1.1 CHANGELOG,1.174,1.175 Makefile,1.26,1.27 ShmClient.c,1.9,1.10 setup-softdevice-menu.c,1.2,1.3 setup-softdevice.h,1.26,1.27 softdevice.c,1.56,1.57 softdevice.h,1.8,1.9 utils.c,1.11,1.12 utils.h,1.6,1.7 video-shm.c,1.6,1.7 xscreensaver.c,1.3,1.4
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#328">[ date ]</a>
+              <a href="thread.html#328">[ thread ]</a>
+              <a href="subject.html#328">[ subject ]</a>
+              <a href="author.html#328">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,316 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.13,1.14 audio.c,1.3,1.4 audio.h,1.1.1.1,1.2 mpeg2decoder.c,1.5,1.6 mpeg2decoder.h,1.2,1.3 setup-softdevice.c,1.4,1.5 setup-softdevice.h,1.2,1.3 softdevice.c,1.2,1.3
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2004q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.13%2C1.14%20audio.c%2C1.3%2C1.4%20audio.h%2C1.1.1.1%2C1.2%20mpeg2decoder.c%2C1.5%2C1.6%20mpeg2decoder.h%2C1.2%2C1.3%20setup-softdevice.c%2C1.4%2C1.5%20setup-softdevice.h%2C1.2%2C1.3%20softdevice.c%2C1.2%2C1.3&In-Reply-To=%3C200410291641.i9TGffB18176%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000022.html">
+   <LINK REL="Next"  HREF="000024.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.13,1.14 audio.c,1.3,1.4 audio.h,1.1.1.1,1.2 mpeg2decoder.c,1.5,1.6 mpeg2decoder.h,1.2,1.3 setup-softdevice.c,1.4,1.5 setup-softdevice.h,1.2,1.3 softdevice.c,1.2,1.3</H1>
+    <B>iampivot</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.13%2C1.14%20audio.c%2C1.3%2C1.4%20audio.h%2C1.1.1.1%2C1.2%20mpeg2decoder.c%2C1.5%2C1.6%20mpeg2decoder.h%2C1.2%2C1.3%20setup-softdevice.c%2C1.4%2C1.5%20setup-softdevice.h%2C1.2%2C1.3%20softdevice.c%2C1.2%2C1.3&In-Reply-To=%3C200410291641.i9TGffB18176%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.13,1.14 audio.c,1.3,1.4 audio.h,1.1.1.1,1.2 mpeg2decoder.c,1.5,1.6 mpeg2decoder.h,1.2,1.3 setup-softdevice.c,1.4,1.5 setup-softdevice.h,1.2,1.3 softdevice.c,1.2,1.3">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Oct 29 18:41:41 CEST 2004</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000022.html">[Softdevice-cvs] softdevice CHANGELOG,1.12,1.13 video.c,1.2,1.3 video.h,1.2,1.3
+</A></li>
+        <LI>Next message: <A HREF="000024.html">[Softdevice-cvs] softdevice CHANGELOG,1.14,1.15 softdevice.c,1.3,1.4 video-xv.c,1.5,1.6
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#23">[ date ]</a>
+              <a href="thread.html#23">[ thread ]</a>
+              <a href="subject.html#23">[ subject ]</a>
+              <a href="author.html#23">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv1824
+
+Modified Files:
+	CHANGELOG audio.c audio.h mpeg2decoder.c mpeg2decoder.h 
+	setup-softdevice.c setup-softdevice.h softdevice.c 
+Log Message:
+Allow setting alsa output device in setup.conf or by command line argument.
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.13
+retrieving revision 1.14
+diff -C2 -d -r1.13 -r1.14
+*** CHANGELOG	25 Oct 2004 17:58:59 -0000	1.13
+--- CHANGELOG	29 Oct 2004 16:41:39 -0000	1.14
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++   2004-10-29:
++    - allow setting alsa device with command line parameter or in setup.conf
+    2004-10-25:
+     - compile fix for older vdr versions. tested with 1.2.1 .
+
+Index: audio.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio.c,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** audio.c	22 Oct 2004 15:07:15 -0000	1.3
+--- audio.c	29 Oct 2004 16:41:39 -0000	1.4
+***************
+*** 18,22 ****
+  
+  
+- char *device = &quot;plughw:0,0&quot;;
+  #define PCM_FMT SND_PCM_FORMAT_S16_LE
+  
+--- 18,21 ----
+***************
+*** 24,29 ****
+  }
+  
+! cAlsaAudioOut::cAlsaAudioOut() {
+!     dsyslog(&quot;[softdevice-audio] Opening alsa device %s&quot;,device);
+      int err;
+      paused=false;
+--- 23,31 ----
+  }
+  
+! cAlsaAudioOut::cAlsaAudioOut(char *alsaDevice) {
+!     if (strlen(alsaDevice) == 0)
+!       strcpy (alsaDevice, &quot;default&quot;);
+!     dsyslog(&quot;[softdevice-audio] Opening alsa device %s&quot;,alsaDevice);
+!     device = alsaDevice;
+      int err;
+      paused=false;
+
+Index: audio.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio.h,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1.1.1 -r1.2
+*** audio.h	1 Aug 2004 05:07:05 -0000	1.1.1.1
+--- audio.h	29 Oct 2004 16:41:39 -0000	1.2
+***************
+*** 39,46 ****
+    snd_pcm_uframes_t periodSize;
+    snd_pcm_t *handle;
+    volatile bool paused;
+  protected:
+  public:
+!   cAlsaAudioOut();
+    virtual ~cAlsaAudioOut();
+    virtual void Write(uchar *Data, int Length);
+--- 39,47 ----
+    snd_pcm_uframes_t periodSize;
+    snd_pcm_t *handle;
++   char *device;
+    volatile bool paused;
+  protected:
+  public:
+!   cAlsaAudioOut(char *device);
+    virtual ~cAlsaAudioOut();
+    virtual void Write(uchar *Data, int Length);
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -C2 -d -r1.5 -r1.6
+*** mpeg2decoder.c	22 Oct 2004 21:46:46 -0000	1.5
+--- mpeg2decoder.c	29 Oct 2004 16:41:39 -0000	1.6
+***************
+*** 145,149 ****
+    audioOut=AudioOut;
+    cPTS=commonPTS;
+-   avOffset = setupStore.avOffset;
+    codec = avcodec_find_decoder(CODEC_ID_MP2);
+    if (!codec)
+--- 145,148 ----
+***************
+*** 187,191 ****
+      audioOut-&gt;Write(audiosamples,audio_size);
+      int delay = audioOut-&gt;GetDelay();
+!     if (delay + avOffset &lt; 20)// if we have less than 20 ms in buffer we double frames
+        audioOut-&gt;Write(audiosamples,audio_size);
+  
+--- 186,190 ----
+      audioOut-&gt;Write(audiosamples,audio_size);
+      int delay = audioOut-&gt;GetDelay();
+!     if (delay &lt; 20)// if we have less than 20 ms in buffer we double frames
+        audioOut-&gt;Write(audiosamples,audio_size);
+  
+***************
+*** 193,197 ****
+  
+      //  printf(&quot;Audiodelay: %d \n&quot;,delay);
+!     *cPTS = pts - delay + avOffset; // Das ist die Master-PTS die wird an den video Teil &#252;bergeben,
+      // damit Video syncronisieren kann
+      if (validPTS)
+--- 192,196 ----
+  
+      //  printf(&quot;Audiodelay: %d \n&quot;,delay);
+!     *cPTS = pts - delay + setupStore.avOffset; // Das ist die Master-PTS die wird an den video Teil &#252;bergeben,
+      // damit Video syncronisieren kann
+      if (validPTS)
+
+Index: mpeg2decoder.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.h,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** mpeg2decoder.h	18 Oct 2004 03:33:37 -0000	1.2
+--- mpeg2decoder.h	29 Oct 2004 16:41:39 -0000	1.3
+***************
+*** 52,56 ****
+      uint8_t * audiosamples;
+      cAudioOut *audioOut;
+-     int       avOffset;
+  protected:
+  public:
+--- 52,55 ----
+
+Index: setup-softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.c,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -C2 -d -r1.4 -r1.5
+*** setup-softdevice.c	22 Oct 2004 21:51:46 -0000	1.4
+--- setup-softdevice.c	29 Oct 2004 16:41:39 -0000	1.5
+***************
+*** 90,93 ****
+--- 90,94 ----
+    syncOnFrames  = 0;
+    avOffset      = 0;
++   strcpy (alsaDevice, &quot;&quot;);
+  }
+  
+***************
+*** 149,152 ****
+--- 150,157 ----
+      fprintf(stderr,&quot;[setup-softdevice] A/V Offset set to (%d)\n&quot;,
+              avOffset);
++   } else if (!strcasecmp(Name, &quot;AlsaDevice&quot;) &amp;&amp; strlen(alsaDevice) == 0) {
++     strncpy(alsaDevice, Value, ALSA_DEVICE_NAME_LENGTH);
++     alsaDevice [ALSA_DEVICE_NAME_LENGTH-1] = 0;
++     fprintf(stderr, &quot;[setup-softdevice] alsa device set to: %s\n&quot;, alsaDevice);
+    } else return false;
+  
+***************
+*** 277,279 ****
+--- 282,285 ----
+    SetupStore (&quot;SyncAllFrames&quot;,      setupStore.syncOnFrames);
+    SetupStore (&quot;avOffset&quot;,           setupStore.avOffset);
++   SetupStore (&quot;AlsaDevice&quot;,         setupStore.alsaDevice);
+  }
+
+Index: setup-softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.h,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** setup-softdevice.h	18 Oct 2004 03:33:37 -0000	1.2
+--- setup-softdevice.h	29 Oct 2004 16:41:39 -0000	1.3
+***************
+*** 15,18 ****
+--- 15,20 ----
+  #define VOUT_VIDIX    4
+  
++ #define ALSA_DEVICE_NAME_LENGTH  64
++ 
+  /* ---------------------------------------------------------------------------
+   */
+***************
+*** 30,33 ****
+--- 32,36 ----
+      int   syncOnFrames;
+      int   avOffset;
++     char  alsaDevice [ALSA_DEVICE_NAME_LENGTH];
+  };
+  
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** softdevice.c	25 Oct 2004 02:54:39 -0000	1.2
+--- softdevice.c	29 Oct 2004 16:41:39 -0000	1.3
+***************
+*** 310,314 ****
+      fprintf(stderr,&quot;[softdevice] Video Out seems to be OK\n&quot;);
+      fprintf(stderr,&quot;[softdevice] Initializing Audio Out\n&quot;);
+!     audioOut=new cAlsaAudioOut();
+      fprintf(stderr,&quot;[softdevice] Audio out seems to be OK\n&quot;);
+      fprintf(stderr,&quot;[softdevice] A/V devices initialized, now initializing MPEG2 Decoder\n&quot;);
+--- 310,314 ----
+      fprintf(stderr,&quot;[softdevice] Video Out seems to be OK\n&quot;);
+      fprintf(stderr,&quot;[softdevice] Initializing Audio Out\n&quot;);
+!     audioOut=new cAlsaAudioOut(setupStore.alsaDevice);
+      fprintf(stderr,&quot;[softdevice] Audio out seems to be OK\n&quot;);
+      fprintf(stderr,&quot;[softdevice] A/V devices initialized, now initializing MPEG2 Decoder\n&quot;);
+***************
+*** 476,479 ****
+--- 476,480 ----
+    // Return a string that describes all known command line options.
+    return
++   &quot;  -ao alsa:devicename      alsa output device\n&quot;
+  #ifdef XV_SUPPORT
+    &quot;  -vo xv:                  enable output via X11-Xv\n&quot;
+***************
+*** 557,560 ****
+--- 558,567 ----
+        ++i; --argc;
+        if (argc &gt; 0) {
++           char *ao_argv = argv[i];
++         if (!strncmp(ao_argv, &quot;alsa:&quot;, 5)) {
++           ao_argv += 5;
++           fprintf(stderr, &quot;[softdevice] using alsa device %s\n&quot;, ao_argv);
++           strncpy(setupStore.alsaDevice, ao_argv, ALSA_DEVICE_NAME_LENGTH);
++         }
+        }
+      }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000022.html">[Softdevice-cvs] softdevice CHANGELOG,1.12,1.13 video.c,1.2,1.3 video.h,1.2,1.3
+</A></li>
+	<LI>Next message: <A HREF="000024.html">[Softdevice-cvs] softdevice CHANGELOG,1.14,1.15 softdevice.c,1.3,1.4 video-xv.c,1.5,1.6
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#23">[ date ]</a>
+              <a href="thread.html#23">[ thread ]</a>
+              <a href="subject.html#23">[ subject ]</a>
+              <a href="author.html#23">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,978 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.312, 1.313 SoftOsd.c, 1.27,	1.28 SoftOsd.h, 1.13, 1.14 utils.c, 1.26, 1.27 utils.h, 1.17,	1.18 video-dfb.c, 1.81, 1.82 video-dfb.h, 1.27,	1.28 video-fb.h, 1.11, 1.12 video-shm.c, 1.18,	1.19 video-shm.h, 1.10, 1.11 video-vidix.c, 1.26,	1.27 video-vidix.h, 1.13, 1.14 video-xv.c, 1.70,	1.71 video-xv.h, 1.27, 1.28 video.h, 1.53, 1.54
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.312%2C%201.313%20SoftOsd.c%2C%201.27%2C%0A%091.28%20SoftOsd.h%2C%201.13%2C%201.14%20utils.c%2C%201.26%2C%201.27%20utils.h%2C%201.17%2C%0A%091.18%20video-dfb.c%2C%201.81%2C%201.82%20video-dfb.h%2C%201.27%2C%0A%091.28%20video-fb.h%2C%201.11%2C%201.12%20video-shm.c%2C%201.18%2C%0A%091.19%20video-shm.h%2C%201.10%2C%201.11%20video-vidix.c%2C%201.26%2C%0A%091.27%20video-vidix.h%2C%201.13%2C%201.14%20video-xv.c%2C%201.70%2C%0A%091.71%20video-xv.h%2C%201.27%2C%201.28%20video.h%2C%201.53%2C%201.54&In-Reply-To=%3C20070510215934.D402EEFFEB%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000554.html">
+   <LINK REL="Next"  HREF="000558.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.312, 1.313 SoftOsd.c, 1.27,	1.28 SoftOsd.h, 1.13, 1.14 utils.c, 1.26, 1.27 utils.h, 1.17,	1.18 video-dfb.c, 1.81, 1.82 video-dfb.h, 1.27,	1.28 video-fb.h, 1.11, 1.12 video-shm.c, 1.18,	1.19 video-shm.h, 1.10, 1.11 video-vidix.c, 1.26,	1.27 video-vidix.h, 1.13, 1.14 video-xv.c, 1.70,	1.71 video-xv.h, 1.27, 1.28 video.h, 1.53, 1.54</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.312%2C%201.313%20SoftOsd.c%2C%201.27%2C%0A%091.28%20SoftOsd.h%2C%201.13%2C%201.14%20utils.c%2C%201.26%2C%201.27%20utils.h%2C%201.17%2C%0A%091.18%20video-dfb.c%2C%201.81%2C%201.82%20video-dfb.h%2C%201.27%2C%0A%091.28%20video-fb.h%2C%201.11%2C%201.12%20video-shm.c%2C%201.18%2C%0A%091.19%20video-shm.h%2C%201.10%2C%201.11%20video-vidix.c%2C%201.26%2C%0A%091.27%20video-vidix.h%2C%201.13%2C%201.14%20video-xv.c%2C%201.70%2C%0A%091.71%20video-xv.h%2C%201.27%2C%201.28%20video.h%2C%201.53%2C%201.54&In-Reply-To=%3C20070510215934.D402EEFFEB%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.312, 1.313 SoftOsd.c, 1.27,	1.28 SoftOsd.h, 1.13, 1.14 utils.c, 1.26, 1.27 utils.h, 1.17,	1.18 video-dfb.c, 1.81, 1.82 video-dfb.h, 1.27,	1.28 video-fb.h, 1.11, 1.12 video-shm.c, 1.18,	1.19 video-shm.h, 1.10, 1.11 video-vidix.c, 1.26,	1.27 video-vidix.h, 1.13, 1.14 video-xv.c, 1.70,	1.71 video-xv.h, 1.27, 1.28 video.h, 1.53, 1.54">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Thu May 10 23:59:34 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000554.html">[Softdevice-cvs] softdevice MacVdrClient.c,1.1,1.2
+</A></li>
+        <LI>Next message: <A HREF="000558.html">[Softdevice-cvs] softdevice CHANGELOG, 1.313, 1.314 VideoFilter.c,	1.5, 1.6 VideoFilter.h, 1.2, 1.3 configure, 1.41, 1.42
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#557">[ date ]</a>
+              <a href="thread.html#557">[ thread ]</a>
+              <a href="subject.html#557">[ subject ]</a>
+              <a href="author.html#557">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv27371
+
+Modified Files:
+	CHANGELOG SoftOsd.c SoftOsd.h utils.c utils.h video-dfb.c 
+	video-dfb.h video-fb.h video-shm.c video-shm.h video-vidix.c 
+	video-vidix.h video-xv.c video-xv.h video.h 
+Log Message:
+- remove left over code from the old video-fb.
+- remove pixel mask option from SoftOsd.[hc] and video*, which was only used
+  by the old video-fb.
+
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.312
+retrieving revision 1.313
+diff -C2 -d -r1.312 -r1.313
+*** CHANGELOG	10 May 2007 19:54:44 -0000	1.312
+--- CHANGELOG	10 May 2007 21:57:26 -0000	1.313
+***************
+*** 1,4 ****
+--- 1,8 ----
+  Changelog
+  2007-05-10:
++    - remove left over code from the old video-fb.
++    - remove pixel mask option from SoftOsd.[hc] and video*, which was only used
++      by the old video-fb.
++    - adapt MacVdrClient.c to the setupStore in shared memory.
+     - remove softlog from setupStore. Pointers aren't valid in a shared memory
+       block.
+
+Index: SoftOsd.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.c,v
+retrieving revision 1.27
+retrieving revision 1.28
+diff -C2 -d -r1.27 -r1.28
+*** SoftOsd.c	3 Apr 2007 19:40:29 -0000	1.27
+--- SoftOsd.c	10 May 2007 21:57:26 -0000	1.28
+***************
+*** 51,55 ****
+          OSDDEB(&quot;cSoftOsd constructor\n&quot;);
+          OutputConvert=&amp;cSoftOsd::ARGB_to_ARGB32;
+-         pixelMask=NULL;
+          bitmap_Format=PF_None; // forces a clear after first SetMode
+          OSD_Bitmap=new uint32_t[OSD_STRIDE*(OSD_HEIGHT+4)];
+--- 51,54 ----
+***************
+*** 65,74 ****
+          ScreenOsdWidth=ScreenOsdHeight=0;
+          int Depth=16; bool HasAlpha=false; bool AlphaInversed=false;
+!         bool IsYUV=false; uint8_t *PixelMask=NULL;
+          videoOut-&gt;AdjustOSDMode();
+!         videoOut-&gt;GetOSDMode(Depth,HasAlpha,AlphaInversed,
+!                         IsYUV,PixelMask);
+!         SetMode(Depth,HasAlpha,AlphaInversed,
+!                         IsYUV,PixelMask);
+          voutMutex.Unlock();
+  };
+--- 64,71 ----
+          ScreenOsdWidth=ScreenOsdHeight=0;
+          int Depth=16; bool HasAlpha=false; bool AlphaInversed=false;
+!         bool IsYUV=false; 
+          videoOut-&gt;AdjustOSDMode();
+!         videoOut-&gt;GetOSDMode(Depth,HasAlpha,AlphaInversed,IsYUV);
+!         SetMode(Depth,HasAlpha,AlphaInversed,IsYUV);
+          voutMutex.Unlock();
+  };
+***************
+*** 132,140 ****
+  
+                  int Depth=16; bool HasAlpha=false; bool AlphaInversed=false;
+!                 bool IsYUV=false; uint8_t *PixelMask=NULL;
+!                 videoOut-&gt;GetOSDMode(Depth,HasAlpha,AlphaInversed,
+!                                 IsYUV,PixelMask);
+!                 bool modeChanged=SetMode(Depth,HasAlpha,AlphaInversed,
+!                                 IsYUV,PixelMask);
+  
+                  if (newXPan != xPan || newYPan != yPan) {
+--- 129,135 ----
+  
+                  int Depth=16; bool HasAlpha=false; bool AlphaInversed=false;
+!                 bool IsYUV=false; 
+!                 videoOut-&gt;GetOSDMode(Depth,HasAlpha,AlphaInversed,IsYUV);
+!                 bool modeChanged=SetMode(Depth,HasAlpha,AlphaInversed,IsYUV);
+  
+                  if (newXPan != xPan || newYPan != yPan) {
+***************
+*** 180,186 ****
+  
+          int Depth=16; bool HasAlpha=false; bool AlphaInversed=false;
+!         bool IsYUV=false; uint8_t *PixelMask=NULL;
+!         videoOut-&gt;GetOSDMode(Depth,HasAlpha,AlphaInversed,IsYUV,PixelMask);
+!         bool modeChanged=SetMode(Depth,HasAlpha,AlphaInversed,IsYUV,PixelMask);
+  
+          if (newXPan != xPan || newYPan != yPan) {
+--- 175,181 ----
+  
+          int Depth=16; bool HasAlpha=false; bool AlphaInversed=false;
+!         bool IsYUV=false; 
+!         videoOut-&gt;GetOSDMode(Depth,HasAlpha,AlphaInversed,IsYUV);
+!         bool modeChanged=SetMode(Depth,HasAlpha,AlphaInversed,IsYUV);
+  
+          if (newXPan != xPan || newYPan != yPan) {
+***************
+*** 222,228 ****
+  /* --------------------------------------------------------------------------*/
+  bool cSoftOsd::SetMode(int Depth, bool HasAlpha, bool AlphaInversed,
+!                 bool IsYUV,uint8_t *PixelMask) {
+!         //OSDDEB(&quot;SetMode Depth %d HasAlpha %d IsYUV %d AlphaInversed %d PixelMask %p\n&quot;,
+!         //                Depth,HasAlpha,IsYUV,AlphaInversed,PixelMask);
+  
+          if (IsYUV) {
+--- 217,223 ----
+  /* --------------------------------------------------------------------------*/
+  bool cSoftOsd::SetMode(int Depth, bool HasAlpha, bool AlphaInversed,
+!                 bool IsYUV) {
+!         //OSDDEB(&quot;SetMode Depth %d HasAlpha %d IsYUV %d AlphaInversed %d\n&quot;,
+!         //                Depth,HasAlpha,IsYUV,AlphaInversed);
+  
+          if (IsYUV) {
+***************
+*** 238,242 ****
+          };
+  
+-         pixelMask=PixelMask;
+          switch (Depth) {
+                  case 32: if (HasAlpha)
+--- 233,236 ----
+***************
+*** 250,257 ****
+                  case 16:
+                           HasAlpha=false;
+!                          if (PixelMask)
+!                                  OutputConvert=&amp;cSoftOsd::ARGB_to_RGB16_PixelMask;
+!                          else
+!                                  OutputConvert=&amp;cSoftOsd::ARGB_to_RGB16;
+                           break;
+                  default:
+--- 244,248 ----
+                  case 16:
+                           HasAlpha=false;
+!                          OutputConvert=&amp;cSoftOsd::ARGB_to_RGB16;
+                           break;
+                  default:
+***************
+*** 921,962 ****
+          };
+  };
+- /*---------------------------------------------------------------------------*/
+- 
+- void cSoftOsd::ARGB_to_RGB16_PixelMask(uint8_t * dest, color * pixmap,
+-                 int Pixel, int odd) {
+-         uint8_t *end_dest=dest+2*Pixel;
+-         int PixelCount=0;
+-         int c;
+-         while (end_dest&gt;dest) {
+-                 c=*pixmap;
+-                 if ( IS_BACKGROUND(GET_A(c)) &amp;&amp; (((intptr_t)pixmap) &amp; 0x4)
+-                                 || IS_TRANSPARENT(GET_A(c)) ) {
+-                         // transparent, don't draw anything !
+-                 } else {
+-                         // FIXME 15/16bit mode? Probably broken!
+-                         dest[0] = ((GET_B(c) &gt;&gt; 3)&amp; 0x1F) |
+-                                 ((GET_G(c) &amp; 0x1C) &lt;&lt; 3);
+-                         dest[1] = ((GET_R(c) ) &amp; 0xF8)
+-                                 | ((GET_G(c) &gt;&gt; 5) );
+-                 }
+-                 dest+=2;
+-                 pixmap++;
+-                 PixelCount++;
+-         };
+- };
+  
+- void cSoftOsd::CreatePixelMask(uint8_t * dest, color * pixmap, int Pixel) {
+-         int CurrPixel=0;
+-         int c;
+-         while (CurrPixel&lt;Pixel) {
+-                 c = *pixmap;
+-                 if ( (IS_BACKGROUND(GET_A(c)) &amp;&amp; !(((intptr_t)pixmap) &amp; 0x4)  )
+-                                 || IS_OPAQUE(GET_A(c)) )
+-                         dest[CurrPixel/8]|=(1&lt;&lt;CurrPixel%8);
+-                  else dest[CurrPixel/8]&amp;=~(1&lt;&lt;CurrPixel%8);
+-                 pixmap++;
+-                 CurrPixel++;
+-         };
+- };
+  //---------------------------YUV modes ----------------------
+  void cSoftOsd::CopyToBitmap(uint8_t *PY,uint8_t *PU, uint8_t *PV,
+--- 912,916 ----
+***************
+*** 1340,1346 ****
+                  buf=dest+y*linesize;
+                  (*OutputConvert)(buf,tmp_pixmap+1,dest_Width-2,y&amp;1);
+!                 if (pixelMask)
+!                         CreatePixelMask(pixelMask+y*linesize/16,
+!                                         tmp_pixmap+1,dest_Width-2);
+                  if (dest_dirtyLines)
+                          dest_dirtyLines[y]=true;
+--- 1294,1298 ----
+                  buf=dest+y*linesize;
+                  (*OutputConvert)(buf,tmp_pixmap+1,dest_Width-2,y&amp;1);
+!                 
+                  if (dest_dirtyLines)
+                          dest_dirtyLines[y]=true;
+***************
+*** 1353,1359 ****
+                          buf=dest+y*linesize;
+                          (*OutputConvert)(buf,((color*)src)+1,dest_Width-2,y&amp;1);
+!                         if (pixelMask)
+!                                 CreatePixelMask(pixelMask+y*linesize/16,
+!                                                 ((color*)src)+1,dest_Width-2);
+                          if (dest_dirtyLines)
+                                  dest_dirtyLines[y]=true;
+--- 1305,1309 ----
+                          buf=dest+y*linesize;
+                          (*OutputConvert)(buf,((color*)src)+1,dest_Width-2,y&amp;1);
+!                         
+                          if (dest_dirtyLines)
+                                  dest_dirtyLines[y]=true;
+***************
+*** 1407,1413 ****
+                  //printf(&quot;copy to destination %d\n&quot;,y);
+                  (*OutputConvert)(buf,tmp_pixmap+1,dest_Width-2,y&amp;1);
+-                 if (pixelMask)
+-                         CreatePixelMask(pixelMask+y*linesize/16,
+-                                         tmp_pixmap+1,dest_Width-2);
+                  if (dest_dirtyLines)
+                          dest_dirtyLines[y]=true;
+--- 1357,1360 ----
+***************
+*** 1483,1489 ****
+                  //printf(&quot;copy to destination %d\n&quot;,y);
+                  (*OutputConvert)(buf,tmp_pixmap+1,dest_Width-2,y&amp;1);
+-                 if (pixelMask)
+-                         CreatePixelMask(pixelMask+y*linesize/16,
+-                                         tmp_pixmap+1,dest_Width-2);
+                  if (dest_dirtyLines)
+                          dest_dirtyLines[y]=true;
+--- 1430,1433 ----
+
+Index: SoftOsd.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/SoftOsd.h,v
+retrieving revision 1.13
+retrieving revision 1.14
+diff -C2 -d -r1.13 -r1.14
+*** SoftOsd.h	3 Apr 2007 19:40:29 -0000	1.13
+--- SoftOsd.h	10 May 2007 21:57:26 -0000	1.14
+***************
+*** 74,78 ****
+  
+      void (*OutputConvert)(uint8_t * dest, color * pixmap, int Pixel, int odd);
+-     uint8_t *pixelMask;
+      enum PixFormat {
+              PF_None,
+--- 74,77 ----
+***************
+*** 105,110 ****
+  
+  protected:
+!     bool SetMode(int Depth, bool HasAlpha, bool AlphaInversed,
+!                  bool IsYUV, uint8_t *PixelMask=NULL);
+  
+      bool FlushBitmaps(bool OnlyDirty);
+--- 104,108 ----
+  
+  protected:
+!     bool SetMode(int Depth, bool HasAlpha, bool AlphaInversed, bool IsYUV);
+  
+      bool FlushBitmaps(bool OnlyDirty);
+***************
+*** 128,136 ****
+      static void ARGB_to_RGB16(uint8_t * dest, color * pixmap, int Pixel,
+                      int odd);
+-     static void ARGB_to_RGB16_PixelMask(uint8_t * dest, color * pixmap,
+-                     int Pixel, int odd);
+- 
+-     void CreatePixelMask(uint8_t * dest, color * pixmap, int Pixel);
+- 
+  
+      static void AYUV_to_AYUV420P(uint8_t *PY1,uint8_t *PY2,
+--- 126,129 ----
+
+Index: utils.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/utils.c,v
+retrieving revision 1.26
+retrieving revision 1.27
+diff -C2 -d -r1.26 -r1.27
+*** utils.c	10 May 2007 19:49:51 -0000	1.26
+--- utils.c	10 May 2007 21:57:26 -0000	1.27
+***************
+*** 10,20 ****
+  
+  
+- /*
+-  * MMX conversion functions taken from the mpeg2dec project
+-  * Copyright (C) 2000-2002 Silicon Integrated System Corp.
+-  * All Rights Reserved.
+-  *
+-  * Author: Olie Lho &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">ollie at sis.com.tw</A>&gt;
+- */
+  #include &lt;unistd.h&gt;
+  #include &lt;stdlib.h&gt;
+--- 10,13 ----
+***************
+*** 27,32 ****
+  #ifdef HAVE_CONFIG
+  # include &quot;config.h&quot;
+- #else
+- # define  HAVE_BROKEN_GCC_CPP  0
+  #endif
+  
+--- 20,23 ----
+***************
+*** 387,680 ****
+  }
+  
+- #ifdef USE_MMX
+- 
+- #define VERT_SCALING
+- void (*mmx_unpack)(uint8_t * image, int lines, int stride);
+- 
+- static inline void mmx_yuv2rgb (uint8_t * py, uint8_t * pu, uint8_t * pv)
+- {
+-     static mmx_t mmx_80w = {0x0080008000800080LL};
+-     static mmx_t mmx_U_green = {0xf37df37df37df37dLL};
+-     static mmx_t mmx_U_blue = {0x4093409340934093LL};
+-     static mmx_t mmx_V_red = {0x3312331233123312LL};
+-     static mmx_t mmx_V_green = {0xe5fce5fce5fce5fcLL};
+-     static mmx_t mmx_10w = {0x1010101010101010LL};
+-     static mmx_t mmx_00ffw = {0x00ff00ff00ff00ffLL};
+-     static mmx_t mmx_Y_coeff = {0x253f253f253f253fLL};
+- 
+-     movd_m2r (*pu, mm0);		/* mm0 = 00 00 00 00 u3 u2 u1 u0 */
+-     movd_m2r (*pv, mm1);		/* mm1 = 00 00 00 00 v3 v2 v1 v0 */
+-     movq_m2r (*py, mm6);		/* mm6 = Y7 Y6 Y5 Y4 Y3 Y2 Y1 Y0 */
+-     pxor_r2r (mm4, mm4);		/* mm4 = 0 */
+-     /* XXX might do cache preload for image here */
+- 
+-     /*
+-      * Do the multiply part of the conversion for even and odd pixels
+-      * register usage:
+-      * mm0 -&gt; Cblue, mm1 -&gt; Cred, mm2 -&gt; Cgreen even pixels
+-      * mm3 -&gt; Cblue, mm4 -&gt; Cred, mm5 -&gt; Cgreen odd  pixels
+-      * mm6 -&gt; Y even, mm7 -&gt; Y odd
+-      */
+- 
+-     punpcklbw_r2r (mm4, mm0);		/* mm0 = u3 u2 u1 u0 */
+-     punpcklbw_r2r (mm4, mm1);		/* mm1 = v3 v2 v1 v0 */
+-     psubsw_m2r (mmx_80w, mm0);		/* u -= 128 */
+-     psubsw_m2r (mmx_80w, mm1);		/* v -= 128 */
+-     psllw_i2r (3, mm0);			/* promote precision */
+-     psllw_i2r (3, mm1);			/* promote precision */
+-     movq_r2r (mm0, mm2);		/* mm2 = u3 u2 u1 u0 */
+-     movq_r2r (mm1, mm3);		/* mm3 = v3 v2 v1 v0 */
+-     pmulhw_m2r (mmx_U_green, mm2);	/* mm2 = u * u_green */
+-     pmulhw_m2r (mmx_V_green, mm3);	/* mm3 = v * v_green */
+-     pmulhw_m2r (mmx_U_blue, mm0);	/* mm0 = chroma_b */
+-     pmulhw_m2r (mmx_V_red, mm1);	/* mm1 = chroma_r */
+-     paddsw_r2r (mm3, mm2);		/* mm2 = chroma_g */
+- 
+-     psubusb_m2r (mmx_10w, mm6);		/* Y -= 16 */
+-     movq_r2r (mm6, mm7);		/* mm7 = Y7 Y6 Y5 Y4 Y3 Y2 Y1 Y0 */
+-     pand_m2r (mmx_00ffw, mm6);		/* mm6 =    Y6    Y4    Y2    Y0 */
+-     psrlw_i2r (8, mm7);			/* mm7 =    Y7    Y5    Y3    Y1 */
+-     psllw_i2r (3, mm6);			/* promote precision */
+-     psllw_i2r (3, mm7);			/* promote precision */
+-     pmulhw_m2r (mmx_Y_coeff, mm6);	/* mm6 = luma_rgb even */
+-     pmulhw_m2r (mmx_Y_coeff, mm7);	/* mm7 = luma_rgb odd */
+- 
+-     /*
+-      * Do the addition part of the conversion for even and odd pixels
+-      * register usage:
+-      * mm0 -&gt; Cblue, mm1 -&gt; Cred, mm2 -&gt; Cgreen even pixels
+-      * mm3 -&gt; Cblue, mm4 -&gt; Cred, mm5 -&gt; Cgreen odd  pixels
+-      * mm6 -&gt; Y even, mm7 -&gt; Y odd
+-      */
+- 
+-     movq_r2r (mm0, mm3);		/* mm3 = chroma_b */
+-     movq_r2r (mm1, mm4);		/* mm4 = chroma_r */
+-     movq_r2r (mm2, mm5);		/* mm5 = chroma_g */
+-     paddsw_r2r (mm6, mm0);		/* mm0 = B6 B4 B2 B0 */
+-     paddsw_r2r (mm7, mm3);		/* mm3 = B7 B5 B3 B1 */
+-     paddsw_r2r (mm6, mm1);		/* mm1 = R6 R4 R2 R0 */
+-     paddsw_r2r (mm7, mm4);		/* mm4 = R7 R5 R3 R1 */
+-     paddsw_r2r (mm6, mm2);		/* mm2 = G6 G4 G2 G0 */
+-     paddsw_r2r (mm7, mm5);		/* mm5 = G7 G5 G3 G1 */
+-     packuswb_r2r (mm0, mm0);		/* saturate to 0-255 */
+-     packuswb_r2r (mm1, mm1);		/* saturate to 0-255 */
+-     packuswb_r2r (mm2, mm2);		/* saturate to 0-255 */
+-     packuswb_r2r (mm3, mm3);		/* saturate to 0-255 */
+-     packuswb_r2r (mm4, mm4);		/* saturate to 0-255 */
+-     packuswb_r2r (mm5, mm5);		/* saturate to 0-255 */
+-     punpcklbw_r2r (mm3, mm0);		/* mm0 = B7 B6 B5 B4 B3 B2 B1 B0 */
+-     punpcklbw_r2r (mm4, mm1);		/* mm1 = R7 R6 R5 R4 R3 R2 R1 R0 */
+-     punpcklbw_r2r (mm5, mm2);		/* mm2 = G7 G6 G5 G4 G3 G2 G1 G0 */
+- }
+- 
+- void mmx_unpack_16rgb (uint8_t * image, int lines, int stride)
+- {
+-     static mmx_t mmx_bluemask = {0xf8f8f8f8f8f8f8f8ll};
+-     static mmx_t mmx_greenmask = {0xfcfcfcfcfcfcfcfcll};
+-     static mmx_t mmx_redmask = {0xf8f8f8f8f8f8f8f8ll};
+- 
+-     /*
+-      * convert RGB plane to RGB 16 bits
+-      * mm0 -&gt; B, mm1 -&gt; R, mm2 -&gt; G
+-      * mm4 -&gt; GB, mm5 -&gt; AR pixel 4-7
+-      * mm6 -&gt; GB, mm7 -&gt; AR pixel 0-3
+-      */
+- 
+-     pand_m2r (mmx_bluemask, mm0);       // mm0 = b7b6b5b4b3______
+-     pxor_r2r (mm4, mm4);                // mm4 = 0
+- 
+-     pand_m2r (mmx_greenmask, mm2);      // mm2 = g7g6g5g4g3g2____
+-     psrlq_i2r (3, mm0);                 // mm0 = ______b7b6b5b4b3
+- 
+-     movq_r2r (mm2, mm7);                // mm7 = g7g6g5g4g3g2____
+-     movq_r2r (mm0, mm5);                // mm5 = ______b7b6b5b4b3
+- 
+-     pand_m2r (mmx_redmask, mm1);        // mm1 = r7r6r5r4r3______
+-     punpcklbw_r2r (mm4, mm2);
+- 
+-     punpcklbw_r2r (mm1, mm0);
+- 
+-     psllq_i2r (3, mm2);
+- 
+-     punpckhbw_r2r (mm4, mm7);
+-     por_r2r (mm2, mm0);
+- 
+-     psllq_i2r (3, mm7);
+- 
+- 
+-     // jetzt muss ich die an bestimmten Stellen verdoppeln.
+-     movntq (mm0, *(image));
+- 
+-     punpckhbw_r2r (mm1, mm5);
+-     por_r2r (mm7, mm5);
+- 
+-     movntq (mm5, *(image+8));
+-     while(--lines) { // write the same in the line above
+-       image -= stride;
+-       movntq (mm0, *(image));
+-       movntq (mm5, *(image+8));
+-     }
+- 
+- }
+- 
+- void mmx_unpack_15rgb (uint8_t * image, int lines, int stride)
+- {
+-     static mmx_t mmx_bluemask = {0xf8f8f8f8f8f8f8f8ll};
+-     static mmx_t mmx_greenmask = {0xf8f8f8f8f8f8f8f8ll};
+-     static mmx_t mmx_redmask = {0xf8f8f8f8f8f8f8f8ll};
+- 
+-     /*
+-      * convert RGB plane to RGB 16 bits
+-      * mm0 -&gt; B, mm1 -&gt; R, mm2 -&gt; G
+-      * mm4 -&gt; GB, mm5 -&gt; AR pixel 4-7
+-      * mm6 -&gt; GB, mm7 -&gt; AR pixel 0-3
+-      */
+- 
+-     pand_m2r (mmx_bluemask, mm0);       // mm0 = b7b6b5b4b3______
+-     pxor_r2r (mm4, mm4);                // mm4 = 0
+- 
+-     pand_m2r (mmx_greenmask, mm2);      // mm2 = g7g6g5g4g3g2____
+-     psrlq_i2r (2, mm0);                 // mm0 = ______b7b6b5b4b3
+- 
+-     movq_r2r (mm2, mm7);                // mm7 = g7g6g5g4g3g2____
+-     movq_r2r (mm0, mm5);                // mm5 = ______b7b6b5b4b3
+- 
+-     pand_m2r (mmx_redmask, mm1);        // mm1 = r7r6r5r4r3______
+-     punpcklbw_r2r (mm4, mm2);
+- 
+-     punpcklbw_r2r (mm1, mm0);
+- 
+-     psllq_i2r (3, mm2);
+- 
+-     punpckhbw_r2r (mm4, mm7);
+-     por_r2r (mm2, mm0);
+- 
+-     psllq_i2r (3, mm7);
+- 
+-     // jetzt muss ich die an bestimmten Stellen verdoppeln.
+-     psrlq_i2r(1,mm0);//MW
+-     movntq (mm0, *(image));
+- 
+-     punpckhbw_r2r (mm1, mm5);
+-     por_r2r (mm7, mm5);
+- 
+-     psrlq_i2r(1,mm5); //MW
+-     movntq (mm5, *(image+8));
+-     while(--lines) { // write the same in the line above
+-       image -= stride;
+-       movntq (mm0, *(image));
+-       movntq (mm5, *(image+8));
+-     }
+- 
+- }
+- 
+- void yuv_to_rgb (uint8_t * image, uint8_t * py,
+-                  uint8_t * pu, uint8_t * pv,
+-                  int width, int height,
+-                  int rgb_stride, int y_stride, int uv_stride,
+-                  int dstW, int dstH,
+-                  int depth, unsigned char * mask, int deintMethod)
+- {
+- /*
+-     Do the YUV-&gt;RGB transformation and scale the picture upt to dstW x dstH
+-     Do NOT touch the pixels that are masked by '*mask'
+-     This algo works only in 16bit mode
+- */
+-     uint16_t  pix[8];
+-     uint8_t   *IM, *Y, *Y1, *Y2, *U, *V;
+-     uint8_t   *scaleY, *scaleU, *scaleV;
+-     uint8_t   *sY, *sU, *sV;
+-     uint8_t   *m;
+-     int       oldY = -1, dstY, lines;
+- 
+- //    printf(&quot;[utils] Scaling %d x %d YUV image to %d x %d %d Bit image, Pixmask %d\n&quot;,width,height,dstW,dstH,depth, mask);
+-   scaleY = (uint8_t *)malloc(dstW);
+-   scaleU = (uint8_t *)malloc(dstW);
+-   scaleV = (uint8_t *)malloc(dstW);
+- 
+-   for (int y = 0; y &lt; height; y++) {
+- 
+-     dstY = (y * dstH) / height;       // scaling: where to draw the line
+-     IM = image + dstY * rgb_stride ;
+-     Y = py + y * y_stride;
+- 
+-     /* ------------------------------------------------------------------------
+-      * prepare pointer for deinterlacing (set them allways, deintMethod may
+-      * change any time in the middle of this loop, since it is not protected
+-      * by a mutex.
+-      * For deinterlacing with our internal method we need previous and next line
+-      */
+-     Y1 = Y2 = Y;
+- 
+-     Y1 -= (y &gt; 0)          ? y_stride : 0;
+-     Y2 += (y &lt; (height-1)) ? y_stride : 0;
+- 
+-     U = pu + (y/2) * uv_stride;
+-     V = pv + (y/2) * uv_stride;
+- 
+-     lines = dstY - oldY;
+-     oldY = dstY;
+-     if (!lines) continue;
+-     m=mask;
+-     sY = scaleY;
+-     sU = scaleU;
+-     sV = scaleV;
+- #ifdef VERT_SCALING
+-     // maybe i find a better algo to stretch the lines
+-     for (int x = 0; x &lt; dstW; x++) {
+-         int srcpix = x * width / dstW;
+- 
+-       if (deintMethod == 2) {
+-         // deinterlace with FB-intern method
+-         scaleY[x] = (Y[srcpix] / 2) + (Y1[srcpix] /4) + (Y2[srcpix] / 4);
+-       } else scaleY[x] = Y[srcpix];
+- 
+-       if ((x &lt; dstW / 2) &amp;&amp; (y % 2 == 0)) {
+-         scaleU[x] = U[srcpix];
+-         scaleV[x] = V[srcpix];
+-       }
+-     }
+- #else
+-     sY = Y;
+-     sU = U;
+-     sV = V;
+-     dstW = width;
+- #endif
+-     for (int x = 0; x &lt; dstW; x+=8) {
+-       if (!m) { // no mask given
+-         mmx_yuv2rgb (sY, sU, sV);
+-         mmx_unpack (IM, lines, rgb_stride);
+-       } else { // mask given
+-         if (*m != 0xFF) { // not all bits masked
+-           mmx_yuv2rgb (sY, sU, sV);
+-           if (*m == 0) { // no bit is masked
+-             mmx_unpack (IM, lines, rgb_stride);
+-           } else { // at least one bit is masked
+-             mmx_unpack ((uint8_t *)pix, lines, rgb_stride);
+-             for (int i = 0; i &lt; 8; i++) {
+-               if (! (*m &amp; (1 &lt;&lt; i)) ) {
+-                 for (int j = 0; j &lt; lines; j++) {
+-                   *(uint16_t *)(IM - j*rgb_stride) = pix[i];
+-                 }
+-               }
+-               IM += 2;
+-             }
+-             IM -= 16;
+-           }
+-         }
+-         m++;
+-       }
+-       sY += 8;
+-       sU += 4;
+-       sV += 4;
+-       IM += 16;
+-     }
+-     if (mask) mask += lines * rgb_stride / 16;
+-   }
+-   free(scaleY);
+-   free(scaleU);
+-   free(scaleV);
+- }
+- #endif // USE_MMX
+  
+  inline uint8_t clip( int x) {
+--- 378,381 ----
+
+Index: utils.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/utils.h,v
+retrieving revision 1.17
+retrieving revision 1.18
+diff -C2 -d -r1.17 -r1.18
+*** utils.h	10 May 2007 19:49:51 -0000	1.17
+--- utils.h	10 May 2007 21:57:26 -0000	1.18
+***************
+*** 102,112 ****
+                   );
+  
+- void yuv_to_rgb (uint8_t * image, uint8_t * py,
+-                  uint8_t * pu, uint8_t * pv,
+-                  int width, int height,
+-                  int rgb_stride, int y_stride, int uv_stride,
+-                  int dstW, int dstH,
+-                  int depth, unsigned char * mask, int deintMethod);
+- 
+  typedef void (*yuv420_convert_fct)(uint8_t *dst1, uint8_t *dst2, 
+                  uint8_t *py1, uint8_t *py2,uint8_t *pu, uint8_t *pv,
+--- 102,105 ----
+***************
+*** 141,149 ****
+  bool  CatchRemoteKey(const char *remoteName, uint64_t key, 
+                  const int ToggleKey);
+- 
+- void mmx_unpack_16rgb (uint8_t * image, int lines, int stride);
+- void mmx_unpack_15rgb (uint8_t * image, int lines, int stride);
+- void mmx_unpack_24rgb (uint8_t * image, int lines, int stride);
+- extern void (*mmx_unpack)(uint8_t * image, int lines, int stride);
+  
+  
+--- 134,137 ----
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.81
+retrieving revision 1.82
+diff -C2 -d -r1.81 -r1.82
+*** video-dfb.c	10 May 2007 19:54:44 -0000	1.81
+--- video-dfb.c	10 May 2007 21:57:26 -0000	1.82
+***************
+*** 1204,1208 ****
+   */
+  void cDFBVideoOut::GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+!                               bool &amp;IsYUV, uint8_t *&amp;PixelMask)
+  {
+    Depth=Bpp;
+--- 1204,1208 ----
+   */
+  void cDFBVideoOut::GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+!                               bool &amp;IsYUV)
+  {
+    Depth=Bpp;
+***************
+*** 1210,1214 ****
+    AlphaInversed=isVIAUnichrome;
+    IsYUV=false;
+-   PixelMask=NULL;
+  }
+  
+--- 1210,1213 ----
+
+Index: video-dfb.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.h,v
+retrieving revision 1.27
+retrieving revision 1.28
+diff -C2 -d -r1.27 -r1.28
+*** video-dfb.h	10 May 2007 19:54:44 -0000	1.27
+--- video-dfb.h	10 May 2007 21:57:26 -0000	1.28
+***************
+*** 77,81 ****
+      virtual void OpenOSD();
+      virtual void GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+!                             bool &amp;IsYUV, uint8_t *&amp;PixelMask);
+      virtual void GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight,
+                                   int &amp;xPan, int &amp;yPan);
+--- 77,81 ----
+      virtual void OpenOSD();
+      virtual void GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+!                             bool &amp;IsYUV);
+      virtual void GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight,
+                                   int &amp;xPan, int &amp;yPan);
+
+Index: video-fb.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-fb.h,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -C2 -d -r1.11 -r1.12
+*** video-fb.h	10 May 2007 19:54:44 -0000	1.11
+--- video-fb.h	10 May 2007 21:57:26 -0000	1.12
+***************
+*** 30,34 ****
+    virtual ~cFBVideoOut();
+    virtual void GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+! 		  bool &amp;IsYUV, uint8_t *&amp;pixelmask)
+    { IsYUV=true;};
+    virtual void GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight,
+--- 30,34 ----
+    virtual ~cFBVideoOut();
+    virtual void GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+! 		  bool &amp;IsYUV)
+    { IsYUV=true;};
+    virtual void GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight,
+
+Index: video-shm.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-shm.c,v
+retrieving revision 1.18
+retrieving revision 1.19
+diff -C2 -d -r1.18 -r1.19
+*** video-shm.c	10 May 2007 19:54:44 -0000	1.18
+--- video-shm.c	10 May 2007 21:57:26 -0000	1.19
+***************
+*** 192,199 ****
+  
+  void cShmVideoOut::GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+!                 bool &amp;IsYUV, uint8_t *&amp;PixelMask) {
+          if ( current_osdMode==OSDMODE_SOFTWARE ) {
+                  IsYUV=true;
+-                 PixelMask=NULL;
+                  return;
+          };
+--- 192,198 ----
+  
+  void cShmVideoOut::GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+!                 bool &amp;IsYUV) {
+          if ( current_osdMode==OSDMODE_SOFTWARE ) {
+                  IsYUV=true;
+                  return;
+          };
+***************
+*** 202,206 ****
+          Depth=ctl-&gt;osd_depth;
+          HasAlpha=false;
+-         PixelMask=NULL;
+          AlphaInversed=false;
+  };       
+--- 201,204 ----
+
+Index: video-shm.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-shm.h,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -C2 -d -r1.10 -r1.11
+*** video-shm.h	10 May 2007 19:54:44 -0000	1.10
+--- video-shm.h	10 May 2007 21:57:26 -0000	1.11
+***************
+*** 50,54 ****
+  
+          virtual void GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+!                     bool &amp;IsYUV, uint8_t *&amp;PixelMask);
+  
+          virtual void YUV(sPicBuffer* buf);
+--- 50,54 ----
+  
+          virtual void GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+!                     bool &amp;IsYUV);
+  
+          virtual void YUV(sPicBuffer* buf);
+
+Index: video-vidix.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-vidix.c,v
+retrieving revision 1.26
+retrieving revision 1.27
+diff -C2 -d -r1.26 -r1.27
+*** video-vidix.c	10 May 2007 19:54:44 -0000	1.26
+--- video-vidix.c	10 May 2007 21:57:26 -0000	1.27
+***************
+*** 783,787 ****
+   */
+  void cVidixVideoOut::GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+!                               bool &amp;IsYUV, uint8_t *&amp;PixelMask)
+  {
+    Depth         = Bpp;
+--- 783,787 ----
+   */
+  void cVidixVideoOut::GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+!                               bool &amp;IsYUV)
+  {
+    Depth         = Bpp;
+***************
+*** 789,793 ****
+    AlphaInversed = false;
+    IsYUV         = (current_osdMode == OSDMODE_SOFTWARE);
+-   PixelMask     = NULL;
+  }
+  
+--- 789,792 ----
+
+Index: video-vidix.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-vidix.h,v
+retrieving revision 1.13
+retrieving revision 1.14
+diff -C2 -d -r1.13 -r1.14
+*** video-vidix.h	10 May 2007 19:54:44 -0000	1.13
+--- video-vidix.h	10 May 2007 21:57:26 -0000	1.14
+***************
+*** 53,58 ****
+                            bool &amp;HasAlpha,
+                            bool &amp;AlphaInversed,
+! 		                      bool &amp;IsYUV,
+! 		                      uint8_t *&amp;PixelMask);
+    virtual void GetLockOsdSurface(uint8_t *&amp;osd,
+                                   int &amp;stride,
+--- 53,57 ----
+                            bool &amp;HasAlpha,
+                            bool &amp;AlphaInversed,
+! 		                      bool &amp;IsYUV);
+    virtual void GetLockOsdSurface(uint8_t *&amp;osd,
+                                   int &amp;stride,
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.70
+retrieving revision 1.71
+diff -C2 -d -r1.70 -r1.71
+*** video-xv.c	10 May 2007 19:54:44 -0000	1.70
+--- video-xv.c	10 May 2007 21:57:26 -0000	1.71
+***************
+*** 1662,1669 ****
+   */
+  void cXvVideoOut::GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+!                   bool &amp;IsYUV, uint8_t *&amp;PixelMask) {
+          if (current_osdMode==OSDMODE_SOFTWARE) {
+                  IsYUV=true;
+-                 PixelMask=NULL;
+                  return;
+          };
+--- 1662,1668 ----
+   */
+  void cXvVideoOut::GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+!                   bool &amp;IsYUV) {
+          if (current_osdMode==OSDMODE_SOFTWARE) {
+                  IsYUV=true;
+                  return;
+          };
+***************
+*** 1672,1676 ****
+          Depth=osd_image-&gt;bits_per_pixel;
+          HasAlpha=false;
+-         PixelMask=NULL;
+  };
+  
+--- 1671,1674 ----
+
+Index: video-xv.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.h,v
+retrieving revision 1.27
+retrieving revision 1.28
+diff -C2 -d -r1.27 -r1.28
+*** video-xv.h	10 May 2007 19:54:44 -0000	1.27
+--- video-xv.h	10 May 2007 21:57:26 -0000	1.28
+***************
+*** 184,188 ****
+                                 int &amp;xPan, int &amp;yPan);
+    virtual void GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+!                   bool &amp;IsYUV, uint8_t *&amp;PixelMask);
+    virtual void GetLockOsdSurface(uint8_t *&amp;osd, int &amp;stride,
+                    bool *&amp;dirtyLines);
+--- 184,188 ----
+                                 int &amp;xPan, int &amp;yPan);
+    virtual void GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+!                   bool &amp;IsYUV);
+    virtual void GetLockOsdSurface(uint8_t *&amp;osd, int &amp;stride,
+                    bool *&amp;dirtyLines);
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.53
+retrieving revision 1.54
+diff -C2 -d -r1.53 -r1.54
+*** video.h	10 May 2007 19:54:44 -0000	1.53
+--- video.h	10 May 2007 21:57:26 -0000	1.54
+***************
+*** 232,238 ****
+  
+      virtual void GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+!                     bool &amp;IsYUV, uint8_t *&amp;PixelMask)
+!     { Depth=32; HasAlpha=true; AlphaInversed=false; IsYUV=false;
+!             PixelMask=NULL;};
+      // should be implemented by all video out method to set the OSD pixel mode
+  
+--- 232,237 ----
+  
+      virtual void GetOSDMode(int &amp;Depth, bool &amp;HasAlpha, bool &amp;AlphaInversed,
+!                     bool &amp;IsYUV)
+!     { Depth=32; HasAlpha=true; AlphaInversed=false; IsYUV=false; };
+      // should be implemented by all video out method to set the OSD pixel mode
+  
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000554.html">[Softdevice-cvs] softdevice MacVdrClient.c,1.1,1.2
+</A></li>
+	<LI>Next message: <A HREF="000558.html">[Softdevice-cvs] softdevice CHANGELOG, 1.313, 1.314 VideoFilter.c,	1.5, 1.6 VideoFilter.h, 1.2, 1.3 configure, 1.41, 1.42
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#557">[ date ]</a>
+              <a href="thread.html#557">[ thread ]</a>
+              <a href="subject.html#557">[ subject ]</a>
+              <a href="author.html#557">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

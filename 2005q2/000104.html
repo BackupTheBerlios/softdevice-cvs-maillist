@@ -1,0 +1,617 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softplay SoftPlayer.c,1.1.1.1,1.2 SoftPlayer.h,1.1.1.1,1.2 softplay.c,1.1.1.1,1.2
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softplay%20SoftPlayer.c%2C1.1.1.1%2C1.2%20SoftPlayer.h%2C1.1.1.1%2C1.2%20softplay.c%2C1.1.1.1%2C1.2&In-Reply-To=%3C200505070908.j47982m00279%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000103.html">
+   <LINK REL="Next"  HREF="000105.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softplay SoftPlayer.c,1.1.1.1,1.2 SoftPlayer.h,1.1.1.1,1.2 softplay.c,1.1.1.1,1.2</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softplay%20SoftPlayer.c%2C1.1.1.1%2C1.2%20SoftPlayer.h%2C1.1.1.1%2C1.2%20softplay.c%2C1.1.1.1%2C1.2&In-Reply-To=%3C200505070908.j47982m00279%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softplay SoftPlayer.c,1.1.1.1,1.2 SoftPlayer.h,1.1.1.1,1.2 softplay.c,1.1.1.1,1.2">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat May  7 11:08:02 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000103.html">[Softdevice-cvs] softdevice CHANGELOG,1.61,1.62 video-dfb.c,1.24,1.25
+</A></li>
+        <LI>Next message: <A HREF="000105.html">[Softdevice-cvs] softplay PlayList.c,NONE,1.1 PlayList.h,NONE,1.1 SoftPlayer.c,1.2,1.3 SoftPlayer.h,1.2,1.3
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#104">[ date ]</a>
+              <a href="thread.html#104">[ thread ]</a>
+              <a href="subject.html#104">[ subject ]</a>
+              <a href="author.html#104">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softplay
+In directory sheep:/tmp/cvs-serv11574
+
+Modified Files:
+	SoftPlayer.c SoftPlayer.h softplay.c 
+Log Message:
+- add subdirectory support
+
+
+
+Index: SoftPlayer.c
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/SoftPlayer.c,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1.1.1 -r1.2
+*** SoftPlayer.c	11 Apr 2005 16:03:32 -0000	1.1.1.1
+--- SoftPlayer.c	7 May 2005 09:07:56 -0000	1.2
+***************
+*** 7,16 ****
+   * GNU GENERAL PUBLIC LICENSE. See the file COPYING for details.
+   *
+!  * $ Id: $
+   */
+  
+  #include &quot;SoftPlayer.h&quot;
+  
+! #define PLDBG(out...) {printf(out);}
+  
+  #ifndef PLDBG
+--- 7,17 ----
+   * GNU GENERAL PUBLIC LICENSE. See the file COPYING for details.
+   *
+!  * $Id$
+   */
+  
+  #include &quot;SoftPlayer.h&quot;
+  
+! #define PLDBG(out...) { printf(&quot;PLDBG: &quot;);printf(out);}
+! //#define PKTDBG(out...) {printf(&quot;PKTDBG: &quot;);printf(out);}
+  
+  #ifndef PLDBG
+***************
+*** 18,29 ****
+  #endif
+  
+  // -------------------cSoftPlayer---------------------------------------
+  cSoftPlayer::cSoftPlayer() : cPlayer() {
+  	running=false;
+  	skip=0;
+  };
+  
+  cSoftPlayer::~cSoftPlayer() {
+! 	PLDBG(&quot;~cSoftPlayer \n&quot;);fflush(stdout);	
+  	running=false;
+  	Cancel(3);
+--- 19,36 ----
+  #endif
+  
++ #ifndef PKTDBG
++ #define PKTDBG(out...)
++ #endif
++ 
+  // -------------------cSoftPlayer---------------------------------------
+  cSoftPlayer::cSoftPlayer() : cPlayer() {
+  	running=false;
+  	skip=0;
++ 	SoftDevice=NULL;
++ 	av_register_all();
+  };
+  
+  cSoftPlayer::~cSoftPlayer() {
+! 	PLDBG(&quot;~cSoftPlayer \n&quot;);	
+  	running=false;
+  	Cancel(3);
+***************
+*** 47,51 ****
+  
+  void cSoftPlayer::Action() {
+- 	cSoftDevice *SoftDevice;
+    	AVPacket  pkt;
+    	int ret;
+--- 54,57 ----
+***************
+*** 58,63 ****
+--- 64,75 ----
+  	reading=true;
+  	pollTimeouts=0;
++ 	pause=false;
++ 	forward=true;
++ 	speed=1;
++         AudioIdx=-1;
++         VideoIdx=-1;
+  
+  	if (!ic) {
++ 	   printf(&quot;ic is null!!\n&quot;);
+  	   running= false;
+  	   reading= false;
+***************
+*** 92,95 ****
+--- 104,108 ----
+  		} else pollTimeouts=0;
+  
++                 // seek forward / backward
+  		if (skip) {
+  		        PLDBG(&quot;player skip %d curr pts: %lld, lastPTS %lld\n&quot;,skip,
+***************
+*** 127,135 ****
+  		//pkt.pts*=1000/AV_TIME_BASE;
+  
+  		// length = -2 : queue packet
+  		SoftDevice-&gt;PlayVideo((uchar *)&amp;pkt,-2);
+  		//SoftDevice-&gt;QueuePacket(ic,pkt);
+  		
+! 		if (nStreams!=ic-&gt;nb_streams ){
+  			PacketCount=0;
+  			nStreams=ic-&gt;nb_streams;
+--- 140,171 ----
+  		//pkt.pts*=1000/AV_TIME_BASE;
+  
++ 		if (pause) {
++ 			DeviceFreeze();
++ 			while (pause)
++ 		   		usleep(10000);
++ 			DevicePlay();
++ 		};
++ 
++                 // set audio index if not yet set
++                 if ( AudioIdx== -1 &amp;&amp;
++                      ic-&gt;streams[pkt.stream_index]-&gt;codec.codec_type == CODEC_TYPE_AUDIO )
++                         AudioIdx=pkt.stream_index;
++                    
++                 // set video index if not yet set
++                 if ( VideoIdx== -1 &amp;&amp;
++                      ic-&gt;streams[pkt.stream_index]-&gt;codec.codec_type == CODEC_TYPE_AUDIO )
++                         VideoIdx=pkt.stream_index;
++                
++                 // skip packets which do not belont to the current streams
++                 if ( pkt.stream_index != VideoIdx &amp;&amp;
++                      pkt.stream_index != AudioIdx )
++                         continue;
++                  
+  		// length = -2 : queue packet
++ 		PKTDBG(&quot;Queue Packet PTS: %lld\n&quot;,pkt.pts);
+  		SoftDevice-&gt;PlayVideo((uchar *)&amp;pkt,-2);
+  		//SoftDevice-&gt;QueuePacket(ic,pkt);
+  		
+! 		if ( nStreams != ic-&gt;nb_streams ) {
+  			PacketCount=0;
+  			nStreams=ic-&gt;nb_streams;
+***************
+*** 140,147 ****
+  		};
+  
+- 		if (PacketCount % 100) {
+- 			usleep(100);
+- 		};
+- 
+  		if (PacketCount == 200)
+  			dump_format(ic, 0, &quot;test&quot;, 0);
+--- 176,179 ----
+***************
+*** 181,202 ****
+  
+  void cSoftPlayer::OpenFile(const char *filename) {
+! 	printf(&quot;open file %s\n&quot;,filename);
+! 	if ( av_open_input_file( &amp;ic, filename, NULL, 0, &amp;ap) ) {
+! 		printf(&quot;could not open file\n&quot;);
+! 		ic=0;
+! 		return;
+! 	};
+  
+! 	if ( av_find_stream_info( ic ) ) {
+! 		printf(&quot;could not find stream info\n&quot;);
+! 		//exit(-1);
+! 	};
+! 	softPlayMode=GetPlayMode( ic );
+! }; 
+  
+  // -------------------cSoftControl----------------------------------------
+  
+! cSoftControl::cSoftControl(const char * filename ) : cControl(new cSoftPlayer) 
+! {
+    SoftPlayer = dynamic_cast&lt;cSoftPlayer*&gt; (player);
+    SoftPlayer-&gt;OpenFile(filename);
+--- 213,262 ----
+  
+  void cSoftPlayer::OpenFile(const char *filename) {
+!         int ret;
+!         printf(&quot;open file %s\n&quot;,filename);
+!         char str[60];
+!         if ( (ret=av_open_input_file( &amp;ic, filename, NULL, 0, NULL)) ) {
+!                 snprintf(str,60,&quot;%s %s!&quot;,&quot;Could not open file&quot;,filename);
+!                 Skins.Message(mtError, str);
+!                 printf(&quot;could not open file. Return value %d\n&quot;,ret);
+!                 ic=0;
+!                 return;
+!         };
+  
+!         if ( av_find_stream_info( ic ) ) {
+!                 printf(&quot;could not find stream info\n&quot;);
+!         };
+!         softPlayMode=GetPlayMode( ic );
+! };
+! 
+! char *cSoftPlayer::GetTitle()  { 
+!         if (!ic) 
+!                 return NULL;
+! 
+!         if (ic-&gt;title[0]!=0) {
+!                 snprintf(title,120,&quot;%s - %s - %s&quot;,
+!                                 ic-&gt;author,ic-&gt;album,ic-&gt;title);
+!                 return title;
+!         } else return ic-&gt;filename; 
+! };
+! 
+! int cSoftPlayer::GetDuration() { 
+!         if (ic) 
+!                 return ic-&gt;duration/AV_TIME_BASE; 
+!         else return 0; 
+! };
+! 
+! int cSoftPlayer::GetCurrPos() { 
+!         if (SoftDevice) 
+!                 return SoftDevice-&gt;GetSTC()/(9*10000); 
+!         else return 0;
+! };
+  
+  // -------------------cSoftControl----------------------------------------
+  
+! cSoftControl::cSoftControl(const char * filename ) : 
+!         cControl(new cSoftPlayer) {
+!   displayReplay=NULL;
+!   visible=false;
+    SoftPlayer = dynamic_cast&lt;cSoftPlayer*&gt; (player);
+    SoftPlayer-&gt;OpenFile(filename);
+***************
+*** 204,208 ****
+  
+  cSoftControl::~cSoftControl() {
+! 	PLDBG(&quot;~cSoftControl()\n&quot;);fflush(stdout);
+  	delete player;
+  	SoftPlayer = NULL;
+--- 264,269 ----
+  
+  cSoftControl::~cSoftControl() {
+! 	PLDBG(&quot;~cSoftControl()\n&quot;);
+! 	Hide();
+  	delete player;
+  	SoftPlayer = NULL;
+***************
+*** 210,216 ****
+--- 271,309 ----
+  };
+  
++ void cSoftControl::Hide() {
++ 	if (visible) {
++ 		delete displayReplay;
++ 		displayReplay=NULL;
++ 		visible=false;
++ 	};
++ };
++ 
++ void cSoftControl::ShowProgress() {
++ 	if (!visible) {
++ 	 	int TotalDuration=SoftPlayer-&gt;GetDuration();
++ 		displayReplay=Skins.Current()-&gt;DisplayReplay(false);
++ 		visible=true;
++ 		displayReplay-&gt;SetTitle(SoftPlayer-&gt;GetTitle());
++ 		displayReplay-&gt;SetProgress(SoftPlayer-&gt;GetCurrPos()
++ 		  ,TotalDuration);
++ 		PLDBG(&quot;CurrPos %d Duration %d\n&quot;,SoftPlayer-&gt;GetCurrPos()
++ 		  ,SoftPlayer-&gt;GetDuration());
++ 		char str[60];
++ 		sprintf(str,&quot;%02d:%02d:%02d&quot;,TotalDuration/3600,
++ 			TotalDuration/60%60,TotalDuration%60);
++ 		displayReplay-&gt;SetTotal(str);
++ 	};
++ };		
++ 
+  eOSState cSoftControl::ProcessKey(eKeys Key) {
+  	eOSState state = cOsdObject::ProcessKey(Key);
+  
++ 	if (visible) {
++ 	  	displayReplay-&gt;SetProgress(SoftPlayer-&gt;GetCurrPos()
++ 		  ,SoftPlayer-&gt;GetDuration());
++ 		PLDBG(&quot;CurrPos %d Duration %d\n&quot;,SoftPlayer-&gt;GetCurrPos()
++ 		  ,SoftPlayer-&gt;GetDuration());
++ 	};
++ 
+  	if ( state != osUnknown) {
+  		PLDBG(&quot;cOsdObject::ProcessKey processed a key :-)\n&quot;);
+***************
+*** 234,237 ****
+--- 327,340 ----
+  			case kYellow:  SoftPlayer-&gt;SkipSeconds( 60); break;
+  			case kBlue:    SoftPlayer-&gt;Stop();  break;
++ 			case kUp:
++ 			case kPlay:
++ 			              SoftPlayer-&gt;Play();  break;
++ 			case kDown:
++ 			case kPause:
++ 			              SoftPlayer-&gt;Pause();  break;
++ 			case kOk: if (visible)
++ 					Hide();
++ 				  else ShowProgress(); 
++ 				  break;
+  			default:
+  			   break;
+
+Index: SoftPlayer.h
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/SoftPlayer.h,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1.1.1 -r1.2
+*** SoftPlayer.h	11 Apr 2005 16:03:32 -0000	1.1.1.1
+--- SoftPlayer.h	7 May 2005 09:07:57 -0000	1.2
+***************
+*** 19,23 ****
+  
+  #include &quot;../softdevice/softdevice.h&quot;
+- //#include &quot;../softdevice/mpeg2decoder.h&quot;
+  
+  class cSoftPlayer : public cPlayer, cThread {
+--- 19,22 ----
+***************
+*** 25,33 ****
+         bool running;
+         bool reading;
+         int pollTimeouts;
+         AVFormatContext *ic;
+         AVFormatParameters ap;
+!     
+!        int skip;
+         ePlayMode softPlayMode;
+   public:
+--- 24,40 ----
+         bool running;
+         bool reading;
++        bool pause;
++        bool forward;
++        int speed;
++        int skip;
++        int AudioIdx;
++        int VideoIdx;
++        
+         int pollTimeouts;
++ 	cSoftDevice *SoftDevice;
+         AVFormatContext *ic;
+         AVFormatParameters ap;
+!    	char title[120];
+!    
+         ePlayMode softPlayMode;
+   public:
+***************
+*** 49,52 ****
+--- 56,69 ----
+         
+         void Stop();
++ 
++        inline void Pause()
++        { pause=true; };
++ 
++        inline void Play()
++        { pause=false; };
++ 
++        char * GetTitle(); 
++        int GetDuration(); 
++        int GetCurrPos();
+   };
+  
+***************
+*** 54,62 ****
+    private:
+        cSoftPlayer *SoftPlayer;
+    public:
+       cSoftControl( const char * filename );
+       virtual ~cSoftControl();
+!      virtual void Hide() {};
+       virtual eOSState ProcessKey(eKeys Key);
+  };
+  
+--- 71,83 ----
+    private:
+        cSoftPlayer *SoftPlayer;
++       
++       cSkinDisplayReplay *displayReplay;
++       bool visible;
+    public:
+       cSoftControl( const char * filename );
+       virtual ~cSoftControl();
+!      virtual void Hide();
+       virtual eOSState ProcessKey(eKeys Key);
++      void ShowProgress();
+  };
+  
+
+Index: softplay.c
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/softplay.c,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1.1.1 -r1.2
+*** softplay.c	11 Apr 2005 16:03:32 -0000	1.1.1.1
+--- softplay.c	7 May 2005 09:07:57 -0000	1.2
+***************
+*** 13,25 ****
+  #include &lt;dirent.h&gt;
+  
+  static const char *VERSION        = &quot;0.0.1&quot;;
+  static const char *DESCRIPTION    = &quot;SoftPlay play media files with the softdevice&quot;;
+  static const char *MAINMENUENTRY  = &quot;SoftPlay&quot;;
+  
+  // --- cMenuDirectory -------------------------------------------
+  
+  class cMenuDirectory : public cOsdMenu {
+  private:
+!   char start_path[60];
+  public:
+    void PrepareDirectory(char * path);
+--- 13,34 ----
+  #include &lt;dirent.h&gt;
+  
++ #define NAME_LENGTH 120
++ 
+  static const char *VERSION        = &quot;0.0.1&quot;;
+  static const char *DESCRIPTION    = &quot;SoftPlay play media files with the softdevice&quot;;
+  static const char *MAINMENUENTRY  = &quot;SoftPlay&quot;;
+  
++ 
+  // --- cMenuDirectory -------------------------------------------
+  
+  class cMenuDirectory : public cOsdMenu {
+  private:
+!   char start_path[NAME_LENGTH];
+!   struct DirEntry {
+!       char name[NAME_LENGTH];
+!       int type;
+!   } * Entries;
+!   int nEntries;
+!       
+  public:
+    void PrepareDirectory(char * path);
+***************
+*** 31,38 ****
+--- 40,51 ----
+  cMenuDirectory::cMenuDirectory(void) : cOsdMenu(&quot;Files&quot;) 
+  {
++   Entries=NULL;
++   nEntries=0;
+  };
+  
+  cMenuDirectory::~cMenuDirectory()
+  {
++   delete Entries;
++   nEntries=0;
+  };
+  
+***************
+*** 41,71 ****
+    struct dirent **namelist;
+    int n;
+  
+!   strncpy(start_path,path,60);
+!   start_path[59]=0;
+  
+    n = scandir(path, &amp;namelist, 0, alphasort);
+!   if (n &lt; 0)
+  	  printf(&quot;scandir error\n&quot;);
+!   else {
+! 	  while(n--) {
+! 		  Add(new cOsdItem(namelist[n]-&gt;d_name,osUnknown),false);
+! 		  //free(namelist[n]);
+! 		  
+! 	  }
+! 	  free(namelist);
+    }
+  };
+  
+  eOSState cMenuDirectory::ProcessKey(eKeys Key) {
+    eOSState state = cOsdMenu::ProcessKey(Key);
+!   char file[120];
+  
+    if (state == osUnknown) {
+       switch (Key) {
+         case kOk: 
+!          sprintf(file,&quot;%s/%s&quot;,start_path,Get(Current())-&gt;Text());
+!          cControl::Launch(new cSoftControl(file));
+! 	 return osEnd;
+         default:
+           break;
+--- 54,115 ----
+    struct dirent **namelist;
+    int n;
++   char Name[60];
+  
+!   if (Entries) {
+!   	delete Entries;
+! 	nEntries=0;
+!   };
+! 
+!   strncpy(start_path,path,NAME_LENGTH-1);
+!   start_path[NAME_LENGTH]=0;
+  
+    n = scandir(path, &amp;namelist, 0, alphasort);
+!   if (n&lt;0) {
+  	  printf(&quot;scandir error\n&quot;);
+! 	  return;
+!   };
+!   Entries=new DirEntry[n];
+!   nEntries=n;
+!   
+!   for (int i=0; i&lt;n; i++) {
+!   	  // fill Entries array and resolve symlinks
+! 	  snprintf(Entries[i].name,NAME_LENGTH,&quot;%s/%s&quot;,
+! 	            start_path,namelist[i]-&gt;d_name);
+! 	  Entries[i].name[NAME_LENGTH-1]=0;
+! 	  Entries[i].type=namelist[i]-&gt;d_type;
+! 	  
+! 	  // add to menu using original names (symlinks!!)
+! 	  if (Entries[i].type == DT_DIR)  
+! 	    snprintf(Name,60,&quot; %4d [%s]&quot;,i+1,namelist[i]-&gt;d_name);
+! 	  else  snprintf(Name,60,&quot; %4d %s&quot;,i+1,namelist[i]-&gt;d_name);
+! 	  
+! 	  Add(new cOsdItem(strdup(Name),osUnknown),false);
+! 	  printf(&quot;Name %s type %d \n&quot;,Entries[i].name,Entries[i].type);
+! 
+!           free(namelist[i]);	  
+    }
++   free(namelist);
+  };
+  
+  eOSState cMenuDirectory::ProcessKey(eKeys Key) {
+    eOSState state = cOsdMenu::ProcessKey(Key);
+!   int No=0;
+  
+    if (state == osUnknown) {
+       switch (Key) {
+         case kOk: 
+!          sscanf(Get(Current())-&gt;Text(),&quot;%d &quot;,&amp;No);
+! 	 No--;
+! 	 if (No&gt;nEntries)
+! 	    break;
+! 	 if ( Entries[No].type == DT_REG ) { 
+! 		 cControl::Launch(new cSoftControl(Entries[No].name));
+! 		 return osEnd;
+! 	} else if ( Entries[No].type == DT_DIR ) { 
+! 		cMenuDirectory *Menu=new cMenuDirectory;
+! 		Menu-&gt;PrepareDirectory(Entries[No].name);
+! 		return AddSubMenu(Menu);
+! 	};
+! 	break;
+         default:
+           break;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000103.html">[Softdevice-cvs] softdevice CHANGELOG,1.61,1.62 video-dfb.c,1.24,1.25
+</A></li>
+	<LI>Next message: <A HREF="000105.html">[Softdevice-cvs] softplay PlayList.c,NONE,1.1 PlayList.h,NONE,1.1 SoftPlayer.c,1.2,1.3 SoftPlayer.h,1.2,1.3
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#104">[ date ]</a>
+              <a href="thread.html#104">[ thread ]</a>
+              <a href="subject.html#104">[ subject ]</a>
+              <a href="author.html#104">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,199 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.341, 1.342 configure, 1.49,	1.50 mpeg2decoder.c, 1.83, 1.84
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2008q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.341%2C%201.342%20configure%2C%201.49%2C%0A%091.50%20mpeg2decoder.c%2C%201.83%2C%201.84&In-Reply-To=%3C20080921125559.A9D7E154192%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000636.html">
+   <LINK REL="Next"  HREF="000638.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.341, 1.342 configure, 1.49,	1.50 mpeg2decoder.c, 1.83, 1.84</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.341%2C%201.342%20configure%2C%201.49%2C%0A%091.50%20mpeg2decoder.c%2C%201.83%2C%201.84&In-Reply-To=%3C20080921125559.A9D7E154192%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.341, 1.342 configure, 1.49,	1.50 mpeg2decoder.c, 1.83, 1.84">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Sep 21 14:55:59 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000636.html">[Softdevice-cvs] softdevice CHANGELOG, 1.340, 1.341 SoftOsd.c, 1.34,	1.35 SoftOsd.h, 1.19, 1.20
+</A></li>
+        <LI>Next message: <A HREF="000638.html">[Softdevice-cvs] softdevice CHANGELOG, 1.342, 1.343 README, 1.28,	1.29
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#637">[ date ]</a>
+              <a href="thread.html#637">[ thread ]</a>
+              <a href="subject.html#637">[ subject ]</a>
+              <a href="author.html#637">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv17230
+
+Modified Files:
+	CHANGELOG configure mpeg2decoder.c 
+Log Message:
+Fix build failure with newer ffmpeg releases (bug #14494).
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.341
+retrieving revision 1.342
+diff -C2 -d -r1.341 -r1.342
+*** CHANGELOG	12 Sep 2008 16:48:58 -0000	1.341
+--- CHANGELOG	21 Sep 2008 12:55:57 -0000	1.342
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2008-09-21:
++    - build: Fix build failure with newer ffmpeg releases (bug #14494).
+  2008-09-12:
+     - OSD: next fix in subtitle vs. OSD behaviour issues.
+
+Index: configure
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/configure,v
+retrieving revision 1.49
+retrieving revision 1.50
+diff -C2 -d -r1.49 -r1.50
+*** configure	14 Jul 2008 17:03:03 -0000	1.49
+--- configure	21 Sep 2008 12:55:57 -0000	1.50
+***************
+*** 402,405 ****
+--- 402,442 ----
+  
+  ########################################################
++ echo -n &quot;Checking ffmpeg for member of AVCodecContext: error_recognition ... &quot;
++ echo  &quot;Checking ffmpeg for member of AVCodecContext: error_recognition ----&quot; &gt;&gt; config.log
++ 
++ test_error_recognition()
++ {
++   has_error_recognition=&quot;yes&quot;;
++ cat &gt; ${TMPC} &lt;&lt; EOF
++ #define __STDC_CONSTANT_MACROS
++ #include &lt;stdlib.h&gt;
++ extern &quot;C&quot; {
++ #include &lt;libavcodec/avcodec.h&gt;
++ #include &lt;libavformat/avformat.h&gt;
++ #include &lt;libswscale/swscale.h&gt;
++ }
++ int main(void) {
++     AVCodecContext *context;
++ 
++   if (context -&gt; error_recognition)
++     return 1;
++   return 0;
++ }
++ EOF
++   $cc $CFLAGS $ffmpeg_cflags $swscale_cflags -o $TMPE $TMPC $swscale_libs $ffmpeg_libs &gt;&gt; config.log 2&gt;&amp;1 || has_error_recognition=&quot;no&quot;
++   $TMPE
++ };
++ 
++ ########################################################
++ # check for error_recognition
++ test_error_recognition
++ if test &quot;${has_error_recognition}&quot; = &quot;yes&quot; ; then
++   echo &quot; 'error_recognition' found&quot;
++ else
++   echo &quot; 'error_recognition' NOT found&quot;
++ fi
++ 
++ 
++ ########################################################
+  # check for ALSA
+  echo -n &quot;Checking for ALSA sound... &quot;
+***************
+*** 930,933 ****
+--- 967,976 ----
+  if test &quot;${swscale}&quot; = &quot;yes&quot;; then
+    echo &quot;#define USE_SWSCALE&quot; &gt;&gt; $TMPH
++ fi
++ 
++ if test &quot;${has_error_recognition}&quot; = &quot;yes&quot; ; then
++   echo &quot;#define HAS_ERROR_RECOGNITION           1&quot; &gt;&gt; $TMPH
++ else
++   echo &quot;#define HAS_ERROR_RECOGNITION           0&quot; &gt;&gt; $TMPH
+  fi
+  
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.83
+retrieving revision 1.84
+diff -C2 -d -r1.83 -r1.84
+*** mpeg2decoder.c	20 Jul 2008 16:41:01 -0000	1.83
+--- mpeg2decoder.c	21 Sep 2008 12:55:57 -0000	1.84
+***************
+*** 141,145 ****
+--- 141,149 ----
+    context=Context;
+    if (context)
++ #if HAS_ERROR_RECOGNITION
++         context-&gt;error_recognition=1;
++ #else
+          context-&gt;error_resilience=1;
++ #endif
+    CMDDEB(&quot;Neuer StreamDecoder Pid: %d context %p type %d\n&quot;,
+          getpid(),context,context-&gt;codec_type );
+***************
+*** 1027,1032 ****
+  cMpeg2Decoder::cMpeg2Decoder(cAudioOut *AudioOut, cVideoOut *VideoOut)
+  {
+    if ( avcodec_build() != LIBAVCODEC_BUILD ) {
+!      fprintf(stderr,&quot;Fatal Error! Libavcodec library build(%d) doesn't match avcodec.h build(%d)!!!\n&quot;,avcodec_build(),LIBAVCODEC_BUILD);
+       fprintf(stderr,&quot;Check your ffmpeg installation / the pathes in the Makefile!!!\n&quot;);
+       exit(-1);
+--- 1031,1047 ----
+  cMpeg2Decoder::cMpeg2Decoder(cAudioOut *AudioOut, cVideoOut *VideoOut)
+  {
++ #if LIBAVCODEC_VERSION_INT &lt; ((52&lt;&lt;16)+(0&lt;&lt;8)+0)
+    if ( avcodec_build() != LIBAVCODEC_BUILD ) {
+!      fprintf(stderr,
+!              &quot;Fatal Error! Libavcodec library build(%d) doesn't &quot;
+!                &quot;match avcodec.h build(%d)!!!\n&quot;,
+!              avcodec_build(), LIBAVCODEC_BUILD);
+! #else
+!   if ( avcodec_version() != LIBAVCODEC_VERSION_INT ) {
+!      fprintf(stderr,
+!              &quot;Fatal Error! Libavcodec library build(%d) doesn't &quot;
+!                &quot;match avcodec.h build(%d)!!!\n&quot;,
+!              avcodec_version(), LIBAVCODEC_VERSION_INT);
+! #endif
+       fprintf(stderr,&quot;Check your ffmpeg installation / the pathes in the Makefile!!!\n&quot;);
+       exit(-1);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000636.html">[Softdevice-cvs] softdevice CHANGELOG, 1.340, 1.341 SoftOsd.c, 1.34,	1.35 SoftOsd.h, 1.19, 1.20
+</A></li>
+	<LI>Next message: <A HREF="000638.html">[Softdevice-cvs] softdevice CHANGELOG, 1.342, 1.343 README, 1.28,	1.29
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#637">[ date ]</a>
+              <a href="thread.html#637">[ thread ]</a>
+              <a href="subject.html#637">[ subject ]</a>
+              <a href="author.html#637">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

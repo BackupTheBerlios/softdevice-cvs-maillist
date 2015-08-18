@@ -1,0 +1,122 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.328, 1.329 mpeg2decoder.c,	1.78, 1.79
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2008q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.328%2C%201.329%20mpeg2decoder.c%2C%0A%091.78%2C%201.79&In-Reply-To=%3C20080413180839.663048E98B%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000604.html">
+   <LINK REL="Next"  HREF="000606.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.328, 1.329 mpeg2decoder.c,	1.78, 1.79</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.328%2C%201.329%20mpeg2decoder.c%2C%0A%091.78%2C%201.79&In-Reply-To=%3C20080413180839.663048E98B%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.328, 1.329 mpeg2decoder.c,	1.78, 1.79">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Apr 13 20:08:39 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000604.html">[Softdevice-cvs] softdevice CHANGELOG, 1.327, 1.328 SoftOsd.h, 1.17,	1.18
+</A></li>
+        <LI>Next message: <A HREF="000606.html">[Softdevice-cvs] softdevice i18n.c,1.21,1.22
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#605">[ date ]</a>
+              <a href="thread.html#605">[ thread ]</a>
+              <a href="subject.html#605">[ subject ]</a>
+              <a href="author.html#605">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv14307
+
+Modified Files:
+	CHANGELOG mpeg2decoder.c 
+Log Message:
+Fix ac3 downmix request for ffmpeg &gt;= r10199.
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.328
+retrieving revision 1.329
+diff -C2 -d -r1.328 -r1.329
+*** CHANGELOG	10 Apr 2008 06:48:57 -0000	1.328
+--- CHANGELOG	12 Apr 2008 12:27:58 -0000	1.329
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2008-04-13:
++    - audio: fix ac3 downmix request for ffmpeg &gt;= r10199.
+  2008-04-10:
+     - SoftOsd: Adjust constructor definition to implementation.
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.78
+retrieving revision 1.79
+diff -C2 -d -r1.78 -r1.79
+*** mpeg2decoder.c	24 Dec 2007 11:43:31 -0000	1.78
+--- mpeg2decoder.c	12 Apr 2008 12:27:58 -0000	1.79
+***************
+*** 381,384 ****
+--- 381,387 ----
+          // get the AC3 -&gt; 2CH stereo data
+          context-&gt;channels = 2;
++ #if LIBAVCODEC_VERSION_INT &gt;= ((51&lt;&lt;16)+(41&lt;&lt;8)+0)
++         context-&gt;request_channels = 2;
++ #endif
+          break;
+        case 1:
+***************
+*** 418,425 ****
+--- 421,434 ----
+          // get the AC3 -&gt; 4CH stereo data
+          context-&gt;channels = 4;
++ #if LIBAVCODEC_VERSION_INT &gt;= ((51&lt;&lt;16)+(41&lt;&lt;8)+0)
++         context-&gt;request_channels = 4;
++ #endif
+          break;
+        case 3:
+          // set channels to auto mode to get decoded stream for analog out
+          context-&gt;channels = 0;
++ #if LIBAVCODEC_VERSION_INT &gt;= ((51&lt;&lt;16)+(41&lt;&lt;8)+0)
++         context-&gt;request_channels = 0;
++ #endif
+          break;
+      }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000604.html">[Softdevice-cvs] softdevice CHANGELOG, 1.327, 1.328 SoftOsd.h, 1.17,	1.18
+</A></li>
+	<LI>Next message: <A HREF="000606.html">[Softdevice-cvs] softdevice i18n.c,1.21,1.22
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#605">[ date ]</a>
+              <a href="thread.html#605">[ thread ]</a>
+              <a href="subject.html#605">[ subject ]</a>
+              <a href="author.html#605">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

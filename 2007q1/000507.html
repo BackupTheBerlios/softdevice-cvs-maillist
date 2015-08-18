@@ -1,0 +1,148 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.292, 1.293 audio-alsa.c,	1.4, 1.5 audio-alsa.h, 1.2, 1.3
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.292%2C%201.293%20audio-alsa.c%2C%0A%091.4%2C%201.5%20audio-alsa.h%2C%201.2%2C%201.3&In-Reply-To=%3C20070210000714.03A14D7CDE%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000506.html">
+   <LINK REL="Next"  HREF="000508.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.292, 1.293 audio-alsa.c,	1.4, 1.5 audio-alsa.h, 1.2, 1.3</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.292%2C%201.293%20audio-alsa.c%2C%0A%091.4%2C%201.5%20audio-alsa.h%2C%201.2%2C%201.3&In-Reply-To=%3C20070210000714.03A14D7CDE%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.292, 1.293 audio-alsa.c,	1.4, 1.5 audio-alsa.h, 1.2, 1.3">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Feb 10 01:07:14 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000506.html">[Softdevice-cvs] softdevice setup-softdevice-menu.c, 1.8,	1.9 setup-softdevice-menu.h, 1.1, 1.2 setup-softdevice.c, 1.48,	1.49 setup-softdevice.h, 1.36, 1.37 Makefile, 1.35, 1.36
+</A></li>
+        <LI>Next message: <A HREF="000508.html">[Softdevice-cvs] softdevice CHANGELOG, 1.293,	1.294 setup-softlog-menu.c, 1.1, 1.2 setup-softlog-menu.h, 1.1,	1.2 setup-softlog.c, 1.1, 1.2 setup-softlog.h, 1.1, 1.2
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#507">[ date ]</a>
+              <a href="thread.html#507">[ thread ]</a>
+              <a href="subject.html#507">[ subject ]</a>
+              <a href="author.html#507">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv27795
+
+Modified Files:
+	CHANGELOG audio-alsa.c audio-alsa.h 
+Log Message:
+report Xrun audio duration
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.292
+retrieving revision 1.293
+diff -C2 -d -r1.292 -r1.293
+*** CHANGELOG	28 Jan 2007 19:38:06 -0000	1.292
+--- CHANGELOG	10 Feb 2007 00:05:45 -0000	1.293
+***************
+*** 1,8 ****
+  Changelog
+  2007-01-28:
+     - don't lock NULL pictures in cVideo::GetLockLastPic().
+     - implement avcodec_decode_audio2() interface to libavcodec.
+     - set ic-&gt;bp.is_streamed to true, to avoid calls to unimlemented seek method.
+!    - add architecture &quot;x86_64&quot; to configure and report unsupported 
+       architectures.
+     - add StealToBitmap() for OSD in grabbed image.
+--- 1,12 ----
+  Changelog
++ 2007-02-10:
++    - Pause the playback of recordings when suspended (by Marko M&#228;kel&#228;)
++    - add configurable logging
++    - report Xrun audio duration
+  2007-01-28:
+     - don't lock NULL pictures in cVideo::GetLockLastPic().
+     - implement avcodec_decode_audio2() interface to libavcodec.
+     - set ic-&gt;bp.is_streamed to true, to avoid calls to unimlemented seek method.
+!    - add architecture &quot;x86_64&quot; to configure and report unsupported
+       architectures.
+     - add StealToBitmap() for OSD in grabbed image.
+
+Index: audio-alsa.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio-alsa.c,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -C2 -d -r1.4 -r1.5
+*** audio-alsa.c	7 Nov 2006 18:16:57 -0000	1.4
+--- audio-alsa.c	10 Feb 2007 00:05:45 -0000	1.5
+***************
+*** 251,255 ****
+  	}
+  	if (snd_pcm_status_get_state(status) == SND_PCM_STATE_XRUN) {
+! //		snd_pcm_status_get_trigger_tstamp(status, &amp;tstamp);
+  		if ((res = snd_pcm_prepare(handle))&lt;0) {
+        esyslog(&quot;[softdevice-audio]: Xrun prepare error: %s FATAL exiting&quot;,
+--- 251,261 ----
+  	}
+  	if (snd_pcm_status_get_state(status) == SND_PCM_STATE_XRUN) {
+!       struct timeval now, diff, tstamp;
+!     gettimeofday(&amp;now, 0);
+!     snd_pcm_status_get_trigger_tstamp(status, &amp;tstamp);
+!     timersub(&amp;now, &amp;tstamp, &amp;diff);
+!     setupStore-&gt;softlog-&gt;Log(SOFT_LOG_DEBUG, 0,
+!                              &quot;[softdevice-audio]: Xrun (at least %.3f ms long)\n&quot;,
+!                              diff.tv_sec * 1000 + diff.tv_usec / 1000.0);
+  		if ((res = snd_pcm_prepare(handle))&lt;0) {
+        esyslog(&quot;[softdevice-audio]: Xrun prepare error: %s FATAL exiting&quot;,
+
+Index: audio-alsa.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio-alsa.h,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** audio-alsa.h	5 Nov 2006 22:05:59 -0000	1.2
+--- audio-alsa.h	10 Feb 2007 00:05:45 -0000	1.3
+***************
+*** 11,14 ****
+--- 11,17 ----
+  #define ALSA_PCM_NEW_HW_PARAMS_API
+  #define ALSA_PCM_NEW_SW_PARAMS_API
++ 
++ #include &lt;sys/time.h&gt;
++ 
+  #include &lt;alsa/asoundlib.h&gt;
+  #include &lt;vdr/plugin.h&gt;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000506.html">[Softdevice-cvs] softdevice setup-softdevice-menu.c, 1.8,	1.9 setup-softdevice-menu.h, 1.1, 1.2 setup-softdevice.c, 1.48,	1.49 setup-softdevice.h, 1.36, 1.37 Makefile, 1.35, 1.36
+</A></li>
+	<LI>Next message: <A HREF="000508.html">[Softdevice-cvs] softdevice CHANGELOG, 1.293,	1.294 setup-softlog-menu.c, 1.1, 1.2 setup-softlog-menu.h, 1.1,	1.2 setup-softlog.c, 1.1, 1.2 setup-softlog.h, 1.1, 1.2
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#507">[ date ]</a>
+              <a href="thread.html#507">[ thread ]</a>
+              <a href="subject.html#507">[ subject ]</a>
+              <a href="author.html#507">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

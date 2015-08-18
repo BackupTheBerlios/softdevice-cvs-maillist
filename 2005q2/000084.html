@@ -1,0 +1,730 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.53,1.54 audio.c,1.13,1.14 mpeg2decoder.c,1.26,1.27 mpeg2decoder.h,1.17,1.18 setup-softdevice.h,1.10,1.11 softdevice.c,1.26,1.27 video-xv.c,1.20,1.21
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.53%2C1.54%20audio.c%2C1.13%2C1.14%20mpeg2decoder.c%2C1.26%2C1.27%20mpeg2decoder.h%2C1.17%2C1.18%20setup-softdevice.h%2C1.10%2C1.11%20softdevice.c%2C1.26%2C1.27%20video-xv.c%2C1.20%2C1.21&In-Reply-To=%3C200504090847.j398lCm22029%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000083.html">
+   <LINK REL="Next"  HREF="000085.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.53,1.54 audio.c,1.13,1.14 mpeg2decoder.c,1.26,1.27 mpeg2decoder.h,1.17,1.18 setup-softdevice.h,1.10,1.11 softdevice.c,1.26,1.27 video-xv.c,1.20,1.21</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.53%2C1.54%20audio.c%2C1.13%2C1.14%20mpeg2decoder.c%2C1.26%2C1.27%20mpeg2decoder.h%2C1.17%2C1.18%20setup-softdevice.h%2C1.10%2C1.11%20softdevice.c%2C1.26%2C1.27%20video-xv.c%2C1.20%2C1.21&In-Reply-To=%3C200504090847.j398lCm22029%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.53,1.54 audio.c,1.13,1.14 mpeg2decoder.c,1.26,1.27 mpeg2decoder.h,1.17,1.18 setup-softdevice.h,1.10,1.11 softdevice.c,1.26,1.27 video-xv.c,1.20,1.21">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Apr  9 10:47:12 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000083.html">[Softdevice-cvs] softdevice CHANGELOG,1.52,1.53 setup-softdevice.c,1.14,1.15 setup-softdevice.h,1.9,1.10 softdevice.c,1.25,1.26 video-xv.c,1.19,1.20
+</A></li>
+        <LI>Next message: <A HREF="000085.html">[Softdevice-cvs] softdevice CHANGELOG,1.54,1.55 video-dfb.c,1.20,1.21 video-dfb.h,1.6,1.7
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#84">[ date ]</a>
+              <a href="thread.html#84">[ thread ]</a>
+              <a href="subject.html#84">[ subject ]</a>
+              <a href="author.html#84">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv17628
+
+Modified Files:
+	CHANGELOG audio.c mpeg2decoder.c mpeg2decoder.h 
+	setup-softdevice.h softdevice.c video-xv.c 
+Log Message:
+   - xv-out: add &quot;-vo xv:full&quot; option to start up in fullsceen mode
+   - replace unneeded usleep&lt;10000usec with &gt;=10000usec
+   - add SIG_TIMING option (default: disabled, enable in mpeg2decoder.c)
+   - introduce meaningful return values in packet mode. 
+   - disable debugging output.
+		   
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.53
+retrieving revision 1.54
+diff -C2 -d -r1.53 -r1.54
+*** CHANGELOG	9 Apr 2005 06:49:57 -0000	1.53
+--- CHANGELOG	9 Apr 2005 08:47:09 -0000	1.54
+***************
+*** 1,3 ****
+--- 1,9 ----
+  Changelog
++ 2005-04-10:
++     - xv-out: add &quot;-vo xv:full&quot; option to start up in fullsceen mode
++     - replace unneeded usleep&lt;10000usec with &gt;=10000usec
++     - add SIG_TIMING option (default: disabled, enable in mpeg2decoder.c)
++     - introduce meaningful return values in packet mode. 
++     - disable debugging output.
+  2005-04-09:
+      - xv-out: new command line option max-area to use the maximum
+
+Index: audio.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio.c,v
+retrieving revision 1.13
+retrieving revision 1.14
+diff -C2 -d -r1.13 -r1.14
+*** audio.c	27 Mar 2005 09:01:26 -0000	1.13
+--- audio.c	9 Apr 2005 08:47:10 -0000	1.14
+***************
+*** 125,129 ****
+  	int res;
+  	snd_pcm_status_alloca(&amp;status);
+!         printf(&quot;alsa-audio: Xrun\n&quot;);
+  	if ((res = snd_pcm_status(handle, status))&lt;0) {
+      dsyslog(&quot;[softdevice-audio]: Xrun status error: %s FATAL exiting&quot;,
+--- 125,129 ----
+  	int res;
+  	snd_pcm_status_alloca(&amp;status);
+!         //printf(&quot;alsa-audio: Xrun\n&quot;);
+  	if ((res = snd_pcm_status(handle, status))&lt;0) {
+      dsyslog(&quot;[softdevice-audio]: Xrun status error: %s FATAL exiting&quot;,
+***************
+*** 158,162 ****
+        return 0;
+      };
+!     printf(&quot;alsa-audio: SetParams\n&quot;);
+      currContext=context;
+   
+--- 158,162 ----
+        return 0;
+      };
+!     //printf(&quot;alsa-audio: SetParams\n&quot;);
+      currContext=context;
+   
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.26
+retrieving revision 1.27
+diff -C2 -d -r1.26 -r1.27
+*** mpeg2decoder.c	2 Apr 2005 12:19:06 -0000	1.26
+--- mpeg2decoder.c	9 Apr 2005 08:47:10 -0000	1.27
+***************
+*** 11,17 ****
+--- 11,20 ----
+  #include &lt;vdr/plugin.h&gt;
+  
++ #define SIG_TIMING
++ #ifndef SIG_TIMING
+  // for RTC
+  #include &lt;sys/ioctl.h&gt;
+  #include &lt;linux/rtc.h&gt;
++ #endif
+  
+  #include &quot;mpeg2decoder.h&quot;
+***************
+*** 27,31 ****
+  #endif
+  
+! #define CMDDEB(out...) {printf(&quot;CMD[%04d]:&quot;,getTimeMilis() % 10000);printf(out);}
+  
+  #ifndef CMDDEB
+--- 30,34 ----
+  #endif
+  
+! //#define CMDDEB(out...) {printf(&quot;CMD[%04d]:&quot;,getTimeMilis() % 10000);printf(out);}
+  
+  #ifndef CMDDEB
+***************
+*** 123,126 ****
+--- 126,151 ----
+    return ret;
+  };
++ //-----------------------cSleepTimer-----------------------
++  
++ void cSleepTimer::Sleep( int timeoutUS )
++ {
++   if ( timeoutUS &lt; 0 )
++     return;
++  
++   struct timeval tv;
++   gettimeofday(&amp;tv,NULL);
++   struct timespec timeout;
++   timeout.tv_nsec=(tv.tv_usec+timeoutUS);//*1000;
++   timeout.tv_sec=tv.tv_sec + timeout.tv_nsec / 1000000;
++   timeout.tv_nsec%=1000000;
++   timeout.tv_nsec*=1000;
++   pthread_mutex_lock(&amp;mutex);
++   int retcode=0;
++   while ( retcode != ETIMEDOUT ) {
++     retcode = pthread_cond_timedwait(&amp;cond, &amp;mutex, &amp;timeout);
++   }
++  
++   pthread_mutex_unlock(&amp;mutex);
++ };
+  
+  // --- cStreamDecoder ---------------------------------------------------------
+***************
+*** 158,162 ****
+      BUFDEB(&quot;wait while loop packets %d StreamDecoder  pid:%d type %d\n&quot;,
+        PacketQueue.Available(),getpid(),context-&gt;codec_type );
+!     usleep(5000);
+    };
+   
+--- 183,187 ----
+      BUFDEB(&quot;wait while loop packets %d StreamDecoder  pid:%d type %d\n&quot;,
+        PacketQueue.Available(),getpid(),context-&gt;codec_type );
+!     usleep(10000);
+    };
+   
+***************
+*** 166,170 ****
+  
+      while (freezeMode &amp;&amp; active)
+!         usleep(10000);
+  
+      mutex.Lock();
+--- 191,195 ----
+  
+      while (freezeMode &amp;&amp; active)
+!         usleep(50000);
+  
+      mutex.Lock();
+***************
+*** 188,192 ****
+            context-&gt;codec_type,PacketQueue.Available());
+          count=0;
+!         usleep(1000);
+        };
+      };
+--- 213,217 ----
+            context-&gt;codec_type,PacketQueue.Available());
+          count=0;
+!         usleep(10000);
+        };
+      };
+***************
+*** 330,334 ****
+        cClock::SetAudioClock(this);
+        while ( !cClock::ReadyForPlay() ) {
+!          usleep(1000);
+           MPGDEB(&quot;audioStreamDecoder waiting for ReadyForPlay...\n&quot;);
+        };
+--- 355,359 ----
+        cClock::SetAudioClock(this);
+        while ( !cClock::ReadyForPlay() ) {
+!          usleep(10000);
+           MPGDEB(&quot;audioStreamDecoder waiting for ReadyForPlay...\n&quot;);
+        };
+***************
+*** 408,413 ****
+--- 433,440 ----
+    offset=0;
+    delay=0;
++   hurry_up=0;
+    Timer.Reset();
+  
++ #ifndef SIG_TIMING
+    if ( (rtc_fd = open(&quot;/dev/rtc&quot;,O_RDONLY)) &lt; 0 ) 
+      fprintf(stderr,&quot;Could not open /dev/rtc \n&quot;);
+***************
+*** 418,422 ****
+      if ( ioctl(rtc_fd, RTC_IRQP_SET, irqp) &lt; 0) 
+      {
+!       fprintf(stderr,&quot;Could not set irq period\n&quot;);
+        close(rtc_fd);
+        rtc_fd=-1;
+--- 445,449 ----
+      if ( ioctl(rtc_fd, RTC_IRQP_SET, irqp) &lt; 0) 
+      {
+!       //fprintf(stderr,&quot;Could not set irq period\n&quot;);
+        close(rtc_fd);
+        rtc_fd=-1;
+***************
+*** 424,432 ****
+      else if ( ioctl( rtc_fd, RTC_PIE_ON, 0 ) &lt; 0) 
+      {
+!       fprintf(stderr,&quot;Error in rtc_pie on \n&quot;);
+        close(rtc_fd);
+        rtc_fd=-1;
+!     } else  fprintf(stderr,&quot;Set up to use linux RTC\n&quot;);
+   };
+  
+    picture=avcodec_alloc_frame();
+--- 451,462 ----
+      else if ( ioctl( rtc_fd, RTC_PIE_ON, 0 ) &lt; 0) 
+      {
+!       //fprintf(stderr,&quot;Error in rtc_pie on \n&quot;);
+        close(rtc_fd);
+        rtc_fd=-1;
+!     };// else fprintf(stderr,&quot;Set up to use linux RTC\n&quot;);
+   };
++ #else
++   rtc_fd=-1;
++ #endif
+  
+    picture=avcodec_alloc_frame();
+***************
+*** 483,487 ****
+        while ( !cClock::ReadyForPlay() ) {
+          MPGDEB(&quot;audioStreamDecoder waiting for ReadyForPlay...\n&quot;);
+!         usleep(1000);
+        };
+      };
+--- 513,517 ----
+        while ( !cClock::ReadyForPlay() ) {
+          MPGDEB(&quot;audioStreamDecoder waiting for ReadyForPlay...\n&quot;);
+!         usleep(10000);
+        };
+      };
+***************
+*** 548,554 ****
+--- 578,589 ----
+    videoOut-&gt;CheckAspectDimensions(picture,context);
+    
++   if (!hurry_up || frame % 2 ) {
+    // sleep ....
+    delay-=Timer.GetRelTime();
+    MPGDEB(&quot;Frame# %-5d  aPTS: %lld offset: %d delay %d \n&quot;,frame,clock-&gt;GetPTS(),offset,delay );
++ #ifdef SIG_TIMING
++   Timer.Sleep(delay-1000);
++   delay-=Timer.GetRelTime();
++ #else
+    if ( rtc_fd &gt;= 0 ) {
+      // RTC timinig
+***************
+*** 585,593 ****
+      //};
+    }
+    // display picture
+    videoOut-&gt;YUV(picture-&gt;data[0], picture-&gt;data[1],picture-&gt;data[2],
+        context-&gt;width,context-&gt;height,
+        picture-&gt;linesize[0],picture-&gt;linesize[1]);
+! 
+    // we just displayed a frame, now it's the right time to
+    // measure the A-V offset
+--- 620,630 ----
+      //};
+    }
++ #endif
++   
+    // display picture
+    videoOut-&gt;YUV(picture-&gt;data[0], picture-&gt;data[1],picture-&gt;data[2],
+        context-&gt;width,context-&gt;height,
+        picture-&gt;linesize[0],picture-&gt;linesize[1]);
+!   };
+    // we just displayed a frame, now it's the right time to
+    // measure the A-V offset
+***************
+*** 620,630 ****
+      delay = -2*frametime*1000;    
+  
+! /*
+!   //context-&gt;hurry_up=1;
+!   if (offset &gt;  8*frametime*1000)
+!      context-&gt;hurry_up++;
+!   else if ( (offset &lt; 2*frametime*1000) &amp;&amp; (context-&gt;hurry_up &gt; 0) )
+!      context-&gt;hurry_up--;
+! */
+  #if 1
+    int dispTime=Timer.GetRelTime();
+--- 657,666 ----
+      delay = -2*frametime*1000;    
+  
+! 
+!   if (offset &gt;  8*frametime*10)
+!      hurry_up=1;
+!   else if ( (offset &lt; 2*frametime*10) &amp;&amp; (hurry_up &gt; 0) )
+!      hurry_up=0;
+! 
+  #if 1
+    int dispTime=Timer.GetRelTime();
+***************
+*** 650,655 ****
+      static int StatCount=0;
+  
+!     offsetSum+=(float)offset;
+!     offsetSqSum+=(float) offset*offset;
+      DispTSum+=(float) dispTime;
+      DispTSqSum+=(float) dispTime*dispTime;
+--- 686,691 ----
+      static int StatCount=0;
+  
+!     offsetSum+=(float)offset/10.0;
+!     offsetSqSum+=(float) offset*offset/100.0;
+      DispTSum+=(float) dispTime;
+      DispTSqSum+=(float) dispTime*dispTime;
+***************
+*** 661,666 ****
+         offsetSum/(float)Freq,
+         sqrt(offsetSqSum/((float)Freq)-(offsetSum*offsetSum)/((float)Freq*Freq)),
+!        DispTSum/(float)Freq/1000,
+!        context-&gt;hurry_up);
+        offsetSum=offsetSqSum=DispTSum=DispTSqSum=0;
+        StatCount=0;
+--- 697,701 ----
+         offsetSum/(float)Freq,
+         sqrt(offsetSqSum/((float)Freq)-(offsetSum*offsetSum)/((float)Freq*Freq)),
+!        DispTSum/(float)Freq/1000,hurry_up);
+        offsetSum=offsetSqSum=DispTSum=DispTSqSum=0;
+        StatCount=0;
+***************
+*** 997,1001 ****
+             &amp;&amp; count &lt;  1  ) {
+        size = StreamBuffer-&gt;Available();
+!       usleep(5000);
+        if (size&gt;188) {
+          count++;
+--- 1032,1036 ----
+             &amp;&amp; count &lt;  1  ) {
+        size = StreamBuffer-&gt;Available();
+!       usleep(10000);
+        if (size&gt;188) {
+          count++;
+***************
+*** 1051,1055 ****
+     init_put_byte(&amp;ic-&gt;pb, NULL, 32*1024, 0, this,
+         read_packet_RingBuffer,NULL,seek_RingBuffer);
+!    printf(&quot;init put byte finished\n&quot;);
+  };
+  
+--- 1086,1090 ----
+     init_put_byte(&amp;ic-&gt;pb, NULL, 32*1024, 0, this,
+         read_packet_RingBuffer,NULL,seek_RingBuffer);
+!    CMDDEB(&quot;init put byte finished\n&quot;);
+  };
+  
+***************
+*** 1068,1072 ****
+    while(ThreadActive) {
+          while (freezeMode &amp;&amp; ThreadActive)
+!           usleep(10000);
+        
+          //ret = av_read_frame(ic, &amp;pkt);
+--- 1103,1107 ----
+    while(ThreadActive) {
+          while (freezeMode &amp;&amp; ThreadActive)
+!           usleep(50000);
+        
+          //ret = av_read_frame(ic, &amp;pkt);
+***************
+*** 1096,1104 ****
+  
+          if (!(PacketCount % 100)) {
+!           usleep(1000);
+          };
+  
+!         if (PacketCount == 200)
+!           dump_format(ic, 0, &quot;test&quot;, 0);
+    }
+    running=false;
+--- 1131,1139 ----
+  
+          if (!(PacketCount % 100)) {
+!           usleep(10000);
+          };
+  
+! //        if (PacketCount == 200)
+! //          dump_format(ic, 0, &quot;test&quot;, 0);
+    }
+    running=false;
+***************
+*** 1155,1159 ****
+      while ( vout-&gt;PutPacket(pkt) == -1 ) {
+        //printf(&quot;Video Buffer full\n&quot;);
+!       usleep(10000);
+      };
+    } else if ( pkt.stream_index == AudioIdx &amp;&amp; aout ) {
+--- 1190,1194 ----
+      while ( vout-&gt;PutPacket(pkt) == -1 ) {
+        //printf(&quot;Video Buffer full\n&quot;);
+!       usleep(50000);
+      };
+    } else if ( pkt.stream_index == AudioIdx &amp;&amp; aout ) {
+***************
+*** 1161,1165 ****
+      while ( aout-&gt;PutPacket(pkt) == -1 ) {
+        //printf(&quot;Audio Buffer full\n&quot;);
+!       usleep(10000);
+      };
+    } else {
+--- 1196,1200 ----
+      while ( aout-&gt;PutPacket(pkt) == -1 ) {
+        //printf(&quot;Audio Buffer full\n&quot;);
+!       usleep(50000);
+      };
+    } else {
+***************
+*** 1330,1334 ****
+        data+=P;
+        Size-=P;
+!       usleep( 1000 );
+      }
+    }
+--- 1365,1369 ----
+        data+=P;
+        Size-=P;
+!       usleep( 10000 );
+      }
+    }
+***************
+*** 1421,1425 ****
+      Data+=P;
+      Size-=P;
+!     usleep( 10000 );
+    }
+    mutex.Unlock();
+--- 1456,1460 ----
+      Data+=P;
+      Size-=P;
+!     usleep( 50000 );
+    }
+    mutex.Unlock();
+
+Index: mpeg2decoder.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.h,v
+retrieving revision 1.17
+retrieving revision 1.18
+diff -C2 -d -r1.17 -r1.18
+*** mpeg2decoder.h	25 Mar 2005 13:42:30 -0000	1.17
+--- mpeg2decoder.h	9 Apr 2005 08:47:10 -0000	1.18
+***************
+*** 112,115 ****
+--- 112,137 ----
+        inline void Reset() { lastTime=GetTime(); };
+  };
++ 
++ //-------------------------cSleepTimer-----------------------------------
++ class cSleepTimer : public cRelTimer {
++    private:
++      pthread_mutex_t mutex;
++      pthread_cond_t cond;
++  
++    public:
++       cSleepTimer() : cRelTimer()
++       {
++         pthread_mutex_init(&amp;mutex, NULL);
++         pthread_cond_init(&amp;cond, NULL);
++       };
++       ~cSleepTimer()
++       {
++         pthread_cond_broadcast(&amp;cond); // wake up any sleepers
++         pthread_cond_destroy(&amp;cond);
++         pthread_mutex_destroy(&amp;mutex);
++       };
++        
++       void Sleep( int timeoutUS );
++ };
+        
+  //-------------------------cStreamDecoder ----------------------------------
+***************
+*** 201,205 ****
+      // A-V syncing stuff
+      bool               syncOnAudio;
+!     cRelTimer          Timer;
+      int                offset;
+      int                delay;
+--- 223,228 ----
+      // A-V syncing stuff
+      bool               syncOnAudio;
+!     int                hurry_up; 
+!     cSleepTimer        Timer;
+      int                offset;
+      int                delay;
+
+Index: setup-softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.h,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -C2 -d -r1.10 -r1.11
+*** setup-softdevice.h	9 Apr 2005 06:49:57 -0000	1.10
+--- setup-softdevice.h	9 Apr 2005 08:47:10 -0000	1.11
+***************
+*** 28,31 ****
+--- 28,32 ----
+      int   xvAspect;
+      int   xvMaxArea;
++     int   xvFullscreen;
+      int   outputMethod;
+      int   pixelFormat;
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.26
+retrieving revision 1.27
+diff -C2 -d -r1.26 -r1.27
+*** softdevice.c	9 Apr 2005 06:49:57 -0000	1.26
+--- softdevice.c	9 Apr 2005 08:47:10 -0000	1.27
+***************
+*** 384,388 ****
+  cSpuDecoder *cSoftDevice::GetSpuDecoder(void) 
+  {
+!   printf(&quot;GetSpuDecoder %x\n&quot;,spuDecoder);
+    if (IsPrimaryDevice() &amp;&amp; !spuDecoder)
+      spuDecoder = new cDvbSpuDecoder();
+--- 384,388 ----
+  cSpuDecoder *cSoftDevice::GetSpuDecoder(void) 
+  {
+!   //printf(&quot;GetSpuDecoder %x\n&quot;,spuDecoder);
+    if (IsPrimaryDevice() &amp;&amp; !spuDecoder)
+      spuDecoder = new cDvbSpuDecoder();
+***************
+*** 523,527 ****
+    
+    while ( TimeoutUs &gt; 0 &amp;&amp; decoder-&gt;BufferFill() &gt; 0 ) {
+!        usleep(1000);
+         TimeoutUs-=Timer.GetRelTime();
+    };
+--- 523,527 ----
+    
+    while ( TimeoutUs &gt; 0 &amp;&amp; decoder-&gt;BufferFill() &gt; 0 ) {
+!        usleep(10000);
+         TimeoutUs-=Timer.GetRelTime();
+    };
+***************
+*** 547,558 ****
+       // Length = -1 : pass pointer to format context
+       ic=(AVFormatContext *) Data;
+!      return 0;
+    };
+    if ( packetMode &amp;&amp; ic &amp;&amp; Length == -2 ) {
+       // Length = -2 : pass pointer to packet
+       decoder-&gt;QueuePacket(ic,( AVPacket &amp;) *Data);
+!      return 0;
+    };
+!   return -1;
+  }
+  
+--- 547,558 ----
+       // Length = -1 : pass pointer to format context
+       ic=(AVFormatContext *) Data;
+!      return -1;
+    };
+    if ( packetMode &amp;&amp; ic &amp;&amp; Length == -2 ) {
+       // Length = -2 : pass pointer to packet
+       decoder-&gt;QueuePacket(ic,( AVPacket &amp;) *Data);
+!      return -2;
+    };
+!   return 0;
+  }
+  
+***************
+*** 600,611 ****
+       // Length = -1 : pass pointer to format context
+       ic=(AVFormatContext *) Data;
+!      return 0;
+    };
+    if ( packetMode &amp;&amp; ic &amp;&amp; Length == -2 ) {
+       // Length = -2 : pass pointer to packet
+       decoder-&gt;QueuePacket(ic,( AVPacket &amp;) *Data);
+!      return 0;
+    };
+!   return -1;
+  }
+  
+--- 600,611 ----
+       // Length = -1 : pass pointer to format context
+       ic=(AVFormatContext *) Data;
+!      return -1;
+    };
+    if ( packetMode &amp;&amp; ic &amp;&amp; Length == -2 ) {
+       // Length = -2 : pass pointer to packet
+       decoder-&gt;QueuePacket(ic,( AVPacket &amp;) *Data);
+!      return -2;
+    };
+!   return 0;
+  }
+  
+***************
+*** 651,654 ****
+--- 651,655 ----
+    &quot;  -vo xv:aspect=normal     use a  4:3 display area (768x576)\n&quot;
+    &quot;  -vo xv:max-area          use maximum available area\n&quot;
++   &quot;  -vo xv:full              startup fullscreen\n&quot;
+  #endif
+  #ifdef FB_SUPPORT
+***************
+*** 710,714 ****
+                setupStore.xvMaxArea = 1;
+                fprintf (stderr,
+!                        &quot;[ProcessArgs] xv: using max available area)\n&quot;);
+                vo_argv += 8;
+              } else {
+--- 711,720 ----
+                setupStore.xvMaxArea = 1;
+                fprintf (stderr,
+!                        &quot;[ProcessArgs] xv: using max available area\n&quot;);
+!               vo_argv += 8;
+!             } else if (!strncmp (vo_argv, &quot;full&quot;, 4)) {
+!               setupStore.xvFullscreen = 1;
+!               fprintf (stderr,
+!                        &quot;[ProcessArgs] xv: start up fullscreen\n&quot;);
+                vo_argv += 8;
+              } else {
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.20
+retrieving revision 1.21
+diff -C2 -d -r1.20 -r1.21
+*** video-xv.c	9 Apr 2005 06:49:57 -0000	1.20
+--- video-xv.c	9 Apr 2005 08:47:10 -0000	1.21
+***************
+*** 784,787 ****
+--- 784,792 ----
+    dsyslog(&quot;[XvVideoOut]: initialized OK&quot;);
+  
++   if (setupStore-&gt;xvFullscreen) 
++   {
++     toggleFullScreen();
++     setupStore-&gt;xvFullscreen=0;
++   };
+    return true;
+  }
+***************
+*** 977,981 ****
+                       False);
+    rc = XClearArea (dpy, win, 0, 0, 0, 0, True);
+!   
+    rc = XSync(dpy, False);
+    
+--- 982,986 ----
+                       False);
+    rc = XClearArea (dpy, win, 0, 0, 0, 0, True);
+!    
+    rc = XSync(dpy, False);
+    
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000083.html">[Softdevice-cvs] softdevice CHANGELOG,1.52,1.53 setup-softdevice.c,1.14,1.15 setup-softdevice.h,1.9,1.10 softdevice.c,1.25,1.26 video-xv.c,1.19,1.20
+</A></li>
+	<LI>Next message: <A HREF="000085.html">[Softdevice-cvs] softdevice CHANGELOG,1.54,1.55 video-dfb.c,1.20,1.21 video-dfb.h,1.6,1.7
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#84">[ date ]</a>
+              <a href="thread.html#84">[ thread ]</a>
+              <a href="subject.html#84">[ subject ]</a>
+              <a href="author.html#84">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

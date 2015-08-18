@@ -1,0 +1,115 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice video.h, 1.44, 1.45 CHANGELOG, 1.257,	1.258
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video.h%2C%201.44%2C%201.45%20CHANGELOG%2C%201.257%2C%0A%091.258&In-Reply-To=%3C20061107190950.CA3ADA1FBE%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000462.html">
+   <LINK REL="Next"  HREF="000464.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice video.h, 1.44, 1.45 CHANGELOG, 1.257,	1.258</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video.h%2C%201.44%2C%201.45%20CHANGELOG%2C%201.257%2C%0A%091.258&In-Reply-To=%3C20061107190950.CA3ADA1FBE%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice video.h, 1.44, 1.45 CHANGELOG, 1.257,	1.258">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue Nov  7 20:09:50 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000462.html">[Softdevice-cvs] softdevice CHANGELOG, 1.256, 1.257 PicBuffer.c,	1.12, 1.13 PicBuffer.h, 1.4, 1.5 mpeg2decoder.c, 1.69, 1.70
+</A></li>
+        <LI>Next message: <A HREF="000464.html">[Softdevice-cvs] softdevice softdevice.c, 1.73, 1.74 softdevice.h,	1.11, 1.12 CHANGELOG, 1.258, 1.259
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#463">[ date ]</a>
+              <a href="thread.html#463">[ thread ]</a>
+              <a href="subject.html#463">[ subject ]</a>
+              <a href="author.html#463">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv14238
+
+Modified Files:
+	video.h CHANGELOG 
+Log Message:
+- add GetLockLastPic() to video.h
+
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.44
+retrieving revision 1.45
+diff -C2 -d -r1.44 -r1.45
+*** video.h	29 Sep 2006 19:24:57 -0000	1.44
+--- video.h	7 Nov 2006 19:09:00 -0000	1.45
+***************
+*** 177,180 ****
+--- 177,192 ----
+      bool freezeMode;
+  
++     inline void GetLockLastPic(sPicBuffer *&amp;pic) 
++             // Returns a pointer to the last decoded frame.
++             // The caller has to unlock the picture buffer after use
++             // by calling cVideoOut::UnlockBuffer().
++     {
++             oldPictureMutex.Lock();
++             pic=oldPicture;
++             LockBuffer(oldPicture);
++             oldPictureMutex.Unlock();
++     };
++ 
++ 
+      virtual void Action(void);
+      // osd control thread. Refreshes the osd on dimension changes and
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.257
+retrieving revision 1.258
+diff -C2 -d -r1.257 -r1.258
+*** CHANGELOG	7 Nov 2006 19:01:37 -0000	1.257
+--- CHANGELOG	7 Nov 2006 19:09:00 -0000	1.258
+***************
+*** 8,11 ****
+--- 8,12 ----
+       GetChromaSubSample() out of cPicBufferManager
+     - add packed pixel format to PicBuffer
++    - add GetLockLastPic() to video.h
+  2006-11-05: softdevice-0.3.1
+     - xv-out: limit used width &amp; height to screen dimensions.
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000462.html">[Softdevice-cvs] softdevice CHANGELOG, 1.256, 1.257 PicBuffer.c,	1.12, 1.13 PicBuffer.h, 1.4, 1.5 mpeg2decoder.c, 1.69, 1.70
+</A></li>
+	<LI>Next message: <A HREF="000464.html">[Softdevice-cvs] softdevice softdevice.c, 1.73, 1.74 softdevice.h,	1.11, 1.12 CHANGELOG, 1.258, 1.259
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#463">[ date ]</a>
+              <a href="thread.html#463">[ thread ]</a>
+              <a href="subject.html#463">[ subject ]</a>
+              <a href="author.html#463">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

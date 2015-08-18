@@ -1,0 +1,192 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG, 1.347, 1.348 audio-ac3pt.c,	1.3, 1.4
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2009q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.347%2C%201.348%20audio-ac3pt.c%2C%0A%091.3%2C%201.4&In-Reply-To=%3C20090614112031.29720184F2F%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000646.html">
+   <LINK REL="Next"  HREF="000648.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG, 1.347, 1.348 audio-ac3pt.c,	1.3, 1.4</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C%201.347%2C%201.348%20audio-ac3pt.c%2C%0A%091.3%2C%201.4&In-Reply-To=%3C20090614112031.29720184F2F%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG, 1.347, 1.348 audio-ac3pt.c,	1.3, 1.4">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Jun 14 13:20:31 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000646.html">[Softdevice-cvs] softdevice video.h,1.58,1.59
+</A></li>
+        <LI>Next message: <A HREF="000648.html">[Softdevice-cvs] softdevice/po ca_ES.po, 1.2, 1.3 cs_CZ.po, 1.2,	1.3 da_DK.po, 1.2, 1.3 de_DE.po, 1.2, 1.3 el_GR.po, 1.2,	1.3 es_ES.po, 1.2, 1.3 et_EE.po, 1.2, 1.3 fi_FI.po, 1.2,	1.3 fr_FR.po, 1.2, 1.3 hr_HR.po, 1.2, 1.3 hu_HU.po, 1.2, 1.3
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#647">[ date ]</a>
+              <a href="thread.html#647">[ thread ]</a>
+              <a href="subject.html#647">[ subject ]</a>
+              <a href="author.html#647">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv29352
+
+Modified Files:
+	CHANGELOG audio-ac3pt.c 
+Log Message:
+audio-ac3: Use different AC3 device name:
+             iec958:AES0=0x02,AES1=0x82,AES2=0x00,AES3=0x02,CARD=0
+           as default and old one as fallback.
+
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.347
+retrieving revision 1.348
+diff -C2 -d -r1.347 -r1.348
+*** CHANGELOG	22 Mar 2009 12:55:33 -0000	1.347
+--- CHANGELOG	14 Jun 2009 11:20:28 -0000	1.348
+***************
+*** 1,3 ****
+--- 1,8 ----
+  Changelog
++ 2009-06-14:
++    - build: Fix compiling with newer ffmpeg versions.
++    - audio-ac3: Use different AC3 device name:
++                   iec958:AES0=0x02,AES1=0x82,AES2=0x00,AES3=0x02,CARD=0
++                 as default and old one as fallback.
+  2009-03-22:
+     - Patch by Pridvorov Andrey to make softdevice work with mplayer-plugin.
+
+Index: audio-ac3pt.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio-ac3pt.c,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** audio-ac3pt.c	25 Dec 2007 13:21:46 -0000	1.3
+--- audio-ac3pt.c	14 Jun 2009 11:20:28 -0000	1.4
+***************
+*** 501,504 ****
+--- 501,505 ----
+  cAlsaAC3pt::SpdifInitAC3(snd_pcm_t **handle, char *device, bool spdifPro)
+  {
++     char                      pcm_name[256];
+      static snd_aes_iec958_t   spdif;
+      unsigned int              rate = 48000;
+***************
+*** 510,529 ****
+      int                       err;//, c;
+  
+-   if ((err = snd_pcm_open(handle, device, SND_PCM_STREAM_PLAYBACK, 0)) &lt; 0)
+-   {
+-     fprintf(stderr, &quot;ac3play: sound open: %s\n&quot;, snd_strerror(err));
+-     return 1;
+-   }
+- 
+    if (ac3Status)
+      snd_pcm_status_free(ac3Status);
+  
+    snd_pcm_info_alloca(&amp;info);
+  
+-   if ((err = snd_pcm_info(*handle, info)) &lt; 0) {
+-     fprintf(stderr, &quot;ac3play: sound info: %s\n&quot;, snd_strerror(err));
+-     snd_pcm_close(*handle);
+-     return 1;
+-   }
+    {
+        snd_ctl_elem_value_t  *ctl;
+--- 511,520 ----
+      int                       err;//, c;
+  
+    if (ac3Status)
+      snd_pcm_status_free(ac3Status);
++   ac3Status = NULL;
+  
+    snd_pcm_info_alloca(&amp;info);
+  
+    {
+        snd_ctl_elem_value_t  *ctl;
+***************
+*** 552,555 ****
+--- 543,571 ----
+      }
+  
++ 
++     snprintf(pcm_name, sizeof (pcm_name),
++              &quot;iec958:AES0=0x%.2x,AES1=0x%.2x,AES2=0x%.2x,AES3=0x%.2x,CARD=%1d&quot;,
++              spdif. status [0], spdif. status [1],
++              spdif. status [2], spdif. status [3],
++              0);
++ 
++     err = snd_pcm_open (handle, pcm_name, SND_PCM_STREAM_PLAYBACK, 0);
++     if (err &gt;= 0) {
++       fprintf(stderr, &quot;ac3play: Sucessfull opend (%s)\n&quot;, pcm_name);
++       goto __diga_end;
++     }
++ 
++     fprintf(stderr, &quot;ac3play: Failed to open (%s) trying old way\n&quot;, pcm_name);
++     if ((err = snd_pcm_open(handle, device, SND_PCM_STREAM_PLAYBACK, 0)) &lt; 0) {
++       fprintf(stderr, &quot;ac3play: sound open: %s\n&quot;, snd_strerror(err));
++       return 1;
++     }
++ 
++     if ((err = snd_pcm_info(*handle, info)) &lt; 0) {
++       fprintf(stderr, &quot;ac3play: sound info: %s\n&quot;, snd_strerror(err));
++       snd_pcm_close(*handle);
++       return 1;
++     }
++ 
+      snd_ctl_elem_value_alloca(&amp;ctl);
+      snd_ctl_elem_value_set_interface(ctl, SND_CTL_ELEM_IFACE_PCM);
+***************
+*** 573,579 ****
+      }
+      snd_ctl_close(ctl_handle);
+-     __diga_end:
+-       ;
+    }
+    {
+        snd_pcm_hw_params_t *params;
+--- 589,595 ----
+      }
+      snd_ctl_close(ctl_handle);
+    }
++   __diga_end:
++     ;
+    {
+        snd_pcm_hw_params_t *params;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000646.html">[Softdevice-cvs] softdevice video.h,1.58,1.59
+</A></li>
+	<LI>Next message: <A HREF="000648.html">[Softdevice-cvs] softdevice/po ca_ES.po, 1.2, 1.3 cs_CZ.po, 1.2,	1.3 da_DK.po, 1.2, 1.3 de_DE.po, 1.2, 1.3 el_GR.po, 1.2,	1.3 es_ES.po, 1.2, 1.3 et_EE.po, 1.2, 1.3 fi_FI.po, 1.2,	1.3 fr_FR.po, 1.2, 1.3 hr_HR.po, 1.2, 1.3 hu_HU.po, 1.2, 1.3
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#647">[ date ]</a>
+              <a href="thread.html#647">[ thread ]</a>
+              <a href="subject.html#647">[ subject ]</a>
+              <a href="author.html#647">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

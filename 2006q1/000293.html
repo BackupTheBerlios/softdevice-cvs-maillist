@@ -1,0 +1,137 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.152,1.153 softdevice.c,1.53,1.54
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.152%2C1.153%20softdevice.c%2C1.53%2C1.54&In-Reply-To=%3C200602121759.k1CHxFE22441%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000292.html">
+   <LINK REL="Next"  HREF="000294.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.152,1.153 softdevice.c,1.53,1.54</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.152%2C1.153%20softdevice.c%2C1.53%2C1.54&In-Reply-To=%3C200602121759.k1CHxFE22441%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.152,1.153 softdevice.c,1.53,1.54">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Feb 12 18:59:15 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000292.html">[Softdevice-cvs] softdevice video-xv.c,1.41,1.42
+</A></li>
+        <LI>Next message: <A HREF="000294.html">[Softdevice-cvs] softdevice CHANGELOG,1.153,1.154 SoftOsd.c,1.7,1.8 video-vidix.c,1.14,1.15 video-vidix.h,1.7,1.8 video-xv.c,1.42,1.43 video-xv.h,1.13,1.14 video.c,1.43,1.44 video.h,1.28,1.29
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#293">[ date ]</a>
+              <a href="thread.html#293">[ thread ]</a>
+              <a href="subject.html#293">[ subject ]</a>
+              <a href="author.html#293">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv7379
+
+Modified Files:
+	CHANGELOG softdevice.c 
+Log Message:
+softdevice-0.2.2
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.152
+retrieving revision 1.153
+diff -C2 -d -r1.152 -r1.153
+*** CHANGELOG	6 Feb 2006 21:32:16 -0000	1.152
+--- CHANGELOG	12 Feb 2006 17:59:12 -0000	1.153
+***************
+*** 1,3 ****
+--- 1,8 ----
+  Changelog
++ 2006-02-12: softdevice-0.2.2
++ 2006-02-11:
++    - some minor fixes:
++        - OSD redrawing with dfb-out when switching from StretchBlit to BES mode
++        - compiling with SoftOsd.c with gcc 2.95.3
+  2006-02-06:
+     - don't start ShmClient in fullscreen mode by default
+***************
+*** 25,29 ****
+     - now correct fix for CheckArea() not updating the aspect ratio
+  2006-01-17:
+!    - add video-shm and ShmClient, a simple server/client model for the 
+       softdevice. See the file README for details.
+  2006-01-15:
+--- 30,34 ----
+     - now correct fix for CheckArea() not updating the aspect ratio
+  2006-01-17:
+!    - add video-shm and ShmClient, a simple server/client model for the
+       softdevice. See the file README for details.
+  2006-01-15:
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.53
+retrieving revision 1.54
+diff -C2 -d -r1.53 -r1.54
+*** softdevice.c	6 Feb 2006 19:38:56 -0000	1.53
+--- softdevice.c	12 Feb 2006 17:59:12 -0000	1.54
+***************
+*** 77,81 ****
+  #include &quot;mpeg2decoder.h&quot;
+  #include &quot;utils.h&quot;
+! static const char *VERSION        = &quot;0.2.1&quot;;
+  static const char *DESCRIPTION    = &quot;A software emulated MPEG2 device&quot;;
+  static const char *MAINMENUENTRY  = &quot;Softdevice&quot;;
+--- 77,81 ----
+  #include &quot;mpeg2decoder.h&quot;
+  #include &quot;utils.h&quot;
+! static const char *VERSION        = &quot;0.2.2&quot;;
+  static const char *DESCRIPTION    = &quot;A software emulated MPEG2 device&quot;;
+  static const char *MAINMENUENTRY  = &quot;Softdevice&quot;;
+***************
+*** 353,357 ****
+  void cSoftDevice::MakePrimaryDevice(bool On)
+  {
+!   fprintf(stderr,&quot;cSoftDevice::MakePrimaryDevice\n&quot;);
+  
+    new cSoftOsdProvider(videoOut);
+--- 353,357 ----
+  void cSoftDevice::MakePrimaryDevice(bool On)
+  {
+!   //fprintf(stderr,&quot;cSoftDevice::MakePrimaryDevice\n&quot;);
+  
+    new cSoftOsdProvider(videoOut);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000292.html">[Softdevice-cvs] softdevice video-xv.c,1.41,1.42
+</A></li>
+	<LI>Next message: <A HREF="000294.html">[Softdevice-cvs] softdevice CHANGELOG,1.153,1.154 SoftOsd.c,1.7,1.8 video-vidix.c,1.14,1.15 video-vidix.h,1.7,1.8 video-xv.c,1.42,1.43 video-xv.h,1.13,1.14 video.c,1.43,1.44 video.h,1.28,1.29
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#293">[ date ]</a>
+              <a href="thread.html#293">[ thread ]</a>
+              <a href="subject.html#293">[ subject ]</a>
+              <a href="author.html#293">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

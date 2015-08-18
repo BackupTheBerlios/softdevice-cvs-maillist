@@ -1,0 +1,183 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.85,1.86 video-xv.c,1.28,1.29
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.85%2C1.86%20video-xv.c%2C1.28%2C1.29&In-Reply-To=%3C200507170739.j6H7drI07170%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000157.html">
+   <LINK REL="Next"  HREF="000159.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.85,1.86 video-xv.c,1.28,1.29</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.85%2C1.86%20video-xv.c%2C1.28%2C1.29&In-Reply-To=%3C200507170739.j6H7drI07170%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.85,1.86 video-xv.c,1.28,1.29">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Jul 17 09:39:53 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000157.html">[Softdevice-cvs] softdevice CHANGELOG,1.84,1.85 utils.c,1.6,1.7
+</A></li>
+        <LI>Next message: <A HREF="000159.html">[Softdevice-cvs] softdevice CHANGELOG,1.86,1.87 mpeg2decoder.c,1.44,1.45 mpeg2decoder.h,1.27,1.28
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#158">[ date ]</a>
+              <a href="thread.html#158">[ thread ]</a>
+              <a href="subject.html#158">[ subject ]</a>
+              <a href="author.html#158">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv2269
+
+Modified Files:
+	CHANGELOG video-xv.c 
+Log Message:
+crop Top/Bottom for xv-out
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.85
+retrieving revision 1.86
+diff -C2 -d -r1.85 -r1.86
+*** CHANGELOG	16 Jul 2005 22:33:08 -0000	1.85
+--- CHANGELOG	17 Jul 2005 07:39:50 -0000	1.86
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2005-07-17:
++     - crop Top/Bottom for xv-out
+  2005-07-16:
+      - fix for cropBottom in dfb with YUY2 pixelformat
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.28
+retrieving revision 1.29
+diff -C2 -d -r1.28 -r1.29
+*** video-xv.c	3 Jul 2005 15:59:50 -0000	1.28
+--- video-xv.c	17 Jul 2005 07:39:50 -0000	1.29
+***************
+*** 1264,1271 ****
+      return;
+  
+!   if (aspect_changed)
+    {
+      XClearArea (dpy, win, 0, 0, 0, 0, True);
+      aspect_changed = 0;
+    }
+  
+--- 1264,1278 ----
+      return;
+  
+!   if (aspect_changed ||
+!       cutTop != setupStore-&gt;cropTopLines ||
+!       cutBottom != setupStore-&gt;cropBottomLines)
+    {
+      XClearArea (dpy, win, 0, 0, 0, 0, True);
+      aspect_changed = 0;
++     cutTop = setupStore-&gt;cropTopLines;
++     cutBottom = setupStore-&gt;cropBottomLines;
++     memset (pixels [0], 0, xvWidth*xvHeight);
++     memset (pixels [1], 128, xvWidth*xvHeight/4);
++     memset (pixels [2], 128, xvWidth*xvHeight/4);
+    }
+  
+***************
+*** 1282,1286 ****
+    // if (0) {
+    if (OSDpresent &amp;&amp; current_osdMode==OSDMODE_SOFTWARE) {
+!         for (int i = 0; i &lt; fheight; i++)
+          {
+            AlphaBlend(pixels[0]+i*xvWidth,OsdPy+i*OSD_FULL_WIDTH,
+--- 1289,1293 ----
+    // if (0) {
+    if (OSDpresent &amp;&amp; current_osdMode==OSDMODE_SOFTWARE) {
+!         for (int i = cutTop * 2; i &lt; fheight - cutBottom * 2; i++)
+          {
+            AlphaBlend(pixels[0]+i*xvWidth,OsdPy+i*OSD_FULL_WIDTH,
+***************
+*** 1288,1293 ****
+              OsdPAlphaY+i*OSD_FULL_WIDTH,fwidth);
+          }
+!  
+!         for (int i = 0; i &lt; fheight / 2; i++)
+          {
+            AlphaBlend(pixels[1]+i*xvWidth/2,
+--- 1295,1300 ----
+              OsdPAlphaY+i*OSD_FULL_WIDTH,fwidth);
+          }
+! 
+!         for (int i = cutTop; i &lt; fheight / 2 - cutBottom; i++)
+          {
+            AlphaBlend(pixels[1]+i*xvWidth/2,
+***************
+*** 1296,1300 ****
+          }
+  
+!         for (int i = 0; i &lt; fheight / 2; i++)
+          {
+            AlphaBlend(pixels[2]+i*xvWidth/2,
+--- 1303,1307 ----
+          }
+  
+!         for (int i = cutTop; i &lt; fheight / 2 - cutBottom; i++)
+          {
+            AlphaBlend(pixels[2]+i*xvWidth/2,
+***************
+*** 1321,1329 ****
+   {
+  
+!           for (int i = 0; i &lt; fheight; i++)
+               fast_memcpy(pixels [0] + i * xvWidth, Py + i * Ystride, fwidth);
+!           for (int i = 0; i &lt; fheight / 2; i++)
+               fast_memcpy (pixels [1] + i * xvWidth / 2, Pv + i * UVstride, fwidth / 2);
+!           for (int i = 0; i &lt; fheight / 2; i++)
+               fast_memcpy (pixels [2] + i * xvWidth / 2, Pu + i * UVstride, fwidth / 2);
+  
+--- 1328,1336 ----
+   {
+  
+!           for (int i = cutTop * 2; i &lt; fheight - cutBottom * 2; i++)
+               fast_memcpy(pixels [0] + i * xvWidth, Py + i * Ystride, fwidth);
+!           for (int i = cutTop; i &lt; fheight / 2 - cutBottom; i++)
+               fast_memcpy (pixels [1] + i * xvWidth / 2, Pv + i * UVstride, fwidth / 2);
+!           for (int i = cutTop; i &lt; fheight / 2 - cutBottom; i++)
+               fast_memcpy (pixels [2] + i * xvWidth / 2, Pu + i * UVstride, fwidth / 2);
+  
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000157.html">[Softdevice-cvs] softdevice CHANGELOG,1.84,1.85 utils.c,1.6,1.7
+</A></li>
+	<LI>Next message: <A HREF="000159.html">[Softdevice-cvs] softdevice CHANGELOG,1.86,1.87 mpeg2decoder.c,1.44,1.45 mpeg2decoder.h,1.27,1.28
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#158">[ date ]</a>
+              <a href="thread.html#158">[ thread ]</a>
+              <a href="subject.html#158">[ subject ]</a>
+              <a href="author.html#158">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

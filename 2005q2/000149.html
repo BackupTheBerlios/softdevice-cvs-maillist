@@ -1,0 +1,125 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice mpeg2decoder.c,1.41,1.42 CHANGELOG,1.78,1.79
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20mpeg2decoder.c%2C1.41%2C1.42%20CHANGELOG%2C1.78%2C1.79&In-Reply-To=%3C200506301940.j5UJenI15295%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000148.html">
+   <LINK REL="Next"  HREF="000150.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice mpeg2decoder.c,1.41,1.42 CHANGELOG,1.78,1.79</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20mpeg2decoder.c%2C1.41%2C1.42%20CHANGELOG%2C1.78%2C1.79&In-Reply-To=%3C200506301940.j5UJenI15295%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice mpeg2decoder.c,1.41,1.42 CHANGELOG,1.78,1.79">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Thu Jun 30 21:40:49 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000148.html">[Softdevice-cvs] softdevice video-xv.c,1.26,1.27 video-xv.h,1.7,1.8
+</A></li>
+        <LI>Next message: <A HREF="000150.html">[Softdevice-cvs] softdevice CHANGELOG,1.79,1.80 video-dfb.c,1.29,1.30 video-dfb.h,1.8,1.9 video.c,1.22,1.23 video.h,1.14,1.15
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#149">[ date ]</a>
+              <a href="thread.html#149">[ thread ]</a>
+              <a href="subject.html#149">[ subject ]</a>
+              <a href="author.html#149">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv2738
+
+Modified Files:
+	mpeg2decoder.c CHANGELOG 
+Log Message:
+changed delay clamping low limit
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.41
+retrieving revision 1.42
+diff -C2 -d -r1.41 -r1.42
+*** mpeg2decoder.c	12 Jun 2005 20:45:20 -0000	1.41
+--- mpeg2decoder.c	30 Jun 2005 19:40:46 -0000	1.42
+***************
+*** 590,594 ****
+          context-&gt;width,context-&gt;height,
+          picture-&gt;linesize[0],picture-&gt;linesize[1]);
+!   }
+    // we just displayed a frame, now it's the right time to
+    // measure the A-V offset
+--- 590,594 ----
+          context-&gt;width,context-&gt;height,
+          picture-&gt;linesize[0],picture-&gt;linesize[1]);
+!   } else fprintf(stderr,&quot;+&quot;);
+    // we just displayed a frame, now it's the right time to
+    // measure the A-V offset
+***************
+*** 621,626 ****
+    if (delay &gt; 2*frametime()*100)
+      delay = 2*frametime()*100;
+!   else if (delay &lt; frametime()*80)
+!     delay = frametime()*80;    
+  
+    if (offset &gt;  8*frametime())
+--- 621,626 ----
+    if (delay &gt; 2*frametime()*100)
+      delay = 2*frametime()*100;
+!   else if (delay &lt; -frametime()*100)
+!     delay = -frametime()*100;
+  
+    if (offset &gt;  8*frametime())
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.78
+retrieving revision 1.79
+diff -C2 -d -r1.78 -r1.79
+*** CHANGELOG	26 Jun 2005 20:12:40 -0000	1.78
+--- CHANGELOG	30 Jun 2005 19:40:47 -0000	1.79
+***************
+*** 1,3 ****
+--- 1,7 ----
+  Changelog
++ 2005-06-30:
++     - changed delay clamping low limit and printout &quot;+&quot; if we drop frames
++ 2005-06-28:
++     - fix for loosing window dimensions upon switching from fullscreen mode to windowed mode
+  2005-06-26:
+      - fix compile issue with recent gcc versions (patch by alexw)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000148.html">[Softdevice-cvs] softdevice video-xv.c,1.26,1.27 video-xv.h,1.7,1.8
+</A></li>
+	<LI>Next message: <A HREF="000150.html">[Softdevice-cvs] softdevice CHANGELOG,1.79,1.80 video-dfb.c,1.29,1.30 video-dfb.h,1.8,1.9 video.c,1.22,1.23 video.h,1.14,1.15
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#149">[ date ]</a>
+              <a href="thread.html#149">[ thread ]</a>
+              <a href="subject.html#149">[ subject ]</a>
+              <a href="author.html#149">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

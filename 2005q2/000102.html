@@ -1,0 +1,816 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.60,1.61 Makefile,1.11,1.12 mpeg2decoder.c,1.31,1.32 mpeg2decoder.h,1.20,1.21 video.c,1.15,1.16 video.h,1.9,1.10
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.60%2C1.61%20Makefile%2C1.11%2C1.12%20mpeg2decoder.c%2C1.31%2C1.32%20mpeg2decoder.h%2C1.20%2C1.21%20video.c%2C1.15%2C1.16%20video.h%2C1.9%2C1.10&In-Reply-To=%3C200505011024.j41AO4m04490%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000101.html">
+   <LINK REL="Next"  HREF="000103.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.60,1.61 Makefile,1.11,1.12 mpeg2decoder.c,1.31,1.32 mpeg2decoder.h,1.20,1.21 video.c,1.15,1.16 video.h,1.9,1.10</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.60%2C1.61%20Makefile%2C1.11%2C1.12%20mpeg2decoder.c%2C1.31%2C1.32%20mpeg2decoder.h%2C1.20%2C1.21%20video.c%2C1.15%2C1.16%20video.h%2C1.9%2C1.10&In-Reply-To=%3C200505011024.j41AO4m04490%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.60,1.61 Makefile,1.11,1.12 mpeg2decoder.c,1.31,1.32 mpeg2decoder.h,1.20,1.21 video.c,1.15,1.16 video.h,1.9,1.10">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun May  1 12:24:04 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000101.html">[Softdevice-cvs] softdevice sync-timer.c,1.1,1.2
+</A></li>
+        <LI>Next message: <A HREF="000103.html">[Softdevice-cvs] softdevice CHANGELOG,1.61,1.62 video-dfb.c,1.24,1.25
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#102">[ date ]</a>
+              <a href="thread.html#102">[ thread ]</a>
+              <a href="subject.html#102">[ subject ]</a>
+              <a href="author.html#102">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv12693
+
+Modified Files:
+	CHANGELOG Makefile mpeg2decoder.c mpeg2decoder.h video.c 
+	video.h 
+Log Message:
+- audio-out: selectiv set #channels to 2, to get 2ch downmix of 5.1
+- syncing: switched to a sync timer which can be controlled by current
+           selected output method
+
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.60
+retrieving revision 1.61
+diff -C2 -d -r1.60 -r1.61
+*** CHANGELOG	1 May 2005 08:07:43 -0000	1.60
+--- CHANGELOG	1 May 2005 10:24:02 -0000	1.61
+***************
+*** 2,7 ****
+--- 2,10 ----
+  2005-05-01:
+      - audio-out: some other preparations for ac3
++                  selectiv set #channels to 2, to get 2ch downmix of 5.1
+                   mute current mixer if volume is set to 0 and unmute if vol != 0
+                   changed dsyslod to esyslog is case we exit()
++     - syncing: switched to a sync timer which can be controlled by current
++                selected output method
+  2005-04-30:
+      - some preparations for ac3 out selection
+
+Index: Makefile
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/Makefile,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -C2 -d -r1.11 -r1.12
+*** Makefile	19 Mar 2005 22:01:21 -0000	1.11
+--- Makefile	1 May 2005 10:24:02 -0000	1.12
+***************
+*** 156,160 ****
+  TARGETS = libvdr-$(PLUGIN).so
+  LIBS = $(FFMPEGLIBS) -lasound -lz
+! OBJS = $(PLUGIN).o utils.o i18n.o video.o mpeg2decoder.o audio.o video-dummy.o setup-softdevice.o
+  ALL_OBJS = $(OBJS)
+  
+--- 156,160 ----
+  TARGETS = libvdr-$(PLUGIN).so
+  LIBS = $(FFMPEGLIBS) -lasound -lz
+! OBJS = $(PLUGIN).o utils.o i18n.o video.o mpeg2decoder.o audio.o video-dummy.o setup-softdevice.o sync-timer.o
+  ALL_OBJS = $(OBJS)
+  
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.31
+retrieving revision 1.32
+diff -C2 -d -r1.31 -r1.32
+*** mpeg2decoder.c	12 Apr 2005 21:58:32 -0000	1.31
+--- mpeg2decoder.c	1 May 2005 10:24:02 -0000	1.32
+***************
+*** 12,22 ****
+  #include &lt;vdr/plugin.h&gt;
+  
+- //#define SIG_TIMING
+- #ifndef SIG_TIMING
+- // for RTC
+- #include &lt;sys/ioctl.h&gt;
+- #include &lt;linux/rtc.h&gt;
+- #endif
+- 
+  #include &quot;mpeg2decoder.h&quot;
+  #include &quot;audio.h&quot;
+--- 12,15 ----
+***************
+*** 25,29 ****
+  
+  
+! //#define MPGDEB(out...) {printf(&quot;mpegdec[%04d]:&quot;,getTimeMilis() % 10000);printf(out);}
+  
+  #ifndef MPGDEB
+--- 18,22 ----
+  
+  
+! //#define MPGDEB(out...) {printf(&quot;mpegdec[%04d]:&quot;,(int)(getTimeMilis() % 10000));printf(out);}
+  
+  #ifndef MPGDEB
+***************
+*** 31,35 ****
+  #endif
+  
+! #define CMDDEB(out...) {printf(&quot;CMD[%04d]:&quot;,getTimeMilis() % 10000);printf(out);}
+  
+  #ifndef CMDDEB
+--- 24,28 ----
+  #endif
+  
+! #define CMDDEB(out...) {printf(&quot;CMD[%04d]:&quot;,(int)(getTimeMilis() % 10000));printf(out);}
+  
+  #ifndef CMDDEB
+***************
+*** 37,41 ****
+  #endif
+  
+! //#define BUFDEB(out...) {printf(&quot;BUF[%04d]:&quot;,getTimeMilis() % 10000);printf(out);}
+  
+  #ifndef BUFDEB
+--- 30,34 ----
+  #endif
+  
+! //#define BUFDEB(out...) {printf(&quot;BUF[%04d]:&quot;,(int)(getTimeMilis() % 10000));printf(out);}
+  
+  #ifndef BUFDEB
+***************
+*** 65,69 ****
+  //  printf(&quot;GetReadPacket %x FirstPacket %d LastPacket %d\n&quot;,
+  //    queue,FirstPacket,LastPacket);
+!   if (FirstPacket!=LastPacket) 
+      return &amp;queue[FirstPacket];
+    else return NULL;
+--- 58,62 ----
+  //  printf(&quot;GetReadPacket %x FirstPacket %d LastPacket %d\n&quot;,
+  //    queue,FirstPacket,LastPacket);
+!   if (FirstPacket!=LastPacket)
+      return &amp;queue[FirstPacket];
+    else return NULL;
+***************
+*** 98,166 ****
+  };
+  
+- //-----------------------cRelTimer-----------------------
+- int32_t cRelTimer::TimePassed()
+- {
+-   int64_t now;
+-   int32_t ret;
+- 
+-   now=GetTime();
+-   if ( now &lt; lastTime ) {
+-     ret = (uint32_t) (now - lastTime + 60 *1000000); // untested
+-     MPGDEB(&quot;now %lld kleiner als lastTime %lld\n&quot;,now,lastTime);
+-   }
+-   else ret = now - lastTime;
+-   return ret;
+- };
+- 
+- int32_t cRelTimer::GetRelTime() 
+- {
+-   int64_t now;
+-   int32_t ret;
+- 
+-   now=GetTime();
+-   if ( now &lt; lastTime ) {
+-     ret = (uint32_t) (now - lastTime + 60 *1000000); // untested
+-     MPGDEB(&quot;now %lld kleiner als lastTime %lld\n&quot;,now,lastTime);
+-   }
+-   else ret = now - lastTime;
+-   lastTime=now;
+-   return ret;
+- };
+- //-----------------------cSleepTimer-----------------------
+-  
+- void cSigTimer::Sleep( int timeoutUS )
+- {
+-   if (got_signal) {
+-     got_signal=false;
+-     return;
+-   };
+-   if ( timeoutUS &lt; 0 )
+-     return;
+-  
+-   struct timeval tv;
+-   gettimeofday(&amp;tv,NULL);
+-   struct timespec timeout;
+-   timeout.tv_nsec=(tv.tv_usec+timeoutUS);//*1000;
+-   timeout.tv_sec=tv.tv_sec + timeout.tv_nsec / 1000000;
+-   timeout.tv_nsec%=1000000;
+-   timeout.tv_nsec*=1000;
+-   pthread_mutex_lock(&amp;mutex);
+-   int retcode=0;
+-   while ( retcode != ETIMEDOUT &amp;&amp; !got_signal ) {
+-     retcode = pthread_cond_timedwait(&amp;cond, &amp;mutex, &amp;timeout);
+-   }
+- 
+-   got_signal = false;
+-   pthread_mutex_unlock(&amp;mutex);
+- };
+- 
+- void cSigTimer::Signal()
+- {
+-   pthread_mutex_lock(&amp;mutex);
+-   got_signal=true;
+-   pthread_cond_broadcast(&amp;cond);
+-   pthread_mutex_unlock(&amp;mutex);
+- };
+- 
+  // --- cStreamDecoder ---------------------------------------------------------
+  
+--- 91,94 ----
+***************
+*** 284,287 ****
+--- 212,217 ----
+      return false;
+    }
++   printf(&quot;[mpegdecoder] open codec %d successfull\n&quot;,
++       context-&gt;codec_id);
+    MPGDEB(&quot;Codec %d initialized.\n&quot;);
+    return true;
+***************
+*** 340,351 ****
+  
+  int cAudioStreamDecoder::DecodePacket(AVPacket *pkt) {
+!   int len=0;
+!   int audio_size=0;
+!    
+!   uint8_t *data=pkt-&gt;data;
+!   int size=pkt-&gt;size;
+  
+    while ( size &gt; 0 ) {
+!     len=avcodec_decode_audio(context, (short *)audiosamples, 
+                   &amp;audio_size, data, size);
+      if (len &lt; 0) {
+--- 270,302 ----
+  
+  int cAudioStreamDecoder::DecodePacket(AVPacket *pkt) {
+!     int     len=0;
+!     int     audio_size=0;
+!     uint8_t *data=pkt-&gt;data;
+!     int     size=pkt-&gt;size;
+  
++   if (context-&gt;codec_id == CODEC_ID_AC3)
++   {
++     switch(setupStore.ac3Mode)
++     {
++       case 0:
++         // get the AC3 -&gt; 2CH stereo data
++         context-&gt;channels = 2;
++         break;
++       case 1:
++         // feed data for AC3 pass through to device
++         audioOut-&gt;WriteAC3(data,size);
++         return size;
++       case 2:
++         // get the AC3 -&gt; 4CH stereo data
++         context-&gt;channels = 4;
++         break;
++       case 3:
++         // set channels to auto mode to get decoded stream for analog out
++         context-&gt;channels = 0;
++         break;
++     }
++   }
+    while ( size &gt; 0 ) {
+!     len=avcodec_decode_audio(context, (short *)audiosamples,
+                   &amp;audio_size, data, size);
+      if (len &lt; 0) {
+***************
+*** 360,364 ****
+         frame,pkt-&gt;size,len, audio_size, audioOut-&gt;GetDelay());
+  
+!     // no new frame decoded, continue 
+      if (audio_size == 0)
+        continue;
+--- 311,315 ----
+         frame,pkt-&gt;size,len, audio_size, audioOut-&gt;GetDelay());
+  
+!     // no new frame decoded, continue
+      if (audio_size == 0)
+        continue;
+***************
+*** 381,386 ****
+      //audioOut-&gt;Write(audiosamples,audio_size);
+      audioBuffer-&gt;Put(audiosamples,audio_size);
+!     // adjust PTS according to audio_size, sampel_rate and no. of channels  
+!     pts += (audio_size*10000/(context-&gt;sample_rate*2*context-&gt;channels)); 
+  
+      if (pkt-&gt;pts != (int64_t) AV_NOPTS_VALUE) {
+--- 332,337 ----
+      //audioOut-&gt;Write(audiosamples,audio_size);
+      audioBuffer-&gt;Put(audiosamples,audio_size);
+!     // adjust PTS according to audio_size, sampel_rate and no. of channels
+!     pts += (audio_size*10000/(context-&gt;sample_rate*2*context-&gt;channels));
+  
+      if (pkt-&gt;pts != (int64_t) AV_NOPTS_VALUE) {
+***************
+*** 396,400 ****
+    {
+      uint8_t *samples=audioBuffer-&gt;Get(audio_size);
+!     if (!samples) 
+          break;
+      if ( (unsigned) audio_size  &gt; audioOutContext.period_size )
+--- 347,351 ----
+    {
+      uint8_t *samples=audioBuffer-&gt;Get(audio_size);
+!     if (!samples)
+          break;
+      if ( (unsigned) audio_size  &gt; audioOutContext.period_size )
+***************
+*** 451,479 ****
+    delay=0;
+    hurry_up=0;
+!   Timer.Reset();
+! 
+! #ifndef SIG_TIMING
+!   if ( (rtc_fd = open(&quot;/dev/rtc&quot;,O_RDONLY)) &lt; 0 ) 
+!     fprintf(stderr,&quot;Could not open /dev/rtc \n&quot;);
+!   else 
+!   {
+!     uint64_t irqp = 1024;
+  
+-     if ( ioctl(rtc_fd, RTC_IRQP_SET, irqp) &lt; 0) 
+-     {
+-       //fprintf(stderr,&quot;Could not set irq period\n&quot;);
+-       close(rtc_fd);
+-       rtc_fd=-1;
+-     }
+-     else if ( ioctl( rtc_fd, RTC_PIE_ON, 0 ) &lt; 0) 
+-     {
+-       //fprintf(stderr,&quot;Error in rtc_pie on \n&quot;);
+-       close(rtc_fd);
+-       rtc_fd=-1;
+-     };// else fprintf(stderr,&quot;Set up to use linux RTC\n&quot;);
+-  };
+- #else
+-   rtc_fd=-1;
+- #endif
+    frametime = DEFAULT_FRAMETIME * Trickspeed;
+    syncOnAudio = ( Trickspeed == 1);
+--- 402,408 ----
+    delay=0;
+    hurry_up=0;
+!   syncTimer = new cSyncTimer (emRtcTimer);
+!   syncTimer-&gt;Reset();
+  
+    frametime = DEFAULT_FRAMETIME * Trickspeed;
+    syncOnAudio = ( Trickspeed == 1);
+***************
+*** 482,495 ****
+  }
+  
+! void cVideoStreamDecoder::Stop(void) 
+  {
+    active=false;
+!   Timer.Signal(); // abort waiting for frame display
+    Cancel(3);
+  }
+  
+  uint64_t cVideoStreamDecoder::GetPTS() {
+!   return pts - (delay + Timer.TimePassed())/100;
+! };
+  
+  int cVideoStreamDecoder::DecodePacket(AVPacket *pkt)
+--- 411,424 ----
+  }
+  
+! void cVideoStreamDecoder::Stop(void)
+  {
+    active=false;
+!   syncTimer-&gt;Signal(); // abort waiting for frame display
+    Cancel(3);
+  }
+  
+  uint64_t cVideoStreamDecoder::GetPTS() {
+!   return pts - (delay + syncTimer-&gt;TimePassed())/100;
+! }
+  
+  int cVideoStreamDecoder::DecodePacket(AVPacket *pkt)
+***************
+*** 541,545 ****
+          MPGDEB(&quot;audioStreamDecoder waiting for ReadyForPlay...\n&quot;);
+          usleep(10000);
+! 	count++;
+        };
+      };
+--- 470,474 ----
+          MPGDEB(&quot;audioStreamDecoder waiting for ReadyForPlay...\n&quot;);
+          usleep(10000);
+!         count++;
+        };
+      };
+***************
+*** 607,658 ****
+    
+    if (!hurry_up || frame % 2 ) {
+!   // sleep ....
+!   delay-=Timer.GetRelTime();
+!   MPGDEB(&quot;Frame# %-5d  aPTS: %lld offset: %d delay %d \n&quot;,frame,clock-&gt;GetPTS(),offset,delay );
+! #ifdef SIG_TIMING
+!   Timer.Sleep(delay-1000);
+!   delay-=Timer.GetRelTime();
+! #else
+!   if ( rtc_fd &gt;= 0 ) {
+!     // RTC timinig
+!     while (delay &gt; 15000) {
+!       //sleep one timer tick
+!       usleep(10000);
+!       //MPGDEB(&quot;RTC sleep loop %d \n&quot;,delay);
+!       delay-=Timer.GetRelTime();
+!     }
+!     while (delay  &gt; 1200) {
+!       uint32_t ts;
+!       //MPGDEB(&quot;RTC Loop %d \n&quot;,delay);
+!       if ( read(rtc_fd, &amp;ts, sizeof(ts) )  &lt;= 0) 
+!       {
+!         fprintf(stderr,&quot;Linux RTC read error, disableing RTC\n&quot;);
+!         close(rtc_fd);
+!         rtc_fd=-1;
+!       }
+!       delay-=Timer.GetRelTime();
+!     }
+!   } else {
+!     // usleep timing
+!     const int rest=2200;
+!     while (delay &gt; rest) {     
+!       //usleep(1000);
+!       usleep(rest);
+!       delay  -= Timer.GetRelTime();
+!       //MPGDEB(&quot;Loop %d \n&quot;,delay);  return len;
+!     }
+!     // cpu burn timing
+!     //while (delay &gt; 100) { 
+!     //  delay  -= Timer.GetRelTime();
+!     //   printf(&quot;Loop2 %d \n&quot;,delay);
+!     //};
+    }
+- #endif
+-   
+-   // display picture
+-   videoOut-&gt;YUV(picture-&gt;data[0], picture-&gt;data[1],picture-&gt;data[2],
+-       context-&gt;width,context-&gt;height,
+-       picture-&gt;linesize[0],picture-&gt;linesize[1]);
+-   };
+    // we just displayed a frame, now it's the right time to
+    // measure the A-V offset
+--- 536,549 ----
+    
+    if (!hurry_up || frame % 2 ) {
+!     // sleep ....
+!     delay-=syncTimer-&gt;GetRelTime();
+!     MPGDEB(&quot;Frame# %-5d  aPTS: %lld offset: %d delay %d \n&quot;,frame,clock-&gt;GetPTS(),offset,delay );
+! 
+!     videoOut-&gt;Sync(syncTimer, &amp;delay);
+!     // display picture
+!     videoOut-&gt;YUV(picture-&gt;data[0], picture-&gt;data[1],picture-&gt;data[2],
+!                   context-&gt;width,context-&gt;height,
+!                   picture-&gt;linesize[0],picture-&gt;linesize[1]);
+    }
+    // we just displayed a frame, now it's the right time to
+    // measure the A-V offset
+***************
+*** 692,696 ****
+  
+  #if 1
+!   int dispTime=Timer.GetRelTime();
+    delay-=dispTime;
+    if (!(frame % 1) || context-&gt;hurry_up) {
+--- 583,587 ----
+  
+  #if 1
+!   int dispTime=syncTimer-&gt;GetRelTime();
+    delay-=dispTime;
+    if (!(frame % 1) || context-&gt;hurry_up) {
+***************
+*** 1000,1007 ****
+  {
+    cClock::SetVideoClock(NULL);
+!   //RTC
+!   if (rtc_fd)
+!     close(rtc_fd);
+! 
+    free(picture);
+  }
+--- 891,895 ----
+  {
+    cClock::SetVideoClock(NULL);
+!   delete(syncTimer);
+    free(picture);
+  }
+***************
+*** 1096,1100 ****
+  
+  int cMpeg2Decoder::seek(offset_t offset, int whence) {
+!    printf(&quot;unimplemented: seek offset %d whence %d\n&quot;,offset,whence);
+     return -EINVAL;
+  };
+--- 984,988 ----
+  
+  int cMpeg2Decoder::seek(offset_t offset, int whence) {
+!    printf(&quot;unimplemented: seek offset %lld whence %d\n&quot;,offset,whence);
+     return -EINVAL;
+  };
+
+Index: mpeg2decoder.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.h,v
+retrieving revision 1.20
+retrieving revision 1.21
+diff -C2 -d -r1.20 -r1.21
+*** mpeg2decoder.h	12 Apr 2005 21:58:32 -0000	1.20
+--- mpeg2decoder.h	1 May 2005 10:24:02 -0000	1.21
+***************
+*** 12,17 ****
+--- 12,20 ----
+    #include &lt;postproc/postprocess.h&gt;
+  #endif //PP_LIBAVCODEC
++ 
++ #include &quot;sync-timer.h&quot;
+  #include &quot;video.h&quot;
+  #include &quot;audio.h&quot;
++ 
+  #include &lt;avformat.h&gt;
+  #include &lt;sys/time.h&gt;
+***************
+*** 92,173 ****
+  };
+  
+- //-------------------------cRelTimer-----------------------------------
+- class cRelTimer {
+-    private:
+-       int64_t lastTime;
+-       inline int64_t GetTime()
+-       {  
+-         struct timeval tv;
+-         struct timezone tz;
+-         gettimeofday(&amp;tv,&amp;tz);
+-         return tv.tv_sec*1000000+tv.tv_usec;
+-       };
+- 
+-    public:
+-       cRelTimer() {lastTime=GetTime();};
+-       ~cRelTimer() {};
+-       
+-       int32_t TimePassed();
+-       int32_t GetRelTime();
+-       inline void Reset() { lastTime=GetTime(); };
+- };
+- 
+- //-------------------------cSigTimer-----------------------------------
+- class cSigTimer : public cRelTimer {
+-    private:
+-      pthread_mutex_t mutex;
+-      pthread_cond_t cond;
+-      bool got_signal;
+-  
+-    public:
+-       cSigTimer() : cRelTimer()
+-       {
+-         pthread_mutex_init(&amp;mutex, NULL);
+-         pthread_cond_init(&amp;cond, NULL);
+-       };
+-       ~cSigTimer()
+-       {
+-         pthread_cond_broadcast(&amp;cond); // wake up any sleepers
+-         pthread_cond_destroy(&amp;cond);
+-         pthread_mutex_destroy(&amp;mutex);
+-       };
+-        
+-       void Sleep( int timeoutUS );
+- 
+-       void Signal(void);
+- };
+-       
+  //-------------------------cStreamDecoder ----------------------------------
+  // Output device handler
+  class cStreamDecoder : public cThread {
+  private:
+- 
+      bool freezeMode;
+      cPacketQueue PacketQueue;
+  protected:
+!     int64_t               pts;
+!     int                   frame;
+!     
+!     AVCodec               *codec;
+!     AVCodecContext        *context;
+!     
+!     cMutex                mutex;
+!     bool                  active, running;
+      
+!     virtual void Action(void);
+!     virtual int DecodePacket(AVPacket *pkt) = 0;
+  public:
+!     inline int PutPacket(const AVPacket &amp;pkt)
+!     { return PacketQueue.PutPacket(pkt); };
+  
+!     virtual void Clear(void);
+!     virtual void Freeze(void);
+!     virtual void Play(void);
+!     virtual void Stop();
+!     virtual void TrickSpeed(int Speed) {return;};
+!     virtual int BufferFill(void);
+!     bool    initCodec(void);
+!     void    resetCodec(void);
+!     virtual uint64_t GetPTS()  {return pts;};
+      
+      cStreamDecoder(AVCodecContext * Context);
+--- 95,131 ----
+  };
+  
+  //-------------------------cStreamDecoder ----------------------------------
+  // Output device handler
+  class cStreamDecoder : public cThread {
+  private:
+      bool freezeMode;
+      cPacketQueue PacketQueue;
++ 
+  protected:
+!     int64_t           pts;
+!     int               frame;
+! 
+!     AVCodec           *codec;
+!     AVCodecContext    *context;
+! 
+!     cMutex            mutex;
+!     bool              active, running;
+      
+!     virtual void      Action(void);
+!     virtual int       DecodePacket(AVPacket *pkt) = 0;
+! 
+  public:
+!     inline int        PutPacket(const AVPacket &amp;pkt)
+!                         { return PacketQueue.PutPacket(pkt); };
+  
+!     virtual void      Clear(void);
+!     virtual void      Freeze(void);
+!     virtual void      Play(void);
+!     virtual void      Stop();
+!     virtual void      TrickSpeed(int Speed) {return;};
+!     virtual int       BufferFill(void);
+!     bool              initCodec(void);
+!     void              resetCodec(void);
+!     virtual uint64_t  GetPTS()  {return pts;};
+      
+      cStreamDecoder(AVCodecContext * Context);
+***************
+*** 178,191 ****
+  class cAudioStreamDecoder : public cStreamDecoder {
+  private:
+!     uint8_t * audiosamples;
+      cSoftRingBufferLinear *audioBuffer;
+!     cAudioOut *audioOut;
+!     SampleContext audioOutContext;
+!     int audioMode;
+  
+      void OnlyLeft(uint8_t *samples,int Length);
+      // copy left data to right channel
+      void OnlyRight(uint8_t *samples,int Length);
+      // copy right data to left channel
+  protected:
+  public:
+--- 136,151 ----
+  class cAudioStreamDecoder : public cStreamDecoder {
+  private:
+!     uint8_t               *audiosamples;
+      cSoftRingBufferLinear *audioBuffer;
+!     cAudioOut             *audioOut;
+!     SampleContext         audioOutContext;
+!     int                   audioMode;
+  
+      void OnlyLeft(uint8_t *samples,int Length);
+      // copy left data to right channel
++ 
+      void OnlyRight(uint8_t *samples,int Length);
+      // copy right data to left channel
++ 
+  protected:
+  public:
+***************
+*** 227,236 ****
+      bool               syncOnAudio;
+      int                hurry_up; 
+!     cSigTimer          Timer;
+      int                offset;
+      int                delay;
+-     int                rtc_fd; 
+      int                frametime;
+!    
+      uchar   *allocatePicBuf(uchar *pic_buf);
+      void    deintLibavcodec(void);
+--- 187,195 ----
+      bool               syncOnAudio;
+      int                hurry_up; 
+!     cSyncTimer         *syncTimer;
+      int                offset;
+      int                delay;
+      int                frametime;
+! 
+      uchar   *allocatePicBuf(uchar *pic_buf);
+      void    deintLibavcodec(void);
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.15
+retrieving revision 1.16
+diff -C2 -d -r1.15 -r1.16
+*** video.c	2 Apr 2005 14:16:47 -0000	1.15
+--- video.c	1 May 2005 10:24:02 -0000	1.16
+***************
+*** 14,18 ****
+  #include &quot;utils.h&quot;
+  #include &quot;setup-softdevice.h&quot;
+! 
+  
+  cVideoOut::cVideoOut(cSetupStore *setupStore)
+--- 14,18 ----
+  #include &quot;utils.h&quot;
+  #include &quot;setup-softdevice.h&quot;
+! #include &quot;sync-timer.h&quot;
+  
+  cVideoOut::cVideoOut(cSetupStore *setupStore)
+***************
+*** 262,265 ****
+--- 262,273 ----
+  
+    CheckAspect (aspect_I, aspect_F);
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ void cVideoOut::Sync(cSyncTimer *syncTimer, int *delay)
++ {
++   syncTimer-&gt;Sleep(delay);
++   *delay -= syncTimer-&gt;GetRelTime();
+  }
+  
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -C2 -d -r1.9 -r1.10
+*** video.h	24 Feb 2005 22:35:51 -0000	1.9
+--- video.h	1 May 2005 10:24:02 -0000	1.10
+***************
+*** 12,15 ****
+--- 12,16 ----
+  #include &lt;vdr/plugin.h&gt;
+  #include &quot;setup-softdevice.h&quot;
++ #include &quot;sync-timer.h&quot;
+  
+  #if VDRVERSNUM &gt;= 10307
+***************
+*** 106,109 ****
+--- 107,111 ----
+      virtual void OpenOSD(int X, int Y);
+      virtual void CloseOSD();
++     virtual void Sync(cSyncTimer *syncTimer, int *delay);
+      virtual void YUV(uint8_t *Py, uint8_t *Pu, uint8_t *Pv, int Width, int Height, int Ystride, int UVstride) { return; };
+      virtual void Pause(void) {return;};
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000101.html">[Softdevice-cvs] softdevice sync-timer.c,1.1,1.2
+</A></li>
+	<LI>Next message: <A HREF="000103.html">[Softdevice-cvs] softdevice CHANGELOG,1.61,1.62 video-dfb.c,1.24,1.25
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#102">[ date ]</a>
+              <a href="thread.html#102">[ thread ]</a>
+              <a href="subject.html#102">[ subject ]</a>
+              <a href="author.html#102">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

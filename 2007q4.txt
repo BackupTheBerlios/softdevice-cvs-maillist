@@ -1,0 +1,1193 @@
+From nobody at sheep.berlios.de  Sat Oct 13 12:30:27 2007
+From: nobody at sheep.berlios.de (lucke)
+Date: Sat, 13 Oct 2007 12:30:27 +0200 (CEST)
+Subject: [Softdevice-cvs] softplay SoftPlayer.c,1.16,1.17
+Message-ID: <20071013103027.C87D510F9E2@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softplay
+In directory sheep:/tmp/cvs-serv1489
+
+Modified Files:
+	SoftPlayer.c 
+Log Message:
+fix bug #12090 by a workaround of softdevice behaviour of setting AVFMT_NOFILE flag
+
+Index: SoftPlayer.c
+===================================================================
+RCS file: /cvsroot/softdevice/softplay/SoftPlayer.c,v
+retrieving revision 1.16
+retrieving revision 1.17
+diff -C2 -d -r1.16 -r1.17
+*** SoftPlayer.c	12 Mar 2007 21:32:03 -0000	1.16
+--- SoftPlayer.c	13 Oct 2007 10:29:43 -0000	1.17
+***************
+*** 446,449 ****
+--- 446,460 ----
+  		
+          printf("open file '%s'\n",filename);
++ /* ---------------------------------------------------------------------------
++  * As a workaround for softdevice behaviour of setting AVFMT_NOFILE flag
++  * for input format "mpeg" we temporarily clear this here now and restore
++  * flags later.
++  * For this reason, this change does not fit indentation rules.
++  */
++ AVInputFormat *fmt;
++ int           oldFlags;
++ fmt=av_find_input_format("mpeg");
++ oldFlags = fmt->flags;
++ fmt->flags &= ~AVFMT_NOFILE;
+          char str[60];
+          if ( (ret=av_open_input_file( &ic, filename, NULL, 0, NULL)) ) {
+***************
+*** 452,457 ****
+--- 463,470 ----
+                  printf("could not open file. Return value %d\n",ret);
+                  ic=0;
++ fmt->flags = oldFlags;
+                  return;
+          };
++ fmt->flags = oldFlags;
+  
+          if ( av_find_stream_info( ic ) ) {
+
+
+
+From nobody at sheep.berlios.de  Sat Oct 13 13:18:40 2007
+From: nobody at sheep.berlios.de (lucke)
+Date: Sat, 13 Oct 2007 13:18:40 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice CHANGELOG, 1.318,
+	1.319 setup-softdevice.h, 1.42, 1.43 softdevice.c, 1.87,
+	1.88 video-shm.c, 1.19, 1.20
+Message-ID: <20071013111840.ED4A2FF72C@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv2448
+
+Modified Files:
+	CHANGELOG setup-softdevice.h softdevice.c video-shm.c 
+Log Message:
+shm-out: applied patch from Matthias Schwarzott to make ShmClient work at 1st start of softdevice with "-vo shm:"
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.318
+retrieving revision 1.319
+diff -C2 -d -r1.318 -r1.319
+*** CHANGELOG	27 Sep 2007 18:22:40 -0000	1.318
+--- CHANGELOG	13 Oct 2007 11:17:48 -0000	1.319
+***************
+*** 1,3 ****
+--- 1,6 ----
+  Changelog
++ 2007-10-13:
++    - shm-out: applied patch from Matthias Schwarzott to make ShmClient work
++               at 1st start of softdevice with "-vo shm:"
+  2007-09-27:
+     - audio: added open for number of channels device names CH1, CH2, CH3, .. .
+
+Index: setup-softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.h,v
+retrieving revision 1.42
+retrieving revision 1.43
+diff -C2 -d -r1.42 -r1.43
+*** setup-softdevice.h	10 May 2007 19:54:44 -0000	1.42
+--- setup-softdevice.h	13 Oct 2007 11:17:48 -0000	1.43
+***************
+*** 176,179 ****
+--- 176,181 ----
+      char  alsaDevice [ALSA_DEVICE_NAME_LENGTH];
+      char  alsaAC3Device [ALSA_DEVICE_NAME_LENGTH];
++ 
++     int   setupStoreShmid;
+  };
+  
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.87
+retrieving revision 1.88
+diff -C2 -d -r1.87 -r1.88
+*** softdevice.c	28 Aug 2007 22:28:36 -0000	1.87
+--- softdevice.c	13 Oct 2007 11:17:48 -0000	1.88
+***************
+*** 871,874 ****
+--- 871,875 ----
+    };
+    setupStore->InitSetupStore();
++   setupStore->setupStoreShmid = setupStoreShmId;
+  #endif
+  }
+
+Index: video-shm.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-shm.c,v
+retrieving revision 1.19
+retrieving revision 1.20
+diff -C2 -d -r1.19 -r1.20
+*** video-shm.c	10 May 2007 21:57:26 -0000	1.19
+--- video-shm.c	13 Oct 2007 11:17:48 -0000	1.20
+***************
+*** 92,95 ****
+--- 92,96 ----
+                  ctl->osd_shmid=-1;
+                  ctl->attached = 0;
++                 ctl->setup_shmid = setupStore->setupStoreShmid;
+          };
+  
+
+
+
+From nobody at sheep.berlios.de  Sat Oct 13 15:39:29 2007
+From: nobody at sheep.berlios.de (lucke)
+Date: Sat, 13 Oct 2007 15:39:29 +0200 (CEST)
+Subject: [Softdevice-cvs] softdevice CHANGELOG, 1.319,
+	1.320 setup-softdevice-menu.c, 1.13, 1.14
+Message-ID: <20071013133929.91BF710E45A@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv146
+
+Modified Files:
+	CHANGELOG setup-softdevice-menu.c 
+Log Message:
+allow xv startup aspect selection for shm out too.
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.319
+retrieving revision 1.320
+diff -C2 -d -r1.319 -r1.320
+*** CHANGELOG	13 Oct 2007 11:17:48 -0000	1.319
+--- CHANGELOG	13 Oct 2007 13:38:45 -0000	1.320
+***************
+*** 2,6 ****
+  2007-10-13:
+     - shm-out: applied patch from Matthias Schwarzott to make ShmClient work
+!               at 1st start of softdevice with "-vo shm:"
+  2007-09-27:
+     - audio: added open for number of channels device names CH1, CH2, CH3, .. .
+--- 2,7 ----
+  2007-10-13:
+     - shm-out: applied patch from Matthias Schwarzott to make ShmClient work
+!               at 1st start of softdevice with "-vo shm:".
+!               allow xv startup aspect selection for shm out too.
+  2007-09-27:
+     - audio: added open for number of channels device names CH1, CH2, CH3, .. .
+
+Index: setup-softdevice-menu.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice-menu.c,v
+retrieving revision 1.13
+retrieving revision 1.14
+diff -C2 -d -r1.13 -r1.14
+*** setup-softdevice-menu.c	10 May 2007 19:49:51 -0000	1.13
+--- setup-softdevice-menu.c	13 Oct 2007 13:38:45 -0000	1.14
+***************
+*** 299,303 ****
+  #endif
+  
+!   if (data->outputMethod == VOUT_XV)
+    {
+      xv_startup_aspect[0] = tr("16:9 wide");
+--- 299,304 ----
+  #endif
+  
+!   if (data->outputMethod == VOUT_XV ||
+!       data->outputMethod == VOUT_SHM)
+    {
+      xv_startup_aspect[0] = tr("16:9 wide");
+
+
+
+From nobody at sheep.berlios.de  Mon Dec 24 12:44:51 2007
+From: nobody at sheep.berlios.de (lucke)
+Date: Mon, 24 Dec 2007 12:44:51 +0100 (CET)
+Subject: [Softdevice-cvs] softdevice CHANGELOG, 1.320, 1.321 mpeg2decoder.c,
+	1.77, 1.78 mpeg2decoder.h, 1.42, 1.43
+Message-ID: <20071224114451.75BBD122224@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv4799
+
+Modified Files:
+	CHANGELOG mpeg2decoder.c mpeg2decoder.h 
+Log Message:
+- mpegdecoder: compile fix for ffmpeg svn >= r11071.
+               revert AVFMT_NOFILE trick for actual ffmpeg >= 11071.
+               recommended ffmpeg versions: A) < r11071 B) >= r11307
+
+  Merry Chrismas!
+
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.320
+retrieving revision 1.321
+diff -C2 -d -r1.320 -r1.321
+*** CHANGELOG	13 Oct 2007 13:38:45 -0000	1.320
+--- CHANGELOG	24 Dec 2007 11:43:31 -0000	1.321
+***************
+*** 1,3 ****
+--- 1,7 ----
+  Changelog
++ 2007-12-24:
++    - mpegdecoder: compile fix for ffmpeg svn >= r11071.
++                   revert AVFMT_NOFILE trick for actual ffmpeg >= 11071.
++                   recommended ffmpeg versions: A) < r11071 B) >= r11307
+  2007-10-13:
+     - shm-out: applied patch from Matthias Schwarzott to make ShmClient work
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.77
+retrieving revision 1.78
+diff -C2 -d -r1.77 -r1.78
+*** mpeg2decoder.c	27 Sep 2007 18:10:41 -0000	1.77
+--- mpeg2decoder.c	24 Dec 2007 11:43:31 -0000	1.78
+***************
+*** 1025,1028 ****
+--- 1025,1029 ----
+    IsSuspended=false;
+    Speed=1;
++   pb = NULL;
+  }
+  
+***************
+*** 1079,1083 ****
+--- 1080,1088 ----
+           size=buf_size;
+  
++ #if LIBAVFORMAT_BUILD >= ((52<<16)+(0<<8)+0)
++        ic->pb->buffer=u;
++ #else
+         ic->pb.buffer=u;
++ #endif
+         LastSize=size;
+         BUFDEB("read_packet: got %d bytes\n",size);
+***************
+*** 1106,1109 ****
+--- 1111,1127 ----
+  
+     fmt=av_find_input_format("mpeg");
++ 
++ #if LIBAVFORMAT_BUILD >= ((52<<16)+(0<<8)+0)
++    pb = (ByteIOContext *) av_mallocz (sizeof (ByteIOContext));
++ 
++    if ( int err=av_open_input_stream (&ic, pb, "null", fmt, NULL) ) {
++        fprintf (stderr, "Failed to open input stream.Error %d\n", err);
++    }
++ 
++    init_put_byte(ic->pb, NULL,dvb_buf_size[setupStore->bufferMode]/2, 0, this,
++        read_packet_RingBuffer,NULL,seek_RingBuffer);
++    ic->pb->buf_end=NULL;
++    ic->pb->is_streamed=true;
++ #else
+     fmt->flags |= AVFMT_NOFILE;
+  
+***************
+*** 1116,1119 ****
+--- 1134,1138 ----
+     ic->pb.buf_end=NULL;
+     ic->pb.is_streamed=true;
++ #endif
+     CMDDEB("init put byte finished\n");
+  };
+***************
+*** 1474,1478 ****
+--- 1493,1504 ----
+      aoutMutex.Unlock();
+  
++ #if LIBAVFORMAT_BUILD >= ((52<<16)+(3<<8)+0)
++     av_close_input_stream(ic);
++     if (pb) {
++       av_free(pb);
++     }
++ #else
+      av_close_input_file(ic);
++ #endif
+      ic=NULL;
+    }
+
+Index: mpeg2decoder.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.h,v
+retrieving revision 1.42
+retrieving revision 1.43
+diff -C2 -d -r1.42 -r1.43
+*** mpeg2decoder.h	3 Apr 2007 19:06:17 -0000	1.42
+--- mpeg2decoder.h	24 Dec 2007 11:43:31 -0000	1.43
+***************
+*** 279,282 ****
+--- 279,283 ----
+  
+      AVFormatContext *ic;
++     ByteIOContext   *pb;
+      int LastSize;
+      cMutex  mutex;
+
+
+
+From nobody at sheep.berlios.de  Tue Dec 25 10:26:38 2007
+From: nobody at sheep.berlios.de (lucke)
+Date: Tue, 25 Dec 2007 10:26:38 +0100 (CET)
+Subject: [Softdevice-cvs] softdevice README,1.25,1.26
+Message-ID: <20071225092638.0101F124D81@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv12530
+
+Modified Files:
+	README 
+Log Message:
+include GPL notice to README
+
+Index: README
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/README,v
+retrieving revision 1.25
+retrieving revision 1.26
+diff -C2 -d -r1.25 -r1.26
+*** README	27 Sep 2007 18:22:40 -0000	1.25
+--- README	25 Dec 2007 09:25:26 -0000	1.26
+***************
+*** 15,18 ****
+--- 15,38 ----
+  Xv, DirectFB, Vidix or a framebuffer.
+  
++ Licence:
++ --------
++ 
++ ? ? This is a output plugin for Klaus Schmidinger's vdr.
++ ? ? Copyright (C) 2007 ?Roland Praml,
++ ? ?                     Stefan Lucke, Torgeir Veimo, Martin Wache
++ 
++ ? ? This program is free software; you can redistribute it and/or modify
++ ? ? it under the terms of the GNU General Public License as published by
++ ? ? the Free Software Foundation; either version 2 of the License, or
++ ? ? (at your option) any later version.
++ 
++ ? ? This program is distributed in the hope that it will be useful,
++ ? ? but WITHOUT ANY WARRANTY; without even the implied warranty of
++ ? ? MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. ?See the
++ ? ? GNU General Public License for more details.
++ 
++ ? ? You should have received a copy of the GNU General Public License along
++ ? ? with this program; if not, write to the Free Software Foundation, Inc.,
++ ? ? 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+  
+  Requirements:
+
+
+
+From nobody at sheep.berlios.de  Tue Dec 25 10:32:16 2007
+From: nobody at sheep.berlios.de (lucke)
+Date: Tue, 25 Dec 2007 10:32:16 +0100 (CET)
+Subject: [Softdevice-cvs] softdevice README,1.26,1.27
+Message-ID: <20071225093216.92DF9124964@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv13511
+
+Modified Files:
+	README 
+Log Message:
+spelling
+
+Index: README
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/README,v
+retrieving revision 1.26
+retrieving revision 1.27
+diff -C2 -d -r1.26 -r1.27
+*** README	25 Dec 2007 09:25:26 -0000	1.26
+--- README	25 Dec 2007 09:31:04 -0000	1.27
+***************
+*** 15,19 ****
+  Xv, DirectFB, Vidix or a framebuffer.
+  
+! Licence:
+  --------
+  
+--- 15,19 ----
+  Xv, DirectFB, Vidix or a framebuffer.
+  
+! License:
+  --------
+  
+
+
+
+From nobody at sheep.berlios.de  Tue Dec 25 11:34:09 2007
+From: nobody at sheep.berlios.de (lucke)
+Date: Tue, 25 Dec 2007 11:34:09 +0100 (CET)
+Subject: [Softdevice-cvs] softdevice VideoFilter.c,1.8,1.9
+Message-ID: <20071225103409.18195505E2@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv16931
+
+Modified Files:
+	VideoFilter.c 
+Log Message:
+fix rounding issue
+
+Index: VideoFilter.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/VideoFilter.c,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -C2 -d -r1.8 -r1.9
+*** VideoFilter.c	16 Sep 2007 10:07:59 -0000	1.8
+--- VideoFilter.c	25 Dec 2007 10:32:56 -0000	1.9
+***************
+*** 415,421 ****
+              else tmp_asp = 4.0 / 3.0;
+              //printf("Bordersize: %d  Calculated aspect %f\n",edge_pos, new_aspect);
+!             lim = (orig->height / 2) -
+                       (orig->aspect_ratio * orig->height) /
+                         ((16.0 / 9.0) * 2);
+      }
+  
+--- 415,422 ----
+              else tmp_asp = 4.0 / 3.0;
+              //printf("Bordersize: %d  Calculated aspect %f\n",edge_pos, new_aspect);
+!             lim = 3 + (orig->height / 2) -
+                       (orig->aspect_ratio * orig->height) /
+                         ((16.0 / 9.0) * 2);
++             lim &= ~3;
+      }
+  
+***************
+*** 425,431 ****
+                      currDetAspect=tmp_asp;
+                      currBlackBorder = (edge_pos > lim) ? lim : edge_pos;
+                      fprintf(stderr,
+!                             "new Aspect detected %f (%f) / bb %d %d\n",
+!                             tmp_asp, new_aspect, edge_pos, lim);
+              }
+      } else  frame_count=0;
+--- 426,435 ----
+                      currDetAspect=tmp_asp;
+                      currBlackBorder = (edge_pos > lim) ? lim : edge_pos;
++                     currBlackBorder &= ~3;
+                      fprintf(stderr,
+!                             "new Aspect detected %f (%f) / "
+!                               "ep %d, lim %d, cb %d\n",
+!                             tmp_asp, new_aspect,
+!                             edge_pos, lim, currBlackBorder);
+              }
+      } else  frame_count=0;
+
+
+
+From nobody at sheep.berlios.de  Tue Dec 25 14:22:58 2007
+From: nobody at sheep.berlios.de (lucke)
+Date: Tue, 25 Dec 2007 14:22:58 +0100 (CET)
+Subject: [Softdevice-cvs] softdevice audio-ac3pt.c,1.2,1.3
+Message-ID: <20071225132258.88381123D7A@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv11296
+
+Modified Files:
+	audio-ac3pt.c 
+Log Message:
+\n\r -> \n cleanup, spelling
+
+Index: audio-ac3pt.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio-ac3pt.c,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** audio-ac3pt.c	15 Jan 2006 20:41:15 -0000	1.2
+--- audio-ac3pt.c	25 Dec 2007 13:21:46 -0000	1.3
+***************
+*** 203,207 ****
+      syncword = 0xffff;
+      sbuffer_size = 0;
+!     fprintf(stderr, "ac3play: ** Invalid frame found - try to syncing **\n\r");
+      if (ac3->out >= ac3->tail)
+        goto done;
+--- 203,207 ----
+      syncword = 0xffff;
+      sbuffer_size = 0;
+!     fprintf(stderr, "ac3play: ** Invalid frame found - try to syncing **\n");
+      if (ac3->out >= ac3->tail)
+        goto done;
+***************
+*** 218,224 ****
+      fprintf(stderr,
+              "ac3play: Warning: sample rate of"
+!             " the current AC-3 stream (%d) does not\n\r",
+              syncinfo->sampling_rate);
+!     fprintf(stderr, "	 fit the configured PCM rate (%d)!\n\r", rate);
+    }
+  
+--- 218,224 ----
+      fprintf(stderr,
+              "ac3play: Warning: sample rate of"
+!             " the current AC-3 stream (%d) does not\n",
+              syncinfo->sampling_rate);
+!     fprintf(stderr, "	 fit the configured PCM rate (%d)!\n", rate);
+    }
+  
+***************
+*** 237,241 ****
+      syncword = 0xffff;
+      sbuffer_size = 0;
+!     fprintf(stderr, "ac3play: ** CRC failed - try to syncing **\n\r");
+      if (ac3->out >= ac3->tail)
+        goto done;
+--- 237,241 ----
+      syncword = 0xffff;
+      sbuffer_size = 0;
+!     fprintf(stderr, "ac3play: ** CRC failed - try to syncing **\n");
+      if (ac3->out >= ac3->tail)
+        goto done;
+***************
+*** 283,287 ****
+  
+    if ((res = snd_pcm_status(handle, ac3Status))<0) {
+!     fprintf(stderr, "ac3play: ac3Status error: %s\n\r", snd_strerror(res));
+      return;
+    }
+--- 283,287 ----
+  
+    if ((res = snd_pcm_status(handle, ac3Status))<0) {
+!     fprintf(stderr, "ac3play: ac3Status error: %s\n", snd_strerror(res));
+      return;
+    }
+***************
+*** 291,298 ****
+      snd_pcm_status_get_trigger_tstamp(ac3Status, &tstamp);
+      timersub(&now, &tstamp, &diff);
+!     fprintf(stderr, "ac3play: xunderrun!!! (at least %.3f ms long)\n\r",
+              diff.tv_sec * 1000 + diff.tv_usec / 1000.0);
+      if ((res = snd_pcm_prepare(handle))<0) {
+!       fprintf(stderr, "ac3play: xunderrun: prepare error: %s\n\r",
+                snd_strerror(res));
+        return;
+--- 291,298 ----
+      snd_pcm_status_get_trigger_tstamp(ac3Status, &tstamp);
+      timersub(&now, &tstamp, &diff);
+!     fprintf(stderr, "ac3play: xunderrun!!! (at least %.3f ms long)\n",
+              diff.tv_sec * 1000 + diff.tv_usec / 1000.0);
+      if ((res = snd_pcm_prepare(handle))<0) {
+!       fprintf(stderr, "ac3play: xunderrun: prepare error: %s\n",
+                snd_strerror(res));
+        return;
+***************
+*** 310,322 ****
+  
+    if ((res = snd_pcm_status(handle, ac3Status))<0) {
+!     fprintf(stderr, "ac3play: ac3Status error: %s\n\r", snd_strerror(res));
+      return;
+    }
+    if (snd_pcm_status_get_state(ac3Status) == SND_PCM_STATE_SUSPENDED) {
+!     fprintf(stderr, "ac3play: xsuspend!!! trying to resume\n\r");
+      while ((res = snd_pcm_resume(handle)) == -EAGAIN)
+        usleep(100000);
+      if ((res = snd_pcm_prepare(handle))<0) {
+!       fprintf(stderr, "ac3play: xsuspend: prepare error: %s\n\r",
+                        snd_strerror(res));
+        return;
+--- 310,322 ----
+  
+    if ((res = snd_pcm_status(handle, ac3Status))<0) {
+!     fprintf(stderr, "ac3play: ac3Status error: %s\n", snd_strerror(res));
+      return;
+    }
+    if (snd_pcm_status_get_state(ac3Status) == SND_PCM_STATE_SUSPENDED) {
+!     fprintf(stderr, "ac3play: xsuspend!!! trying to resume\n");
+      while ((res = snd_pcm_resume(handle)) == -EAGAIN)
+        usleep(100000);
+      if ((res = snd_pcm_prepare(handle))<0) {
+!       fprintf(stderr, "ac3play: xsuspend: prepare error: %s\n",
+                        snd_strerror(res));
+        return;
+***************
+*** 395,399 ****
+            continue;
+          default:
+!           fprintf(stderr, "ac3play: snd_pcm_writei returned error: %s\n\r",
+                    snd_strerror(r));
+            exit(1);
+--- 395,399 ----
+            continue;
+          default:
+!           fprintf(stderr, "ac3play: snd_pcm_writei returned error: %s\n",
+                    snd_strerror(r));
+            exit(1);
+***************
+*** 512,516 ****
+    if ((err = snd_pcm_open(handle, device, SND_PCM_STREAM_PLAYBACK, 0)) < 0)
+    {
+!     fprintf(stderr, "ac3play: sound open: %s\n\r", snd_strerror(err));
+      return 1;
+    }
+--- 512,516 ----
+    if ((err = snd_pcm_open(handle, device, SND_PCM_STREAM_PLAYBACK, 0)) < 0)
+    {
+!     fprintf(stderr, "ac3play: sound open: %s\n", snd_strerror(err));
+      return 1;
+    }
+***************
+*** 522,526 ****
+  
+    if ((err = snd_pcm_info(*handle, info)) < 0) {
+!     fprintf(stderr, "ac3play: sound info: %s\n\r", snd_strerror(err));
+      snd_pcm_close(*handle);
+      return 1;
+--- 522,526 ----
+  
+    if ((err = snd_pcm_info(*handle, info)) < 0) {
+!     fprintf(stderr, "ac3play: sound info: %s\n", snd_strerror(err));
+      snd_pcm_close(*handle);
+      return 1;
+***************
+*** 560,573 ****
+      ctl_card = snd_pcm_info_get_card(info);
+      if (ctl_card < 0) {
+!       fprintf(stderr, "ac3play: Unable to setup the IEC958 (S/PDIF) interface - PCM has no assigned card\n\r");
+        goto __diga_end;
+      }
+      sprintf(ctl_name, "hw:%d", ctl_card);
+      if ((err = snd_ctl_open(&ctl_handle, ctl_name, 0)) < 0) {
+!       fprintf(stderr, "ac3play: Unable to open the control interface '%s': %s\n\r", ctl_name, snd_strerror(err));
+        goto __diga_end;
+      }
+      if ((err = snd_ctl_elem_write(ctl_handle, ctl)) < 0) {
+!       fprintf(stderr, "ac3play: Unable to update the IEC958 control: %s\n\r", snd_strerror(err));
+        goto __diga_end;
+      }
+--- 560,573 ----
+      ctl_card = snd_pcm_info_get_card(info);
+      if (ctl_card < 0) {
+!       fprintf(stderr, "ac3play: Unable to setup the IEC958 (S/PDIF) interface - PCM has no assigned card\n");
+        goto __diga_end;
+      }
+      sprintf(ctl_name, "hw:%d", ctl_card);
+      if ((err = snd_ctl_open(&ctl_handle, ctl_name, 0)) < 0) {
+!       fprintf(stderr, "ac3play: Unable to open the control interface '%s': %s\n", ctl_name, snd_strerror(err));
+        goto __diga_end;
+      }
+      if ((err = snd_ctl_elem_write(ctl_handle, ctl)) < 0) {
+!       fprintf(stderr, "ac3play: Unable to update the IEC958 control: %s\n", snd_strerror(err));
+        goto __diga_end;
+      }
+***************
+*** 591,608 ****
+  
+      if ((err = snd_pcm_hw_params_any(*handle, params)) < 0) {
+!       fprintf(stderr, "ac3play: Broken configuration for this PCM: no configurations available\n\r");
+        return 2;
+      }
+      if ((err = snd_pcm_hw_params_set_access(*handle, params, access)) < 0) {
+!       fprintf(stderr, "ac3play: Access type not available\n\r");
+        return 2;
+      }
+      if ((err = snd_pcm_hw_params_set_format(*handle, params, format)) < 0) {
+!       fprintf(stderr, "ac3play: Sample format non available\n\r");
+        return 2;
+      }
+  
+      if ((err = snd_pcm_hw_params_set_channels(*handle, params, channels)) < 0) {
+!       fprintf(stderr, "ac3play: Channels count non avaible\n\r");
+        return 2;
+      }
+--- 591,608 ----
+  
+      if ((err = snd_pcm_hw_params_any(*handle, params)) < 0) {
+!       fprintf(stderr, "ac3play: Broken configuration for this PCM: no configurations available\n");
+        return 2;
+      }
+      if ((err = snd_pcm_hw_params_set_access(*handle, params, access)) < 0) {
+!       fprintf(stderr, "ac3play: Access type not available\n");
+        return 2;
+      }
+      if ((err = snd_pcm_hw_params_set_format(*handle, params, format)) < 0) {
+!       fprintf(stderr, "ac3play: Sample format non available\n");
+        return 2;
+      }
+  
+      if ((err = snd_pcm_hw_params_set_channels(*handle, params, channels)) < 0) {
+!       fprintf(stderr, "ac3play: Channels count non available\n");
+        return 2;
+      }
+***************
+*** 614,618 ****
+      // function returns less than 0 on error or greater than 0
+      if ((err = snd_pcm_hw_params_set_period_size(*handle, params, PERIODSIZE, 0)) < 0) {
+!       fprintf(stderr, "ac3play: Period size not available: %s\n\r", snd_strerror(err));
+        periodSize = 0;
+        return 2;
+--- 614,618 ----
+      // function returns less than 0 on error or greater than 0
+      if ((err = snd_pcm_hw_params_set_period_size(*handle, params, PERIODSIZE, 0)) < 0) {
+!       fprintf(stderr, "ac3play: Period size not available: %s\n", snd_strerror(err));
+        periodSize = 0;
+        return 2;
+***************
+*** 620,624 ****
+      // function returns less than 0 on error or greater than 0
+      if ((err = snd_pcm_hw_params_set_periods(*handle, params, frames, 0)) < 0) {
+!     fprintf(stderr, "ac3play: Period count not available: %s\n\r", snd_strerror(err));
+      return 2;
+      }
+--- 620,624 ----
+      // function returns less than 0 on error or greater than 0
+      if ((err = snd_pcm_hw_params_set_periods(*handle, params, frames, 0)) < 0) {
+!     fprintf(stderr, "ac3play: Period count not available: %s\n", snd_strerror(err));
+      return 2;
+      }
+***************
+*** 626,634 ****
+      // function returns less than 0 on error or greater than 0
+      if ((err = snd_pcm_hw_params_get_period_size(params, &periodSize, 0)) < 0) {
+!       fprintf(stderr, "ac3play: Buffer size not set: %s\n\r", snd_strerror(err));
+        return 2;
+      }
+      if (PERIODSIZE != periodSize) {
+!       fprintf(stderr, "ac3play: Period size not set: %s\n\r", snd_strerror(err));
+        return 2;
+      }
+--- 626,634 ----
+      // function returns less than 0 on error or greater than 0
+      if ((err = snd_pcm_hw_params_get_period_size(params, &periodSize, 0)) < 0) {
+!       fprintf(stderr, "ac3play: Buffer size not set: %s\n", snd_strerror(err));
+        return 2;
+      }
+      if (PERIODSIZE != periodSize) {
+!       fprintf(stderr, "ac3play: Period size not set: %s\n", snd_strerror(err));
+        return 2;
+      }
+***************
+*** 637,645 ****
+      // function returns less than 0 on error or greater than 0
+      if ((err = snd_pcm_hw_params_get_buffer_size(params, &bufferSize)) < 0) {
+!       fprintf(stderr, "ac3play: Buffer size not set: %s\n\r", snd_strerror(err));
+        return 2;
+      }
+      if (periodSize * frames != bufferSize) {
+!       fprintf(stderr, "ac3play: Buffer size not set: %s\n\r", snd_strerror(err));
+        return 2;
+      }
+--- 637,645 ----
+      // function returns less than 0 on error or greater than 0
+      if ((err = snd_pcm_hw_params_get_buffer_size(params, &bufferSize)) < 0) {
+!       fprintf(stderr, "ac3play: Buffer size not set: %s\n", snd_strerror(err));
+        return 2;
+      }
+      if (periodSize * frames != bufferSize) {
+!       fprintf(stderr, "ac3play: Buffer size not set: %s\n", snd_strerror(err));
+        return 2;
+      }
+***************
+*** 649,653 ****
+  
+      if ((err = snd_pcm_hw_params(*handle, params)) < 0) {
+!       fprintf(stderr, "ac3play: Cannot set buffer size\n\r");
+  //      snd_pcm_hw_params_dump(params, log);
+        return 2;
+--- 649,653 ----
+  
+      if ((err = snd_pcm_hw_params(*handle, params)) < 0) {
+!       fprintf(stderr, "ac3play: Cannot set buffer size\n");
+  //      snd_pcm_hw_params_dump(params, log);
+        return 2;
+***************
+*** 655,659 ****
+  
+      if ((err = snd_pcm_sw_params_current(*handle, swparams)) < 0) {
+!       fprintf(stderr, "ac3play: Cannot get soft parameters: %s\n\r", snd_strerror(err));
+        return 2;
+      }
+--- 655,659 ----
+  
+      if ((err = snd_pcm_sw_params_current(*handle, swparams)) < 0) {
+!       fprintf(stderr, "ac3play: Cannot get soft parameters: %s\n", snd_strerror(err));
+        return 2;
+      }
+***************
+*** 662,679 ****
+  #if 0
+      if ((err = snd_pcm_sw_params_set_sleep_min(*handle, swparams, 0)) < 0)
+!       fprintf(stderr, "ac3play: Minimal sleep time not available: %s\n\r", snd_strerror(err));
+  #endif
+  
+      if ((err = snd_pcm_sw_params_set_avail_min(*handle, swparams, SAMPLE_BUF)) < 0)
+!       fprintf(stderr, "ac3play: Minimal period size not available: %s\n\r", snd_strerror(err));
+  
+      if ((err =  snd_pcm_sw_params_set_xfer_align(*handle, swparams, SAMPLE_BUF/6)) < 0)
+!       fprintf(stderr, "ac3play: Aligned period size not available: %s\n\r", snd_strerror(err));
+  
+      if ((err = snd_pcm_sw_params_set_start_threshold(*handle, swparams, 2*SAMPLE_BUF)) < 0)
+!       fprintf(stderr, "ac3play: Start threshold not available: %s\n\r", snd_strerror(err));
+  
+      if ((err = snd_pcm_sw_params(*handle, swparams)) < 0) {
+!       fprintf(stderr, "ac3play: Cannot set soft parameters: %s\n\r", snd_strerror(err));
+  //      snd_pcm_sw_params_dump(swparams, log);
+        return 2;
+--- 662,679 ----
+  #if 0
+      if ((err = snd_pcm_sw_params_set_sleep_min(*handle, swparams, 0)) < 0)
+!       fprintf(stderr, "ac3play: Minimal sleep time not available: %s\n", snd_strerror(err));
+  #endif
+  
+      if ((err = snd_pcm_sw_params_set_avail_min(*handle, swparams, SAMPLE_BUF)) < 0)
+!       fprintf(stderr, "ac3play: Minimal period size not available: %s\n", snd_strerror(err));
+  
+      if ((err =  snd_pcm_sw_params_set_xfer_align(*handle, swparams, SAMPLE_BUF/6)) < 0)
+!       fprintf(stderr, "ac3play: Aligned period size not available: %s\n", snd_strerror(err));
+  
+      if ((err = snd_pcm_sw_params_set_start_threshold(*handle, swparams, 2*SAMPLE_BUF)) < 0)
+!       fprintf(stderr, "ac3play: Start threshold not available: %s\n", snd_strerror(err));
+  
+      if ((err = snd_pcm_sw_params(*handle, swparams)) < 0) {
+!       fprintf(stderr, "ac3play: Cannot set soft parameters: %s\n", snd_strerror(err));
+  //      snd_pcm_sw_params_dump(swparams, log);
+        return 2;
+
+
+
+From nobody at sheep.berlios.de  Tue Dec 25 14:42:26 2007
+From: nobody at sheep.berlios.de (lucke)
+Date: Tue, 25 Dec 2007 14:42:26 +0100 (CET)
+Subject: [Softdevice-cvs] softdevice audio-alsa.c,1.7,1.8
+Message-ID: <20071225134226.0246E1240AE@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv13022
+
+Modified Files:
+	audio-alsa.c 
+Log Message:
+indentation
+
+Index: audio-alsa.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio-alsa.c,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -C2 -d -r1.7 -r1.8
+*** audio-alsa.c	27 Sep 2007 18:22:40 -0000	1.7
+--- audio-alsa.c	25 Dec 2007 13:41:13 -0000	1.8
+***************
+*** 240,253 ****
+  void cAlsaAudioOut::Xrun(void)
+  {
+! 	snd_pcm_status_t *status;
+! 	int res;
+! 	snd_pcm_status_alloca(&status);
+!         //printf("alsa-audio: Xrun\n");
+! 	if ((res = snd_pcm_status(handle, status))<0) {
+      esyslog("[softdevice-audio]: Xrun status error: %s FATAL exiting",
+!             snd_strerror(res));
+! 		exit(EXIT_FAILURE);
+! 	}
+! 	if (snd_pcm_status_get_state(status) == SND_PCM_STATE_XRUN) {
+        struct timeval now, diff, tstamp;
+      gettimeofday(&now, 0);
+--- 240,254 ----
+  void cAlsaAudioOut::Xrun(void)
+  {
+!     snd_pcm_status_t  *status;
+!     int               res;
+! 
+!   snd_pcm_status_alloca(&status);
+!   //printf("alsa-audio: Xrun\n");
+!   if ((res = snd_pcm_status(handle, status))<0) {
+      esyslog("[softdevice-audio]: Xrun status error: %s FATAL exiting",
+!     snd_strerror(res));
+!     exit(EXIT_FAILURE);
+!   }
+!   if (snd_pcm_status_get_state(status) == SND_PCM_STATE_XRUN) {
+        struct timeval now, diff, tstamp;
+      gettimeofday(&now, 0);
+***************
+*** 255,271 ****
+      timersub(&now, &tstamp, &diff);
+      softlog->Log(SOFT_LOG_DEBUG, 0,
+!                              "[softdevice-audio]: Xrun (at least %.3f ms long)\n",
+!                              diff.tv_sec * 1000 + diff.tv_usec / 1000.0);
+! 		if ((res = snd_pcm_prepare(handle))<0) {
+        esyslog("[softdevice-audio]: Xrun prepare error: %s FATAL exiting",
+!               snd_strerror(res));
+! 			exit(EXIT_FAILURE);
+! 		}
+! 		return;		/* ok, data should be accepted again */
+! 	}
+  
+! //	error("read/write error, state = %s", snd_pcm_state_name(snd_pcm_status_get_state(status)));
+    esyslog("[softdevice-audio]: read/write error FATAL exiting");
+! 	exit(EXIT_FAILURE);
+  }
+  
+--- 256,272 ----
+      timersub(&now, &tstamp, &diff);
+      softlog->Log(SOFT_LOG_DEBUG, 0,
+!                  "[softdevice-audio]: Xrun (at least %.3f ms long)\n",
+!                  diff.tv_sec * 1000 + diff.tv_usec / 1000.0);
+!     if ((res = snd_pcm_prepare(handle))<0) {
+        esyslog("[softdevice-audio]: Xrun prepare error: %s FATAL exiting",
+!       snd_strerror(res));
+!       exit(EXIT_FAILURE);
+!     }
+!     return;		/* ok, data should be accepted again */
+!   }
+  
+!   //  error("read/write error, state = %s", snd_pcm_state_name(snd_pcm_status_get_state(status)));
+    esyslog("[softdevice-audio]: read/write error FATAL exiting");
+!   exit(EXIT_FAILURE);
+  }
+  
+
+
+
+From nobody at sheep.berlios.de  Tue Dec 25 15:28:57 2007
+From: nobody at sheep.berlios.de (lucke)
+Date: Tue, 25 Dec 2007 15:28:57 +0100 (CET)
+Subject: [Softdevice-cvs] softdevice video-shm.h,1.11,1.12
+Message-ID: <20071225142857.B6AFC124670@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv15995
+
+Modified Files:
+	video-shm.h 
+Log Message:
+ensure nonNULL vout->ctl in Stop(); by Axel Naumann
+
+Index: video-shm.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-shm.h,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -C2 -d -r1.11 -r1.12
+*** video-shm.h	10 May 2007 21:57:26 -0000	1.11
+--- video-shm.h	25 Dec 2007 14:27:45 -0000	1.12
+***************
+*** 17,23 ****
+  
+  #include <sys/types.h>
+! #include <sys/ipc.h> 
+! #include <sys/shm.h> 
+! #include <sys/sem.h> 
+  
+  #include <vdr/remote.h>
+--- 17,23 ----
+  
+  #include <sys/types.h>
+! #include <sys/ipc.h>
+! #include <sys/shm.h>
+! #include <sys/sem.h>
+  
+  #include <vdr/remote.h>
+***************
+*** 43,47 ****
+          cShmVideoOut(cSetupStore *setupStore, cSetupSoftlog *softlog);
+          ~cShmVideoOut();
+!         
+          virtual void AdjustOSDMode();
+  
+--- 43,47 ----
+          cShmVideoOut(cSetupStore *setupStore, cSetupSoftlog *softlog);
+          ~cShmVideoOut();
+! 
+          virtual void AdjustOSDMode();
+  
+***************
+*** 73,77 ****
+      virtual void Action(void);
+    public:
+!           cShmRemote(const char *Name, cShmVideoOut *video_out) 
+                    : cRemote(Name) {
+                    vout=video_out;
+--- 73,77 ----
+      virtual void Action(void);
+    public:
+!           cShmRemote(const char *Name, cShmVideoOut *video_out)
+                    : cRemote(Name) {
+                    vout=video_out;
+***************
+*** 79,85 ****
+                    Start();
+            };
+!           
+!           ~cShmRemote(); 
+!           
+            void Stop()
+            {
+--- 79,85 ----
+                    Start();
+            };
+! 
+!           ~cShmRemote();
+! 
+            void Stop()
+            {
+***************
+*** 89,94 ****
+                    active = false;
+                    // signal new key to stop the thread from waiting
+!                   sem_sig_unlock(vout->ctl->semid,KEY_SIG);
+!         
+                    Cancel(2);
+                    vout=NULL;
+--- 89,95 ----
+                    active = false;
+                    // signal new key to stop the thread from waiting
+!                   if (vout->ctl)
+!                           sem_sig_unlock(vout->ctl->semid,KEY_SIG);
+! 
+                    Cancel(2);
+                    vout=NULL;
+
+
+
+From nobody at sheep.berlios.de  Tue Dec 25 17:58:54 2007
+From: nobody at sheep.berlios.de (lucke)
+Date: Tue, 25 Dec 2007 17:58:54 +0100 (CET)
+Subject: [Softdevice-cvs] softdevice softdevice.c, 1.88, 1.89 video-xv.c,
+	1.73, 1.74
+Message-ID: <20071225165854.A196112196F@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv24497
+
+Modified Files:
+	softdevice.c video-xv.c 
+Log Message:
+disabling some debug messages and correct one spelling
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.88
+retrieving revision 1.89
+diff -C2 -d -r1.88 -r1.89
+*** softdevice.c	13 Oct 2007 11:17:48 -0000	1.88
+--- softdevice.c	25 Dec 2007 16:57:41 -0000	1.89
+***************
+*** 124,128 ****
+  #else
+      virtual cOsd *CreateOsd(int Left, int Top);
+! #endif    
+      static cOsd *GetOsd();
+  };
+--- 124,128 ----
+  #else
+      virtual cOsd *CreateOsd(int Left, int Top);
+! #endif
+      static cOsd *GetOsd();
+  };
+***************
+*** 932,936 ****
+  #endif
+  #ifdef SHM_SUPPORT
+!   "  -vo shm:                 enable output via sharde memory.\n"
+    "                           Use ShmClient for displaying\n"
+  #endif
+--- 932,936 ----
+  #endif
+  #ifdef SHM_SUPPORT
+!   "  -vo shm:                 enable output via shared memory.\n"
+    "                           Use ShmClient for displaying\n"
+  #endif
+***************
+*** 1211,1215 ****
+  
+  bool cPluginSoftDevice::Service(const char *Id, void *Data ) {
+!         printf("Service '%s'\n",Id);
+          struct PacketHandlesV100 *Handles=(struct PacketHandlesV100 *) Data;
+          if ( strcmp(Id,GET_PACKET_HANDEL_IDV100) == 0 ) {
+--- 1211,1215 ----
+  
+  bool cPluginSoftDevice::Service(const char *Id, void *Data ) {
+!         //printf("Service '%s'\n",Id);
+          struct PacketHandlesV100 *Handles=(struct PacketHandlesV100 *) Data;
+          if ( strcmp(Id,GET_PACKET_HANDEL_IDV100) == 0 ) {
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.73
+retrieving revision 1.74
+diff -C2 -d -r1.73 -r1.74
+*** video-xv.c	11 Jul 2007 20:08:35 -0000	1.73
+--- video-xv.c	25 Dec 2007 16:57:41 -0000	1.74
+***************
+*** 30,34 ****
+  #include "setup-softdevice.h"
+  
+! #define PATCH_VERSION "2006-11-05"
+  
+  #define NO_DIRECT_RENDERING
+--- 30,34 ----
+  #include "setup-softdevice.h"
+  
+! #define PATCH_VERSION "2007-12-25"
+  
+  #define NO_DIRECT_RENDERING
+***************
+*** 1345,1349 ****
+  
+  void cXvVideoOut::DeInitXv() {
+!   printf("DeinitXv\n");fflush(stdout);
+    pthread_mutex_lock(&xv_mutex);
+  
+--- 1345,1349 ----
+  
+  void cXvVideoOut::DeInitXv() {
+!   //printf("DeinitXv\n");fflush(stdout);
+    pthread_mutex_lock(&xv_mutex);
+  
+
+
+
+From nobody at sheep.berlios.de  Tue Dec 25 22:05:43 2007
+From: nobody at sheep.berlios.de (lucke)
+Date: Tue, 25 Dec 2007 22:05:43 +0100 (CET)
+Subject: [Softdevice-cvs] softdevice CHANGELOG,1.321,1.322
+Message-ID: <20071225210543.265FB505DB@mail.berlios.de>
+
+Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv24813
+
+Modified Files:
+	CHANGELOG 
+Log Message:
+update for today
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.321
+retrieving revision 1.322
+diff -C2 -d -r1.321 -r1.322
+*** CHANGELOG	24 Dec 2007 11:43:31 -0000	1.321
+--- CHANGELOG	25 Dec 2007 21:04:30 -0000	1.322
+***************
+*** 1,3 ****
+--- 1,9 ----
+  Changelog
++ 2007-12-25:
++    - license: included gpl notice "v2 or any later" to README.
++    - border detect: fix rounding issue.
++    - audio: \n\r -> \n substitution for ac3pt,
++             some indentation cleanup (Xrun())
++    - shm-out: ensure nonNULL vout->ctl in Stop(); by Axel Naumann
+  2007-12-24:
+     - mpegdecoder: compile fix for ffmpeg svn >= r11071.
+
+
+

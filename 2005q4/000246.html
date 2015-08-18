@@ -1,0 +1,492 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.126,1.127 README,1.10,1.11 setup-softdevice.c,1.37,1.38 setup-softdevice.h,1.23,1.24 softdevice.c,1.46,1.47 video-dfb.c,1.40,1.41 video-dfb.h,1.11,1.12
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q4/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.126%2C1.127%20README%2C1.10%2C1.11%20setup-softdevice.c%2C1.37%2C1.38%20setup-softdevice.h%2C1.23%2C1.24%20softdevice.c%2C1.46%2C1.47%20video-dfb.c%2C1.40%2C1.41%20video-dfb.h%2C1.11%2C1.12&In-Reply-To=%3C200511061756.jA6Hu9N06010%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000245.html">
+   <LINK REL="Next"  HREF="000247.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.126,1.127 README,1.10,1.11 setup-softdevice.c,1.37,1.38 setup-softdevice.h,1.23,1.24 softdevice.c,1.46,1.47 video-dfb.c,1.40,1.41 video-dfb.h,1.11,1.12</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.126%2C1.127%20README%2C1.10%2C1.11%20setup-softdevice.c%2C1.37%2C1.38%20setup-softdevice.h%2C1.23%2C1.24%20softdevice.c%2C1.46%2C1.47%20video-dfb.c%2C1.40%2C1.41%20video-dfb.h%2C1.11%2C1.12&In-Reply-To=%3C200511061756.jA6Hu9N06010%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.126,1.127 README,1.10,1.11 setup-softdevice.c,1.37,1.38 setup-softdevice.h,1.23,1.24 softdevice.c,1.46,1.47 video-dfb.c,1.40,1.41 video-dfb.h,1.11,1.12">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Nov  6 18:56:09 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000245.html">[Softdevice-cvs] softdevice video-xv.c,1.33,1.34 video-xv.h,1.9,1.10
+</A></li>
+        <LI>Next message: <A HREF="000247.html">[Softdevice-cvs] softdevice i18n.c,1.12,1.13
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#246">[ date ]</a>
+              <a href="thread.html#246">[ thread ]</a>
+              <a href="subject.html#246">[ subject ]</a>
+              <a href="author.html#246">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv11484
+
+Modified Files:
+	CHANGELOG README setup-softdevice.c setup-softdevice.h 
+	softdevice.c video-dfb.c video-dfb.h 
+Log Message:
+- video-xv: some of X11 atoms could be set via OSD too. So using hardcoded
+  hotkeys for brightness, contrast, hue and saturation is obsolete and
+  may be removed soon.
+- video-dfb: (by Laurence Abbott) selecting field parity and triple buffering
+  on via epia boards. That could be used for others too if primary head
+  is connected to TV. Triple buffering is independently available as a
+  separate option now.
+    &quot;-vo dfb:viatv&quot;
+    &quot;-vo dfb:triple&quot;
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.126
+retrieving revision 1.127
+diff -C2 -d -r1.126 -r1.127
+*** CHANGELOG	4 Nov 2005 20:52:50 -0000	1.126
+--- CHANGELOG	6 Nov 2005 17:56:06 -0000	1.127
+***************
+*** 1,5 ****
+  Changelog
+  2005-11-04:
+!     - some more finish translations (by Rolf Ahrenberg)
+      - sync timer mode selectable via OSD
+      - removed translations of empty lines (by Rolf Ahrenberg)
+--- 1,15 ----
+  Changelog
++ 2005-11-06:
++     - video-xv: some of X11 atoms could be set via OSD too. So using hardcoded
++       hotkeys for brightness, contrast, hue and saturation is obsolete and
++       may be removed soon.
++     - video-dfb: (by Laurence Abbott) selecting field parity and triple buffering
++       on via epia boards. That could be used for others too if primary head
++       is connected to TV. Triple buffering is independently available as a
++       separate option now.
++         &quot;-vo dfb:viatv&quot;
++         &quot;-vo dfb:triple&quot;
+  2005-11-04:
+!     - some more finnish translations (by Rolf Ahrenberg)
+      - sync timer mode selectable via OSD
+      - removed translations of empty lines (by Rolf Ahrenberg)
+
+Index: README
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/README,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -C2 -d -r1.10 -r1.11
+*** README	8 Oct 2005 12:37:16 -0000	1.10
+--- README	6 Nov 2005 17:56:06 -0000	1.11
+***************
+*** 117,124 ****
+--- 117,126 ----
+  
+  Many thanks to:
++ - Andre Neumann
+  - Colin Paton
+  - Herbert Attenberger
+  - Holger Waechtler
+  - Konrad Naumann
++ - Laurence Abbott
+  - Luca Olivetti
+  - Lucian Muresan
+
+Index: setup-softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.c,v
+retrieving revision 1.37
+retrieving revision 1.38
+diff -C2 -d -r1.37 -r1.38
+*** setup-softdevice.c	6 Nov 2005 07:26:31 -0000	1.37
+--- setup-softdevice.c	6 Nov 2005 17:56:06 -0000	1.38
+***************
+*** 126,131 ****
+    ac3Mode       = 0;
+    useMGAtv      = 0;
+!   useStretchBlit = 0;
+!   bufferMode    = 0;
+    mainMenu  = 1;
+    syncTimerMode = 2;
+--- 126,133 ----
+    ac3Mode       = 0;
+    useMGAtv      = 0;
+!   viaTv         = 0;
+!   tripleBuffering = 0;
+!   useStretchBlit  = 0;
+!   bufferMode      = 0;
+    mainMenu  = 1;
+    syncTimerMode = 2;
+
+Index: setup-softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.h,v
+retrieving revision 1.23
+retrieving revision 1.24
+diff -C2 -d -r1.23 -r1.24
+*** setup-softdevice.h	6 Nov 2005 07:26:31 -0000	1.23
+--- setup-softdevice.h	6 Nov 2005 17:56:06 -0000	1.24
+***************
+*** 57,60 ****
+--- 57,62 ----
+      int   screenPixelAspect;
+      int   useMGAtv;
++     int   viaTv;
++     int   tripleBuffering;
+      int   useStretchBlit;
+      int   shouldSuspend;
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.46
+retrieving revision 1.47
+diff -C2 -d -r1.46 -r1.47
+*** softdevice.c	1 Nov 2005 20:50:24 -0000	1.46
+--- softdevice.c	6 Nov 2005 17:56:06 -0000	1.47
+***************
+*** 699,702 ****
+--- 699,704 ----
+    &quot;  -vo dfb:                 enable output via directFB\n&quot;
+    &quot;  -vo dfb:mgatv                   output via MATROX TV-out\n&quot;
++   &quot;  -vo dfb:viatv                   output via Unichrome TV-out\n&quot;
++   &quot;  -vo dfb:triple                  enables triple buffering on back end scaler\n&quot;
+  #endif
+  #ifdef VIDIX_SUPPORT
+***************
+*** 789,792 ****
+--- 791,801 ----
+            if (!strncmp (vo_argv, &quot;mgatv&quot;, 5))
+              setupStore.useMGAtv = 1;
++           else if (!strncmp (vo_argv, &quot;viatv&quot;, 5)) {
++             setupStore.viaTv = 1;
++             fprintf(stderr,&quot;[softdevice] enabling field parity\n&quot;);
++           } else if (!strncmp (vo_argv, &quot;triple&quot;, 6)) {
++             setupStore.tripleBuffering = 1;
++             fprintf(stderr,&quot;[softdevice] enabling triple buffering\n&quot;);
++           }
+  #else
+            fprintf(stderr,&quot;[softdevice] dfb support not compiled in\n&quot;);
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.40
+retrieving revision 1.41
+diff -C2 -d -r1.40 -r1.41
+*** video-dfb.c	15 Sep 2005 18:23:05 -0000	1.40
+--- video-dfb.c	6 Nov 2005 17:56:06 -0000	1.41
+***************
+*** 254,257 ****
+--- 254,281 ----
+  /* ---------------------------------------------------------------------------
+   */
++ static void BESColorkeyState(IDirectFBDisplayLayer *layer, bool state)
++ {
++   if (layer)
++   {
++       DFBDisplayLayerConfig       dlc;
++     dlc.flags = DLCONF_OPTIONS;
++     dlc.options = (state) ? DLOP_DST_COLORKEY : DLOP_NONE;
++     try
++     {
++       layer-&gt;SetConfiguration(dlc);
++       layer-&gt;SetDstColorKey(COLORKEY);
++     }
++     catch (DFBException *ex)
++     {
++       fprintf (stderr,&quot;[dfb] BES-%s: action=%s, result=%s\n&quot;,
++                (state) ? &quot;ON&quot; : &quot;OFF&quot;,
++                ex-&gt;GetAction(), ex-&gt;GetResult());
++       delete ex;
++     }
++   }
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
+  cDFBVideoOut::cDFBVideoOut(cSetupStore *setupStore)
+                : cVideoOut(setupStore)
+***************
+*** 275,278 ****
+--- 299,306 ----
+    clearBackCount = 2; // by default for double buffering;
+    OSDpresent = false;
++   fieldParity = 0;    // 0 - top field first, 1 - bottom field first
++ 
++   if(setupStore-&gt;viaTv)
++     setupStore-&gt;tripleBuffering = 1;
+  
+    try
+***************
+*** 333,354 ****
+      if (setupStore-&gt;useMGAtv)
+      {
+!       DFBDisplayLayerConfig   dlc;
+! 
+!       dlc.flags = (DFBDisplayLayerConfigFlags)
+!                   (DLCONF_PIXELFORMAT | DLCONF_BUFFERMODE | DLCONF_OPTIONS);
+!       //dlc.buffermode = DLBM_BACKVIDEO;
+!       dlc.buffermode = DLBM_TRIPLE;
+!       clearBackCount = 3;             // 3 for triple, 2 for double buffering
+!       dlc.pixelformat = DSPF_ARGB;
+!       dlc.options = DLOP_FIELD_PARITY;
+! 
+!       osdLayer-&gt;SetCooperativeLevel(DLSCL_EXCLUSIVE);
+!       osdLayer-&gt;SetOpacity(0xff);
+!       osdLayer-&gt;SetConfiguration(dlc);
+!       osdLayer-&gt;SetFieldParity(0);
+        scrSurface = osdLayer-&gt;GetSurface();
+      }
+      else
+      {
+        scrSurface = dfb-&gt;CreateSurface (scrDsc);
+      }
+--- 361,374 ----
+      if (setupStore-&gt;useMGAtv)
+      {
+!       EnableFieldParity(osdLayer);
+        scrSurface = osdLayer-&gt;GetSurface();
+      }
+      else
+      {
++       if (setupStore-&gt;viaTv)
++       {
++         EnableFieldParity(videoLayer);
++       }
++ 
+        scrSurface = dfb-&gt;CreateSurface (scrDsc);
+      }
+***************
+*** 480,483 ****
+--- 500,506 ----
+          videoLayer-&gt;SetCooperativeLevel(DLSCL_ADMINISTRATIVE);
+  
++         if (!setupStore-&gt;viaTv)
++           BESColorkeyState(videoLayer, true);
++ 
+          fprintf(stderr,&quot;[dfb] Configuring CooperativeLevel for OSD\n&quot;);
+          osdLayer-&gt;SetCooperativeLevel(DLSCL_ADMINISTRATIVE);
+***************
+*** 508,511 ****
+--- 531,582 ----
+  /* ---------------------------------------------------------------------------
+   */
++ void cDFBVideoOut::EnableFieldParity(IDirectFBDisplayLayer *layer)
++ {
++     DFBDisplayLayerConfig         dlc;
++     DFBDisplayLayerDescription    desc;
++ 
++   desc = layer-&gt;GetDescription();
++ 
++   dlc.flags = (DFBDisplayLayerConfigFlags)
++                 (DLCONF_PIXELFORMAT | DLCONF_BUFFERMODE | DLCONF_OPTIONS);
++   dlc.buffermode = DLBM_TRIPLE;
++   fprintf(stderr,&quot;[dfb] Set DLBM_TRIPLE for layer [%s]\n&quot;, desc.name);
++ 
++   dlc.pixelformat = DSPF_ARGB;
++   clearBackCount = 3;             // 3 for triple, 2 for double buffering
++ 
++   if (desc.caps &amp; DLCAPS_FIELD_PARITY)
++   {
++     dlc.options = DLOP_FIELD_PARITY;
++     fprintf(stderr,
++             &quot;[dfb] DLOP_FIELD_PARITY supported by layer [%s]\n&quot;,
++             desc.name);
++   }
++   else
++   {
++     dlc.options = DLOP_NONE;
++     fprintf(stderr,
++             &quot;[dfb] DLOP_FIELD_PARITY not supported by layer [%s]\n&quot;,
++             desc.name);
++   }
++ 
++   try
++   {
++     layer-&gt;SetCooperativeLevel(DLSCL_EXCLUSIVE);
++     layer-&gt;SetOpacity(0xff);
++     layer-&gt;SetConfiguration(dlc);
++     if (desc.caps &amp; DLCAPS_FIELD_PARITY)
++       layer-&gt;SetFieldParity(fieldParity);
++   }
++   catch(DFBException *ex)
++   {
++     fprintf (stderr,&quot;[dfb] EnableFieldParity: action=%s, result=%s\n&quot;,
++              ex-&gt;GetAction(), ex-&gt;GetResult());
++     delete ex;
++   }
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  */
+  void cDFBVideoOut::GetDisplayFrameTime (void)
+  {
+***************
+*** 725,731 ****
+          }
+  
+!         if (setupStore-&gt;useMGAtv)
+            dlc.options = (DFBDisplayLayerOptions)((int)dlc.options|
+                                                   DLOP_FIELD_PARITY);
+          try
+          {
+--- 796,804 ----
+          }
+  
+!         if (setupStore-&gt;useMGAtv || setupStore-&gt;viaTv) {
+            dlc.options = (DFBDisplayLayerOptions)((int)dlc.options|
+                                                   DLOP_FIELD_PARITY);
++           fprintf(stderr, &quot;[dfb] SetParams: Enabling DLOP_FIELD_PARITY\n&quot;);
++         }
+          try
+          {
+***************
+*** 747,766 ****
+                        ((int) dlc.flags | DLCONF_BUFFERMODE);
+  
+!         //dlc.buffermode = DLBM_TRIPLE;
+  
+!         //videoLayer-&gt;TestConfiguration(dlc, &amp;failed);
+!         //if (failed &amp; DLCONF_BUFFERMODE)
+!         //{
+!         //  fprintf(stderr, &quot;[dfb]: SetParms (): failed to set buffermode &quot;
+!         //          &quot;to triple mode, trying back video\n&quot;);
+            dlc.buffermode = DLBM_BACKVIDEO;
+!           videoLayer-&gt;TestConfiguration(dlc, &amp;failed);
+!           if (failed &amp; DLCONF_BUFFERMODE)
+            {
+!             fprintf(stderr, &quot;[dfb]: SetParams: failed to set buffermode &quot;
+!                     &quot;to back video, reverting to normal\n&quot;);
+!             dlc.buffermode = DLBM_FRONTONLY;
+            }
+!         //}
+  
+          /* --------------------------------------------------------------------
+--- 820,861 ----
+                        ((int) dlc.flags | DLCONF_BUFFERMODE);
+  
+!         dlc.buffermode = DLBM_UNKNOWN;
+!         if (setupStore-&gt;tripleBuffering)
+!         {
+!           dlc.buffermode = DLBM_TRIPLE;
+  
+!           try
+!           {
+!             videoLayer-&gt;TestConfiguration(dlc, &amp;failed);
+!           }
+!           catch (DFBException *ex)
+!           {
+!             if (failed &amp; DLCONF_BUFFERMODE)
+!             {
+!               fprintf(stderr, &quot;[dfb]: SetParms (): failed to set buffermode &quot;
+!                       &quot;to triple, will try back video\n&quot;);
+!               dlc.buffermode = DLBM_UNKNOWN;
+!             }
+!             delete ex;
+!           }
+!         }
+!         if (dlc.buffermode == DLBM_UNKNOWN)
+!         {
+            dlc.buffermode = DLBM_BACKVIDEO;
+!           try
+            {
+!             videoLayer-&gt;TestConfiguration(dlc, &amp;failed);
+            }
+!           catch (DFBException *ex)
+!           {
+!             if (failed &amp; DLCONF_BUFFERMODE)
+!             {
+!               fprintf(stderr, &quot;[dfb]: SetParams: failed to set buffermode &quot;
+!                       &quot;to back video, reverting to normal\n&quot;);
+!               dlc.buffermode = DLBM_FRONTONLY;
+!             }
+!             delete ex;
+!           }
+!         }
+  
+          /* --------------------------------------------------------------------
+***************
+*** 1258,1262 ****
+      else
+      {
+!       videoSurface-&gt;Flip(NULL, DSFLIP_ONSYNC);
+      }
+    }
+--- 1353,1360 ----
+      else
+      {
+!       if (setupStore-&gt;tripleBuffering)
+!         videoSurface-&gt;Flip(/*NULL, DSFLIP_ONSYNC*/);
+!       else
+!         videoSurface-&gt;Flip(NULL, DSFLIP_ONSYNC);
+      }
+    }
+
+Index: video-dfb.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.h,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -C2 -d -r1.11 -r1.12
+*** video-dfb.h	7 Oct 2005 09:09:33 -0000	1.11
+--- video-dfb.h	6 Nov 2005 17:56:06 -0000	1.12
+***************
+*** 41,47 ****
+      int   clearAlpha;
+      int   clearBackCount,
+!           clearBackground;
+  
+      void SetParams();
+  
+    public:
+--- 41,49 ----
+      int   clearAlpha;
+      int   clearBackCount,
+!           clearBackground,
+!           fieldParity;
+  
+      void SetParams();
++     void EnableFieldParity(IDirectFBDisplayLayer *layer);
+  
+    public:
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000245.html">[Softdevice-cvs] softdevice video-xv.c,1.33,1.34 video-xv.h,1.9,1.10
+</A></li>
+	<LI>Next message: <A HREF="000247.html">[Softdevice-cvs] softdevice i18n.c,1.12,1.13
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#246">[ date ]</a>
+              <a href="thread.html#246">[ thread ]</a>
+              <a href="subject.html#246">[ subject ]</a>
+              <a href="author.html#246">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,125 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.54,1.55 video-dfb.c,1.20,1.21 video-dfb.h,1.6,1.7
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.54%2C1.55%20video-dfb.c%2C1.20%2C1.21%20video-dfb.h%2C1.6%2C1.7&In-Reply-To=%3C200504091203.j39C3Zm26915%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000084.html">
+   <LINK REL="Next"  HREF="000086.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.54,1.55 video-dfb.c,1.20,1.21 video-dfb.h,1.6,1.7</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.54%2C1.55%20video-dfb.c%2C1.20%2C1.21%20video-dfb.h%2C1.6%2C1.7&In-Reply-To=%3C200504091203.j39C3Zm26915%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.54,1.55 video-dfb.c,1.20,1.21 video-dfb.h,1.6,1.7">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Apr  9 14:03:35 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000084.html">[Softdevice-cvs] softdevice CHANGELOG,1.53,1.54 audio.c,1.13,1.14 mpeg2decoder.c,1.26,1.27 mpeg2decoder.h,1.17,1.18 setup-softdevice.h,1.10,1.11 softdevice.c,1.26,1.27 video-xv.c,1.20,1.21
+</A></li>
+        <LI>Next message: <A HREF="000086.html">[Softdevice-cvs] softdevice softdevice.c,1.27,1.28
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#85">[ date ]</a>
+              <a href="thread.html#85">[ thread ]</a>
+              <a href="subject.html#85">[ subject ]</a>
+              <a href="author.html#85">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv25915
+
+Modified Files:
+	CHANGELOG video-dfb.c video-dfb.h 
+Log Message:
+added dfb version check for struct access
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.54
+retrieving revision 1.55
+diff -C2 -d -r1.54 -r1.55
+*** CHANGELOG	9 Apr 2005 08:47:09 -0000	1.54
+--- CHANGELOG	9 Apr 2005 12:03:32 -0000	1.55
+***************
+*** 2,5 ****
+--- 2,6 ----
+  2005-04-10:
+      - xv-out: add &quot;-vo xv:full&quot; option to start up in fullsceen mode
++     - dfb-out: added dfb version check for struct access
+      - replace unneeded usleep&lt;10000usec with &gt;=10000usec
+      - add SIG_TIMING option (default: disabled, enable in mpeg2decoder.c)
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.20
+retrieving revision 1.21
+diff -C2 -d -r1.20 -r1.21
+*** video-dfb.c	28 Mar 2005 08:02:22 -0000	1.20
+--- video-dfb.c	9 Apr 2005 12:03:32 -0000	1.21
+***************
+*** 594,598 ****
+        dlc.options       = DLOP_FIELD_PARITY;
+  
+! #if 1
+        dlc.flags = (DFBDisplayLayerConfigFlags)
+                        ((int) dlc.flags | DLCONF_SURFACE_CAPS);
+--- 594,598 ----
+        dlc.options       = DLOP_FIELD_PARITY;
+  
+! #if (DIRECTFB_MAJOR_VERSION &gt; 0 || ((DIRECTFB_MINOR_VERSION == 9) &amp;&amp; DIRECTFB_MICRO_VERSION &gt; 22))
+        dlc.flags = (DFBDisplayLayerConfigFlags)
+                        ((int) dlc.flags | DLCONF_SURFACE_CAPS);
+
+Index: video-dfb.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.h,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -C2 -d -r1.6 -r1.7
+*** video-dfb.h	28 Mar 2005 08:02:22 -0000	1.6
+--- video-dfb.h	9 Apr 2005 12:03:32 -0000	1.7
+***************
+*** 13,16 ****
+--- 13,17 ----
+  #include &lt;dfb++.h&gt;
+  #include &lt;directfb.h&gt;
++ #include &lt;directfb_version.h&gt;
+  #include &lt;directfb_keynames.h&gt;
+  
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000084.html">[Softdevice-cvs] softdevice CHANGELOG,1.53,1.54 audio.c,1.13,1.14 mpeg2decoder.c,1.26,1.27 mpeg2decoder.h,1.17,1.18 setup-softdevice.h,1.10,1.11 softdevice.c,1.26,1.27 video-xv.c,1.20,1.21
+</A></li>
+	<LI>Next message: <A HREF="000086.html">[Softdevice-cvs] softdevice softdevice.c,1.27,1.28
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#85">[ date ]</a>
+              <a href="thread.html#85">[ thread ]</a>
+              <a href="subject.html#85">[ subject ]</a>
+              <a href="author.html#85">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

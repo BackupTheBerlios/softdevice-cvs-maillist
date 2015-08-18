@@ -1,0 +1,174 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.146,1.147 ShmClient.c,1.3,1.4 video-shm.c,1.3,1.4 README,1.12,1.13
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.146%2C1.147%20ShmClient.c%2C1.3%2C1.4%20video-shm.c%2C1.3%2C1.4%20README%2C1.12%2C1.13&In-Reply-To=%3C200602041440.k14Ee7x17351%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000279.html">
+   <LINK REL="Next"  HREF="000281.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.146,1.147 ShmClient.c,1.3,1.4 video-shm.c,1.3,1.4 README,1.12,1.13</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.146%2C1.147%20ShmClient.c%2C1.3%2C1.4%20video-shm.c%2C1.3%2C1.4%20README%2C1.12%2C1.13&In-Reply-To=%3C200602041440.k14Ee7x17351%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.146,1.147 ShmClient.c,1.3,1.4 video-shm.c,1.3,1.4 README,1.12,1.13">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Feb  4 15:40:07 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000279.html">[Softdevice-cvs] softdevice CHANGELOG,1.145,1.146 shm-common.h,1.2,1.3 video-shm.c,1.2,1.3 video-shm.h,1.2,1.3 ShmClient.c,1.2,1.3
+</A></li>
+        <LI>Next message: <A HREF="000281.html">[Softdevice-cvs] softdevice CHANGELOG,1.147,1.148 video.h,1.27,1.28 video-xv.c,1.39,1.40 video-xv.h,1.12,1.13
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#280">[ date ]</a>
+              <a href="thread.html#280">[ thread ]</a>
+              <a href="subject.html#280">[ subject ]</a>
+              <a href="author.html#280">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv22522
+
+Modified Files:
+	CHANGELOG ShmClient.c video-shm.c README 
+Log Message:
+- add more documentation to the readme
+- fix ShmClient pixel[] array initialisation
+      
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.146
+retrieving revision 1.147
+diff -C2 -d -r1.146 -r1.147
+*** CHANGELOG	4 Feb 2006 10:25:39 -0000	1.146
+--- CHANGELOG	4 Feb 2006 14:40:04 -0000	1.147
+***************
+*** 1,4 ****
+--- 1,6 ----
+  Changelog
+  2006-03-03:
++    - add more documentation to the readme
++    - fix ShmClient pixel[] array initialisation
+     - compile fix for video-shm.h
+     - some fixes in the osd handling of video-shm
+***************
+*** 11,15 ****
+     - introduce separate OSD layer in ShmClient/video-shm
+  2006-01-19:
+!    - now correct fix for CheckArea() not updateing the aspect ratio
+  2006-01-17:
+     - add video-shm and ShmClient, a simple server/client model for the 
+--- 13,17 ----
+     - introduce separate OSD layer in ShmClient/video-shm
+  2006-01-19:
+!    - now correct fix for CheckArea() not updating the aspect ratio
+  2006-01-17:
+     - add video-shm and ShmClient, a simple server/client model for the 
+
+Index: ShmClient.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/ShmClient.c,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** ShmClient.c	4 Feb 2006 10:25:39 -0000	1.3
+--- ShmClient.c	4 Feb 2006 14:40:04 -0000	1.4
+***************
+*** 112,117 ****
+   
+          pixel[0]=curr_pict;
+!         pixel[1]=curr_pict+ctl-&gt;height*ctl-&gt;stride0;
+!         pixel[2]=pixel[1]+ctl-&gt;height/2*ctl-&gt;stride1;
+  
+          ctl-&gt;attached=1;
+--- 112,117 ----
+   
+          pixel[0]=curr_pict;
+!         pixel[1]=curr_pict+ctl-&gt;max_height*ctl-&gt;stride0;
+!         pixel[2]=pixel[1]+ctl-&gt;max_height/2*ctl-&gt;stride1;
+  
+          ctl-&gt;attached=1;
+
+Index: video-shm.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-shm.c,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -C2 -d -r1.3 -r1.4
+*** video-shm.c	4 Feb 2006 10:25:39 -0000	1.3
+--- video-shm.c	4 Feb 2006 14:40:04 -0000	1.4
+***************
+*** 274,279 ****
+                         } 
+                         pixels[0]=curr_pict;
+!                        pixels[1]=curr_pict+ctl-&gt;height*ctl-&gt;stride0;
+!                        pixels[2]=pixels[1]+ctl-&gt;height/2*ctl-&gt;stride1;
+                         curr_pict_shmid=ctl-&gt;pict_shmid;
+                  };
+--- 274,279 ----
+                         } 
+                         pixels[0]=curr_pict;
+!                        pixels[1]=curr_pict+ctl-&gt;max_height*ctl-&gt;stride0;
+!                        pixels[2]=pixels[1]+ctl-&gt;max_height/2*ctl-&gt;stride1;
+                         curr_pict_shmid=ctl-&gt;pict_shmid;
+                  };
+
+Index: README
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/README,v
+retrieving revision 1.12
+retrieving revision 1.13
+diff -C2 -d -r1.12 -r1.13
+*** README	17 Jan 2006 20:45:46 -0000	1.12
+--- README	4 Feb 2006 14:40:04 -0000	1.13
+***************
+*** 119,122 ****
+--- 119,129 ----
+  It is possible to make a client for the other video-out methods too, but
+  I found the Xv-Client the most usefull for combined desktop/vdr machines :-)
++ The softdevice doesn't always remove the shared memory segment which is
++ used for comunication with the client, if you have troubles with that (or
++ you get an error message that the client/server can't connect to the shm ctl)
++ you can remove the shared memory segment with &quot;ipcrm&quot;. First you have to
++ find out the shared memory id, type the command &quot;ipcs&quot; and look for the
++ key &quot;0x0000162&quot; the shared memory id is next to it. Them remove the
++ shared memory segment with &quot;ipcrm shm shared_memory_id&quot;.
+  
+  
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000279.html">[Softdevice-cvs] softdevice CHANGELOG,1.145,1.146 shm-common.h,1.2,1.3 video-shm.c,1.2,1.3 video-shm.h,1.2,1.3 ShmClient.c,1.2,1.3
+</A></li>
+	<LI>Next message: <A HREF="000281.html">[Softdevice-cvs] softdevice CHANGELOG,1.147,1.148 video.h,1.27,1.28 video-xv.c,1.39,1.40 video-xv.h,1.12,1.13
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#280">[ date ]</a>
+              <a href="thread.html#280">[ thread ]</a>
+              <a href="subject.html#280">[ subject ]</a>
+              <a href="author.html#280">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

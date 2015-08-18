@@ -1,0 +1,1334 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice ShmClient.c, 1.14,	1.15 setup-softdevice-menu.c, 1.6, 1.7 softdevice.c, 1.65,	1.66 softdevice.h, 1.10, 1.11 video-shm.c, 1.8,	1.9 video-shm.h, 1.5, 1.6 video-xv.c, 1.58, 1.59 video-xv.h,	1.22, 1.23 video.c, 1.60, 1.61 video.h, 1.40, 1.41
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20ShmClient.c%2C%201.14%2C%0A%091.15%20setup-softdevice-menu.c%2C%201.6%2C%201.7%20softdevice.c%2C%201.65%2C%0A%091.66%20softdevice.h%2C%201.10%2C%201.11%20video-shm.c%2C%201.8%2C%0A%091.9%20video-shm.h%2C%201.5%2C%201.6%20video-xv.c%2C%201.58%2C%201.59%20video-xv.h%2C%0A%091.22%2C%201.23%20video.c%2C%201.60%2C%201.61%20video.h%2C%201.40%2C%201.41&In-Reply-To=%3C20060827130315.15F8D71C1F%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000407.html">
+   <LINK REL="Next"  HREF="000409.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice ShmClient.c, 1.14,	1.15 setup-softdevice-menu.c, 1.6, 1.7 softdevice.c, 1.65,	1.66 softdevice.h, 1.10, 1.11 video-shm.c, 1.8,	1.9 video-shm.h, 1.5, 1.6 video-xv.c, 1.58, 1.59 video-xv.h,	1.22, 1.23 video.c, 1.60, 1.61 video.h, 1.40, 1.41</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20ShmClient.c%2C%201.14%2C%0A%091.15%20setup-softdevice-menu.c%2C%201.6%2C%201.7%20softdevice.c%2C%201.65%2C%0A%091.66%20softdevice.h%2C%201.10%2C%201.11%20video-shm.c%2C%201.8%2C%0A%091.9%20video-shm.h%2C%201.5%2C%201.6%20video-xv.c%2C%201.58%2C%201.59%20video-xv.h%2C%0A%091.22%2C%201.23%20video.c%2C%201.60%2C%201.61%20video.h%2C%201.40%2C%201.41&In-Reply-To=%3C20060827130315.15F8D71C1F%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice ShmClient.c, 1.14,	1.15 setup-softdevice-menu.c, 1.6, 1.7 softdevice.c, 1.65,	1.66 softdevice.h, 1.10, 1.11 video-shm.c, 1.8,	1.9 video-shm.h, 1.5, 1.6 video-xv.c, 1.58, 1.59 video-xv.h,	1.22, 1.23 video.c, 1.60, 1.61 video.h, 1.40, 1.41">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Aug 27 15:03:15 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000407.html">[Softdevice-cvs] softdevice CHANGELOG, 1.218, 1.219 configure, 1.23,	1.24
+</A></li>
+        <LI>Next message: <A HREF="000409.html">[Softdevice-cvs] softdevice CHANGELOG,1.219,1.220
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#408">[ date ]</a>
+              <a href="thread.html#408">[ thread ]</a>
+              <a href="subject.html#408">[ subject ]</a>
+              <a href="author.html#408">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv29361
+
+Modified Files:
+	ShmClient.c setup-softdevice-menu.c softdevice.c softdevice.h 
+	video-shm.c video-shm.h video-xv.c video-xv.h video.c video.h 
+Log Message:
+- enable different pixel formats in video-xv
+- properly init ctl-&gt;key (reported by Matthias Schwarzott)
+      
+
+
+Index: ShmClient.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/ShmClient.c,v
+retrieving revision 1.14
+retrieving revision 1.15
+diff -C2 -d -r1.14 -r1.15
+*** ShmClient.c	27 May 2006 19:12:41 -0000	1.14
+--- ShmClient.c	27 Aug 2006 13:02:50 -0000	1.15
+***************
+*** 94,102 ****
+          };
+  
+!         if ( !vout-&gt;Initialize() || !vout-&gt;Reconfigure(FOURCC_YV12) ) {
+                  fprintf(stderr,&quot;Could not init video out!\n&quot;);
+                  exit(-1);
+          };
+! 
+          if ( vout-&gt;useShm &amp;&amp; vout-&gt;xv_image ) {
+                  ctl-&gt;pict_shmid= vout-&gt;shminfo.shmid;
+--- 94,106 ----
+          };
+  
+!         if ( !vout-&gt;Initialize()  ) {
+                  fprintf(stderr,&quot;Could not init video out!\n&quot;);
+                  exit(-1);
+          };
+!         
+!         while (!vout-&gt;Reconfigure(SetupStore.pixelFormat) 
+!                         &amp;&amp; SetupStore.pixelFormat &lt; 3 )
+!                 SetupStore.pixelFormat++;
+!         
+          if ( vout-&gt;useShm &amp;&amp; vout-&gt;xv_image ) {
+                  ctl-&gt;pict_shmid= vout-&gt;shminfo.shmid;
+***************
+*** 111,114 ****
+--- 115,120 ----
+                  picture.stride[2]=ctl-&gt;stride1;
+                  picture.edge_width=picture.edge_height=0;
++                 picture.max_width=ctl-&gt;max_width;
++                 picture.max_height=ctl-&gt;max_height;
+          } else {
+                  // create a picture in shm
+***************
+*** 142,145 ****
+--- 148,153 ----
+                  picture.pixel[2]=picture.pixel[1]+ctl-&gt;max_height/2*ctl-&gt;stride1;
+                  picture.edge_width=picture.edge_height=0;
++                 picture.max_width=ctl-&gt;max_width;
++                 picture.max_height=ctl-&gt;max_height;
+          }
+          ctl-&gt;attached=1;
+***************
+*** 217,220 ****
+--- 225,229 ----
+                          ctl-&gt;new_osd=0;
+                  };
++                 vout-&gt;ProcessEvents();
+  
+                  vout-&gt;GetOSDDimension(ctl-&gt;osd_width,ctl-&gt;osd_height,
+
+Index: setup-softdevice-menu.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice-menu.c,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -C2 -d -r1.6 -r1.7
+*** setup-softdevice-menu.c	25 Jun 2006 13:46:12 -0000	1.6
+--- setup-softdevice-menu.c	27 Aug 2006 13:02:50 -0000	1.7
+***************
+*** 357,361 ****
+  #endif
+  
+!   if ((data-&gt;outputMethod == VOUT_DFB || data-&gt;outputMethod == VOUT_VIDIX) &amp;&amp;
+        !data-&gt;pixelFormatLocked)
+    {
+--- 357,362 ----
+  #endif
+  
+!   if ((data-&gt;outputMethod == VOUT_DFB || data-&gt;outputMethod == VOUT_VIDIX
+!        || data-&gt;outputMethod == VOUT_XV ) &amp;&amp;
+        !data-&gt;pixelFormatLocked)
+    {
+
+Index: softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.c,v
+retrieving revision 1.65
+retrieving revision 1.66
+diff -C2 -d -r1.65 -r1.66
+*** softdevice.c	25 Jul 2006 19:58:12 -0000	1.65
+--- softdevice.c	27 Aug 2006 13:02:50 -0000	1.66
+***************
+*** 198,202 ****
+        case VOUT_XV:
+  #ifdef XV_SUPPORT
+!         LoadSubPlugin (&quot;xv&quot;, FOURCC_YV12, pluginPath);
+          //LoadSubPlugin (&quot;xv&quot;, FOURCC_YUY2, pluginPath);
+  #endif
+--- 198,202 ----
+        case VOUT_XV:
+  #ifdef XV_SUPPORT
+!         LoadSubPlugin (&quot;xv&quot;, pluginPath);
+          //LoadSubPlugin (&quot;xv&quot;, FOURCC_YUY2, pluginPath);
+  #endif
+***************
+*** 204,223 ****
+        case VOUT_FB:
+  #ifdef FB_SUPPORT
+!         LoadSubPlugin (&quot;fb&quot;, 0, pluginPath);
+  #endif
+          break;
+        case VOUT_DFB:
+  #ifdef DFB_SUPPORT
+!         LoadSubPlugin (&quot;dfb&quot;, 0, pluginPath);
+  #endif
+          break;
+        case VOUT_VIDIX:
+  #ifdef VIDIX_SUPPORT
+!         LoadSubPlugin (&quot;vidix&quot;, 0, pluginPath);
+  #endif
+          break;
+        case VOUT_SHM:
+  #ifdef SHM_SUPPORT
+!         LoadSubPlugin (&quot;shm&quot;, 0, pluginPath);
+  #endif
+          break;
+--- 204,223 ----
+        case VOUT_FB:
+  #ifdef FB_SUPPORT
+!         LoadSubPlugin (&quot;fb&quot;, pluginPath);
+  #endif
+          break;
+        case VOUT_DFB:
+  #ifdef DFB_SUPPORT
+!         LoadSubPlugin (&quot;dfb&quot;, pluginPath);
+  #endif
+          break;
+        case VOUT_VIDIX:
+  #ifdef VIDIX_SUPPORT
+!         LoadSubPlugin (&quot;vidix&quot;, pluginPath);
+  #endif
+          break;
+        case VOUT_SHM:
+  #ifdef SHM_SUPPORT
+!         LoadSubPlugin (&quot;shm&quot;, pluginPath);
+  #endif
+          break;
+***************
+*** 235,240 ****
+  #ifdef XV_SUPPORT
+          videoOut = new cXvVideoOut (&amp;setupStore);
+!         if (videoOut-&gt;Initialize () &amp;&amp; videoOut-&gt;Reconfigure (FOURCC_YV12)) {
+!         //if (videoOut-&gt;Initialize () &amp;&amp; videoOut-&gt;Reconfigure (FOURCC_YUY2)) {
+            fprintf (stderr, &quot;[softdevice] Xv out OK !\n&quot;);
+          } else {
+--- 235,251 ----
+  #ifdef XV_SUPPORT
+          videoOut = new cXvVideoOut (&amp;setupStore);
+!         if ( !videoOut-&gt;Initialize() ) {
+!                 
+!           if (!videoOut-&gt;Reconfigure()) {
+!                   // XVideo intialization failed, try different pix formats
+!                   setupStore.pixelFormat=0;
+!                   while (!videoOut-&gt;Reconfigure(setupStore.pixelFormat)
+!                                   &amp;&amp; setupStore.pixelFormat &lt; 3)
+!                           setupStore.pixelFormat++;
+!                   // reset to default if all failed...
+!                   if (setupStore.pixelFormat == 3)
+!                           setupStore.pixelFormat == 0;
+!           };
+!                   
+            fprintf (stderr, &quot;[softdevice] Xv out OK !\n&quot;);
+          } else {
+***************
+*** 278,281 ****
+--- 289,295 ----
+      }
+  #endif
++     // start OSD refresh thread
++     videoOut-&gt;Start();
++ 
+      fprintf(stderr,&quot;[softdevice] Video Out seems to be OK\n&quot;);
+      fprintf(stderr,&quot;[softdevice] Initializing Audio Out\n&quot;);
+***************
+*** 309,313 ****
+   */
+  void cSoftDevice::LoadSubPlugin(char *outMethodName,
+-                                 int reconfigureArg,
+                                  char *pluginPath)
+  {
+--- 323,326 ----
+***************
+*** 352,357 ****
+        exit(1);
+      }
+!     if (videoOut-&gt;Initialize () &amp;&amp; videoOut-&gt;Reconfigure (reconfigureArg))
+      {
+        fprintf(stderr,&quot;[softdevice] Subplugin successfully opend\n&quot;);
+        dsyslog(&quot;[softdevice] videoOut OK !\n&quot;);
+--- 365,371 ----
+        exit(1);
+      }
+!     if ( videoOut-&gt;Initialize() )
+      {
++       videoOut-&gt;Reconfigure();
+        fprintf(stderr,&quot;[softdevice] Subplugin successfully opend\n&quot;);
+        dsyslog(&quot;[softdevice] videoOut OK !\n&quot;);
+
+Index: softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/softdevice.h,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -C2 -d -r1.10 -r1.11
+*** softdevice.h	9 Jun 2006 16:45:13 -0000	1.10
+--- softdevice.h	27 Aug 2006 13:02:50 -0000	1.11
+***************
+*** 93,97 ****
+    { if (decoder) decoder-&gt;Freeze(Stream,Value); return 0;};
+  
+!   void LoadSubPlugin(char *outMethodName, int reconfigureArg, char *pluginPath);
+  
+    virtual bool HasDecoder(void) const;
+--- 93,97 ----
+    { if (decoder) decoder-&gt;Freeze(Stream,Value); return 0;};
+  
+!   void LoadSubPlugin(char *outMethodName, char *pluginPath);
+  
+    virtual bool HasDecoder(void) const;
+
+Index: video-shm.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-shm.c,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -C2 -d -r1.8 -r1.9
+*** video-shm.c	27 May 2006 19:12:41 -0000	1.8
+--- video-shm.c	27 Aug 2006 13:02:50 -0000	1.9
+***************
+*** 18,21 ****
+--- 18,27 ----
+  #define SHMDEB(out...)
+  #endif
++ 
++ //#define SIGDEB(out...) {printf(&quot;SIGSERV[%04d]:&quot;,(int)(getTimeMilis() % 10000));printf(out);}
++ 
++ #ifndef SIGDEB
++ #define SIGDEB(out...)
++ #endif
+    
+  cShmRemote::~cShmRemote(){
+***************
+*** 27,33 ****
+  void cShmRemote::Action(void) {
+          while (active) {
+!                 SHMDEB(&quot;cShmRemote trying to get a lock\n&quot;);
+                  sem_wait_lock(vout-&gt;ctl-&gt;semid,KEY_MUT);
+!                 SHMDEB(&quot;cShmRemote got lock\n&quot;);
+                  
+                  if (!vout-&gt;ctl-&gt;attached) {
+--- 33,39 ----
+  void cShmRemote::Action(void) {
+          while (active) {
+!                 SIGDEB(&quot;cShmRemote trying to get a lock\n&quot;);
+                  sem_wait_lock(vout-&gt;ctl-&gt;semid,KEY_MUT);
+!                 SIGDEB(&quot;cShmRemote got lock\n&quot;);
+                  
+                  if (!vout-&gt;ctl-&gt;attached) {
+***************
+*** 47,51 ****
+                  sem_sig_unlock(vout-&gt;ctl-&gt;semid,KEY_MUT);
+  
+!                 SHMDEB(&quot;wait for a new key\n&quot;);
+                  sem_wait_lock(vout-&gt;ctl-&gt;semid,KEY_SIG);
+          };
+--- 53,57 ----
+                  sem_sig_unlock(vout-&gt;ctl-&gt;semid,KEY_MUT);
+  
+!                 SIGDEB(&quot;wait for a new key\n&quot;);
+                  sem_wait_lock(vout-&gt;ctl-&gt;semid,KEY_SIG);
+          };
+***************
+*** 59,62 ****
+--- 65,69 ----
+          ctl_key = CTL_KEY;
+          bool Clear_Ctl=false;
++         InitPicBuffer(&amp;privBuf);
+  
+          // first try to get an existing ShmCltBlock
+***************
+*** 123,127 ****
+          curr_pict=NULL;
+          osd_surface=NULL;
+!         ctl-&gt;key=kNone;
+          remote = new cShmRemote(&quot;softdevice-xv&quot;,this);
+  };
+--- 130,134 ----
+          curr_pict=NULL;
+          osd_surface=NULL;
+!         ctl-&gt;key=NO_KEY;
+          remote = new cShmRemote(&quot;softdevice-xv&quot;,this);
+  };
+***************
+*** 138,141 ****
+--- 145,152 ----
+          }
+          ctl-&gt;semid=-1;
++                         
++         if (osd_surface)
++                 shmdt(osd_surface);
++         osd_surface=NULL;
+          
+          if (curr_pict)
+***************
+*** 252,255 ****
+--- 263,288 ----
+  };
+  
++ void cShmVideoOut::ProcessEvents() {
++         // I don't know if there is a timeout mechanism (which would probably the better solution),
++         // so we just signal every once and a while so that the client processes its events.
++         SIGDEB(&quot;ProcessEvents sending signal\n&quot;);
++         sem_sig_unlock(ctl-&gt;semid,PICT_SIG);
++ }
++ 
++ void cShmVideoOut::Suspend() {
++         SHMDEB(&quot;Suspend shm server\n&quot;);
++         if (osd_surface) {
++                 shmdt(osd_surface);
++                 osd_surface=NULL;
++                 curr_osd_shmid=-1;
++         };
++         
++         if (curr_pict) {
++                 shmdt(curr_pict);
++                 curr_pict=NULL;
++                 curr_pict_shmid=-1;
++         }
++ };
++ 
+  void cShmVideoOut::YUV(sPicBuffer *buf) {
+          uint8_t *Py=buf-&gt;pixel[0]+(buf-&gt;edge_height)*buf-&gt;stride[0]
+***************
+*** 269,275 ****
+          } else setupStore-&gt;shouldSuspend=0;
+  
+!         //SHMDEB(&quot;trying to get a lock\n&quot;);
+          sem_wait_lock(ctl-&gt;semid,PICT_MUT);
+!         //SHMDEB(&quot;got a lock\n&quot;);
+          
+          if ( ctl-&gt;pict_shmid != curr_pict_shmid ) {
+--- 302,308 ----
+          } else setupStore-&gt;shouldSuspend=0;
+  
+!         SIGDEB(&quot;YUV trying to get a lock\n&quot;);
+          sem_wait_lock(ctl-&gt;semid,PICT_MUT);
+!         SIGDEB(&quot;YUV got a lock\n&quot;);
+          
+          if ( ctl-&gt;pict_shmid != curr_pict_shmid ) {
+***************
+*** 282,286 ****
+                         if ( (curr_pict = (uint8_t *)shmat(ctl-&gt;pict_shmid,NULL,0)) 
+                                         == (uint8_t*) -1 ) {
+!                                fprintf(stderr,&quot;error attatching shm pict! Assumeing no client connected\n&quot;);
+                                 ctl-&gt;pict_shmid = -1;
+                                 ctl-&gt;attached = 0;
+--- 315,319 ----
+                         if ( (curr_pict = (uint8_t *)shmat(ctl-&gt;pict_shmid,NULL,0)) 
+                                         == (uint8_t*) -1 ) {
+!                                fprintf(stderr,&quot;error attatching shm pict! Assuming no client connected\n&quot;);
+                                 ctl-&gt;pict_shmid = -1;
+                                 ctl-&gt;attached = 0;
+***************
+*** 288,296 ****
+                                 sem_sig_unlock(ctl-&gt;semid,PICT_MUT);
+                                 return;
+!                        } 
+!                        pixels[0]=curr_pict;
+!                        pixels[1]=curr_pict+ctl-&gt;max_height*ctl-&gt;stride0;
+!                        pixels[2]=pixels[1]+ctl-&gt;max_height/2*ctl-&gt;stride1;
+                         curr_pict_shmid=ctl-&gt;pict_shmid;
+                  };
+          };
+--- 321,347 ----
+                                 sem_sig_unlock(ctl-&gt;semid,PICT_MUT);
+                                 return;
+!                        }
+                         curr_pict_shmid=ctl-&gt;pict_shmid;
++                        privBuf.format=PIX_FMT_YUV420P;//ctl-&gt;format;
++                        privBuf.max_width=ctl-&gt;max_width;
++                        privBuf.max_height=ctl-&gt;max_height;
++                        switch (privBuf.format) {
++                         case PIX_FMT_YUV420P:  
++                                 SHMDEB(&quot;new format YUV420P\n&quot;);
++                                 pixels[0]=privBuf.pixel[0]=curr_pict;
++                                 pixels[2]=privBuf.pixel[2]=curr_pict+ctl-&gt;max_height*ctl-&gt;stride0;
++                                 pixels[1]=privBuf.pixel[1]=privBuf.pixel[2]+ctl-&gt;max_height/2*ctl-&gt;stride1;
++                                 privBuf.stride[0]=ctl-&gt;stride0;
++                                 privBuf.stride[1]=privBuf.stride[2]=ctl-&gt;stride1;
++                                 break;
++                         case PIX_FMT_YUV422:
++                                 SHMDEB(&quot;new format YUV422\n&quot;);
++                                 privBuf.pixel[0]=curr_pict;
++                                 privBuf.stride[0]=ctl-&gt;stride0;
++                                 break;
++                         default:
++                                 break;
++                        }
++                        SHMDEB(&quot;new pict %p shmid %d\n&quot;,curr_pict,curr_pict_shmid);
+                  };
+          };
+***************
+*** 312,317 ****
+          ctl-&gt;new_asp=GetAspect_F();
+          if (OSDpresent &amp;&amp; current_osdMode==OSDMODE_SOFTWARE) {
+!                 
+!                 for (int i = 0; i &lt; height; i++)
+                          AlphaBlend(pixels [0] + i * ctl-&gt;stride0,
+                                         OsdPy+i*OSD_FULL_WIDTH,
+--- 363,371 ----
+          ctl-&gt;new_asp=GetAspect_F();
+          if (OSDpresent &amp;&amp; current_osdMode==OSDMODE_SOFTWARE) {
+! 
+!                 CopyPicBufAlphaBlend(&amp;privBuf,buf,
+!                                 OsdPy,OsdPu,OsdPv,OsdPAlphaY,OsdPAlphaUV, OSD_FULL_WIDTH,
+!                                 0,0,0,0);                
+! /*                for (int i = 0; i &lt; height; i++)
+                          AlphaBlend(pixels [0] + i * ctl-&gt;stride0,
+                                         OsdPy+i*OSD_FULL_WIDTH,
+***************
+*** 331,336 ****
+                                          OsdPAlphaUV+i*OSD_FULL_WIDTH/2,
+                                          width / 2);
+!         } else {
+!                 
+                  for (int i = 0; i &lt; height; i++)
+                          fast_memcpy(pixels [0] + i * ctl-&gt;stride0,
+--- 385,391 ----
+                                          OsdPAlphaUV+i*OSD_FULL_WIDTH/2,
+                                          width / 2);
+!   */      } else {
+!                 CopyPicBuf(&amp;privBuf,buf,0,0,0,0);
+!                /* 
+                  for (int i = 0; i &lt; height; i++)
+                          fast_memcpy(pixels [0] + i * ctl-&gt;stride0,
+***************
+*** 345,358 ****
+                                          Pv + i * UVstride,
+                                          width / 2);
+! 
+          };
+          ctl-&gt;new_pict++;
+          if (ctl-&gt;new_pict&gt;30) {
+!                 printf(&quot;new_pict &gt; 30; assueming client died!\n&quot;);
+                  ctl-&gt;attached=0;
+          };
+          sem_sig_unlock(ctl-&gt;semid,PICT_MUT);
+          sem_sig_unlock(ctl-&gt;semid,PICT_SIG);
+!         //SHMDEB(&quot;send signal\n&quot;);
+          
+  };
+--- 400,413 ----
+                                          Pv + i * UVstride,
+                                          width / 2);
+! */
+          };
+          ctl-&gt;new_pict++;
+          if (ctl-&gt;new_pict&gt;30) {
+!                 printf(&quot;new_pict &gt; 30; assuming client died!\n&quot;);
+                  ctl-&gt;attached=0;
+          };
+          sem_sig_unlock(ctl-&gt;semid,PICT_MUT);
+          sem_sig_unlock(ctl-&gt;semid,PICT_SIG);
+!         SIGDEB(&quot;send signal\n&quot;);
+          
+  };
+
+Index: video-shm.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-shm.h,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -C2 -d -r1.5 -r1.6
+*** video-shm.h	27 May 2006 19:12:41 -0000	1.5
+--- video-shm.h	27 Aug 2006 13:02:50 -0000	1.6
+***************
+*** 36,39 ****
+--- 36,40 ----
+          uint8_t *curr_pict;
+          uint8_t *pixels[4];
++         sPicBuffer privBuf;
+  
+          int curr_osd_shmid;
+***************
+*** 46,49 ****
+--- 47,52 ----
+          virtual void AdjustOSDMode();
+  
++         virtual void ProcessEvents();
++ 
+          virtual void GetOSDDimension(int &amp;OsdWidth,int &amp;OsdHeight,
+                                       int &amp;xPan, int &amp;yPan);
+***************
+*** 57,60 ****
+--- 60,65 ----
+          virtual void CommitUnlockOsdSurface();
+          virtual void ClearOSD();
++ 
++         virtual void Suspend();
+  };
+  
+
+Index: video-xv.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.c,v
+retrieving revision 1.58
+retrieving revision 1.59
+diff -C2 -d -r1.58 -r1.59
+*** video-xv.c	25 Jul 2006 19:58:12 -0000	1.58
+--- video-xv.c	27 Aug 2006 13:02:50 -0000	1.59
+***************
+*** 32,35 ****
+--- 32,42 ----
+  #define PATCH_VERSION &quot;2006-04-24&quot;
+  
++ #define NO_DIRECT_RENDERING
++ 
++ int pixFormat[3]={
++         FOURCC_I420,
++         FOURCC_YV12,
++         FOURCC_YUY2};
++ 
+  static pthread_mutex_t  xv_mutex = PTHREAD_MUTEX_INITIALIZER;
+  cSoftRemote        *xvRemote = NULL;
+***************
+*** 734,738 ****
+        XClearArea (dpy, win, 0, 0, 0, 0, False);
+        ShowOSD();
+!       PutXvImage();
+        XSync(dpy, False);
+      }
+--- 741,745 ----
+        XClearArea (dpy, win, 0, 0, 0, 0, False);
+        ShowOSD();
+!       PutXvImage(xv_image,privBuf.edge_width,privBuf.edge_height);
+        XSync(dpy, False);
+      }
+***************
+*** 796,799 ****
+--- 803,814 ----
+      lwidth = dwidth = XV_DEST_WIDTH_16_9;
+    }
++ 
++   for (int i=0; i&lt;LAST_PICBUF; i++) {
++           dr_image[i]=NULL;
++           dr_shminfo[i].shmid=-1;
++           dr_shminfo[i].shmaddr=NULL;
++   };
++   
++   InitPicBuffer(&amp;privBuf);
+  }
+  
+***************
+*** 1051,1055 ****
+  /* ---------------------------------------------------------------------------
+   */
+! bool cXvVideoOut::Reconfigure(int format)
+  {
+      int                 fmt_cnt, k, rc,
+--- 1066,1070 ----
+  /* ---------------------------------------------------------------------------
+   */
+! bool cXvVideoOut::Reconfigure(int format, int width, int height)
+  {
+      int                 fmt_cnt, k, rc,
+***************
+*** 1059,1066 ****
+      XvAdaptorInfo       *ad_info;
+      XvImageFormatValues *fmt_info;
+-     int                 len=0;
+  
+    pthread_mutex_lock(&amp;xv_mutex);
+  
+    /*
+     * So let's first check for an available adaptor and port
+--- 1074,1092 ----
+      XvAdaptorInfo       *ad_info;
+      XvImageFormatValues *fmt_info;
+  
++   if (format &gt; 3) {
++           printf(&quot;XvVideoOut.Reconfigure format &gt; 3!\n&quot;);
++           return false;
++   };
++   
++   currentPixelFormat=format;
++   format = pixFormat[currentPixelFormat];
++   //printf(&quot;Reconfigure %d %d %d %d\n&quot;,currentPixelFormat,format,width,height);fflush(stdout);
+    pthread_mutex_lock(&amp;xv_mutex);
+  
++   xv_initialized = 0;
++   xvWidth=width;
++   xvHeight=height;
++ 
+    /*
+     * So let's first check for an available adaptor and port
+***************
+*** 1136,1155 ****
+                        encodingInfo[n].width, encodingInfo[n].height);
+  
+!               if (setupStore-&gt;xvMaxArea) {
+!                 /* ------------------------------------------------------------
+!                  * adjust width to 8 byte boundary and height to an even
+!                  * number of lines.
+!                  */
+!                 xvWidth  = (encodingInfo[n].width &amp; ~7);
+!                 xvHeight = (encodingInfo[n].height &amp; ~1);
+!               } else {
+!                 xvWidth  = XV_SRC_WIDTH;
+!                 xvHeight = XV_SRC_HEIGHT;
+!               }
+                fprintf(stderr, &quot;[XvVideoOut]: using area size %d x %d\n&quot;,
+                        xvWidth, xvHeight);
+                dsyslog(&quot;[XvVideoOut]: using area size %d x %d&quot;,
+                        xvWidth, xvHeight);
+-               len = xvWidth * xvHeight * 2;
+              }
+            }
+--- 1162,1177 ----
+                        encodingInfo[n].width, encodingInfo[n].height);
+  
+!               /* ------------------------------------------------------------
+!                * adjust width to 8 byte boundary and height to an even
+!                * number of lines.
+!                */
+!               xv_max_width = (encodingInfo[n].width &amp; ~7);
+!               xv_max_height = (encodingInfo[n].height &amp; ~1);
+! 
+!               //FIXME (re)move?
+                fprintf(stderr, &quot;[XvVideoOut]: using area size %d x %d\n&quot;,
+                        xvWidth, xvHeight);
+                dsyslog(&quot;[XvVideoOut]: using area size %d x %d&quot;,
+                        xvWidth, xvHeight);
+              }
+            }
+***************
+*** 1165,1169 ****
+      esyslog(&quot;[XvVideoOut]: (ERROR) no Xv extensions found! No video possible!&quot;);
+      pthread_mutex_unlock(&amp;xv_mutex);
+!     return true;
+    } /* else */
+  
+--- 1187,1191 ----
+      esyslog(&quot;[XvVideoOut]: (ERROR) no Xv extensions found! No video possible!&quot;);
+      pthread_mutex_unlock(&amp;xv_mutex);
+!     return false;
+    } /* else */
+  
+***************
+*** 1171,1180 ****
+      esyslog(&quot;[XvVideoOut]: (ERROR) no adaptor found! No video possible!&quot;);
+      pthread_mutex_unlock(&amp;xv_mutex);
+!     return true;
+    }
+    if(!got_port) {
+      esyslog(&quot;[XvVideoOut]: (ERROR) could not grab any port! No video possible!&quot;);
+      pthread_mutex_unlock(&amp;xv_mutex);
+!     return true;
+    }
+  
+--- 1193,1202 ----
+      esyslog(&quot;[XvVideoOut]: (ERROR) no adaptor found! No video possible!&quot;);
+      pthread_mutex_unlock(&amp;xv_mutex);
+!     return false;
+    }
+    if(!got_port) {
+      esyslog(&quot;[XvVideoOut]: (ERROR) could not grab any port! No video possible!&quot;);
+      pthread_mutex_unlock(&amp;xv_mutex);
+!     return false;
+    }
+  
+***************
+*** 1199,1205 ****
+--- 1221,1251 ----
+        pixels[1] = (uint8_t *) (xv_image-&gt;data + xv_image-&gt;offsets[1]);
+        pixels[2] = (uint8_t *) (xv_image-&gt;data + xv_image-&gt;offsets[2]);
++       
++       privBuf.pixel[0] = (uint8_t *) (xv_image-&gt;data + xv_image-&gt;offsets[0]);
++       if (format == FOURCC_YV12) {
++               privBuf.pixel[1] = (uint8_t *) (xv_image-&gt;data + xv_image-&gt;offsets[2]);
++               privBuf.pixel[2] = (uint8_t *) (xv_image-&gt;data + xv_image-&gt;offsets[1]);
++       } else {
++               privBuf.pixel[2] = (uint8_t *) (xv_image-&gt;data + xv_image-&gt;offsets[2]);
++               privBuf.pixel[1] = (uint8_t *) (xv_image-&gt;data + xv_image-&gt;offsets[1]);
++       };
++       privBuf.stride[0] = xv_image-&gt;pitches[0];
++       privBuf.stride[1] = xv_image-&gt;pitches[2];
++       privBuf.stride[2] = xv_image-&gt;pitches[1];
++ 
++       privBuf.format = PIX_FMT_YUV420P;
+        break;
+      case FOURCC_YUY2:
+        pixels[0] = (uint8_t *) (xv_image-&gt;data + xv_image-&gt;offsets[0]);
++         
++       privBuf.pixel[0] = (uint8_t *) (xv_image-&gt;data + xv_image-&gt;offsets[0]);
++       privBuf.pixel[1] = NULL;
++       privBuf.pixel[2] = NULL;
++ 
++       privBuf.stride[0] = xv_image-&gt;pitches[0];
++       privBuf.stride[1] = 0;
++       privBuf.stride[2] = 0;
++       
++       privBuf.format = PIX_FMT_YUV422;
+        break;
+      default:
+***************
+*** 1207,1214 ****
+    }
+  
+    this-&gt;format = format;
+  
+    ClearXvArea (0, 128, 128);
+!   rc = PutXvImage();
+    rc = XClearArea (dpy, win, 0, 0, 0, 0, True);
+    rc = XSync(dpy, False);
+--- 1253,1264 ----
+    }
+  
++   privBuf.max_height=xvHeight;
++   privBuf.max_width=xvWidth;
++   privBuf.owner=this;
++ 
+    this-&gt;format = format;
+  
+    ClearXvArea (0, 128, 128);
+!   rc = PutXvImage(xv_image,privBuf.edge_width,privBuf.edge_height);
+    rc = XClearArea (dpy, win, 0, 0, 0, 0, True);
+    rc = XSync(dpy, False);
+***************
+*** 1217,1222 ****
+    {
+      got_error=0;retry++;
+!     xvWidth=XV_SRC_WIDTH;
+!     xvHeight = XV_SRC_HEIGHT;
+      if (retry&lt;2) {
+              fprintf(stderr,&quot;Error initializing Xv. Retry.\n&quot;);
+--- 1267,1272 ----
+    {
+      got_error=0;retry++;
+!     xv_max_width=xvWidth=XV_SRC_WIDTH;
+!     xv_max_height=xvHeight = XV_SRC_HEIGHT;
+      if (retry&lt;2) {
+              fprintf(stderr,&quot;Error initializing Xv. Retry.\n&quot;);
+***************
+*** 1239,1242 ****
+--- 1289,1324 ----
+  }
+  
++ void cXvVideoOut::DeInitXv() {
++   printf(&quot;DeinitXv\n&quot;);fflush(stdout);
++   pthread_mutex_lock(&amp;xv_mutex);
++ 
++   XvStopVideo(dpy, port, win);
++   XvUngrabPort(dpy, port, CurrentTime);
++ 
++ 
++   if (xv_image-&gt;data) {
++     if(useShm &amp;&amp; shminfo.shmaddr)
++     {
++       shmdt(shminfo.shmaddr);
++       shminfo.shmaddr = NULL;
++       XShmDetach(dpy, &amp;shminfo);
++     }
++     if (!useShm) {
++       free(xv_image-&gt;data);
++     };
++     xv_image-&gt;data = NULL;
++   };
++   XSync(dpy, False);
++   pthread_mutex_unlock(&amp;xv_mutex);
++ 
++   if (xv_image)
++   {
++     free(xv_image);
++     xv_image = NULL;
++   }
++ 
++   xv_initialized = 0;
++ };
++ 
+  /* ---------------------------------------------------------------------------
+   */
+***************
+*** 1339,1351 ****
+  };
+  
+  /*----------------------------------------------------------------------------
+   */
+  
+! int cXvVideoOut::PutXvImage() {
+    if (useShm)
+      return XvShmPutImage(dpy, port,
+                       win, gc,
+                       xv_image,
+!                      sxoff, syoff,      /* sx, sy */
+                       swidth, sheight,   /* sw, sh */
+                       lxoff,  lyoff,     /* dx, dy */
+--- 1421,1521 ----
+  };
+  
++ /*-------------------------------------------------------------------------*/
++ 
++ void cXvVideoOut::DestroyXvImage(Display *dpy,XvPortID port,
++                   XvImage *&amp;xv_image,
++                   XShmSegmentInfo &amp;shminfo ) {
++   if (!xv_image)
++           return;
++   
++   if (xv_image-&gt;data) {
++     if(useShm &amp;&amp; shminfo.shmaddr)
++     {
++       shmdt(shminfo.shmaddr);
++       shminfo.shmaddr = NULL;
++       XShmDetach(dpy, &amp;shminfo);
++       shminfo.shmid = -1;
++     }
++     if (!useShm) {
++       free(xv_image-&gt;data);
++     };
++     xv_image-&gt;data = NULL;
++   };
++ 
++   free(xv_image);
++   xv_image=NULL;
++ };
++ 
++ /* ---------------------------------------------------------------------------
++  */
++ bool cXvVideoOut::AllocPicBuffer(int buf_num,PixelFormat pix_fmt,
++                     int w, int h) {
++ 
++   if ( pix_fmt != PIX_FMT_YUV420P || format != FOURCC_YV12 ||
++        !xv_initialized 
++ #ifdef NO_DIRECT_RENDERING
++        || 1
++ #endif
++        ) {
++     // no direct rendering 
++     return cVideoOut::AllocPicBuffer(buf_num,pix_fmt,w,h);
++   };
++ 
++   pthread_mutex_lock(&amp;xv_mutex);
++   CreateXvImage(dpy,port,dr_image[buf_num],dr_shminfo[buf_num],
++       format,w, h);
++   XSync(dpy, False);
++   pthread_mutex_unlock(&amp;xv_mutex);
++ 
++   XvImage *image=dr_image[buf_num];
++   
++   sPicBuffer *buf=&amp;PicBuffer[buf_num];
++ 
++   buf-&gt;pixel[0] = (uint8_t *) (image-&gt;data + image-&gt;offsets[0]);
++   buf-&gt;pixel[1] = (uint8_t *) (image-&gt;data + image-&gt;offsets[2]);
++   buf-&gt;pixel[2] = (uint8_t *) (image-&gt;data + image-&gt;offsets[1]);
++   
++   buf-&gt;stride[0] = image-&gt;pitches[0];
++   buf-&gt;stride[1] = image-&gt;pitches[2];
++   buf-&gt;stride[2] = image-&gt;pitches[1];
++ 
++   buf-&gt;max_height=h;
++   buf-&gt;max_width=w;
++   buf-&gt;format=pix_fmt;
++   return true;
++ };
++ 
++ void cXvVideoOut::ReleasePicBuffer(int buf_num) {
++ 
++   if ( !dr_image[buf_num] ) {
++     // no direct rendering
++     cVideoOut::ReleasePicBuffer(buf_num);
++     return;
++   };
++   
++   pthread_mutex_lock(&amp;xv_mutex);
++   DestroyXvImage(dpy, port, dr_image[buf_num], dr_shminfo[buf_num] ); 
++   pthread_mutex_unlock(&amp;xv_mutex);
++   
++   sPicBuffer *buf=&amp;PicBuffer[buf_num];
++ 
++   for (int i=0; i&lt;4; i++) {
++     buf-&gt;pixel[i]=NULL;
++   };
++   buf-&gt;max_height=0;
++   buf-&gt;max_width=0;
++   buf-&gt;format=PIX_FMT_NB;
++ };
++ 
+  /*----------------------------------------------------------------------------
+   */
+  
+! int cXvVideoOut::PutXvImage(XvImage *xv_image, 
+!                             int edge_width, int edge_height) {
+    if (useShm)
+      return XvShmPutImage(dpy, port,
+                       win, gc,
+                       xv_image,
+!                      sxoff+edge_width, syoff+edge_height,      /* sx, sy */
+                       swidth, sheight,   /* sw, sh */
+                       lxoff,  lyoff,     /* dx, dy */
+***************
+*** 1356,1360 ****
+                       win, gc,
+                       xv_image,
+!                      sxoff, syoff,      /* sx, sy */
+                       swidth, sheight,   /* sw, sh */
+                       lxoff,  lyoff,     /* dx, dy */
+--- 1526,1530 ----
+                       win, gc,
+                       xv_image,
+!                      sxoff+edge_width, syoff+edge_height,      /* sx, sy */
+                       swidth, sheight,   /* sw, sh */
+                       lxoff,  lyoff,     /* dx, dy */
+***************
+*** 1376,1406 ****
+      return;
+  
+!   pthread_mutex_lock(&amp;xv_mutex);
+! 
+!   XvStopVideo(dpy, port, win);
+!   XvUngrabPort(dpy, port, CurrentTime);
+! 
+! 
+!   if (xv_image-&gt;data) {
+!     if(useShm &amp;&amp; shminfo.shmaddr)
+!     {
+!       shmdt(shminfo.shmaddr);
+!       shminfo.shmaddr = NULL;
+!       XShmDetach(dpy, &amp;shminfo);
+!     }
+!     if (!useShm) {
+!       free(xv_image-&gt;data);
+!     };
+!     xv_image-&gt;data = NULL;
+!   };
+!   pthread_mutex_unlock(&amp;xv_mutex);
+! 
+!   if (xv_image)
+!   {
+!     free(xv_image);
+!     xv_image = NULL;
+!   }
+! 
+!   xv_initialized = 0;
+  }
+  
+--- 1546,1550 ----
+      return;
+  
+!   DeInitXv();
+  }
+  
+***************
+*** 1409,1413 ****
+  bool cXvVideoOut::Resume(void)
+  {
+!   return Reconfigure(format);
+  }
+  
+--- 1553,1557 ----
+  bool cXvVideoOut::Resume(void)
+  {
+!   return Reconfigure(currentPixelFormat);
+  }
+  
+***************
+*** 1618,1621 ****
+--- 1762,1776 ----
+  void cXvVideoOut::YUV(sPicBuffer *buf)
+  {
++   if ( (xvWidth != buf-&gt;max_width &amp;&amp; xv_max_width &gt;= buf-&gt;max_width) ||
++        (xvHeight != buf-&gt;max_height &amp;&amp; xv_max_height &gt;= buf-&gt;max_height) ||
++        currentPixelFormat != setupStore-&gt;pixelFormat) {
++   
++           if (xv_initialized)
++                   DeInitXv();
++           if ( !Reconfigure(setupStore-&gt;pixelFormat,
++                                   buf-&gt;max_width,buf-&gt;max_height) )
++                   return;
++   };
++ 
+    if (!videoInitialized || !xv_initialized)
+      return;
+***************
+*** 1637,1640 ****
+--- 1792,1811 ----
+      ClearXvArea (0, 128, 128);
+    }
++ 
++   if ( 0 &amp;&amp; buf-&gt;owner == this ) {
++     int buf_num=0;
++     while ( &amp;PicBuffer[buf_num]!= buf &amp;&amp; buf_num&lt;LAST_PICBUF)
++       buf_num++;
++ 
++     if ( buf_num&lt;LAST_PICBUF &amp;&amp; 
++         !(OSDpresent&amp;&amp; current_osdMode==OSDMODE_SOFTWARE) ) {
++       PutXvImage(dr_image[buf_num],buf-&gt;edge_width,buf-&gt;edge_height);
++       XSync(dpy, False);
++       pthread_mutex_unlock(&amp;xv_mutex);
++       return;
++     };
++   };
++ 
++   
+    uint8_t *Py=buf-&gt;pixel[0]
+                  +(buf-&gt;edge_height)*buf-&gt;stride[0]
+***************
+*** 1660,1734 ****
+    // if (0) {
+    if (OSDpresent &amp;&amp; current_osdMode==OSDMODE_SOFTWARE) {
+!         for (int i = cutTop * 2; i &lt; fheight - cutBottom * 2; i++)
+!         {
+!           AlphaBlend(pixels[0]+i*xvWidth+2*cutLeft,
+!                      OsdPy+i*OSD_FULL_WIDTH+2*cutLeft,
+!                      Py + i * Ystride+2*cutLeft,
+!                      OsdPAlphaY+i*OSD_FULL_WIDTH+2*cutLeft,
+!                      fwidth-2*(cutLeft+cutRight));
+!         }
+! 
+!         for (int i = cutTop; i &lt; fheight / 2 - cutBottom; i++)
+!         {
+!           AlphaBlend(pixels[1]+i*xvWidth/2+cutLeft,
+!                      OsdPv+i*OSD_FULL_WIDTH/2+cutLeft,
+!                      Pv+ i * UVstride+cutLeft,
+!                      OsdPAlphaUV+i*OSD_FULL_WIDTH/2+cutLeft,
+!                      fwidth/2-(cutLeft+cutRight));
+!         }
+! 
+!         for (int i = cutTop; i &lt; fheight / 2 - cutBottom; i++)
+!         {
+!           AlphaBlend(pixels[2]+i*xvWidth/2+cutLeft,
+!                      OsdPu+i*OSD_FULL_WIDTH/2+cutLeft,
+!                      Pu+i*UVstride+cutLeft,
+!                      OsdPAlphaUV+i*OSD_FULL_WIDTH/2+cutLeft,
+!                      fwidth/2-(cutLeft+cutRight));
+!         }
+! 
+    }
+      else
+  #endif
+      {
+! 
+!       switch (format) {
+!         case FOURCC_YV12:
+!         case FOURCC_I420:
+!           for (int i = cutTop * 2; i &lt; fheight - cutBottom * 2; i++)
+!              fast_memcpy(pixels [0] + i * xvWidth + 2 * cutLeft,
+!                          Py + i * Ystride + 2 * cutLeft,
+!                          fwidth - 2 * (cutLeft + cutRight));
+!           for (int i = cutTop; i &lt; fheight / 2 - cutBottom; i++)
+!              fast_memcpy (pixels [1] + i * xvWidth / 2 + cutLeft,
+!                           Pv + i * UVstride + cutLeft,
+!                           fwidth / 2 - (cutLeft + cutRight));
+!           for (int i = cutTop; i &lt; fheight / 2 - cutBottom; i++)
+!              fast_memcpy (pixels [2] + i * xvWidth / 2 + cutLeft,
+!                           Pu + i * UVstride + cutLeft,
+!                           fwidth / 2 - (cutLeft + cutRight));
+!           break;
+!         case FOURCC_YUY2:
+!       if (interlaceMode) {
+!           yv12_to_yuy2_il_mmx2(Py + Ystride  * cutTop * 2 + cutLeft * 2,
+!                                Pu + UVstride * cutTop + cutLeft,
+!                                Pv + UVstride * cutTop + cutLeft,
+!                                pixels[0] + 2*xvWidth * cutTop * 2 + cutLeft * 4,
+!                                Width - 2 * (cutLeft + cutRight),
+!                                Height - 2 * (cutTop + cutBottom),
+!                                Ystride, UVstride, 2*xvWidth);
+!       } else {
+!           yv12_to_yuy2_fr_mmx2(Py + Ystride  * cutTop * 2 + cutLeft * 2,
+!                                Pu + UVstride * cutTop + cutLeft,
+!                                Pv + UVstride * cutTop + cutLeft,
+!                                pixels[0] + 2*xvWidth * cutTop * 2 + cutLeft * 4,
+!                                Width - 2 * (cutLeft + cutRight),
+!                                Height - 2 * (cutTop + cutBottom),
+!                                Ystride, UVstride, 2*xvWidth);
+!       }
+!           break;
+!       }
+      }
+    }
+!   PutXvImage();
+    XSync(dpy, False);
+    pthread_mutex_unlock(&amp;xv_mutex);
+--- 1831,1846 ----
+    // if (0) {
+    if (OSDpresent &amp;&amp; current_osdMode==OSDMODE_SOFTWARE) {
+!         CopyPicBufAlphaBlend(&amp;privBuf,buf,
+!                         OsdPy,OsdPu,OsdPv,
+!                         OsdPAlphaY,OsdPAlphaUV,OSD_FULL_WIDTH,
+!                         cutTop,cutBottom,cutLeft,cutRight);
+    }
+      else
+  #endif
+      {
+!        CopyPicBuf(&amp;privBuf,buf,cutTop,cutBottom,cutLeft,cutRight);
+      }
+    }
+!   PutXvImage(xv_image,privBuf.edge_width,privBuf.edge_height);
+    XSync(dpy, False);
+    pthread_mutex_unlock(&amp;xv_mutex);
+
+Index: video-xv.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-xv.h,v
+retrieving revision 1.22
+retrieving revision 1.23
+diff -C2 -d -r1.22 -r1.23
+*** video-xv.h	25 Jul 2006 19:58:12 -0000	1.22
+--- video-xv.h	27 Aug 2006 13:02:50 -0000	1.23
+***************
+*** 144,147 ****
+--- 144,153 ----
+    XImage            *osd_image;
+    int               osd_max_width,osd_max_height;
++   int               xv_max_width,xv_max_height;
++   sPicBuffer        privBuf;
++ 
++   XvImage           *dr_image[LAST_PICBUF];
++   XShmSegmentInfo   dr_shminfo[LAST_PICBUF];
++ 
+  private:
+    unsigned char     *osd_buffer,
+***************
+*** 167,170 ****
+--- 173,180 ----
+    virtual void ProcessEvents ();
+    void ShowOSD ();
++  
++   virtual void ReleasePicBuffer(int buf_num);
++   virtual bool AllocPicBuffer(int buf_num,PixelFormat pix_fmt,
++                         int w, int h);
+  
+  #if VDRVERSNUM &gt;= 10307
+***************
+*** 184,191 ****
+    virtual void CloseOSD();
+    virtual bool Initialize (void);
+!   virtual bool Reconfigure (int format = FOURCC_YUY2);
+    void CreateXvImage(Display *dpy,XvPortID port,XvImage *&amp;xv_image,
+                    XShmSegmentInfo &amp;shminfo,int format, int &amp;width, int &amp;height);
+!   int PutXvImage();
+    virtual void YUV(sPicBuffer *buf);
+    virtual void Pause(void);
+--- 194,206 ----
+    virtual void CloseOSD();
+    virtual bool Initialize (void);
+!   virtual bool Reconfigure (int format = 0, 
+!                   int width = XV_SRC_WIDTH, int height = XV_SRC_HEIGHT);
+!   void DeInitXv();
+    void CreateXvImage(Display *dpy,XvPortID port,XvImage *&amp;xv_image,
+                    XShmSegmentInfo &amp;shminfo,int format, int &amp;width, int &amp;height);
+!   void DestroyXvImage(Display *dpy,XvPortID port,
+!                   XvImage *&amp;xv_image,
+!                   XShmSegmentInfo &amp;shminfo ); 
+!   int PutXvImage(XvImage *xv_image, int edge_width=0, int edge_height=0);
+    virtual void YUV(sPicBuffer *buf);
+    virtual void Pause(void);
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.60
+retrieving revision 1.61
+diff -C2 -d -r1.60 -r1.61
+*** video.c	12 Jul 2006 18:40:16 -0000	1.60
+--- video.c	27 Aug 2006 13:02:50 -0000	1.61
+***************
+*** 19,23 ****
+  #include &quot;sync-timer.h&quot;
+  
+! //#define OSDDEB(out...) {printf(&quot;vout_osd[%04d]:&quot;,(int)(getTimeMilis() % 10000));printf(out);}
+  
+  #ifndef OSDDEB
+--- 19,23 ----
+  #include &quot;sync-timer.h&quot;
+  
+! #define OSDDEB(out...) {printf(&quot;vout_osd[%04d]:&quot;,(int)(getTimeMilis() % 10000));printf(out);}
+  
+  #ifndef OSDDEB
+***************
+*** 59,63 ****
+    //start osd thread
+    active=true;
+!   Start();
+  }
+  
+--- 59,63 ----
+    //start osd thread
+    active=true;
+!   //Start();
+  }
+  
+***************
+*** 112,116 ****
+        if (old_picture)
+        {
+!         OSDDEB(&quot;redrawing old_picture\n&quot;);
+          DrawStill_420pl(old_picture);
+        }
+--- 112,116 ----
+        if (old_picture)
+        {
+!         OSDDEB(&quot;redrawing old_picture osd_changed %d\n&quot;,Osd_changed);
+          DrawStill_420pl(old_picture);
+        }
+***************
+*** 130,134 ****
+          tmpBuf.aspect_ratio=((float)OSD_FULL_WIDTH)/((float)OSD_FULL_HEIGHT);
+          tmpBuf.dtg_active_format=0;
+!         OSDDEB(&quot;drawing osd_layer\n&quot;);
+          DrawStill_420pl(&amp;tmpBuf);
+        }
+--- 130,134 ----
+          tmpBuf.aspect_ratio=((float)OSD_FULL_WIDTH)/((float)OSD_FULL_HEIGHT);
+          tmpBuf.dtg_active_format=0;
+!         OSDDEB(&quot;drawing osd_layer osd_changed %d\n&quot;,Osd_changed);
+          DrawStill_420pl(&amp;tmpBuf);
+        }
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.40
+retrieving revision 1.41
+diff -C2 -d -r1.40 -r1.41
+*** video.h	27 May 2006 19:12:41 -0000	1.40
+--- video.h	27 Aug 2006 13:02:50 -0000	1.41
+***************
+*** 32,35 ****
+--- 32,38 ----
+  #define OSD_FULL_HEIGHT   576
+  
++ #define SRC_HEIGHT         576
++ #define SRC_WIDTH          736
++ 
+  #if VDRVERSNUM &lt; 10307
+  
+***************
+*** 144,148 ****
+      virtual void DrawStill_420pl(sPicBuffer *buf);
+      virtual bool Initialize(void) {videoInitialized = true; return 1;};
+!     virtual bool Reconfigure (int format) {return 1;};
+  
+      virtual void Suspend(void) { return;};
+--- 147,153 ----
+      virtual void DrawStill_420pl(sPicBuffer *buf);
+      virtual bool Initialize(void) {videoInitialized = true; return 1;};
+!     virtual bool Reconfigure (int format = 0,
+!                     int width = SRC_WIDTH, int height = SRC_HEIGHT)
+!     {return 1;};
+  
+      virtual void Suspend(void) { return;};
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000407.html">[Softdevice-cvs] softdevice CHANGELOG, 1.218, 1.219 configure, 1.23,	1.24
+</A></li>
+	<LI>Next message: <A HREF="000409.html">[Softdevice-cvs] softdevice CHANGELOG,1.219,1.220
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#408">[ date ]</a>
+              <a href="thread.html#408">[ thread ]</a>
+              <a href="subject.html#408">[ subject ]</a>
+              <a href="author.html#408">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

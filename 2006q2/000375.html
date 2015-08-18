@@ -1,0 +1,214 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.194,1.195 utils.c,1.14,1.15 utils.h,1.8,1.9
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.194%2C1.195%20utils.c%2C1.14%2C1.15%20utils.h%2C1.8%2C1.9&In-Reply-To=%3C200606062055.k56KtLb22865%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000374.html">
+   <LINK REL="Next"  HREF="000376.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.194,1.195 utils.c,1.14,1.15 utils.h,1.8,1.9</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.194%2C1.195%20utils.c%2C1.14%2C1.15%20utils.h%2C1.8%2C1.9&In-Reply-To=%3C200606062055.k56KtLb22865%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.194,1.195 utils.c,1.14,1.15 utils.h,1.8,1.9">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue Jun  6 22:55:21 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000374.html">[Softdevice-cvs] softdevice CHANGELOG,1.193,1.194 PicBuffer.c,1.3,1.4 VideoFilter.c,1.2,1.3
+</A></li>
+        <LI>Next message: <A HREF="000376.html">[Softdevice-cvs] softdevice video-dfb.c,1.62,1.63 video-xv.c,1.55,1.56 video-vidix.c,1.19,1.20
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#375">[ date ]</a>
+              <a href="thread.html#375">[ thread ]</a>
+              <a href="subject.html#375">[ subject ]</a>
+              <a href="author.html#375">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv32002
+
+Modified Files:
+	CHANGELOG utils.c utils.h 
+Log Message:
+mmx version of yv12_to_yuy2_il_c(): yv12_to_yuy2_il_mmx2(). not yet called.
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.194
+retrieving revision 1.195
+diff -C2 -d -r1.194 -r1.195
+*** CHANGELOG	30 May 2006 18:57:21 -0000	1.194
+--- CHANGELOG	6 Jun 2006 20:55:19 -0000	1.195
+***************
+*** 1,3 ****
+--- 1,5 ----
+  Changelog
++ 2006-06-06:
++    - mmx version of yv12_to_yuy2_il_c(): yv12_to_yuy2_il_mmx2(). not yet called.
+  2006-05-30:
+     - set pic-&gt;format in AllocPicBuffer()
+***************
+*** 5,9 ****
+  2006-05-29:
+     - fix PICDEB
+!    - fix a few stupid errors in VideoFilter.c, initialise more 
+       variables in PicFilter.c
+  2006-05-27:
+--- 7,11 ----
+  2006-05-29:
+     - fix PICDEB
+!    - fix a few stupid errors in VideoFilter.c, initialise more
+       variables in PicFilter.c
+  2006-05-27:
+
+Index: utils.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/utils.c,v
+retrieving revision 1.14
+retrieving revision 1.15
+diff -C2 -d -r1.14 -r1.15
+*** utils.c	23 May 2006 19:30:42 -0000	1.14
+--- utils.c	6 Jun 2006 20:55:19 -0000	1.15
+***************
+*** 98,101 ****
+--- 98,176 ----
+  
+  /* ---------------------------------------------------------------------------
++  * convert to lines luma and one line chroma
++  * lang: MMX2
++  */
++ static inline void
++ yv12_to_yuy2_il_mmx2_line (uint8_t *dest,
++                            const int destStride2,
++                            const int lumaStride2, const int chromaWidth,
++                            const uint8_t *yc, const uint8_t *uc, const uint8_t *vc)
++ {
++     int i;
++ 
++   for(i = 0; i &lt; chromaWidth/4; i++)
++   {
++     movq_m2r(*(yc              ), mm1);     // mm1 = y7 y6 y5 y4 y3 y2 y1 y0
++     movq_m2r(*(yc + lumaStride2), mm2);     // mm2 = y7 y6 y5 y4 y3 y2 y1 y0
++     movq_r2r(mm1,mm5);                      // mm5 = y7 y6 y5 y4 y3 y2 y1 y0
++     movd_m2r(*uc, mm3);                     // mm3 = 00 00 00 00 u3 u2 u1 u0
++     movq_r2r(mm2,mm6);                      // mm5 = y7 y6 y5 y4 y3 y2 y1 y0
++     movd_m2r(*vc, mm4);                     // mm3 = 00 00 00 00 v3 v2 v1 v0
++     punpcklbw_r2r(mm4, mm3);                // mm3 = v3 u3 v2 u2 v1 u1 v0 u0
++     punpcklbw_r2r(mm3, mm1);                // mm1 = V1 Y3 U1 Y2 V0 Y1 U0 Y0
++ 
++     movntq(mm1,*(dest + 0));
++     punpckhbw_r2r(mm3, mm5);                // mm5 = V3 Y7 U3 Y6 V2 Y5 U2 Y4
++     punpcklbw_r2r(mm3, mm2);                // mm2 = V1 Y3 U1 Y2 V0 Y1 U0 Y0
++     movntq(mm5,*(dest + 8));
++     punpckhbw_r2r(mm3, mm6);                // mm6 = V3 Y7 U3 Y6 V2 Y5 U2 Y4
++ 
++     movntq(mm2,*(dest + destStride2    ));
++     movntq(mm6,*(dest + destStride2 + 8));
++ 
++     yc += 8;
++     uc += 4;
++     vc += 4;
++     dest += 16;
++   }
++ }
++ 
++ /* ---------------------------------------------------------------------------
++  * chroma: field based
++  * lang: MMX2
++  */
++ void yv12_to_yuy2_il_mmx2(const uint8_t *py,
++                           const uint8_t *pu, const uint8_t *pv,
++                           uint8_t *dst, const int width, const int height,
++                           int lumStride, int chromStride, int dstStride)
++ {
++   for(int y=0; y&lt;height/4; y++)
++   {
++     /* -----------------------------------------------------------------------
++      * take chroma line x (it's from field A) for packing with
++      * luma lines y * 2 and y * 2 + 2
++      */
++     yv12_to_yuy2_il_mmx2_line (dst,
++                                dstStride * 2, lumStride * 2, width &gt;&gt; 1,
++                                py,
++                                pu, pv);
++     /* -----------------------------------------------------------------------
++      * take chroma line x+1 (it's from field B) for packing with
++      * luma lines y * 2 + 1 and y * 2 + 3
++      */
++     yv12_to_yuy2_il_mmx2_line (dst + dstStride,
++                                dstStride * 2, lumStride * 2, width &gt;&gt; 1,
++                                py + lumStride,
++                                pu + chromStride, pv + chromStride);
++     py  += 4*lumStride;
++     pu  += 2*chromStride;
++     pv  += 2*chromStride;
++     dst += 4*dstStride;
++   }
++   SFENCE;
++   EMMS;
++ }
++ 
++ /* ---------------------------------------------------------------------------
+   * chroma: frame based
+   * lang: C
+
+Index: utils.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/utils.h,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -C2 -d -r1.8 -r1.9
+*** utils.h	23 May 2006 19:30:42 -0000	1.8
+--- utils.h	6 Jun 2006 20:55:19 -0000	1.9
+***************
+*** 60,63 ****
+--- 60,71 ----
+                         int dstStride);
+  
++ void yv12_to_yuy2_il_mmx2(const uint8_t *py,
++                           const uint8_t *pu,
++                           const uint8_t *pv,
++                           uint8_t *dst,
++                           int width,int height,
++                           int lumStride,int chromStride,
++                           int dstStride);
++ 
+  void yv12_to_yuy2_fr_c(const uint8_t *py,
+                         const uint8_t *pu,
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000374.html">[Softdevice-cvs] softdevice CHANGELOG,1.193,1.194 PicBuffer.c,1.3,1.4 VideoFilter.c,1.2,1.3
+</A></li>
+	<LI>Next message: <A HREF="000376.html">[Softdevice-cvs] softdevice video-dfb.c,1.62,1.63 video-xv.c,1.55,1.56 video-vidix.c,1.19,1.20
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#375">[ date ]</a>
+              <a href="thread.html#375">[ thread ]</a>
+              <a href="subject.html#375">[ subject ]</a>
+              <a href="author.html#375">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

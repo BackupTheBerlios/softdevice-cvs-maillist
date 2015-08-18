@@ -1,0 +1,276 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice setup-softdevice-menu.c, 1.8,	1.9 setup-softdevice-menu.h, 1.1, 1.2 setup-softdevice.c, 1.48,	1.49 setup-softdevice.h, 1.36, 1.37 Makefile, 1.35, 1.36
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20setup-softdevice-menu.c%2C%201.8%2C%0A%091.9%20setup-softdevice-menu.h%2C%201.1%2C%201.2%20setup-softdevice.c%2C%201.48%2C%0A%091.49%20setup-softdevice.h%2C%201.36%2C%201.37%20Makefile%2C%201.35%2C%201.36&In-Reply-To=%3C20070210000343.42562DA6D3%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000505.html">
+   <LINK REL="Next"  HREF="000507.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice setup-softdevice-menu.c, 1.8,	1.9 setup-softdevice-menu.h, 1.1, 1.2 setup-softdevice.c, 1.48,	1.49 setup-softdevice.h, 1.36, 1.37 Makefile, 1.35, 1.36</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20setup-softdevice-menu.c%2C%201.8%2C%0A%091.9%20setup-softdevice-menu.h%2C%201.1%2C%201.2%20setup-softdevice.c%2C%201.48%2C%0A%091.49%20setup-softdevice.h%2C%201.36%2C%201.37%20Makefile%2C%201.35%2C%201.36&In-Reply-To=%3C20070210000343.42562DA6D3%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice setup-softdevice-menu.c, 1.8,	1.9 setup-softdevice-menu.h, 1.1, 1.2 setup-softdevice.c, 1.48,	1.49 setup-softdevice.h, 1.36, 1.37 Makefile, 1.35, 1.36">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Feb 10 01:03:43 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000505.html">[Softdevice-cvs] softdevice softdevice.c,1.77,1.78
+</A></li>
+        <LI>Next message: <A HREF="000507.html">[Softdevice-cvs] softdevice CHANGELOG, 1.292, 1.293 audio-alsa.c,	1.4, 1.5 audio-alsa.h, 1.2, 1.3
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#506">[ date ]</a>
+              <a href="thread.html#506">[ thread ]</a>
+              <a href="subject.html#506">[ subject ]</a>
+              <a href="author.html#506">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv25064
+
+Modified Files:
+	setup-softdevice-menu.c setup-softdevice-menu.h 
+	setup-softdevice.c setup-softdevice.h Makefile 
+Log Message:
+activate configurable logging
+
+Index: setup-softdevice-menu.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice-menu.c,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -C2 -d -r1.8 -r1.9
+*** setup-softdevice-menu.c	9 Sep 2006 10:35:37 -0000	1.8
+--- setup-softdevice-menu.c	10 Feb 2007 00:02:14 -0000	1.9
+***************
+*** 9,12 ****
+--- 9,13 ----
+  //#include &quot;video.h&quot;
+  #include &quot;setup-softdevice-menu.h&quot;
++ #include &quot;setup-softlog-menu.h&quot;
+  
+  /* ---------------------------------------------------------------------------
+***************
+*** 274,277 ****
+--- 275,279 ----
+    if (plugin)
+      SetPlugin(plugin);
++   this-&gt;plugin = plugin;
+  
+    copyData = setupStore;
+***************
+*** 286,289 ****
+--- 288,293 ----
+    }
+  
++   Add(new cOsdItem(tr(&quot;Logging&quot;)));
++ 
+  #if VDRVERSNUM &gt;= 10334
+    Add(new cOsdItem(&quot; &quot;, osUnknown, false));
+***************
+*** 408,411 ****
+--- 412,419 ----
+            {
+              return AddSubMenu (new cMenuSetupVideoParm(tr(&quot;Video out&quot;)));
++           }
++           else if (!strcmp(Get(Current())-&gt;Text(),tr(&quot;Logging&quot;)))
++           {
++             return AddSubMenu (new cMenuSetupSoftlog(plugin, tr(&quot;Logging&quot;)));
+            }
+            Store();
+
+Index: setup-softdevice-menu.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice-menu.h,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -C2 -d -r1.1 -r1.2
+*** setup-softdevice-menu.h	23 Apr 2006 19:55:53 -0000	1.1
+--- setup-softdevice-menu.h	10 Feb 2007 00:02:14 -0000	1.2
+***************
+*** 59,62 ****
+--- 59,63 ----
+    private:
+      cSetupStore *data, copyData;
++     cPlugin     *plugin;
+  
+    protected:
+
+Index: setup-softdevice.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.c,v
+retrieving revision 1.48
+retrieving revision 1.49
+diff -C2 -d -r1.48 -r1.49
+*** setup-softdevice.c	3 Dec 2006 18:26:21 -0000	1.48
+--- setup-softdevice.c	10 Feb 2007 00:02:14 -0000	1.49
+***************
+*** 75,89 ****
+  /* ----------------------------------------------------------------------------
+   */
+- static inline int clamp (int min, int val, int max)
+- {
+-   if (val &lt; min)
+-     return min;
+-   if (val &gt; max)
+-     return max;
+-   return val;
+- }
+- 
+- /* ----------------------------------------------------------------------------
+-  */
+  cSetupStore setupStore;
+  
+--- 75,78 ----
+***************
+*** 204,207 ****
+--- 193,198 ----
+    syncTimerNames[2] = &quot;sig&quot;;
+    syncTimerNames[3] = NULL;
++ 
++   softlog = new cSetupSoftlog();
+  }
+  
+***************
+*** 379,383 ****
+      fprintf(stderr, &quot;[setup-softdevice] vidSaturation: %d\n&quot;, vidSaturation);
+    }  else
+!     return false;
+  
+    return true;
+--- 370,374 ----
+      fprintf(stderr, &quot;[setup-softdevice] vidSaturation: %d\n&quot;, vidSaturation);
+    }  else
+!     return softlog-&gt;Parse (Name, Value);
+  
+    return true;
+
+Index: setup-softdevice.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/setup-softdevice.h,v
+retrieving revision 1.36
+retrieving revision 1.37
+diff -C2 -d -r1.36 -r1.37
+*** setup-softdevice.h	3 Dec 2006 18:26:21 -0000	1.36
+--- setup-softdevice.h	10 Feb 2007 00:02:14 -0000	1.37
+***************
+*** 19,22 ****
+--- 19,24 ----
+  #endif
+  
++ #include &quot;setup-softlog.h&quot;
++ 
+  #ifdef HAVE_CONFIG
+  # include &quot;config.h&quot;
+***************
+*** 173,180 ****
+--- 175,195 ----
+      char  *voArgs;
+      char  *aoArgs;
++ 
++     cSetupSoftlog *softlog;
+  };
+  
+  #define OSDMODE_PSEUDO    0
+  #define OSDMODE_SOFTWARE  1
++ 
++ /* ----------------------------------------------------------------------------
++  */
++ static inline int clamp (int min, int val, int max)
++ {
++   if (val &lt; min)
++     return min;
++   if (val &gt; max)
++     return max;
++   return val;
++ }
+  
+  extern cSetupStore setupStore;
+
+Index: Makefile
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/Makefile,v
+retrieving revision 1.35
+retrieving revision 1.36
+diff -C2 -d -r1.35 -r1.36
+*** Makefile	3 Dec 2006 20:38:18 -0000	1.35
+--- Makefile	10 Feb 2007 00:02:14 -0000	1.36
+***************
+*** 227,231 ****
+  TARGETS = libvdr-$(PLUGIN).so
+  LIBS = $(FFMPEGLIBS)
+! OBJS = $(PLUGIN).o utils.o i18n.o video.o mpeg2decoder.o audio.o video-dummy.o setup-softdevice.o setup-softdevice-menu.o sync-timer.o SoftOsd.o PicBuffer.o VideoFilter.o
+  ALL_OBJS = $(OBJS)
+  
+--- 227,235 ----
+  TARGETS = libvdr-$(PLUGIN).so
+  LIBS = $(FFMPEGLIBS)
+! OBJS = $(PLUGIN).o utils.o i18n.o video.o mpeg2decoder.o \
+! 				audio.o video-dummy.o \
+! 				setup-softdevice.o setup-softdevice-menu.o \
+! 				setup-softlog.o setup-softlog-menu.o\
+! 				sync-timer.o SoftOsd.o PicBuffer.o VideoFilter.o
+  ALL_OBJS = $(OBJS)
+  
+***************
+*** 238,242 ****
+    OBJS += audio-oss.o
+  endif
+!   
+  ifdef DFB_SUPPORT
+    ifdef USE_SUBPLUGINS
+--- 242,246 ----
+    OBJS += audio-oss.o
+  endif
+! 
+  ifdef DFB_SUPPORT
+    ifdef USE_SUBPLUGINS
+***************
+*** 364,368 ****
+  		      ../../../config.o ../../../plugin.o\
+  		      ../../../sources.o
+! SHM_CLIENT_OBJS  = video_shm.o video-xv_shm.o setup-softdevice_shm.o\
+  		   xscreensaver_shm.o utils_shm.o VdrReplacements_shm.o\
+  		   ShmClient_shm.o PicBuffer_shm.o
+--- 368,373 ----
+  		      ../../../config.o ../../../plugin.o\
+  		      ../../../sources.o
+! SHM_CLIENT_OBJS  = video_shm.o video-xv_shm.o \
+! 			 setup-softdevice_shm.o setup-softlog_shm.o \
+  		   xscreensaver_shm.o utils_shm.o VdrReplacements_shm.o\
+  		   ShmClient_shm.o PicBuffer_shm.o
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000505.html">[Softdevice-cvs] softdevice softdevice.c,1.77,1.78
+</A></li>
+	<LI>Next message: <A HREF="000507.html">[Softdevice-cvs] softdevice CHANGELOG, 1.292, 1.293 audio-alsa.c,	1.4, 1.5 audio-alsa.h, 1.2, 1.3
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#506">[ date ]</a>
+              <a href="thread.html#506">[ thread ]</a>
+              <a href="subject.html#506">[ subject ]</a>
+              <a href="author.html#506">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

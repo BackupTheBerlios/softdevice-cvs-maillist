@@ -1,0 +1,260 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.145,1.146 shm-common.h,1.2,1.3 video-shm.c,1.2,1.3 video-shm.h,1.2,1.3 ShmClient.c,1.2,1.3
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.145%2C1.146%20shm-common.h%2C1.2%2C1.3%20video-shm.c%2C1.2%2C1.3%20video-shm.h%2C1.2%2C1.3%20ShmClient.c%2C1.2%2C1.3&In-Reply-To=%3C200602041025.k14APfx06846%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000278.html">
+   <LINK REL="Next"  HREF="000280.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.145,1.146 shm-common.h,1.2,1.3 video-shm.c,1.2,1.3 video-shm.h,1.2,1.3 ShmClient.c,1.2,1.3</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.145%2C1.146%20shm-common.h%2C1.2%2C1.3%20video-shm.c%2C1.2%2C1.3%20video-shm.h%2C1.2%2C1.3%20ShmClient.c%2C1.2%2C1.3&In-Reply-To=%3C200602041025.k14APfx06846%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.145,1.146 shm-common.h,1.2,1.3 video-shm.c,1.2,1.3 video-shm.h,1.2,1.3 ShmClient.c,1.2,1.3">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Feb  4 11:25:41 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000278.html">[Softdevice-cvs] softdevice CHANGELOG,1.144,1.145 SoftOsd.c,1.5,1.6 SoftOsd.h,1.3,1.4
+</A></li>
+        <LI>Next message: <A HREF="000280.html">[Softdevice-cvs] softdevice CHANGELOG,1.146,1.147 ShmClient.c,1.3,1.4 video-shm.c,1.3,1.4 README,1.12,1.13
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#279">[ date ]</a>
+              <a href="thread.html#279">[ thread ]</a>
+              <a href="subject.html#279">[ subject ]</a>
+              <a href="author.html#279">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv27769
+
+Modified Files:
+	CHANGELOG shm-common.h video-shm.c video-shm.h ShmClient.c 
+Log Message:
+   - compile fix for video-shm.h
+   - some fixes in the osd handling of video-shm
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.145
+retrieving revision 1.146
+diff -C2 -d -r1.145 -r1.146
+*** CHANGELOG	4 Feb 2006 10:05:09 -0000	1.145
+--- CHANGELOG	4 Feb 2006 10:25:39 -0000	1.146
+***************
+*** 1,4 ****
+--- 1,6 ----
+  Changelog
+  2006-03-03:
++    - compile fix for video-shm.h
++    - some fixes in the osd handling of video-shm
+     - added NoVScaleCopyToBitmap() vor YUV mode
+     - fix thread termination in cSoftOsd
+
+Index: shm-common.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/shm-common.h,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** shm-common.h	3 Feb 2006 22:34:54 -0000	1.2
+--- shm-common.h	4 Feb 2006 10:25:39 -0000	1.3
+***************
+*** 59,62 ****
+--- 59,64 ----
+          int osd_width;
+          int osd_height;
++         int osd_max_width;
++         int osd_max_height;
+          int osd_depth;
+          int osd_stride;
+
+Index: video-shm.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-shm.c,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** video-shm.c	3 Feb 2006 22:34:54 -0000	1.2
+--- video-shm.c	4 Feb 2006 10:25:39 -0000	1.3
+***************
+*** 83,86 ****
+--- 83,87 ----
+                  ctl-&gt;semid=-1;
+                  ctl-&gt;pict_shmid=-1;
++                 ctl-&gt;osd_shmid=-1;
+                  ctl-&gt;attached = 0;
+          };
+***************
+*** 151,156 ****
+     //switch (current_osdMode) {
+        case OSDMODE_PSEUDO :
+!                 OsdWidth=ctl-&gt;osd_width;
+!                 OsdHeight=ctl-&gt;osd_height;
+               break;
+        case OSDMODE_SOFTWARE:
+--- 152,159 ----
+     //switch (current_osdMode) {
+        case OSDMODE_PSEUDO :
+!                 OsdWidth=ctl-&gt;osd_width&gt;ctl-&gt;osd_max_width?
+!                         ctl-&gt;osd_max_width:ctl-&gt;osd_width;
+!                 OsdHeight=ctl-&gt;osd_height&gt;ctl-&gt;osd_max_height?
+!                         ctl-&gt;osd_max_height:ctl-&gt;osd_height;
+               break;
+        case OSDMODE_SOFTWARE:
+***************
+*** 177,180 ****
+--- 180,184 ----
+  void cShmVideoOut::GetLockOsdSurface(uint8_t *&amp;osd, int &amp;stride,
+                    bool *&amp;dirtyLines) {
++ 	SHMDEB(&quot;GetLockOsdSurface osd_surface %p\n&quot;,osd_surface);
+          if ( ctl-&gt;osd_shmid != curr_osd_shmid ) {
+                  if (osd_surface) {
+***************
+*** 185,192 ****
+--- 189,198 ----
+                  
+                  if ( ctl-&gt;osd_shmid != -1 ) {
++                        SHMDEB(&quot;get new osd_surface %p\n&quot;,osd_surface);
+                         if ( (osd_surface = (uint8_t *)shmat(ctl-&gt;osd_shmid,NULL,0)) 
+                                         == (uint8_t*) -1 ) {
+                                 fprintf(stderr,&quot;error attatching osd pict(%d)! Assuming no client connected\n&quot;,
+                                                 ctl-&gt;osd_shmid);
++                                ctl-&gt;pict_shmid = -1;
+                                 ctl-&gt;osd_shmid = -1;
+                                 ctl-&gt;attached = 0;
+***************
+*** 194,202 ****
+                                 osd=NULL;
+                                 return;
+!                        } 
+                  };
+          };
+  
+-         
+          osd=osd_surface;
+          stride=ctl-&gt;osd_stride;
+--- 200,209 ----
+                                 osd=NULL;
+                                 return;
+!                        }
+!                        curr_osd_shmid=ctl-&gt;osd_shmid;
+                  };
++ 	        SHMDEB(&quot;got new osd_surface %p\n&quot;,osd_surface);
+          };
+  
+          osd=osd_surface;
+          stride=ctl-&gt;osd_stride;
+***************
+*** 206,209 ****
+--- 213,217 ----
+  void cShmVideoOut::ClearOSD()
+  {
++   SHMDEB(&quot;ClearOsd\n&quot;);
+    cVideoOut::ClearOSD();
+    if ( ctl-&gt;osd_shmid != curr_osd_shmid ) {
+***************
+*** 226,235 ****
+    };
+    if (osd_surface)
+!           memset (osd_surface, 0, ctl-&gt;osd_stride *ctl-&gt;osd_height);
+    ctl-&gt;new_osd++;
+!         sem_sig_unlock(ctl-&gt;semid,PICT_SIG);
+  };
+  
+  void cShmVideoOut::CommitUnlockOsdSurface() {
+          ctl-&gt;new_osd++;        
+          sem_sig_unlock(ctl-&gt;semid,PICT_SIG);
+--- 234,244 ----
+    };
+    if (osd_surface)
+!           memset (osd_surface, 0, ctl-&gt;osd_stride *ctl-&gt;osd_max_height);
+    ctl-&gt;new_osd++;
+!   sem_sig_unlock(ctl-&gt;semid,PICT_SIG);
+  };
+  
+  void cShmVideoOut::CommitUnlockOsdSurface() {
++         SHMDEB(&quot;CommitOsd\n&quot;);
+          ctl-&gt;new_osd++;        
+          sem_sig_unlock(ctl-&gt;semid,PICT_SIG);
+
+Index: video-shm.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-shm.h,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** video-shm.h	3 Feb 2006 22:34:54 -0000	1.2
+--- video-shm.h	4 Feb 2006 10:25:39 -0000	1.3
+***************
+*** 23,26 ****
+--- 23,28 ----
+  #include &lt;vdr/remote.h&gt;
+  
++ class cShmRemote;
++ 
+  /*-------------------------------------------------------------------------*/
+  class cShmVideoOut : public cVideoOut {
+
+Index: ShmClient.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/ShmClient.c,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -C2 -d -r1.2 -r1.3
+*** ShmClient.c	3 Feb 2006 22:34:54 -0000	1.2
+--- ShmClient.c	4 Feb 2006 10:25:39 -0000	1.3
+***************
+*** 126,129 ****
+--- 126,131 ----
+          ctl-&gt;osd_stride=vout-&gt;osd_image-&gt;bytes_per_line;
+          ctl-&gt;osd_depth=vout-&gt;osd_image-&gt;bits_per_pixel;
++         ctl-&gt;osd_max_width=vout-&gt;osd_max_width;
++         ctl-&gt;osd_max_height=vout-&gt;osd_max_height;
+          vout-&gt;GetOSDDimension(ctl-&gt;osd_width,ctl-&gt;osd_height);
+          printf(&quot;osd_shmid %d stride %d\n&quot;,ctl-&gt;osd_shmid,ctl-&gt;osd_stride);
+***************
+*** 154,157 ****
+--- 156,160 ----
+                  };
+                  if (ctl-&gt;new_osd) {
++                         SHMDEB(&quot;new osd picture\n&quot;);
+                          vout-&gt;CommitUnlockOsdSurface();
+                          ctl-&gt;new_osd=0;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000278.html">[Softdevice-cvs] softdevice CHANGELOG,1.144,1.145 SoftOsd.c,1.5,1.6 SoftOsd.h,1.3,1.4
+</A></li>
+	<LI>Next message: <A HREF="000280.html">[Softdevice-cvs] softdevice CHANGELOG,1.146,1.147 ShmClient.c,1.3,1.4 video-shm.c,1.3,1.4 README,1.12,1.13
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#279">[ date ]</a>
+              <a href="thread.html#279">[ thread ]</a>
+              <a href="subject.html#279">[ subject ]</a>
+              <a href="author.html#279">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

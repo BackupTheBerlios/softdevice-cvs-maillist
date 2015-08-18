@@ -1,0 +1,330 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice mpeg2decoder.c, 1.87,	1.88 mpeg2decoder.h, 1.46, 1.47 PicBuffer.h, 1.10,	1.11 utils.c, 1.28, 1.29 utils.h, 1.19, 1.20 video.c, 1.78,	1.79 video.h, 1.57, 1.58 video-vidix.c, 1.27, 1.28
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2009q1/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20mpeg2decoder.c%2C%201.87%2C%0A%091.88%20mpeg2decoder.h%2C%201.46%2C%201.47%20PicBuffer.h%2C%201.10%2C%0A%091.11%20utils.c%2C%201.28%2C%201.29%20utils.h%2C%201.19%2C%201.20%20video.c%2C%201.78%2C%0A%091.79%20video.h%2C%201.57%2C%201.58%20video-vidix.c%2C%201.27%2C%201.28&In-Reply-To=%3C20090227170237.9D727D6F1%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000643.html">
+   <LINK REL="Next"  HREF="000645.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice mpeg2decoder.c, 1.87,	1.88 mpeg2decoder.h, 1.46, 1.47 PicBuffer.h, 1.10,	1.11 utils.c, 1.28, 1.29 utils.h, 1.19, 1.20 video.c, 1.78,	1.79 video.h, 1.57, 1.58 video-vidix.c, 1.27, 1.28</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20mpeg2decoder.c%2C%201.87%2C%0A%091.88%20mpeg2decoder.h%2C%201.46%2C%201.47%20PicBuffer.h%2C%201.10%2C%0A%091.11%20utils.c%2C%201.28%2C%201.29%20utils.h%2C%201.19%2C%201.20%20video.c%2C%201.78%2C%0A%091.79%20video.h%2C%201.57%2C%201.58%20video-vidix.c%2C%201.27%2C%201.28&In-Reply-To=%3C20090227170237.9D727D6F1%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice mpeg2decoder.c, 1.87,	1.88 mpeg2decoder.h, 1.46, 1.47 PicBuffer.h, 1.10,	1.11 utils.c, 1.28, 1.29 utils.h, 1.19, 1.20 video.c, 1.78,	1.79 video.h, 1.57, 1.58 video-vidix.c, 1.27, 1.28">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Feb 27 18:02:37 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000643.html">[Softdevice-cvs] softdevice utils.c,1.27,1.28 utils.h,1.18,1.19
+</A></li>
+        <LI>Next message: <A HREF="000645.html">[Softdevice-cvs] softdevice CHANGELOG, 1.346, 1.347 README, 1.30,	1.31 softdevice.c, 1.94, 1.95
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#644">[ date ]</a>
+              <a href="thread.html#644">[ thread ]</a>
+              <a href="subject.html#644">[ subject ]</a>
+              <a href="author.html#644">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv16774
+
+Modified Files:
+	mpeg2decoder.c mpeg2decoder.h PicBuffer.h utils.c utils.h 
+	video.c video.h video-vidix.c 
+Log Message:
+uint64_t -&gt; int64_t for all PTS vars
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.87
+retrieving revision 1.88
+diff -C2 -d -r1.87 -r1.88
+*** mpeg2decoder.c	19 Feb 2009 20:27:58 -0000	1.87
+--- mpeg2decoder.c	27 Feb 2009 17:02:35 -0000	1.88
+***************
+*** 340,347 ****
+  /* ---------------------------------------------------------------------------
+   */
+! uint64_t cAudioStreamDecoder::GetPTS()
+  {
+    MPGDEB(&quot;pts %lld aDelay: %d &quot;,pts,audioOut-&gt;GetDelay());
+!   uint64_t PTS= pts - audioOut-&gt;GetDelay() + setupStore-&gt;avOffset*10;
+   return PTS;
+  };
+--- 340,347 ----
+  /* ---------------------------------------------------------------------------
+   */
+! int64_t cAudioStreamDecoder::GetPTS()
+  {
+    MPGDEB(&quot;pts %lld aDelay: %d &quot;,pts,audioOut-&gt;GetDelay());
+!   int64_t PTS= pts - audioOut-&gt;GetDelay() + setupStore-&gt;avOffset*10;
+   return PTS;
+  };
+***************
+*** 396,400 ****
+        {
+            int       delta_pts;
+!           uint64_t  PTS;
+  
+          // feed data for AC3 pass through to device
+--- 396,400 ----
+        {
+            int       delta_pts;
+!           int64_t   PTS;
+  
+          // feed data for AC3 pass through to device
+***************
+*** 521,525 ****
+        pkt-&gt;pts=AV_NOPTS_VALUE;
+      }
+!     uint64_t PTS= pts - audioOut-&gt;GetDelay() + setupStore-&gt;avOffset*10;
+  
+      MPGDEB(&quot;audio pts offset %lld\n&quot;,cClock::GetTime()-PTS);
+--- 521,525 ----
+        pkt-&gt;pts=AV_NOPTS_VALUE;
+      }
+!     int64_t PTS= pts - audioOut-&gt;GetDelay() + setupStore-&gt;avOffset*10;
+  
+      MPGDEB(&quot;audio pts offset %lld\n&quot;,cClock::GetTime()-PTS);
+***************
+*** 672,676 ****
+  };
+  
+! uint64_t cVideoStreamDecoder::GetPTS() {
+    return pts;
+  // Was pts of next frame reduced by time to display next frame.
+--- 672,676 ----
+  };
+  
+! int64_t cVideoStreamDecoder::GetPTS() {
+    return pts;
+  // Was pts of next frame reduced by time to display next frame.
+***************
+*** 941,945 ****
+    // measure the A-V offset
+    // the A-V syncing code is partly based on MPlayer...
+!   uint64_t aPTS = clock-&gt;GetPTS();
+    // update video pts
+    cClock::AdjustVideoPTS(pts);
+--- 941,945 ----
+    // measure the A-V offset
+    // the A-V syncing code is partly based on MPlayer...
+!   int64_t aPTS = clock-&gt;GetPTS();
+    // update video pts
+    cClock::AdjustVideoPTS(pts);
+
+Index: mpeg2decoder.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.h,v
+retrieving revision 1.46
+retrieving revision 1.47
+diff -C2 -d -r1.46 -r1.47
+*** mpeg2decoder.h	19 Feb 2009 20:27:58 -0000	1.46
+--- mpeg2decoder.h	27 Feb 2009 17:02:35 -0000	1.47
+***************
+*** 183,187 ****
+      bool              initCodec(void);
+      void              resetCodec(void);
+!     virtual uint64_t  GetPTS()  {return pts;};
+  
+      cStreamDecoder(AVCodecContext * Context, bool packetMode);
+--- 183,187 ----
+      bool              initCodec(void);
+      void              resetCodec(void);
+!     virtual int64_t  GetPTS()  {return pts;};
+  
+      cStreamDecoder(AVCodecContext * Context, bool packetMode);
+***************
+*** 215,219 ****
+      inline void SetAudioMode(int AudioMode)
+        { audioMode=AudioMode; };
+!     virtual uint64_t GetPTS();
+  };
+  
+--- 215,219 ----
+      inline void SetAudioMode(int AudioMode)
+        { audioMode=AudioMode; };
+!     virtual int64_t GetPTS();
+  };
+  
+***************
+*** 266,270 ****
+      virtual int DecodePacket(AVPacket *pkt);
+      virtual void TrickSpeed(int Speed);
+!     virtual uint64_t GetPTS();
+  };
+  
+--- 266,270 ----
+      virtual int DecodePacket(AVPacket *pkt);
+      virtual void TrickSpeed(int Speed);
+!     virtual int64_t GetPTS();
+  };
+  
+
+Index: PicBuffer.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/PicBuffer.h,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -C2 -d -r1.10 -r1.11
+*** PicBuffer.h	20 Jul 2008 16:41:01 -0000	1.10
+--- PicBuffer.h	27 Feb 2009 17:02:35 -0000	1.11
+***************
+*** 50,54 ****
+      int dtg_active_format;
+      float aspect_ratio;
+!     uint64_t pts;
+      bool interlaced_frame;
+      int  top_field_first;
+--- 50,54 ----
+      int dtg_active_format;
+      float aspect_ratio;
+!     int64_t pts;
+      bool interlaced_frame;
+      int  top_field_first;
+
+Index: utils.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/utils.c,v
+retrieving revision 1.28
+retrieving revision 1.29
+diff -C2 -d -r1.28 -r1.29
+*** utils.c	27 Feb 2009 16:50:55 -0000	1.28
+--- utils.c	27 Feb 2009 17:02:35 -0000	1.29
+***************
+*** 958,962 ****
+  }
+  
+! uint64_t getTimeMilis(void) {
+      struct timeval tv;
+      gettimeofday(&amp;tv,NULL);
+--- 958,962 ----
+  }
+  
+! int64_t getTimeMilis(void) {
+      struct timeval tv;
+      gettimeofday(&amp;tv,NULL);
+
+Index: utils.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/utils.h,v
+retrieving revision 1.19
+retrieving revision 1.20
+diff -C2 -d -r1.19 -r1.20
+*** utils.h	27 Feb 2009 16:50:55 -0000	1.19
+--- utils.h	27 Feb 2009 17:02:35 -0000	1.20
+***************
+*** 130,134 ****
+     // performes alpha blending in software
+  
+! uint64_t  getTimeMilis(void);
+  char      *getFBName(void);
+  bool  CatchRemoteKey(const char *remoteName, uint64_t key,
+--- 130,134 ----
+     // performes alpha blending in software
+  
+! int64_t   getTimeMilis(void);
+  char      *getFBName(void);
+  bool  CatchRemoteKey(const char *remoteName, uint64_t key,
+
+Index: video.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.c,v
+retrieving revision 1.78
+retrieving revision 1.79
+diff -C2 -d -r1.78 -r1.79
+*** video.c	19 Feb 2009 20:27:58 -0000	1.78
+--- video.c	27 Feb 2009 17:02:35 -0000	1.79
+***************
+*** 602,606 ****
+  /* ---------------------------------------------------------------------------
+   */
+! void cVideoOut::EvaluateDelay(uint64_t aPTS, uint64_t pts, int frametime)
+  {
+      int   offset,
+--- 602,606 ----
+  /* ---------------------------------------------------------------------------
+   */
+! void cVideoOut::EvaluateDelay(int64_t aPTS, int64_t pts, int frametime)
+  {
+      int   offset,
+
+Index: video.h
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video.h,v
+retrieving revision 1.57
+retrieving revision 1.58
+diff -C2 -d -r1.57 -r1.58
+*** video.h	19 Feb 2009 20:27:58 -0000	1.57
+--- video.h	27 Feb 2009 17:02:35 -0000	1.58
+***************
+*** 169,173 ****
+                                   sPicBuffer *pic);
+      virtual void DrawStill_420pl(sPicBuffer *buf);
+!     virtual void EvaluateDelay(uint64_t aPTS, uint64_t pts, int frametime);
+      virtual void ResetDelay(void);
+      virtual bool Initialize(void) {videoInitialized = true; return 1;};
+--- 169,173 ----
+                                   sPicBuffer *pic);
+      virtual void DrawStill_420pl(sPicBuffer *buf);
+!     virtual void EvaluateDelay(int64_t aPTS, int64_t pts, int frametime);
+      virtual void ResetDelay(void);
+      virtual bool Initialize(void) {videoInitialized = true; return 1;};
+
+Index: video-vidix.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-vidix.c,v
+retrieving revision 1.27
+retrieving revision 1.28
+diff -C2 -d -r1.27 -r1.28
+*** video-vidix.c	10 May 2007 21:57:26 -0000	1.27
+--- video-vidix.c	27 Feb 2009 17:02:35 -0000	1.28
+***************
+*** 18,22 ****
+  
+  #ifdef TIMINGS
+! uint64_t startTime;
+  #define START startTime=getTimeMilis()
+  #define TIMINGS(out...)  {printf(&quot;time %d: &quot;,getTimeMilis()-startTime);printf(out);}
+--- 18,22 ----
+  
+  #ifdef TIMINGS
+! int64_t startTime;
+  #define START startTime=getTimeMilis()
+  #define TIMINGS(out...)  {printf(&quot;time %d: &quot;,getTimeMilis()-startTime);printf(out);}
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000643.html">[Softdevice-cvs] softdevice utils.c,1.27,1.28 utils.h,1.18,1.19
+</A></li>
+	<LI>Next message: <A HREF="000645.html">[Softdevice-cvs] softdevice CHANGELOG, 1.346, 1.347 README, 1.30,	1.31 softdevice.c, 1.94, 1.95
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#644">[ date ]</a>
+              <a href="thread.html#644">[ thread ]</a>
+              <a href="subject.html#644">[ subject ]</a>
+              <a href="author.html#644">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

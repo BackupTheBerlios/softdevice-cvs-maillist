@@ -1,0 +1,125 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice mpeg2decoder.c,1.36,1.37
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20mpeg2decoder.c%2C1.36%2C1.37&In-Reply-To=%3C200505211106.j4LB62m17004%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000123.html">
+   <LINK REL="Next"  HREF="000125.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice mpeg2decoder.c,1.36,1.37</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20mpeg2decoder.c%2C1.36%2C1.37&In-Reply-To=%3C200505211106.j4LB62m17004%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice mpeg2decoder.c,1.36,1.37">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat May 21 13:06:02 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000123.html">[Softdevice-cvs] softdevice softdevice.c,1.31,1.32
+</A></li>
+        <LI>Next message: <A HREF="000125.html">[Softdevice-cvs] softplay PlayList.c,1.3,1.4 PlayList.h,1.3,1.4 SoftPlayer.c,1.7,1.8 HISTORY,1.1.1.1,1.2 README,1.1.1.1,1.2
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#124">[ date ]</a>
+              <a href="thread.html#124">[ thread ]</a>
+              <a href="subject.html#124">[ subject ]</a>
+              <a href="author.html#124">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv23521
+
+Modified Files:
+	mpeg2decoder.c 
+Log Message:
+- fix possible segfault if codec in not initialized
+- fix default_frametime calculation for ffmpeg cvs version
+
+
+
+Index: mpeg2decoder.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/mpeg2decoder.c,v
+retrieving revision 1.36
+retrieving revision 1.37
+diff -C2 -d -r1.36 -r1.37
+*** mpeg2decoder.c	20 May 2005 21:38:47 -0000	1.36
+--- mpeg2decoder.c	21 May 2005 11:05:59 -0000	1.37
+***************
+*** 186,190 ****
+    CMDDEB(&quot;cStreamDecoder clear\n&quot;);
+    mutex.Lock();
+!   avcodec_flush_buffers(context);
+    PacketQueue.Clear();
+    mutex.Unlock();
+--- 186,191 ----
+    CMDDEB(&quot;cStreamDecoder clear\n&quot;);
+    mutex.Lock();
+!   if (codec)
+!           avcodec_flush_buffers(context);
+    PacketQueue.Clear();
+    mutex.Unlock();
+***************
+*** 472,484 ****
+           lastPTS=pkt-&gt;pts;
+  	 lastDuration=pkt-&gt;duration;
+! 	 if (lastDuration)
+! 	 	default_frametime=lastDuration/1000;
+!          /*{
+! 	 	if (context-&gt;time_base.num)
+! 	 		default_frametime=lastDuration*context-&gt;time_base.num*
+!                                         1000/context-&gt;time_base.den;
+! 		else default_frametime=lastDuration;
+! 	 };*/
+! 		
+      };
+  
+--- 473,486 ----
+           lastPTS=pkt-&gt;pts;
+  	 lastDuration=pkt-&gt;duration;
+!          
+!          if (lastDuration) {
+! #if LIBAVCODEC_BUILD &gt; 4753
+!                  default_frametime=context-&gt;time_base.num*
+!                          1000/context-&gt;time_base.den;
+! #else
+!                  default_frametime=lastDuration/1000;		
+! #endif
+!                  MPGDEB(&quot;Set default_frametime to %d\n&quot;,default_frametime);
+!          };
+      };
+  
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000123.html">[Softdevice-cvs] softdevice softdevice.c,1.31,1.32
+</A></li>
+	<LI>Next message: <A HREF="000125.html">[Softdevice-cvs] softplay PlayList.c,1.3,1.4 PlayList.h,1.3,1.4 SoftPlayer.c,1.7,1.8 HISTORY,1.1.1.1,1.2 README,1.1.1.1,1.2
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#124">[ date ]</a>
+              <a href="thread.html#124">[ thread ]</a>
+              <a href="subject.html#124">[ subject ]</a>
+              <a href="author.html#124">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

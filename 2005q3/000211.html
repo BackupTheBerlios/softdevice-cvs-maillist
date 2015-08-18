@@ -1,0 +1,163 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice audio.c,1.20,1.21
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20audio.c%2C1.20%2C1.21&In-Reply-To=%3C200509161613.j8GGDK116064%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000210.html">
+   <LINK REL="Next"  HREF="000212.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice audio.c,1.20,1.21</H1>
+    <B>wachm</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20audio.c%2C1.20%2C1.21&In-Reply-To=%3C200509161613.j8GGDK116064%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice audio.c,1.20,1.21">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Sep 16 18:13:20 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000210.html">[Softdevice-cvs] softdevice CHANGELOG,1.108,1.109 video.c,1.30,1.31 video.h,1.21,1.22
+</A></li>
+        <LI>Next message: <A HREF="000212.html">[Softdevice-cvs] softdevice CHANGELOG,1.109,1.110
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#211">[ date ]</a>
+              <a href="thread.html#211">[ thread ]</a>
+              <a href="subject.html#211">[ subject ]</a>
+              <a href="author.html#211">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv4393
+
+Modified Files:
+	audio.c 
+Log Message:
+- add audio debug
+- return 0 if pcm is not running
+
+
+
+Index: audio.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/audio.c,v
+retrieving revision 1.20
+retrieving revision 1.21
+diff -C2 -d -r1.20 -r1.21
+*** audio.c	6 Sep 2005 21:55:27 -0000	1.20
+--- audio.c	16 Sep 2005 16:13:18 -0000	1.21
+***************
+*** 16,23 ****
+--- 16,31 ----
+  #include &lt;alsa/asoundlib.h&gt;
+  #include &quot;audio.h&quot;
++ #include &quot;utils.h&quot;
+  
+  
+  #define PCM_FMT SND_PCM_FORMAT_S16_LE
+  
++ //#define AUDIODEB(out...) {printf(&quot;AUDIO[%04d]:&quot;,(int)(getTimeMilis() % 10000));printf(out);}
++ 
++ #ifndef AUDIODEB
++ #define AUDIODEB(out...)
++ #endif
++ 
++ 
+  cAudioOut::~cAudioOut() {
+  }
+***************
+*** 81,84 ****
+--- 89,93 ----
+      int err;
+      size_t size;
++     AUDIODEB(&quot;Write %p %d\n&quot;,Data,Length);
+  
+    if (ac3PassThrough)
+***************
+*** 90,104 ****
+--- 99,120 ----
+    while (size) {
+      while (paused) usleep(1000); // block
++     AUDIODEB(&quot;pcm_mmap_writei  handle %p Data %p size %d\n&quot;,handle,Data,size);
+      err = snd_pcm_mmap_writei(handle,Data, size);
++     AUDIODEB(&quot;pcm_mmap_writeei return value %d Data %p size %d \n&quot;,
++                    err,Data,size);
+      if (err == -EAGAIN || (err &gt;= 0 &amp;&amp; (size_t)err &lt; size)) {
++       AUDIODEB(&quot;wait \n&quot;);
+        snd_pcm_wait(handle, 1000);
+      } else if (err == -EPIPE) {
++       AUDIODEB(&quot;Xrun \n&quot;);
+        Xrun();
+        dsyslog(&quot;[softdevice-audio]: xrun&quot;);
+      } else if (err == -ESTRPIPE) {
+        //suspend();
++       AUDIODEB(&quot;Suspend \n&quot;);
+        dsyslog(&quot;[softdevice-audio]: Suspend&quot;);
+      } else if (err == -EINTR) {
+        dsyslog (&quot;[softdevice-audio]: EINTR&quot;);
++       AUDIODEB(&quot;EINTR \n&quot;);
+        return;
+      } else if (err &lt; 0) {
+***************
+*** 113,116 ****
+--- 129,133 ----
+      };
+    }
++   AUDIODEB(&quot;Write end\n&quot;);
+  }
+  
+***************
+*** 206,213 ****
+--- 223,241 ----
+  
+    handleMutex.Lock();
++   if (!handle) {
++           handleMutex.Unlock();
++           return 0;
++   };
++   
++   if ( snd_pcm_state(handle) != SND_PCM_STATE_RUNNING ) {
++           handleMutex.Unlock();
++           return 0;
++   };
++           
+    if (!snd_pcm_delay(handle, &amp;r) &amp;&amp;
+        currContext.samplerate) {
+      // successfully got delay
+      res = (long) r * 10000 / currContext.samplerate;
++     AUDIODEB(&quot;GetDelay %d\n&quot;,res);
+    }
+    handleMutex.Unlock();
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000210.html">[Softdevice-cvs] softdevice CHANGELOG,1.108,1.109 video.c,1.30,1.31 video.h,1.21,1.22
+</A></li>
+	<LI>Next message: <A HREF="000212.html">[Softdevice-cvs] softdevice CHANGELOG,1.109,1.110
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#211">[ date ]</a>
+              <a href="thread.html#211">[ thread ]</a>
+              <a href="subject.html#211">[ subject ]</a>
+              <a href="author.html#211">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

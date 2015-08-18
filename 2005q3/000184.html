@@ -1,0 +1,125 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice video-dfb.c,1.37,1.38
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-dfb.c%2C1.37%2C1.38&In-Reply-To=%3C200508101731.j7AHVNf00812%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000183.html">
+   <LINK REL="Next"  HREF="000185.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice video-dfb.c,1.37,1.38</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20video-dfb.c%2C1.37%2C1.38&In-Reply-To=%3C200508101731.j7AHVNf00812%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice video-dfb.c,1.37,1.38">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Wed Aug 10 19:31:23 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000183.html">[Softdevice-cvs] softdevice CHANGELOG,1.100,1.101 softdevice.c,1.38,1.39 video-dfb.c,1.36,1.37
+</A></li>
+        <LI>Next message: <A HREF="000185.html">[Softdevice-cvs] softplay PlayList.c,1.8,1.9 PlayList.h,1.6,1.7 softplay.c,1.7,1.8 softplay.h,1.2,1.3
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#184">[ date ]</a>
+              <a href="thread.html#184">[ thread ]</a>
+              <a href="subject.html#184">[ subject ]</a>
+              <a href="author.html#184">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv2234
+
+Modified Files:
+	video-dfb.c 
+Log Message:
+remaing try{}catch{} by Marko M&#228;kel&#228;
+
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.37
+retrieving revision 1.38
+diff -C2 -d -r1.37 -r1.38
+*** video-dfb.c	8 Aug 2005 18:43:41 -0000	1.37
+--- video-dfb.c	10 Aug 2005 17:31:18 -0000	1.38
+***************
+*** 1002,1018 ****
+    tmpSurface = (useStretchBlit) ? osdSurface : scrSurface;
+  
+!   tmpSurface-&gt;Clear(0,0,0,clearAlpha);
+!   tmpSurface-&gt;Lock(DSLF_WRITE, (void **)&amp;dst, &amp;pitch) ;
+!   for (int i = 0; i &lt; MAXNUMWINDOWS; i++)
+    {
+!     if (layer[i] &amp;&amp; layer[i]-&gt;visible)
+!       layer[i]-&gt;Draw(dst, pitch, NULL);
+!   }
+!   tmpSurface-&gt;Unlock();
+  
+!   if (useStretchBlit)
+!     OSDpresent = true;
+  
+!   tmpSurface-&gt;Flip();
+  }
+  #endif
+--- 1002,1027 ----
+    tmpSurface = (useStretchBlit) ? osdSurface : scrSurface;
+  
+!   try
+    {
+!     tmpSurface-&gt;Clear(0,0,0,clearAlpha);
+!     tmpSurface-&gt;Lock(DSLF_WRITE, (void **)&amp;dst, &amp;pitch) ;
+!     for (int i = 0; i &lt; MAXNUMWINDOWS; i++)
+!     {
+!       if (layer[i] &amp;&amp; layer[i]-&gt;visible)
+!         layer[i]-&gt;Draw(dst, pitch, NULL);
+!     }
+!     tmpSurface-&gt;Unlock();
+  
+!     if (useStretchBlit)
+!       OSDpresent = true;
+  
+!     tmpSurface-&gt;Flip();
+!   }
+!   catch (DFBException *ex)
+!   {
+!     fprintf (stderr,&quot;[dfb] Refresh: action=%s, result=%s\n&quot;,
+!              ex-&gt;GetAction(), ex-&gt;GetResult());
+!     delete ex;
+!   }
+  }
+  #endif
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000183.html">[Softdevice-cvs] softdevice CHANGELOG,1.100,1.101 softdevice.c,1.38,1.39 video-dfb.c,1.36,1.37
+</A></li>
+	<LI>Next message: <A HREF="000185.html">[Softdevice-cvs] softplay PlayList.c,1.8,1.9 PlayList.h,1.6,1.7 softplay.c,1.7,1.8 softplay.h,1.2,1.3
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#184">[ date ]</a>
+              <a href="thread.html#184">[ thread ]</a>
+              <a href="subject.html#184">[ subject ]</a>
+              <a href="author.html#184">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

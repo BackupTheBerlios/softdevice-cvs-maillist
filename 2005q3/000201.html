@@ -1,0 +1,376 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice Makefile,1.14,1.15
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2005q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20Makefile%2C1.14%2C1.15&In-Reply-To=%3C200509101952.j8AJqO119536%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000200.html">
+   <LINK REL="Next"  HREF="000202.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice Makefile,1.14,1.15</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20Makefile%2C1.14%2C1.15&In-Reply-To=%3C200509101952.j8AJqO119536%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice Makefile,1.14,1.15">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sat Sep 10 21:52:24 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000200.html">[Softdevice-cvs] softdevice mpeg2decoder.h,1.31,1.32 softdevice.c,1.40,1.41 video.h,1.19,1.20 xscreensaver.h,1.2,1.3
+</A></li>
+        <LI>Next message: <A HREF="000202.html">[Softdevice-cvs] softdevice configure,NONE,1.1
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#201">[ date ]</a>
+              <a href="thread.html#201">[ thread ]</a>
+              <a href="subject.html#201">[ subject ]</a>
+              <a href="author.html#201">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv11068
+
+Modified Files:
+	Makefile 
+Log Message:
+changes for configure
+
+Index: Makefile
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/Makefile,v
+retrieving revision 1.14
+retrieving revision 1.15
+diff -C2 -d -r1.14 -r1.15
+*** Makefile	15 Jul 2005 20:42:16 -0000	1.14
+--- Makefile	10 Sep 2005 19:52:22 -0000	1.15
+***************
+*** 16,19 ****
+--- 16,42 ----
+  ### The C++ compiler and options:
+  
++ # -----------------------------------------------------------------------------
++ #
++ #DVBDIR 	   = ../../../../dvb-kernel
++ #DVBDIR 	   = ../../../../DVB
++ 
++ DVBDIR 	   = ../../../../DVB
++ 
++ VDRDIR     = ../../..
++ LIBDIR     = ../../lib
++ TMPDIR     = /tmp
++ 
++ -include config.mak
++ 
++ ifndef WITH_CONFIGURE
++ 
++ # -----------------------------------------------------------------------------
++ # framebuffer device name
++ #
++ #FBDEV = /dev/fb/0
++ #FBDEV = /dev/fb0
++ 
++ FBDEV = /dev/fb0
++ 
+  # uncomment ONE of these lines if you want to enable the support
+  
+***************
+*** 59,70 ****
+  
+  # -----------------------------------------------------------------------------
+- # framebuffer device name
+- #
+- #FBDEV = /dev/fb/0
+- #FBDEV = /dev/fb0
+- 
+- FBDEV = /dev/fb0
+- 
+- # -----------------------------------------------------------------------------
+  # VIDIX specific definitions
+  # installation directory
+--- 82,85 ----
+***************
+*** 78,91 ****
+  # Set up these paths to your enviroment!
+  #
+! #LIBAVCODEC=/opt/ffmpeg
+! #LIBAVCODEC = ../../../../ffmpeg/libavcodec
+  #
+  # If you installed ffmpeg's lib (make installlib)
+! LIBAVCODEC=/usr/local/include/ffmpeg/
+! #LIBAVCODEC= /home/extra/src/video/ffmpeg-0.4.8/libavcodec
+  #
+  #
+  # DON'T touch this:
+! FFMPEGLIBS = -lavcodec -lavformat
+  #
+  # -----------------------------------------------------------------------------
+--- 93,106 ----
+  # Set up these paths to your enviroment!
+  #
+! #FFMPEGCFLAGS=-I/opt/ffmpeg
+! #FFMPEGCFLAGS=-I../../../../ffmpeg/libavcodec
+  #
+  # If you installed ffmpeg's lib (make installlib)
+! FFMPEGCFLAGS=-I/usr/local/include/ffmpeg/
+! #FFMPEGCFLAGS=-I/home/extra/src/video/ffmpeg-0.4.8/libavcodec
+  #
+  #
+  # DON'T touch this:
+! FFMPEGLIBS = -lavcodec -lavformat -lz
+  #
+  # -----------------------------------------------------------------------------
+***************
+*** 100,114 ****
+  #FFMPEGLIBS += -lvorbisenc -lvorbis
+  
+- # -----------------------------------------------------------------------------
+- #
+- #DVBDIR 	   = ../../../../dvb-kernel
+- #DVBDIR 	   = ../../../../DVB
+- 
+- DVBDIR 	   = ../../../../DVB
+- 
+- VDRDIR     = ../../..
+- LIBDIR     = ../../lib
+- TMPDIR     = /tmp
+- 
+  #tuning options
+  
+--- 115,118 ----
+***************
+*** 119,127 ****
+  DEFINES	   += -DUSE_MMX2
+  
+  
+  ### normally you shoudn't have to touch something below this line
+  
+  CXX      ?= g++
+! CXXFLAGS ?= -O2 -g -Wall -Woverloaded-virtual -L$(LIBAVCODEC)
+  
+  ### The directory environment:
+--- 123,181 ----
+  DEFINES	   += -DUSE_MMX2
+  
++ # #############################################################################
++ # moved some defines to this section, as they are generated by
++ # configure too.
++ #
++ 
++ ifdef USE_SUBPLUGINS
++   DEFINES += -DUSE_SUBPLUGINS
++ endif
++ 
++ ifdef DFB_SUPPORT
++   DFB_LIBS  = -L/usr/local/lib -ldfb++
++   DFB_CFLAGS = -I/usr/local/include/dfb++ -I/usr/local/include/directfb
++   DEFINES  += -DDFB_SUPPORT
++ endif
++ 
++ ifdef XV_SUPPORT
++   XV_LIBS   = -L/usr/X11R6/lib -lXi -lXext -lX11 -lm -lXv
++   ifdef LIBXDPMS_SUPPORT
++     DEFINES += -DLIBXDPMS_SUPPORT
++   endif
++   DEFINES += -DXV_SUPPORT
++ endif
++ 
++ ifdef FB_SUPPORT
++   DEFINES += -DFB_SUPPORT -DFBDEV=\&quot;$(FBDEV)\&quot;
++ endif
++ 
++ ifdef PP_LIBAVCODEC
++   DEFINES     += -DPP_LIBAVCODEC
++   FFMPEGLIBS  += -lpostproc
++ endif
++ 
++ ifdef SUSPEND_BY_KEY
++   DEFINES     += -DSUSPEND_BY_KEY
++ endif
++ 
++ ifdef VIDIX_SUPPORT
++   VIDIX_LIBS  = -L$(VIDIX_DIR)/lib -lvidix
++   VIDIX_CFLAGS = -I$(VIDIX_DIR)/include/vidix
++   DEFINES     += -DVIDIX_SUPPORT -DVIDIX_DIR=\&quot;$(VIDIX_DIR)/lib/vidix/\&quot; -DFBDEV=\&quot;$(FBDEV)\&quot;
++ endif
++ 
++ # #############################################################################
++ # end of section without configure
++ #
++ else
++ 
++   DEFINES += -DHAVE_CONFIG
++ 
++ endif  # WITH_CONFIGURE
+  
+  ### normally you shoudn't have to touch something below this line
+  
+  CXX      ?= g++
+! CXXFLAGS ?= -O2 -g -Wall -Woverloaded-virtual
+  
+  ### The directory environment:
+***************
+*** 143,147 ****
+  ### Includes and Defines (add further entries here):
+  
+! INCLUDES += -I$(VDRDIR)/include -I$(DVBDIR)/include -I$(LIBAVCODEC)
+  
+  DEFINES += -DPLUGIN_NAME_I18N='&quot;$(PLUGIN)&quot;' -D_GNU_SOURCE
+--- 197,201 ----
+  ### Includes and Defines (add further entries here):
+  
+! INCLUDES += -I$(VDRDIR)/include -I$(DVBDIR)/include $(FFMPEGCFLAGS)
+  
+  DEFINES += -DPLUGIN_NAME_I18N='&quot;$(PLUGIN)&quot;' -D_GNU_SOURCE
+***************
+*** 150,159 ****
+  ### The object files (add further files here):
+  
+- ifdef USE_SUBPLUGINS
+-   DEFINES += -DUSE_SUBPLUGINS
+- endif
+- 
+  TARGETS = libvdr-$(PLUGIN).so
+! LIBS = $(FFMPEGLIBS) -lasound -lz
+  OBJS = $(PLUGIN).o utils.o i18n.o video.o mpeg2decoder.o audio.o video-dummy.o setup-softdevice.o sync-timer.o
+  ALL_OBJS = $(OBJS)
+--- 204,209 ----
+  ### The object files (add further files here):
+  
+  TARGETS = libvdr-$(PLUGIN).so
+! LIBS = $(FFMPEGLIBS) -lasound
+  OBJS = $(PLUGIN).o utils.o i18n.o video.o mpeg2decoder.o audio.o video-dummy.o setup-softdevice.o sync-timer.o
+  ALL_OBJS = $(OBJS)
+***************
+*** 161,165 ****
+  ifdef DFB_SUPPORT
+    ifdef USE_SUBPLUGINS
+-     DFB_LIBS  = -L/usr/local/lib -ldfb++
+      DFB_OBJS  = utils.o video.o video-dfb.o
+      ALL_OBJS += $(DFB_OBJS)
+--- 211,214 ----
+***************
+*** 167,174 ****
+    else
+      OBJS     += video-dfb.o
+!     LIBS     += -L/usr/local/lib -ldfb++
+    endif
+!   DEFINES  += -DDFB_SUPPORT
+!   INCLUDES += -I/usr/local/include/dfb++ -I/usr/local/include/directfb
+  endif
+  
+--- 216,222 ----
+    else
+      OBJS     += video-dfb.o
+!     LIBS     += $(DFB_LIBS)
+    endif
+!   INCLUDES += $(DFB_CFLAGS)
+  endif
+  
+***************
+*** 182,191 ****
+      OBJS 	+= video-fb.o
+    endif
+-   DEFINES += -DFB_SUPPORT -DFBDEV=\&quot;$(FBDEV)\&quot;
+  endif
+  
+  ifdef XV_SUPPORT
+    ifdef USE_SUBPLUGINS
+-     XV_LIBS   = -L/usr/X11R6/lib -lXi -lXext -lX11 -lm -lXv
+      XV_OBJS   = utils.o video.o video-xv.o xscreensaver.o
+      ALL_OBJS  += $(XV_OBJS)
+--- 230,237 ----
+***************
+*** 193,202 ****
+    else
+      OBJS 	+= video-xv.o xscreensaver.o
+!     LIBS 	+= -L/usr/X11R6/lib -lXi -lXext -lX11 -lm -lXv
+!   endif
+!   ifdef LIBXDPMS_SUPPORT
+!     DEFINES += -DLIBXDPMS_SUPPORT
+    endif
+-   DEFINES += -DXV_SUPPORT
+  endif
+  
+--- 239,244 ----
+    else
+      OBJS 	+= video-xv.o xscreensaver.o
+!     LIBS 	+= $(XV_LIBS)
+    endif
+  endif
+  
+***************
+*** 204,208 ****
+    ifdef USE_SUBPLUGINS
+      VIDIX_OBJS  = utils.o video.o video-vidix.o
+-     VIDIX_LIBS  = -lvidix
+      ALL_OBJS    += $(VIDIX_OBJS)
+      TARGETS     += libvdr-$(PLUGIN)-vidix.so
+--- 246,249 ----
+***************
+*** 211,226 ****
+      LIBS        += -lvidix
+    endif
+!   CXXFLAGS    += -L$(VIDIX_DIR)/lib
+!   INCLUDES    += -I$(VIDIX_DIR)/include/vidix
+!   DEFINES     += -DVIDIX_SUPPORT -DVIDIX_DIR=\&quot;$(VIDIX_DIR)/lib/vidix/\&quot; -DFBDEV=\&quot;$(FBDEV)\&quot;
+! endif
+! 
+! ifdef PP_LIBAVCODEC
+!   DEFINES     += -DPP_LIBAVCODEC
+!   FFMPEGLIBS  += -lpostproc
+! endif
+! 
+! ifdef SUSPEND_BY_KEY
+!   DEFINES     += -DSUSPEND_BY_KEY
+  endif
+  
+--- 252,257 ----
+      LIBS        += -lvidix
+    endif
+!   LIBS        += $(VIDIX_LIBS)
+!   INCLUDES    += $(VIDIX_CFLAGS)
+  endif
+  
+***************
+*** 275,278 ****
+--- 306,312 ----
+  	@-rm -rf $(TMPDIR)/$(ARCHIVE)
+  	@echo Distribution package created as $(PACKAGE).tgz
++ 
++ dist-clean: clean
++ 	@-rm -f config.h config.mak
+  
+  clean:
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000200.html">[Softdevice-cvs] softdevice mpeg2decoder.h,1.31,1.32 softdevice.c,1.40,1.41 video.h,1.19,1.20 xscreensaver.h,1.2,1.3
+</A></li>
+	<LI>Next message: <A HREF="000202.html">[Softdevice-cvs] softdevice configure,NONE,1.1
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#201">[ date ]</a>
+              <a href="thread.html#201">[ thread ]</a>
+              <a href="subject.html#201">[ subject ]</a>
+              <a href="author.html#201">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

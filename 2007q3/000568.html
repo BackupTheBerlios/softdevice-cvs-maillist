@@ -1,0 +1,107 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.314,1.315
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q3/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.314%2C1.315&In-Reply-To=%3C20070711201746.AB592F0E50%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000567.html">
+   <LINK REL="Next"  HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q3/000569.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.314,1.315</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.314%2C1.315&In-Reply-To=%3C20070711201746.AB592F0E50%40mail.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.314,1.315">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Wed Jul 11 22:17:46 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000567.html">[Softdevice-cvs] softdevice SoftOsd.c, 1.29, 1.30 video.h, 1.54,	1.55 video-xv.c, 1.72, 1.73 video-xv.h, 1.28, 1.29
+</A></li>
+        <LI>Next message: <A HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q3/000569.html">[Softdevice-cvs] softdevice video-dfb.c, 1.82, 1.83 video.c, 1.75,	1.76
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#568">[ date ]</a>
+              <a href="thread.html#568">[ thread ]</a>
+              <a href="subject.html#568">[ subject ]</a>
+              <a href="author.html#568">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv15801
+
+Modified Files:
+	CHANGELOG 
+Log Message:
+document updates
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.314
+retrieving revision 1.315
+diff -C2 -d -r1.314 -r1.315
+*** CHANGELOG	10 May 2007 22:03:03 -0000	1.314
+--- CHANGELOG	11 Jul 2007 20:17:38 -0000	1.315
+***************
+*** 1,3 ****
+--- 1,13 ----
+  Changelog
++ 2007-07-11:
++    - compile fix for: ./configure --disable-shm
++    - applied patch from Matthias Schwarzott for compile issues with
++      newer ffmpeg versions
++    - applied patch from Artur Skawina for memory alignment error
++    - video-xv: fix OSD parially not drawn or cleared in pseudo mode:
++                - a small stripe remains on the right side, when video changed
++                  from 16:9 to 4:3
++                - only modified OSD was shown when deinterlacer was toggled
++                  on/off.
+  2007-05-10:
+     - use libswscale if available.
+***************
+*** 8,12 ****
+     - remove softlog from setupStore. Pointers aren't valid in a shared memory
+       block.
+!    - remove private variable setupStore from audio out methods. They can 
+       access the global variable.
+     - move setupStore into a shared memory block. This allows ShmClient to
+--- 18,22 ----
+     - remove softlog from setupStore. Pointers aren't valid in a shared memory
+       block.
+!    - remove private variable setupStore from audio out methods. They can
+       access the global variable.
+     - move setupStore into a shared memory block. This allows ShmClient to
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000567.html">[Softdevice-cvs] softdevice SoftOsd.c, 1.29, 1.30 video.h, 1.54,	1.55 video-xv.c, 1.72, 1.73 video-xv.h, 1.28, 1.29
+</A></li>
+	<LI>Next message: <A HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2007q3/000569.html">[Softdevice-cvs] softdevice video-dfb.c, 1.82, 1.83 video.c, 1.75,	1.76
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#568">[ date ]</a>
+              <a href="thread.html#568">[ thread ]</a>
+              <a href="subject.html#568">[ subject ]</a>
+              <a href="author.html#568">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>

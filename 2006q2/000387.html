@@ -1,0 +1,142 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Softdevice-cvs] softdevice CHANGELOG,1.202,1.203 video-dfb.c,1.66,1.67
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/softdevice-cvs/2006q2/index.html" >
+   <LINK REL="made" HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.202%2C1.203%20video-dfb.c%2C1.66%2C1.67&In-Reply-To=%3C200606211707.k5LH7Pb28793%40bat.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000386.html">
+   <LINK REL="Next"  HREF="000388.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Softdevice-cvs] softdevice CHANGELOG,1.202,1.203 video-dfb.c,1.66,1.67</H1>
+    <B>lucke</B> 
+    <A HREF="mailto:softdevice-cvs%40lists.berlios.de?Subject=Re%3A%20%5BSoftdevice-cvs%5D%20softdevice%20CHANGELOG%2C1.202%2C1.203%20video-dfb.c%2C1.66%2C1.67&In-Reply-To=%3C200606211707.k5LH7Pb28793%40bat.berlios.de%3E"
+       TITLE="[Softdevice-cvs] softdevice CHANGELOG,1.202,1.203 video-dfb.c,1.66,1.67">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Wed Jun 21 19:07:25 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000386.html">[Softdevice-cvs] softdevice CHANGELOG,1.201,1.202 Makefile,1.31,1.32 configure,1.18,1.19
+</A></li>
+        <LI>Next message: <A HREF="000388.html">[Softdevice-cvs] softdevice CHANGELOG,1.203,1.204 setup-softdevice.h,1.31,1.32 setup-softdevice.c,1.44,1.45 setup-softdevice-menu.c,1.5,1.6 video-dfb.c,1.67,1.68
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#387">[ date ]</a>
+              <a href="thread.html#387">[ thread ]</a>
+              <a href="subject.html#387">[ subject ]</a>
+              <a href="author.html#387">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/softdevice/softdevice
+In directory sheep:/tmp/cvs-serv24850
+
+Modified Files:
+	CHANGELOG video-dfb.c 
+Log Message:
+video-dfb: changed pixel format for HW-decoding to I420. So accelerated and
+unaccelerated modes use the same pixel format.
+
+
+
+Index: CHANGELOG
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/CHANGELOG,v
+retrieving revision 1.202
+retrieving revision 1.203
+diff -C2 -d -r1.202 -r1.203
+*** CHANGELOG	18 Jun 2006 07:16:06 -0000	1.202
+--- CHANGELOG	21 Jun 2006 17:07:19 -0000	1.203
+***************
+*** 1,3 ****
+--- 1,6 ----
+  Changelog
++ 2006-06-21:
++    - video-dfb: changed pixel format for HW-decoding to I420. So accelerated and
++      unaccelerated modes use the same pixel format.
+  2006-06-18:
+     - ignore config.log on commit checks
+
+Index: video-dfb.c
+===================================================================
+RCS file: /cvsroot/softdevice/softdevice/video-dfb.c,v
+retrieving revision 1.66
+retrieving revision 1.67
+diff -C2 -d -r1.66 -r1.67
+*** video-dfb.c	17 Jun 2006 20:42:58 -0000	1.66
+--- video-dfb.c	21 Jun 2006 17:07:19 -0000	1.67
+***************
+*** 376,381 ****
+                // Need YV12 pixel format for blitting from harware buffer
+                // I420 == 0, YV12 == 1, YUY2 == 2
+!               //currentPixelFormat = setupStore-&gt;pixelFormat = 0;
+!               currentPixelFormat = setupStore-&gt;pixelFormat = 1;
+                setupStore-&gt;useStretchBlit = 0;
+                useStretchBlit = false;
+--- 376,381 ----
+                // Need YV12 pixel format for blitting from harware buffer
+                // I420 == 0, YV12 == 1, YUY2 == 2
+!               currentPixelFormat = setupStore-&gt;pixelFormat = 0;
+!               //currentPixelFormat = setupStore-&gt;pixelFormat = 1;
+                setupStore-&gt;useStretchBlit = 0;
+                useStretchBlit = false;
+***************
+*** 1549,1554 ****
+                  DSDESC_CAPS);
+    dsc.caps = DSCAPS_VIDEOONLY;
+!   //dsc.pixelformat = DSPF_I420;
+!   dsc.pixelformat = DSPF_YV12;
+    dsc.width = width;
+    dsc.height = height;
+--- 1549,1554 ----
+                  DSDESC_CAPS);
+    dsc.caps = DSCAPS_VIDEOONLY;
+!   dsc.pixelformat = DSPF_I420;
+!   //dsc.pixelformat = DSPF_YV12;
+    dsc.width = width;
+    dsc.height = height;
+***************
+*** 1609,1613 ****
+      v_offset = y_offset + (mpegfb_stride * height);
+      u_offset = v_offset + (mpegfb_stride &gt;&gt; 1) * (height &gt;&gt; 1);
+!     CLE266MPEGSetFrameBuffer(i,y_offset,v_offset,u_offset);
+    }
+    return true;
+--- 1609,1613 ----
+      v_offset = y_offset + (mpegfb_stride * height);
+      u_offset = v_offset + (mpegfb_stride &gt;&gt; 1) * (height &gt;&gt; 1);
+!     CLE266MPEGSetFrameBuffer(i,y_offset,u_offset,v_offset);
+    }
+    return true;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000386.html">[Softdevice-cvs] softdevice CHANGELOG,1.201,1.202 Makefile,1.31,1.32 configure,1.18,1.19
+</A></li>
+	<LI>Next message: <A HREF="000388.html">[Softdevice-cvs] softdevice CHANGELOG,1.203,1.204 setup-softdevice.h,1.31,1.32 setup-softdevice.c,1.44,1.45 setup-softdevice-menu.c,1.5,1.6 video-dfb.c,1.67,1.68
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#387">[ date ]</a>
+              <a href="thread.html#387">[ thread ]</a>
+              <a href="subject.html#387">[ subject ]</a>
+              <a href="author.html#387">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/softdevice-cvs">More information about the Softdevice-cvs
+mailing list</a><br>
+</body></html>
